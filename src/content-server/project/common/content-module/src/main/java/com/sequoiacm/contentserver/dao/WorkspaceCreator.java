@@ -126,7 +126,8 @@ public class WorkspaceCreator {
             dataLocationObj.put(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID, siteInfo.getId());
             try {
                 ScmLocation dataLocation = DatalocationFactory
-                        .createDataLocation(siteInfo.getDataUrl().getType(), dataLocationObj);
+                        .createDataLocation(siteInfo.getDataUrl().getType(), dataLocationObj,
+                                siteName);
                 if (dataLocation instanceof HdfsDataLocation) {
                     HdfsDataLocation hdfsDataLocation = (HdfsDataLocation) dataLocation;
                     BSONObject historyRec = createHdfsTableNameRec(wsName,

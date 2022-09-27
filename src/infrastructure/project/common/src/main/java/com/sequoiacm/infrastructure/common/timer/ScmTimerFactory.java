@@ -8,4 +8,8 @@ public class ScmTimerFactory {
     public static ScmTimer createScmTimer(String name) {
         return new ScmTimerThreadPoolImpl(name);
     }
+
+    public static ScmTimer createScmTimer(int corePoolSize) {
+        return new ScmTimerThreadPoolImpl(corePoolSize);
+    }
 }

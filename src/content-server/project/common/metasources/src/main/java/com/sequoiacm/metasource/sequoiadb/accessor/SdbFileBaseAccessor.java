@@ -91,6 +91,12 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
                     IndexName.HistoryFile.NAME_VERSION_UNION_IDX, indexDef, false, false);
 
+            indexDef = new BasicBSONObject();
+            indexDef.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
+            SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
+                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME,
+                    indexDef, false, false);
+
             BSONObject lowb = new BasicBSONObject();
             lowb.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, metaCLInfo.getLowMonth());
             BSONObject upperb = new BasicBSONObject();
@@ -159,6 +165,12 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
                     "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_INNER_CREATE_TIME, indexDef,
                     false, false);
+
+            indexDef = new BasicBSONObject();
+            indexDef.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
+            SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
+                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME,
+                    indexDef, false, false);
 
             BSONObject lowb = new BasicBSONObject();
             lowb.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, metaCLInfo.getLowMonth());

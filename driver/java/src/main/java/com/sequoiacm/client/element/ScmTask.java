@@ -2,6 +2,13 @@ package com.sequoiacm.client.element;
 
 import java.util.Date;
 
+import com.sequoiacm.client.common.ScmDataCheckLevel;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.ScmCursor;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.exception.ScmException;
@@ -16,15 +23,23 @@ public class ScmTask {
     private BSONObject content;
     private int serverId;
     private int progress;
+    private int scope;
     private Date stopTime;
     private long estimateCount;
     private long actualCount;
     private long successCount;
     private long failCount;
     private long maxExecTime;
+    private ScmTaskConfig taskConfig;
+    private BSONObject extraInfo;
+    private ScmWorkspace workspace;
+    private ScmSession session;
 
-    public ScmTask(BSONObject info) throws ScmException {
+    public ScmTask(BSONObject info, ScmWorkspace workspace, ScmSession session)
+            throws ScmException {
         basic = new ScmTaskBasicInfo(info);
+        this.workspace = workspace;
+        this.session = session;
 
         Object temp = null;
 
@@ -36,6 +51,11 @@ public class ScmTask {
         temp = info.get(FieldName.Task.FIELD_PROGRESS);
         if (null != temp) {
             progress = (Integer) temp;
+        }
+
+        temp = info.get(FieldName.Task.FIELD_SCOPE);
+        if (null != temp) {
+            scope = (Integer) temp;
         }
 
         temp = info.get(FieldName.Task.FIELD_CONTENT);
@@ -83,6 +103,121 @@ public class ScmTask {
         maxExecTime = BsonUtils.getNumberOrElse(info, FieldName.Task.FIELD_MAX_EXEC_TIME, 0)
                 .longValue();
 
+        temp = info.get(FieldName.Task.FIELD_EXTRA_INFO);
+        if (temp != null) {
+            extraInfo = (BSONObject) temp;
+        }
+
+        if (session != null) {
+            temp = info.get(FieldName.Task.FIELD_OPTION);
+            if (getType() == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE) {
+                taskConfig = createTransferTaskConfig((BSONObject) temp);
+            }
+            else if (getType() == CommonDefine.TaskType.SCM_TASK_CLEAN_FILE) {
+                taskConfig = createCleanTaskConfig((BSONObject) temp);
+            }
+            else if (getType() == CommonDefine.TaskType.SCM_TASK_MOVE_FILE) {
+                taskConfig = createMoveFileTaskConfig((BSONObject) temp);
+            }
+            else if (getType() == CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE) {
+                taskConfig = createSpaceRecyclingTaskConfig((BSONObject) temp);
+            }
+        }
+
+    }
+
+    private ScmTaskConfig createSpaceRecyclingTaskConfig(BSONObject option) throws ScmException {
+        ScmSpaceRecyclingTaskConfig spaceRecyclingTaskConfig = new ScmSpaceRecyclingTaskConfig();
+        spaceRecyclingTaskConfig.setMaxExecTime(getMaxExecTime());
+        spaceRecyclingTaskConfig
+                .setWorkspace(workspace != null ? workspace
+                        : ScmFactory.Workspace.getWorkspace(getWorkspaceName(), session));
+        spaceRecyclingTaskConfig.setRecycleScope(ScmSpaceRecycleScope.getScope(
+                BsonUtils.getStringChecked(option, FieldName.Task.FIELD_OPTION_RECYCLE_SCOPE)));
+        return spaceRecyclingTaskConfig;
+    }
+
+    private ScmTaskConfig createMoveFileTaskConfig(BSONObject option) throws ScmException {
+        ScmMoveTaskConfig moveTaskConfig = new ScmMoveTaskConfig();
+        moveTaskConfig.setWorkspace(ScmFactory.Workspace.getWorkspace(getWorkspaceName(), session));
+        moveTaskConfig.setCondition(getContent());
+        moveTaskConfig.setMaxExecTime(getMaxExecTime());
+        moveTaskConfig.setTargetSite(getSiteName(basic.getTargetSite()));
+        moveTaskConfig.setScope(ScmType.ScopeType.getScopeType(getScope()));
+        if (option != null) {
+            moveTaskConfig.setRecycleSpace(BsonUtils.getBooleanOrElse(option,
+                    FieldName.Task.FIELD_OPTION_IS_RECYCLE_SPACE, false));
+            moveTaskConfig.setQuickStart(BsonUtils.getBooleanOrElse(option,
+                    FieldName.Task.FIELD_OPTION_QUICK_START, false));
+            moveTaskConfig.setDataCheckLevel(ScmDataCheckLevel.getType(
+                    BsonUtils.getStringOrElse(option, FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                            ScmDataCheckLevel.WEEK.getName())));
+        }
+        return moveTaskConfig;
+    }
+
+    private ScmTaskConfig createTransferTaskConfig(BSONObject option) throws ScmException {
+        ScmTransferTaskConfig transferTaskConfig = new ScmTransferTaskConfig();
+        transferTaskConfig.setCondition(getContent());
+        transferTaskConfig.setScope(ScmType.ScopeType.getScopeType(getScope()));
+        transferTaskConfig.setTargetSite(getSiteName(basic.getTargetSite()));
+        transferTaskConfig
+                .setWorkspace(workspace != null ? workspace
+                        : ScmFactory.Workspace.getWorkspace(getWorkspaceName(), session));
+        transferTaskConfig.setMaxExecTime(getMaxExecTime());
+        if (option != null) {
+            transferTaskConfig.setQuickStart(BsonUtils.getBooleanOrElse(option,
+                    FieldName.Task.FIELD_OPTION_QUICK_START, false));
+            transferTaskConfig.setDataCheckLevel(ScmDataCheckLevel.getType(
+                    BsonUtils.getStringOrElse(option, FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                            ScmDataCheckLevel.WEEK.getName())));
+        }
+        return transferTaskConfig;
+    }
+
+    private ScmTaskConfig createCleanTaskConfig(BSONObject option) throws ScmException {
+        ScmCleanTaskConfig cleanTaskConfig = new ScmCleanTaskConfig();
+        cleanTaskConfig
+                .setWorkspace(workspace != null ? workspace
+                        : ScmFactory.Workspace.getWorkspace(getWorkspaceName(), session));
+        cleanTaskConfig.setMaxExecTime(getMaxExecTime());
+        cleanTaskConfig.setCondition(getContent());
+        cleanTaskConfig.setScope(ScmType.ScopeType.getScopeType(getScope()));
+        if (option != null) {
+            cleanTaskConfig.setRecycleSpace(BsonUtils.getBooleanOrElse(option,
+                    FieldName.Task.FIELD_OPTION_IS_RECYCLE_SPACE, false));
+            cleanTaskConfig.setQuickStart(BsonUtils.getBooleanOrElse(option,
+                    FieldName.Task.FIELD_OPTION_QUICK_START, false));
+            cleanTaskConfig.setDataCheckLevel(ScmDataCheckLevel.getType(
+                    BsonUtils.getStringOrElse(option, FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                            ScmDataCheckLevel.WEEK.getName())));
+        }
+        return cleanTaskConfig;
+    }
+
+    private String getSiteName(int targetSite) throws ScmException {
+        ScmCursor<ScmSiteInfo> cursor = null;
+        try {
+            cursor = ScmFactory.Site.listSite(session);
+            while (cursor.hasNext()) {
+                ScmSiteInfo siteInfo = cursor.getNext();
+                if (siteInfo.getId() == targetSite) {
+                    return siteInfo.getName();
+                }
+            }
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
+    // for compatible
+    @Deprecated
+    public ScmTask(BSONObject info) throws ScmException {
+        this(info, null, null);
     }
 
     /**
@@ -103,6 +238,16 @@ public class ScmTask {
      */
     public int getServerId() {
         return serverId;
+    }
+
+    /**
+     * Returns the value of the scope property.
+     *
+     * @return scope.
+     * @since 3.1
+     */
+    public int getScope() {
+        return scope;
     }
 
     /**
@@ -214,6 +359,24 @@ public class ScmTask {
         return maxExecTime;
     }
 
+    /**
+     * Return the config of task.
+     *
+     * @return Task extra info.
+     */
+    public ScmTaskConfig getTaskConfig() {
+        return taskConfig;
+    }
+
+    /**
+     * Return the extra info of task.
+     *
+     * @return Task extra info.
+     */
+    public BSONObject getExtraInfo() {
+        return extraInfo;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -234,7 +397,8 @@ public class ScmTask {
         sb.append(FieldName.Task.FIELD_ACTUAL_COUNT).append(":").append(actualCount).append(",");
         sb.append(FieldName.Task.FIELD_SUCCESS_COUNT).append(":").append(successCount).append(",");
         sb.append(FieldName.Task.FIELD_FAIL_COUNT).append(":").append(failCount).append(",");
-        sb.append(FieldName.Task.FIELD_MAX_EXEC_TIME).append(":").append(maxExecTime);
+        sb.append(FieldName.Task.FIELD_MAX_EXEC_TIME).append(":").append(maxExecTime).append(",");
+        sb.append(FieldName.Task.FIELD_EXTRA_INFO).append(":").append(extraInfo);
 
         return sb.toString();
     }

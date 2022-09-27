@@ -183,6 +183,24 @@ public class CommonHelper {
         return sb.toString();
     }
 
+    public static int getQuarterStartMonth(String quarterStr) {
+        if (QUARTER1.equals(quarterStr)) {
+            return 1;
+        }
+        else if (QUARTER2.equals(quarterStr)) {
+            return 4;
+        }
+        else if (QUARTER3.equals(quarterStr)) {
+            return 7;
+        }
+        else if (QUARTER4.equals(quarterStr)) {
+            return 10;
+        }
+        else {
+            throw new IllegalArgumentException("invalid quarter:" + quarterStr);
+        }
+    }
+
     public static String getCurrentYearMonth(Date date) {
         synchronized (CommonHelper.class) {
             return ymDateFormat.format(date);

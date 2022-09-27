@@ -1,7 +1,11 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.security.MessageDigest;
 import java.util.Date;
 
+import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import org.slf4j.Logger;
@@ -24,6 +28,8 @@ import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
+
+import javax.xml.bind.DatatypeConverter;
 
 public class FileCommonOperator {
     private static final Logger logger = LoggerFactory.getLogger(FileCommonOperator.class);
@@ -130,6 +136,69 @@ public class FileCommonOperator {
             throw new ScmSystemException("check remote data failed:remoteSite=" + remoteSiteId
                     + ",ws=" + wsInfo.getName() + ",dataId=" + dataInfo.getId(), e);
         }
+    }
+
+    public static boolean isRemoteDataExist(int remoteSiteId, ScmWorkspaceInfo wsInfo,
+            ScmDataInfo dataInfo, String expectMd5) throws ScmServerException {
+        try {
+            String remoteDataMd5 = calRemoteDataMd5(remoteSiteId, wsInfo.getName(), dataInfo);
+            if (remoteDataMd5.equals(expectMd5)) {
+                return true;
+            }
+            logger.warn("remote data md5 is not right:remoteSite=" + remoteSiteId + "ws="
+                    + wsInfo.getName() + ",dataId=" + dataInfo.getId() + ",remoteDataMd5="
+                    + remoteDataMd5 + ",expectDataMd5=" + expectMd5);
+            return false;
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.DATA_NOT_EXIST) {
+                return false;
+            }
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("check remote data failed:remoteSite=" + remoteSiteId
+                    + ",ws=" + wsInfo.getName() + ",dataId=" + dataInfo.getId(), e);
+        }
+    }
+
+    public static String calRemoteDataMd5(int targetSiteId, String wsName, ScmDataInfo dataInfo)
+            throws ScmServerException {
+        int remoteSiteId;
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR
+                && !contentModule.isInMainSite()) {
+            remoteSiteId = contentModule.getMainSite();
+        }
+        else {
+            remoteSiteId = targetSiteId;
+        }
+        ScmInnerRemoteDataReader remoteDataReader = null;
+        try {
+            remoteDataReader = new ScmInnerRemoteDataReader(remoteSiteId,
+                    contentModule.getWorkspaceInfoCheckExist(wsName), dataInfo, 0, targetSiteId);
+            MessageDigest md5Calc = ScmSystemUtils.createMd5Calc();
+            byte[] buf = new byte[Const.TRANSMISSION_LEN];
+            while (true) {
+                int len = remoteDataReader.read(buf, 0, Const.TRANSMISSION_LEN);
+                if (len <= -1) {
+                    break;
+                }
+                md5Calc.update(buf, 0, len);
+            }
+            return DatatypeConverter.printBase64Binary(md5Calc.digest());
+        }
+        catch (Exception e) {
+            logger.error("failed to calculate remote data md5, targetSiteId={}, dataId={}",
+                    targetSiteId, dataInfo.getId());
+            throw e;
+        }
+        finally {
+            if (remoteDataReader != null) {
+                remoteDataReader.close();
+            }
+        }
+
     }
 
     public static void addSiteInfoToList(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,

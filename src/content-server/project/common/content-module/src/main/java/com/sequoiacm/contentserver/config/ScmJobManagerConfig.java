@@ -1,0 +1,137 @@
+package com.sequoiacm.contentserver.config;
+
+import com.sequoiacm.contentserver.job.ScmBackgroundJob;
+import com.sequoiacm.contentserver.job.ScmJobManagerRefresher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+
+import javax.annotation.PostConstruct;
+
+@ConfigurationProperties(prefix = "scm.jobManager.threadpool")
+@RefreshScope
+public class ScmJobManagerConfig {
+    private static final Logger logger = LoggerFactory.getLogger(ScmJobManagerConfig.class);
+    private static boolean isInitialized = false;
+
+    /**
+     * shortTimeThreadPool
+     */
+    private int coreSize = 20;
+    private int maxSize = 30;
+    private int queueSize = 5000;
+
+    /**
+     * @see ScmBackgroundJob#retryOnThreadPoolReject()
+     */
+    private long defaultTaskWaitingTimeOnReject = 1000 * 10;
+
+    /**
+     * longTimeThreadPool
+     */
+    private int longTimeThreadPoolCoreSize = 10;
+    private int longTimeThreadPoolMaxSize = 20;
+    private int longTimeThreadPoolQueueSize = 100;
+
+    @PostConstruct
+    public void onRefresh() {
+        if (coreSize > maxSize) {
+            logger.warn("coreSize:{} is greater than maxSize:{}, update coreSize to:{}", coreSize,
+                    maxSize, maxSize);
+            coreSize = maxSize;
+        }
+        if (isInitialized) {
+            ScmJobManagerRefresher.refreshThreadPoolConfig(coreSize, maxSize);
+        }
+        else {
+            isInitialized = true;
+        }
+    }
+
+    public int getCoreSize() {
+        return coreSize;
+    }
+
+    public void setCoreSize(int coreSize) {
+        if (coreSize < 0) {
+            logger.warn("Invalid coreSize value: " + coreSize + ", set to default value: "
+                    + this.coreSize);
+            return;
+        }
+        this.coreSize = coreSize;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    public void setMaxSize(int maxSize) {
+        if (maxSize <= 0) {
+            logger.warn("Invalid maxSize value: " + maxSize + ", set to default value: "
+                    + this.maxSize);
+            return;
+        }
+        this.maxSize = maxSize;
+    }
+
+    public int getQueueSize() {
+        return queueSize;
+    }
+
+    public void setQueueSize(int queueSize) {
+        if (queueSize <= 0) {
+            logger.warn("Invalid queueSize value: " + queueSize + ", set to default value: "
+                    + this.queueSize);
+            return;
+        }
+        this.queueSize = queueSize;
+    }
+
+    public int getLongTimeThreadPoolCoreSize() {
+        return longTimeThreadPoolCoreSize;
+    }
+
+    public void setLongTimeThreadPoolCoreSize(int longTimeThreadPoolCoreSize) {
+        if (longTimeThreadPoolCoreSize < 0) {
+            logger.warn("Invalid longTimeThreadPoolCoreSize value: " + longTimeThreadPoolCoreSize
+                    + ", set to default value: " + this.longTimeThreadPoolCoreSize);
+            return;
+        }
+        this.longTimeThreadPoolCoreSize = longTimeThreadPoolCoreSize;
+    }
+
+    public int getLongTimeThreadPoolMaxSize() {
+        return longTimeThreadPoolMaxSize;
+    }
+
+    public void setLongTimeThreadPoolMaxSize(int longTimeThreadPoolMaxSize) {
+        if (longTimeThreadPoolMaxSize <= 0) {
+            logger.warn("Invalid longTimeThreadPoolMaxSize value: " + longTimeThreadPoolMaxSize
+                    + ", set to default value: " + this.longTimeThreadPoolMaxSize);
+            return;
+        }
+        this.longTimeThreadPoolMaxSize = longTimeThreadPoolMaxSize;
+    }
+
+    public int getLongTimeThreadPoolQueueSize() {
+        return longTimeThreadPoolQueueSize;
+    }
+
+    public void setLongTimeThreadPoolQueueSize(int longTimeThreadPoolQueueSize) {
+        if (longTimeThreadPoolQueueSize <= 0) {
+            logger.warn("Invalid longTimeThreadPoolQueueSize value: " + longTimeThreadPoolQueueSize
+                    + ", set to default value: " + this.longTimeThreadPoolQueueSize);
+            return;
+        }
+        this.longTimeThreadPoolQueueSize = longTimeThreadPoolQueueSize;
+    }
+
+    public long getDefaultTaskWaitingTimeOnReject() {
+        return defaultTaskWaitingTimeOnReject;
+    }
+
+    public void setDefaultTaskWaitingTimeOnReject(long defaultTaskWaitingTimeOnReject) {
+        this.defaultTaskWaitingTimeOnReject = defaultTaskWaitingTimeOnReject;
+    }
+}

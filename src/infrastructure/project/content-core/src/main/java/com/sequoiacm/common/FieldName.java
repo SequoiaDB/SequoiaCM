@@ -256,6 +256,13 @@ public class FieldName {
     public static final String FIELD_CLVERSION_BUSINESS_NAME = "business_name";
     public static final String FIELD_CLVERSION_BUSINESS_VERSION = "business_version";
 
+    // CL_SPACE_RECYCLING_LOG
+    public static final String FIELD_CLRECYCLE_SITE_ID = "site_id";
+    public static final String FIELD_CLRECYCLE_DATA_SOURCE_TYPE = "data_source_type";
+    public static final String FIELD_CLRECYCLE_LOG_INFO = "log_info";
+    public static final String FIELD_CLRECYCLE_TIME = "time";
+
+
     public static class Task {
         public static final String FIELD_ID = "id";
         public static final String FIELD_TYPE = "type";
@@ -275,6 +282,12 @@ public class FieldName {
         public static final String FIELD_TARGET_SITE = "target_site";
         public static final String FIELD_SCOPE = "scope";
         public static final String FIELD_MAX_EXEC_TIME = "max_exec_time";
+        public static final String FIELD_OPTION = "option";
+        public static final String FIELD_EXTRA_INFO = "extra_info";
+        public static final String FIELD_OPTION_QUICK_START = "quick_start";
+        public static final String FIELD_OPTION_DATA_CHECK_LEVEL = "data_check_level";
+        public static final String FIELD_OPTION_IS_RECYCLE_SPACE = "is_recycle_space";
+        public static final String FIELD_OPTION_RECYCLE_SCOPE = "recycle_scope";
     }
 
     public static class ReloadBizConf {

@@ -100,6 +100,16 @@ public class ScheduleMgrWrapper {
                     info.getContent(), info.getCron(), info.getPreferredRegion(),
                     info.getPreferredZone());
         }
+        else if (info.getType().equals(ScheduleDefine.ScheduleType.MOVE_FILE)) {
+            jobInfo = new MoveFileJobInfo(info.getId(), info.getType(), info.getWorkspace(),
+                    info.getContent(), info.getCron(), info.getPreferredRegion(),
+                    info.getPreferredZone());
+        }
+        else if (info.getType().equals(ScheduleDefine.ScheduleType.RECYCLE_SPACE)) {
+            jobInfo = new SpaceRecyclingJobInfo(info.getId(), info.getType(), info.getWorkspace(),
+                    info.getContent(), info.getCron(), info.getPreferredRegion(),
+                    info.getPreferredZone());
+        }
         else if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
             jobInfo = new InternalScheduleInfo(info.getId(), info.getName(), info.getType(),
                     info.getWorkspace(), info.getContent(), info.getCron(),

@@ -20,7 +20,7 @@ public class ScmLockManager {
         this.lockConfig = conf;
     }
 
-    private boolean initLockFactory() throws ScmLockException {
+    public boolean initLockFactory() throws ScmLockException {
         try {
             synchronized (ScmLockManager.class) {
                 if (innerFactory == null) {
@@ -131,6 +131,22 @@ public class ScmLockManager {
             ScmLock lock = innerFactory.createLock(lockPath.getPath());
             lock.lock();
             return lock;
+        }
+        catch (Exception e) {
+            throw new ScmLockException(
+                    "failed to acquires lock:lockPath=" + Arrays.toString(lockPath.getPath()), e);
+        }
+    }
+
+    // return null if timeout!
+    public ScmLock acquiresLock(ScmLockPath lockPath, long timeoutInMs) throws ScmLockException {
+        try {
+            checkAndInit();
+            ScmLock lock = innerFactory.createLock(lockPath.getPath());
+            if (lock.lock(timeoutInMs, TimeUnit.MILLISECONDS)) {
+                return lock;
+            }
+            return null;
         }
         catch (Exception e) {
             throw new ScmLockException(

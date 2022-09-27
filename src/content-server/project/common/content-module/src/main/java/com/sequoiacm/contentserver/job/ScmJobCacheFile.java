@@ -52,6 +52,11 @@ public final class ScmJobCacheFile extends ScmBackgroundJob {
     }
 
     @Override
+    public boolean retryOnThreadPoolReject() {
+        return true;
+    }
+
+    @Override
     public void _run() {
         ScmLock fileContentLock = null;
         ScmLock readLock = null;
@@ -86,5 +91,12 @@ public final class ScmJobCacheFile extends ScmBackgroundJob {
                 readLock.unlock();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ScmJobCacheFile{" + "wsInfo=" + wsInfo + ", fileId='" + fileId + '\''
+                + ", minorVersion=" + minorVersion + ", majorVersion=" + majorVersion + ", dataId='"
+                + dataId + '\'' + ", remoteSiteId=" + remoteSiteId + "} " + super.toString();
     }
 }

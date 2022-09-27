@@ -49,6 +49,17 @@ public class NetworkStrategy implements ConnectivityStrategy {
     }
 
     @Override
+    public void checkMoveFileSite(List<Integer> wsLocationSiteIds, int sourceSiteId,
+            int targetSiteId) throws StrategyException {
+        checkSiteInWorkspaceOrNot(wsLocationSiteIds, sourceSiteId);
+        checkSiteInWorkspaceOrNot(wsLocationSiteIds, targetSiteId);
+        if (sourceSiteId == targetSiteId) {
+            throw new StrategyException("The source site and target site cannot be the same"
+                    + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
+        }
+    }
+
+    @Override
     public void checkCleanSite(List<Integer> wsLocationSiteIds, int localSiteId) 
             throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);

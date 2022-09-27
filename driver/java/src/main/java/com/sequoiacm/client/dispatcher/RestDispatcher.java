@@ -835,7 +835,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public ScmId MsgStartTransferTask(String workspaceName, BSONObject condition, int scope,
-            long maxExecTime, String targetSite) throws ScmException {
+            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart)
+            throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
                 + encode(workspaceName);
         HttpPost request = new HttpPost(uri);
@@ -846,6 +847,8 @@ public class RestDispatcher implements MessageDispatcher {
         options.put("filter", condition);
         options.put(CommonDefine.RestArg.TASK_SCOPE, scope);
         options.put(CommonDefine.RestArg.TASK_MAX_EXEC_TIME, maxExecTime);
+        options.put(CommonDefine.RestArg.TASK_DATA_CHECK_LEVEL, dataCheckLevel);
+        options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
         params.add(new BasicNameValuePair("options", options.toString()));
         if (null != targetSite) {
             params.add(new BasicNameValuePair(CommonDefine.RestArg.CREATE_TASK_TARGET_SITE,
@@ -860,7 +863,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public ScmId MsgStartCleanTask(String workspaceName, BSONObject condition, int scope,
-            long maxExecTime) throws ScmException {
+            long maxExecTime, String dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
+            throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
                 + encode(workspaceName);
         HttpPost request = new HttpPost(uri);
@@ -871,6 +875,59 @@ public class RestDispatcher implements MessageDispatcher {
         options.put("filter", condition);
         options.put(CommonDefine.RestArg.TASK_SCOPE, scope);
         options.put(CommonDefine.RestArg.TASK_MAX_EXEC_TIME, maxExecTime);
+        options.put(CommonDefine.RestArg.TASK_DATA_CHECK_LEVEL, dataCheckLevel);
+        options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
+        options.put(CommonDefine.RestArg.TASK_IS_RECYCLE_SPACE, isRecycleSpace);
+        params.add(new BasicNameValuePair("options", options.toString()));
+
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request, params);
+        BSONObject task = (BSONObject) resp.get("task");
+        return new ScmId((String) task.get("id"), false);
+    }
+
+    @Override
+    public ScmId MsgStartMoveTask(String workspaceName, BSONObject condition, int scope,
+            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart,
+            boolean isRecycleSpace) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
+                + encode(workspaceName);
+        HttpPost request = new HttpPost(uri);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("task_type",
+                String.valueOf(CommonDefine.TaskType.SCM_TASK_MOVE_FILE)));
+        BSONObject options = new BasicBSONObject();
+        options.put("filter", condition);
+        options.put(CommonDefine.RestArg.TASK_SCOPE, scope);
+        options.put(CommonDefine.RestArg.TASK_MAX_EXEC_TIME, maxExecTime);
+        options.put(CommonDefine.RestArg.TASK_DATA_CHECK_LEVEL, dataCheckLevel);
+        options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
+        options.put(CommonDefine.RestArg.TASK_IS_RECYCLE_SPACE, isRecycleSpace);
+        params.add(new BasicNameValuePair("options", options.toString()));
+        if (null != targetSite) {
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.CREATE_TASK_TARGET_SITE,
+                    targetSite));
+        }
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request, params);
+        BSONObject task = (BSONObject) resp.get("task");
+        return new ScmId((String) task.get("id"), false);
+    }
+
+    @Override
+    public ScmId MsgStartSpaceRecyclingTask(String workspaceName, long maxExecTime,
+            String recycleSpace) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
+                + encode(workspaceName);
+        HttpPost request = new HttpPost(uri);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("task_type",
+                String.valueOf(CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE)));
+        BSONObject options = new BasicBSONObject();
+        options.put(CommonDefine.RestArg.TASK_MAX_EXEC_TIME, maxExecTime);
+        options.put(CommonDefine.RestArg.TASK_RECYCLE_SCOPE, recycleSpace);
         params.add(new BasicNameValuePair("options", options.toString()));
 
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,

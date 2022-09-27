@@ -3,11 +3,17 @@ package com.sequoiacm.client.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.element.ScmCleanTaskConfig;
+import com.sequoiacm.client.element.ScmMoveTaskConfig;
+import com.sequoiacm.client.element.ScmSpaceRecycleScope;
+import com.sequoiacm.client.element.ScmSpaceRecyclingTaskConfig;
+import com.sequoiacm.client.element.ScmTransferTaskConfig;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.client.common.ScheduleType;
+import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
 import com.sequoiacm.client.common.ScmType.StatisticsType;
@@ -345,6 +351,25 @@ public class ScmSystem {
         }
 
         /**
+         * Start transfer file task use ScmTransferTaskConfig
+         *
+         * @param config
+         *            transfer task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.1
+         */
+        public static ScmId startTransferTask(ScmTransferTaskConfig config) throws ScmException {
+            if (null == config) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startTransferTask(config.getWorkspace(), config.getCondition(),
+                    config.getScope(), config.getMaxExecTime(), config.getTargetSite(),
+                    config.getDataCheckLevel(), config.isQuickStart());
+        }
+
+        /**
          * Start transfer file task.
          *
          * @param ws
@@ -363,6 +388,14 @@ public class ScmSystem {
          */
         public static ScmId startTransferTask(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope, long maxExecTime, String targetSite) throws ScmException {
+            return _startTransferTask(ws, condition, scope, maxExecTime, targetSite,
+                    ScmDataCheckLevel.WEEK, false);
+
+        }
+
+        private static ScmId _startTransferTask(ScmWorkspace ws, BSONObject condition,
+                ScopeType scope, long maxExecTime, String targetSite,
+                ScmDataCheckLevel dataCheckLevel, boolean quickStart) throws ScmException {
             if (null == ws) {
                 throw new ScmInvalidArgumentException("workspace is null");
             }
@@ -374,18 +407,22 @@ public class ScmSystem {
             if (null == scope) {
                 throw new ScmInvalidArgumentException("scope is null");
             }
+            if (null == dataCheckLevel) {
+                throw new ScmInvalidArgumentException("dataCheckLevel is null");
+            }
             if (scope != ScopeType.SCOPE_CURRENT) {
                 try {
                     ScmArgChecker.File.checkHistoryFileMatcher(condition);
                 }
                 catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invlid condition", e);
+                    throw new ScmInvalidArgumentException("invalid condition", e);
                 }
             }
 
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartTransferTask(ws.getName(), condition,
-                    scope.getScope(), maxExecTime, targetSite);
+                    scope.getScope(), maxExecTime, targetSite, dataCheckLevel.getName(),
+                    quickStart);
 
         }
 
@@ -442,6 +479,13 @@ public class ScmSystem {
          */
         public static ScmId startCleanTask(ScmWorkspace ws, BSONObject condition, ScopeType scope,
                 long maxExecTime) throws ScmException {
+            return _startCleanTask(ws, condition, scope, maxExecTime, ScmDataCheckLevel.WEEK, false,
+                    false);
+        }
+
+        private static ScmId _startCleanTask(ScmWorkspace ws, BSONObject condition, ScopeType scope,
+                long maxExecTime, ScmDataCheckLevel dataCheckLevel, boolean quickStart,
+                boolean isRecycleSpace) throws ScmException {
             if (null == ws) {
                 throw new ScmInvalidArgumentException("workspace is null");
             }
@@ -453,9 +497,116 @@ public class ScmSystem {
             if (null == scope) {
                 throw new ScmInvalidArgumentException("scope is null");
             }
+            if (null == dataCheckLevel) {
+                throw new ScmInvalidArgumentException("dataCheckLevel is null");
+            }
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartCleanTask(ws.getName(), condition, scope.getScope(),
-                    maxExecTime);
+                    maxExecTime, dataCheckLevel.getName(), quickStart, isRecycleSpace);
+        }
+
+        /**
+         * start file clean task use ScmCleanTaskConfig.
+         *
+         * @param config
+         *            clean task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.1
+         */
+        public static ScmId startCleanTask(ScmCleanTaskConfig config) throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startCleanTask(config.getWorkspace(), config.getCondition(), config.getScope(),
+                    config.getMaxExecTime(), config.getDataCheckLevel(), config.isQuickStart(),
+                    config.isRecycleSpace());
+        }
+
+        /**
+         * start file move task use ScmMoveTaskConfig.
+         *
+         * @param config
+         *            clean task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.1
+         */
+        public static ScmId startMoveTask(ScmMoveTaskConfig config) throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startMoveTask(config.getWorkspace(), config.getCondition(), config.getScope(),
+                    config.getMaxExecTime(), config.getTargetSite(), config.getDataCheckLevel(),
+                    config.isQuickStart(), config.isRecycleSpace());
+        }
+
+        private static ScmId _startMoveTask(ScmWorkspace ws, BSONObject condition, ScopeType scope,
+                long maxExecTime, String targetSite, ScmDataCheckLevel dataCheckLevel,
+                boolean quickStart, boolean isRecycleSpace) throws ScmException {
+            if (null == ws) {
+                throw new ScmInvalidArgumentException("workspace is null");
+            }
+
+            if (null == condition) {
+                throw new ScmInvalidArgumentException("condition is null");
+            }
+
+            if (null == scope) {
+                throw new ScmInvalidArgumentException("scope is null");
+            }
+            if (null == targetSite) {
+                throw new ScmInvalidArgumentException("targetSite is null");
+            }
+            if (null == dataCheckLevel) {
+                throw new ScmInvalidArgumentException("dataCheckLevel is null");
+            }
+            if (scope != ScopeType.SCOPE_CURRENT) {
+                try {
+                    ScmArgChecker.File.checkHistoryFileMatcher(condition);
+                }
+                catch (InvalidArgumentException e) {
+                    throw new ScmInvalidArgumentException("invalid condition", e);
+                }
+            }
+            ScmSession conn = ws.getSession();
+            return conn.getDispatcher().MsgStartMoveTask(ws.getName(), condition, scope.getScope(),
+                    maxExecTime, targetSite, dataCheckLevel.getName(), quickStart, isRecycleSpace);
+        }
+
+        /**
+         * start space recycling task use ScmSpaceRecyclingTaskConfig.
+         *
+         * @param config
+         *            space recycling task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.1
+         */
+        public static ScmId startSpaceRecyclingTask(ScmSpaceRecyclingTaskConfig config)
+                throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startSpaceRecyclingTask(config.getWorkspace(), config.getMaxExecTime(),
+                    config.getRecycleScope());
+        }
+
+        private static ScmId _startSpaceRecyclingTask(ScmWorkspace workspace, long maxExecTime,
+                ScmSpaceRecycleScope recycleScope) throws ScmException {
+
+            if (null == workspace) {
+                throw new ScmInvalidArgumentException("workspace is null");
+            }
+            if (null == recycleScope) {
+                throw new ScmInvalidArgumentException("recycleScope is null");
+            }
+            ScmSession conn = workspace.getSession();
+            return conn.getDispatcher().MsgStartSpaceRecyclingTask(workspace.getName(), maxExecTime,
+                    recycleScope.getScope());
         }
 
         /**
@@ -503,7 +654,7 @@ public class ScmSystem {
             }
 
             BSONObject taskInfo = ss.getDispatcher().MsgGetTask(taskId);
-            return new ScmTask(taskInfo);
+            return new ScmTask(taskInfo, null, ss);
         }
 
         /**

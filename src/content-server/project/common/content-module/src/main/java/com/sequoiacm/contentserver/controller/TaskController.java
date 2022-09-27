@@ -97,6 +97,11 @@ public class TaskController {
             }
         }
 
+        if (taskType == CommonDefine.TaskType.SCM_TASK_MOVE_FILE && null == targetSite) {
+            throw new ScmMissingArgumentException(
+                    "Missing argument " + CommonDefine.RestArg.CREATE_TASK_TARGET_SITE);
+        }
+
         BSONObject optionsBSON = (BSONObject) JSON.parse(options);
 
         ScmUser user = (ScmUser) auth.getPrincipal();

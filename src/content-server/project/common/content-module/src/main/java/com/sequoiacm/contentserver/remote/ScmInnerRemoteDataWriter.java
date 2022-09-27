@@ -215,7 +215,7 @@ public class ScmInnerRemoteDataWriter {
             }
             catch (Exception e) {
                 logger.warn("close resource failed:remote={}, dataInfo={}", remoteSiteName,
-                        dataInfo);
+                        dataInfo, e);
             }
         }
     }

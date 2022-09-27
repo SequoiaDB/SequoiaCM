@@ -2,18 +2,25 @@ package com.sequoiacm.contentserver.controller;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DatasourceReaderDao;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
+import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
+import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +35,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/internal/v1")
 public class DatasourceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatasourceController.class);
     private final IDatasourceService datasourceService;
 
     @Autowired
@@ -56,6 +65,7 @@ public class DatasourceController {
 
     @GetMapping("/datasource/{data_id}")
     public void readData(@PathVariable("data_id") String dataId,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_NAME, required = false) String targetSiteName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
@@ -64,14 +74,57 @@ public class DatasourceController {
         response.setHeader("Content-Disposition", "attachment; filename=" + dataId);
 
         ServletOutputStream os = RestUtils.getOutputStream(response);
-        DatasourceReaderDao dao = datasourceService.readData(wsName, dataId, type, createTime,
-                readFlag, os);
-        try {
-            response.setHeader(CommonDefine.RestArg.DATA_LENGTH, dao.getSize() + "");
-            dao.read(os);
+        if (targetSiteName == null || targetSiteName
+                .equals(ScmContentModule.getInstance().getLocalSiteInfo().getName())) {
+            DatasourceReaderDao dao = datasourceService.readData(wsName, dataId, type, createTime,
+                    readFlag, os);
+            try {
+                response.setHeader(CommonDefine.RestArg.DATA_LENGTH, dao.getSize() + "");
+                dao.read(os);
+            }
+            finally {
+                dao.close();
+            }
         }
-        finally {
-            dao.close();
+        else {
+            ScmContentModule contentModule = ScmContentModule.getInstance();
+            ScmSite targetSiteInfo = contentModule.getSiteInfo(targetSiteName);
+            if (null == targetSiteInfo) {
+                throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
+                        "site is not exist:siteName=" + targetSiteName);
+            }
+            if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR
+                    && !contentModule.isInMainSite() && !targetSiteInfo.isRootSite()) {
+                throw new ScmServerException(ScmError.OPERATION_FORBIDDEN,
+                        "Under the star strategy, cannot read other branchSite data at a branchSite"
+                                + ":sourceSite=" + contentModule.getLocalSiteInfo().getName()
+                                + ",targetSite=" + targetSiteName);
+            }
+            ScmInnerRemoteDataReader innerRemoteDataReader = null;
+            try {
+                innerRemoteDataReader = new ScmInnerRemoteDataReader(targetSiteInfo.getId(),
+                        contentModule.getWorkspaceInfoCheckExist(wsName),
+                        new ScmDataInfo(type, dataId, new Date(createTime)), readFlag);
+                response.setHeader(CommonDefine.RestArg.DATA_LENGTH,
+                        String.valueOf(innerRemoteDataReader.getExpectDataLen()));
+                byte[] buf = new byte[Const.TRANSMISSION_LEN];
+                while (true) {
+                    int len = innerRemoteDataReader.read(buf, 0, Const.TRANSMISSION_LEN);
+                    if (len <= -1) {
+                        break;
+                    }
+                    os.write(buf, 0, len);
+                }
+            }
+            catch (IOException e) {
+                throw new ScmSystemException("failed to read remote data, remoteSite="
+                        + targetSiteName + ", dataId=" + dataId, e);
+            }
+            finally {
+                if (innerRemoteDataReader != null) {
+                    innerRemoteDataReader.close();
+                }
+            }
         }
 
         RestUtils.flush(os);

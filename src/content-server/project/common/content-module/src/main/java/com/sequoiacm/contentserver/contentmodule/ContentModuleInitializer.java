@@ -56,10 +56,11 @@ public class ContentModuleInitializer {
         ScmSystemUtils.logJVM();
         logger.info("starting content-module...");
 
-        ScmLockManager.getInstance().init();
+        ScmLockManager.getInstance().init(PropertiesUtils.getScmLockConfig());
 
         // first register have higher priority.
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
+        confClient.registerConfigPropVerifier(new ScmJobManagerConfigVerifier());
         confClient.registerConfigPropVerifier(
                 new PreventingModificationVerifier("scm.", "scm.slowlog"));
 

@@ -39,17 +39,18 @@ public class ScmInnerRemoteDataReader {
             @SlowLogExtra(name = "readFileId", data = "dataInfo.getId()"),
             @SlowLogExtra(name = "readRemoteSiteName", data = "remoteSiteName") })
     public ScmInnerRemoteDataReader(int remoteSiteId, ScmWorkspaceInfo wsInfo, ScmDataInfo dataInfo,
-            int flag) throws ScmServerException {
+            int flag, int targetSiteId) throws ScmServerException {
         this.dataInfo = dataInfo;
         this.flag = flag & ~CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA;
         this.wsInfo = wsInfo;
         ScmContentModule contentModule = ScmContentModule.getInstance();
+        String targetSiteName = contentModule.getSiteInfo(targetSiteId).getName();
         remoteSiteName = contentModule.getSiteInfo(remoteSiteId).getName();
 
         try {
             client = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteName);
-            resp = client.readData(wsInfo.getName(), dataInfo.getId(), dataInfo.getType(),
-                    dataInfo.getCreateTime().getTime(), flag);
+            resp = client.readData(wsInfo.getName(), targetSiteName, dataInfo.getId(),
+                    dataInfo.getType(), dataInfo.getCreateTime().getTime(), flag);
             RemoteCommonUtil.checkResponse("readData", resp);
             expectDataLen = Long.valueOf(
                     RemoteCommonUtil.firstOrNull(resp.headers(), CommonDefine.RestArg.DATA_LENGTH));
@@ -64,6 +65,11 @@ public class ScmInnerRemoteDataReader {
             throw new ScmSystemException("read data from remote failed:ws=" + wsInfo.getName()
                     + ",remote=" + remoteSiteName + ",dataInfo" + dataInfo, e);
         }
+    }
+
+    public ScmInnerRemoteDataReader(int remoteSiteId, ScmWorkspaceInfo wsInfo, ScmDataInfo dataInfo,
+            int flag) throws ScmServerException {
+        this(remoteSiteId, wsInfo, dataInfo, flag, remoteSiteId);
     }
 
     @SlowLog(operation = "readData")
@@ -110,6 +116,10 @@ public class ScmInnerRemoteDataReader {
         }
     }
 
+    public long getExpectDataLen() {
+        return expectDataLen;
+    }
+    
     @SlowLog(operation = "closeReader")
     public void close() {
         try {

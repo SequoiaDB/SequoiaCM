@@ -19,8 +19,8 @@ public class CephS3DataLocation extends ScmLocation {
     private String bucketName;
     private ScmShardingType objectShardingType;
 
-    public CephS3DataLocation(BSONObject record) throws ScmDatasourceException {
-        super(record);
+    public CephS3DataLocation(BSONObject record, String siteName) throws ScmDatasourceException {
+        super(record, siteName);
         try {
             Object tmp = record.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
             if (tmp != null) {

@@ -26,6 +26,9 @@ public class TaskEntity {
     private int scope;
     private long maxExecTime;
 
+    private BSONObject option;
+    private BSONObject extraInfo;
+
     public long getMaxExecTime() {
         return maxExecTime;
     }
@@ -162,6 +165,22 @@ public class TaskEntity {
         return scope;
     }
 
+    public BSONObject getOption() {
+        return option;
+    }
+
+    public void setOption(BSONObject option) {
+        this.option = option;
+    }
+
+    public BSONObject getExtraInfo() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(BSONObject extraInfo) {
+        this.extraInfo = extraInfo;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -174,7 +193,8 @@ public class TaskEntity {
         .append(getEstimateCount()).append(",").append("actulCount:")
         .append(getActualCount()).append(",").append("sucessCount:")
         .append(getSuccessCount()).append(",").append("failCount:").append(getFailCount())
-        .append(",").append("scope:").append(getScope());
+                .append(",").append("scope:").append(getScope()).append(",").append("option:")
+                .append(getOption()).append(",").append("extraInfo:").append(getExtraInfo());
         return sb.toString();
     }
 }

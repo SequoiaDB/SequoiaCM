@@ -68,6 +68,21 @@ public class ScheduleCommonTools {
         }
     }
 
+    public static boolean getBooleanOrElse(BSONObject obj, String key, boolean defaultValue)
+            throws ScheduleException {
+        Object v = getValue(obj, key);
+        if (null == v) {
+            return defaultValue;
+        }
+        try {
+            return (boolean) v;
+        }
+        catch (Exception e) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    "key's type is not boolean:key=" + key + ",value=" + v, e);
+        }
+    }
+
     public static int getIntValue(BSONObject obj, String key) throws ScheduleException {
         Object v = getValueNotNull(obj, key);
         try {

@@ -4,6 +4,7 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.LruMap;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaFileAccessor;
+import com.sequoiadb.base.Sequoiadb;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -144,6 +145,21 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
                             + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
                             + minorVersion,
                     e);
+        }
+    }
+
+    @Override
+    public boolean isIndexFieldExist(String fieldName) throws SdbMetasourceException {
+        Sequoiadb sdb = null;
+        try {
+            sdb = baseAccesor.getConnection();
+            return SequoiadbHelper.isIndexFieldExist(sdb, fieldName, baseAccesor.getCsName(),
+                    baseAccesor.getClName());
+        }
+        finally {
+            if (sdb != null) {
+                baseAccesor.releaseConnection(sdb);
+            }
         }
     }
 

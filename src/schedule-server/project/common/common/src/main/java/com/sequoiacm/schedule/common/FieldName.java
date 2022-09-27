@@ -42,6 +42,8 @@ public class FieldName {
         public static final String FIELD_TARGET_SITE = "target_site";
         public static final String FIELD_SCOPE = "scope";
         public static final String FIELD_MAX_EXEC_TIME = "max_exec_time";
+        public static final String FIELD_OPTION = "option";
+        public static final String FIELD_EXTRA_INFO = "extra_info";
     }
 
     public static class ScheduleStatus {
@@ -84,6 +86,10 @@ public class FieldName {
         public static final String FIELD_PREFERRED_REGION = "preferred_region";
         public static final String FIELD_PREFERRED_ZONE = "preferred_zone";
 
+        public static final String FIELD_QUICK_START = "quick_start";
+        public static final String FIELD_IS_RECYCLE_SPACE = "is_recycle_space";
+        public static final String FIELD_DATA_CHECK_LEVEL = "data_check_level";
+
         // ***************** clean job *****************
         public static final String FIELD_CLEAN_SITE = "site";
         // for inner use
@@ -98,6 +104,11 @@ public class FieldName {
         public static final String FIELD_COPY_TARGET_SITE = "target_site";
         // for inner use
         public static final String FIELD_COPY_TARGET_SITE_ID = "target_site_id";
+        // *********************************************
+
+        // ***************** space recycling job *****************
+        public static final String FIELD_SPACE_RECYCLING_TARGET_SITE = "target_site";
+        public static final String FIELD_SPACE_RECYCLING_SCOPE = "recycle_scope";
         // *********************************************
 
         // ***************** internal job *****************

@@ -16,8 +16,8 @@ public class CephSwiftDataLocation extends ScmLocation {
     private static final Logger logger = LoggerFactory.getLogger(CephSwiftDataLocation.class);
     private ScmShardingType shardingType = ScmShardingType.MONTH;
 
-    public CephSwiftDataLocation(BSONObject record) throws ScmDatasourceException {
-        super(record);
+    public CephSwiftDataLocation(BSONObject record, String siteName) throws ScmDatasourceException {
+        super(record, siteName);
         try {
             Object tmp = record.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
             if (tmp != null) {

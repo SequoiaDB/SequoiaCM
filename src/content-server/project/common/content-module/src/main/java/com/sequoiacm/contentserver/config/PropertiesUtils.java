@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sequoiacm.infrastructure.common.ZkAcl;
+import com.sequoiacm.infrastructure.lock.ScmLockConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -318,6 +319,20 @@ public class PropertiesUtils {
     }
 
     // *********************** zoo keeper ******************************
+
+    public static ScmLockConfig getScmLockConfig() {
+        ScmLockConfig config = new ScmLockConfig();
+        config.setUrls(getZKConnUrl());
+        config.setAcl(getZKAcl());
+        config.setCleanJobPeriod(getZKCleanJobPeriod());
+        config.setCleanJobResidualTime(getZKCleanJobResidual());
+        config.setMaxBuffer(getMaxBuffer());
+        config.setMaxCleanThreads(getMaxCleanThreads());
+        config.setCoreCleanThreads(getCoreCleanThreads());
+        config.setCleanQueueSize(getCleanQueueSize());
+        config.adjustCoreCleanThreads();
+        return config;
+    }
     public static String getZKConnUrl() {
         return zkConfig.getUrls();
     }

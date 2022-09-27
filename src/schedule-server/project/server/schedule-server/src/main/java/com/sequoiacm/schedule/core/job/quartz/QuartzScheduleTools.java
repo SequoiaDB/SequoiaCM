@@ -88,7 +88,7 @@ class QuartzScheduleTools {
 
     public static TaskEntity createTask(int taskType, String taskId, BSONObject taskCondition,
             int serverId, Integer targetSite, long startTime, String workspace, String scheduleId,
-            int scope, long maxExecTime) {
+            int scope, long maxExecTime, BSONObject option, BSONObject extraInfo) {
         TaskEntity task = new TaskEntity();
         task.setActualCount(0);
         task.setContent(taskCondition);
@@ -107,6 +107,8 @@ class QuartzScheduleTools {
         task.setScheduleId(scheduleId);
         task.setScope(scope);
         task.setMaxExecTime(maxExecTime);
+        task.setOption(option);
+        task.setExtraInfo(extraInfo);
         return task;
     }
 

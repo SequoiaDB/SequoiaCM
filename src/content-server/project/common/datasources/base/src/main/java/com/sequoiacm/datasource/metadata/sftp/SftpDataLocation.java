@@ -18,8 +18,8 @@ public class SftpDataLocation extends ScmLocation {
     private ScmShardingType shardingType = ScmShardingType.DAY;
     private String dataPath = "/scmfile/";
 
-    public SftpDataLocation(BSONObject record) throws ScmDatasourceException {
-        super(record);
+    public SftpDataLocation(BSONObject record, String siteName) throws ScmDatasourceException {
+        super(record, siteName);
         try {
             Object tmp = record.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
             if (tmp != null) {

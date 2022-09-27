@@ -7,6 +7,7 @@ import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,11 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
 
     protected ScmTaskManager mgr = null;
 
+    protected ScmTaskInfoContext taskInfoContext;
+
     public ScmTaskBase(ScmTaskManager mgr) {
         this.mgr = mgr;
+        taskInfoContext = new ScmTaskInfoContext(this);
     }
 
     public void abortTaskAndAsyncRedo(String taskId, int flag, String detail, long successCount,
@@ -74,7 +78,7 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
                                 + ", maxCount="
                                 + PropertiesUtils.getServerConfig().getMaxConcurrentTask());
             }
-            ScmJobManager.getInstance().schedule(this, 0);
+            ScmJobManager.getInstance().executeLongTimeTask(this);
             mgr.addTask(this);
         }
         catch (ScmServerException e) {
@@ -122,6 +126,8 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
     public abstract String getTaskId();
 
     public abstract int getTaskType();
+
+    public abstract BSONObject getTaskInfo();
 
     public abstract void _stop();
 

@@ -49,4 +49,10 @@ public class ScmLockPathFactory {
                 ScmLockPathDefine.GLOBAL_METADATA_MUTEX };
         return new ScmLockPath(lockPath);
     }
+
+    public static ScmLockPath createDataTableLockPath(String siteName, String tableName) {
+        String[] lockPath = { ScmLockPathDefine.DATASOURCE, siteName, ScmLockPathDefine.DATA_TABLE,
+                tableName };
+        return new ScmLockPath(lockPath);
+    }
 }

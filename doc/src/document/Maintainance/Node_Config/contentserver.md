@@ -72,6 +72,9 @@ SequoiaCM 配置
 |scm.slowlog.operation.xxx   |num        |单独配置某个内部操作的告警阈值，xxx 填写具体的操作名称   |
 |scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|
 |scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径。|
+|scm.jobManager.threadpool.coreSize     |num  |内容服务节点异步任务线程池的核心线程大小，支持动态刷新，默认值：20|
+|scm.jobManager.threadpool.maxSize     |num  |内容服务节点异步任务线程池的最大线程大小，支持动态刷新，默认值：30|
+|scm.jobManager.threadpool.queueSize    |num  |内容服务节点异步任务线程池的任务队列大小，默认值：5000|
 
 
  > **Note:**

@@ -26,6 +26,9 @@ public class CopyJobInfo extends ScheduleJobInfo {
 
     private long maxExecTime;
 
+    private boolean quickStart;
+    private String dataCheckLevel;
+
     public CopyJobInfo(String id, String type, String workspace, BSONObject content, String cron,
             String preferredRegion, String preferredZone) throws ScheduleException {
         super(id, type, workspace, cron, preferredRegion, preferredZone);
@@ -35,7 +38,8 @@ public class CopyJobInfo extends ScheduleJobInfo {
     public CopyJobInfo(String id, String type, String workspace, int sourceSiteId,
             String sourceSiteName, int targetSiteId, String targetSiteName, int days,
             BSONObject extraCondition, String cron, int scope, long maxExecTime,
-            String preferredRegion, String preferredZone) throws ScheduleException {
+            String preferredRegion, String preferredZone, boolean quickStart, String dataCheckLevel)
+            throws ScheduleException {
         super(id, type, workspace, cron, preferredRegion, preferredZone);
 
         this.sourceSiteId = sourceSiteId;
@@ -46,6 +50,8 @@ public class CopyJobInfo extends ScheduleJobInfo {
         this.extraCondition = extraCondition;
         this.scope = scope;
         this.maxExecTime = maxExecTime;
+        this.quickStart = quickStart;
+        this.dataCheckLevel = dataCheckLevel;
     }
 
     public long getMaxExecTime() {
@@ -74,6 +80,14 @@ public class CopyJobInfo extends ScheduleJobInfo {
 
     public String getTargetSiteName() {
         return targetSiteName;
+    }
+
+    public boolean isQuickStart() {
+        return quickStart;
+    }
+
+    public String getDataCheckLevel() {
+        return dataCheckLevel;
     }
 
     private void checkAndParse(ScheduleServer server, String id, String type, String workspace,
@@ -126,6 +140,17 @@ public class CopyJobInfo extends ScheduleJobInfo {
             maxExecTime = ((Number) content.get(FieldName.Schedule.FIELD_MAX_EXEC_TIME))
                     .longValue();
         }
+
+        quickStart = ScheduleCommonTools.getBooleanOrElse(content,
+                FieldName.Schedule.FIELD_QUICK_START, false);
+        if (content.containsField(FieldName.Schedule.FIELD_DATA_CHECK_LEVEL)) {
+            dataCheckLevel = ScheduleCommonTools.getStringValue(content,
+                    FieldName.Schedule.FIELD_DATA_CHECK_LEVEL);
+            validateDataCheckLevel(dataCheckLevel);
+        }
+        else {
+            dataCheckLevel = ScheduleDefine.DataCheckLevel.WEEK;
+        }
     }
 
     public int getScope() {
@@ -144,7 +169,9 @@ public class CopyJobInfo extends ScheduleJobInfo {
                 .append(getCron()).append(",").append("sourceSiteName:").append(getSourceSiteName())
                 .append(",").append("SourceSiteId:").append(getSourceSiteId()).append(",")
                 .append("targetSiteName:").append(getTargetSiteName()).append(",")
-                .append("targetSiteId:").append(getTargetSiteId());
+                .append("targetSiteId:").append(getTargetSiteId()).append(",").append("quickStart:")
+                .append(isQuickStart()).append(",").append("dataCheckLevel:")
+                .append(getDataCheckLevel());
 
         return sb.toString();
     }

@@ -1,7 +1,9 @@
 package com.sequoiacm.datasource.metadata.sequoiadb;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import com.sequoiacm.common.CommonHelper;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -20,8 +22,8 @@ public class SdbDataLocation extends SdbLocation {
     private BSONObject dataCSOptions;
     private BSONObject dataCLOptions;
 
-    public SdbDataLocation(BSONObject dataLocation) throws ScmDatasourceException {
-        super(dataLocation);
+    public SdbDataLocation(BSONObject dataLocation, String siteName) throws ScmDatasourceException {
+        super(dataLocation, siteName);
 
         Object tmp = dataLocation.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (null != tmp) {
@@ -96,15 +98,22 @@ public class SdbDataLocation extends SdbLocation {
     }
 
     public String getDataCsName(String wsName, Date createDate) {
+        return getDataCsName(wsName, getShardingStr(csShardingType, createDate));
+    }
+
+    public String getDataCsName(String wsName, String shardingStr) {
         StringBuilder sb = new StringBuilder();
         sb.append(wsName);
         sb.append(SdbMetaDefine.CS_LOB_EXTRA);
         if (csShardingType != ScmShardingType.NONE) {
             sb.append("_");
-            sb.append(getShardingStr(csShardingType, createDate));
+            sb.append(shardingStr);
         }
-
         return sb.toString();
+    }
+
+    public ScmShardingType getCsShardingType() {
+        return csShardingType;
     }
 
     public String getDataClName(Date createDate) {
@@ -117,6 +126,11 @@ public class SdbDataLocation extends SdbLocation {
 
         return sb.toString();
     }
+
+    public String getCsShardingStr(Date createDate) {
+        return super.getShardingStr(csShardingType, createDate);
+    }
+
 
     @Override
     public boolean equals(Object right) {
@@ -136,4 +150,69 @@ public class SdbDataLocation extends SdbLocation {
         return csShardingType.equals(r.csShardingType) && clShardingType.equals(r.clShardingType)
                 && dataCSOptions.equals(r.dataCSOptions) && dataCLOptions.equals(r.dataCLOptions);
     }
+
+    // return null if csShardingType is ScmShardingType.NONE
+    public Date getCsShardingBeginningTime(String csName, String wsName) {
+        if (csShardingType == ScmShardingType.NONE) {
+            return null;
+        }
+        try {
+            // ws_default_LOB_2022 => 2022
+            String shardingStr = csName
+                    .substring(wsName.length() + SdbMetaDefine.CS_LOB_EXTRA.length() + 1);
+            if (csShardingType == ScmShardingType.YEAR) { // 2022
+                Calendar calendar = createCalendar();
+                calendar.set(Calendar.YEAR, Integer.parseInt(shardingStr));
+                calendar.set(Calendar.MONTH, calendar.getActualMinimum(Calendar.MONTH));
+                calendar.set(Calendar.DAY_OF_MONTH,
+                        calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+                return calendar.getTime();
+            }
+            else if (csShardingType == ScmShardingType.MONTH) { // 202202
+                Calendar calendar = createCalendar();
+                calendar.set(Calendar.YEAR, Integer.parseInt(shardingStr.substring(0, 4)));
+                // calendar的 MONTH 是从0开始的，要减1
+                calendar.set(Calendar.MONTH, Integer.parseInt(shardingStr.substring(4, 6)) - 1);
+                calendar.set(Calendar.DAY_OF_MONTH,
+                        calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+                return calendar.getTime();
+            }
+            else if (csShardingType == ScmShardingType.QUARTER) { // 2022Q1
+                Calendar calendar = createCalendar();
+                calendar.set(Calendar.YEAR, Integer.parseInt(shardingStr.substring(0, 4)));
+                int quarterStartMonth = CommonHelper
+                        .getQuarterStartMonth(shardingStr.substring(4, 6));
+                calendar.set(Calendar.MONTH, quarterStartMonth - 1);
+                calendar.set(Calendar.DAY_OF_MONTH,
+                        calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+                return calendar.getTime();
+            }
+            else if (csShardingType == ScmShardingType.DAY) { // 20220101
+                Calendar calendar = createCalendar();
+                calendar.set(Calendar.YEAR, Integer.parseInt(shardingStr.substring(0, 4)));
+                calendar.set(Calendar.MONTH, Integer.parseInt(shardingStr.substring(4, 6)) - 1);
+                calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(shardingStr.substring(6, 8)));
+                return calendar.getTime();
+            }
+            else {
+                throw new IllegalArgumentException("unrecognized csShardingType:" + csShardingType);
+            }
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "failed to parse collection space sharding time:csName=" + csName + ", wsName="
+                            + wsName + ", csShardingType=" + csShardingType);
+        }
+
+    }
+
+    private Calendar createCalendar() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
+        calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
+        return calendar;
+    }
+
 }

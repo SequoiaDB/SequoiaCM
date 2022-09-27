@@ -40,6 +40,23 @@ public class StarStrategy implements ConnectivityStrategy {
     }
 
     @Override
+    public void checkMoveFileSite(List<Integer> wsLocationSiteIds, int sourceSiteId,
+            int targetSiteId) throws StrategyException {
+        checkSiteInWorkspaceOrNot(wsLocationSiteIds, sourceSiteId);
+        checkSiteInWorkspaceOrNot(wsLocationSiteIds, targetSiteId);
+
+        if (sourceSiteId == targetSiteId) {
+            throw new StrategyException("The source site and target site cannot be the same"
+                    + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
+        }
+        if (sourceSiteId != mainSiteId && targetSiteId != mainSiteId) {
+            throw new StrategyException(
+                    "Under the star strategy, cannot move file from branch site to branch site"
+                            + ":sourceSite=" + sourceSiteId + ",targetSite=" + targetSiteId);
+        }
+    }
+
+    @Override
     public void checkCleanSite(List<Integer> wsLocationSiteIds, int localSiteId)
             throws StrategyException {
         checkSiteInWorkspaceOrNot(wsLocationSiteIds, localSiteId);

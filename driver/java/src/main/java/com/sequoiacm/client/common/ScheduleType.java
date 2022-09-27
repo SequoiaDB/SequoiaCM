@@ -15,6 +15,16 @@ public enum ScheduleType {
     CLEAN_FILE("clean_file"),
 
     /**
+     * Move file.
+     */
+    MOVE_FILE("move_file"),
+
+    /**
+     * Recycle space.
+     */
+    RECYCLE_SPACE("recycle_space"),
+
+    /**
      * Unknown type.
      */
     UNKOWN_SCHEDULE("unknown");

@@ -1,5 +1,6 @@
 package com.sequoiacm.metasource.sequoiadb.accessor;
 
+import com.sequoiadb.base.Sequoiadb;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -158,6 +159,20 @@ public class SdbFileCurrentAccessor extends SdbFileBaseAccessor implements MetaF
                             + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
                             + minorVersion,
                             e);
+        }
+    }
+
+    @Override
+    public boolean isIndexFieldExist(String fieldName) throws SdbMetasourceException {
+        Sequoiadb sdb = null;
+        try {
+            sdb = getConnection();
+            return SequoiadbHelper.isIndexFieldExist(sdb, fieldName, getCsName(), getClName());
+        }
+        finally {
+            if (sdb != null) {
+                releaseConnection(sdb);
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ package com.sequoiacm.metasource;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import org.bson.BSONObject;
 
 public interface MetaFileHistoryAccessor {
@@ -59,4 +60,6 @@ public interface MetaFileHistoryAccessor {
     public long count(BSONObject matcher) throws ScmMetasourceException;
 
     public double sum(BSONObject matcher, String field) throws ScmMetasourceException;
+
+    boolean isIndexFieldExist(String fieldName) throws SdbMetasourceException;
 }

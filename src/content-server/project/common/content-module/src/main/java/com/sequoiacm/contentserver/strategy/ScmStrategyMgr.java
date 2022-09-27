@@ -79,6 +79,20 @@ public class ScmStrategyMgr {
             throw new ScmOperationUnsupportedException(e.getMessage(), e);
         }
     }
+
+    public void checkMoveFileSite(ScmWorkspaceInfo wsInfo, int sourceSiteId, int targetSiteId)
+            throws ScmServerException {
+        List<Integer> wsLocationSiteIds = getWsLocationSites(wsInfo);
+        try {
+            this.strategy.checkMoveFileSite(wsLocationSiteIds, sourceSiteId, targetSiteId);
+        }
+        catch (StrategyInvalidArgumentException e) {
+            throw new ScmSystemException("invalid argument", e);
+        }
+        catch (StrategyException e) {
+            throw new ScmOperationUnsupportedException(e.getMessage(), e);
+        }
+    }
     
     public void checkCleanSite(ScmWorkspaceInfo wsInfo, int localSiteId) throws ScmServerException {
         List<Integer> wsLocationSiteIds = getWsLocationSites(wsInfo);

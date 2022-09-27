@@ -18,6 +18,10 @@ class ScmTimerThreadPoolImpl implements ScmTimer {
         innerExecutorService = Executors.newScheduledThreadPool(1);
     }
 
+    public ScmTimerThreadPoolImpl(int coreSize) {
+        innerExecutorService = Executors.newScheduledThreadPool(coreSize);
+    }
+
     public ScmTimerThreadPoolImpl(final String name) {
         innerExecutorService = Executors.newScheduledThreadPool(1, new ThreadFactory() {
             @Override

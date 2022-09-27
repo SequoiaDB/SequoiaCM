@@ -4,6 +4,9 @@ import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.metasource.MetaSource;
+import com.sequoiacm.sequoiadb.metaoperation.MetaDataOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,17 +36,24 @@ public class SdbDataWriterImpl extends ScmDataWriter {
     private DBLob lob = null;
     private long offset = 0;
     private String createdCsName;
+    private ScmLockManager lockManager;
+    private MetaDataOperator metaDataOperator;
+    private String siteName;
 
     @SlowLog(operation = "openWriter", extras = { @SlowLogExtra(name = "writeCs", data = "csName"),
             @SlowLogExtra(name = "writeCl", data = "clName"),
             @SlowLogExtra(name = "writeLobId", data = "dataId") })
-    SdbDataWriterImpl(int siteId, ScmLocation location, ScmService service, String csName,
-            String clName, int dataType, String dataId) throws SequoiadbException {
+    SdbDataWriterImpl(int siteId, ScmLocation location, ScmService service, MetaSource metaSource,
+            String csName, String clName, String wsName, int dataType, String dataId,
+            ScmLockManager lockManager) throws SequoiadbException {
         this.siteId = siteId;
         this.csName = csName;
         this.clName = clName;
         this.lobId = dataId;
-
+        this.siteName = location.getSiteName();
+        this.metaDataOperator = new MetaDataOperator(metaSource, wsName, location.getSiteName(),
+                siteId);
+        this.lockManager = lockManager;
         try {
             sdbLocation = (SdbDataLocation) location;
             sds = (SdbDataService) service;
@@ -63,65 +73,20 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         }
     }
 
-    private BSONObject generateCLOptions() throws SequoiadbException {
-        try {
-            BSONObject key = new BasicBSONObject("_id", 1);
-            BSONObject options = new BasicBSONObject();
-            options.put("ShardingType", "hash");
-            options.put("ShardingKey", key);
-            options.put("ReplSize", -1);
-            options.put("AutoSplit", true);
-
-            BSONObject tmp = sdbLocation.getDataCLOptions();
-            options.putAll(tmp);
-
-            return options;
-        }
-        catch (Exception e) {
-            logger.error("get sdb cl options failed:cs={},cl={}", csName, clName);
-            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
-        }
-    }
-
-    private BSONObject generateCSOptions() throws SequoiadbException {
-        try {
-            BSONObject options = new BasicBSONObject();
-            BSONObject tmp = sdbLocation.getDataCSOptions();
-            options.put("Domain", sdbLocation.getDomain());
-            options.putAll(tmp);
-            return options;
-        }
-        catch (Exception e) {
-            logger.error("get sdb cs options failed:cs={},cl={}", csName, clName);
-            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
-                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
-        }
-    }
-
     private DBLob createLob() throws SequoiadbException {
         DBLob tmpLob = null;
         try {
             tmpLob = SequoiadbHelper.createLob(sdb, csName, clName, lobId);
         }
         catch (SequoiadbException e) {
-            if (e.getDatabaseError() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()) {
-                boolean createdCs = SequoiadbHelper.createCS(sdb, csName, generateCSOptions());
-                SequoiadbHelper.createCL(sdb, csName, clName, generateCLOptions());
-                if (createdCs) {
-                    createdCsName = csName;
+            if (e.getDatabaseError() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()
+                    || e.getDatabaseError() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
+                boolean isCreated = SdbCsRecycleHelper.createCs(sdb, csName, siteName, sdbLocation,
+                        lockManager, metaDataOperator);
+                if (isCreated) {
+                    this.createdCsName = csName;
                 }
-                tmpLob = SequoiadbHelper.createLob(sdb, csName, clName, lobId);
-            }
-            else if (e.getDatabaseError() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
-                /*
-                 * since sdb have cached cs And cl. we should call sdb.isCollectionSpaceExist to
-                 * ensure the cs is exist or not
-                 */
-                if (!sdb.isCollectionSpaceExist(csName)) {
-                    SequoiadbHelper.createCS(sdb, csName, generateCSOptions());
-                }
-                SequoiadbHelper.createCL(sdb, csName, clName, generateCLOptions());
+                SequoiadbHelper.createCL(sdb, csName, clName, sdbLocation);
                 tmpLob = SequoiadbHelper.createLob(sdb, csName, clName, lobId);
             }
             else {

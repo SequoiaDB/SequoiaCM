@@ -336,7 +336,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             addDataLocation.addSiteId(addSite.getId());
             try {
                 DatalocationFactory.createDataLocation(addSite.getDataUrl().getType(),
-                        addDataLocation.toCompleteBSON());
+                        addDataLocation.toCompleteBSON(), addSite.getName());
             }
             catch (ScmDatasourceException e) {
                 throw new ScmInvalidArgumentException(

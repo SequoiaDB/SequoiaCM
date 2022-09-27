@@ -22,6 +22,14 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-content-metasource</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-lock</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

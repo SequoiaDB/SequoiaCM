@@ -22,4 +22,13 @@ public class SdbDataTableNameHistoryAccessor extends SdbMetaAccessor implements 
         matcher.put(FieldName.DataTableNameHistory.WORKSPACE_IS_DELETED, true);
         super.delete(matcher);
     }
+
+    public void deleteHistoryDataTableRecord(String wsName, String siteName, String tableName)
+            throws SdbMetasourceException {
+        BasicBSONObject matcher = new BasicBSONObject();
+        matcher.put(FieldName.DataTableNameHistory.WORKSPACE_NAME, wsName);
+        matcher.put(FieldName.DataTableNameHistory.SITE_NAME, siteName);
+        matcher.put(FieldName.DataTableNameHistory.TABLE_NAME, tableName);
+        super.delete(matcher);
+    }
 }

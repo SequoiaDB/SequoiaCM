@@ -132,6 +132,88 @@ public class SequoiadbHelper {
         }
     }
 
+    private static boolean checkIndex(Sequoiadb sequoiadb, String csClName, String fieldName) {
+        if (csClName == null || csClName.isEmpty()) {
+            return false;
+        }
+        String[] csCl = csClName.split("\\.");
+        if (csCl.length != 2) {
+            return false;
+        }
+        DBCursor indexes = null;
+        try {
+            indexes = sequoiadb.getCollectionSpace(csCl[0]).getCollection(csCl[1]).getIndexes();
+            while (indexes.hasNext()) {
+                BSONObject index = indexes.getNext();
+                BSONObject indexDef = (BSONObject) index.get("IndexDef");
+                BSONObject keyBson = (BSONObject) indexDef.get("key");
+                Object[] keyArr = keyBson.keySet().toArray();
+                if (keyArr.length > 0 && keyArr[0].equals(fieldName)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        finally {
+            if (indexes != null) {
+                indexes.close();
+            }
+        }
+    }
+
+    public static boolean isIndexFieldExist(Sequoiadb sdb, String fieldName, String csName,
+            String clName) throws SdbMetasourceException {
+        DBCursor snapCursor = null;
+        try {
+            snapCursor = sdb.getSnapshot(8, new BasicBSONObject("Name", csName + "." + clName),
+                    null, null);
+            if (snapCursor.hasNext()) {
+                BSONObject snapInfo = snapCursor.getNext();
+                boolean isMainCl = false;
+                if (snapInfo.containsField("IsMainCL")) {
+                    isMainCl = (boolean) snapInfo.get("IsMainCL");
+                }
+                if (!isMainCl) {
+                    // 不存在在主子表，检查当前表是否存在索引
+                    return checkIndex(sdb, csName + "." + clName, fieldName);
+                }
+                BasicBSONList subClList = (BasicBSONList) snapInfo.get("CataInfo");
+                if (subClList == null || subClList.size() <= 0) {
+                    return checkIndex(sdb, csName + "." + clName, fieldName);
+                }
+                if (subClList.size() == 1) {
+                    String subClFullName = (String) ((BSONObject) subClList.get(0))
+                            .get("SubCLName");
+                    return checkIndex(sdb, subClFullName, fieldName);
+                }
+                else {
+                    // 存在主子表，检查第一个子表和最后一个子表是否存在索引
+                    String firstSubClFullName = (String) ((BSONObject) subClList.get(0))
+                            .get("SubCLName");
+                    String lastSubClFullName = (String) ((BSONObject) subClList
+                            .get(subClList.size() - 1)).get("SubCLName");
+                    return checkIndex(sdb, firstSubClFullName, fieldName)
+                            && checkIndex(sdb, lastSubClFullName, fieldName);
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "failed to check index field, table=" + csName + "." + clName
+                            + ", indexFieldName=" + fieldName,
+                    e);
+        }
+        finally {
+            if (snapCursor != null) {
+                snapCursor.close();
+            }
+        }
+
+    }
+
     public static BSONObject addFileIdAndCreateMonth(BSONObject matcher, String fileId)
             throws SdbMetasourceException {
         ScmIdParser idParser = null;

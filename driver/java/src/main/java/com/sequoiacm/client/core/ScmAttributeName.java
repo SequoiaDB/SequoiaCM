@@ -499,6 +499,24 @@ public class ScmAttributeName {
          */
         public static final String CONTENT_EXTRA_CONDITION = "extra_condition";
 
+        // string
+        /**
+         * Data check level.
+         */
+        public static final String CONTENT_DATA_CHECK_LEVEL = "data_check_level";
+
+        // boolean
+        /**
+         * Is quick start.
+         */
+        public static final String CONTENT_QUICK_START = "quick_start";
+
+        // boolean
+        /**
+         * Is recycle space.
+         */
+        public static final String CONTENT_IS_RECYCLE_SPACE = "is_recycle_space";
+
         /**
          * Is disable.
          */
@@ -530,6 +548,14 @@ public class ScmAttributeName {
          * Target site.
          */
         public static final String CONTENT_COPY_TARGET_SITE = "target_site";
+
+        // ***************** move file job *****************
+        public static final String CONTENT_MOVE_SOURCE_SITE = "source_site";
+        public static final String CONTENT_MOVE_TARGET_SITE = "target_site";
+
+        // ***************** space recycle job *****************
+        public static final String CONTENT_TARGET_SITE = "target_site";
+        public static final String CONTENT_RECYCLE_SCOPE = "recycle_scope";
     }
 
     /**

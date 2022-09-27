@@ -31,6 +31,7 @@ public class MetaSourceDefine {
         public static final String CL_STRATEGY = "STRATEGY";
         public static final String CL_AUDIT = "AUDIT_LOG_EVENT";
         public static final String CL_DATA_TABLE_NAME_HISTORY = "DATA_TABLE_NAME_HISTORY";
+        public static final String CL_SPACE_RECYCLING_LOG = "SPACE_RECYCLING_LOG";
     }
 
     public static class WorkspaceCLName {

@@ -11,12 +11,14 @@ import java.util.Date;
 
 public abstract class ScmLocation {
     private int siteId;
+    private String siteName;
 
     public abstract String getType();
 
-    public ScmLocation(BSONObject record) throws ScmDatasourceException {
+    public ScmLocation(BSONObject record, String siteName) throws ScmDatasourceException {
         try {
             siteId = (int) record.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
+            this.siteName = siteName;
         }
         catch (Exception e) {
             throw new ScmDatasourceException(ScmError.INVALID_ARGUMENT,
@@ -82,6 +84,14 @@ public abstract class ScmLocation {
 
     public void setSiteId(int siteId) {
         this.siteId = siteId;
+    }
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
     }
 
     @Override

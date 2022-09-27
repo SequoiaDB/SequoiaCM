@@ -58,7 +58,7 @@ public class ContentModuleInitRunner {
 
     @PreDestroy
     public void destroy() throws ScmServerException {
-        ScmLockManager.getInstance().close();
+        ScmLockManager.getInstance().getInnerLockManager().close();
         ScmContentModule.getInstance().getSiteMgr().clear();
     }
 }

@@ -107,7 +107,8 @@ public class TaskServiceImpl implements ITaskService {
 
         int sourceSiteId = serverInfo.getSite().getId();
         Integer targetSiteId = null;
-        if (taskType == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE) {
+        if (taskType == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE
+                || taskType == CommonDefine.TaskType.SCM_TASK_MOVE_FILE) {
             // get remote site id
             Set<Integer> siteIds = wsInfo.getDataSiteIds();
             for (Integer id : siteIds) {
@@ -122,7 +123,13 @@ public class TaskServiceImpl implements ITaskService {
                                 + targetSite);
             }
             // check
-            ScmStrategyMgr.getInstance().checkTransferSite(wsInfo, sourceSiteId, targetSiteId);
+            if (taskType == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE) {
+                ScmStrategyMgr.getInstance().checkTransferSite(wsInfo, sourceSiteId, targetSiteId);
+            }
+            else if (taskType == CommonDefine.TaskType.SCM_TASK_MOVE_FILE) {
+                ScmStrategyMgr.getInstance().checkMoveFileSite(wsInfo, sourceSiteId, targetSiteId);
+            }
+
         }
         else if (taskType == CommonDefine.TaskType.SCM_TASK_CLEAN_FILE) {
             ScmStrategyMgr.getInstance().checkCleanSite(wsInfo, sourceSiteId);
@@ -143,8 +150,10 @@ public class TaskServiceImpl implements ITaskService {
     private String initAndNotifyTask(ScmWorkspaceInfo wsInfo, int taskType, BSONObject options,
             int serverId, Integer targetSiteId) throws ScmServerException {
         if (taskType != CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE
-                && taskType != CommonDefine.TaskType.SCM_TASK_CLEAN_FILE) {
-            throw new ScmInvalidArgumentException("unreconigzed task type:type=" + taskType);
+                && taskType != CommonDefine.TaskType.SCM_TASK_CLEAN_FILE
+                && taskType != CommonDefine.TaskType.SCM_TASK_MOVE_FILE
+                && taskType != CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE) {
+            throw new ScmInvalidArgumentException("unrecognized task type:type=" + taskType);
         }
 
         // write task & notify
@@ -152,13 +161,16 @@ public class TaskServiceImpl implements ITaskService {
         if (taskContent == null) {
             taskContent = new BasicBSONObject();
         }
-        int taskScope = checkAndGetScope(options);
+        int taskScope = -1;
+        if (taskType != CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE) {
+            taskScope = checkAndGetScope(options);
+        }
         long maxExecTime = BsonUtils
                 .getNumberOrElse(options, CommonDefine.RestArg.TASK_MAX_EXEC_TIME, 0).longValue();
 
         String taskId = ScmIdGenerator.TaskId.get();
         createTask(taskType, taskId, wsInfo.getName(), taskContent, serverId, targetSiteId,
-                taskScope, maxExecTime);
+                taskScope, maxExecTime, createOption(options, taskType));
         try {
             notifyTask(serverId, taskId, CommonDefine.TaskNotifyType.SCM_TASK_CREATE);
             logger.info("start task success:taskId=" + taskId);
@@ -173,6 +185,32 @@ public class TaskServiceImpl implements ITaskService {
         }
 
         return taskId;
+    }
+
+    private BSONObject createOption(BSONObject bson, int taskType) {
+        BSONObject option = new BasicBSONObject();
+        if (taskType == CommonDefine.TaskType.SCM_TASK_CLEAN_FILE
+                || taskType == CommonDefine.TaskType.SCM_TASK_MOVE_FILE) {
+            option.put(FieldName.Task.FIELD_OPTION_IS_RECYCLE_SPACE, BsonUtils
+                    .getBooleanOrElse(bson, FieldName.Task.FIELD_OPTION_IS_RECYCLE_SPACE, false));
+            option.put(FieldName.Task.FIELD_OPTION_QUICK_START, BsonUtils.getBooleanOrElse(bson,
+                    FieldName.Task.FIELD_OPTION_QUICK_START, false));
+            option.put(FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                    BsonUtils.getStringOrElse(bson, FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                            CommonDefine.DataCheckLevel.WEEK));
+        }
+        else if (taskType == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE) {
+            option.put(FieldName.Task.FIELD_OPTION_QUICK_START, BsonUtils.getBooleanOrElse(bson,
+                    FieldName.Task.FIELD_OPTION_QUICK_START, false));
+            option.put(FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                    BsonUtils.getStringOrElse(bson, FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                            CommonDefine.DataCheckLevel.WEEK));
+        }
+        else if (taskType == CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE) {
+            option.put(FieldName.Task.FIELD_OPTION_RECYCLE_SCOPE,
+                    BsonUtils.getStringChecked(bson, FieldName.Task.FIELD_OPTION_RECYCLE_SCOPE));
+        }
+        return option;
     }
 
     private void notifyTask(int serverId, String taskId, int notifyType) throws ScmServerException {
@@ -215,7 +253,7 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     private void createTask(int type, String id, String workspaceName, BSONObject content,
-            int serverId, Integer targetSiteId, int taskScope, long maxExecTime)
+            int serverId, Integer targetSiteId, int taskScope, long maxExecTime, BSONObject option)
             throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         long time = new Date().getTime();
@@ -235,9 +273,11 @@ public class TaskServiceImpl implements ITaskService {
         task.put(FieldName.Task.FIELD_ACTUAL_COUNT, 0L);
         task.put(FieldName.Task.FIELD_SUCCESS_COUNT, 0L);
         task.put(FieldName.Task.FIELD_FAIL_COUNT, 0L);
-        if (type == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE) {
+        if (type == CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE
+                || type == CommonDefine.TaskType.SCM_TASK_MOVE_FILE) {
             task.put(FieldName.Task.FIELD_TARGET_SITE, targetSiteId);
         }
+        task.put(FieldName.Task.FIELD_OPTION, option);
         task.put(FieldName.Task.FIELD_MAX_EXEC_TIME, maxExecTime);
         contentModule.insertTask(task);
     }

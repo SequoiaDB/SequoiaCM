@@ -10,29 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.dao.FileTransferDao;
-import com.sequoiacm.contentserver.dao.FileTransferInterrupter;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.contentserver.lock.ScmLockManager;
-import com.sequoiacm.contentserver.lock.ScmLockPath;
-import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
-import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class ScmTaskTransferFile extends ScmTaskFile {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskTransferFile.class);
 
-    private final FileTransferDao fileTrans;
-
     public ScmTaskTransferFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
         super(mgr, info);
-
-        ScmWorkspaceInfo ws = getWorkspaceInfo();
-        FileTransferInterrupter interrupter = new TaskTransfileInterrupter(this);
-        int remoteSiteId = (int) info.get(FieldName.Task.FIELD_TARGET_SITE);
-        fileTrans = new FileTransferDao(ws, remoteSiteId, interrupter);
     }
 
     @Override
@@ -46,69 +31,15 @@ public class ScmTaskTransferFile extends ScmTaskFile {
     }
 
     @Override
-    protected DoFileRes doFile(BSONObject fileInfoNotInLock) throws ScmServerException {
-        String fileId = (String) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_ID);
-        String dataId = (String) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
-        int majorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
-        int minorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
+    protected void doFile(BSONObject fileInfoNotInLock) throws ScmServerException {
+        ScmFileSubTask scmFileSubTask = new ScmFileTransferSubTask(fileInfoNotInLock,
+                getWorkspaceInfo(), taskInfoContext, this);
+        submitSubTask(scmFileSubTask);
+    }
 
-        int remoteSiteId = (int) taskInfo.get(FieldName.Task.FIELD_TARGET_SITE);
-        ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
-                getWorkspaceInfo().getName(),
-                ScmContentModule.getInstance().getSiteInfo(remoteSiteId).getName(), dataId);
-
-        ScmLock fileContentLock = ScmLockManager.getInstance().tryAcquiresLock(fileContentLockPath);
-        if (fileContentLock == null) {
-            logger.warn("try lock failed, skip this file:fileId={},version={}.{},dataId={}", fileId,
-                    majorVersion, minorVersion, dataId);
-            return DoFileRes.SKIP;
-        }
-
-        BSONObject file;
-        try {
-            ScmWorkspaceInfo ws = getWorkspaceInfo();
-            file = ScmContentModule.getInstance().getMetaService().getFileInfo(ws.getMetaLocation(),
-                    ws.getName(), fileId, majorVersion, minorVersion, false);
-            if (file == null) {
-                logger.warn("file not exist, skip this file:fileId={},version={}.{},dataId={}",
-                        fileId, majorVersion, minorVersion, dataId);
-                fileContentLock.unlock();
-                return DoFileRes.SKIP;
-            }
-        }
-        catch (Exception e) {
-            fileContentLock.unlock();
-            throw e;
-        }
-
-        try {
-            if (fileTrans.doTransfer(file)) {
-                return DoFileRes.SUCCESS;
-            }
-            return DoFileRes.INTERRUPT;
-        }
-        catch (ScmServerException e) {
-            // skip exception
-            if (e.getError() == ScmError.DATA_TYPE_ERROR || e.getError() == ScmError.FILE_NOT_FOUND
-                    || e.getError() == ScmError.DATA_NOT_EXIST) {
-                logger.warn("transfer file failed", e);
-                return DoFileRes.SKIP;
-            }
-            // failed exception
-            if (e.getError() == ScmError.DATA_UNAVAILABLE || e.getError() == ScmError.DATA_CORRUPTED
-                    || e.getError() == ScmError.DATA_IS_IN_USE
-            // if data exist,it means main site data is exist but check
-            // size failed
-                    || e.getError() == ScmError.DATA_EXIST) {
-                logger.warn("transfer file failed", e);
-                return DoFileRes.FAIL;
-            }
-            // abort exception
-            throw e;
-        }
-        finally {
-            fileContentLock.unlock();
-        }
+    @Override
+    protected void taskComplete() {
+        // do nothing
     }
 
     @Override

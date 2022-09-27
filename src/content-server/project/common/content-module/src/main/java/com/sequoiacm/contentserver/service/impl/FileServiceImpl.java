@@ -188,7 +188,7 @@ public class FileServiceImpl implements IFileService {
                                 "query all file unsupport orderby/skip/limit");
                     }
                     metaCursor = contentModule.getMetaService().queryAllFile(ws, condition,
-                            selector);
+                            selector, null);
                 }
                 else {
                     throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
@@ -694,7 +694,7 @@ public class FileServiceImpl implements IFileService {
         String dataId = (String) file.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         ScmJobTransferFile job = new ScmJobTransferFile(wsInfo, fileId, majorVersion, minorVersion,
                 dataId, transferTargetSiteId);
-        ScmJobManager.getInstance().schedule(job, 0);
+        ScmJobManager.getInstance().executeShortTimeTask(job);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
                 "async transfer file by fileId=" + fileId);
     }
@@ -739,7 +739,7 @@ public class FileServiceImpl implements IFileService {
         String dataId = (String) file.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         ScmJobCacheFile job = new ScmJobCacheFile(wsInfo, fileId, majorVersion, minorVersion,
                 dataId, remoteSiteId);
-        ScmJobManager.getInstance().schedule(job, 0);
+        ScmJobManager.getInstance().executeShortTimeTask(job);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
                 "async cache file by fileId=" + fileId);
     }

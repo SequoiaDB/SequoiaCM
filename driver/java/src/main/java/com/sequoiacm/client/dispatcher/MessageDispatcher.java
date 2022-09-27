@@ -114,9 +114,18 @@ public interface MessageDispatcher extends Closeable {
             long limit) throws ScmException;
 
     ScmId MsgStartTransferTask(String workspaceName, BSONObject condition, int scope,
-                               long maxExecTime, String targetSite) throws ScmException;
+            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart)
+            throws ScmException;
 
-    ScmId MsgStartCleanTask(String workspaceName, BSONObject condition, int scope, long maxExecTime)
+    ScmId MsgStartCleanTask(String workspaceName, BSONObject condition, int scope, long maxExecTime,
+            String dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
+            throws ScmException;
+
+    ScmId MsgStartMoveTask(String workspaceName, BSONObject condition, int scope, long maxExecTime,
+            String targetSite, String dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
+            throws ScmException;
+
+    ScmId MsgStartSpaceRecyclingTask(String workspaceName, long maxExecTime, String recycleScope)
             throws ScmException;
 
     void MsgStopTask(ScmId taskId) throws ScmException;

@@ -73,7 +73,7 @@ public class SiteInfoMgr {
             for (BSONObject data : ws.getDataLocation()) {
                 int siteId = BsonUtils.getNumberChecked(data, "site_id").intValue();
                 if (siteId == cleanSiteId) {
-                    cleanSiteDataLocation = new SdbDataLocation(data);
+                    cleanSiteDataLocation = new SdbDataLocation(data, sites.get(siteId).getName());
                 }
                 wsDataLocationSiteId.add(siteId);
             }

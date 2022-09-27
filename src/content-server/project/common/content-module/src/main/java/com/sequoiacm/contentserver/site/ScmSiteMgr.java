@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.site;
 
 import java.io.File;
 
+import com.sequoiacm.contentserver.lock.ScmLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,6 +158,8 @@ public class ScmSiteMgr {
                             "data source is unrecognized:type=" + datasourceType);
                 }
             }
+            opFactory.init(metaService.getMetaSource(),
+                    ScmLockManager.getInstance().getInnerLockManager());
         } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR),
                     "Failed to create DataOpFactory", e);

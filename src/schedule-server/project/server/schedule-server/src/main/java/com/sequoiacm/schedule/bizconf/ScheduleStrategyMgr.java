@@ -88,6 +88,23 @@ public class ScheduleStrategyMgr {
         }
     }
 
+    public void checkMoveFileSite(WorkspaceInfo wsInfo, int sourceSiteId, int targetSiteId)
+            throws ScheduleException {
+        checkStrategyNull();
+        List<Integer> wsLocationSiteIds = getWorkspaceSiteList(wsInfo);
+        try {
+            this.strategy.checkMoveFileSite(wsLocationSiteIds, sourceSiteId, targetSiteId);
+        }
+        catch (StrategyInvalidArgumentException e) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                    "invalid argument", e);
+        }
+        catch (StrategyException e) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT, e.getMessage(),
+                    e);
+        }
+    }
+
     public void checkCleanSite(WorkspaceInfo wsInfo, int localSiteId) throws ScheduleException {
         checkStrategyNull();
         List<Integer> wsLocationSiteIds = getWorkspaceSiteList(wsInfo);

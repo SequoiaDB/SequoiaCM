@@ -171,7 +171,7 @@ public class ScmWorkspaceInfo {
             newDataLocationObj.put(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS, defaultSdbDataOptions);
         }
 
-        return new SdbDataLocation(newDataLocationObj);
+        return new SdbDataLocation(newDataLocationObj, siteInfo.getName());
 
     }
 
@@ -197,13 +197,17 @@ public class ScmWorkspaceInfo {
 
         try {
             ScmSiteUrl siteUrl = siteInfo.getDataUrl();
+            ScmLocation scmLocation;
             if (siteUrl.getType().equals(ScmDataSourceType.SEQUOIADB.getName())) {
-                return createSdbDataLocation(siteInfo, dataLocationObj, defaultSdbShardingType,
+                scmLocation = createSdbDataLocation(siteInfo, dataLocationObj,
+                        defaultSdbShardingType,
                         defaultSdbDataOptions);
             }
             else {
-                return DatalocationFactory.createDataLocation(siteUrl.getType(), dataLocationObj);
+                scmLocation = DatalocationFactory.createDataLocation(siteUrl.getType(),
+                        dataLocationObj, siteInfo.getName());
             }
+            return scmLocation;
         }
         catch (NoClassDefFoundError e) {
             logger.error("create dataLocation failed:location=" + dataLocationObj);

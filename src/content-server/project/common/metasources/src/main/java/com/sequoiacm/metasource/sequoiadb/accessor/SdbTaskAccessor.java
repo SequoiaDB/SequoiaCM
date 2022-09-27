@@ -53,6 +53,8 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
             BSONObject typeList = new BasicBSONList();
             typeList.put("0", CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE);
             typeList.put("1", CommonDefine.TaskType.SCM_TASK_CLEAN_FILE);
+            typeList.put("2", CommonDefine.TaskType.SCM_TASK_MOVE_FILE);
+            typeList.put("3", CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE);
             BSONObject inType = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MATCHER_IN, typeList);
 
             BSONObject matcher = new BasicBSONObject();
@@ -87,6 +89,8 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
             BSONObject typeList = new BasicBSONList();
             typeList.put("0", CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE);
             typeList.put("1", CommonDefine.TaskType.SCM_TASK_CLEAN_FILE);
+            typeList.put("2", CommonDefine.TaskType.SCM_TASK_MOVE_FILE);
+            typeList.put("3", CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE);
             BSONObject inType = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MATCHER_IN, typeList);
 
             BSONObject isNull = new BasicBSONObject();
@@ -208,6 +212,55 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "update stop time failed:table=" + getCsName() + "." + getClName()
                     + ",taskId=" + taskId, e);
+        }
+    }
+
+    @Override
+    public void updateExtraInfo(String taskId, BSONObject extraInfo) throws SdbMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
+            BSONObject bson = new BasicBSONObject(FieldName.Task.FIELD_EXTRA_INFO, extraInfo);
+            BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET, bson);
+
+            update(matcher, updator);
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("update extra info failed:table=" + getCsName() + "." + getClName()
+                    + ",taskId=" + taskId);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update extra info failed:table=" + getCsName() + "." + getClName() + ",taskId="
+                            + taskId,
+                    e);
+        }
+    }
+
+    @Override
+    public void updateActualAndEstimateCount(String taskId, long actualCount, long estimateCount)
+            throws SdbMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
+            BSONObject newValue = new BasicBSONObject();
+            newValue.put(FieldName.Task.FIELD_ESTIMATE_COUNT, estimateCount);
+            newValue.put(FieldName.Task.FIELD_ACTUAL_COUNT, actualCount);
+
+            BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET,
+                    newValue);
+
+            update(matcher, updator);
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("update actualCount and estimateCount failed:table=" + getCsName() + "."
+                    + getClName() + ",taskId=" + taskId);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update actualCount and estimateCount failed:table=" + getCsName() + "."
+                            + getClName() + ",taskId=" + taskId,
+                    e);
         }
     }
 

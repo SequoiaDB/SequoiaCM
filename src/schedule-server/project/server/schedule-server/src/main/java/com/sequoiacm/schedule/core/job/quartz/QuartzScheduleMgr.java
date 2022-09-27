@@ -70,6 +70,15 @@ public class QuartzScheduleMgr implements ScheduleMgr {
             detail = QuartzScheduleTools.createJobDetail(QuartzCleanJob.class, dataMap, jobKey);
             tgBuilder.forJob(detail).withSchedule(CronScheduleBuilder.cronSchedule(info.getCron()));
         }
+        else if (info.getType().equals(ScheduleDefine.ScheduleType.MOVE_FILE)) {
+            detail = QuartzScheduleTools.createJobDetail(QuartzMoveJob.class, dataMap, jobKey);
+            tgBuilder.forJob(detail).withSchedule(CronScheduleBuilder.cronSchedule(info.getCron()));
+        }
+        else if (info.getType().equals(ScheduleDefine.ScheduleType.RECYCLE_SPACE)) {
+            detail = QuartzScheduleTools.createJobDetail(QuartzSpaceRecyclingJob.class, dataMap,
+                    jobKey);
+            tgBuilder.forJob(detail).withSchedule(CronScheduleBuilder.cronSchedule(info.getCron()));
+        }
         else if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
             dataMap.put(FieldName.Schedule.FIELD_FEIGN_CLIENT_FACTORY, feignClientFactory);
             dataMap.put(FieldName.Schedule.FIELD_DISCOVER_CLIENT, discoveryClient);

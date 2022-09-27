@@ -159,6 +159,20 @@ public class CommonDefine {
          * @since 2.1
          */
         public static final int SCM_TASK_CLEAN_FILE = 2;
+
+        /**
+         * A constants representing the move task of file.
+         *
+         * @since 3.1
+         */
+        public static final int SCM_TASK_MOVE_FILE = 3;
+
+        /**
+         * A constants representing the recycle space task.
+         *
+         * @since 3.1
+         */
+        public static final int SCM_TASK_RECYCLE_SPACE = 4;
     }
 
     /**
@@ -349,6 +363,10 @@ public class CommonDefine {
         public static final String TASK_NOTIFY_TYPE = "notify_type";
         public static final String TASK_SCOPE = "scope";
         public static final String TASK_MAX_EXEC_TIME = "max_exec_time";
+        public static final String TASK_DATA_CHECK_LEVEL = "data_check_level";
+        public static final String TASK_QUICK_START = "quick_start";
+        public static final String TASK_IS_RECYCLE_SPACE = "is_recycle_space";
+        public static final String TASK_RECYCLE_SCOPE = "recycle_scope";
 
         public static final String BATCH_WS_NAME = "workspace_name";
         public static final String BATCH_DESCRIPTION = "description";
@@ -450,5 +468,10 @@ public class CommonDefine {
     public static class SiteStrategy {
         public static final String SITE_STRATEGY_STAR = "star";
         public static final String SITE_STRATEGY_NETWORK = "network";
+    }
+
+    public static class DataCheckLevel {
+        public static final String WEEK = "week";
+        public static final String STRICT = "strict";
     }
 }

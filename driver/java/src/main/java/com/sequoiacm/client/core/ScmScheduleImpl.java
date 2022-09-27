@@ -40,6 +40,12 @@ class ScmScheduleImpl implements ScmSchedule {
                 case CLEAN_FILE:
                     tmpContent = new ScmScheduleCleanFileContent((BSONObject) temp);
                     break;
+                case MOVE_FILE:
+                    tmpContent = new ScmScheduleMoveFileContent((BSONObject) temp);
+                    break;
+                case RECYCLE_SPACE:
+                    tmpContent = new ScmScheduleSpaceRecyclingContent((BSONObject) temp);
+                    break;
 
                 default:
                     break;
@@ -291,11 +297,12 @@ class ScmScheduleImpl implements ScmSchedule {
 
         BsonReader reader = ss.getDispatcher().getTaskList(builder.get(), orderby,
                 new BasicBSONObject(), skip, limit);
+        final ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace(getWorkspace(), ss);
         ScmBsonCursor<ScmTask> cursor = new ScmBsonCursor<ScmTask>(reader,
                 new BsonConverter<ScmTask>() {
                     @Override
                     public ScmTask convert(BSONObject obj) throws ScmException {
-                        return new ScmTask(obj);
+                        return new ScmTask(obj, workspace, ss);
                     }
                 });
 

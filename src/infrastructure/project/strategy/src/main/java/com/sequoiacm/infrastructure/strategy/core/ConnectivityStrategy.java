@@ -12,6 +12,9 @@ public interface ConnectivityStrategy {
 
     void checkTransferSite(List<Integer> wsLocationSiteIds, int sourceSiteId, int targetSiteId) 
             throws StrategyException;
+
+    void checkMoveFileSite(List<Integer> wsLocationSiteIds, int sourceSiteId, int targetSiteId)
+            throws StrategyException;
     
     void checkCleanSite(List<Integer> wsLocationSiteIds, int localSiteId) 
             throws StrategyException;

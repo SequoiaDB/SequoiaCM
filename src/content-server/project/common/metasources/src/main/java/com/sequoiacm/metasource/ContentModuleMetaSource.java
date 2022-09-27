@@ -56,4 +56,6 @@ public interface ContentModuleMetaSource extends MetaSource {
     public void close();
 
     public void activeHandler(IMetaSourceHandler handler);
+
+    public MetaSpaceRecyclingLogAccessor getSpaceRecyclingLogAccessor();
 }

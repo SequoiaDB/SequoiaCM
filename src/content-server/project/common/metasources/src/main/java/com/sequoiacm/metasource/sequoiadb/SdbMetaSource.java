@@ -2,7 +2,14 @@ package com.sequoiacm.metasource.sequoiadb;
 
 import java.util.List;
 
+import com.sequoiacm.metasource.MetaSpaceRecyclingLogAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbMetaAccessor;
+import com.sequoiacm.metasource.sequoiadb.accessor.SdbSpaceRecyclingLogAccessor;
+import com.sequoiadb.base.CollectionSpace;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +65,13 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     public SdbMetaSource(List<String> urlList, String user, String passwd, ConfigOptions connConf,
             DatasourceOptions datasourceConf) throws SdbMetasourceException {
         ms = new SdbDataSourceWrapper(urlList, user, passwd, connConf, datasourceConf);
+        ensureTable();
+    }
+
+    private void ensureTable() throws SdbMetasourceException {
+        BasicBSONObject clOption = new BasicBSONObject();
+        ensureCollection(MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_SPACE_RECYCLING_LOG, clOption);
     }
 
     @Override
@@ -240,5 +254,34 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     @Override
     public void activeHandler(IMetaSourceHandler handler) {
         handler.refresh(ms.getDataSource());
+    }
+
+    @Override
+    public MetaSpaceRecyclingLogAccessor getSpaceRecyclingLogAccessor() {
+        return new SdbSpaceRecyclingLogAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_SPACE_RECYCLING_LOG);
+    }
+
+    public void ensureCollection(String csName, String clName, BSONObject clOption)
+            throws SdbMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            if (cs.isCollectionExist(clName)) {
+                return;
+            }
+            cs.createCollection(clName, clOption);
+            logger.info("create collection:{}.{}, option={}", csName, clName, clOption);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_DMS_EXIST.getErrorCode()) {
+                return;
+            }
+            throw new SdbMetasourceException(e.getErrorCode(),
+                    "failed to create cl:" + csName + "." + clName + ", option=" + clOption, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
     }
 }

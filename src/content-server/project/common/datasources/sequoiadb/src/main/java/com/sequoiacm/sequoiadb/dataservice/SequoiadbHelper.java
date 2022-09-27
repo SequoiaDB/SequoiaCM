@@ -1,6 +1,8 @@
 package com.sequoiacm.sequoiadb.dataservice;
 
+import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +76,7 @@ public class SequoiadbHelper {
     }
 
     public static boolean createCS(Sequoiadb sdb, String csName, BSONObject options)
-            throws SequoiadbException  {
+            throws SequoiadbException {
         try {
             logger.info("creating cs:csName=" + csName + ",options=" + options.toString());
             sdb.createCollectionSpace(csName, options);
@@ -82,7 +84,7 @@ public class SequoiadbHelper {
         }
         catch (BaseException e) {
             if (e.getErrorCode() != SDBError.SDB_DMS_CS_EXIST.getErrorCode()) {
-                throw new SequoiadbException (e.getErrorCode(),
+                throw new SequoiadbException(e.getErrorCode(),
                         "csName=" + csName + ",options=" + options.toString(), e);
             }
             else {
@@ -91,9 +93,15 @@ public class SequoiadbHelper {
             }
         }
         catch (Exception e) {
-            throw new SequoiadbException (SDBError.SDB_SYS.getErrorCode(),
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
                     "createcl failed:cs=" + csName + ",options=" + options.toString(), e);
         }
+    }
+
+    public static boolean createCS(Sequoiadb sdb, String csName, SdbDataLocation dataLocation)
+            throws SequoiadbException {
+        BSONObject options = generateCSOptions(dataLocation, csName);
+        return createCS(sdb, csName, options);
     }
 
     public static boolean createCL(Sequoiadb sdb, String csName, String clName, BSONObject options)
@@ -120,6 +128,12 @@ public class SequoiadbHelper {
             throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
                     "createcl failed:cs=" + csName + ",cl=" + clName + ",options=" + options.toString(), e);
         }
+    }
+
+    public static boolean createCL(Sequoiadb sdb, String csName, String clName,
+            SdbDataLocation dataLocation) throws SequoiadbException {
+        BSONObject options = generateCLOptions(dataLocation, csName, clName);
+        return createCL(sdb, csName, clName, options);
     }
 
     public static DBLob openLob(Sequoiadb sdb, String csName, String clName, String lobID)
@@ -168,6 +182,43 @@ public class SequoiadbHelper {
         }
         catch (Exception e) {
             logger.warn("releaseSdbResource failed", e);
+        }
+    }
+
+    public static BSONObject generateCSOptions(SdbDataLocation sdbLocation, String csName)
+            throws SequoiadbException {
+        try {
+            BSONObject options = new BasicBSONObject();
+            BSONObject tmp = sdbLocation.getDataCSOptions();
+            options.put("Domain", sdbLocation.getDomain());
+            options.putAll(tmp);
+            return options;
+        }
+        catch (Exception e) {
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
+                    "get sdb cs options failed:cs=" + csName, e);
+        }
+    }
+
+    public static BSONObject generateCLOptions(SdbDataLocation sdbLocation, String csName,
+            String clName) throws SequoiadbException {
+        try {
+            BSONObject key = new BasicBSONObject("_id", 1);
+            BSONObject options = new BasicBSONObject();
+            options.put("ShardingType", "hash");
+            options.put("ShardingKey", key);
+            options.put("ReplSize", -1);
+            options.put("AutoSplit", true);
+
+            BSONObject tmp = sdbLocation.getDataCLOptions();
+            options.putAll(tmp);
+
+            return options;
+        }
+        catch (Exception e) {
+            logger.error("get sdb cl options failed:cs={},cl={}", csName, clName);
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
+                    "get sdb cl options failed:cs=" + csName + ",cl=" + clName, e);
         }
     }
 }

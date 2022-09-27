@@ -97,6 +97,14 @@ public class ScheduleJobInfo {
         ScmArgChecker.ExtralCondition.checkHistoryFileMatcher(condition);
     }
 
+    void validateDataCheckLevel(String dataCheckLevel) throws ScheduleException {
+        if (!ScheduleDefine.DataCheckLevel.STRICT.equals(dataCheckLevel)
+                && !ScheduleDefine.DataCheckLevel.WEEK.equals(dataCheckLevel)) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    "unknown dataCheckLevel:dataCheckLevel=" + dataCheckLevel);
+        }
+    }
+
     WorkspaceInfo getWorkspaceNotNull(ScheduleServer server, String wsName)
             throws ScheduleException {
         WorkspaceInfo wsInfo = server.getWorkspace(wsName);

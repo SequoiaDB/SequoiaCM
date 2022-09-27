@@ -21,6 +21,10 @@ public class CleanJobInfo extends ScheduleJobInfo {
     private int scope;
     private long maxExecTime;
 
+    private boolean quickStart;
+    private boolean isRecycleSpace;
+    private String dataCheckLevel;
+
     public CleanJobInfo(String id, String type, String workspace, BSONObject content, String cron,
             String preferredRegion, String preferredZone) throws ScheduleException {
         super(id, type, workspace, cron, preferredRegion, preferredZone);
@@ -29,7 +33,8 @@ public class CleanJobInfo extends ScheduleJobInfo {
 
     public CleanJobInfo(String id, String type, String workspace, int siteId, String siteName,
             int days, BSONObject extraCondition, String cron, int scope, long maxExecTime,
-            String preferredRegion, String preferredZone) throws ScheduleException {
+            String preferredRegion, String preferredZone, boolean quickStart,
+            boolean isRecycleSpace, String dataCheckLevel) throws ScheduleException {
         super(id, type, workspace, cron, preferredRegion, preferredZone);
         this.days = days;
         this.siteId = siteId;
@@ -37,6 +42,9 @@ public class CleanJobInfo extends ScheduleJobInfo {
         this.extraCondition = extraCondition;
         this.scope = scope;
         this.maxExecTime = maxExecTime;
+        this.quickStart = quickStart;
+        this.isRecycleSpace = isRecycleSpace;
+        this.dataCheckLevel = dataCheckLevel;
     }
 
     public int getDays() {
@@ -53,6 +61,18 @@ public class CleanJobInfo extends ScheduleJobInfo {
 
     public String getSiteName() {
         return siteName;
+    }
+
+    public boolean isQuickStart() {
+        return quickStart;
+    }
+
+    public boolean isRecycleSpace() {
+        return isRecycleSpace;
+    }
+
+    public String getDataCheckLevel() {
+        return dataCheckLevel;
     }
 
     private void checkAndParse(ScheduleServer server, String id, String type, String workspace,
@@ -94,6 +114,19 @@ public class CleanJobInfo extends ScheduleJobInfo {
             maxExecTime = ((Number) content.get(FieldName.Schedule.FIELD_MAX_EXEC_TIME))
                     .longValue();
         }
+
+        quickStart = ScheduleCommonTools.getBooleanOrElse(content,
+                FieldName.Schedule.FIELD_QUICK_START, false);
+        isRecycleSpace = ScheduleCommonTools.getBooleanOrElse(content,
+                FieldName.Schedule.FIELD_IS_RECYCLE_SPACE, false);
+        if (content.containsField(FieldName.Schedule.FIELD_DATA_CHECK_LEVEL)) {
+            dataCheckLevel = ScheduleCommonTools.getStringValue(content,
+                    FieldName.Schedule.FIELD_DATA_CHECK_LEVEL);
+            validateDataCheckLevel(dataCheckLevel);
+        }
+        else {
+            dataCheckLevel = ScheduleDefine.DataCheckLevel.WEEK;
+        }
     }
 
     public long getMaxExecTime() {
@@ -114,7 +147,9 @@ public class CleanJobInfo extends ScheduleJobInfo {
         sb.append("id:").append(getId()).append(",").append("type:").append(getType()).append(",")
                 .append("workspace:").append(getWorkspace()).append(",").append("cron:")
                 .append(getCron()).append(",").append("siteName:").append(getSiteName()).append(",")
-                .append("siteId:").append(getSiteId());
+                .append("siteId:").append(getSiteId()).append("quickStart:").append(isQuickStart())
+                .append(",").append("isRecycleSpace:").append(isRecycleSpace()).append(",")
+                .append("dataCheckLevel:").append(getDataCheckLevel());
 
         return sb.toString();
     }

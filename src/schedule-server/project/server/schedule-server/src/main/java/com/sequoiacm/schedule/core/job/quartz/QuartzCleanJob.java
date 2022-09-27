@@ -23,9 +23,10 @@ public class QuartzCleanJob extends QuartzContentserverJob {
         Date d = new Date();
         String taskId = ScmIdGenerator.TaskId.get();
         BSONObject taskCondition = createTaskContent(cInfo);
+        BSONObject taskOption = createTaskOption(cInfo);
         return QuartzScheduleTools.createTask(ScheduleDefine.TaskType.SCM_TASK_CLEAN_FILE, taskId,
                 taskCondition, runTaskServer.getId(), null, d.getTime(), info.getWorkspace(),
-                info.getId(), cInfo.getScope(), cInfo.getMaxExecTime());
+                info.getId(), cInfo.getScope(), cInfo.getMaxExecTime(), taskOption, null);
     }
 
     @Override
@@ -56,6 +57,14 @@ public class QuartzCleanJob extends QuartzContentserverJob {
             array.put("1", cInfo.getExtraCondtion());
         }
         return new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);
+    }
+
+    private BSONObject createTaskOption(CleanJobInfo cInfo) {
+        BSONObject option = new BasicBSONObject();
+        option.put(FieldName.Schedule.FIELD_QUICK_START, cInfo.isQuickStart());
+        option.put(FieldName.Schedule.FIELD_IS_RECYCLE_SPACE, cInfo.isRecycleSpace());
+        option.put(FieldName.Schedule.FIELD_DATA_CHECK_LEVEL, cInfo.getDataCheckLevel());
+        return option;
     }
 
 }

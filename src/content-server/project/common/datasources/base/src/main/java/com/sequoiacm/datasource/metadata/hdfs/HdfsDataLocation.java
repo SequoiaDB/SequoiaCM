@@ -19,8 +19,9 @@ public class HdfsDataLocation extends ScmLocation {
     private ScmShardingType shardingType = ScmShardingType.MONTH;
     private String rootPath = HdfsCommonDefine.HDFS_ROOT_PATH;
 
-    public HdfsDataLocation(BSONObject dataLocation) throws ScmDatasourceException {
-        super(dataLocation);
+    public HdfsDataLocation(BSONObject dataLocation, String siteName)
+            throws ScmDatasourceException {
+        super(dataLocation, siteName);
 
         try {
             Object tmp = dataLocation.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);

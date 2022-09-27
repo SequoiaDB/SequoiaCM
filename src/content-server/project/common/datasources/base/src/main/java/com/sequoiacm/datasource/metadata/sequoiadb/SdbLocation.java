@@ -11,8 +11,8 @@ public class SdbLocation extends ScmLocation {
 
     private String domain;
 
-    public SdbLocation(BSONObject sdbLocation) throws ScmDatasourceException {
-        super(sdbLocation);
+    public SdbLocation(BSONObject sdbLocation, String siteName) throws ScmDatasourceException {
+        super(sdbLocation, siteName);
         domain = (String) sdbLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
         if(domain == null) {
             throw new ScmDatasourceException(ScmError.INVALID_ARGUMENT,

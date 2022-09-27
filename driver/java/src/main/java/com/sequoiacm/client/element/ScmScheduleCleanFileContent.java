@@ -1,5 +1,6 @@
 package com.sequoiacm.client.element;
 
+import com.sequoiacm.client.common.ScmDataCheckLevel;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -19,6 +20,9 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
     private BSONObject extraCondition;
     private ScopeType scope = ScopeType.SCOPE_CURRENT;
     private long maxExecTime = 0;
+    private ScmDataCheckLevel dataCheckLevel = ScmDataCheckLevel.WEEK;
+    private boolean quickStart;
+    private boolean isRecycleSpace;
 
     /**
      * Create an instance of ScmScheduleCleanFileContent with specified args.
@@ -90,6 +94,41 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
     }
 
     /**
+     *
+     * @param siteName
+     *            site name.
+     * @param maxStayTime
+     *            file max stay time.
+     * @param extraCondition
+     *            extra file condition.
+     * @param scope
+     *            file scope.
+     * @param maxExecTime
+     *            every task max exec time.
+     * @param dataCheckLevel
+     *            data check level.
+     * @param quickStart
+     *            is quick start.
+     * @param isRecycleSpace
+     *            is recycle space.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public ScmScheduleCleanFileContent(String siteName, String maxStayTime,
+            BSONObject extraCondition, ScopeType scope, long maxExecTime,
+            ScmDataCheckLevel dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
+            throws ScmException {
+        this(siteName, maxStayTime, extraCondition, scope);
+        this.maxExecTime = maxExecTime;
+        this.dataCheckLevel = dataCheckLevel;
+        if (dataCheckLevel == null) {
+            throw new ScmInvalidArgumentException("dataCheckLevel is null");
+        }
+        this.quickStart = quickStart;
+        this.isRecycleSpace = isRecycleSpace;
+    }
+
+    /**
      * Create a instance of ScmScheduleCleanFileContent.
      *
      * @param content
@@ -123,6 +162,19 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
         temp = content.get(ScmAttributeName.Schedule.CONTENT_SCOPE);
         if (null != temp) {
             this.scope = ScopeType.getScopeType((Integer) temp);
+        }
+
+        temp = content.get(ScmAttributeName.Schedule.CONTENT_QUICK_START);
+        if (null != temp) {
+            setQuickStart((Boolean) temp);
+        }
+        temp = content.get(ScmAttributeName.Schedule.CONTENT_IS_RECYCLE_SPACE);
+        if (null != temp) {
+            setRecycleSpace((Boolean) temp);
+        }
+        temp = content.get(ScmAttributeName.Schedule.CONTENT_DATA_CHECK_LEVEL);
+        if (null != temp) {
+            setDataCheckLevel(ScmDataCheckLevel.getType((String) temp));
         }
     }
 
@@ -221,6 +273,63 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
         this.scope = scope;
     }
 
+    /**
+     * Get the data check level of the clean file schedule.
+     *
+     * @return the data check level.
+     */
+    public ScmDataCheckLevel getDataCheckLevel() {
+        return dataCheckLevel;
+    }
+
+    /**
+     * Set the data check level of the clean file schedule.
+     *
+     * @param dataCheckLevel
+     *            the data check level.
+     */
+    public void setDataCheckLevel(ScmDataCheckLevel dataCheckLevel) {
+        this.dataCheckLevel = dataCheckLevel;
+    }
+
+    /**
+     * Get whether enable quick start of the clean file schedule.
+     *
+     * @return whether quick start.
+     */
+    public boolean isQuickStart() {
+        return quickStart;
+    }
+
+    /**
+     * Set need quick start for the clean file schedule.
+     *
+     * @param quickStart
+     *            Is need quick start.
+     */
+    public void setQuickStart(boolean quickStart) {
+        this.quickStart = quickStart;
+    }
+
+    /**
+     * Get whether enable space recycle of the clean file schedule.
+     *
+     * @return whether space recycle.
+     */
+    public boolean isRecycleSpace() {
+        return isRecycleSpace;
+    }
+
+    /**
+     * Set need recycle space.
+     *
+     * @param recycleSpace
+     *            Is need recycle space.
+     */
+    public void setRecycleSpace(boolean recycleSpace) {
+        isRecycleSpace = recycleSpace;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject obj = new BasicBSONObject();
@@ -229,6 +338,9 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
         obj.put(ScmAttributeName.Schedule.CONTENT_EXTRA_CONDITION, extraCondition);
         obj.put(ScmAttributeName.Schedule.CONTENT_SCOPE, scope.getScope());
         obj.put(ScmAttributeName.Schedule.CONTENT_MAX_EXEC_TIME, maxExecTime);
+        obj.put(ScmAttributeName.Schedule.CONTENT_DATA_CHECK_LEVEL, dataCheckLevel.getName());
+        obj.put(ScmAttributeName.Schedule.CONTENT_IS_RECYCLE_SPACE, isRecycleSpace);
+        obj.put(ScmAttributeName.Schedule.CONTENT_QUICK_START, quickStart);
         return obj;
     }
 

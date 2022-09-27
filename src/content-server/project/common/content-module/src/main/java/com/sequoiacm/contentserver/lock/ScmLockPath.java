@@ -2,10 +2,11 @@ package com.sequoiacm.contentserver.lock;
 
 import java.util.Arrays;
 
-public class ScmLockPath {
+public class ScmLockPath extends com.sequoiacm.infrastructure.lock.ScmLockPath {
     private String[] lockPath;
 
     ScmLockPath(String[] lockPath) {
+        super(lockPath);
         this.lockPath = lockPath;
     }
 

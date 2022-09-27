@@ -1,5 +1,8 @@
 package com.sequoiacm.metasource;
 
+import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
+import org.bson.BSONObject;
+
 import java.util.Date;
 
 public interface MetaTaskAccessor extends MetaAccessor {
@@ -25,4 +28,9 @@ public interface MetaTaskAccessor extends MetaAccessor {
 
     public void updateStopTimeIfEmpty(String taskId, Date stopTime, int progress, long successCount,
             long failedCount) throws ScmMetasourceException;
+
+    void updateExtraInfo(String taskId, BSONObject extraInfo) throws SdbMetasourceException;
+
+    void updateActualAndEstimateCount(String taskId, long actualCount, long estimateCount)
+            throws SdbMetasourceException;
 }

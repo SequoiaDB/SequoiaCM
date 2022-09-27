@@ -14,10 +14,10 @@ public class TaskTransfileInterrupter implements FileTransferInterrupter {
     private int totalIncreaseLen = 0;
     // write 10MB check once
     private int checkRunningFlagLength = PropertiesUtils.getTransferCheckLength();
-    private ScmTaskTransferFile task;
+    private ScmTaskFile task;
 
-    public TaskTransfileInterrupter(ScmTaskTransferFile scmTaskTransferFile) {
-        this.task = scmTaskTransferFile;
+    public TaskTransfileInterrupter(ScmTaskFile task) {
+        this.task = task;
     }
 
     @Override

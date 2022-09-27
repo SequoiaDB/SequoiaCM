@@ -3,6 +3,8 @@ package com.sequoiacm.datasource.dataoperation;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.metasource.MetaSource;
 import org.bson.BSONObject;
 
 import java.util.Date;
@@ -28,6 +30,23 @@ public interface ScmDataOpFactory {
 
     ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException;
+
+    default ScmDataRemovingSpaceRecycler createDataRemovingSpaceRecycler(
+            String wsName, String siteName, ScmLocation location, ScmService service)
+            throws ScmDatasourceException {
+        return new NoOpDataRemovingSpaceRecycler();
+    }
+
+    default ScmDataSpaceRecycler createScmDataSpaceRecycler(List<String> tableNames,
+            Date recycleBeginningTime, Date recycleEndingTIme,
+            String wsName, String siteName, ScmLocation location, ScmService service)
+            throws ScmDatasourceException {
+        return new NoOpDataSpaceRecycler();
+    }
+
+    default void init(MetaSource metaSource, ScmLockManager lockManager) {
+
+    }
 
     default ScmDataInfoFetcher createDataInfoFetcher(int siteId, String wsName,
             ScmLocation location, ScmService service, ScmDataInfo dataInfo)

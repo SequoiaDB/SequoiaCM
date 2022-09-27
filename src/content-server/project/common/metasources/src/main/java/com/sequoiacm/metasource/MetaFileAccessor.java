@@ -2,6 +2,7 @@ package com.sequoiacm.metasource;
 
 import java.util.Date;
 
+import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import org.bson.BSONObject;
 
 public interface MetaFileAccessor extends MetaAccessor {
@@ -40,4 +41,6 @@ public interface MetaFileAccessor extends MetaAccessor {
     // return new
     public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
             throws ScmMetasourceException;
+
+    boolean isIndexFieldExist(String fieldName) throws SdbMetasourceException;
 }

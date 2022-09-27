@@ -41,4 +41,13 @@ public abstract class ScmBackgroundJob extends TimerTask {
             logger.error("background job execution failed", e);
         }
     }
+
+    public boolean retryOnThreadPoolReject() {
+        return false;
+    }
+
+    public long waitingTimeOnReject() {
+        // ms, 小于0表示使用默认配置
+        return -1;
+    }
 }

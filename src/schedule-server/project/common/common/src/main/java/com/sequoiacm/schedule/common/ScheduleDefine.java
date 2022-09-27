@@ -4,6 +4,8 @@ public class ScheduleDefine {
     public static class ScheduleType {
         public static final String COPY_FILE = "copy_file";
         public static final String CLEAN_FILE = "clean_file";
+        public static final String MOVE_FILE = "move_file";
+        public static final String RECYCLE_SPACE = "recycle_space";
         public static final String INTERNAL_SCHEDULE = "internal_schedule";
     }
 
@@ -20,6 +22,8 @@ public class ScheduleDefine {
     public static class TaskType {
         public static final int SCM_TASK_COPY_FILE = 1;
         public static final int SCM_TASK_CLEAN_FILE = 2;
+        public static final int SCM_TASK_MOVE_FILE = 3;
+        public static final int SCM_TASK_RECYCLE_SAPCE = 4;
     }
 
     public static class Lock {
@@ -30,5 +34,10 @@ public class ScheduleDefine {
         public static final int CURRENT = 1;
         public static final int HISTORY = 2;
         public static final int ALL = 3;
+    }
+
+    public static class DataCheckLevel {
+        public static final String STRICT = "strict";
+        public static final String WEEK = "week";
     }
 }

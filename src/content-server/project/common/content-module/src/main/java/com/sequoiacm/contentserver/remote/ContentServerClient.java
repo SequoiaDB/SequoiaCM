@@ -113,6 +113,15 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag)
             throws ScmServerException;
 
+    @GetMapping(value = "/internal/v1/datasource/{dataId}")
+    public Response readData(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_NAME, required = false) String targetSiteName,
+            @PathVariable("dataId") String dataId,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
+            @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag)
+            throws ScmServerException;
+
     @RequestMapping(value = "/internal/v1/datasource/{dataId}", method = RequestMethod.HEAD)
     public DataInfo headDataInfo(
             @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_NAME) String siteName,

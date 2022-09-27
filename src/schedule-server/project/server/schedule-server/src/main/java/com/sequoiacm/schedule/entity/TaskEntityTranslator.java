@@ -38,6 +38,14 @@ public class TaskEntityTranslator {
         if (null != targetSite) {
             obj.put(FieldName.Task.FIELD_TARGET_SITE, targetSite.intValue());
         }
+        BSONObject option = info.getOption();
+        if (option != null) {
+            obj.put(FieldName.Task.FIELD_OPTION, option);
+        }
+        BSONObject extraInfo = info.getExtraInfo();
+        if (extraInfo != null) {
+            obj.put(FieldName.Task.FIELD_EXTRA_INFO, extraInfo);
+        }
 
         return obj;
     }

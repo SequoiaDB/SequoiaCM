@@ -19,8 +19,9 @@ public class HbaseDataLocation extends ScmLocation {
 
     private String nameSpace = null;
 
-    public HbaseDataLocation(BSONObject dataLocation) throws ScmDatasourceException {
-        super(dataLocation);
+    public HbaseDataLocation(BSONObject dataLocation, String siteName)
+            throws ScmDatasourceException {
+        super(dataLocation, siteName);
 
         try {
             Object tmp = dataLocation.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);

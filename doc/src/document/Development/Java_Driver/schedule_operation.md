@@ -14,8 +14,12 @@ ScmSession session = ScmFactory.Session.createSession(
 BSONObject copyCondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR)
         .is("zhangsan").get();
 // 迁移调度内容：源站点、目标站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
-ScmScheduleContent copyContent = new ScmScheduleCopyFileContent("branchSite1", "rootSite",
+ScmScheduleCopyFileContent copyContent = new ScmScheduleCopyFileContent("branchSite1", "rootSite",
         "0d", copyCondition, ScopeType.SCOPE_CURRENT, 36000000);
+// 设置数据校验级别（WEEK：弱校验，检查迁移后的文件内容大小；STRICT：强校验，检查迁移后的文件内容MD5）
+copyContent.setDataCheckLevel(ScmDataCheckLevel.WEEK);
+// 设置是否开启快速启动，开启后，将不会计算任务的预估文件数
+copyContent.setQuickStart(false); 
 ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(session);
 ScmSchedule copySchedule = scheduleBuilder
         // 调度任务的工作区、名字及描述
@@ -33,14 +37,57 @@ ScmSchedule copySchedule = scheduleBuilder
 BSONObject cleancondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is("lisi")
         .get();
 // 清理调度内容：清理站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
-ScmScheduleContent cleanContent = new ScmScheduleCleanFileContent("branchSite1", "3d",
+ScmScheduleCleanFileContent cleanContent = new ScmScheduleCleanFileContent("branchSite1", "3d",
         cleancondition, ScopeType.SCOPE_CURRENT, 36000000);
+// 设置数据校验级别（WEEK：弱校验，在清理本站点文件内容前，检查其它站的文件内容大小；STRICT：强校验，在清理本站点文件内容前，检查其它站的的文件内容MD5）
+cleanContent.setDataCheckLevel(ScmDataCheckLevel.WEEK); 
+// 设置是否开启空间回收功能，目前仅支持SequoiaDB数据源，开启后，某个集合空间下的文件全部清理后会自动删除该集合空间
+cleanContent.setRecycleSpace(true); 
+// 设置是否开启快速启动，开启后，将不会计算任务的预估文件数
+cleanContent.setQuickStart(false); 
 ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(ss);
 ScmSchedule cleanSchedule = scheduleBuilder
         .workspace("test_ws").name("清理文件").description("一个清理的调度")
         .type(ScheduleType.CLEAN_FILE).content(cleanContent)
         .cron("0 0 0 12,24 * ?")
         .preferredRegion("DefaultRegion").preferredZone("zone1").build();
+        
+        
+// 创建MOVE_FILE调度
+// 文件MOVE条件
+BSONObject moveCondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is("lisi")
+        .get();
+// MOVE_FILE调度内容：源站点、目标站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)   
+ScmScheduleMoveFileContent moveContent = new ScmScheduleMoveFileContent("rootSite",
+       "branchSite1", "3d", moveCondition, ScmType.ScopeType.SCOPE_CURRENT);
+// 设置数据校验级别（WEEK：弱校验，检查移动后的文件内容大小；STRICT：强校验，检查移动后的文件内容MD5）
+moveContent.setDataCheckLevel(ScmDataCheckLevel.WEEK); 
+// 设置是否开启空间回收功能，目前仅支持SequoiaDB数据源，开启后，某个集合空间下的文件内容全部移动后会自动删除该集合空间
+moveContent.setRecycleSpace(true);
+// 设置是否开启快速启动，开启后，将不会计算任务的预估文件数
+moveContent.setQuickStart(false);
+ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(ss);
+ScmSchedule moveSchedule = scheduleBuilder.workspace("test_ws").name("移动文件")
+        .description("一个move_file调度").type(ScheduleType.MOVE_FILE).content(moveContent)
+        .cron("0 0 0 12,24 * ?").preferredRegion("DefaultRegion").preferredZone("zone1")
+        .build();   
+        
+        
+// 创建空间回收调度，目前仅支持SequoiaDB数据源，用于清理空的集合空间
+// 空间回收调度内容：回收站点、回收范围、任务执行时间 
+ScmScheduleSpaceRecyclingContent spaceRecyclingContent = new ScmScheduleSpaceRecyclingContent("rootSite",
+    ScmSpaceRecycleScope.mothBefore(1), 36000000);
+ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(ss);
+ScmSchedule spaceRecyclingSchedule = scheduleBuilder.workspace("ws_default").name("空间回收")
+        .description("一个空间回收调度").type(ScheduleType.RECYCLE_SPACE).content(spaceRecyclingContent)
+        .cron("0 0 0 12,24 * ?").preferredRegion("DefaultRegion").preferredZone("zone1")
+        .build();
+ /**
+ * ScmSpaceRecycleScope.mothBefore(1) 指定清理范围为1个月前，若当前时间是 2022-09-01，将会清理 2022-08-01（包含该时间所在的分区） 及以前的数据空间
+ *   - 工作区数据按月分区，将会检查清理数据表: 2022-08、07、06、....
+ *   - 工作区数据按季度分区，将会检查清理数据表：2022Q3、2022Q2、2022Q1...
+ *   - 工作区数据按年分区，将会检查清理数据表：2022、2021、..
+ */
 
 ```
 >  **Note:**

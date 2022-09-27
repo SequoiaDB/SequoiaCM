@@ -311,6 +311,11 @@ public class ScmMetaGenerator {
         SdbHelper.createIdx(cl, "idx_" + cl.getName() + "_" + FieldName.FIELD_CLFILE_FILE_DATA_ID,
                 indexDef.toString(), false, false);
 
+        indexDef = new BasicBSONObject();
+        indexDef.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
+        SdbHelper.createIdx(cl, "idx_" + cl.getName() + "_" + FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME,
+                indexDef.toString(), false, false);
+
         BSONObject lowb = new BasicBSONObject();
         lowb.put(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, metaClName.getLowMonth());
         BSONObject upperb = new BasicBSONObject();

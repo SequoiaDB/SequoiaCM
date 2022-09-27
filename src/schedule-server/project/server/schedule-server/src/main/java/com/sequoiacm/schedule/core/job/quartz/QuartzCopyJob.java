@@ -5,6 +5,7 @@ import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.core.ScheduleServer;
+import com.sequoiacm.schedule.core.job.CleanJobInfo;
 import com.sequoiacm.schedule.core.job.CopyJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
 import com.sequoiacm.schedule.entity.FileServerEntity;
@@ -24,10 +25,11 @@ public class QuartzCopyJob extends QuartzContentserverJob {
 
         Date d = new Date();
         String taskId = ScmIdGenerator.TaskId.get();
-
+        BSONObject taskOption = createTaskOption(cInfo);
         return QuartzScheduleTools.createTask(ScheduleDefine.TaskType.SCM_TASK_COPY_FILE, taskId,
                 taskCondition, runTaskServer.getId(), cInfo.getTargetSiteId(), d.getTime(),
-                info.getWorkspace(), info.getId(), cInfo.getScope(), cInfo.getMaxExecTime());
+                info.getWorkspace(), info.getId(), cInfo.getScope(), cInfo.getMaxExecTime(),
+                taskOption, null);
     }
 
     @Override
@@ -60,5 +62,12 @@ public class QuartzCopyJob extends QuartzContentserverJob {
         }
 
         return new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);
+    }
+
+    private BSONObject createTaskOption(CopyJobInfo cInfo) {
+        BSONObject option = new BasicBSONObject();
+        option.put(FieldName.Schedule.FIELD_QUICK_START, cInfo.isQuickStart());
+        option.put(FieldName.Schedule.FIELD_DATA_CHECK_LEVEL, cInfo.getDataCheckLevel());
+        return option;
     }
 }

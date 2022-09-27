@@ -2,21 +2,19 @@ package com.sequoiacm.contentserver.job;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.contentserver.lock.ScmLockManager;
-import com.sequoiacm.contentserver.lock.ScmLockPath;
-import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaCursor;
+import com.sequoiacm.metasource.MetaSource;
+import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import com.sequoiacm.sequoiadb.dataopertion.SdbDataReaderImpl;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -25,12 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-enum DoFileRes {
-    SUCCESS,
-    FAIL,
-    SKIP,
-    INTERRUPT;
-}
 
 public abstract class ScmTaskFile extends ScmTaskBase {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskFile.class);
@@ -42,20 +34,15 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     private int localSiteId;
     private ScmWorkspaceInfo wsInfo;
 
-    private Date preDate;
-    private static int DATE_STEP = 20; // seconds
-    private int preProgress = 0;
-    private static int PROGRESS_STEP = 10;
-
-    private long estimateCount = 0;
-    private long actualCount = 0;
-
     private boolean running = true;
     private BSONObject actualMatcher;
     private int scope = CommonDefine.Scope.SCOPE_CURRENT;
     private long maxExecTime = 0; // 0 means unlimited
 
     private Date taskStartTime;
+
+    private boolean isQuickStart;
+    private String dataCheckLevel = CommonDefine.DataCheckLevel.WEEK;
 
     // private int realTimeProgress = 0;
 
@@ -69,8 +56,16 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             if (info.containsField(FieldName.Task.FIELD_SCOPE)) {
                 scope = (int) info.get(FieldName.Task.FIELD_SCOPE);
             }
+            BSONObject option = BsonUtils.getBSON(info, FieldName.Task.FIELD_OPTION);
+            if (option != null) {
+                isQuickStart = BsonUtils.getBooleanOrElse(option,
+                        FieldName.Task.FIELD_OPTION_QUICK_START, false);
+                dataCheckLevel = BsonUtils.getStringOrElse(option,
+                        FieldName.Task.FIELD_OPTION_DATA_CHECK_LEVEL,
+                        CommonDefine.DataCheckLevel.WEEK);
+            }
             ScmContentModule contentModule = ScmContentModule.getInstance();
-            wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
+            wsInfo = contentModule.getWorkspaceInfoCheckExist(wsName);
             mainSiteId = contentModule.getMainSite();
             localSiteId = contentModule.getLocalSite();
 
@@ -113,6 +108,14 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         return taskMatcher;
     }
 
+    public boolean isQuickStart() {
+        return isQuickStart;
+    }
+
+    public String getDataCheckLevel() {
+        return dataCheckLevel;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -141,16 +144,59 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     protected MetaCursor getCursor(ScmMetaService sms) throws ScmServerException {
         switch (scope) {
             case CommonDefine.Scope.SCOPE_CURRENT:
-                return sms.queryCurrentFileIgnoreDeleteMarker(wsInfo, actualMatcher, null, null, 0, -1);
+                return sms.queryCurrentFileIgnoreDeleteMarker(wsInfo, actualMatcher, null,
+                        createOderBy(CommonDefine.Scope.SCOPE_CURRENT), 0, -1);
             case CommonDefine.Scope.SCOPE_ALL:
-                return sms.queryAllFile(wsInfo, actualMatcher, null);
+                return sms.queryAllFile(wsInfo, actualMatcher, null,
+                        createOderBy(CommonDefine.Scope.SCOPE_ALL));
             case CommonDefine.Scope.SCOPE_HISTORY:
                 return sms.queryHistoryFile(wsInfo.getMetaLocation(), wsInfo.getName(),
-                        actualMatcher, null, null, 0, -1);
+                        actualMatcher, null, createOderBy(CommonDefine.Scope.SCOPE_HISTORY), 0, -1);
             default:
                 throw new ScmInvalidArgumentException(
                         "runtask failed,unknow scope type:taskId=" + taskId + ",scope=" + scope);
         }
+    }
+
+    private BSONObject createOderBy(int scope) throws ScmServerException {
+        // 检查文件表、历史表索引字段 data_create_time 是否存在，存在则按 data_create_time 升序排序，否则按
+        // create_month 升序排序
+        try {
+            ContentModuleMetaSource metaSource = ScmContentModule.getInstance().getMetaService()
+                    .getMetaSource();
+            if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
+                if (metaSource.getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null)
+                        .isIndexFieldExist(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME)) {
+                    return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
+                }
+            }
+            else if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
+                if (metaSource
+                        .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null)
+                        .isIndexFieldExist(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME)) {
+                    return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
+                }
+            }
+            else if (scope == CommonDefine.Scope.SCOPE_ALL) {
+                if (metaSource.getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null)
+                        .isIndexFieldExist(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME)
+                        && metaSource
+                                .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(),
+                                        null)
+                                .isIndexFieldExist(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME)) {
+                    return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
+                }
+            }
+            else {
+                throw new ScmInvalidArgumentException(
+                        "run task failed,unknown scope type:taskId=" + taskId + ",scope=" + scope);
+            }
+        }
+        catch (SdbMetasourceException e) {
+            throw new ScmSystemException("failed to create orderBy condition, scope=" + scope, e);
+        }
+        return new BasicBSONObject(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH, 1);
+
     }
 
     protected void closeCursor(MetaCursor cursor) {
@@ -164,81 +210,64 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         }
     }
 
-    protected void updateProgress(long successCount, long failedCount) {
-        try {
-            Date date = new Date();
-            int seconds = ScmSystemUtils.getDuration(preDate, date);
-
-            int progress = calculateProgress(successCount, failedCount);
-
-            if (progress - preProgress >= PROGRESS_STEP || seconds > DATE_STEP) {
-                ScmContentModule.getInstance().getMetaService().updateTaskProgress(taskId, progress,
-                        successCount, failedCount);
-
-                preProgress = progress;
-                preDate = date;
-            }
-        }
-        catch (Exception e) {
-            logger.warn("updateProgress failed", e);
-        }
-    }
-
-    private int calculateProgress(long successCount, long failedCount) {
-        int progress = 0;
-        if (actualCount > 0) {
-            progress = (int) (100 * ((double) (successCount + failedCount) / actualCount));
-        }
-
-        if (progress >= 100) {
-            progress = 99;
-        }
-        return progress;
-    }
 
     private void initTaskFileCount() throws ScmServerException {
-        ScmMetaService sms = ScmContentModule.getInstance().getMetaService();
-        try {
-            switch (scope) {
-                case CommonDefine.Scope.SCOPE_CURRENT:
-                    actualCount = sms.getCurrentFileCount(wsInfo, actualMatcher);
-                    estimateCount = sms.getCurrentFileCount(wsInfo, taskMatcher);
-                    break;
-                case CommonDefine.Scope.SCOPE_ALL:
-                    actualCount = sms.getAllFileCount(wsInfo.getMetaLocation(), wsInfo.getName(),
-                            actualMatcher);
-                    estimateCount = sms.getAllFileCount(wsInfo.getMetaLocation(), wsInfo.getName(),
-                            taskMatcher);
-                    break;
-                case CommonDefine.Scope.SCOPE_HISTORY:
-                    actualCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
-                            wsInfo.getName(), actualMatcher);
-                    estimateCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
-                            wsInfo.getName(), taskMatcher);
-                    break;
-                default:
-                    throw new ScmInvalidArgumentException("runtask failed,unknow scope type:taskId="
-                            + taskId + ",scope=" + scope);
+        long actualCount = 0;
+        long estimateCount = 0;
+        if (isQuickStart) {
+            actualCount = -1;
+            estimateCount = -1;
+        }
+        else {
+            ScmMetaService sms = ScmContentModule.getInstance().getMetaService();
+            try {
+                switch (scope) {
+                    case CommonDefine.Scope.SCOPE_CURRENT:
+                        actualCount = sms.getCurrentFileCount(wsInfo, actualMatcher);
+                        estimateCount = sms.getCurrentFileCount(wsInfo, taskMatcher);
+                        break;
+                    case CommonDefine.Scope.SCOPE_ALL:
+                        actualCount = sms.getAllFileCount(wsInfo.getMetaLocation(),
+                                wsInfo.getName(), actualMatcher);
+                        estimateCount = sms.getAllFileCount(wsInfo.getMetaLocation(),
+                                wsInfo.getName(), taskMatcher);
+                        break;
+                    case CommonDefine.Scope.SCOPE_HISTORY:
+                        actualCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
+                                wsInfo.getName(), actualMatcher);
+                        estimateCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
+                                wsInfo.getName(), taskMatcher);
+                        break;
+                    default:
+                        throw new ScmInvalidArgumentException(
+                                "runtask failed,unknow scope type:taskId=" + taskId + ",scope="
+                                        + scope);
+                }
+            }
+            catch (ScmServerException e) {
+                if (e.getError() == ScmError.INVALID_ARGUMENT) {
+                    throw e;
+                }
+                logger.warn("count file failed:taskId={},wsName={}", taskId, wsInfo.getName(), e);
             }
         }
-        catch (ScmServerException e) {
-            if (e.getError() == ScmError.INVALID_ARGUMENT) {
-                throw e;
-            }
-            logger.warn("count file failed:taskId={},wsName={}", taskId, wsInfo.getName(), e);
-        }
+        taskInfoContext.setEstimateCount(estimateCount);
+        taskInfoContext.setActualCount(actualCount);
     }
 
-    protected abstract DoFileRes doFile(BSONObject fileInfoNotInLock) throws ScmServerException;
+    protected abstract void doFile(BSONObject fileInfoNotInLock) throws ScmServerException;
+
+    protected abstract void taskComplete();
 
     protected abstract BSONObject buildActualMatcher() throws ScmServerException;
 
     @Override
     public final void _runTask() {
-        logger.debug("runing task:task=" + toString());
+        logger.info("running task:task=" + toString());
         // 1. get total count
         // totalCount = queryMatchingCount();
-        logger.debug("task file info:taskId=" + getTaskId() + ",actual count=" + actualCount);
+        logger.info("task file info:taskId=" + getTaskId() + ",actual count="
+                + taskInfoContext.getActualCount());
 
         ScmMetaService sms = null;
         MetaCursor cursor = null;
@@ -251,97 +280,160 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                     e.toString(), 0, 0, 0);
         }
 
-        long successCount = 0;
-        long failedCount = 0;
         try {
-            // for update progress
-            preDate = new Date();
-            preProgress = 0;
-
             // for interrupt task if exceed maxExecTime
-            taskStartTime = preDate;
+            taskStartTime = new Date();
 
             cursor = getCursor(sms);
 
+            // loop begin
             while (running && cursor.hasNext()) {
-                BSONObject fileInfoNotInLock = cursor.getNext();
-                String fileId = (String) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_ID);
-                ScmLockPath lockPath = ScmLockPathFactory
-                        .createFileLockPath(getWorkspaceInfo().getName(), fileId);
-                DoFileRes res;
-                ScmLock fileReadLock = ScmLockManager.getInstance().acquiresReadLock(lockPath);
-                try {
-                    res = doFile(fileInfoNotInLock);
-                }
-                finally {
-                    fileReadLock.unlock();
-                }
+                BSONObject fileInfo = cursor.getNext();
 
-                if (res.equals(DoFileRes.SUCCESS)) {
-                    successCount++;
+                doFile(fileInfo);
+
+                if (taskInfoContext.isAborted()) {
+                    throw taskInfoContext.getAbortException();
                 }
-                else if (res.equals(DoFileRes.FAIL)) {
-                    failedCount++;
-                }
-
-                // if (res == SKIP || res == INTERRUPT){
-                // there is no special operation,ignore it
-                // }
-
-                updateProgress(successCount, failedCount);
-
                 int flag = getTaskRunningFlag(getTaskId());
                 if (CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL == flag) {
-                    logger.info("task have been canceled:taskId=" + getTaskId());
-                    updateTaskStopTimeAndAsyncRedo(getTaskId(), successCount, failedCount,
-                            calculateProgress(successCount, failedCount));
+                    taskCancel();
                     return;
                 }
-
                 if (maxExecTime > 0) {
                     Date now = new Date();
                     if (now.getTime() - taskStartTime.getTime() > maxExecTime) {
-                        logger.warn(
-                                "task have been interrupted because of timeout:taskId={},startTime={},now={},maxExecTime={}ms",
-                                getTaskId(), taskStartTime, now, maxExecTime);
-                        abortTaskAndAsyncRedo(getTaskId(),
-                                CommonDefine.TaskRunningFlag.SCM_TASK_TIMEOUT, "timeout",
-                                successCount, failedCount,
-                                calculateProgress(successCount, failedCount));
+                        taskTimeout();
                         return;
                     }
                 }
             }
+            // loop end
 
             if (!running) {
-                logger.info("task have been canceled:taskId=" + getTaskId());
-                updateTaskStopTimeAndAsyncRedo(getTaskId(), successCount, failedCount,
-                        calculateProgress(successCount, failedCount));
+                taskCancel();
             }
             else {
-                logger.info("task have finished:taskId=" + taskId);
-                finishTaskAndAsyncRedo(getTaskId(), successCount, failedCount);
+                logger.info("waiting for all subtasks to finish, taskId={}", getTaskId());
+                final WaitResult waitResult = waitTaskEnd();
+                if (waitResult.isAborted()) {
+                    throw taskInfoContext.getAbortException();
+                }
+
+                if (waitResult.isCanceled()) {
+                    taskCancel();
+                }
+                else if (waitResult.isTimeout()) {
+                    taskTimeout();
+                }
+                else {
+                    taskFinished();
+                }
             }
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             logger.warn("do task failed:taskId=" + getTaskId(), e);
+            discardSubTask();
+            try {
+                taskInfoContext.waitAllSubTaskFinish();
+            }
+            catch (Exception ex) {
+                logger.warn("failed to wait all subTask finish", e);
+            }
             abortTaskAndAsyncRedo(getTaskId(), CommonDefine.TaskRunningFlag.SCM_TASK_ABORT,
-                    e.toString(), successCount, failedCount,
-                    calculateProgress(successCount, failedCount));
+                    e.toString(), taskInfoContext.getSuccessCount(),
+                    taskInfoContext.getFailedCount(), taskInfoContext.getProgress());
         }
         finally {
             closeCursor(cursor);
         }
     }
 
+    private void taskFinished() throws Exception {
+        taskInfoContext.waitAllSubTaskFinish();
+        taskComplete();
+        finishTaskAndAsyncRedo(getTaskId(), taskInfoContext.getSuccessCount(),
+                taskInfoContext.getFailedCount());
+        logger.info("task have finished:taskId={}", taskId);
+    }
+
+    private void taskCancel() throws Exception {
+        logger.info("begin to cancel task:taskId={}", getTaskId());
+        discardSubTask();
+        taskInfoContext.waitAllSubTaskFinish();
+        taskComplete();
+        logger.info("task have been canceled:taskId={}", getTaskId());
+        updateTaskStopTimeAndAsyncRedo(getTaskId(), taskInfoContext.getSuccessCount(),
+                taskInfoContext.getFailedCount(), taskInfoContext.getProgress());
+    }
+
+    private void taskTimeout() throws Exception {
+        logger.info("begin to interrupt task:taskId={}", getTaskId());
+        discardSubTask();
+        taskInfoContext.waitAllSubTaskFinish();
+        taskComplete();
+        logger.warn(
+                "task have been interrupted because of timeout:taskId={},startTime={},now={},maxExecTime={}ms",
+                getTaskId(), taskStartTime, new Date(), maxExecTime);
+        abortTaskAndAsyncRedo(getTaskId(), CommonDefine.TaskRunningFlag.SCM_TASK_TIMEOUT, "timeout",
+                taskInfoContext.getSuccessCount(), taskInfoContext.getFailedCount(),
+                taskInfoContext.getProgress());
+    }
+
+    private WaitResult waitTaskEnd() throws Exception {
+        final WaitResult waitResult = new WaitResult();
+        taskInfoContext.waitAllSubTaskFinish(Long.MAX_VALUE, 1000,
+                new ScmTaskInfoContext.WaitCallback() {
+                    @Override
+                    public boolean shouldContinueWait(long waitingTime, int waitingCount)
+                            throws ScmServerException {
+                        if (taskInfoContext.isAborted()) {
+                            waitResult.setAborted(true);
+                            return false;
+                        }
+                        if (maxExecTime > 0
+                                && (new Date().getTime() - taskStartTime.getTime()) > maxExecTime) {
+                            waitResult.setTimeout(true);
+                            return false;
+                        }
+                        if (CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL == getTaskRunningFlag(
+                                getTaskId())) {
+                            waitResult.setCanceled(true);
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+        return waitResult;
+    }
+
+    private void discardSubTask() {
+        int purgeSubTaskCount = ScmTaskManager.getInstance().purgeTask(getTaskId());
+        if (purgeSubTaskCount > 0) {
+            taskInfoContext.reduceActiveCount(purgeSubTaskCount);
+        }
+    }
+
+    public void submitSubTask(ScmFileSubTask scmFileSubTask) throws ScmSystemException {
+        try {
+            scmFileSubTask.taskSubmitted();
+            ScmJobManager.getInstance().executeShortTimeTask(scmFileSubTask);
+        }
+        catch (Exception e) {
+            scmFileSubTask.taskDestroyed();
+            throw new ScmSystemException("failed to submit subTask,taskId=" + getTaskId()
+                    + ", fileId=" + scmFileSubTask.getFileId(), e);
+        }
+    }
+
     @Override
     protected long getEstimateCount() {
-        return estimateCount;
+        return taskInfoContext.getEstimateCount();
     }
 
     @Override
     protected long getActualCount() {
-        return actualCount;
+        return taskInfoContext.getActualCount();
     }
 
     public Date getTaskStartTime() {
@@ -350,5 +442,40 @@ public abstract class ScmTaskFile extends ScmTaskBase {
 
     public long getMaxExecTime() {
         return maxExecTime;
+    }
+
+    @Override
+    public BSONObject getTaskInfo() {
+        return taskInfo;
+    }
+
+    static class WaitResult {
+        private boolean aborted;
+        private boolean canceled;
+        private boolean timeout;
+
+        public boolean isAborted() {
+            return aborted;
+        }
+
+        public void setAborted(boolean aborted) {
+            this.aborted = aborted;
+        }
+
+        public boolean isCanceled() {
+            return canceled;
+        }
+
+        public void setCanceled(boolean canceled) {
+            this.canceled = canceled;
+        }
+
+        public boolean isTimeout() {
+            return timeout;
+        }
+
+        public void setTimeout(boolean timeout) {
+            this.timeout = timeout;
+        }
     }
 }

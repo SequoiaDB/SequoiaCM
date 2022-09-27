@@ -954,6 +954,41 @@ public class ScmMetaService {
         }
     }
 
+    public void updateTaskExtraInfo(String taskId, BSONObject extraInfo) throws ScmServerException {
+        try {
+            MetaTaskAccessor taskAccessor = metasource.getTaskAccessor();
+            taskAccessor.updateExtraInfo(taskId, extraInfo);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(), "update task extra info failed:siteId="
+                    + siteId + ",taskId=" + taskId + ",extraInfo=" + extraInfo, e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("update task extra info failed:siteId=" + siteId
+                    + ",taskId=" + taskId + ",extraInfo=" + extraInfo, e);
+        }
+    }
+
+    public void updateTaskActualAndEstimateCount(String taskId, long actualCount,
+            long estimateCount) throws ScmServerException {
+        try {
+            MetaTaskAccessor taskAccessor = metasource.getTaskAccessor();
+            taskAccessor.updateActualAndEstimateCount(taskId, actualCount, estimateCount);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update task actualCount and estimateCount failed:siteId=" + siteId + ",taskId="
+                            + taskId + ",actualCount=" + actualCount + ",estimateCount="
+                            + estimateCount,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("update task actualCount and estimateCount failed:siteId="
+                    + siteId + ",taskId=" + taskId + ",actualCount=" + actualCount
+                    + ",estimateCount=" + estimateCount, e);
+        }
+    }
+
     public BSONObject getTask(BSONObject matcher) throws ScmServerException {
         try {
             MetaAccessor taskAccessor = metasource.getTaskAccessor();
@@ -1178,15 +1213,16 @@ public class ScmMetaService {
         }
     }
 
-    public MetaCursor queryAllFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector)
+    public MetaCursor queryAllFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector,
+            BSONObject oderBy)
             throws ScmServerException {
         MetaCursor currentFileCursor = null;
         MetaCursor historyFileCursor = null;
         try {
-            currentFileCursor = queryCurrentFile(ws, matcher, selector, null, 0, -1);
+            currentFileCursor = queryCurrentFile(ws, matcher, selector, oderBy, 0, -1);
             historyFileCursor = queryHistoryFile(ws.getMetaLocation(), ws.getName(), matcher,
-                    selector, null, 0, -1);
-            return new AllFileMetaCursor(currentFileCursor, historyFileCursor);
+                    selector, oderBy, 0, -1);
+            return new AllFileMetaCursor(currentFileCursor, historyFileCursor, oderBy);
         }
         catch (ScmMetasourceException e) {
             ScmSystemUtils.closeResource(currentFileCursor);
