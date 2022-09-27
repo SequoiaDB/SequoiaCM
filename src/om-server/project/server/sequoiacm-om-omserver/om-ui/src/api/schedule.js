@@ -42,6 +42,9 @@ export function queryScheduleDetail(scheduleId) {
   return request({
     url: BASE_API+'/schedules',
     method: 'put',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
     data: schedule
   })
 }
@@ -56,6 +59,9 @@ export function queryScheduleDetail(scheduleId) {
   return request({
     url: BASE_API+'/schedules/'+scheduleId,
     method: 'post',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
     data: schedule
   })
 }

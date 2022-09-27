@@ -45,12 +45,16 @@
               <td>
                 <span v-text="key" /><br>
               </td>
-              <td class="is-breakable" v-text="value" />
+              <td>
+                <span class="is-breakable" v-text="value" />
+                <span v-if="isUpdatableProp(key)" class="el-icon-edit" @click="handleClickChangeConfig"/>
+              </td>
             </tr>
           </table>
         </panel>
       </template>
     </div>
+    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :name="currentInstance" :configProps="configProps" @refreshConfig="refreshConfigInfo"></update-prop-dialog>
   </div>
 </template>
 
@@ -62,6 +66,8 @@ import ThreadChart from '@/views/dashboard/components/threadChart'
 import ProcessInfo from './components/processInfo.vue'
 import InstanceInfo from './components/instanceInfo.vue'
 import { getInstanceInfo, getConfigInfo } from '@/api/monitor'
+import UpdatePropDialog from './components/UpdatePropDialog.vue'
+import {JOB_CONFIG_PROPS} from '@/utils/common-define'
 
 export default {
   components: {
@@ -70,27 +76,55 @@ export default {
     ThreadChart,
     MemoryChart,
     ProcessInfo,
-    InstanceInfo
+    InstanceInfo,
+    UpdatePropDialog
   },
 
   data(){
     return {
+      updatePropType: 'instance',
       instanceInfo: {},
+      currentInstance: '',
+      configProps: [],
       configInfo: {},
       activeName: 'basic',
       filter: ''
     }
   },
-
-  created() {
-    getInstanceInfo(this.$route.params.id).then(res => {
+  async created() {
+    this.currentInstance = this.$route.params.id
+    await getInstanceInfo(this.$route.params.id).then(res => {
       this.instanceInfo = res.data
     })
-    getConfigInfo(this.$route.params.id).then(res => {
-      this.configInfo = res.data
-    })
+    await this.refreshConfigInfo()
   },
-
+  methods: {
+    isUpdatableProp(key) {
+      for (var i = 0; i < JOB_CONFIG_PROPS.length; i++) {
+        if (JOB_CONFIG_PROPS[i].key === key) {
+          return true
+        }
+      }
+      return false
+    },
+    handleClickChangeConfig() {
+      this.$refs['updatePropDialog'].show()
+    },
+    refreshConfigInfo() {
+      getConfigInfo(this.$route.params.id).then(res => {
+        this.configInfo = res.data
+        if (this.instanceInfo.metadata.isContentServer) {
+          this.configInfo = res.data
+          this.configProps = JOB_CONFIG_PROPS
+          this.configProps.forEach((item)=>{
+            if (this.configInfo[item.key]) {
+              item.value = Number(this.configInfo[item.key])
+            }
+          })
+        }
+      })
+    }
+  },
   computed: {
     filteredConfigInfo() {
       if (!this.filter) {

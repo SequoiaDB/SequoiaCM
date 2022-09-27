@@ -6,7 +6,15 @@ export const TASK_TYPES = [
   },
   {
     value: 'copy_file',
-    label: '迁移任务'
+    label: '迁移任务（拷贝）'
+  },
+  {
+    value: 'move_file',
+    label: '迁移任务（清理源站点）'
+  },
+  {
+    value: 'recycle_space',
+    label: '空间回收任务'
   }
 ]
 
@@ -74,6 +82,17 @@ export const INSTANCE_STATUS = {
   DOWN: 'DOWN',
   STOPPED: 'STOPPED'
 }
+
+export const JOB_CONFIG_PROPS = [
+  {
+    key: 'scm.jobManager.threadpool.coreSize',
+    value: 20
+  },
+  {
+    key: 'scm.jobManager.threadpool.maxSize',
+    value: 30
+  }
+]
 
 // 列表查询时在响应头里的数据总条数标识
 export const X_RECORD_COUNT = "x-record-count"

@@ -8,18 +8,22 @@
       width="35%">
       <div class="detail-container">
         <el-row>
-          <el-col :span="12"><span class="key">任务类型：</span> <span class="value">{{getTaskTypeName(taskDetail.type)}}</span></el-col>
-          <el-col v-if="taskDetail.type == 'clean_file'" :span="12"><span class="key">清理站点：</span> <span class="value">{{taskDetail.source_site}}</span></el-col>
+          <el-col :span="24"><span class="key" style="width:20%">调度任务ID：</span> <span class="value">{{taskDetail.schedule_id}}</span></el-col>
         </el-row>
         <el-row>
-          <el-col :span="24"><span class="key" style="width:20%">调度任务ID：</span> <span class="value">{{taskDetail.schedule_id}}</span></el-col>
+          <el-col :span="12"><span class="key">任务类型：</span> <span class="value">{{getTaskTypeName(taskDetail.type)}}</span></el-col>
+          <el-col v-if="taskDetail.type == 'clean_file'" :span="12"><span class="key">清理站点：</span> <span class="value">{{taskDetail.content.site}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="24"><span class="key" style="width:20%">任务名称：</span> <span class="value">{{taskDetail.name}}</span></el-col>
         </el-row>
-        <el-row v-if="taskDetail.type == 'copy_file'">
-          <el-col :span="12"><span class="key">源站点：</span> <span class="value">{{taskDetail.source_site}}</span></el-col>
-          <el-col :span="12"><span class="key">目的站点：</span> <span class="value">{{taskDetail.target_site}}</span></el-col>
+        <el-row v-if="taskDetail.type == 'copy_file' || taskDetail.type == 'move_file'">
+          <el-col :span="12"><span class="key">源站点：</span> <span class="value">{{taskDetail.content.source_site}}</span></el-col>
+          <el-col :span="12"><span class="key">目的站点：</span> <span class="value">{{taskDetail.content.target_site}}</span></el-col>
+        </el-row>
+        <el-row v-if="taskDetail.type == 'recycle_space'">
+          <el-col :span="12"><span class="key">回收站点：</span> <span class="value">{{taskDetail.content.target_site}}</span></el-col>
+          <el-col :span="12"><span class="key">回收空间范围：</span> <span class="value">{{taskDetail.content.recycle_scope}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="12"><span class="key">创建人：</span> <span class="value">{{taskDetail.create_user}}</span></el-col>
@@ -33,17 +37,24 @@
           <el-col :span="12"><span class="key">优先region：</span> <span class="value">{{taskDetail.preferred_region}}</span></el-col>
           <el-col :span="12"><span class="key">优先zone：</span> <span class="value">{{taskDetail.preferred_zone}}</span></el-col>
         </el-row>
+        <el-row v-if="taskDetail.type !== 'recycle_space'">
+          <el-col :span="12"><span class="key">快速启动：</span> <span class="value">{{taskDetail.content.quick_start?'是':'否'}}</span></el-col>
+          <el-col :span="12"><span class="key">数据校验级别：</span> <span class="value">{{taskDetail.content.data_check_level==='week'?'弱校验':'强校验'}}</span></el-col>
+        </el-row>
+        <el-row v-if="taskDetail.type === 'clean_file' || taskDetail.type === 'move_file'">
+          <el-col :span="24"><span class="key" style="width:20%">回收空间：</span> <span class="value">{{taskDetail.content.is_recycle_space?'开启':'关闭'}}</span></el-col>
+        </el-row>
         <el-row>
           <el-col  v-if="taskDetail.max_stay_time" :span="12"><span class="key">文件停留时间：</span> <span class="value">{{taskDetail.max_stay_time.slice(0, taskDetail.max_stay_time.length-1)}}天</span></el-col>
-          <el-col :span="12"><span class="key">任务超时时间：</span> <span class="value">{{taskDetail.max_exec_time}}ms</span></el-col>
+          <el-col :span="12"><span class="key">任务超时时间：</span> <span class="value">{{taskDetail.content.max_exec_time}}ms</span></el-col>
+        </el-row>
+        <el-row v-if="taskDetail.type != 'recycle_space'">
+          <el-col :span="24"><span class="key" style="width:20%">文件范围：</span> <span class="value">{{getFileScopeText(taskDetail.content.scope)}}</span></el-col>
         </el-row>
         <el-row>
-          <el-col :span="24"><span class="key" style="width:20%">文件范围：</span> <span class="value">{{getFileScopeText(taskDetail.scope_type)}}</span></el-col>
+          <el-col v-if="taskDetail.description" :span="24"><span class="key" style="width:20%">任务描述：</span> <span class="value" style="width:80%">{{taskDetail.description}}</span></el-col>
         </el-row>
-        <el-row>
-          <el-col :span="24"><span class="key" style="width:20%">任务描述：</span> <span class="value" style="width:80%">{{taskDetail.description}}</span></el-col>
-        </el-row>
-        <el-row>
+        <el-row v-if="taskDetail.type != 'recycle_space'">
           <el-col :span="5"><span class="key" style="width:96%">文件查询条件：</span></el-col>
           <el-col :span="19">
             <el-input
@@ -51,7 +62,7 @@
               :rows="2"
               :autosize="{ minRows: 2, maxRows: 10}"
               readonly
-              :value="$util.toPrettyJson(taskDetail.condition)">
+              :value="$util.toPrettyJson(taskDetail.content.extra_condition)">
             </el-input>
           </el-col>
         </el-row>

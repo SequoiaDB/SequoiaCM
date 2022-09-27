@@ -66,6 +66,9 @@ public class RestParamDefine {
     public static final String SCHEDULE_SCOPE_TYPE = "scope_type";
     public static final String SCHEDULE_CRON = "cron";
     public static final String SCHEDULE_ENABLE = "enable";
+    public static final String SCHEDULE_CREATE_TIME = "create_time";
+    public static final String SCHEDULE_CREATE_USER = "create_user";
+    public static final String SCHEDULE_CONTENT = "content";
     public static final String SCHEDULE_CONDITION = "condition";
     public static final String SCHEDULE_DESCRIPTION = "description";
     public static final String SCHEDULE_PREFERRED_REGION = "preferred_region";

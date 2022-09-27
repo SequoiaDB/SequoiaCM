@@ -8,6 +8,7 @@
             <i v-if="service.upCount > 0 && service.upCount < service.totalCount" class="el-icon-warning warning"></i>
             <i v-if="service.upCount == 0" class="el-icon-error error"></i>
             <span class="name">{{name}}</span>
+            <i v-if="service.isContentServer" class="el-icon-edit" @click.stop="handleClickChangeConfig(service, name)"></i>
           </div>
           <div class="status">
             <el-tooltip content="健康节点" placement="top-start" >
@@ -43,12 +44,18 @@
         </el-col>
       </el-row>
     </el-collapse-item>
+    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :name="selectService" :configProps="configProps"></update-prop-dialog>
   </el-collapse>
 </template>
 
 <script>
-import { INSTANCE_STATUS } from '@/utils/common-define'
+import { INSTANCE_STATUS,JOB_CONFIG_PROPS } from '@/utils/common-define'
+import { getConfigInfo } from '@/api/monitor'
+import UpdatePropDialog from './UpdatePropDialog.vue'
 export default {
+  components: {
+    UpdatePropDialog
+  },
   props:{
     services: Object
   },
@@ -59,10 +66,28 @@ export default {
         DOWN: 'danger',
         STOPPED: 'info'
       },
+      updatePropType: 'service',
+      selectService: '',
+      configProps: []
     }
   },
   methods: {
-   
+    handleClickChangeConfig(service, name) {
+      // 查找站点下第一个节点的配置, 不存在则补全默认值
+      if (service.instances.length > 0) {
+        getConfigInfo(service.instances[0].instance_id).then(res => {
+          let configInfo = res.data
+          this.configProps = JOB_CONFIG_PROPS
+          this.configProps.forEach((item)=>{
+            if (configInfo[item.key]) {
+              item.value = Number(configInfo[item.key])
+            }
+          })
+        })
+      }
+      this.selectService = name
+      this.$refs['updatePropDialog'].show()
+    }
   },
   computed: {
     INSTANCE_STATUS(){

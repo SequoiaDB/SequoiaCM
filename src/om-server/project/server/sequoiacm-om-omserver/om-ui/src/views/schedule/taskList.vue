@@ -54,25 +54,39 @@
         <el-table-column
           prop="task_id"
           show-overflow-tooltip
-          label="任务ID">
+          label="任务ID"
+          width="230">
+        </el-table-column>
+        <el-table-column
+          show-overflow-tooltip
+          prop="estimate_count"
+          width="90"
+          label="预估数量">
         </el-table-column>
         <el-table-column
           show-overflow-tooltip
           prop="actual_count"
-          width="100"
-          label="预期文件数">
+          width="90"
+          label="实际数量">
         </el-table-column>
         <el-table-column
           show-overflow-tooltip
           prop="success_count"
-          width="100"
-          label="成功文件数">
+          width="90"
+          label="成功数量">
         </el-table-column>
         <el-table-column
           show-overflow-tooltip
           prop="fail_count"
-          width="100"
-          label="失败文件数">
+          width="90"
+          label="失败数量">
+        </el-table-column>
+        <el-table-column
+          show-overflow-tooltip
+          label="其它信息">
+          <template slot-scope="scope">
+            {{scope.row.extra_info?$util.toPrettyJson(scope.row.extra_info):'无'}}
+          </template>
         </el-table-column>
         <el-table-column
           show-overflow-tooltip
@@ -98,10 +112,11 @@
         </el-table-column>
         <el-table-column
           fixed="right"
-          width="100"
+          width="150"
           label="操作">
           <template slot-scope="scope">
             <el-button-group>
+              <el-button id="btn_task_search_detail" size="mini" @click="handleSearchTaskBtnClick(scope.row)">查看</el-button>
               <el-button id="btn_task_stop" type="danger" :disabled="scope.row.status != 2" size="mini" @click="handleStopBtnClick(scope.row)">停止</el-button>
             </el-button-group>
           </template>
@@ -120,17 +135,20 @@
 
     <!-- 调度任务详情弹框 -->
     <schedule-detail-dialog ref="detailDialog" :taskDetail="scheduleInfo"></schedule-detail-dialog>
-
+    <!-- 任务详情弹框 -->
+    <task-detail-dialog ref="taskDetailDialog" :taskDetail="selectTaskDetail"></task-detail-dialog>
   </div>
 </template>
 <script>
 import ScheduleDetailDialog from '@/components/ScheduleDetailDialog/index.vue'
+import TaskDetailDialog from './components/TaskDetailDialog'
 import {stopTask} from '@/api/task'
 import {queryTasks, queryScheduleDetail} from '@/api/schedule'
 import {X_RECORD_COUNT, TASK_STATUS, TASK_TYPES} from '@/utils/common-define'
 export default {
   components: {
-    ScheduleDetailDialog
+    ScheduleDetailDialog,
+    TaskDetailDialog
   },
   data(){
     return{
@@ -141,6 +159,7 @@ export default {
       },
       tableLoading: false,
       scheduleId: this.$route.params.id,
+      selectTaskDetail: {},
       // 查询过滤参数
       filter: {},
       // 搜索参数
@@ -203,6 +222,11 @@ export default {
     // 查看调度任务详情
     openScheduleDetailDialog() {
       this.$refs['detailDialog'].show()
+    },
+    // 点击查看任务详情按钮
+    handleSearchTaskBtnClick(row) {
+      this.selectTaskDetail = row
+      this.$refs['taskDetailDialog'].show()
     },
     // 执行搜索
     doSearch() {

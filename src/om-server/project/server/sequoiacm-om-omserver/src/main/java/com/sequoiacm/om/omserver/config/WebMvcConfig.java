@@ -1,12 +1,19 @@
 package com.sequoiacm.om.omserver.config;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.sequoiacm.infrastructure.feign.BSONObjectJsonDeserializer;
+import com.sequoiacm.om.omserver.common.ScheduleInfoJsonSerializer;
+import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -40,6 +47,16 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         super.configureMessageConverters(converters);
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setDefaultCharset(Charset.forName("UTF-8"));
+        converters.add(converter);
+
+        ObjectMapper mapper = converter.getObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(BSONObject.class, new BSONObjectJsonDeserializer<BSONObject>());
+        module.addSerializer(new ScheduleInfoJsonSerializer());
+        mapper.registerModule(module);
     }
 
     @Override

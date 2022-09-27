@@ -51,12 +51,8 @@ public class ScmScheduleController {
 
     @PutMapping("/schedules")
     public void createSchedule(ScmOmSession session,
-            @Validated(OmScheduleInfo.CREATE.class) OmScheduleInfo omScheduleInfo)
+            @RequestBody @Validated(OmScheduleInfo.CREATE.class) OmScheduleInfo omScheduleInfo)
             throws ScmInternalException, ScmOmServerException {
-
-        if (null == omScheduleInfo.getCondition()) {
-            omScheduleInfo.setCondition(new BasicBSONObject());
-        }
         if (null == omScheduleInfo.getEnable()) {
             omScheduleInfo.setEnable(true);
         }
@@ -65,7 +61,8 @@ public class ScmScheduleController {
 
     @PostMapping("/schedules/{schedule_id}")
     public void updateSchedule(ScmOmSession session, @PathVariable("schedule_id") String scheduleId,
-            OmScheduleInfo omScheduleInfo) throws ScmInternalException, ScmOmServerException {
+            @RequestBody OmScheduleInfo omScheduleInfo)
+            throws ScmInternalException, ScmOmServerException {
         omScheduleInfo.setScheduleId(scheduleId);
         scheduleService.updateSchedule(session, omScheduleInfo);
     }

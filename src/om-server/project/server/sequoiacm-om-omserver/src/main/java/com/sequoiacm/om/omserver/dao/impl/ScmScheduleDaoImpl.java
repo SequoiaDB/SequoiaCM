@@ -1,7 +1,6 @@
 package com.sequoiacm.om.omserver.dao.impl;
 
 import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
@@ -14,6 +13,7 @@ import com.sequoiacm.om.omserver.module.OmScheduleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmScheduleInfo;
 import com.sequoiacm.om.omserver.module.OmTaskBasicInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+import org.apache.commons.lang.StringUtils;
 import org.bson.BSONObject;
 
 import java.util.ArrayList;
@@ -74,28 +74,12 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
             throws ScmInternalException, ScmOmServerException {
         try {
             ScmSession conn = session.getConnection();
-            ScmScheduleContent scheduleContent = null;
-            ScheduleType scheduleType = ScheduleType.getType(scheduleInfo.getType());
-            ScmType.ScopeType scopeType = ScmType.ScopeType
-                    .getScopeType(scheduleInfo.getScopeType());
-            if (scheduleType == ScheduleType.CLEAN_FILE) {
-                scheduleContent = new ScmScheduleCleanFileContent(scheduleInfo.getSourceSite(),
-                        scheduleInfo.getMaxStayTime(), scheduleInfo.getCondition(), scopeType,
-                        scheduleInfo.getMaxExecTime());
-            }
-            else if (scheduleType == ScheduleType.COPY_FILE) {
-                scheduleContent = new ScmScheduleCopyFileContent(scheduleInfo.getSourceSite(),
-                        scheduleInfo.getTargetSite(), scheduleInfo.getMaxStayTime(),
-                        scheduleInfo.getCondition(), scopeType, scheduleInfo.getMaxExecTime());
-            }
-            else {
-                throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
-                        "invalid scope type:scope type=" + scheduleInfo.getType());
-            }
+            ScmScheduleContent scheduleContent = generateScheduleContent(scheduleInfo);
             ScmScheduleBuilder scheduleBuilder = ScmSystem.Schedule.scheduleBuilder(conn);
-            scheduleBuilder.workspace(scheduleInfo.getWorkspace()).type(scheduleType)
-                    .name(scheduleInfo.getName()).content(scheduleContent)
-                    .cron(scheduleInfo.getCron()).description(scheduleInfo.getDescription())
+            scheduleBuilder.workspace(scheduleInfo.getWorkspace())
+                    .type(ScheduleType.getType(scheduleInfo.getType())).name(scheduleInfo.getName())
+                    .content(scheduleContent).cron(scheduleInfo.getCron())
+                    .description(scheduleInfo.getDescription())
                     .preferredRegion(scheduleInfo.getPreferredRegion())
                     .preferredZone(scheduleInfo.getPreferredZone())
                     .enable(scheduleInfo.getEnable());
@@ -138,28 +122,18 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
             throws ScmInternalException, ScmOmServerException {
         ScmSession conn = session.getConnection();
         try {
-            ScmSchedule oldInfo = ScmSystem.Schedule.get(conn, new ScmId(newInfo.getScheduleId()));
-            ScmScheduleContent content = null;
-            String name = newInfo.getName();
-            String cron = newInfo.getCron();
-            String desc = newInfo.getDescription();
-            Boolean enable = newInfo.getEnable();
-            String workspace = newInfo.getWorkspace();
-            String preferredRegion = newInfo.getPreferredRegion();
-            String preferredZone = newInfo.getPreferredZone();
-            String type = getValueOrDefault(newInfo.getType(), oldInfo.getType().getName());
-            if (ScheduleType.getType(type) == ScheduleType.CLEAN_FILE) {
-                content = createCleanFileContentFromOld(newInfo, oldInfo.getContent());
-            }
-            else if (ScheduleType.getType(type) == ScheduleType.COPY_FILE) {
-                content = createCopyFileContentFromOld(newInfo, oldInfo.getContent());
-            }
-            else {
+            ScmSchedule schedule = ScmSystem.Schedule.get(conn, new ScmId(newInfo.getScheduleId()));
+            String scheduleType = schedule.getType().getName();
+            String newType = newInfo.getType();
+            if (newType != null && !StringUtils.equals(newType, scheduleType)) {
                 throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
-                        "invalid scope type:scope type=" + type);
+                        "update schedule type not supported");
             }
-            oldInfo.updateSchedule(name, cron, workspace, desc, ScheduleType.getType(type), enable,
-                    preferredRegion, preferredZone, content);
+            ScmScheduleContent content = generateScheduleContent(newInfo);
+            schedule.updateSchedule(newInfo.getName(), newInfo.getCron(), newInfo.getWorkspace(),
+                    newInfo.getDescription(), ScheduleType.getType(scheduleType),
+                    newInfo.getEnable(), newInfo.getPreferredRegion(), newInfo.getPreferredZone(),
+                    content);
         }
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(),
@@ -193,6 +167,8 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
         for (ScmTask scmTask : tasks) {
             OmTaskBasicInfo omTask = new OmTaskBasicInfo();
             omTask.setTaskId(scmTask.getId().get());
+            omTask.setWorkspace(scmTask.getWorkspaceName());
+            omTask.setEstimateCount(scmTask.getEstimateCount());
             omTask.setActualCount(scmTask.getActualCount());
             omTask.setFailCount(scmTask.getFailCount());
             omTask.setSuccessCount(scmTask.getSuccessCount());
@@ -200,66 +176,33 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
             omTask.setStatus(scmTask.getRunningFlag());
             omTask.setStartTime(scmTask.getStartTime());
             omTask.setStopTime(scmTask.getStopTime());
+            omTask.setContent(scmTask.getContent());
+            omTask.setExtraInfo(scmTask.getExtraInfo());
             omTaskList.add(omTask);
         }
         return omTaskList;
     }
 
-    private ScmScheduleContent createCleanFileContentFromOld(OmScheduleInfo newInfo,
-            ScmScheduleContent oldContent) throws ScmException {
-        String site = null;
-        BSONObject condition = null;
-        String maxStayTime = null;
-        Long maxExecTime = null;
-        Integer scopeType = null;
-        if (oldContent instanceof ScmScheduleCleanFileContent) {
-            ScmScheduleCleanFileContent old = (ScmScheduleCleanFileContent) oldContent;
-            site = getValueOrDefault(newInfo.getSourceSite(), old.getSiteName());
-            condition = getValueOrDefault(newInfo.getCondition(), old.getExtraCondition());
-            maxStayTime = getValueOrDefault(newInfo.getMaxStayTime(), old.getMaxStayTime());
-            maxExecTime = getValueOrDefault(newInfo.getMaxExecTime(), old.getMaxExecTime());
-            scopeType = getValueOrDefault(newInfo.getScopeType(), old.getScope().getScope());
+    private ScmScheduleContent generateScheduleContent(OmScheduleInfo scheduleInfo)
+            throws ScmException, ScmOmServerException {
+        if (scheduleInfo.getType() == null) {
+            return null;
         }
-        else if (oldContent instanceof ScmScheduleCopyFileContent) {
-            ScmScheduleCopyFileContent old = (ScmScheduleCopyFileContent) oldContent;
-            site = getValueOrDefault(newInfo.getSourceSite(), old.getSourceSiteName());
-            condition = getValueOrDefault(newInfo.getCondition(), old.getExtraCondition());
-            maxStayTime = getValueOrDefault(newInfo.getMaxStayTime(), old.getMaxStayTime());
-            maxExecTime = getValueOrDefault(newInfo.getMaxExecTime(), old.getMaxExecTime());
-            scopeType = getValueOrDefault(newInfo.getScopeType(), old.getScope().getScope());
+        ScheduleType scheduleType = ScheduleType.getType(scheduleInfo.getType());
+        if (scheduleType == ScheduleType.CLEAN_FILE) {
+            return new ScmScheduleCleanFileContent(scheduleInfo.getContent());
         }
-        return new ScmScheduleCleanFileContent(site, maxStayTime, condition,
-                ScmType.ScopeType.getScopeType(scopeType), maxExecTime);
-    }
-
-    private ScmScheduleContent createCopyFileContentFromOld(OmScheduleInfo newInfo,
-            ScmScheduleContent oldContent) throws ScmException {
-        String sourceSite = null;
-        String targetSite = null;
-        BSONObject condition = null;
-        String maxStayTime = null;
-        Long maxExecTime = null;
-        Integer scopeType = null;
-        if (oldContent instanceof ScmScheduleCleanFileContent) {
-            ScmScheduleCleanFileContent old = (ScmScheduleCleanFileContent) oldContent;
-            sourceSite = getValueOrDefault(newInfo.getSourceSite(), old.getSiteName());
-            targetSite = newInfo.getTargetSite();
-            condition = getValueOrDefault(newInfo.getCondition(), old.getExtraCondition());
-            maxStayTime = getValueOrDefault(newInfo.getMaxStayTime(), old.getMaxStayTime());
-            maxExecTime = getValueOrDefault(newInfo.getMaxExecTime(), old.getMaxExecTime());
-            scopeType = getValueOrDefault(newInfo.getScopeType(), old.getScope().getScope());
+        else if (scheduleType == ScheduleType.COPY_FILE) {
+            return new ScmScheduleCopyFileContent(scheduleInfo.getContent());
         }
-        else if (oldContent instanceof ScmScheduleCopyFileContent) {
-            ScmScheduleCopyFileContent old = (ScmScheduleCopyFileContent) oldContent;
-            sourceSite = getValueOrDefault(newInfo.getSourceSite(), old.getSourceSiteName());
-            targetSite = getValueOrDefault(newInfo.getTargetSite(), old.getTargetSiteName());
-            condition = getValueOrDefault(newInfo.getCondition(), old.getExtraCondition());
-            maxStayTime = getValueOrDefault(newInfo.getMaxStayTime(), old.getMaxStayTime());
-            maxExecTime = getValueOrDefault(newInfo.getMaxExecTime(), old.getMaxExecTime());
-            scopeType = getValueOrDefault(newInfo.getScopeType(), old.getScope().getScope());
+        else if (scheduleType == ScheduleType.MOVE_FILE) {
+            return new ScmScheduleMoveFileContent(scheduleInfo.getContent());
         }
-        return new ScmScheduleCopyFileContent(sourceSite, targetSite, maxStayTime, condition,
-                ScmType.ScopeType.getScopeType(scopeType), maxExecTime);
+        else if (scheduleType == ScheduleType.RECYCLE_SPACE) {
+            return new ScmScheduleSpaceRecyclingContent(scheduleInfo.getContent());
+        }
+        throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                "invalid schedule type:schedule type=" + scheduleInfo.getType());
     }
 
     @SuppressWarnings("unchecked")
@@ -268,7 +211,6 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
     }
 
     private OmScheduleInfo transformToOmScheduleInfo(ScmSchedule scmSchedule) {
-        ScmScheduleContent content = scmSchedule.getContent();
         ScheduleType scheduleType = scmSchedule.getType();
         OmScheduleInfo omScheduleInfo = new OmScheduleInfo();
         omScheduleInfo.setScheduleId(scmSchedule.getId().get());
@@ -282,23 +224,7 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
         omScheduleInfo.setType(scheduleType.getName());
         omScheduleInfo.setPreferredRegion(scmSchedule.getPreferredRegion());
         omScheduleInfo.setPreferredZone(scmSchedule.getPreferredZone());
-        if (content instanceof ScmScheduleCleanFileContent) {
-            ScmScheduleCleanFileContent cleanFileContent = (ScmScheduleCleanFileContent) content;
-            omScheduleInfo.setCondition(cleanFileContent.getExtraCondition());
-            omScheduleInfo.setSourceSite(cleanFileContent.getSiteName());
-            omScheduleInfo.setMaxStayTime(cleanFileContent.getMaxStayTime());
-            omScheduleInfo.setMaxExecTime(cleanFileContent.getMaxExecTime());
-            omScheduleInfo.setScopeType(cleanFileContent.getScope().getScope());
-        }
-        else if (content instanceof ScmScheduleCopyFileContent) {
-            ScmScheduleCopyFileContent copyFileContent = (ScmScheduleCopyFileContent) content;
-            omScheduleInfo.setCondition(copyFileContent.getExtraCondition());
-            omScheduleInfo.setSourceSite(copyFileContent.getSourceSiteName());
-            omScheduleInfo.setTargetSite(copyFileContent.getTargetSiteName());
-            omScheduleInfo.setMaxStayTime(copyFileContent.getMaxStayTime());
-            omScheduleInfo.setMaxExecTime(copyFileContent.getMaxExecTime());
-            omScheduleInfo.setScopeType(copyFileContent.getScope().getScope());
-        }
+        omScheduleInfo.setContent(scmSchedule.getContent().toBSONObject());
         return omScheduleInfo;
     }
 

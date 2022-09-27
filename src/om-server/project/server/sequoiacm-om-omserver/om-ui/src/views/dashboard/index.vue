@@ -91,6 +91,7 @@ export default {
         let serviceName = item['service_name']
         if (!result[serviceName]) {
           result[serviceName] = {
+            isContentServer: item.metadata.isContentServer,
             upCount: 0,
             downCount: 0,
             stoppedCount: 0,

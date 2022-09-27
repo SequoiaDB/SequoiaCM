@@ -3,7 +3,6 @@ package com.sequoiacm.om.omserver.module;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BSONObject;
 
-
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -33,35 +32,12 @@ public class OmScheduleInfo {
     @JsonProperty("workspace")
     private String workspace;
 
-    @NotNull(message = "sourceSite is required", groups = CREATE.class)
-    @JsonProperty("source_site")
-    private String sourceSite;
-
-    @NotNull(message = "targetSite is required", groups = CREATE.class)
-    @JsonProperty("target_site")
-    private String targetSite;
-
-    @NotNull(message = "maxStayTime is required", groups = CREATE.class)
-    @JsonProperty("max_stay_time")
-    private String maxStayTime;
-
-    @NotNull(message = "maxExecTime is required", groups = CREATE.class)
-    @JsonProperty("max_exec_time")
-    private Long maxExecTime;
-
-    @NotNull(message = "scopeType is required", groups = CREATE.class)
-    @JsonProperty("scope_type")
-    private Integer scopeType;
-
     @NotNull(message = "cron is required", groups = CREATE.class)
     @JsonProperty("cron")
     private String cron;
 
     @JsonProperty("description")
     private String description;
-
-    @JsonProperty("condition")
-    private BSONObject condition;
 
     @JsonProperty("create_user")
     private String createUser;
@@ -75,28 +51,27 @@ public class OmScheduleInfo {
     @JsonProperty("preferred_zone")
     private String preferredZone;
 
+    @JsonProperty("content")
+    private BSONObject content;
+
     public OmScheduleInfo() {
     }
 
     public OmScheduleInfo(String scheduleId, String name, String type, Boolean enable,
-            String workspace, String sourceSite, String targetSite, String maxStayTime,
-            Long maxExecTime, Integer scopeType, String cron, String description,
-            BSONObject condition, String preferredRegion, String preferredZone) {
+            String workspace, String cron, String description, String createUser, Date createTime,
+            String preferredRegion, String preferredZone, BSONObject content) {
         this.scheduleId = scheduleId;
         this.name = name;
         this.type = type;
         this.enable = enable;
         this.workspace = workspace;
-        this.sourceSite = sourceSite;
-        this.targetSite = targetSite;
-        this.maxStayTime = maxStayTime;
-        this.maxExecTime = maxExecTime;
-        this.scopeType = scopeType;
         this.cron = cron;
         this.description = description;
-        this.condition = condition;
+        this.createUser = createUser;
+        this.createTime = createTime;
         this.preferredRegion = preferredRegion;
         this.preferredZone = preferredZone;
+        this.content = content;
     }
 
     public String getScheduleId() {
@@ -139,46 +114,6 @@ public class OmScheduleInfo {
         this.workspace = workspace;
     }
 
-    public String getSourceSite() {
-        return sourceSite;
-    }
-
-    public void setSourceSite(String sourceSite) {
-        this.sourceSite = sourceSite;
-    }
-
-    public String getTargetSite() {
-        return targetSite;
-    }
-
-    public void setTargetSite(String targetSite) {
-        this.targetSite = targetSite;
-    }
-
-    public String getMaxStayTime() {
-        return maxStayTime;
-    }
-
-    public void setMaxStayTime(String maxStayTime) {
-        this.maxStayTime = maxStayTime;
-    }
-
-    public Long getMaxExecTime() {
-        return maxExecTime;
-    }
-
-    public void setMaxExecTime(Long maxExecTime) {
-        this.maxExecTime = maxExecTime;
-    }
-
-    public Integer getScopeType() {
-        return scopeType;
-    }
-
-    public void setScopeType(Integer scopeType) {
-        this.scopeType = scopeType;
-    }
-
     public String getCron() {
         return cron;
     }
@@ -193,14 +128,6 @@ public class OmScheduleInfo {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public BSONObject getCondition() {
-        return condition;
-    }
-
-    public void setCondition(BSONObject condition) {
-        this.condition = condition;
     }
 
     public String getCreateUser() {
@@ -233,5 +160,13 @@ public class OmScheduleInfo {
 
     public void setPreferredZone(String preferredZone) {
         this.preferredZone = preferredZone;
+    }
+
+    public BSONObject getContent() {
+        return content;
+    }
+
+    public void setContent(BSONObject content) {
+        this.content = content;
     }
 }

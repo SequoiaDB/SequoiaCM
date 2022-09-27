@@ -1,6 +1,7 @@
 package com.sequoiacm.om.omserver.module;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.bson.BSONObject;
 
 import java.util.Date;
 
@@ -8,8 +9,14 @@ public class OmTaskBasicInfo {
     @JsonProperty("task_id")
     private String taskId;
 
+    @JsonProperty("workspace")
+    private String workspace;
+
     @JsonProperty("success_count")
     private Long successCount;
+
+    @JsonProperty("estimate_count")
+    private Long estimateCount;
 
     @JsonProperty("actual_count")
     private Long actualCount;
@@ -29,6 +36,12 @@ public class OmTaskBasicInfo {
     @JsonProperty("status")
     private Integer status;
 
+    @JsonProperty("content")
+    private BSONObject content;
+
+    @JsonProperty("extra_info")
+    private BSONObject extraInfo;
+
     public OmTaskBasicInfo() {
     }
 
@@ -40,12 +53,28 @@ public class OmTaskBasicInfo {
         this.taskId = taskId;
     }
 
+    public String getWorkspace() {
+        return workspace;
+    }
+
+    public void setWorkspace(String workspace) {
+        this.workspace = workspace;
+    }
+
     public Long getSuccessCount() {
         return successCount;
     }
 
     public void setSuccessCount(Long successCount) {
         this.successCount = successCount;
+    }
+
+    public Long getEstimateCount() {
+        return estimateCount;
+    }
+
+    public void setEstimateCount(Long estimateCount) {
+        this.estimateCount = estimateCount;
     }
 
     public Long getActualCount() {
@@ -94,5 +123,21 @@ public class OmTaskBasicInfo {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public BSONObject getContent() {
+        return content;
+    }
+
+    public void setContent(BSONObject content) {
+        this.content = content;
+    }
+
+    public BSONObject getExtraInfo() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(BSONObject extraInfo) {
+        this.extraInfo = extraInfo;
     }
 }
