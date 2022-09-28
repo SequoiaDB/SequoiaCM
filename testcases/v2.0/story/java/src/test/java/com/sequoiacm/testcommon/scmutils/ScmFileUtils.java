@@ -43,13 +43,18 @@ public class ScmFileUtils extends TestScmBase {
 
     public static void cleanFile( WsWrapper ws, BSONObject condition )
             throws ScmException {
+        cleanFile( ws.getName(), condition );
+    }
+
+    public static void cleanFile( String wsName, BSONObject condition )
+            throws ScmException {
         ScmSession session = null;
         SiteWrapper site = ScmInfo.getSite();
         ScmCursor< ScmFileBasicInfo > cursor = null;
         ScmId fileId = null;
         try {
             session = TestScmTools.createSession( site );
-            ScmWorkspace work = ScmFactory.Workspace.getWorkspace( ws.getName(),
+            ScmWorkspace work = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
 
             cursor = ScmFactory.File.listInstance( work,
@@ -98,20 +103,31 @@ public class ScmFileUtils extends TestScmBase {
     }
 
     /**
-     * one file, default workspace, check file's meta and data
+     * @descreption 校验单个文件元数据和数据存在的站点
+     * @param ws
+     * @param fileId
+     * @param expSites
+     * @param localPath
+     * @param filePath
+     * @throws Exception
      */
     public static void checkMetaAndData( WsWrapper ws, ScmId fileId,
             SiteWrapper[] expSites, java.io.File localPath, String filePath )
             throws Exception {
+        checkMetaAndData( ws.getName(), fileId, expSites, localPath, filePath );
+    }
+
+    public static void checkMetaAndData( String wsName, ScmId fileId,
+            SiteWrapper[] expSites, java.io.File localPath, String filePath )
+            throws Exception {
         List< ScmId > fileIdList = new ArrayList<>();
         fileIdList.add( fileId );
-        checkMetaAndData( ws, fileIdList, expSites, localPath, filePath );
+        checkMetaAndData( wsName, fileIdList, expSites, localPath, filePath );
     }
 
     /**
-     * multiple file, specify workspace, check file's meta and data
-     *
-     * @param wsName
+     * @descreption 校验多个文件的元数据和数据存在的站点
+     * @param ws
      * @param fileIdList
      * @param expSites
      * @param localPath
@@ -121,6 +137,22 @@ public class ScmFileUtils extends TestScmBase {
     public static void checkMetaAndData( WsWrapper ws, List< ScmId > fileIdList,
             SiteWrapper[] expSites, java.io.File localPath, String filePath )
             throws Exception {
+        checkMetaAndData( ws.getName(), fileIdList, expSites, localPath,
+                filePath );
+    }
+
+    /**
+     * @descreption 校验多个文件的元数据和数据存在的站点
+     * @param wsName
+     * @param fileIdList
+     * @param expSites
+     * @param localPath
+     * @param filePath
+     * @throws Exception
+     */
+    public static void checkMetaAndData( String wsName,
+            List< ScmId > fileIdList, SiteWrapper[] expSites,
+            java.io.File localPath, String filePath ) throws Exception {
         boolean medaChecked = false;
         for ( SiteWrapper site : expSites ) {
             ScmSession session = null;
@@ -128,8 +160,7 @@ public class ScmFileUtils extends TestScmBase {
             ScmId fileId = null;
             try {
                 session = TestScmTools.createSession( site );
-                work = ScmFactory.Workspace.getWorkspace( ws.getName(),
-                        session );
+                work = ScmFactory.Workspace.getWorkspace( wsName, session );
 
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
                     fileId = fileIdList.get( i );
@@ -149,17 +180,79 @@ public class ScmFileUtils extends TestScmBase {
     }
 
     /**
-     * check scmfile's meta
-     *
+     * @descreption 校验历史版本文件的元数据和数据
+     * @param wsName
+     * @param fileIdList
+     * @param expSites
+     * @param localPath
+     * @param filePath
+     * @param majorVersion
+     * @param minorVersion
+     * @throws Exception
+     */
+    public static void checkHistoryFileMetaAndData( String wsName,
+            List< ScmId > fileIdList, SiteWrapper[] expSites,
+            java.io.File localPath, String filePath, int majorVersion,
+            int minorVersion ) throws Exception {
+        boolean medaChecked = false;
+        for ( SiteWrapper site : expSites ) {
+            ScmSession session = null;
+            ScmWorkspace work = null;
+            ScmId fileId = null;
+            try {
+                session = TestScmTools.createSession( site );
+                work = ScmFactory.Workspace.getWorkspace( wsName, session );
+
+                for ( int i = 0; i < fileIdList.size(); i++ ) {
+                    fileId = fileIdList.get( i );
+                    if ( !medaChecked ) {
+                        checkHistoryMeta( work, fileId, expSites, majorVersion,
+                                minorVersion );
+                    }
+                    checkHistoryData( work, fileId, localPath, filePath,
+                            majorVersion, minorVersion );
+                }
+
+                medaChecked = true;
+            } finally {
+                if ( session != null ) {
+                    session.close();
+                }
+            }
+        }
+    }
+
+    /**
+     * @descreption 校验文件当前版本元数据
      * @param ws
      * @param fileId
-     * @param expSiteIdArr
+     * @param expSites
      * @throws Exception
      */
     public static void checkMeta( ScmWorkspace ws, ScmId fileId,
             SiteWrapper[] expSites ) throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        checkMeta( ws, file, expSites );
+    }
 
+    /**
+     * @descreption 校验文件历史版本元数据
+     * @param ws
+     * @param fileId
+     * @param expSites
+     * @throws Exception
+     */
+    public static void checkHistoryMeta( ScmWorkspace ws, ScmId fileId,
+            SiteWrapper[] expSites, int majorVersion, int minorVersion )
+            throws Exception {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, majorVersion,
+                minorVersion );
+        checkMeta( ws, file, expSites );
+    }
+
+    public static void checkMeta( ScmWorkspace ws, ScmFile file,
+            SiteWrapper[] expSites ) throws Exception {
+        ScmId fileId = file.getFileId();
         // sort the actual siteId
         int actSiteNum = file.getLocationList().size();
         List< Integer > actIdList = new ArrayList<>();
@@ -201,11 +294,41 @@ public class ScmFileUtils extends TestScmBase {
     }
 
     /**
-     * check scmfile's data
+     * @descreption 从本地站点下载文件校验MD5
+     * @param ws
+     * @param fileId
+     * @param localPath
+     * @param filePath
+     * @throws ScmException
      */
     public static void checkData( ScmWorkspace ws, ScmId fileId,
             java.io.File localPath, String filePath ) throws Exception {
         ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        checkData( ws, file, localPath, filePath );
+
+    }
+
+    /**
+     * @descreption 从本地下载历史版本文件校验MD5
+     * @param ws
+     * @param fileId
+     * @param localPath
+     * @param filePath
+     * @param majorVersion
+     * @param minorVersion
+     * @throws Exception
+     */
+    public static void checkHistoryData( ScmWorkspace ws, ScmId fileId,
+            java.io.File localPath, String filePath, int majorVersion,
+            int minorVersion ) throws Exception {
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId, majorVersion,
+                minorVersion );
+        checkData( ws, file, localPath, filePath );
+
+    }
+
+    public static void checkData( ScmWorkspace ws, ScmFile file,
+            java.io.File localPath, String filePath ) throws Exception {
         String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
                 TestTools.getMethodName(), Thread.currentThread().getId() );
         file.getContentFromLocalSite( downloadPath );
@@ -213,7 +336,7 @@ public class ScmFileUtils extends TestScmBase {
         String actMd5 = TestTools.getMD5( downloadPath );
         if ( !expMd5.equals( actMd5 ) ) {
             throw new Exception( "Failed to check data, " + "expMd5=" + expMd5
-                    + ", actMd5=" + actMd5 + " fileId:" + fileId.get() );
+                    + ", actMd5=" + actMd5 + " fileId:" + file.getFileId().get() );
         }
         TestTools.LocalFile.removeFile( downloadPath );
     }
