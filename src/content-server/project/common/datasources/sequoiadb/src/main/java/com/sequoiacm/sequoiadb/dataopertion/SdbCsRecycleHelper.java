@@ -20,6 +20,7 @@ import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -33,6 +34,8 @@ import java.util.List;
 public class SdbCsRecycleHelper {
     private static final Logger logger = LoggerFactory.getLogger(SdbCsRecycleHelper.class);
 
+    // true: 删除成功
+    // false: 集合空间不为空或集合空间不存在
     public static boolean deleteCsIfEmpty(String csName, String siteName, SdbDataService service,
             MetaDataOperator operator, ScmLockManager lockManager) throws SequoiadbException,
             ScmMetasourceException, ScmServerException, ScmLockException {
@@ -60,7 +63,7 @@ public class SdbCsRecycleHelper {
                 // 集合空间不存在，查记录表，检查重命名后的cs是否存在
                 String renamedCsName = queryRenamedCs(csName, operator);
                 if (renamedCsName == null) {
-                    return true;
+                    return false;
                 }
                 ScmLock scmLock = null;
                 try {
@@ -72,6 +75,14 @@ public class SdbCsRecycleHelper {
                         scmLock.unlock();
                     }
                 }
+            }
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()) {
+                return false;
+            }
+            else {
+                throw e;
             }
         }
         finally {
@@ -89,12 +100,13 @@ public class SdbCsRecycleHelper {
             }
             else {
                 dropRenamedCs(sequoiadb, csName, renamedCsName, operator);
+                return true;
             }
         }
         else {
             removeRecyclingLogSilence(csName, operator);
+            return false;
         }
-        return true;
     }
 
     private static boolean doDropCS(String csName, SdbDataService service,
@@ -115,9 +127,12 @@ public class SdbCsRecycleHelper {
             else {
                 // 尝试删除重命名后的cs
                 dropRenamedCs(sequoiadb, csName, newCsName, operator);
+                return true;
             }
         }
-        return true;
+        else {
+            return false;
+        }
     }
 
     private static ScmLock lockCs(ScmLockManager lockManager, String csName, String siteName)
@@ -203,19 +218,24 @@ public class SdbCsRecycleHelper {
         String csName = cs.getName();
         List<String> collectionNames = cs.getCollectionNames();
         for (String collectionName : collectionNames) {
-            DBCollection collection = cs
-                    .getCollection(collectionName.substring(csName.length() + 1));
-            BSONObject bsonObject = collection.queryOne();
-            if (bsonObject != null) {
-                logger.info("collectionSpace contains record, csName={}", csName);
-                return true;
-            }
+            DBCollection collection = null;
             DBCursor dbCursor = null;
             try {
+                collection = cs.getCollection(collectionName.substring(csName.length() + 1));
+                BSONObject bsonObject = collection.queryOne();
+                if (bsonObject != null) {
+                    logger.info("collectionSpace contains record, csName={}", csName);
+                    return true;
+                }
                 dbCursor = collection.listLobs();
                 if (dbCursor.hasNext()) {
                     logger.info("collectionSpace contains lob, csName={}", csName);
                     return true;
+                }
+            }
+            catch (BaseException e) {
+                if (e.getErrorCode() != SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
+                    throw e;
                 }
             }
             finally {
