@@ -182,7 +182,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
         }
         logger.error("file data is not exist in the remote locking site:siteId=" + dataInOtherSiteId
                 + ",fileId=" + fileId + ",workspace=" + ws.getName());
-        taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
+        taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
         return;
     }
 

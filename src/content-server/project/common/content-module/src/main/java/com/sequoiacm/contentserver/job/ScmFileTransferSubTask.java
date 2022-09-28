@@ -60,12 +60,16 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
             FileTransferInterrupter interrupter = new TaskTransfileInterrupter(parent);
             FileTransferDao fileTrans = new FileTransferDao(getWorkspaceInfo(), remoteSiteId,
                     interrupter, getTask().getDataCheckLevel());
-            if (fileTrans.doTransfer(file)) {
+            FileTransferDao.FileTransferResult transferResult = fileTrans.doTransfer(file);
+            if (transferResult == FileTransferDao.FileTransferResult.SUCCESS) {
                 taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
-                return;
             }
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            else if (transferResult == FileTransferDao.FileTransferResult.DATA_INCORRECT) {
+                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
+            }
+            else {
+                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
+            }
         }
         catch (ScmServerException e) {
             // skip exception

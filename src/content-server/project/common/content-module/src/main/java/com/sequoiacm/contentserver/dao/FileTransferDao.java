@@ -41,6 +41,12 @@ public class FileTransferDao {
     private FileTransferInterrupter interrupter = null;
     private String dataCheckLevel = CommonDefine.DataCheckLevel.WEEK;
 
+    public enum FileTransferResult {
+        SUCCESS,
+        INTERRUPT,
+        DATA_INCORRECT
+    }
+
     public FileTransferDao(ScmWorkspaceInfo wsInfo, int targetSiteId) {
         this(wsInfo, targetSiteId, null, CommonDefine.DataCheckLevel.WEEK);
     }
@@ -55,8 +61,7 @@ public class FileTransferDao {
         this.localSiteId = ScmContentModule.getInstance().getLocalSite();
     }
 
-    // return true if transfer success,return false if transfer get interrupt or data is not same
-    public boolean doTransfer(BSONObject file) throws ScmServerException {
+    public FileTransferResult doTransfer(BSONObject file) throws ScmServerException {
         fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
         localDataMd5 = (String) file.get(FieldName.FIELD_CLFILE_FILE_MD5);
 
@@ -79,13 +84,16 @@ public class FileTransferDao {
             logger.warn("file is already exist in target site:fileId={},target={},version={}",
                     fileId, remoteSiteId, ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
             // target site is already exist
-            return checkDataIsSame(dataInfo, size, majorVersion, minorVersion);
+            return checkDataIsSame(dataInfo, size, majorVersion, minorVersion)
+                    ? FileTransferResult.SUCCESS
+                    : FileTransferResult.DATA_INCORRECT;
+
         }
 
         try {
             // interrupt,return false
             if (!readLocalWriteRomete(dataInfo, majorVersion, minorVersion)) {
-                return false;
+                return FileTransferResult.INTERRUPT;
             }
         }
         catch (ScmServerException e) {
@@ -94,7 +102,7 @@ public class FileTransferDao {
                     // if data is valid and update meta success,just return
                     FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
                             remoteSiteId);
-                    return true;
+                    return FileTransferResult.SUCCESS;
                 }
                 else {
                     if (!FileCommonOperator.deleteRemoteResidulFile(wsInfo, remoteSiteId, dataInfo)) {
@@ -107,7 +115,7 @@ public class FileTransferDao {
                     // interrupt,return false
                     try {
                         if (!readLocalWriteRomete(dataInfo, majorVersion, minorVersion)) {
-                            return false;
+                            return FileTransferResult.INTERRUPT;
                         }
                     }
                     catch (ScmServerException e1) {
@@ -130,12 +138,12 @@ public class FileTransferDao {
 
         if (!checkDataIsSame(dataInfo, size, majorVersion, minorVersion)) {
             FileCommonOperator.deleteRemoteResidulFile(wsInfo, remoteSiteId, dataInfo);
-            return false;
+            return FileTransferResult.DATA_INCORRECT;
         }
         // update meta data info
         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
                 remoteSiteId);
-        return true;
+        return FileTransferResult.SUCCESS;
     }
 
     private boolean checkDataIsSame(ScmDataInfo dataInfo, long dataSize, int majorVersion,

@@ -88,12 +88,18 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
             ScmWorkspaceInfo ws = getWorkspaceInfo();
             FileTransferDao fileTransferDao = new FileTransferDao(ws, targetSiteId,
                     new TaskTransfileInterrupter(getTask()), getTask().getDataCheckLevel());
-            if (fileTransferDao.doTransfer(file)) {
+            FileTransferDao.FileTransferResult transferResult = fileTransferDao.doTransfer(file);
+            if (transferResult == FileTransferDao.FileTransferResult.SUCCESS) {
                 cleanFile(ws, fileId, majorVersion, minorVersion, dataInfo);
                 taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
                 return;
             }
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
+            else if (transferResult == FileTransferDao.FileTransferResult.DATA_INCORRECT) {
+                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
+            }
+            else {
+                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
+            }
 
         }
         catch (ScmServerException e) {
