@@ -86,11 +86,11 @@ export const INSTANCE_STATUS = {
 export const JOB_CONFIG_PROPS = [
   {
     key: 'scm.jobManager.threadpool.coreSize',
-    value: 20
+    value: 8
   },
   {
     key: 'scm.jobManager.threadpool.maxSize',
-    value: 30
+    value: 10
   }
 ]
 

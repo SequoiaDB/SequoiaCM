@@ -54,13 +54,25 @@ public class ScmJobManager {
                 new ScmThreadFactory("shortTimeTaskThreadPool"),
                 new ShortTimeTaskRejectedHandler(
                         jobManagerConfig.getDefaultTaskWaitingTimeOnReject()));
+        logger.info(
+                "shortTimeTaskThreadPool initialized, coreSize={}, maxSize={}, queueSize={}, rejectedHandler={}",
+                shortTimeTaskThreadPool.getCorePoolSize(),
+                shortTimeTaskThreadPool.getMaximumPoolSize(),
+                shortTimeTaskThreadPool.getQueue().remainingCapacity(),
+                shortTimeTaskThreadPool.getRejectedExecutionHandler());
 
         this.longTimeTaskThreadPool = new ThreadPoolExecutor(
                 jobManagerConfig.getLongTimeThreadPoolCoreSize(),
                 jobManagerConfig.getLongTimeThreadPoolMaxSize(), 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(jobManagerConfig.getLongTimeThreadPoolQueueSize()),
                 new ScmThreadFactory("longTimeTaskThreadPool"),
-                new ThreadPoolExecutor.CallerRunsPolicy());
+                new ThreadPoolExecutor.AbortPolicy());
+        logger.info(
+                "longTimeTaskThreadPool initialized, coreSize={}, maxSize={}, queueSize={}, rejectedHandler={}",
+                longTimeTaskThreadPool.getCorePoolSize(),
+                longTimeTaskThreadPool.getMaximumPoolSize(),
+                longTimeTaskThreadPool.getQueue().remainingCapacity(),
+                longTimeTaskThreadPool.getRejectedExecutionHandler());
 
         ScmJobManager.jobManager = this;
     }

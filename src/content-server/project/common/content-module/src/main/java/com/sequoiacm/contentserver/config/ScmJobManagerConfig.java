@@ -18,8 +18,8 @@ public class ScmJobManagerConfig {
     /**
      * shortTimeThreadPool
      */
-    private int coreSize = 20;
-    private int maxSize = 30;
+    private int coreSize = 8;
+    private int maxSize = 10;
     private int queueSize = 5000;
 
     /**
