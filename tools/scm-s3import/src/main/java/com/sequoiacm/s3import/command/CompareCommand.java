@@ -93,9 +93,9 @@ public class CompareCommand extends SubCommand {
         }
         if (checkS3BucketList.size() != bucketList.size()) {
             throw new ScmToolsException(
-                    "Is inconsistent with the bucket list of the last compare, bucketList="
-                            + CommonUtils.bucketListToStr(bucketList) + ", lastBucketList="
-                            + CommonUtils.bucketListToStr(checkS3BucketList),
+                    "The current working directory is already occupied by "
+                            + CommonUtils.bucketListToStr(checkS3BucketList)
+                            + " ,please specify another working directory.",
                     S3ImportExitCode.INVALID_ARG);
         }
         // 记录用户原来的桶数据
