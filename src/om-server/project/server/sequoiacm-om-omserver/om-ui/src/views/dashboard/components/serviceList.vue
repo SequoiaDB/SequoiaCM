@@ -77,7 +77,7 @@ export default {
       if (service.instances.length > 0) {
         getConfigInfo(service.instances[0].instance_id).then(res => {
           let configInfo = res.data
-          this.configProps = JOB_CONFIG_PROPS
+          this.configProps = JSON.parse(JSON.stringify(JOB_CONFIG_PROPS))
           this.configProps.forEach((item)=>{
             if (configInfo[item.key]) {
               item.value = Number(configInfo[item.key])

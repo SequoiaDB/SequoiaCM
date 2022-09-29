@@ -115,10 +115,14 @@ export default {
         this.configInfo = res.data
         if (this.instanceInfo.metadata.isContentServer) {
           this.configInfo = res.data
-          this.configProps = JOB_CONFIG_PROPS
+          this.configProps = JSON.parse(JSON.stringify(JOB_CONFIG_PROPS))
           this.configProps.forEach((item)=>{
             if (this.configInfo[item.key]) {
               item.value = Number(this.configInfo[item.key])
+            }
+            else {
+              // 节点配置文件中不包含线程池相关参数时，补一个默认值，以支持动态配置
+              this.configInfo[item.key] = item.value
             }
           })
         }
