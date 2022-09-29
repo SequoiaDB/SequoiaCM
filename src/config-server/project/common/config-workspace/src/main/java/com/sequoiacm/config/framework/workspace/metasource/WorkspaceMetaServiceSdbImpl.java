@@ -32,6 +32,8 @@ import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 
+import javax.annotation.PostConstruct;
+
 @Repository
 public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceMetaServiceSdbImpl.class);
@@ -49,6 +51,17 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             return new SysWorkspaceTableDaoSdbImpl(sdbMetasource);
         }
         return new SysWorkspaceTableDaoSdbImpl(transaction);
+    }
+
+    @PostConstruct
+    public void repairMetadata() throws MetasourceException {
+        // SEQUOIACM-1055: 解决 3.1.0 版本所创建工作区，可能存在的目录兼容性问题
+        BSONObject matcher = new BasicBSONObject();
+        matcher.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY,
+                new BasicBSONObject("$exists", 0));
+        BSONObject updater = new BasicBSONObject();
+        updater.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true);
+        new SysWorkspaceTableDaoSdbImpl(sdbMetasource).update(matcher, updater);
     }
 
     @Override

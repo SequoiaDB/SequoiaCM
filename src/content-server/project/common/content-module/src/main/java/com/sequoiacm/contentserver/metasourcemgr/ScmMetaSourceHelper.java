@@ -158,9 +158,20 @@ public class ScmMetaSourceHelper {
             List<BSONObject> workspaceList = new ArrayList<>();
             while (cursor.hasNext()) {
                 BSONObject bo = cursor.getNext();
+                // SEQUOIACM-1055: 解决 3.1.0 版本所创建工作区，可能存在的目录兼容性问题
+                if (bo.get(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY) == null) {
+                    BSONObject matcher = new BasicBSONObject();
+                    matcher.put(FieldName.FIELD_CLWORKSPACE_ID,
+                            bo.get(FieldName.FIELD_CLWORKSPACE_ID));
+                    matcher.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY,
+                            new BasicBSONObject("$exists", 0));
+                    BSONObject updater = new BasicBSONObject();
+                    updater.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, true);
+                    bo = workspaceAccesor.queryAndUpdate(matcher,
+                            new BasicBSONObject("$set", updater), null, true);
+                }
                 workspaceList.add(bo);
             }
-
             return workspaceList;
         }
         catch (ScmMetasourceException e) {
