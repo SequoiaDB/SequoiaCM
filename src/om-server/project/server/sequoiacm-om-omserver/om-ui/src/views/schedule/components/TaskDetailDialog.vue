@@ -11,7 +11,7 @@
           <el-col :span="24"><span class="key" style="width:20%">任务ID：</span> <span class="value">{{taskDetail.task_id}}</span></el-col>
         </el-row>
         <el-row>
-          <el-col :span="24"><span class="key" style="width:20%">所属工作区：</span> <span class="value">taskDetail.workspace</span></el-col>
+          <el-col :span="24"><span class="key" style="width:20%">所属工作区：</span> <span class="value">{{taskDetail.workspace}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="12"><span class="key">预估数量：</span> <span class="value">{{taskDetail.estimate_count}}</span></el-col>
@@ -84,7 +84,7 @@ export default {
     },
     getStatusText(status) {
       if (status == 2) {
-          return "运行中（" + taskDetail.Dprogress + "%）"
+          return "运行中（" + this.taskDetail.progress + "%）"
       }
       for (const task of this.taskStatus) {
         if (task.value == status) {

@@ -6,7 +6,7 @@
       title="任务详情"
       :visible.sync="detailDialogVisible"
       width="35%">
-      <div class="detail-container">
+      <div class="detail-container" v-if="taskDetail.content">
         <el-row>
           <el-col :span="24"><span class="key" style="width:20%">调度任务ID：</span> <span class="value">{{taskDetail.schedule_id}}</span></el-col>
         </el-row>

@@ -605,6 +605,7 @@ export default {
           preferredZone: detail.preferred_zone,
           timeout: Number(detail.content.max_exec_time),
           type: detail.type,
+          scope: '',
           description: detail.description,
           sourceSite: detail.content.source_site,
           targetSite: detail.content.target_site,
@@ -778,6 +779,7 @@ export default {
             content['target_site'] = form.sourceSite
           }
           else {
+            content['scope'] = form.scope
             content['data_check_level'] = form.dataCheckLevel
             content['max_stay_time'] = form.maxStayTime + 'd'
             content['quick_start'] = form.quickStart
@@ -796,7 +798,6 @@ export default {
             name: form.name,
             type: form.type,
             workspace: form.workspace,
-            scopeType: form.scope,
             cron: form.cron,
             preferred_region: form.preferredRegion,
             preferred_zone: form.preferredZone,
