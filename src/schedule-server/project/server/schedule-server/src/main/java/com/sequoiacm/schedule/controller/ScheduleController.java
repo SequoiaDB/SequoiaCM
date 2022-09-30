@@ -1,6 +1,7 @@
 package com.sequoiacm.schedule.controller;
 
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -303,6 +304,8 @@ public class ScheduleController {
             return updateSchedule2Leader;
         }
         else {
+            // SEQUOIACM-1084: 此处需要适配驱动的多余编码动作
+            newInfoDesc = URLDecoder.decode(newInfoDesc, RestCommonDefine.CHARSET_UTF8);
             ScheduleNewUserInfo newInfo = ScheduleEntityTranslator.NewUserInfo
                     .fromJSON(newInfoDesc);
             ScheduleFullEntity updateSchedule = service.updateSchedule(scheduleId, newInfo);

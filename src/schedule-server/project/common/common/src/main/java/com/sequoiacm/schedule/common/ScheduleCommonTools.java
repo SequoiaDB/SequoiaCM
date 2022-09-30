@@ -1,7 +1,6 @@
 package com.sequoiacm.schedule.common;
 
 import java.net.InetAddress;
-import java.net.URLDecoder;
 
 import org.apache.commons.lang.StringUtils;
 import org.bson.BSONObject;
@@ -107,11 +106,10 @@ public class ScheduleCommonTools {
         }
     }
 
-    public static BSONObject toBSONObjct(String content) throws ScheduleException {
+    public static BSONObject toBSONObject(String content) throws ScheduleException {
         BSONObject contentObj = null;
         try {
-            contentObj = (BSONObject) JSON
-                    .parse(URLDecoder.decode(content, RestCommonDefine.CHARSET_UTF8));
+            contentObj = (BSONObject) JSON.parse(content);
         }
         catch (Exception e) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,

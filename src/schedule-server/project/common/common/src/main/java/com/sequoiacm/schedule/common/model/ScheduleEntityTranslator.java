@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
 
 public class ScheduleEntityTranslator {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleEntityTranslator.class);
@@ -112,9 +113,7 @@ public class ScheduleEntityTranslator {
     public static class NewUserInfo {
         public static ScheduleNewUserInfo fromJSON(String newInfoJSON) throws ScheduleException {
             ScheduleNewUserInfo info = new ScheduleNewUserInfo();
-
-            BSONObject obj = ScheduleCommonTools.toBSONObjct(newInfoJSON);
-
+            BSONObject obj = ScheduleCommonTools.toBSONObject(newInfoJSON);
             info.setContent((BSONObject) obj.get(FieldName.Schedule.FIELD_CONTENT));
             info.setCron((String) obj.get(FieldName.Schedule.FIELD_CRON));
             info.setDesc((String) obj.get(FieldName.Schedule.FIELD_DESC));
@@ -176,7 +175,7 @@ public class ScheduleEntityTranslator {
                 throws ScheduleException {
             String description = getValueNotNull(request,
                     RestCommonDefine.RestParam.KEY_DESCRIPTION);
-            BSONObject obj = ScheduleCommonTools.toBSONObjct(description);
+            BSONObject obj = ScheduleCommonTools.toBSONObject(description);
 
             return fromBSONObject(obj);
         }
