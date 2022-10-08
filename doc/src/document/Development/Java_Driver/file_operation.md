@@ -35,8 +35,12 @@ ScmFile file = ScmFactory.File.getInstance(workspace, fileID);
 // 如果没有 fileID，可以通过 目录+文件名 的方式获取文件实例，对应的参数形式为“目录/文件名”，创建文件时不指定目录的情况下，文件默认所在的目录为根目录“/”
 // ScmFile file = ScmFactory.File.getInstanceByPath(workspace, "/testFile");
 System.out.println(file.toString());
+
 // 下载文件内容
 file.getContent("E:\\test\\download_file.txt");
+// 通过工作区、文件 ID 直接获取文件内容
+InputStream fileData = ScmFactory.File.getInputStream(ws, fileID);
+
 // 按匹配条件查询文件：查询所有 Author 为 SequoiaCM 的文件
 BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is("SequoiaCM")
         .get();

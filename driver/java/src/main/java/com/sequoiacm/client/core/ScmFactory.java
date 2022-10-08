@@ -7,6 +7,7 @@ import com.sequoiacm.client.common.ScmType.InputStreamType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.dispatcher.BsonReader;
+import com.sequoiacm.client.dispatcher.CloseableFileDataEntity;
 import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.client.element.ScmClassBasicInfo;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
@@ -45,6 +46,7 @@ import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -635,6 +637,64 @@ public class ScmFactory {
             else {
                 return new ScmInputStreamImplUnseekable(scmFile, readFlag);
             }
+        }
+
+        /**
+         * Returns the file data InputStream.
+         * 
+         * @param ws
+         *            workspace.
+         * @param fileId
+         *            file id.
+         * @return file data InputStream.
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.2.1
+         */
+        public static InputStream getInputStream(ScmWorkspace ws, ScmId fileId)
+                throws ScmException {
+            return getInputStream(ws, fileId, -1, -1, 0);
+        }
+
+        /**
+         * Returns the file data InputStream.
+         * 
+         * @param ws
+         *            workspace.
+         * @param fileId
+         *            file id.
+         * @param majorVersion
+         *            file major version.
+         * @param minorVersion
+         *            file minor version.
+         * @param readFlag
+         *            the read flags. Please see the description of follow flags for
+         *            more detail, and can also specify 0 to not configure.
+         *            <dl>
+         *            <dt>CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE :do not
+         *            cache when reading file across sites
+         *            </dl>
+         * @return file data InputStream.
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.2.1
+         */
+        public static InputStream getInputStream(ScmWorkspace ws, ScmId fileId, int majorVersion,
+                int minorVersion, int readFlag) throws ScmException {
+            checkArgNotNull("ws", ws);
+            checkArgNotNull("fileId", fileId);
+            if ((readFlag & (CommonDefine.ReadFileFlag.SCM_READ_FILE_WITHDATA
+                    | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE
+                    | CommonDefine.ReadFileFlag.SCM_READ_FILE_NEEDSEEK)) > 0) {
+                throw new ScmException(ScmError.INVALID_ARGUMENT,
+                        "readFlag cannot contain the following: "
+                                + "SCM_READ_FILE_NEEDSEEK、SCM_READ_FILE_WITHDATA、SCM_READ_FILE_LOCALSITE, "
+                                + "readFlag=" + readFlag);
+            }
+            ScmSession conn = ws.getSession();
+            CloseableFileDataEntity fileData = conn.getDispatcher().downloadFile(ws.getName(),
+                    fileId.get(), majorVersion, minorVersion, readFlag);
+            return fileData.getDataIs();
         }
 
         /**

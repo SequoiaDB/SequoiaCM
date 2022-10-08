@@ -43,33 +43,42 @@ public class CloseableFileDataEntity implements Closeable {
     }
 
     public InputStream getDataIs() {
-        return new ScmFileInputStream(this.dataIs);
+        return new ScmFileInputStream(this.dataIs, dataLentgth);
     }
 }
 
 class ScmFileInputStream extends InputStream {
+    private final long dataLen;
+    private long currentReadLen;
     private InputStream dataIs;
 
-    public ScmFileInputStream(InputStream dataIs) {
+    public ScmFileInputStream(InputStream dataIs, long dataLen) {
         this.dataIs = dataIs;
+        this.dataLen = dataLen;
     }
 
     @Override
     public int read() throws IOException {
-        return dataIs.read();
+        int ret = dataIs.read();
+        incReadLenAndCheck(ret == -1 ? -1 : 1);
+        return ret;
     }
 
     public int read(byte b[]) throws IOException {
-        return CommonHelper.readAsMuchAsPossible(dataIs, b);
+        return read(b, 0, b.length);
     }
 
     public int read(byte b[], int off, int len) throws IOException {
-        return CommonHelper.readAsMuchAsPossible(dataIs, b, off, len);
+        int ret = CommonHelper.readAsMuchAsPossible(dataIs, b, off, len);
+        incReadLenAndCheck(ret);
+        return ret;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        return dataIs.skip(n);
+        long ret = dataIs.skip(n);
+        incReadLenAndCheck(ret);
+        return ret;
     }
 
     @Override
@@ -84,16 +93,26 @@ class ScmFileInputStream extends InputStream {
 
     @Override
     public synchronized void mark(int readlimit) {
-        dataIs.mark(readlimit);
     }
 
     @Override
     public synchronized void reset() throws IOException {
-        dataIs.reset();
+        throw new IOException("mark/reset not supported");
     }
 
     @Override
     public boolean markSupported() {
-        return dataIs.markSupported();
+        return false;
+    }
+
+    private void incReadLenAndCheck(long readLen) throws IOException {
+        if (readLen == -1) {
+            if (currentReadLen != dataLen) {
+                throw new IOException(
+                        "data is incomplete:expectLen=" + dataLen + ",actual=" + currentReadLen);
+            }
+            return;
+        }
+        currentReadLen += readLen;
     }
 }
