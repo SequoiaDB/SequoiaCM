@@ -1,16 +1,5 @@
 package com.sequoiacm.workspace.serial;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
-
-import org.testng.Assert;
-import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -18,13 +7,19 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.HbaseUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
+import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * @Description SCM-2364:不指定namespace,创建ws
@@ -36,7 +31,7 @@ public class CreateWorkspace2364 extends TestScmBase {
     private String namespace = "default";
     private ScmSession session = null;
     private SiteWrapper site = null;
-    private Calendar cal = Calendar.getInstance();
+    private Calendar cal = null;
 
     private String fileName = "scmfile2358";
     private int fileSize = 1024 * 200;
@@ -45,6 +40,7 @@ public class CreateWorkspace2364 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
+        cal = Calendar.getInstance();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
