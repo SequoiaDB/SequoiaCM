@@ -49,6 +49,9 @@ class BreakpointFileFlushCondition
         if (statisticsRawData instanceof ScmStatisticsBreakpointFileRawData) {
             ScmStatisticsBreakpointFileRawData breakpointFileRawData = (ScmStatisticsBreakpointFileRawData) statisticsRawData;
             ScmStatisticsBreakpointFileMeta fileMeta = breakpointFileRawData.getFileMeta();
+            if (fileMeta == null || responseFileMeta == null) {
+                return false;
+            }
             return fileMeta.equals(responseFileMeta);
         }
         return false;
