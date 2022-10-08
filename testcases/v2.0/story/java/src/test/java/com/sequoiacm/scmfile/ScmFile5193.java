@@ -68,7 +68,7 @@ public class ScmFile5193 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
 
-    @Test(groups = { GroupTags.oneSite, GroupTags.twoSite, GroupTags.fourSite })
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
     public void test() throws Exception {
         // 文件存在单个站点
         ScmFile file1 = ScmFactory.File.createInstance( ws );
