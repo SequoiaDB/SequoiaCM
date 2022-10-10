@@ -1,13 +1,6 @@
 package com.sequoiacm.testcommon;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import com.sequoiacm.client.common.ScmType;
-import org.apache.log4j.Logger;
-import org.bson.BSONObject;
-
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
@@ -20,7 +13,13 @@ import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import org.apache.log4j.Logger;
+import org.bson.BSONObject;
 import org.testng.SkipException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class ScmInfo {
     private static final Logger logger = Logger.getLogger( ScmInfo.class );
@@ -350,5 +349,23 @@ public class ScmInfo {
             ScmSession session, String serviceName ) throws ScmException {
         return ScmSystem.ServiceCenter.getServiceInstanceList( session,
                 serviceName );
+    }
+
+    /**
+     * @descreption 指定站点类型获取站点
+     * @param dateType
+     * @return
+     */
+    public static List< SiteWrapper > getBranchSitesBySiteType(
+            ScmType.DatasourceType dateType ) {
+        List< SiteWrapper > branchSites = new ArrayList<>();
+        for ( int i = 1; i < siteList.size(); i++ ) { // i=0 is rootSite
+            if ( siteList.get( i ).getDataType() == dateType )
+                branchSites.add( siteList.get( i ) );
+        }
+        if ( branchSites.size() == 0 ) {
+            throw new SkipException( "there is no such type site!" );
+        }
+        return branchSites;
     }
 }

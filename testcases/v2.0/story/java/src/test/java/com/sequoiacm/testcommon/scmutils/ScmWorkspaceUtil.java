@@ -1,25 +1,9 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.sequoiacm.client.core.*;
-import org.apache.log4j.Logger;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.testng.Assert;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
-import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
-import com.sequoiacm.client.element.bizconf.ScmCephSwiftDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmHbaseDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmHdfsDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
-import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
-import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.bizconf.*;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
@@ -27,11 +11,14 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.Ssh;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.*;
+import org.apache.log4j.Logger;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description ScmWrokspaceUtil.java
@@ -402,4 +389,51 @@ public class ScmWorkspaceUtil extends TestScmBase {
         conf.setName( wsName );
         return ScmWorkspaceUtil.createWS( session, conf );
     }
+
+    public static List< ScmDataLocation > getDataLocationList( int siteNum,
+            ScmShardingType dataLocationShardingType )
+            throws ScmInvalidArgumentException {
+        SiteWrapper rootSite = ScmInfo.getRootSite();
+        List< SiteWrapper > siteList = new ArrayList<>();
+        List< ScmDataLocation > scmDataLocationList = new ArrayList<>();
+        if ( siteNum > 1 ) {
+            siteList = ScmInfo.getBranchSites( siteNum - 1 );
+        } else if ( siteNum < 1 ) {
+            throw new IllegalArgumentException(
+                    "error, create ws siteNum can't equal " + siteNum );
+        }
+        siteList.add( rootSite );
+        for ( int i = 0; i < siteList.size(); i++ ) {
+            String siteName = siteList.get( i ).getSiteName();
+            String dataType = siteList.get( i ).getDataType().toString();
+            switch ( dataType ) {
+            case "sequoiadb":
+                String domainName = TestSdbTools
+                        .getDomainNames( siteList.get( i ).getDataDsUrl() )
+                        .get( 0 );
+                scmDataLocationList.add( new ScmSdbDataLocation( siteName,
+                        domainName, dataLocationShardingType,
+                        dataLocationShardingType ) );
+                break;
+            case "hbase":
+                scmDataLocationList.add( new ScmHbaseDataLocation( siteName ) );
+                break;
+            case "hdfs":
+                scmDataLocationList.add( new ScmHdfsDataLocation( siteName ) );
+                break;
+            case "ceph_s3":
+                scmDataLocationList
+                        .add( new ScmCephS3DataLocation( siteName ) );
+                break;
+            case "ceph_swift":
+                scmDataLocationList
+                        .add( new ScmCephSwiftDataLocation( siteName ) );
+                break;
+            default:
+                Assert.fail( "dataSourceType not match: " + dataType );
+            }
+        }
+        return scmDataLocationList;
+    }
+
 }

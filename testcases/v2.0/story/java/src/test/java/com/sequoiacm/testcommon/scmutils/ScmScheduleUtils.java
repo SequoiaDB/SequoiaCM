@@ -1,23 +1,23 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.sequoiacm.client.common.ScheduleType;
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
 import org.apache.log4j.Logger;
-
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import com.sequoiacm.client.exception.ScmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ScmScheduleUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmTaskUtils.class );
@@ -532,7 +532,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 获取success_count值大于1的任务
+     * @Descrip 获取success_count值大于0的任务
      * @param schedule
      * @return
      * @throws ScmException
@@ -548,4 +548,185 @@ public class ScmScheduleUtils extends TestScmBase {
                         orderBy, 0, -1 );
         return tasks;
     }
+
+    /**
+     * @descreption 获取调度任务触发的第一个任务
+     * @param schedule
+     * @return
+     * @throws ScmException
+     */
+    public static ScmTask getFirstTask( ScmSchedule schedule )
+            throws ScmException {
+        BSONObject orderBy = ScmQueryBuilder
+                .start( ScmAttributeName.Task.START_TIME ).is( 1 ).get();
+        List< ScmTask > tasks = schedule.getTasks( new BasicBSONObject(),
+                orderBy, 0, 1 );
+        return tasks.get( 0 );
+    }
+
+    /**
+     * @descreption 清理工作区某个站点上数据源的空表
+     * @param session
+     * @param wsName
+     * @throws ScmException
+     */
+    public static void cleanNullCS( ScmSession session, String wsName )
+            throws Exception {
+        ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
+        ScmSpaceRecyclingTaskConfig conf = new ScmSpaceRecyclingTaskConfig();
+        conf.setWorkspace( ws );
+        conf.setRecycleScope( ScmSpaceRecycleScope.mothBefore( 0 ) );
+        ScmId task = ScmSystem.Task.startSpaceRecyclingTask( conf );
+        ScmTaskUtils.waitTaskFinish( session, task );
+    }
+
+    /**
+     * @descreption 根据时间偏移offNum年构造预期的LobCS表名
+     * @param wsp
+     * @param site
+     * @param beginTime
+     * @param offNum
+     * @return
+     */
+    public static Set< String > initLobCSName( WsWrapper wsp, SiteWrapper site,
+            long beginTime, int offNum ) throws Exception {
+        if ( site.getDataType() != ScmType.DatasourceType.SEQUOIADB ) {
+            throw new Exception( "only supported SequoiaDB DataSource" );
+        }
+        Calendar instance = Calendar.getInstance();
+        instance.setTime( new Date( beginTime ) );
+        Set< String > LobCSNames = new HashSet<>();
+        for ( int i = 0; i < offNum; i++ ) {
+            String name = initCSNameByTimestamp( wsp, site,
+                    instance.getTimeInMillis() );
+            LobCSNames.add( name );
+            instance.add( Calendar.YEAR, -1 );
+        }
+        return LobCSNames;
+    }
+
+    /**
+     * @descreption 根据时间偏移offNum年构造预期的LobCS表名
+     * @param wsName
+     * @param shardingType
+     * @param beginTime
+     * @param csNum
+     * @return
+     * @throws Exception
+     */
+    public static Set< String > initLobCSName( String wsName,
+            ScmShardingType shardingType, long beginTime, int csNum ) {
+        Calendar instance = Calendar.getInstance();
+        instance.setTime( new Date( beginTime ) );
+        Set< String > LobCSNames = new HashSet<>();
+        for ( int i = 0; i < csNum; i++ ) {
+            String name = initCSNameByTimestamp( wsName, shardingType,
+                    instance.getTimeInMillis() );
+            LobCSNames.add( name );
+            instance.add( Calendar.YEAR, -1 );
+        }
+        return LobCSNames;
+    }
+
+    /**
+     * @descreption 根据时间构造预期的LobCS表名
+     * @param wsp
+     * @param site
+     * @param timestamp
+     * @return
+     */
+    public static String initCSNameByTimestamp( WsWrapper wsp, SiteWrapper site,
+            long timestamp ) {
+        String keyWord = "collection_space";
+        BSONObject dataShardingType = wsp
+                .getDataShardingType( site.getSiteId() );
+        Calendar instance = Calendar.getInstance();
+        instance.setTime( new Date( timestamp ) );
+        int year = instance.get( Calendar.YEAR );
+        int month = instance.get( Calendar.MONTH ) + 1;
+        int quarter = ( month - 1 ) / 3 + 1;
+        if ( dataShardingType == null ) {
+            return wsp.getName() + "_LOB_" + year;
+        } else {
+            if ( dataShardingType.get( keyWord )
+                    .equals( ScmShardingType.MONTH.getName() ) ) {
+                return wsp.getName() + "_LOB_" + year
+                        + String.format( "%02d", month );
+            } else if ( dataShardingType.get( keyWord )
+                    .equals( ScmShardingType.YEAR.getName() ) ) {
+                return wsp.getName() + "_LOB_" + year;
+            } else if ( dataShardingType.get( keyWord )
+                    .equals( ScmShardingType.QUARTER.getName() ) ) {
+                return wsp.getName() + "_LOB_" + year + "Q" + quarter;
+            } else {
+                return wsp.getName() + "_LOB";
+            }
+        }
+    }
+
+    /**
+     * @descreption 根据时间构造预期的LobCS表名
+     * @param wsName
+     * @param dataShardingType
+     * @param timestamp
+     * @return
+     */
+    public static String initCSNameByTimestamp( String wsName,
+            ScmShardingType dataShardingType, long timestamp ) {
+        Calendar instance = Calendar.getInstance();
+        instance.setTime( new Date( timestamp ) );
+        int year = instance.get( Calendar.YEAR );
+        int month = instance.get( Calendar.MONTH ) + 1;
+        int quarter = ( month - 1 ) / 3 + 1;
+        if ( dataShardingType.equals( ScmShardingType.MONTH ) ) {
+            return wsName + "_LOB_" + year + String.format( "%02d", month );
+        } else if ( dataShardingType.equals( ScmShardingType.YEAR ) ) {
+            return wsName + "_LOB_" + year;
+        } else if ( dataShardingType.equals( ScmShardingType.QUARTER ) ) {
+            return wsName + "_LOB_" + year + "Q" + quarter;
+        } else {
+            return wsName + "_LOB";
+        }
+    }
+
+    /**
+     * @descreption 获取任务的ExtraInfo以数组返回
+     * @param task
+     * @return
+     */
+    public static Object[] getTaskExtraInfo( ScmTask task ) {
+        String keyWord = "space_recycling_removed_collection_space";
+        BSONObject extraInfo = task.getExtraInfo();
+        BasicBSONList csNames = new BasicBSONList();
+        if ( extraInfo != null ) {
+            csNames = ( BasicBSONList ) extraInfo.get( keyWord );
+        }
+        return csNames.toArray();
+    }
+
+    /**
+     * @descreption 判断db数据源上是否存在对应的cs
+     * @param site
+     * @param csName
+     * @return
+     */
+    public static boolean checkLobCS( SiteWrapper site, String csName ) {
+        boolean isExist;
+        Sequoiadb db = null;
+        try {
+            String dsUrl = site.getDataDsUrl();
+            db = TestSdbTools.getSdb( dsUrl );
+            if ( !db.isCollectionSpaceExist( csName ) ) {
+                isExist = false;
+            } else {
+                isExist = true;
+            }
+        } finally {
+            if ( db != null ) {
+                db.close();
+            }
+        }
+        return isExist;
+    }
+
 }

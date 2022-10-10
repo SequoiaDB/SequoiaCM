@@ -1,25 +1,19 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.*;
-import org.apache.log4j.Logger;
-import org.bson.BSONObject;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import org.apache.log4j.Logger;
+import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ScmFileUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmFileUtils.class );
@@ -339,5 +333,19 @@ public class ScmFileUtils extends TestScmBase {
                     + ", actMd5=" + actMd5 + " fileId:" + file.getFileId().get() );
         }
         TestTools.LocalFile.removeFile( downloadPath );
+    }
+
+    /**
+     * @descreption 校验多个文件的元数据
+     * @param ws
+     * @param fileIds
+     * @param expSites
+     * @throws Exception
+     */
+    public static void checkMeta( ScmWorkspace ws, List< ScmId > fileIds,
+                                  SiteWrapper[] expSites ) throws Exception {
+        for ( int i = 0; i < fileIds.size(); i++ ) {
+            checkMeta( ws, fileIds.get( 0 ), expSites );
+        }
     }
 }
