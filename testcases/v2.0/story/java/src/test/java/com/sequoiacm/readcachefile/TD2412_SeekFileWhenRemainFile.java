@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.bson.BSONObject;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -68,6 +69,10 @@ public class TD2412_SeekFileWhenRemainFile extends TestScmBase {
         TestTools.LocalFile.createFile( remainFilePath, fileSize / 2 );
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
+        if ( branSites.get( 1 )
+                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
+            throw new SkipException( "源站点不能为ceph S3数据源" );
+        }
         wsp = ScmInfo.getWs();
         sessionA = TestScmTools.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );

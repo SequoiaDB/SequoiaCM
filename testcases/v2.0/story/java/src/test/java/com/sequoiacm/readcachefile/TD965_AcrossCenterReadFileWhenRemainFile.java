@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.sequoiacm.client.common.ScmType;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -61,13 +63,17 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
+        if ( branSites.get( 1 )
+                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
+            throw new SkipException( "源站点不能为ceph S3数据源" );
+        }
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
     }
-    // 问题单SEQUOIACM-1072未解决，用例暂时屏蔽
-    @Test(groups = { "fourSite", "net" }, enabled = false)
+
+    @Test(groups = { "fourSite", "net" })
     public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );

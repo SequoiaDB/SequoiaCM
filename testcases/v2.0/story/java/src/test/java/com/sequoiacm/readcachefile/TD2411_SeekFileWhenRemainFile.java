@@ -53,7 +53,6 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         if ( branSites.get( 1 )
                 .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
-            // SEQUOIACM-1072
             throw new SkipException(
                     "the behavior of cephS3 is inconsistent with other data sources" );
         }
