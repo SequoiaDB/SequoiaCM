@@ -51,6 +51,28 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
+     * 指定分区方式创建工作区
+     *
+     * @param session
+     * @param wsName
+     * @param siteNum
+     * @param dataLocationShardingType
+     * @return
+     * @throws ScmException
+     * @throws InterruptedException
+     */
+    public static ScmWorkspace createWS( ScmSession session, String wsName,
+            int siteNum, ScmShardingType dataLocationShardingType )
+            throws ScmException, InterruptedException {
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        conf.setDataLocations(
+                getDataLocationList( siteNum, dataLocationShardingType ) );
+        conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+        conf.setName( wsName );
+        return createWS( session, conf );
+    }
+
+    /**
      * 创建带批次和目录开关的工作区
      * 
      * @param session

@@ -2,6 +2,8 @@ package com.sequoiacm.testcommon.scmutils;
 
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.common.ScmDataCheckLevel;
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
@@ -18,6 +20,8 @@ import org.bson.types.BasicBSONList;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import com.sequoiacm.client.exception.ScmException;
+import org.testng.Assert;
 
 public class ScmScheduleUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmTaskUtils.class );
@@ -364,7 +368,6 @@ public class ScmScheduleUtils extends TestScmBase {
 
     /**
      * 创建清理调度任务更新为迁移任务
-     * 
      * @param session
      * @param sourceSite
      * @param targetSite
@@ -397,6 +400,107 @@ public class ScmScheduleUtils extends TestScmBase {
         waitForTask( schedule, 20 );
         schedule.disable();
         return schedule;
+    }
+
+    /**
+     * 创建迁移清理调度任务
+     *
+     * @param session
+     * @param sourceSite
+     * @param targetSite
+     * @param wsName
+     * @param cond
+     * @param checkLevel
+     * @param isRecycleSpace
+     * @param quickStart
+     * @return
+     * @throws Exception
+     */
+    public static ScmSchedule createMoveSchedule( ScmSession session,
+            SiteWrapper sourceSite, SiteWrapper targetSite, String wsName,
+            BSONObject cond, ScmDataCheckLevel checkLevel,
+            boolean isRecycleSpace, boolean quickStart ) throws ScmException {
+        return createMoveSchedule( session, sourceSite, targetSite, wsName,
+                cond, ScmType.ScopeType.SCOPE_CURRENT, checkLevel,
+                isRecycleSpace, quickStart );
+    }
+
+    /**
+     * 创建迁移清理调度任务
+     *
+     * @param session
+     * @param sourceSite
+     * @param targetSite
+     * @param wsName
+     * @param cond
+     * @param checkLevel
+     * @param isRecycleSpace
+     * @param quickStart
+     * @param scopeType
+     * @return
+     * @throws Exception
+     */
+    public static ScmSchedule createMoveSchedule( ScmSession session,
+            SiteWrapper sourceSite, SiteWrapper targetSite, String wsName,
+            BSONObject cond, ScmType.ScopeType scopeType,
+            ScmDataCheckLevel checkLevel, boolean isRecycleSpace,
+            boolean quickStart ) throws ScmException {
+        UUID uuid = UUID.randomUUID();
+        String maxStayTime = "0d";
+        String scheduleName = "testMove" + uuid;
+        String description = "move " + uuid;
+        ScmScheduleBuilder schBuilder = ScmSystem.Schedule
+                .scheduleBuilder( session );
+        ScmScheduleMoveFileContent copyContent = new ScmScheduleMoveFileContent(
+                sourceSite.getSiteName(), targetSite.getSiteName(), maxStayTime,
+                cond, scopeType, 30000L, checkLevel, isRecycleSpace,
+                quickStart );
+        schBuilder.type( ScheduleType.MOVE_FILE ).workspace( wsName )
+                .name( scheduleName ).description( description )
+                .content( copyContent ).cron( "0/15 * * * * ?" ).enable( true );
+        return schBuilder.build();
+    }
+
+    /**
+     * 校验db数据源lob表是否存在
+     *
+     * @param site
+     * @param csName
+     * @return
+     * @throws Exception
+     */
+    public static boolean checkLobCS( SiteWrapper site, String csName )
+            throws Exception {
+        if ( site.getDataType() != ScmType.DatasourceType.SEQUOIADB ) {
+            throw new Exception( "站点类型必须为SEQUOIADB！" );
+        }
+        boolean isExist;
+        Sequoiadb db = null;
+        try {
+            String dsUrl = site.getDataDsUrl();
+            db = TestSdbTools.getSdb( dsUrl );
+            if ( !db.isCollectionSpaceExist( csName ) ) {
+                isExist = false;
+            } else {
+                isExist = true;
+            }
+        } finally {
+            db.close();
+        }
+        return isExist;
+    }
+
+    public static void deleteLobCS( SiteWrapper site, String csName ) {
+        Sequoiadb db = null;
+        try {
+            String dsUrl = site.getDataDsUrl();
+            db = TestSdbTools.getSdb( dsUrl );
+            if ( db.isCollectionSpaceExist( csName ) ) {
+                db.dropCollectionSpace( csName );
+            }
+        } finally {
+            db.close();
+        }
     }
 
     /**
@@ -703,30 +807,4 @@ public class ScmScheduleUtils extends TestScmBase {
         }
         return csNames.toArray();
     }
-
-    /**
-     * @descreption 判断db数据源上是否存在对应的cs
-     * @param site
-     * @param csName
-     * @return
-     */
-    public static boolean checkLobCS( SiteWrapper site, String csName ) {
-        boolean isExist;
-        Sequoiadb db = null;
-        try {
-            String dsUrl = site.getDataDsUrl();
-            db = TestSdbTools.getSdb( dsUrl );
-            if ( !db.isCollectionSpaceExist( csName ) ) {
-                isExist = false;
-            } else {
-                isExist = true;
-            }
-        } finally {
-            if ( db != null ) {
-                db.close();
-            }
-        }
-        return isExist;
-    }
-
 }
