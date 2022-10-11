@@ -63,10 +63,7 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
-        if ( branSites.get( 1 )
-                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
-            throw new SkipException( "源站点不能为ceph S3数据源" );
-        }
+
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSites.get( 0 ) );
@@ -121,7 +118,15 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         // check meta,because the metadata is directly modified when
         // remainsize is equal to filesize,
         // rootsite does not cache data
-        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        SiteWrapper[] expSites;
+        if ( branSites.get( 1 )
+                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
+            expSites = new SiteWrapper[] { branSites.get( 0 ),
+                    branSites.get( 1 ), rootSite };
+        } else {
+            expSites = new SiteWrapper[] { branSites.get( 0 ),
+                    branSites.get( 1 ) };
+        }
         ScmFileUtils.checkMeta( wsA, fileId, expSites );
         // read from centerM
         this.readFileFrom( rootSite );

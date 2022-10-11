@@ -60,10 +60,7 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
-        if ( branSites.get( 1 )
-                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
-            throw new SkipException( "源站点不能为ceph S3数据源" );
-        }
+
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSites.get( 0 ) );
@@ -100,7 +97,15 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         this.readFileFrom( branSites.get( 1 ) );
 
         // check result
-        SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
+        SiteWrapper[] expSites;
+        if ( branSites.get( 1 )
+                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
+            expSites = new SiteWrapper[] { branSites.get( 0 ),
+                    branSites.get( 1 ), rootSite };
+        } else {
+            expSites = new SiteWrapper[] { branSites.get( 0 ),
+                    branSites.get( 1 ) };
+        }
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                 filePath );
 
