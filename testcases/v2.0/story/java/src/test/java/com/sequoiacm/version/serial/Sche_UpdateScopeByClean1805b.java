@@ -1,36 +1,25 @@
 package com.sequoiacm.version.serial;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.sequoiacm.client.common.ScheduleType;
+import com.sequoiacm.client.common.ScmType.ScopeType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.common.ScmType.ScopeType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSchedule;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
-import com.sequoiacm.testcommon.scmutils.VersionUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @description SCM-1805:异步清理任务，更新scopeType类型
@@ -65,6 +54,7 @@ public class Sche_UpdateScopeByClean1805b extends TestScmBase {
     private String filePath1 = null;
     private String filePath2 = null;
     private byte[] writedata = new byte[ 1024 * 10 ];
+    private ScmSchedule sche;
     private boolean runSuccess = false;
 
     @BeforeClass
@@ -109,12 +99,16 @@ public class Sche_UpdateScopeByClean1805b extends TestScmBase {
         SiteWrapper[] exphHisSiteList = { rootSite };
         VersionUtils.checkScheTaskFileSites( wsM, fileIdList, historyVersion,
                 exphHisSiteList );
+        ScmScheduleUtils.waitForTask( sche, 5 );
+        sche.disable();
+        ScmScheduleUtils.cleanTask( sessionM, scheduleId );
 
         // test b:update task to clean history version file
         ScopeType scope_b = ScopeType.SCOPE_CURRENT;
         updateScheTaskByScopeType( wsA, scope_b );
         // read history version file again at the branSite
         readFile( wsA, historyVersion );
+        sche.enable();
 
         // test b: check siteinfo
         SiteWrapper[] expCurSiteList_b = { rootSite };
@@ -123,12 +117,16 @@ public class Sche_UpdateScopeByClean1805b extends TestScmBase {
         SiteWrapper[] exphHisSiteList_b = { rootSite, branSite };
         VersionUtils.checkScheTaskFileSites( wsM, fileIdList, historyVersion,
                 exphHisSiteList_b );
+        ScmScheduleUtils.waitForTask( sche, 5 );
+        sche.disable();
+        ScmScheduleUtils.cleanTask( sessionM, scheduleId );
 
         // test c:update task to clean all version file
         ScopeType scope_c = ScopeType.SCOPE_ALL;
         updateScheTaskByScopeType( wsA, scope_c );
         // read current version file again at the branSite
         readFile( wsA, currentVersion );
+        sche.enable();
 
         // test b: check siteinfo
         SiteWrapper[] expCurSiteList_c = { rootSite };
@@ -187,7 +185,7 @@ public class Sche_UpdateScopeByClean1805b extends TestScmBase {
                 maxStayTime, condition, ScopeType.SCOPE_HISTORY );
         cron = "* * * * * ?";
 
-        ScmSchedule sche = ScmSystem.Schedule.create( session, wsp.getName(),
+        sche = ScmSystem.Schedule.create( session, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskname, "", content, cron );
         scheduleId = sche.getId();
         Assert.assertEquals( content.getScope(), ScopeType.SCOPE_HISTORY );
@@ -195,7 +193,7 @@ public class Sche_UpdateScopeByClean1805b extends TestScmBase {
 
     private void updateScheTaskByScopeType( ScmWorkspace ws, ScopeType scope )
             throws ScmException {
-        ScmSchedule sche = ScmSystem.Schedule.get( sessionA, scheduleId );
+        sche = ScmSystem.Schedule.get( sessionA, scheduleId );
         content.setScope( scope );
         Assert.assertEquals( content.getScope(), scope );
         sche.updateContent( content );
