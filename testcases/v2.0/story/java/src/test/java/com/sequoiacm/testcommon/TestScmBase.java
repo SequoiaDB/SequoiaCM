@@ -155,8 +155,12 @@ public class TestScmBase {
                 WsPool.init( wsNames );
             }
 
-            // 创建S3公共桶
-            createS3CommBucket( session );
+            // 存在s3节点时创建S3公共桶
+            for ( String serviceName : serviceList ) {
+                if ( serviceName.contains( "s3" ) ) {
+                    createS3CommBucket( session );
+                }
+            }
         } finally {
             if ( null != session ) {
                 session.close();
