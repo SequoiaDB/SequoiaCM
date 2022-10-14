@@ -50,7 +50,7 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private boolean runSuccess = false;
     private File localPath = null;
     private String filePath = null;
-    private int fileSize = 1024 * 1024;
+    private int fileSize = 1024;
     private ScmSession sessionA = null;
     private ScmWorkspace ws = null;
     private ScmId taskId = null;
@@ -59,7 +59,7 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
 
     private String authorName = "StopCancelTask417";
     private BSONObject cond = null;
-
+    private boolean isTaskStop = false;
     private SiteWrapper branceSite = null;
     private WsWrapper wsp = null;
 
@@ -138,6 +138,9 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
                 if ( flag == 2 ) {
                     ScmSystem.Task.stopTask( sessionA, taskId );
                     break;
+                } else if ( flag == 3 ) {
+                    isTaskStop = true;
+                    break;
                 }
             }
             waitTaskStop();
@@ -166,8 +169,13 @@ public class Transfer_stopCancelTask417 extends TestScmBase {
     private void checkTaskAttribute() throws ScmException {
         ScmTask task = ScmSystem.Task.getTask( sessionA, taskId );
         Assert.assertEquals( task.getId(), taskId );
-        Assert.assertEquals( task.getRunningFlag(),
-                CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
+        if ( isTaskStop ) {
+            Assert.assertEquals( task.getRunningFlag(),
+                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
+        } else {
+            Assert.assertEquals( task.getRunningFlag(),
+                    CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
+        }
         Assert.assertEquals( task.getType(),
                 CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE );
         Assert.assertEquals( task.getWorkspaceName(), ws.getName() );
