@@ -3,6 +3,7 @@ package com.sequoiacm.client.element;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 
@@ -19,6 +20,10 @@ public class ScmUpdateConfResultSet {
     public ScmUpdateConfResultSet(BSONObject ret) throws ScmException {
         successList = new ArrayList<ScmUpdateConfResult>();
         BasicBSONList successes = BsonUtils.getArray(ret, "successes");
+        if (successes == null) {
+            String message = BsonUtils.getString(ret, "message");
+            throw new ScmException(ScmError.HTTP_INTERNAL_SERVER_ERROR, message);
+        }
         for (Object success : successes) {
             successList.add(new ScmUpdateConfResult((BSONObject) success));
         }
