@@ -5,9 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +53,7 @@ public class ScmFileMD5Calc2970 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
@@ -58,7 +61,7 @@ public class ScmFileMD5Calc2970 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        site = ScmInfo.getSite();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

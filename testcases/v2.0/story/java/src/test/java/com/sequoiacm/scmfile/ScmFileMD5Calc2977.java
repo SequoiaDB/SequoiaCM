@@ -3,9 +3,11 @@ package com.sequoiacm.scmfile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,8 +43,8 @@ public class ScmFileMD5Calc2977 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
-        site = ScmInfo.getSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

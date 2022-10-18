@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,10 +50,8 @@ public class ScmFileMD5Calc2976 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
-        List< SiteWrapper > sites = ScmInfo.getAllSites();
-        site1 = sites.get( 0 );
-        site2 = sites.get( 1 );
+        site1 = ScmInfo.getRootSite();
+        site2 = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
         session1 = TestScmTools.createSession( site1 );
         session2 = TestScmTools.createSession( site2 );
@@ -93,7 +93,7 @@ public class ScmFileMD5Calc2976 extends TestScmBase {
         }
         runSuccess = true;
     }
-    
+
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {

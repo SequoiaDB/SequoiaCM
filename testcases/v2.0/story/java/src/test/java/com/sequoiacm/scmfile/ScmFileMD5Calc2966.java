@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -31,8 +34,7 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
- * @Description: SCM-2966 :: 指定计算md5,通过无md5的断点文件创建文件，
- * 计算断点文件md5，重新创建文件
+ * @Description: SCM-2966 :: 指定计算md5,通过无md5的断点文件创建文件， 计算断点文件md5，重新创建文件
  * @author fanyu
  * @Date:2020年8月26日
  * @version:1.0
@@ -51,7 +53,7 @@ public class ScmFileMD5Calc2966 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
@@ -59,7 +61,7 @@ public class ScmFileMD5Calc2966 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        site = ScmInfo.getRootSite();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -74,8 +76,8 @@ public class ScmFileMD5Calc2966 extends TestScmBase {
         try {
             createFile( fileName, breakpointFile );
             Assert.fail( "exp fail but act success!!!" );
-        }catch ( ScmException e ){
-            if(e.getError() != ScmError.INVALID_ARGUMENT){
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ARGUMENT ) {
                 throw e;
             }
         }
@@ -92,7 +94,7 @@ public class ScmFileMD5Calc2966 extends TestScmBase {
                 TestTools.getMD5AsBase64( filePath ), fileId.get() );
         runSuccess = true;
     }
-    
+
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
@@ -106,7 +108,7 @@ public class ScmFileMD5Calc2966 extends TestScmBase {
             }
         }
     }
-    
+
     private void createFile( String fileName, ScmBreakpointFile breakpointFile )
             throws ScmException {
         ScmFile file = ScmFactory.File.createInstance( ws );

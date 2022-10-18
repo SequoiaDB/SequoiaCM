@@ -82,7 +82,7 @@ public class AuthWs_NoCreateRead1725 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            site = ScmInfo.getSite();
+            site = ScmInfo.getRootSite();
             wsp = ScmInfo.getWs();
             sessionA = TestScmTools.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
@@ -140,7 +140,6 @@ public class AuthWs_NoCreateRead1725 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testCreateBreakPointFileByName()
             throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
@@ -162,7 +161,6 @@ public class AuthWs_NoCreateRead1725 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testCreateBreakPointFileByChecksumType()
             throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
@@ -185,7 +183,6 @@ public class AuthWs_NoCreateRead1725 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testCreateBreakPointFileBySize()
             throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {

@@ -1,9 +1,11 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.*;
+import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -45,7 +47,8 @@ public class BreakpointFile3928 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils
+                .checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile" + ".txt";
@@ -59,7 +62,7 @@ public class BreakpointFile3928 extends TestScmBase {
                 new File( filePath ) );
         fileOutputStream.write( buff );
 
-        site = ScmInfo.getBranchSite();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -79,12 +82,14 @@ public class BreakpointFile3928 extends TestScmBase {
         breakpointFile.incrementalUpload(
                 new ByteArrayInputStream( subByte( buff, 0, m * 5 ) ), false );
         breakpointFile.incrementalUpload(
-                new ByteArrayInputStream( subByte( buff, m * 5, m * 6 ) ), false );
+                new ByteArrayInputStream( subByte( buff, m * 5, m * 6 ) ),
+                false );
         breakpointFile.incrementalUpload(
                 new ByteArrayInputStream( subByte( buff, m * 11, m * 4 ) ),
                 false );
         breakpointFile.incrementalUpload(
-                new ByteArrayInputStream( subByte( buff, m * 15, m * 5 ) ), true );
+                new ByteArrayInputStream( subByte( buff, m * 15, m * 5 ) ),
+                true );
 
         // 转换为SCM文件校验MD5
         ScmFile file = createFileByBreakPointFile( breakpointFile );

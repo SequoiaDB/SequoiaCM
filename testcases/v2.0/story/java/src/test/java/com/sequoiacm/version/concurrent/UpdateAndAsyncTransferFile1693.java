@@ -4,6 +4,7 @@
 package com.sequoiacm.version.concurrent;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -21,6 +22,11 @@ import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
 
 /**
  * @description SCM-1693:并发使用断点文件更新和异步迁移相同文件
@@ -48,9 +54,16 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        BreakpointUtil.checkDBDataSource();
-        branSite = ScmInfo.getBranchSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
         rootSite = ScmInfo.getRootSite();
+        Iterator< SiteWrapper > iterator = sites.iterator();
+        while ( iterator.hasNext() ) {
+            int siteId = iterator.next().getSiteId();
+            if ( rootSite.getSiteId() == siteId ) {
+                iterator.remove();
+            }
+        }
+        branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSite );

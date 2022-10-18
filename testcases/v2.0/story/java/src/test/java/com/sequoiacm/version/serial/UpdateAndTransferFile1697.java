@@ -4,8 +4,12 @@
 package com.sequoiacm.version.serial;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -65,9 +69,16 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        BreakpointUtil.checkDBDataSource();
-        branSite = ScmInfo.getBranchSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
         rootSite = ScmInfo.getRootSite();
+        Iterator< SiteWrapper > iterator = sites.iterator();
+        while ( iterator.hasNext() ) {
+            int siteId = iterator.next().getSiteId();
+            if ( rootSite.getSiteId() == siteId ) {
+                iterator.remove();
+            }
+        }
+        branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSite );

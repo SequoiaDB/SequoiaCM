@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,8 +40,7 @@ import com.sequoiacm.testcommon.WsWrapper;
  */
 public class BreakpointFile3936_1378 extends TestScmBase {
     private static WsWrapper wsp = null;
-    private final int branSitesNum = 2;
-    private List< SiteWrapper > branSites = null;
+    private List< SiteWrapper > sites = null;
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
     private ScmSession sessionB = null;
@@ -54,7 +55,10 @@ public class BreakpointFile3936_1378 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        sites = ScmBreakpointFileUtils.checkDBDataSource();
+        if ( sites.size() < 2 ) {
+            throw new SkipException( "指定类型站点数量不足！" );
+        }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -64,11 +68,10 @@ public class BreakpointFile3936_1378 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
 
-        branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = TestScmTools.createSession( sites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+        sessionB = TestScmTools.createSession( sites.get( 1 ) );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
     }
 

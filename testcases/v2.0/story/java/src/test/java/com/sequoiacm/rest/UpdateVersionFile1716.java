@@ -4,7 +4,10 @@
 package com.sequoiacm.rest;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.bson.util.JSON;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
@@ -47,8 +50,8 @@ public class UpdateVersionFile1716 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
-        site = ScmInfo.getBranchSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
 
         session = TestScmTools.createSession( site );

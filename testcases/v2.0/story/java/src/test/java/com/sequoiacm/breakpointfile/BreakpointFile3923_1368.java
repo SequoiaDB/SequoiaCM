@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Random;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -41,14 +44,15 @@ public class BreakpointFile3923_1368 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils
+                .checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
 
         wsp = ScmInfo.getWs();
-        site = ScmInfo.getSite();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )

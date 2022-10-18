@@ -15,10 +15,11 @@ import java.util.List;
 public class ScmBreakpointFileUtils extends TestScmBase {
 
     /**
-     * checkDBDataSource ,if dataSource type not have DBDataSource,skip!
+     * checkDBDataSource ,if dataSource type not have SEQUOIADB or CEPH_S3
+     * ,skip!
      *
      * @throws Exception
-     * @return asyncTask success file version
+     * @return SEQUOIADB and CEPH_S3 dataSource sites
      */
 
     public static List< SiteWrapper > checkDBDataSource() {
@@ -26,13 +27,14 @@ public class ScmBreakpointFileUtils extends TestScmBase {
         List< SiteWrapper > DBSites = new ArrayList<>();
         for ( SiteWrapper site : sites ) {
             ScmType.DatasourceType dsType = site.getDataType();
-            if ( dsType.equals( ScmType.DatasourceType.SEQUOIADB ) ) {
+            if ( dsType.equals( ScmType.DatasourceType.SEQUOIADB )
+                    || dsType.equals( ScmType.DatasourceType.CEPH_S3 ) ) {
                 DBSites.add( site );
             }
         }
         if ( DBSites.size() == 0 ) {
             throw new SkipException(
-                    "breakpoint file only support sequoiadb datasourse, "
+                    "breakpoint file only support sequoiadb datasourse and ceph S3 datasourse, "
                             + "skip!" );
         } else {
             return DBSites;

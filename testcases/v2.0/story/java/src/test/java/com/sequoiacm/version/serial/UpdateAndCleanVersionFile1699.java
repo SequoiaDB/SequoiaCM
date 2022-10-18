@@ -4,6 +4,7 @@
 package com.sequoiacm.version.serial;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -24,6 +25,10 @@ import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @description SCM-1699:并发使用断点文件更新和清理相同文件
@@ -52,9 +57,17 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        BreakpointUtil.checkDBDataSource();
-        branSite = ScmInfo.getBranchSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
         rootSite = ScmInfo.getRootSite();
+        Iterator< SiteWrapper > iterator = sites.iterator();
+        while ( iterator.hasNext() ) {
+            int siteId = iterator.next().getSiteId();
+            if ( rootSite.getSiteId() == siteId ) {
+                iterator.remove();
+            }
+        }
+        branSite = sites.get( new Random().nextInt( sites.size() ) );
+
         wsp = ScmInfo.getWs();
 
         sessionA = TestScmTools.createSession( branSite );
@@ -78,7 +91,7 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
         es.addWorker( new UpdateFileThread() );
         es.run();
         boolean branHasHisVersion = branHasHisVersion();
-        System.out.println("----b="+branHasHisVersion);
+        System.out.println( "----b=" + branHasHisVersion );
         if ( branHasHisVersion ) {
             SiteWrapper[] expSites = { rootSite, branSite };
             VersionUtils.checkSite( wsM, fileId, 1, expSites );

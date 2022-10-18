@@ -52,8 +52,9 @@ public class BreakpointFile3924_1369 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        BreakpointUtil.checkDBDataSource();
-        site = ScmInfo.getBranchSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils
+                .checkDBDataSource();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

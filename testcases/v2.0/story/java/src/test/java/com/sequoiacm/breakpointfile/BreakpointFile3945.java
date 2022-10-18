@@ -1,8 +1,10 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,8 +37,8 @@ public class BreakpointFile3945 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        BreakpointUtil.checkDBDataSource();
-        site = ScmInfo.getSite();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

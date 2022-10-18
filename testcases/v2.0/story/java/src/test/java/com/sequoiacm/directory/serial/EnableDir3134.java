@@ -52,8 +52,8 @@ public class EnableDir3134 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
-        BreakpointUtil.checkDBDataSource();
-        SiteWrapper site = ScmInfo.getSite();
+        SiteWrapper site = ScmInfo
+                .getSiteByType( ScmType.DatasourceType.SEQUOIADB );
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         // 打开目录功能

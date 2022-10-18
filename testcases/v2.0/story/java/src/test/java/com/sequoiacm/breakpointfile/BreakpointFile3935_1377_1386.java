@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -55,7 +57,6 @@ public class BreakpointFile3935_1377_1386 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -64,7 +65,10 @@ public class BreakpointFile3935_1377_1386 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
 
-        siteList = ScmInfo.getAllSites();
+        siteList = ScmBreakpointFileUtils.checkDBDataSource();
+        if ( siteList.size() < 2 ) {
+            throw new SkipException( "指定类型站点数量不足！" );
+        }
         wsp = ScmInfo.getWs();
         session1 = TestScmTools.createSession( siteList.get( 0 ) );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );

@@ -132,7 +132,6 @@ public class AuhtWs_Delete1723 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testDeleteBreakPointFile() throws ScmException, IOException {
-        BreakpointUtil.checkDBDataSource();
         String fileName = author + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {

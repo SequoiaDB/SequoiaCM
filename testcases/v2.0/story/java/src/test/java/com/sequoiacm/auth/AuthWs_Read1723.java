@@ -139,7 +139,6 @@ public class AuthWs_Read1723 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListBreakpointFile() {
-        BreakpointUtil.checkDBDataSource();
         BSONObject cond = new BasicBSONObject();
         ScmCursor< ScmBreakpointFile > cursor = null;
         try {
@@ -157,7 +156,6 @@ public class AuthWs_Read1723 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     private void testListBreakpointFileByWs() {
-        BreakpointUtil.checkDBDataSource();
         ScmCursor< ScmBreakpointFile > cursor = null;
         try {
             cursor = ScmFactory.BreakpointFile.listInstance( wsR );
@@ -175,7 +173,6 @@ public class AuthWs_Read1723 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testReadBreakpointFileByName()
             throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
         String fileName = "AuthWs_Read1723" + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {
@@ -303,7 +300,6 @@ public class AuthWs_Read1723 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void testReadBreakpointFileBySize()
             throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
         String fileName = "AuthWs_Read1723" + UUID.randomUUID();
         ScmBreakpointFile expBreakpointFile = null;
         try {

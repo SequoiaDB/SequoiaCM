@@ -5,8 +5,12 @@ package com.sequoiacm.breakpointfile.concurrent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -33,8 +37,8 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
  * @version v1.0
  */
 public class BreakpointFile4024b extends TestScmBase {
-    private static SiteWrapper site = null;
-    private static SiteWrapper rootSite = null;
+    private static SiteWrapper site1 = null;
+    private static SiteWrapper site2 = null;
     private static WsWrapper wsp = null;
     private static ScmSession session = null;
     private ScmWorkspace ws = null;
@@ -48,7 +52,10 @@ public class BreakpointFile4024b extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        BreakpointUtil.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        if ( sites.size() < 2 ) {
+            throw new SkipException( "指定类型站点数量不足！" );
+        }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -59,20 +66,20 @@ public class BreakpointFile4024b extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
 
-        site = ScmInfo.getBranchSite();
-        rootSite = ScmInfo.getRootSite();
+        site1 = sites.get( 0 );
+        site2 = sites.get( 1 );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = TestScmTools.createSession( site1 );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
-        es.addWorker( new UploadBreakpointFileThread(site) );
-        es.addWorker( new UploadBreakpointFileThread(rootSite) );
+        es.addWorker( new UploadBreakpointFileThread( site1 ) );
+        es.addWorker( new UploadBreakpointFileThread( site2 ) );
         es.run();
-        Assert.assertEquals(threadSuccessCount,1);
+        Assert.assertEquals( threadSuccessCount, 1 );
         // 检查上传文件MD5
         BreakpointUtil.checkScmFile( ws, fileName, filePath, checkfilePath );
         runSuccess = true;
@@ -92,11 +99,12 @@ public class BreakpointFile4024b extends TestScmBase {
     }
 
     private class UploadBreakpointFileThread extends ResultStore {
-        private  SiteWrapper site;
+        private SiteWrapper site;
 
-        public UploadBreakpointFileThread(SiteWrapper site){
+        public UploadBreakpointFileThread( SiteWrapper site ) {
             this.site = site;
         }
+
         @ExecuteOrder(step = 1)
         private void uploadBreakpointFileThread() throws ScmException {
             ScmSession session = null;
@@ -106,13 +114,13 @@ public class BreakpointFile4024b extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                         .createInstance( ws, fileName );
-                breakpointFile.upload(new File(filePath));
+                breakpointFile.upload( new File( filePath ) );
                 threadSuccessCount++;
             } catch ( ScmException e ) {
                 if ( e.getErrorCode() != ScmError.FILE_EXIST.getErrorCode() ) {
                     throw e;
                 }
-            }finally {
+            } finally {
                 if ( session != null ) {
                     session.close();
                 }
