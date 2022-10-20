@@ -6,6 +6,7 @@ import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
@@ -30,7 +31,7 @@ public class ServiceCenter implements ApplicationRunner {
     ScmConfClient confClient;
     
     public static void main(String[] args) {
-        new SpringApplicationBuilder(ServiceCenter.class).web(true).run(args);
+        new SpringApplicationBuilder(ServiceCenter.class).bannerMode(Banner.Mode.OFF).web(true).run(args);
     }
 
     @Override

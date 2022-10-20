@@ -4,6 +4,7 @@ import com.sequoiacm.infrastructure.statistics.client.EnableScmStatisticsClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -36,7 +37,7 @@ public class Gateway implements ApplicationRunner {
     public static void main(String[] args) {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
         System.setProperty("org.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH", "true");
-        new SpringApplicationBuilder(Gateway.class).web(true).run(args);
+        new SpringApplicationBuilder(Gateway.class).bannerMode(Banner.Mode.OFF).web(true).run(args);
     }
 
     @Override

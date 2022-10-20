@@ -12,7 +12,7 @@ import com.sequoiadb.infrastructure.map.ScmMapServerException;
 @EnableMapClient
 public class App {
     public static void main(String[] args) throws ScmMapServerException {
-        new SpringApplicationBuilder(App.class).bannerMode(Banner.Mode.CONSOLE).run(args);
+        new SpringApplicationBuilder(App.class).bannerMode(Banner.Mode.OFF).run(args);
 
     }
 }

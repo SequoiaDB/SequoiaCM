@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -49,7 +50,7 @@ public class AuthenticationServer implements ApplicationRunner {
     private PasswordEncoder passwordEncoder;
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(AuthenticationServer.class).web(true).run(args);
+        new SpringApplicationBuilder(AuthenticationServer.class).bannerMode(Banner.Mode.OFF).web(true).run(args);
     }
 
     @Override

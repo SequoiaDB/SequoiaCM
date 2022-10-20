@@ -4,8 +4,10 @@ import com.sequoiacm.mq.client.EnableScmMqProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 import com.sequoiacm.content.client.EnableContentserverClient;
@@ -37,7 +39,7 @@ public class FulltextServer implements ApplicationRunner {
     private PrivilegeHeartBeatConfig config;
 
     public static void main(String[] args) {
-        SpringApplication.run(FulltextServer.class, args);
+        new SpringApplicationBuilder(FulltextServer.class).bannerMode(Banner.Mode.OFF).run(args);
     }
 
     @Override

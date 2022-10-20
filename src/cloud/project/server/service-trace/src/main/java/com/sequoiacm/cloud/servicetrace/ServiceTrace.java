@@ -3,8 +3,10 @@ package com.sequoiacm.cloud.servicetrace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
@@ -25,7 +27,7 @@ public class ServiceTrace implements ApplicationRunner {
     ScmConfClient confClient;
 
     public static void main(String[] args) {
-        SpringApplication.run(ServiceTrace.class, args);
+        new SpringApplicationBuilder(ServiceTrace.class).bannerMode(Banner.Mode.OFF).run(args);
     }
 
     @Override
