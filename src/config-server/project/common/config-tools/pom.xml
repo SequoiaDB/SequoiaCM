@@ -85,12 +85,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <transformer>
-                                <resource>META-INF/spring.handlers</resource>
-                            </transformer>
-                            <transformer>
-                                <resource>META-INF/spring.schemas</resource>
-                            </transformer>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>
