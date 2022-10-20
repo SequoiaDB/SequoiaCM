@@ -10,6 +10,7 @@ import com.sequoiacm.infrastructure.tool.command.ScmListToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmStartToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmStopToolImpl;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -24,13 +25,14 @@ public class MqCtl {
         CommandManager cmd = new CommandManager("mqctl");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "mq-server", "sequoiacm-mq-server-", ScmServerScriptEnum.MQSERVER));
+        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.MQSERVER, ScmServerScriptEnum.MQSERVER));
 
         try {
             cmd.addTool(new ScmStartToolImpl(nodeTypes));
             cmd.addTool(new ScmStopToolImpl(nodeTypes));
             cmd.addTool(new ScmListToolImpl(nodeTypes));
-        } catch (ScmToolsException e) {
+        }
+        catch (ScmToolsException e) {
             e.printStackTrace();
             System.exit(e.getExitCode());
         }

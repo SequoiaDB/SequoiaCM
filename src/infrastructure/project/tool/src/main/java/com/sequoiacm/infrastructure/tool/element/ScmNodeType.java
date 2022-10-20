@@ -11,23 +11,22 @@ public class ScmNodeType {
     // 创建该节点时，是否需要生成Hystrix配置
     private boolean isNeedHystrixConf = true;
 
-    public ScmNodeType(String type, String name, String jarNamePrefix,
-            ScmServerScriptEnum serverScriptEnum) {
-        this(type,name,jarNamePrefix,serverScriptEnum,true);
+    public ScmNodeType(ScmNodeTypeEnum scmNodeTypeEnum, ScmServerScriptEnum serverScriptEnum) {
+        this(scmNodeTypeEnum, serverScriptEnum, true);
     }
 
-    public ScmNodeType(String type, String name, String jarNamePrefix,
-            ScmServerScriptEnum serverScriptEnum, boolean isNeedHystrixConf) {
-        this.type = type;
-        this.name = name;
-        this.jarNamePrefix = jarNamePrefix;
+    public ScmNodeType(ScmNodeTypeEnum scmNodeTypeEnum, ScmServerScriptEnum serverScriptEnum,
+            boolean isNeedHystrixConf) {
+        this.type = scmNodeTypeEnum.getTypeNum();
+        this.name = scmNodeTypeEnum.getName();
+        this.jarNamePrefix = scmNodeTypeEnum.getJarNamePrefix();
         this.serverScriptEnum = serverScriptEnum;
         this.isNeedHystrixConf = isNeedHystrixConf;
     }
 
-    public ScmNodeType(String type, String name, String jarNamePrefix,
-            ScmServerScriptEnum serverScriptEnum, String confTemplateNamePrefix) {
-        this(type, name, jarNamePrefix, serverScriptEnum);
+    public ScmNodeType(ScmNodeTypeEnum scmNodeTypeEnum, ScmServerScriptEnum serverScriptEnum,
+            String confTemplateNamePrefix) {
+        this(scmNodeTypeEnum, serverScriptEnum);
         this.confTemplateNamePrefix = confTemplateNamePrefix;
     }
 
@@ -54,7 +53,6 @@ public class ScmNodeType {
     public boolean isNeedHystrixConf() {
         return isNeedHystrixConf;
     }
-
 
     @Override
     public String toString() {

@@ -5,10 +5,7 @@ import java.util.HashMap;
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
+import com.sequoiacm.infrastructure.tool.element.*;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.schedule.tools.command.ScmCreateNodeToolImplSchedule;
 
@@ -17,13 +14,14 @@ public class SchAdmin {
         CommandManager cmd = new CommandManager("schadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "schedule-server", "sequoiacm-schedule-server-", ScmServerScriptEnum.SCHEDULESERVER));
+        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.SCHEDULESERVER,
+                ScmServerScriptEnum.SCHEDULESERVER));
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
                 .addServerPortParam(8180).addCloudParam().addZkParam().get();
 
-        nodeProperties.put("1", scmNodeRequiredParamGroup);
+        nodeProperties.put(ScmNodeTypeEnum.SCHEDULESERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
             cmd.addTool(new ScmCreateNodeToolImplSchedule(nodeProperties, nodeTypes));
         }

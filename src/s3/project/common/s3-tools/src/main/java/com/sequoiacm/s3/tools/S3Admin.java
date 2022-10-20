@@ -3,11 +3,7 @@ package com.sequoiacm.s3.tools;
 import java.util.HashMap;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParam;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
+import com.sequoiacm.infrastructure.tool.element.*;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.s3.tools.command.RefreshAccesskeyToolImpl;
 import com.sequoiacm.s3.tools.command.ScmCreateNodeToolImplS3;
@@ -19,7 +15,7 @@ public class S3Admin {
         CommandManager cmd = new CommandManager("s3admin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "s3-server", "sequoiacm-s3-server-", ScmServerScriptEnum.S3SERVER));
+        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.S3SERVER, ScmServerScriptEnum.S3SERVER));
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
@@ -30,7 +26,7 @@ public class S3Admin {
                         "-Dspring.application.name=rootsite-s3"))
                 .get();
 
-        nodeProperties.put("1", scmNodeRequiredParamGroup);
+        nodeProperties.put(ScmNodeTypeEnum.S3SERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
             cmd.addTool(new ScmCreateNodeToolImplS3(nodeProperties, nodeTypes));
             cmd.addTool(new SetDefaultRegionToolImpl());

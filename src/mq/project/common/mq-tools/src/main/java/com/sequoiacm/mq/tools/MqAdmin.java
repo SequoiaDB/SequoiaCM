@@ -6,10 +6,7 @@ import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
+import com.sequoiacm.infrastructure.tool.element.*;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.mq.tools.command.*;
 
@@ -18,13 +15,13 @@ public class MqAdmin {
         CommandManager cmd = new CommandManager("mqadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "mq-server", "sequoiacm-mq-server-", ScmServerScriptEnum.MQSERVER));
+        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.MQSERVER, ScmServerScriptEnum.MQSERVER));
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
                 .addCloudParam().addSdbParam().addServerPortParam(8610).get();
 
-        nodeProperties.put("1", scmNodeRequiredParamGroup);
+        nodeProperties.put(ScmNodeTypeEnum.MQSERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
             cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, nodeTypes));
             cmd.addTool(new ScmCreateTopicToolImpl());

@@ -14,7 +14,8 @@ public class FulltextAdmin {
         CommandManager cmd = new CommandManager("ftadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "fulltext-server", "sequoiacm-fulltext-server-", ScmServerScriptEnum.FULLTEXTSERVER));
+        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.FULLTEXTSERVER,
+                ScmServerScriptEnum.FULLTEXTSERVER));
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
@@ -22,7 +23,7 @@ public class FulltextAdmin {
                 .addParam(ScmNodeRequiredParam.keyParamInstance("scm.fulltext.es.urls",
                         "-Dscm.fulltext.es.urls=http://localhost:9200"))
                 .get();
-        nodeProperties.put("1", scmNodeRequiredParamGroup);
+        nodeProperties.put(ScmNodeTypeEnum.FULLTEXTSERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
             cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, nodeTypes));
         }

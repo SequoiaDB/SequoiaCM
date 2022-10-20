@@ -14,8 +14,8 @@ public class OmAdmin {
         CommandManager cmd = new CommandManager("omadmin");
         // 初始化节点类型信息
         ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType("1", "om-server", "sequoiacm-om-omserver-",
-                ScmServerScriptEnum.OMSERVER, false));
+        nodeTypes.add(
+                new ScmNodeType(ScmNodeTypeEnum.OMSERVER, ScmServerScriptEnum.OMSERVER, false));
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
@@ -24,7 +24,7 @@ public class OmAdmin {
                         "-Dscm.omserver.gateway=localhost:8080"))
                 .get();
 
-        nodeProperties.put("1", scmNodeRequiredParamGroup);
+        nodeProperties.put(ScmNodeTypeEnum.OMSERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
             cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, nodeTypes));
         }
