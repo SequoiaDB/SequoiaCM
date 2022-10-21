@@ -38,8 +38,8 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
         }
     }
 
-    public void startTask() throws ScmServerException {
-        ScmContentModule.getInstance().getMetaService().startTask(getTaskId(), new Date(),
+    public boolean checkAndStartTask() throws ScmServerException {
+        return ScmContentModule.getInstance().getMetaService().checkAndStartTask(getTaskId(), new Date(),
                 getEstimateCount(), getActualCount());
     }
 

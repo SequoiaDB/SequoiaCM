@@ -922,11 +922,11 @@ public class ScmMetaService {
         }
     }
 
-    public void startTask(String taskId, Date startTime, long estimateCount, long actualCount)
+    public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount, long actualCount)
             throws ScmServerException {
         try {
             MetaTaskAccessor taskAccessor = metasource.getTaskAccessor();
-            taskAccessor.start(taskId, startTime, estimateCount, actualCount);
+            return taskAccessor.checkAndStartTask(taskId, startTime, estimateCount, actualCount);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(), "startTask failed:siteId=" + siteId

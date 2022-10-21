@@ -294,7 +294,7 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
     }
 
     @Override
-    public void start(String taskId, Date startTime, long estimateCount, long actualCount)
+    public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount, long actualCount)
             throws SdbMetasourceException {
         try {
             BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
@@ -309,8 +309,11 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
 
             BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET,
                     newValue);
-
-            update(matcher, updator);
+            BSONObject bsonObject = queryAndUpdate(matcher, updator, null);
+            if (bsonObject != null) {
+                return true;
+            }
+            return false;
         }
         catch (SdbMetasourceException e) {
             logger.error("start task failed:table=" + getCsName() + "." + getClName()

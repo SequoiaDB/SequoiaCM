@@ -419,7 +419,11 @@ public class TaskServiceImpl implements ITaskService {
             task = ScmTaskManager.getInstance().createTask(taskInfo);
 
             // change task status in table
-            task.startTask();
+            boolean isFirstStartTask = task.checkAndStartTask();
+            if (!isFirstStartTask) {
+                logger.info("task already started,ignore this start,taskId=" + taskId);
+                return;
+            }
         }
         catch (ScmServerException e) {
             throw new ScmServerException(e.getError(),
