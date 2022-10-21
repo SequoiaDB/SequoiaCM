@@ -1,9 +1,11 @@
 package com.sequoiacm.contentserver;
 
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.contentmodule.ContentModuleExcludeMarker;
 import com.sequoiacm.contentserver.service.IDirService;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
@@ -27,6 +29,7 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
+import java.util.HashMap;
 
 @EnableScmMonitorServer
 @EnableScmPrivClient
@@ -60,6 +63,9 @@ public class ScmApplication implements ApplicationRunner {
     @Autowired
     private IDirService dirService;
 
+    @Autowired
+    ApplicationInfoManager applicationInfoManager;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         start(args);
@@ -80,11 +86,18 @@ public class ScmApplication implements ApplicationRunner {
 
             ScmServer ss = ScmServer.getInstance();
             ss.init(privClient, confClient, siteName, bucketInfoManager, dirService);
+            eurekaRegisterServiceId(ss);
         }
         catch (Exception e) {
             logger.error("server exit with error", e);
             System.exit(-1);
         }
+    }
+
+    public void eurekaRegisterServiceId(ScmServer scmServer) throws ScmServerException {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("contentServerId", "" + scmServer.getContentServerInfo().getId());
+        applicationInfoManager.registerAppMetadata(map);
     }
 
     public static void main(String[] args) {
