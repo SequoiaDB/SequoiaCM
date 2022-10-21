@@ -85,6 +85,10 @@
 
             <!-- statistics -->
             <package name="com.sequoiacm.statistics"/>
+
+            <!--sftp-->
+            <!--  <package name="com.sequoiacm.sftp.serial"/>-->
+            <!--  sftp site is required-->
         </packages>
     </test>
 

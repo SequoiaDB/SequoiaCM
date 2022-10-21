@@ -101,7 +101,7 @@ public class ScmInfo {
 
     /**
      * get sites by siteType
-     * 
+     *
      * @return
      */
     public static List< SiteWrapper > getSitesByType(

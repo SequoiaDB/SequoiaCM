@@ -198,6 +198,9 @@ public class ScmWorkspaceUtil extends TestScmBase {
                 scmDataLocationList
                         .add( new ScmCephSwiftDataLocation( siteName ) );
                 break;
+            case "sftp":
+                scmDataLocationList.add( new ScmSftpDataLocation( siteName ) );
+                break;
             default:
                 Assert.fail( "dataSourceType not match: " + dataType );
             }
