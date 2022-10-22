@@ -167,6 +167,14 @@ public class UserController {
             throw new NotFoundException("User is not found: " + username);
         }
 
+        ScmUser currentUser = (ScmUser) authentication.getPrincipal();
+        boolean isModifyMyself = isSameUser(currentUser, user);
+        boolean IMAdmin = isAdmin(currentUser);
+        checkPermission(isModifyMyself, IMAdmin, currentUser, passwordType, addRoles, delRoles,
+                enabled, cleanSessions);
+
+        boolean checkOldPassword = (isModifyMyself || isAdmin(user));
+
         if (user.getPasswordType() == ScmUserPasswordType.LDAP && StringUtils.hasText(newPassword)
                 && (passwordType == null || passwordType == ScmUserPasswordType.LDAP)) {
             throw new BadRequestException("Cannot change password for LDAP user: " + username);
@@ -190,27 +198,13 @@ public class UserController {
                             + username);
         }
 
-        boolean isCurrentUser = false;
-        ScmUser currentUser = (ScmUser) authentication.getPrincipal();
-        if (username.equals(currentUser.getUsername())) {
-            isCurrentUser = true;
-        }
-
         boolean altered = false;
         boolean securityAltered = false;
         ScmUser.ScmUserBuilder builder = ScmUser.withUsername(username).userId(user.getUserId());
         String message = "alter user : ";
         // process password
         if (StringUtils.hasText(newPassword) && !newPassword.equals(user.getPassword())) {
-            boolean isAuthAdmin = false;
-            for (ScmRole role : user.getAuthorities()) {
-                if (role.isAuthAdmin()) {
-                    isAuthAdmin = true;
-                    break;
-                }
-            }
-
-            if (isAuthAdmin) {
+            if (checkOldPassword) {
                 if (!StringUtils.hasText(oldPassword)) {
                     throw new BadRequestException("Missing old password for user " + username);
                 }
@@ -220,7 +214,6 @@ public class UserController {
                     throw new BadRequestException("Incorrect old password for user " + username);
                 }
             }
-
             builder.password(passwordEncoder.encodePassword(newPassword, null));
 
             altered = true;
@@ -244,7 +237,7 @@ public class UserController {
         boolean isAlterRoles = false;
         // process enabled
         if (enabled != null && enabled != user.isEnabled()) {
-            if (isCurrentUser) {
+            if (isModifyMyself) {
                 throw new ForbiddenException("Cannot disable current user");
             }
             builder.disabled(!enabled);
@@ -297,7 +290,7 @@ public class UserController {
                 }
                 if (roleNamesMap.containsKey(innerRoleName)) {
                     ScmRole role = roleNamesMap.get(innerRoleName);
-                    if (isCurrentUser & role.isAuthAdmin()) {
+                    if (isModifyMyself & role.isAuthAdmin()) {
                         throw new ForbiddenException(
                                 "Cannot delete current user's AUTH_ADMIN role");
                     }
@@ -321,7 +314,7 @@ public class UserController {
             ScmUser newUser = builder.build();
             updateUser(newUser, isAlterRoles);
 
-            if (securityAltered && cleanSessions != null && cleanSessions && !isCurrentUser) {
+            if (securityAltered && cleanSessions != null && cleanSessions && !isModifyMyself) {
                 sessionRepository.deleteSessions(username);
             }
 
@@ -331,6 +324,36 @@ public class UserController {
         else {
             return user;
         }
+    }
+
+    private void checkPermission(boolean isModifyMyself, boolean IMAdmin, ScmUser currentUser,
+            ScmUserPasswordType passwordType, List<String> addRoles, List<String> delRoles,
+            Boolean enabled, Boolean cleanSessions) {
+        if (!IMAdmin && !isModifyMyself) {
+            throw new BadRequestException("No permission to modify other users' information: "
+                    + currentUser.getUsername());
+        }
+        if (!IMAdmin && isModifyMyself) {
+            if ((passwordType != null) || (addRoles != null && addRoles.size() > 0)
+                    || (delRoles != null && delRoles.size() > 0) || (enabled != null)
+                    || (cleanSessions != null)) {
+                throw new BadRequestException("Can not modify information other than password: "
+                        + currentUser.getUsername());
+            }
+        }
+    }
+
+    private boolean isSameUser(ScmUser currentUser, ScmUser modifiedUser) {
+        return modifiedUser.getUsername().equals(currentUser.getUsername());
+    }
+
+    private boolean isAdmin(ScmUser currentUser) {
+        for (ScmRole role : currentUser.getAuthorities()) {
+            if (role.isAuthAdmin()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void updateUser(ScmUser newUser, boolean isAlterRoles) throws Exception {
