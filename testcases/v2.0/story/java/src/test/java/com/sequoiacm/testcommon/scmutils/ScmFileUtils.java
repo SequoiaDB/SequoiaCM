@@ -1,8 +1,17 @@
 package com.sequoiacm.testcommon.scmutils;
 
+import java.util.*;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmContentLocation;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.dsutils.CephS3Utils;
+import org.apache.log4j.Logger;
+import org.bson.BSONObject;
+
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
@@ -10,6 +19,7 @@ import com.sequoiacm.testcommon.*;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -346,6 +356,116 @@ public class ScmFileUtils extends TestScmBase {
                                   SiteWrapper[] expSites ) throws Exception {
         for ( int i = 0; i < fileIds.size(); i++ ) {
             checkMeta( ws, fileIds.get( 0 ), expSites );
+        }
+    }
+
+    /**
+     * check scmfile's ContentLocation
+     */
+
+    public static void checkContentLocation(
+            List< ScmContentLocation > fileContentLocationsInfo,
+            SiteWrapper site, ScmId fileId, ScmWorkspace ws ) throws Exception {
+        ScmContentLocation fileContentLocationInfo = null;
+        for ( int i = 0; i < fileContentLocationsInfo.size(); i++ ) {
+            if ( fileContentLocationsInfo.get( i ).getSite() == site
+                    .getSiteId() ) {
+                fileContentLocationInfo = fileContentLocationsInfo.get( i );
+                checkSiteInfo( fileContentLocationInfo, site );
+                checkFulldata( fileContentLocationInfo, site, fileId, ws );
+            }
+        }
+        if ( fileContentLocationInfo == null ) {
+            throw new Exception(
+                    "the fileContentLocationsInfo don‘t have the siteInfo, site = "
+                            + site.getSiteName() );
+        }
+    }
+
+    public static void checkSiteInfo(
+            ScmContentLocation fileContentLocationInfo, SiteWrapper site ) {
+        Map< String, Object > actSiteInfo = new HashMap<>();
+        Map< String, Object > expSiteInfo =  new HashMap<>();
+        actSiteInfo.put( "siteId", fileContentLocationInfo.getSite() );
+        actSiteInfo.put( "datasourceType", fileContentLocationInfo.getType() );
+        actSiteInfo.put( "urls", fileContentLocationInfo.getUrls() );
+
+        expSiteInfo.put( "siteId", site.getSiteId() );
+        expSiteInfo.put( "datasourceType", site.getDataType() );
+        getSiteInfo( expSiteInfo, site );
+
+        Assert.assertEquals( actSiteInfo.toString(), expSiteInfo.toString() );
+    }
+
+    public static void checkFulldata(
+            ScmContentLocation fileContentLocationInfo, SiteWrapper site,
+            ScmId fileId, ScmWorkspace ws ) throws Exception {
+        Map< String, Object > actFulldata = fileContentLocationInfo
+                .getFullData();
+        Map< String, Object > expFulldata = new HashMap<>();
+
+        // 数据源类型为CEPH_S3
+        if ( site.getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
+            expFulldata.put( "object_id", fileId.toString() );
+            expFulldata.put( "bucket",
+                    CephS3Utils.getBucketName( site, ws.getName() ) );
+
+            Assert.assertEquals( actFulldata.get( "object_id" ),
+                    expFulldata.get( "object_id" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+            Assert.assertEquals( actFulldata.get( "bucket" ),
+                    expFulldata.get( "bucket" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+        }
+
+        // 数据源类型为SEQUOIADB
+        if ( site.getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
+            expFulldata.put( "cs", String.format( "%s_LOB_%s", ws.getName(),
+                    TestSdbTools.getCsClPostfix( "year" ) ) );
+            expFulldata.put( "cl", String.format( "LOB_%s",
+                    TestSdbTools.getCsClPostfix( "month" ) ) );
+            expFulldata.put( "lob_id", fileId.toString() );
+
+            Assert.assertEquals( actFulldata.get( "cs" ),
+                    expFulldata.get( "cs" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+            Assert.assertEquals( actFulldata.get( "cl" ),
+                    expFulldata.get( "cl" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+            Assert.assertEquals( actFulldata.get( "lob_id" ),
+                    expFulldata.get( "lob_id" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+        }
+
+        // 数据源类型为CEPH_SWIFT
+        if ( site.getDataType() == ScmType.DatasourceType.CEPH_SWIFT ) {
+            expFulldata.put( "object_id", fileId.toString() );
+            Assert.assertEquals( actFulldata.get( "object_id" ),
+                    expFulldata.get( "object_id" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+        }
+
+        // 数据源类型为HDFS或者HBASE
+        if ( site.getDataType() == ScmType.DatasourceType.HDFS
+                || site.getDataType() == ScmType.DatasourceType.HBASE ) {
+            expFulldata.put( "file_name", fileId.toString() );
+            Assert.assertEquals( actFulldata.get( "file_name" ),
+                    expFulldata.get( "file_name" ), "actFulldata=" + actFulldata
+                            + ", expFulldata=" + expFulldata );
+        }
+    }
+
+    public static void getSiteInfo( Map< String, Object > siteInfo,
+            SiteWrapper site ) {
+        if ( site.getDataType() == ScmType.DatasourceType.HBASE ) {
+            siteInfo.put( "urls", String.format( "[%s]",
+                    site.getDataDsConf().get( "hbase.zookeeper.quorum" ) ) );
+
+        } else if ( site.getDataType() == ScmType.DatasourceType.HDFS ) {
+            siteInfo.put( "urls", String.format( "[%s]",
+                    site.getDataDsConf().get( "fs.defaultFS" ) ) );
+        } else {
+            siteInfo.put( "urls", site.getDataDsUrls() );
         }
     }
 }

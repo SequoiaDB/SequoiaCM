@@ -73,6 +73,7 @@ public class TestSdbTools {
     // current time
     private static SimpleDateFormat yearFm = new SimpleDateFormat( "yyyy" );
     private static SimpleDateFormat monthFm = new SimpleDateFormat( "MM" );
+    private static SimpleDateFormat daythFm = new SimpleDateFormat( "dd" );
 
     public static Sequoiadb getSdb( String sdbUrl ) {
         Sequoiadb sdb = new Sequoiadb( sdbUrl, TestScmBase.sdbUserName,
@@ -304,6 +305,7 @@ public class TestSdbTools {
         Date currTime = new Date();
         String currY = yearFm.format( currTime );
         String currM = monthFm.format( currTime );
+        String currD = daythFm.format( currTime );
         String postfix = null;
         if ( shardType.equals( "none" ) ) {
             postfix = "";
@@ -314,6 +316,8 @@ public class TestSdbTools {
             postfix = currY + "Q" + quarter;
         } else if ( shardType.equals( "month" ) ) {
             postfix = currY + currM;
+        } else if ( shardType.equals( "day" ) ) {
+            postfix = currY + currM + currD;
         }
         return postfix;
     }

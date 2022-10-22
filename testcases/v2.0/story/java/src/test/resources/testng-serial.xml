@@ -86,6 +86,9 @@
             <!-- statistics -->
             <package name="com.sequoiacm.statistics"/>
 
+            <!--S3 bucketDirectory-->
+            <package name="com.sequoiacm.s3.bucketDirectory.serial"/>
+
             <!--sftp-->
             <!--  <package name="com.sequoiacm.sftp.serial"/>-->
             <!--  sftp site is required-->

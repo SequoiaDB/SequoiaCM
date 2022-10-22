@@ -3,8 +3,21 @@ package com.sequoiacm.testcommon.dsutils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmUser;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
+import com.sequoiacm.client.element.privilege.ScmResource;
+import com.sequoiacm.client.element.privilege.ScmResourceFactory;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonClientException;
@@ -29,11 +42,10 @@ import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
+
+import javax.xml.crypto.Data;
 
 public class CephS3Utils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( CephS3Utils.class );
@@ -76,6 +88,7 @@ public class CephS3Utils extends TestScmBase {
             conn = createConnect( site );
 
             bucketName = getBucketName( site, ws );
+
             conn.createBucket( bucketName );
 
             InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(
@@ -232,7 +245,7 @@ public class CephS3Utils extends TestScmBase {
         String postFix = TestSdbTools.getCsClPostfix( dstType );
 
         // get bucketName
-        if ( !dstType.equals( "none" ) ) {
+        if ( dstType.equals( "none" ) ) {
             containerPrefix += "-";
         }
         bucketName = ( containerPrefix + postFix ).toLowerCase()
@@ -241,18 +254,9 @@ public class CephS3Utils extends TestScmBase {
         return bucketName;
     }
 
-    private static String getBucketName( SiteWrapper site, String wsName )
+    public static String getBucketName( SiteWrapper site, String wsName )
             throws ScmException {
         String bucketName = "";
-
-        // get bucketName prefix
-        Object containerPrefix = TestSdbTools
-                .getContainerPrefix( site.getSiteId(), wsName );
-        if ( null == containerPrefix ) {
-            containerPrefix = wsName + "-scmfile";
-        } else {
-            containerPrefix = containerPrefix.toString();
-        }
 
         // get bucketName postFix
         String dstType = TestSdbTools
@@ -262,14 +266,143 @@ public class CephS3Utils extends TestScmBase {
         }
         String postFix = TestSdbTools.getCsClPostfix( dstType );
 
-        // get bucketName
-        if ( !dstType.equals( "none" ) ) {
-            containerPrefix += "-";
+        // get bucketName prefix
+        Object containerPrefix = TestSdbTools
+                .getContainerPrefix( site.getSiteId(), wsName );
+        if ( null == containerPrefix ) {
+            containerPrefix = wsName + "-scmfile";
+            if ( !dstType.equals( "none" ) ) {
+                containerPrefix += "-";
+            }
+        } else {
+            containerPrefix = containerPrefix.toString();
         }
+
         bucketName = ( containerPrefix + postFix ).toLowerCase()
                 .replaceAll( "_", "-" );
 
         return bucketName;
     }
 
+    /**
+     * 获取ObjectID
+     *
+     * @param wsName
+     * @param objectShardingType
+     * @param fileID
+     */
+    public static String getObjectID( String wsName,
+            ScmShardingType objectShardingType, ScmId fileID ) {
+        String objectID;
+        String dstType = null;
+        if ( ScmShardingType.YEAR == objectShardingType ) {
+            dstType = "year";
+        }
+
+        if ( ScmShardingType.QUARTER == objectShardingType ) {
+            dstType = "quarter";
+        }
+
+        if ( ScmShardingType.MONTH == objectShardingType ) {
+            dstType = "month";
+        }
+
+        if ( ScmShardingType.DAY == objectShardingType ) {
+            dstType = "day";
+        }
+        if ( ScmShardingType.NONE == objectShardingType ) {
+            return fileID.toString();
+        }
+        objectID = String.format( "%s/%s/%s", wsName,
+                TestSdbTools.getCsClPostfix( dstType ), fileID.toString() );
+        return objectID;
+    }
+
+    /**
+     * ceph数据源创建工作区
+     *
+     * @param session
+     * @param wsName
+     * @param cephS3DataLocation
+     */
+    public static ScmWorkspace createWS( ScmSession session, String wsName,
+            ScmCephS3DataLocation cephS3DataLocation )
+            throws ScmException, InterruptedException {
+
+        // DataLocation数据源参数配置
+        SiteWrapper rootSite = ScmInfo.getRootSite();
+        String domainName = TestSdbTools
+                .getDomainNames( rootSite.getMetaDsUrl() ).get( 0 );
+        List< ScmDataLocation > scmDataLocationList = new ArrayList<>();
+        ScmSdbDataLocation rootSiteDataLocation = new ScmSdbDataLocation(
+                rootSite.getSiteName(), domainName );
+
+        scmDataLocationList.add( cephS3DataLocation );
+        scmDataLocationList.add( rootSiteDataLocation );
+
+        // MetaLocation参数配置
+        ScmSdbMetaLocation scmSdbMetaLocation = new ScmSdbMetaLocation(
+                rootSite.getSiteName(), ScmShardingType.YEAR, domainName );
+
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        conf.setDataLocations( scmDataLocationList );
+        conf.setMetaLocation( scmSdbMetaLocation );
+        conf.setName( wsName );
+        ScmWorkspace cephWs = ScmFactory.Workspace.createWorkspace( session,
+                conf );
+        return cephWs;
+    }
+
+    /**
+     * 给管理员用户赋予工作区操作权限
+     *
+     * @param session
+     * @param wsName
+     * @param privilege
+     */
+    public static void wsSetPriority( ScmSession session, String wsName,
+            ScmPrivilegeType privilege ) throws Exception {
+        ScmUser superuser = ScmFactory.User.getUser( session,
+                TestScmBase.scmUserName );
+        ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName );
+        ScmFactory.Role.grantPrivilege( session,
+                superuser.getRoles().iterator().next(), rs, privilege );
+
+        for ( int i = 0; i < 6; i++ ) {
+            Thread.sleep( 10000 );
+            try {
+                ScmFactory.File.listInstance(
+                        ScmFactory.Workspace.getWorkspace( wsName, session ),
+                        ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject() );
+                return;
+            } catch ( ScmException e ) {
+                if ( e.getErrorCode() != ScmError.OPERATION_UNSUPPORTED
+                        .getErrorCode() && e.getErrorCode() != 404 ) {
+                    throw e;
+                }
+                throw e;
+            }
+        }
+        Assert.fail( "grantPrivilege is not done in 60 seconds" );
+    }
+
+    /**
+     * 清理ceph数据源中桶
+     *
+     * @param s3connect
+     * @param bucketName
+     * @throws Exception
+     */
+    public static void deleteBucket( AmazonS3 s3connect, String bucketName ) {
+        ObjectListing objects = s3connect.listObjects( bucketName );
+        String objectID;
+        do {
+            for ( S3ObjectSummary objectSummary : objects
+                    .getObjectSummaries() ) {
+                objectID = objectSummary.getKey();
+                s3connect.deleteObject( bucketName, objectID );
+            }
+        } while ( objects.isTruncated() );
+        s3connect.deleteBucket( bucketName );
+    }
 }

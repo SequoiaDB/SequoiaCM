@@ -29,6 +29,7 @@ import org.testng.SkipException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.testng.SkipException;
 
 public class ScmInfo {
     private static final Logger logger = Logger.getLogger( ScmInfo.class );
