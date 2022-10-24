@@ -6,8 +6,11 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmContentLocation;
+import com.sequoiacm.client.element.bizconf.ScmDataLocation;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
+import com.sun.org.apache.xpath.internal.objects.XString;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
@@ -339,8 +342,9 @@ public class ScmFileUtils extends TestScmBase {
         String expMd5 = TestTools.getMD5( filePath );
         String actMd5 = TestTools.getMD5( downloadPath );
         if ( !expMd5.equals( actMd5 ) ) {
-            throw new Exception( "Failed to check data, " + "expMd5=" + expMd5
-                    + ", actMd5=" + actMd5 + " fileId:" + file.getFileId().get() );
+            throw new Exception(
+                    "Failed to check data, " + "expMd5=" + expMd5 + ", actMd5="
+                            + actMd5 + " fileId:" + file.getFileId().get() );
         }
         TestTools.LocalFile.removeFile( downloadPath );
     }
@@ -353,7 +357,7 @@ public class ScmFileUtils extends TestScmBase {
      * @throws Exception
      */
     public static void checkMeta( ScmWorkspace ws, List< ScmId > fileIds,
-                                  SiteWrapper[] expSites ) throws Exception {
+            SiteWrapper[] expSites ) throws Exception {
         for ( int i = 0; i < fileIds.size(); i++ ) {
             checkMeta( ws, fileIds.get( 0 ), expSites );
         }
@@ -385,7 +389,7 @@ public class ScmFileUtils extends TestScmBase {
     public static void checkSiteInfo(
             ScmContentLocation fileContentLocationInfo, SiteWrapper site ) {
         Map< String, Object > actSiteInfo = new HashMap<>();
-        Map< String, Object > expSiteInfo =  new HashMap<>();
+        Map< String, Object > expSiteInfo = new HashMap<>();
         actSiteInfo.put( "siteId", fileContentLocationInfo.getSite() );
         actSiteInfo.put( "datasourceType", fileContentLocationInfo.getType() );
         actSiteInfo.put( "urls", fileContentLocationInfo.getUrls() );
@@ -404,6 +408,8 @@ public class ScmFileUtils extends TestScmBase {
                 .getFullData();
         Map< String, Object > expFulldata = new HashMap<>();
 
+        List< ScmDataLocation > dataLocations = ws.getDataLocations();
+
         // 数据源类型为CEPH_S3
         if ( site.getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
             expFulldata.put( "object_id", fileId.toString() );
@@ -420,10 +426,35 @@ public class ScmFileUtils extends TestScmBase {
 
         // 数据源类型为SEQUOIADB
         if ( site.getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
-            expFulldata.put( "cs", String.format( "%s_LOB_%s", ws.getName(),
-                    TestSdbTools.getCsClPostfix( "year" ) ) );
+            String csType = null;
+            String clType = null;
+            for ( ScmDataLocation siteLocation : dataLocations ) {
+
+                if ( siteLocation.getSiteName().equals( site.getSiteName() ) ) {
+                    Object data_sharding_type = siteLocation.getBSONObject()
+                            .get( "data_sharding_type" );
+                    if ( data_sharding_type == null ) {
+                        csType = "year";
+                        clType = "month";
+                    } else {
+                        csType = ( ( BSONObject ) data_sharding_type )
+                                .get( "collection_space" ).toString();
+                        clType = ( ( BSONObject ) data_sharding_type )
+                                .get( "collection" ).toString();
+                    }
+                }
+            }
+            if ( csType != "none" ) {
+                expFulldata.put( "cs", String.format( "%s_LOB_%s", ws.getName(),
+                        TestSdbTools.getCsClPostfix( csType ) ) );
+            } else {
+                expFulldata.put( "cs",
+                        String.format( "%s_LOB", ws.getName() ) );
+            }
+
             expFulldata.put( "cl", String.format( "LOB_%s",
-                    TestSdbTools.getCsClPostfix( "month" ) ) );
+                    TestSdbTools.getCsClPostfix( clType ) ) );
+
             expFulldata.put( "lob_id", fileId.toString() );
 
             Assert.assertEquals( actFulldata.get( "cs" ),
