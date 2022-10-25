@@ -49,6 +49,9 @@ public class HdfsDataService extends ScmService {
     private void parseConf() throws HdfsException {
         logger.info("parse hdfs Configuration, dataConf=" + dataConf);
         conf = new Configuration();
+        conf.set("dfs.client.failover.max.attempts","5");
+        conf.set("dfs.client.failover.sleep.base.millis","100");
+        conf.set("dfs.client.failover.sleep.max.millis","500");
         if (null != dataConf) {
             for (Map.Entry<String, String> entry : dataConf.entrySet()) {
                 conf.set(entry.getKey(), entry.getValue());

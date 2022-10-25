@@ -128,25 +128,29 @@ createsite 子命令提供创建站点的功能。
 ####dsconf配置####
 约定Hdfs服务端为高可用集群模式，具体配置项如下：
 
-|配置项                                      |描述                                                            |建议设置        |                                                                                                                      
-|--------------------------------------------|----------------------------------------------------------------|----------------|
-|dfs.nameservices                            |hdfs高可用集群模式下nameservice节点列表                         |scmserver(与服务端配置一致)       |
-|fs.defaultFS                                |文件系统名称                                                    |hdfs://scmserver(与服务端配置一致)|
-|dfs.ha.namenodes.scmserver                  |hdfs高可用集群模式下namenode节点列表                            |nn1,nn2  (与服务端配置一致)|
-|dfs.namenode.rpc-address.<br>scmserver.nn1      |namenode节点1地址                                           |host1:port1(与服务端配置一致)|
-|dfs.namenode.rpc-address.<br>scmserver.nn2      |namenode节点2地址                                           |host2:port2(与服务端配置一致)|
-|dfs.client.failover.proxy.<br>provider.scmserver|hdfs客户端failover代理类                                    |org.apache.hadoop.hdfs.<br>server.namenode.ha.<br>ConfiguredFailoverProxyProvider|
-|dfs.ha.automatic-failover.enabled.scmserver |是否开启自动failover                                            |true|
-|dfs.client.failover.max.attempts            |hdfs客户端重试次数，默认值为15                                  |建议减小,如3~5|
-|dfs.client.failover.sleep.base.millis       |hdfs客户端重试等待时间最小间隔，默认值为500ms                   |建议减小,如50~100|
-|dfs.client.failover.sleep.max.millis        |hdfs客户端重试等待时间最大间隔，默认值为15000ms                 |建议减小,如100~500|
+|配置项                                      | 描述                          | 建议设置                                                                              |                                                                                                                      
+|--------------------------------------------|-----------------------------|-----------------------------------------------------------------------------------|
+|dfs.nameservices                            | hdfs高可用集群模式下nameservice节点列表 | scmserver(与服务端配置一致)                                                               |
+|fs.defaultFS                                | 文件系统名称                      | hdfs://scmserver(与服务端配置一致)                                                        |
+|dfs.ha.namenodes.scmserver                  | hdfs高可用集群模式下namenode节点列表    | nn1,nn2  (与服务端配置一致)                                                               |
+|dfs.namenode.rpc-address.<br>scmserver.nn1      | namenode节点1地址               | host1:port1(与服务端配置一致)                                                             |
+|dfs.namenode.rpc-address.<br>scmserver.nn2      | namenode节点2地址               | host2:port2(与服务端配置一致)                                                             |
+|dfs.client.failover.proxy.<br>provider.scmserver| hdfs客户端failover代理类          | org.apache.hadoop.hdfs.<br>server.namenode.ha.<br>ConfiguredFailoverProxyProvider |
+|dfs.ha.automatic-failover.enabled.scmserver | 是否开启 namenode 失败自动切换        | true                                                                              |
+|dfs.client.failover.max.attempts            | hdfs客户端重试次数，默认值为15          | 建议减小,如3~5                                                                         |
+|dfs.client.failover.sleep.base.millis       | hdfs客户端重试等待时间最小间隔，默认值为500ms | 建议减小,如50~100                                                                      |
+|dfs.client.failover.sleep.max.millis        | hdfs客户端重试等待时间最大间隔，默认值为15000ms | 建议减小,如100~500                                                                     |
 
 >  **Note:**
+> 
+>  * 表中出现的 “fs.defaultFS” ，其设置的内容需要与 hdfs 服务端中 core-site.xml 配置文件配置的一致
+> 
+>  * 表中出现的 “scmserver” ，是 hdfs 高可用集群模式下 nameservices 节点的名称， “nn1”，“nn2” 为 nameservices 节点的 namenode 节点列表名称（在此处，nameservices 节点名称为 scmserver），在 hdfs 服务端中 nameservices 名称和 namenode 名称均是可自定义字符类型，这里具体配置时需要与 hdfs 服务端中 hdfs-site.xml 配置文件的配置保持一致
 >
->  * 表中出现的“scmserver” 与 “nn1”，“nn2” 字样（包括在具体的配置项中），均是可自定义字符类型，具体配置时需要与服务端的配置保持一致
+>  * 当Hdfs服务异常时，默认的失败重试相关参数较大，容易scm服务长时间无响应; 可以根据实际需要配置并适当减小dfs.client.failover.max.attempts、dfs.client.failover.sleep.base.millis、dfs.client.failover.sleep.max.millis等相关参数。SCM 将失败重试相关参数默认设置为 dfs.client.failover.max.attempts: 5, dfs.client.failover.sleep.base.millis: 100, dfs.client.failover.sleep.max.millis: 500。
 >
->  * 当Hdfs服务异常时，默认的失败重试相关参数较大，容易scm服务长时间无响应，应适当减小dfs.client.failover.max.attempts、dfs.client.failover.sleep.base.millis、dfs.client.failover.sleep.max.millis等相关参数
->
+>  * dfs.ha.automatic-failover.enabled.scmserver 配置为 true 时为开启，没有配置此项时默认为不开启，当 namenode 失败时，需要手动切换 namenode
+> 
 >  * 其他Hdfs相关配置参数可根据需求添加
 
 ####示例####
@@ -154,16 +158,16 @@ createsite 子命令提供创建站点的功能。
 创建分站点，并命名为 site5，数据存储服务类型指定为Hdfs，dsuser 为 root
 
 ```lang-javascript
-   $ scmadmin.sh createsite --name site5 --dstype 5 --dsuser root --dspasswd sequoiadb --dsconf '{"fs.defaultFS":"hdfs://scmserver", "dfs.nameservices":"scmserver", "dfs.ha.namenodes.scmserver":"nn1,nn2", "dfs.client.failover.proxy.provider.scmserver":"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "dfs.namenode.rpc-address.scmserver.nn1":"host1:port1","dfs.namenode.rpc-address.scmserver.nn2":"host2:port2", "dfs.ha.automatic-failover.enabled.scmserver":"true", "dfs.client.failover.max.attempts":"5", "dfs.client.failover.sleep.base.millis":"100"}' --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd 
+   $ scmadmin.sh createsite --name site5 --dstype 5 --dsuser root --dspasswd sequoiadb --dsconf '{"fs.defaultFS":"hdfs://scmserver", "dfs.nameservices":"scmserver", "dfs.ha.namenodes.scmserver":"nn1,nn2", "dfs.client.failover.proxy.provider.scmserver":"org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "dfs.namenode.rpc-address.scmserver.nn1":"host1:port1","dfs.namenode.rpc-address.scmserver.nn2":"host2:port2"}' --gateway server2:8080 --user admin --passwd admin --mdsurl metaServer1:11810,metaServer2:11810 --mdsuser sdbadmin --mdspasswd /home/scmadmin/sdb.passwd 
 ```
 
 > **Note:**
 > 
 > * dsuser、dspasswd 分别指定 ssh 连接的服务器用户名、密码
 > 
-> * 创建Hdfs类型分站点，名称为site5, hdfs文件系统名称为"hdfs://scmserver"，nameservers为scmserver，namenode列表为nn1、nn2，具体地址为host1:port1、host2:port2，客户端最大失败重试次数为5，重试等待时间为100ms
+> * 创建Hdfs类型分站点，名称为site5, hdfs文件系统名称为"hdfs://scmserver"，nameservices 为 scmserver，scmserver 的 namenode 列表为 nn1、nn2，nn1、nn2 的具体地址分别为 host1:port1、host2:port2
 >
-> * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810 ，metaServer2:11810 ，mdsuser 为 sdbadmin，mdspasswd 为 /home/scmadmin/sdb.passwd
+> * 主站点元数据存储服务地址 mdsurl 为 metaServer1:11810 ，metaServer2:11810 （可配置多个，根据实际需求配置），mdsuser 为 sdbadmin，mdspasswd 为 /home/scmadmin/sdb.passwd
 
 
 ###5.Sftp###
