@@ -11,7 +11,7 @@
     <parent>
         <artifactId>sequoiacm-parent</artifactId>
         <groupId>com.sequoiadb</groupId>
-        <version>3.2.1</version>
+        <version>3.2.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <properties>

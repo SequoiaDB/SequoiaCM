@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-infrastructure</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.2</version>
     </parent>
     <artifactId>sequoiacm-infrastructure-server-common</artifactId>
     <name>SequoiaCM Infrastructure Server Common</name>
