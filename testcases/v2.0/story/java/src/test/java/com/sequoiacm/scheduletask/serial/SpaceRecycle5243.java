@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Set;
 
 /**
@@ -113,13 +113,14 @@ public class SpaceRecycle5243 extends TestScmBase {
 
     private void createNullCS() throws Exception {
         ScmScheduleUtils.cleanNullCS( session, wsName );
+        Calendar instance = Calendar.getInstance();
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
-            Date date = new Date( System.currentTimeMillis() - year * i );
-            file.setCreateTime( date );
+            file.setCreateTime( instance.getTime() );
             file.setAuthor( fileAuthor );
             file.setFileName( fileName + i );
             file.save();
+            instance.add( Calendar.YEAR, -1 );
         }
         ScmFileUtils.cleanFile( wsName, queryCond );
     }

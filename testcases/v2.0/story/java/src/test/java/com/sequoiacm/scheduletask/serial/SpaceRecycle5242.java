@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 
@@ -124,15 +125,15 @@ public class SpaceRecycle5242 extends TestScmBase {
 
     // 构造空的cs
     private void createNullCS() throws Exception {
-        long year = 365L * 24L * 60L * 60L * 1000L;
+        Calendar instance = Calendar.getInstance();
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
-            Date date = new Date( System.currentTimeMillis() - year * i );
-            file.setCreateTime( date );
+            file.setCreateTime( instance.getTime() );
             file.setAuthor( fileAuthor );
             file.setFileName( fileName + i );
             file.setContent( filePath );
             file.save();
+            instance.add( Calendar.YEAR, -1 );
         }
         ScmFileUtils.cleanFile( wsName, queryCond );
     }

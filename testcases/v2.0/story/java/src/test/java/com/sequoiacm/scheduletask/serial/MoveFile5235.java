@@ -107,14 +107,14 @@ public class MoveFile5235 extends TestScmBase {
 
     private void prepare() throws Exception {
         ScmScheduleUtils.cleanNullCS( sessionM, wsName );
-        long year = 365L * 24L * 60L * 60L * 1000L;
+        Calendar instance = Calendar.getInstance();
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
-            Date date = new Date( System.currentTimeMillis() - year * i );
-            file.setCreateTime( date );
+            file.setCreateTime( instance.getTime() );
             file.setAuthor( fileAuthor );
             file.setFileName( fileName + i );
             fileIds.add( file.save() );
+            instance.add( Calendar.YEAR, -1 );
         }
     }
 
