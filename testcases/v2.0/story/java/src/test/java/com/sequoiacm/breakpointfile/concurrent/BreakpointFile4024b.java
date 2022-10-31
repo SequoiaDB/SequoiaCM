@@ -6,7 +6,6 @@ package com.sequoiacm.breakpointfile.concurrent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
@@ -52,7 +51,7 @@ public class BreakpointFile4024b extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         if ( sites.size() < 2 ) {
             throw new SkipException( "指定类型站点数量不足！" );
         }

@@ -5,13 +5,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +50,8 @@ public class BreakpointFile1367_3922 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
+                .checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

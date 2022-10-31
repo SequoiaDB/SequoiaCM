@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Random;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
@@ -57,7 +56,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         sessionA = TestScmTools.createSession( branSite );

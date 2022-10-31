@@ -13,7 +13,6 @@ import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
@@ -25,7 +24,6 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 
 /**
@@ -54,7 +52,7 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         rootSite = ScmInfo.getRootSite();
         Iterator< SiteWrapper > iterator = sites.iterator();
         while ( iterator.hasNext() ) {

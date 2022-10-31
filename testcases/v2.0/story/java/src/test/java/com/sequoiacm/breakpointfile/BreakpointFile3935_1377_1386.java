@@ -65,7 +65,7 @@ public class BreakpointFile3935_1377_1386 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         BreakpointUtil.createFile( filePath, fileSize );
 
-        siteList = ScmBreakpointFileUtils.checkDBDataSource();
+        siteList = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         if ( siteList.size() < 2 ) {
             throw new SkipException( "指定类型站点数量不足！" );
         }

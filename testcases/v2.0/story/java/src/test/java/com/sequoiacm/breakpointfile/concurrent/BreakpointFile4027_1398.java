@@ -15,7 +15,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -27,7 +26,6 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -55,7 +53,7 @@ public class BreakpointFile4027_1398 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException, IOException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

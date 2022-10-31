@@ -4,8 +4,6 @@
 package com.sequoiacm.breakpointfile.concurrent;
 
 import java.io.*;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,7 +52,7 @@ public class BreakpointFile4025 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

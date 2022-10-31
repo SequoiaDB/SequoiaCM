@@ -57,7 +57,7 @@ public class StatisticsFile4090 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
         fileNums = fileSizes.length;
         uploadBreakpointFileSuccess = fileSizes.length
                 - uploadBreakpointFileFailedNums

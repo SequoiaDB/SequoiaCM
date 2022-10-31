@@ -55,7 +55,7 @@ public class BreakpointFile3936_1378 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        sites = ScmBreakpointFileUtils.checkDBDataSource();
+        sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         if ( sites.size() < 2 ) {
             throw new SkipException( "指定类型站点数量不足！" );
         }

@@ -11,7 +11,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.exception.ScmException;
@@ -51,7 +50,7 @@ public class StatisticsFile4085 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
 
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

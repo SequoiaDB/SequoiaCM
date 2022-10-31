@@ -3,7 +3,6 @@
  */
 package com.sequoiacm.version.serial;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -15,12 +14,10 @@ import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -36,7 +33,6 @@ import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -69,7 +65,7 @@ public class UpdateAndTransferFile1697 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         rootSite = ScmInfo.getRootSite();
         Iterator< SiteWrapper > iterator = sites.iterator();
         while ( iterator.hasNext() ) {

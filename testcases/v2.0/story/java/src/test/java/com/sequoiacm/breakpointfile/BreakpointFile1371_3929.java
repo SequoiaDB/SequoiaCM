@@ -49,7 +49,8 @@ public class BreakpointFile1371_3929 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
+                .checkDBAndCephS3DataSource();
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
@@ -122,7 +123,7 @@ public class BreakpointFile1371_3929 extends TestScmBase {
             Assert.fail( "get breakpoint file must bu fail!" );
         } catch ( ScmException e ) {
             if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
-               throw e;
+                throw e;
             }
         }
     }

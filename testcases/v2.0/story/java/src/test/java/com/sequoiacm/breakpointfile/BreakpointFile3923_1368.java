@@ -45,7 +45,7 @@ public class BreakpointFile3923_1368 extends TestScmBase {
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
         List< SiteWrapper > sites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

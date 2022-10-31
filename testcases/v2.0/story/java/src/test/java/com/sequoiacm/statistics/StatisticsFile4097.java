@@ -3,9 +3,7 @@ package com.sequoiacm.statistics;
 import java.io.File;
 import java.util.*;
 
-import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -17,7 +15,6 @@ import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
@@ -61,7 +58,7 @@ public class StatisticsFile4097 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
 
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

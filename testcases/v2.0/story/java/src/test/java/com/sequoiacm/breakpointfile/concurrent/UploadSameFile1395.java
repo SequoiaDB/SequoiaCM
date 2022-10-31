@@ -11,7 +11,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -54,7 +53,7 @@ public class UploadSameFile1395 extends TestScmBase {
 
     @BeforeClass
     private void setUp() {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

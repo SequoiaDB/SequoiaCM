@@ -48,7 +48,7 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

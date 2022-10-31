@@ -5,27 +5,20 @@ package com.sequoiacm.breakpointfile.concurrent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import com.sequoiadb.base.CollectionSpace;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
-import com.sequoiadb.threadexecutor.exception.SchException;
-import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.breakpointfile.BreakpointUtil;
-import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
@@ -54,7 +47,7 @@ public class BreakpointFile4024a extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

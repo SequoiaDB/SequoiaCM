@@ -3,7 +3,6 @@ package com.sequoiacm.breakpointfile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -19,7 +18,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmChecksumType;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
@@ -53,7 +51,7 @@ public class BreakpointFile3924_1369 extends TestScmBase {
     @BeforeClass
     private void setUp() throws ScmException {
         List< SiteWrapper > sites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

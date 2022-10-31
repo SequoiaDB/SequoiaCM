@@ -19,7 +19,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -60,7 +59,7 @@ public class BreFileUpdateAndCreateVersionFile1700 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
 

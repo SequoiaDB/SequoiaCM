@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
@@ -45,7 +43,7 @@ public class ScmFileMD5Calc2975 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

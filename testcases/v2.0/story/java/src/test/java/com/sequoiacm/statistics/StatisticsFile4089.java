@@ -49,7 +49,7 @@ public class StatisticsFile4089 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
 
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

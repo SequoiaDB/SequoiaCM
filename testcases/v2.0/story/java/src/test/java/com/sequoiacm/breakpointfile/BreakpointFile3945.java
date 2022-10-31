@@ -10,9 +10,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
@@ -37,7 +35,7 @@ public class BreakpointFile3945 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );

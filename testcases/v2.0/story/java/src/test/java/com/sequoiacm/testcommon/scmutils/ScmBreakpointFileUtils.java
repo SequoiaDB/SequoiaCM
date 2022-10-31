@@ -22,7 +22,7 @@ public class ScmBreakpointFileUtils extends TestScmBase {
      * @return SEQUOIADB and CEPH_S3 dataSource sites
      */
 
-    public static List< SiteWrapper > checkDBDataSource() {
+    public static List< SiteWrapper > checkDBAndCephS3DataSource() {
         List< SiteWrapper > sites = ScmInfo.getAllSites();
         List< SiteWrapper > DBSites = new ArrayList<>();
         for ( SiteWrapper site : sites ) {

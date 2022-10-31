@@ -10,14 +10,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -52,7 +50,7 @@ public class ScmFileMD5Calc2968 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         TestTools.LocalFile.removeFile( localPath );

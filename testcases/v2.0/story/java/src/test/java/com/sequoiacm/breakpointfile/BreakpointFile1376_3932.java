@@ -26,7 +26,6 @@ import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
@@ -66,7 +65,7 @@ public class BreakpointFile1376_3932 extends TestScmBase {
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize

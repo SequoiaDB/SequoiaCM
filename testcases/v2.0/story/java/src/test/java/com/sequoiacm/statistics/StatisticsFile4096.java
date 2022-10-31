@@ -49,7 +49,7 @@ public class StatisticsFile4096 extends TestScmBase {
     private void setUp() throws Exception {
         calendar = Calendar.getInstance();
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils
-                .checkDBDataSource();
+                .checkDBAndCephS3DataSource();
         if ( ScmInfo.getWsNum() < 2 ) {
             throw new SkipException( "need 2 wss!!!!" );
         }

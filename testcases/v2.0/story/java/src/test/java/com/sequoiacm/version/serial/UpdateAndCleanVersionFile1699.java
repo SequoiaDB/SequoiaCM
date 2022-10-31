@@ -13,7 +13,6 @@ import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
@@ -57,7 +56,7 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBDataSource();
+        List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         rootSite = ScmInfo.getRootSite();
         Iterator< SiteWrapper > iterator = sites.iterator();
         while ( iterator.hasNext() ) {
