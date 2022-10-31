@@ -27,6 +27,12 @@
                <argLine>-Xms1024m -Xmx1024m -Xss1m</argLine>
                <systemPropertyVariables>
                     <log4j.configuration>file:${basedir}/src/test/resources/log4j.properties</log4j.configuration>
+                    <mainSdbUrl>${mainSdbUrl}</mainSdbUrl>
+                    <site>${site}</site>
+                    <isBaseTest>${isBaseTest}</isBaseTest>
+                    <gateWayInfo>${gateWayInfo}</gateWayInfo>
+                    <S3user>${S3user}</S3user>
+                    <S3Password>${S3Password}</S3Password>
                </systemPropertyVariables>
             </configuration>
          </plugin>

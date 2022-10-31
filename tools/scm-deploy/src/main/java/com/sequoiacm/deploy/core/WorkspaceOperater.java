@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
@@ -12,13 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmRole;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmUserModifier;
-import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
@@ -254,6 +249,48 @@ public class WorkspaceOperater {
             BasicBSONList wsBsons = BsonUtils.getArrayChecked(bson, "workspaces");
             for (Object wsBSON : wsBsons) {
                 String wsName = BsonUtils.getStringChecked((BSONObject) wsBSON, "name");
+                if (dryrun) {
+                    logger.info("Workspace {} will be delete", wsName);
+                    continue;
+                }
+
+                try {
+                    logger.info("Deleting workspace:" + wsName);
+                    ScmFactory.Workspace.deleteWorkspace(ss, wsName, true);
+                }
+                catch (Exception e) {
+                    logger.warn("Failed to delete workspace:" + wsName, e);
+                }
+            }
+        }
+        catch (IllegalArgumentException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new Exception("Failed to clean workspace:" + e.getMessage(), e);
+        }
+        finally {
+            CommonUtils.closeResource(ss);
+        }
+        logger.info("Clean workspace finish");
+    }
+
+    public void realCleanAll(boolean dryrun) throws Exception {
+        logger.info("Cleaning workspace{}...", dryrun ? "(Dry Run Mode)" : "");
+        ScmSession ss = null;
+        try {
+            BSONObject bson = CommonUtils.parseJsonFile(commonConfig.getWorkspaceConfigFilePath());
+            String gatewayUrl = BsonUtils.getStringChecked(bson, "url");
+            String user = BsonUtils.getStringChecked(bson, "userName");
+            String password = BsonUtils.getStringChecked(bson, "password");
+
+            if (!dryrun) {
+                ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
+                        new ScmConfigOption(gatewayUrl, user, password));
+            }
+            ScmCursor<ScmWorkspaceInfo> list = ScmFactory.Workspace.listWorkspace(ss);
+            while (list.hasNext()){
+                String wsName = list.getNext().getName();
                 if (dryrun) {
                     logger.info("Workspace {} will be delete", wsName);
                     continue;

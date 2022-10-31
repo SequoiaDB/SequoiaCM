@@ -20,6 +20,7 @@ public class WorkspaceSubCommand extends SubCommand {
     public static final String OPT_CREATE = "create";
     public static final String OPT_DRYRUN = "dryrun";
     public static final String OPT_CLEAN = "clean";
+    public static final String OPT_CLEAN_ALL = "clean-all";
     public static final String OPT_GRANT_USER_WITH_ALL_PRIV = "grant-all-priv";
 
     @Override
@@ -32,9 +33,10 @@ public class WorkspaceSubCommand extends SubCommand {
             throw new IllegalArgumentException("missing required option: " + OPT_CONF_PATH);
         }
         if (!commandLine.hasOption(OPT_CLEAN) && !commandLine.hasOption(OPT_CREATE)
-                && !commandLine.hasOption(OPT_GRANT_USER_WITH_ALL_PRIV)) {
+                && !commandLine.hasOption(OPT_GRANT_USER_WITH_ALL_PRIV)
+                && !commandLine.hasOption(OPT_CLEAN_ALL)) {
             throw new IllegalArgumentException(
-                    "please specify an required option: " + OPT_CREATE + " " + OPT_CLEAN);
+                    "please specify an required option: " + OPT_CREATE + " " + OPT_CLEAN + " " + OPT_CLEAN_ALL);
         }
         return true;
     }
@@ -43,6 +45,8 @@ public class WorkspaceSubCommand extends SubCommand {
     protected Options commandOptions() {
         Options ops = new Options();
         ops.addOption(Option.builder().longOpt(OPT_CLEAN).hasArg(false).required(false)
+                .desc("clean all workspaces by file.").build());
+        ops.addOption(Option.builder().longOpt(OPT_CLEAN_ALL).hasArg(false).required(false)
                 .desc("clean all workspaces.").build());
         ops.addOption(Option.builder().longOpt(OPT_DRYRUN).hasArg(false).required(false)
                 .desc("preview what command plans to do.").build());
@@ -73,9 +77,12 @@ public class WorkspaceSubCommand extends SubCommand {
         if (cl.hasOption(WorkspaceSubCommand.OPT_DRYRUN)) {
             dryrun = true;
         }
-
-        if (cl.hasOption(WorkspaceSubCommand.OPT_CLEAN)) {
-            wsOperater.cleanAll(dryrun);
+        if(cl.hasOption(WorkspaceSubCommand.OPT_CLEAN_ALL)){
+            wsOperater.realCleanAll(dryrun);
+        }else{
+            if (cl.hasOption(WorkspaceSubCommand.OPT_CLEAN)) {
+                wsOperater.cleanAll(dryrun);
+            }
         }
 
         if (cl.hasOption(WorkspaceSubCommand.OPT_CREATE)) {
