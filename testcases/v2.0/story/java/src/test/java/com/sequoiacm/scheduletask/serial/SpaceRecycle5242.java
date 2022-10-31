@@ -126,6 +126,7 @@ public class SpaceRecycle5242 extends TestScmBase {
     // 构造空的cs
     private void createNullCS() throws Exception {
         Calendar instance = Calendar.getInstance();
+        ScmScheduleUtils.checkMonthChange( instance );
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
             file.setCreateTime( instance.getTime() );

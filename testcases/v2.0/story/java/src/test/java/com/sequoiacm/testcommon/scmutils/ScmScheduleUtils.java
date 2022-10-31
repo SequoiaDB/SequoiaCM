@@ -1,7 +1,6 @@
 package com.sequoiacm.testcommon.scmutils;
 
 import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
@@ -20,8 +19,6 @@ import org.bson.types.BasicBSONList;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import com.sequoiacm.client.exception.ScmException;
-import org.testng.Assert;
 
 public class ScmScheduleUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmTaskUtils.class );
@@ -368,6 +365,7 @@ public class ScmScheduleUtils extends TestScmBase {
 
     /**
      * 创建清理调度任务更新为迁移任务
+     * 
      * @param session
      * @param sourceSite
      * @param targetSite
@@ -806,5 +804,21 @@ public class ScmScheduleUtils extends TestScmBase {
             csNames = ( BasicBSONList ) extraInfo.get( keyWord );
         }
         return csNames.toArray();
+    }
+
+    /**
+     * @descreption 用于检测用例执行时出现月份变更，如果在1分钟内会发送转月，则等待1分钟
+     * @param instance
+     * @throws InterruptedException
+     */
+    public static void checkMonthChange( Calendar instance )
+            throws InterruptedException {
+        int months = instance.get( Calendar.MONTH );
+        instance.add( Calendar.SECOND, 1 );
+        int monthsSeek1Sec = instance.get( Calendar.MONTH );
+        instance.add( Calendar.SECOND, -1 );
+        if ( monthsSeek1Sec != months ) {
+            Thread.sleep( 60000 );
+        }
     }
 }

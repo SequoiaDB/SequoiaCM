@@ -125,6 +125,7 @@ public class MoveFile5216 extends TestScmBase {
     // 构造空的cs
     private void prepare() throws Exception {
         Calendar instance = Calendar.getInstance();
+        ScmScheduleUtils.checkMonthChange( instance );
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
             file.setCreateTime( instance.getTime() );

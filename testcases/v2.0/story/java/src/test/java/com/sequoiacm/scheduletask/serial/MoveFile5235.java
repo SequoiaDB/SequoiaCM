@@ -108,6 +108,7 @@ public class MoveFile5235 extends TestScmBase {
     private void prepare() throws Exception {
         ScmScheduleUtils.cleanNullCS( sessionM, wsName );
         Calendar instance = Calendar.getInstance();
+        ScmScheduleUtils.checkMonthChange( instance );
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
             file.setCreateTime( instance.getTime() );

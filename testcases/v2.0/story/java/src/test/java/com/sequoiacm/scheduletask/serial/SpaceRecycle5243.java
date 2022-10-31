@@ -114,6 +114,7 @@ public class SpaceRecycle5243 extends TestScmBase {
     private void createNullCS() throws Exception {
         ScmScheduleUtils.cleanNullCS( session, wsName );
         Calendar instance = Calendar.getInstance();
+        ScmScheduleUtils.checkMonthChange( instance );
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setCreateTime( instance.getTime() );
