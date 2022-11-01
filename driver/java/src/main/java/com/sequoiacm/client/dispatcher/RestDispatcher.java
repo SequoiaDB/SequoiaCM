@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
+import com.sequoiacm.infrastructure.common.ExceptionChecksUtils;
+import com.sequoiacm.infrastructure.common.SignatureUtils;
+import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -57,7 +60,6 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.common.FultextRestCommonDefine;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 
 public class RestDispatcher implements MessageDispatcher {
 
@@ -70,7 +72,11 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String URL_SEP = "/";
     private static final String URL_PREFIX = "http://";
     private static final String API_VERSION = "/api/v1/";
+    private static final String API_V2_VERSION = "/api/v2/";
     private static final String LOGIN = "/login";
+    private static final String V2LOCALLOGIN = "/v2/localLogin";
+
+    private static final String V2_LOGIN_DATE_HEADER = "date";
     private static final String LOGOUT = "/logout";
     private static final String WORKSPACE = "workspaces/";
     private static final String FILE = "files/";
@@ -85,6 +91,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String SCHEDULE_SERVER = "/schedule-server";
     private static final String AUTH = "/auth";
     private static final String ROLE = "roles/";
+    private static final String SALT = "salt/";
     private static final String USER = "users/";
     private static final String SESSION = "sessions/";
     private static final String ID = "id/";
@@ -237,15 +244,43 @@ public class RestDispatcher implements MessageDispatcher {
      */
     @Override
     public String login(String user, String password) throws ScmException {
-        HttpPost request = new HttpPost(URL_PREFIX + pureUrl + LOGIN);
+        // login 兼容性算法和 Sequoiacm-infrastructure-security-auth 包下的 SignClient.loginWithUsername 里的算法相同,
+        // 此处兼容性变更时，需两处同时变更
+        BSONObject saltAndDate;
+        try {
+            saltAndDate = getSalt(user);
+        }
+        catch (ScmException e) {
+            if (ExceptionChecksUtils.isOldVersion(e.getMessage(), e.getError().getErrorCode(),
+                    "getSalt")
+                    || ExceptionChecksUtils.isNotLocalUser(e.getError().getErrorDescription(),
+                            e.getError().getErrorCode())) {
+                return v1Login(user, password);
+            }
+            else if (e.getError() == ScmError.SALT_NOT_EXIST) {
+                throw new ScmException(ScmError.HTTP_UNAUTHORIZED, "username or password error");
+            }
+            else {
+                throw e;
+            }
+        }
 
-        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-        params.add(new BasicNameValuePair("username", user));
-        params.add(new BasicNameValuePair("password", password));
+        String salt = BsonUtils.getStringChecked(saltAndDate, "Salt");
+        String date = BsonUtils.getStringChecked(saltAndDate, "Date");
+        String signature = SignatureUtils.signatureCalculation(password, salt, date);
 
-        sessionId = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
-                params, AUTHORIZATION);
-        return sessionId;
+        try {
+            return v2LocalLogin(user, signature, date);
+        }
+        catch (ScmException e) {
+            if (ExceptionChecksUtils.isOldVersion(e.getMessage(), e.getError().getErrorCode(),
+                    "v2LocalLogin")) {
+                return v1Login(user, password);
+            }
+            else {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -256,6 +291,39 @@ public class RestDispatcher implements MessageDispatcher {
         String uri = URL_PREFIX + pureUrl + LOGOUT;
         HttpPost request = new HttpPost(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    private BSONObject getSalt(String username) throws ScmException {
+        String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_V2_VERSION, SALT,
+                encode(username));
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    private String v2LocalLogin(String user, String signature, String date) throws ScmException {
+        HttpPost request = new HttpPost(URL_PREFIX + pureUrl + V2LOCALLOGIN);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+        params.add(new BasicNameValuePair("username", user));
+        params.add(new BasicNameValuePair("password", signature));
+
+        request.addHeader(V2_LOGIN_DATE_HEADER, date);
+
+        sessionId = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                params, AUTHORIZATION);
+        return sessionId;
+    }
+
+    private String v1Login(String user, String password) throws ScmException {
+        HttpPost request = new HttpPost(URL_PREFIX + pureUrl + LOGIN);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+        params.add(new BasicNameValuePair("username", user));
+        params.add(new BasicNameValuePair("password", password));
+
+        sessionId = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                params, AUTHORIZATION);
+        return sessionId;
     }
 
     @Override
@@ -404,12 +472,47 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public BSONObject createUser(String username, ScmUserPasswordType passwordType, String password)
             throws ScmException {
+        String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_V2_VERSION, USER,
+                encode(username));
+        HttpPost request = new HttpPost(uri);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("password_type", passwordType.name()));
+        if (passwordType != ScmUserPasswordType.LDAP && passwordType != ScmUserPasswordType.TOKEN) {
+            String encryptPassword;
+            try {
+                encryptPassword = ScmPasswordMgr.getInstance()
+                        .encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, password);
+            }
+            catch (Exception e) {
+                throw new ScmSystemException(CHARSET_UTF8, e);
+            }
+            params.add(new BasicNameValuePair("password", encryptPassword));
+        }
+        try {
+            return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request,
+                    params);
+        }
+        catch (ScmException e) {
+            if (ExceptionChecksUtils.isOldVersion(e.getMessage(), e.getError().getErrorCode(),
+                    "v2CreateUser")) {
+                return v1CreateUser(username, passwordType, password);
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+
+    private BSONObject v1CreateUser(String username, ScmUserPasswordType passwordType,
+            String password) throws ScmException {
         String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_VERSION, USER,
                 encode(username));
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("password_type", passwordType.name()));
+
         if (passwordType != ScmUserPasswordType.LDAP && passwordType != ScmUserPasswordType.TOKEN) {
             params.add(new BasicNameValuePair("password", password));
         }
@@ -436,17 +539,35 @@ public class RestDispatcher implements MessageDispatcher {
         final String FIELD_ENABLED = "enabled";
         final String FIELD_CLEAN_SESSIONS = "clean_sessions";
 
-        String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_VERSION, USER,
-                encode(username));
+        boolean isAlterPassword = false;
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();
 
+        String encryptOldPassword = "";
         if (Strings.hasText(modifier.getOldPassword())) {
-            params.add(new BasicNameValuePair(FIELD_OLD_PASSWORD, modifier.getOldPassword()));
+            try {
+                encryptOldPassword = ScmPasswordMgr.getInstance()
+                        .encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, modifier.getOldPassword());
+            }
+            catch (Exception e) {
+                throw new ScmSystemException(CHARSET_UTF8, e);
+            }
+            params.add(new BasicNameValuePair(FIELD_OLD_PASSWORD, encryptOldPassword));
         }
+
+        String encryptNewPassword = "";
         if (Strings.hasText(modifier.getNewPassword())) {
-            params.add(new BasicNameValuePair(FIELD_NEW_PASSWORD, modifier.getNewPassword()));
+            isAlterPassword = true;
+            try {
+                encryptNewPassword = ScmPasswordMgr.getInstance()
+                        .encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, modifier.getNewPassword());
+            }
+            catch (Exception e) {
+                throw new ScmSystemException(CHARSET_UTF8, e);
+            }
+            params.add(new BasicNameValuePair(FIELD_NEW_PASSWORD, encryptNewPassword));
         }
+
         if (!modifier.getAddRoles().isEmpty()) {
             StringBuilder roleNames = new StringBuilder();
             int n = modifier.getAddRoles().size();
@@ -486,6 +607,36 @@ public class RestDispatcher implements MessageDispatcher {
             throw new ScmInvalidArgumentException("User modifier is empty");
         }
 
+        String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_V2_VERSION, USER,
+                encode(username));
+        HttpPut request = new HttpPut(uri);
+        try {
+            return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request,
+                    params);
+        }
+        catch (ScmException e) {
+            if (ExceptionChecksUtils.isOldVersion(e.getMessage(), e.getError().getErrorCode(),
+                    "v2AlterUser")) {
+                if (isAlterPassword) {
+                    params.remove(new BasicNameValuePair(FIELD_OLD_PASSWORD, encryptOldPassword));
+                    params.remove(new BasicNameValuePair(FIELD_NEW_PASSWORD, encryptNewPassword));
+                    params.add(
+                            new BasicNameValuePair(FIELD_OLD_PASSWORD, modifier.getOldPassword()));
+                    params.add(
+                            new BasicNameValuePair(FIELD_NEW_PASSWORD, modifier.getNewPassword()));
+                }
+                return v1AlterUser(username, params);
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+
+    private BSONObject v1AlterUser(String username, List<NameValuePair> params)
+            throws ScmException {
+        String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_VERSION, USER,
+                encode(username));
         HttpPut request = new HttpPut(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
     }

@@ -4,6 +4,7 @@ import org.bson.BSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
@@ -19,6 +20,15 @@ public interface SignService {
     @PostMapping("/login")
     public Response login(@RequestParam(RestField.USERNAME) String username,
             @RequestParam(RestField.PASSWORD) String password) throws ScmFeignException;
+
+    @PostMapping("/v2/localLogin")
+    public Response v2localLogin(@RequestHeader(RestField.SIGNATURE_DATE) String date,
+            @RequestParam(RestField.USERNAME) String username,
+            @RequestParam(RestField.PASSWORD) String password) throws ScmFeignException;
+
+    @GetMapping("/api/v2/salt/{username}")
+    public BSONObject getSalt(@PathVariable(value = "username") String name)
+            throws ScmFeignException;
 
     @GetMapping("/internal/v1/secretkey")
     public BSONObject getSecretkey(@RequestParam(RestField.ACCESSKEY) String accesskey)

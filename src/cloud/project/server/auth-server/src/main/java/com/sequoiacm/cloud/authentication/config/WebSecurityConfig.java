@@ -8,12 +8,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
@@ -26,13 +27,15 @@ import com.sequoiacm.cloud.authentication.security.ScmAuthenticationFailureHandl
 import com.sequoiacm.cloud.authentication.security.ScmAuthenticationSuccessHandler;
 import com.sequoiacm.cloud.authentication.security.ScmLogoutSuccessHandler;
 import com.sequoiacm.cloud.authentication.security.ScmUserDetailsService;
-import com.sequoiacm.cloud.authentication.security.SignatureInfoDetailSource;
+import com.sequoiacm.cloud.authentication.security.ScmAuthenticationDetailSource;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMap;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMapFactory;
 import com.sequoiadb.base.SequoiadbDatasource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -107,8 +110,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().httpBasic().disable().formLogin()
-                .authenticationDetailsSource(new SignatureInfoDetailSource())
+                .authenticationDetailsSource(new ScmAuthenticationDetailSource())
                 .successHandler(new ScmAuthenticationSuccessHandler(audit))
+                .withObjectPostProcessor(
+                        new ObjectPostProcessor<UsernamePasswordAuthenticationFilter>() {
+                            @Override
+                            public <O extends UsernamePasswordAuthenticationFilter> O postProcess(
+                                    O filter) {
+                                filter.setRequiresAuthenticationRequestMatcher(new OrRequestMatcher(
+                                        new AntPathRequestMatcher("/login", "POST"),
+                                        new AntPathRequestMatcher("/v2/localLogin", "POST")));
+                                return filter;
+                            }
+                        })
                 .failureHandler(new ScmAuthenticationFailureHandler()).permitAll().and().logout()
                 .logoutSuccessHandler(new ScmLogoutSuccessHandler(audit)).and().exceptionHandling()
                 .authenticationEntryPoint(new Http401UnauthorizedEntryPoint()).and().requestCache()
@@ -119,7 +133,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/**/privileges/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/**/relations/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/**/users/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/**/users/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**/salt/**").permitAll()
+                .antMatchers(HttpMethod.PUT,"/api/**/users/**").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
                 .antMatchers(HttpMethod.DELETE, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)

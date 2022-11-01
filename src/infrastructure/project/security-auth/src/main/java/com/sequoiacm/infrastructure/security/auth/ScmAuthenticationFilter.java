@@ -40,6 +40,9 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
     @Value("${zuul.routes.login.path:/login}")
     private String loginPath = "/login";
 
+    @Value("${zuul.routes.v2Login.path:/v2/localLogin}")
+    private String v2LocalLoginPath = "/v2/localLogin";
+
     @Value("${zuul.routes.logout.path:/logout}")
     private String logoutPath = "/logout";
 
@@ -95,7 +98,8 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
 
         // cache user info when processing login requests
-        if (sessionMgr instanceof ScmSessionMgrWithSessionCache && isLoginRequest(request)) {
+        if (sessionMgr instanceof ScmSessionMgrWithSessionCache
+                && (isLoginRequest(request) || isV2LocalLoginRequest(request))) {
             String loginSessionId = response.getHeader(RestField.SESSION_ATTRIBUTE);
             String userJson = response.getHeader(RestField.USER_DETAILS);
             if (loginSessionId == null || userJson == null) {
@@ -112,6 +116,11 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
     private boolean isLoginRequest(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return matcher.match(loginPath, uri);
+    }
+
+    private boolean isV2LocalLoginRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return matcher.match(v2LocalLoginPath, uri);
     }
 
     private boolean isLogoutRequest(HttpServletRequest request) {

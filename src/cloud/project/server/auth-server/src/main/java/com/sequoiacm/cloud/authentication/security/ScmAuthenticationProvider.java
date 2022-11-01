@@ -2,9 +2,11 @@ package com.sequoiacm.cloud.authentication.security;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
+import com.sequoiacm.infrastructure.common.SignatureUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +26,11 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.infrastructure.security.sign.SignatureInfo;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.SimpleTimeZone;
+
 public class ScmAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     private static final Logger logger = LoggerFactory.getLogger(ScmAuthenticationProvider.class);
 
@@ -31,6 +38,10 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
     private AuthenticationOptions authenticationOptions;
 
     private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
+    private static final String ISO8601BasicFormat = "yyyyMMdd'T'HHmmss'Z'";
+
+    @Value("${scm.auth.authorization.maxTimeOffset}")
+    private int maxTimeOffset;
     private PasswordEncoder passwordEncoder;
     private String userNotFoundEncodedPassword;
 
@@ -119,28 +130,56 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
     @SuppressWarnings("deprecation")
     protected void localAuthenticationChecks(UserDetails userDetails,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        Object salt = null;
-
-        if (this.saltSource != null) {
-            salt = this.saltSource.getSalt(userDetails);
+        ScmAuthenticationDetail detail = (ScmAuthenticationDetail) authentication.getDetails();
+        if (detail.getSignatureAuthentication()) {
+            v2LocalAuthenticationChecks(userDetails, authentication, detail.getDate());
         }
+        else {
+            Object salt = null;
 
-        if (authentication.getCredentials() == null) {
-            logger.error("Authentication failed: no credentials provided");
+            if (this.saltSource != null) {
+                salt = this.saltSource.getSalt(userDetails);
+            }
 
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                    "username or password error"));
+            if (authentication.getCredentials() == null) {
+                logger.error("Authentication failed: no credentials provided");
+
+                throw new BadCredentialsException(messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                        "username or password error"));
+            }
+
+            String presentedPassword = authentication.getCredentials().toString();
+
+            if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword,
+                    salt)) {
+                logger.error("Authentication failed: password does not match stored value");
+
+                throw new BadCredentialsException(messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                        "username or password error"));
+            }
         }
+    }
 
-        String presentedPassword = authentication.getCredentials().toString();
+    protected void v2LocalAuthenticationChecks(UserDetails userDetails,
+            UsernamePasswordAuthenticationToken authentication, String date) {
+        Date requestDate;
+        try {
+            requestDate = parseISO8601Date(date);
+        }
+        catch (ParseException e) {
+            throw new InternalAuthenticationServiceException("failed to parse " + date + " to Date",
+                    e);
+        }
+        checkExpires(requestDate);
 
-        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
-            logger.error("Authentication failed: password does not match stored value");
+        String signature = authentication.getCredentials().toString();
 
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                    "username or password error"));
+        if (!SignatureUtils.signatureChecks(signature, userDetails.getPassword(), date)) {
+            logger.error("Authentication failed: signature does not match stored value");
+
+            throw new InternalAuthenticationServiceException("username or password error");
         }
     }
 
@@ -258,6 +297,24 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
         this.userNotFoundEncodedPassword = passwordEncoder.encodePassword(USER_NOT_FOUND_PASSWORD,
                 null);
         this.passwordEncoder = passwordEncoder;
+    }
+
+    private Date parseISO8601Date(String dateTimeStamp) throws ParseException {
+        Date signDate;
+        SimpleDateFormat sdf = new SimpleDateFormat(ISO8601BasicFormat);
+        sdf.setTimeZone(new SimpleTimeZone(0, "UTC"));
+        signDate = sdf.parse(dateTimeStamp);
+        return signDate;
+    }
+
+    private void checkExpires(Date signTime) {
+        Date serverTime = new Date();
+        if (serverTime.getTime() - signTime.getTime() > maxTimeOffset) {
+            logger.error(
+                    "Request has expired. SignTime:" + signTime + ", ServerTime:" + serverTime);
+            throw new InternalAuthenticationServiceException(
+                    "Request has expired. SignTime:" + signTime + ", ServerTime:" + serverTime);
+        }
     }
 
     protected PasswordEncoder getPasswordEncoder() {

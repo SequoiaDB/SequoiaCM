@@ -26,6 +26,10 @@ public enum ScmError {
     NETWORK_IO(-133, "Network IO Exception"),
     COMMIT_UNCERTAIN_STATE(-134, "Transaction Commit Uncertain State"),
 
+    // v2 local login get salt error
+    SALT_NOT_EXIST(-135, "Salt is not exist"),
+    FIND_SALT_FAILED(-136, "Cannot get salt"),
+
     // business related error 2xx
     SERVER_RELOAD_CONF_FAILED(-201, "Reload configure failed"),
     SERVER_NOT_IN_WORKSPACE(-202, "Server is Not In WorkSpace"),
