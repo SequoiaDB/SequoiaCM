@@ -21,6 +21,7 @@ public class ThirdPartyComponentFixEntry implements SmartApplicationListener {
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationEnvironmentPreparedEvent) {
             FixEurekaInstanceIncorrectStatus.getInstance().fix();
+            FixTomcatPollerThreadExit.getInstance().fix();
         }
     }
 
