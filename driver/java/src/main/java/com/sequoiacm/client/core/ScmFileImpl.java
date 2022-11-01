@@ -97,7 +97,7 @@ class ScmFileImpl extends ScmFile {
     }
 
     @Override
-    void setFileId(ScmId fileId) {
+    public void setFileId(ScmId fileId) {
         this.basicInfo.setFileId(fileId);
     }
 
@@ -599,6 +599,7 @@ class ScmFileImpl extends ScmFile {
             throw new ScmInvalidArgumentException("file name is null");
         }
         BSONObject fileInfo = null;
+        ScmId beforeFileId = basicInfo.getFileId();
 
         if (breakpointFile == null) {
             fileInfo = uploadFile(conf);
@@ -609,7 +610,20 @@ class ScmFileImpl extends ScmFile {
 
         refresh(fileInfo);
         setExist(true);
-        return getFileId();
+        ScmId fileId = getFileId();
+        if (beforeFileId != null && !fileId.equals(beforeFileId)) {
+            try {
+                ScmFactory.File.deleteInstance(ws, fileId, true);
+            }
+            catch (Exception e) {
+                logger.error(
+                        "There are file remnants and the deletion fails, fileId={}, workspace={}",
+                        fileId.toString(), ws.getName(), e);
+            }
+            throw new ScmException(ScmError.SYSTEM_ERROR,
+                    "The server version is too low to support the setFileId operation");
+        }
+        return fileId;
     }
 
     protected BSONObject sendUploadFileRequest(InputStream data, ScmUploadConf conf)
@@ -800,6 +814,9 @@ class ScmFileImpl extends ScmFile {
     @Override
     BSONObject toBSONObject() throws ScmException {
         BSONObject fileInfo = new BasicBSONObject();
+        if (null != basicInfo.getFileId()) {
+            fileInfo.put(FieldName.FIELD_CLFILE_ID, basicInfo.getFileId().get());
+        }
         // the validate task works on contentserver.
         if (null != basicInfo.getFileName()) {
             fileInfo.put(FieldName.FIELD_CLFILE_NAME, basicInfo.getFileName());

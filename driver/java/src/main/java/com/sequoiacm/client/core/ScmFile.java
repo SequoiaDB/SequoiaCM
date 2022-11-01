@@ -41,6 +41,17 @@ public abstract class ScmFile {
     public abstract ScmId getFileId();
 
     /**
+     * Sets the value of the fileId property.
+     *
+     * @param fileId
+     *            fileId
+     * @throws ScmException
+     *             If error happens.
+     * @since 3.2.1
+     */
+    public abstract void setFileId(ScmId fileId) throws ScmException;
+
+    /**
      * Returns the value of the MajorVersion property.
      *
      * @return Major version.
@@ -745,8 +756,6 @@ public abstract class ScmFile {
     abstract void setUser(String user);
 
     abstract void setUpdateUser(String user);
-
-    abstract void setFileId(ScmId fileId);
 
     abstract ScmWorkspace getWorkspace();
 

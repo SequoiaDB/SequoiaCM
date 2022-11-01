@@ -42,6 +42,7 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.audit.ScmUserAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
@@ -80,6 +81,18 @@ public class FileServiceImpl implements IFileService {
     private ScmAudit audit;
     @Autowired
     private BucketInfoManager bucketInfoMgr;
+
+    class Info {
+        String fileId;
+        String dataId;
+        Date fileCreateDate;
+
+        Info(String fileId, String dataId, Date fileCreateDate) {
+            this.fileId = fileId;
+            this.dataId = dataId;
+            this.fileCreateDate = fileCreateDate;
+        }
+    }
 
     @Override
     public BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId,
@@ -241,6 +254,40 @@ public class FileServiceImpl implements IFileService {
                 limit, selector);
     }
 
+    public Info generateFileID(BSONObject fileInfo) throws ScmServerException {
+        String fileId = (String) fileInfo.get(FieldName.FIELD_CLFILE_ID);
+        Number fileCreateTime = BsonUtils.getNumber(fileInfo,
+                FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
+        Date fileCreateDate;
+        String dataId;
+
+        if (fileId == null) {
+            if (fileCreateTime == null) {
+                fileCreateTime = System.currentTimeMillis();
+            }
+            fileCreateDate = new Date(fileCreateTime.longValue());
+            fileId = ScmIdGenerator.FileId.get(fileCreateDate);
+            dataId = fileId;
+        }
+        else {
+            ScmIdParser parser = new ScmIdParser(fileId);
+            if (fileCreateTime != null) {
+                if (fileCreateTime.longValue() / 1000 != parser.getSecond()) {
+                    throw new ScmInvalidArgumentException(
+                            "The specified fileID and createTime is conflict, creatTime="
+                                    + new Date(fileCreateTime.longValue()));
+                }
+            }
+            else {
+                fileCreateTime = parser.getSecond() * 1000;
+            }
+            fileCreateDate = new Date(fileCreateTime.longValue());
+            dataId = ScmIdGenerator.FileId.get(new Date(System.currentTimeMillis()));
+        }
+        Info info = new Info(fileId, dataId, fileCreateDate);
+        return info;
+    }
+    
     // when overwrite file, may be to forward request of delete file.
     @Override
     public BSONObject uploadFile(ScmUser user, String workspaceName, InputStream is,
@@ -264,18 +311,11 @@ public class FileServiceImpl implements IFileService {
         }
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
-
-
-        Number fileCreateTime = BsonUtils.getNumber(fileInfo,
-                FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
-        if (fileCreateTime == null) {
-            fileCreateTime = System.currentTimeMillis();
-            fileInfo.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, fileCreateTime);
-        }
-
-        Date fileCreateDate = new Date(fileCreateTime.longValue());
-        String fileId = ScmIdGenerator.FileId.get(fileCreateDate);
-        String dataId = fileId;
+        Info info = generateFileID(fileInfo);
+        String fileId = info.fileId;
+        String dataId = info.dataId;
+        Date fileCreateDate = info.fileCreateDate;
+        fileInfo.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, fileCreateDate.getTime());
         Date dataCreateDate = fileCreateDate;
         BSONObject checkedFileObj = ScmFileOperateUtils.formatFileObj(wsInfo, fileInfo, fileId,
                 fileCreateDate, user.getUsername());
