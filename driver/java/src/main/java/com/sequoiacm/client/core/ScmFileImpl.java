@@ -97,7 +97,10 @@ class ScmFileImpl extends ScmFile {
     }
 
     @Override
-    public void setFileId(ScmId fileId) {
+    public void setFileId(ScmId fileId) throws ScmException{
+        if (fileId == null) {
+            throw new ScmInvalidArgumentException("invalid fileId:fileId=" + fileId);
+        }
         this.basicInfo.setFileId(fileId);
     }
 
