@@ -379,7 +379,6 @@ public class FileServiceImpl implements IFileService {
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
         BSONObject ret;
         OperationCompleteCallback callback;
-        String fileId;
         ScmLock lock = lockBreakpointFile(workspaceName, breakpointFileName);
         try {
             BreakpointFile breakpointFile = contentModule.getMetaService()
@@ -411,16 +410,10 @@ public class FileServiceImpl implements IFileService {
 
             Date dataCreateDate = new Date(breakpointFile.getCreateTime());
             String dataId = breakpointFile.getDataId();
-
-            Date fileCreateDate = new Date();
-            fileId = ScmIdGenerator.FileId.get(fileCreateDate);
-            if (null != fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)) {
-                // reset to user's create time
-                fileCreateDate = new Date(
-                        (long) fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME));
-                fileId = ScmIdGenerator.FileId.get(fileCreateDate);
-            }
-
+            Info info = generateFileID(fileInfo);
+            String fileId = info.fileId;
+            Date fileCreateDate = info.fileCreateDate;
+            fileInfo.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, fileCreateDate.getTime());
             BSONObject checkedFileObj = ScmFileOperateUtils.formatFileObj(wsInfo, fileInfo, fileId,
                     fileCreateDate, user.getUsername());
             ScmFileOperateUtils.addDataInfo(checkedFileObj, dataId, dataCreateDate,
