@@ -10,8 +10,15 @@ import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.audit.ScmUserAuditType;
 import com.sequoiacm.infrastructure.common.ScmModifierDefine;
+import com.sequoiacm.infrastructure.crypto.AuthInfo;
+import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.metasource.MetaCursor;
+import com.sequoiacm.infrastructure.metasource.config.SequoiadbConfig;
+import com.sequoiacm.infrastructure.metasource.template.DataSourceWrapper;
 import com.sequoiacm.infrastructure.metasource.template.SequoiadbTemplate;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.DBQuery;
+import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
@@ -30,6 +37,9 @@ public class SdbInstanceDao implements InstanceDao {
 
     @Autowired
     private ScmAudit scmAudit;
+
+    @Autowired
+    SequoiadbConfig configuration;
 
     private static final Logger logger = LoggerFactory.getLogger(SdbInstanceDao.class);
 
@@ -124,14 +134,62 @@ public class SdbInstanceDao implements InstanceDao {
 
         BasicBSONObject modifier = new BasicBSONObject(FieldDefine.Instance.FIELD_IS_MANUAL_STOPPED, true);
         try {
-            long count = template.collection(CS_SCMSYSTEM, CL_EUREKA_INSTANCE).count(matcher);
-            template.collection(CS_SCMSYSTEM, CL_EUREKA_INSTANCE).update(matcher,
-                    new BasicBSONObject(ScmModifierDefine.SEQUOIADB_MODIFIER_SET, modifier));
+            logger.info(
+                    "service-center stop,update SCMSYSTEM.EUREKA_INSTANCE table use template connect");
+            long count = updateEureakInstanceByTempConn(matcher, modifier);
             logger.info("instance stopped:ipAddr={},port={},count={}", ipAddr, port, count);
         }
         catch (Exception e) {
             throw new ScmMetasourceException("failed to stop instance:csName=" + CS_SCMSYSTEM
                     + ",clName=" + CL_EUREKA_INSTANCE + ",matcher=" + matcher, e);
+        }
+    }
+
+    // kill命令导致sdb连接池关闭，建立临时连接Sdb，修改SCMSYSTEM.EUREKA_INSTANCE表is_manual_stopped状态
+    // jira 单号：SEQUOIACM-1048
+    public long updateEureakInstanceByTempConn(BasicBSONObject matcher, BasicBSONObject modifier)
+            throws ScmServiceCenterException {
+        AuthInfo authInfo = ScmFilePasswordParser.parserFile(configuration.getPassword());
+        Sequoiadb sdb = null;
+        DBCursor cursor = null;
+        try {
+            sdb = new Sequoiadb(configuration.getUrls().get(0),
+                    configuration.getUsername(), authInfo.getPassword());
+            cursor = sdb.getCollectionSpace(CS_SCMSYSTEM).getCollection(CL_EUREKA_INSTANCE)
+                    .queryAndUpdate(matcher, null, null, null, modifier, 0, -1,
+                            DBQuery.FLG_QUERY_WITH_RETURNDATA, false);
+            long updateCount = 0;
+            while (cursor.hasNext()) {
+                cursor.getNext();
+                updateCount++;
+            }
+            return updateCount;
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException("failed to stop instance:csName=" + CS_SCMSYSTEM
+                    + ",clName=" + CL_EUREKA_INSTANCE + ",matcher=" + matcher, e);
+        }
+        finally {
+            closeCursor(cursor);
+            if (sdb != null) {
+                try {
+                    sdb.close();
+                }
+                catch (Exception e) {
+                    logger.warn("failed to close resource:{}", sdb, e);
+                }
+            }
+        }
+    }
+
+    private void closeCursor(DBCursor c) {
+        try {
+            if (c != null) {
+                c.close();
+            }
+        }
+        catch (Exception e) {
+            logger.warn("failed to close cursor", e);
         }
     }
 

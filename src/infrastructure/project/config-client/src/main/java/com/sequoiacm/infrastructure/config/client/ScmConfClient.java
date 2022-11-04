@@ -71,7 +71,9 @@ public class ScmConfClient {
 
     @PreDestroy
     public void destory() {
-        asyncSubscribeTimer.cancel();
+        if (asyncSubscribeTimer != null) {
+            asyncSubscribeTimer.cancel();
+        }
     }
 
     public void subscribeWithAsyncRetry(ScmConfSubscriber subscriber) throws ScmConfigException {
