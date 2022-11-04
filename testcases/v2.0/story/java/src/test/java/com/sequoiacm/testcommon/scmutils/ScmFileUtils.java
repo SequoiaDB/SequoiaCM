@@ -1,5 +1,6 @@
 package com.sequoiacm.testcommon.scmutils;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import com.sequoiacm.client.common.ScmType;
@@ -27,9 +28,12 @@ import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScmFileUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmFileUtils.class );
+    private static AtomicInteger serial = new AtomicInteger(
+            ( new Random() ).nextInt() );
 
     public static ScmId create( ScmWorkspace ws, String fileName,
             String filePath ) throws ScmException {
@@ -498,5 +502,43 @@ public class ScmFileUtils extends TestScmBase {
         } else {
             siteInfo.put( "urls", site.getDataDsUrls() );
         }
+    }
+
+    /**
+     * @descreption 根据时间生成fileId
+     * @param createDate
+     * @throws Exception
+     */
+    public static String getFileIdByDate( Date createDate ) {
+        long seconds = createDate.getTime() / 1000L;
+        int inc = serial.incrementAndGet();
+        if ( seconds > 253339200000L ) {
+            throw new RuntimeException( "seconds is out of bounds:seconds="
+                    + seconds + ",max=" + 253339200000L );
+        } else {
+            byte[] total = new byte[ 12 ];
+            ByteBuffer bb = ByteBuffer.wrap( total );
+            bb.putInt( ( int ) seconds );
+            byte versionClusterId = ( byte ) ( 0 | 64 );
+            bb.put( versionClusterId );
+            bb.putShort( ( short ) 0 );
+            bb.put( ( byte ) ( ( int ) ( seconds >> 32 ) ) );
+            bb.putInt( inc );
+            return byteArrayToString( total );
+        }
+    }
+
+    public static String byteArrayToString( byte[] b ) {
+        StringBuilder buf = new StringBuilder( 24 );
+
+        for ( int i = 0; i < b.length; ++i ) {
+            int x = b[ i ] & 255;
+            String s = Integer.toHexString( x );
+            if ( s.length() == 1 ) {
+                buf.append( "0" );
+            }
+            buf.append( s );
+        }
+        return buf.toString();
     }
 }
