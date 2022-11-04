@@ -6,6 +6,7 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import org.apache.log4j.Logger;
+import org.testng.Assert;
 import org.testng.IAlterSuiteListener;
 import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
@@ -117,6 +118,7 @@ public class GroupListener
             }
         } catch ( ScmException e ) {
             logger.error( e );
+            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
