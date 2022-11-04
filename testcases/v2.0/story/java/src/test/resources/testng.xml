@@ -9,20 +9,20 @@
     <parameter name="SSHUSER" value="root"/>
     <parameter name="SSHPASSWD" value="jenkins"/>
     <!--  元数据服务SDB  -->
-    <parameter name="MAINSDBURL" value="${mainSdbUrl}"/>
+    <parameter name="MAINSDBURL" value="mainSiteHostName:11810"/>
     <parameter name="SDBUSER" value="sdbadmin"/>
     <parameter name="SDBPASSWD" value="sequoiadb"/>
     <!--  SCM配置  -->
-    <parameter name="SITES" value="${site}"/>
-    <parameter name="RUNBASETEST" value="${isBaseTest}"/>
-    <parameter name="GATEWAYS" value="${gateWayInfo}"/>
+    <parameter name="SITES" value="XXXX"/>
+    <parameter name="RUNBASETEST" value="false"/>
+    <parameter name="GATEWAYS" value="GATEWAYURLS"/>
     <parameter name="ROOTSITESVCNAME" value="rootsite"/>
     <parameter name="SCMUSER" value="admin"/>
     <parameter name="SCMPASSWD" value="admin"/>
     <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info"/>
     <!--  SCM S3配置  -->
-    <parameter name="S3ACCESSKEYID" value="${S3user}"/>
-    <parameter name="S3SECRETKEY" value="${S3Password}"/>
+    <parameter name="S3ACCESSKEYID" value="S3USER"/>
+    <parameter name="S3SECRETKEY" value="S3PASSWORD"/>
     <parameter name="S3WOKERSPACES" value="ws_default"/>
     <!--  LDAP服务用户  -->
     <parameter name="LDAPUSER" value="ldapadmin"/>
