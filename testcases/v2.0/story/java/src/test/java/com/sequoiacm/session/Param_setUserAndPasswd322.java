@@ -35,7 +35,7 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void test() {
+    private void test() throws ScmException {
         // inexistent user
         try {
             ScmConfigOption scOpt = new ScmConfigOption(
@@ -95,10 +95,10 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
             Assert.fail( "create session shouldn't succeed when user is empty "
                     + "string" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED
-                    .getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+            if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED.getErrorCode()
+                    && e.getErrorCode() != ScmError.HTTP_NOT_FOUND
+                            .getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
+                throw e;
             }
         }
         // password is null
