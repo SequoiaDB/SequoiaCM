@@ -8,6 +8,7 @@ import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.dispatcher.CloseableFileDataEntity;
+import com.sequoiacm.client.element.ScmAccesskeyInfo;
 import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.client.element.ScmClassBasicInfo;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
@@ -3230,6 +3231,48 @@ public class ScmFactory {
                 logger.error("failed to set default region, s3 service name:{}", s3Service);
                 throw e;
             }
+        }
+
+        /**
+         * Return the generated accesskey secretkey
+         *
+         * @param ss
+         * @param targetUser
+         *            modified user
+         * @param password
+         *            admin user's password
+         * @return ScmAccesskeyInfo.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmAccesskeyInfo refreshAccesskey(ScmSession ss, String targetUser,
+                String password) throws ScmException {
+            return refreshAccesskey(ss, targetUser, password, null, null);
+        }
+
+        /**
+         * Return the specified accesskey secretkey
+         *
+         * @param ss
+         * @param targetUser
+         *            modified user
+         * @param password
+         *            admin user's password
+         * @param accesskey
+         *            target user's accesskey
+         * @param secretkey
+         *            target user's secretkey
+         * @return ScmAccesskeyInfo.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmAccesskeyInfo refreshAccesskey(ScmSession ss, String targetUser,
+                String password, String accesskey, String secretkey) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("targetUser", targetUser);
+            BSONObject resp = ss.getDispatcher().refreshAccesskey(targetUser, password, accesskey,
+                    secretkey);
+            return new ScmAccesskeyInfo(resp);
         }
     }
 

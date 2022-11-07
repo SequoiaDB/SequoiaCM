@@ -106,6 +106,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String CONFIG_SERVER = "/config-server";
     private static final String FULLTEXT_SERVER = "/fulltext-server";
     private static final String FULLTEXT = "fulltext";
+    private static final String ACCESSKEY = "accesskey";
     private static final String BUCKETS = "buckets/";
 
     private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
@@ -2485,6 +2486,27 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public BSONObject refreshAccesskey(String targetUser, String password, String accesskey,
+            String secretkey) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + AUTH + API_VERSION + ACCESSKEY + "?action=refresh";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("username", targetUser));
+        if (Strings.hasText(password)) {
+            password = encrypt(password);
+            params.add(new BasicNameValuePair("password", password));
+        }
+        if (Strings.hasText(accesskey)) {
+            params.add(new BasicNameValuePair("accesskey", accesskey));
+        }
+        if (Strings.hasText(secretkey)) {
+            secretkey = encrypt(secretkey);
+            params.add(new BasicNameValuePair("secretkey", secretkey));
+        }
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
     public String getHealthStatus(String url, String healthPath) throws ScmException {
         int idx = url.indexOf(URL_SEP);
         if (-1 != idx) {
@@ -2495,6 +2517,15 @@ public class RestDispatcher implements MessageDispatcher {
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request);
         return BsonUtils.getStringChecked(resp, "status");
+    }
+
+    private String encrypt(String str) throws ScmException {
+        try {
+            return ScmPasswordMgr.getInstance().encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, str);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("Failed to encrypt", e);
+        }
     }
 
 }

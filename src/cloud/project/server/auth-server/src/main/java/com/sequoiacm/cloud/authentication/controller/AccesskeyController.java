@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,8 +64,12 @@ public class AccesskeyController {
     public AccesskeyInfo refreshAccesskey(Authentication auth,
             @RequestParam(value = RestField.USERNAME, required = false) String username,
             @RequestParam(value = RestField.PASSWORD, required = false) String password,
+            @RequestParam(value = RestField.ACCESSKEY, required = false) String accesskey,
+            @RequestParam(value = RestField.SECRETKEY, required = false) String secretkey,
             @RequestParam(value = RestField.SIGNATURE_INFO, required = false) SignatureInfo signatureInfo)
             throws Exception {
+        checkKeyValid(username, accesskey, secretkey);
+
         ScmUser currentUser = (ScmUser) auth.getPrincipal();
         ScmUser targetUser;
         if (username != null) {
@@ -129,8 +134,11 @@ public class AccesskeyController {
         }
 
         ScmUserBuilder userBuilder = ScmUser.copyFrom(targetUser);
-        userBuilder.accesskey(genRandomKey(AccesskeyChars, 20));
-        userBuilder.secretkey(genRandomKey(SecretkeyChars, 40));
+        accesskey = accesskey == null ? genRandomKey(AccesskeyChars, 20) : accesskey;
+        secretkey = secretkey == null ? genRandomKey(SecretkeyChars, 40) : decrypt(secretkey);
+        userBuilder.accesskey(accesskey);
+        userBuilder.secretkey(secretkey);
+
         ScmUser refreshedUser = userBuilder.build();
         try {
             userRoleRepository.updateUser(refreshedUser, null);
@@ -157,5 +165,39 @@ public class AccesskeyController {
             key.append(source[number]);
         }
         return key.toString();
+    }
+
+    private void checkKeyValid(String username, String accesskey, String secretkey)
+            throws Exception {
+        if (accesskey != null && secretkey != null) {
+            if (!StringUtils.hasText(accesskey)) {
+                throw new BadRequestException("Invalid accesskey: " + accesskey);
+            }
+            ScmUser occupyUser = userRoleRepository.findUserByAccesskey(accesskey);
+            if (occupyUser != null) {
+                if (!occupyUser.getUsername().equals(username)) {
+                    throw new BadRequestException("This accesskey is already in use by username: "
+                            + occupyUser.getUsername());
+                }
+            }
+
+            if (!StringUtils.hasText(secretkey)) {
+                throw new BadRequestException("Invalid secretkey: " + secretkey);
+            }
+        }
+        else if (accesskey != null || secretkey != null) {
+            throw new BadRequestException("Missing argument accesskey or secretkey");
+        }
+    }
+
+    private String decrypt(String str) throws Exception {
+        try {
+            return str = ScmPasswordMgr.getInstance().decrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES,
+                    str);
+        }
+        catch (Exception e) {
+            logger.error("Failed to decrypt: " + str);
+            throw e;
+        }
     }
 }
