@@ -26,8 +26,8 @@ public interface SignService {
             @RequestParam(RestField.USERNAME) String username,
             @RequestParam(RestField.PASSWORD) String password) throws ScmFeignException;
 
-    @GetMapping("/api/v2/salt/{username}")
-    public BSONObject getSalt(@PathVariable(value = "username") String name)
+    @PostMapping("/api/v2/salt")
+    public BSONObject getSalt(@RequestParam(value = "username") String name)
             throws ScmFeignException;
 
     @GetMapping("/internal/v1/secretkey")

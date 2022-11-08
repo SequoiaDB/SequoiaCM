@@ -182,8 +182,8 @@ public class UserController {
         return user;
     }
 
-    @GetMapping("/v2/salt/{username:.+}")
-    public BSONObject getSalt(@PathVariable("username") String username) throws Exception {
+    @PostMapping("/v2/salt")
+    public BSONObject getSalt(@RequestParam("username") String username) throws Exception {
         return userService.findUserSalt(username);
     }
 }

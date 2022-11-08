@@ -133,7 +133,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/**/privileges/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/**/relations/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/**/users/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/**/salt/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/**/salt/**").permitAll()
                 .antMatchers(HttpMethod.PUT,"/api/**/users/**").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)

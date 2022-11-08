@@ -5,6 +5,8 @@ import com.sequoiacm.cloud.authentication.dao.IPrivVersionDao;
 import com.sequoiacm.cloud.authentication.exception.BadRequestException;
 import com.sequoiacm.cloud.authentication.exception.ForbiddenException;
 import com.sequoiacm.cloud.authentication.exception.NotFoundException;
+import com.sequoiacm.cloud.authentication.exception.RestException;
+import com.sequoiacm.cloud.authentication.exception.UnauthorizedException;
 import com.sequoiacm.cloud.authentication.service.IUserService;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -22,6 +24,7 @@ import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
@@ -299,6 +302,9 @@ public class ScmUserService implements IUserService {
 
     @Override
     public BSONObject findUserSalt(String username) throws Exception {
+        if (StringUtils.isEmpty(username)) {
+            throw new UnauthorizedException("please specify username password or signature_info");
+        }
         ScmUser user = userRoleRepository.findUserByName(username);
         if (user == null) {
             throw new ScmServerException(ScmError.SALT_NOT_EXIST,

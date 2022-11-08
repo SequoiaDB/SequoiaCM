@@ -91,7 +91,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String SCHEDULE_SERVER = "/schedule-server";
     private static final String AUTH = "/auth";
     private static final String ROLE = "roles/";
-    private static final String SALT = "salt/";
+    private static final String SALT = "salt";
     private static final String USER = "users/";
     private static final String SESSION = "sessions/";
     private static final String ID = "id/";
@@ -295,10 +295,11 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     private BSONObject getSalt(String username) throws ScmException {
-        String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_V2_VERSION, SALT,
-                encode(username));
-        HttpGet request = new HttpGet(uri);
-        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+        String uri = URL_PREFIX + pureUrl + AUTH + API_V2_VERSION + SALT;
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("username", username));
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
     }
 
     private String v2LocalLogin(String user, String signature, String date) throws ScmException {
