@@ -220,7 +220,8 @@ public class CompareCommand extends SubCommand {
                             else {
                                 Future<CompareResult> resultFuture = executor.submit(new CompareTask(
                                         srcS3Client, destS3Client, srcObject, destObject, s3Bucket,
-                                        toolProps.isStrictComparisonMode()));
+                                        toolProps.isStrictComparisonMode(),
+                                        toolProps.getIgnoreMetadataMap()));
                                 compareResultList.add(resultFuture);
                                 srcObjects.poll();
                                 destObjects.poll();
@@ -278,16 +279,18 @@ class CompareTask implements Callable<CompareResult> {
     private S3ImportObject srcImportObject;
     private S3ImportObject destImportObject;
     private boolean isStrictComparisonMode;
+    private Map<String, IgnoreMetadata> ignoreMetadataMap;
 
     public CompareTask(AmazonS3Client srcClient, AmazonS3Client destClient,
             S3ImportObject srcImportObject, S3ImportObject destImportObject, S3Bucket s3Bucket,
-            boolean isStrictComparisonMode) {
+            boolean isStrictComparisonMode, Map<String, IgnoreMetadata> ignoreMetadataMap) {
         this.srcClient = srcClient;
         this.destClient = destClient;
         this.srcImportObject = srcImportObject;
         this.destImportObject = destImportObject;
         this.s3Bucket = s3Bucket;
         this.isStrictComparisonMode = isStrictComparisonMode;
+        this.ignoreMetadataMap = ignoreMetadataMap;
     }
 
     @Override
@@ -526,6 +529,13 @@ class CompareTask implements Callable<CompareResult> {
     private void AssertEqual(String fieldName, Object srcVal, Object destVal) {
         if (srcVal == null && destVal == null) {
             return;
+        }
+        if (ignoreMetadataMap.containsKey(fieldName)) {
+            IgnoreMetadata ignoreMetadata = ignoreMetadataMap.get(fieldName);
+            if (Objects.equals(srcVal, ignoreMetadata.getSrcValue())
+                    && Objects.equals(destVal, ignoreMetadata.getDestValue())) {
+                return;
+            }
         }
         if (srcVal == null || !srcVal.equals(destVal)) {
             throw new IllegalStateException(

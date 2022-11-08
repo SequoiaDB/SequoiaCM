@@ -4,10 +4,10 @@ import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.s3import.common.CommonDefine;
 import com.sequoiacm.s3import.common.CommonUtils;
 import com.sequoiacm.s3import.common.convertor.ArgumentConvertor;
 import com.sequoiacm.s3import.exception.S3ImportExitCode;
+import com.sequoiacm.s3import.module.IgnoreMetadata;
 import org.springframework.util.StringUtils;
 
 import java.io.FileInputStream;
@@ -25,6 +25,7 @@ public class ImportToolProps {
     private int maxFailCount = 100;
     private int workCount = 50;
     private boolean strictComparisonMode;
+    private Map<String, IgnoreMetadata> ignoreMetadataMap = new HashMap<>();
 
     public static ImportToolProps getInstance() throws ScmToolsException {
         if (instance == null) {
@@ -127,6 +128,14 @@ public class ImportToolProps {
             else if (key.equals(STRICT_COMPARISON_MODE)) {
                 this.strictComparisonMode = (boolean) ArgumentConvertor.getParse(STRICT_COMPARISON_MODE, value);
             }
+            else if (key.startsWith(IGNORE_METADATA_PREFIX)) {
+                String metaType = key.substring(IGNORE_METADATA_PREFIX.length());
+                // e.g.: compare_ignore.metadata.contentType=null:application/octet-stream
+                String[] valueList = value.split(":");
+                CommonUtils.assertTrue(valueList.length == 2,
+                        "The format required by " + key + "is srcValue:destValue.");
+                ignoreMetadataMap.put(metaType, new IgnoreMetadata(valueList[0], valueList[1]));
+            }
             else {
                 isIllegalKey = true;
             }
@@ -172,5 +181,9 @@ public class ImportToolProps {
 
     public boolean isStrictComparisonMode() {
         return strictComparisonMode;
+    }
+
+    public Map<String, IgnoreMetadata> getIgnoreMetadataMap() {
+        return ignoreMetadataMap;
     }
 }

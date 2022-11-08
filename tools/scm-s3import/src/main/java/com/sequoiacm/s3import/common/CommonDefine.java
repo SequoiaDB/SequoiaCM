@@ -27,6 +27,8 @@ public class CommonDefine {
         public static final String MAX_FAIL_COUNT = "max_fail_count";
         public static final String WORK_COUNT = "work_count";
         public static final String STRICT_COMPARISON_MODE = "strict_comparison_mode";
+
+        public static final String IGNORE_METADATA_PREFIX = "compare_ignore.metadata.";
     }
 
     public static class Option {
