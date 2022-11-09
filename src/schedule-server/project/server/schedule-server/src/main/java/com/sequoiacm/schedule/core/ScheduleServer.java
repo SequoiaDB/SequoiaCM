@@ -154,11 +154,11 @@ public class ScheduleServer {
 
         ScmServiceInstance node = discoveryClient.choseInstance(preferredRegion, preferredZone,
                 siteInfo.getName());
-        String contentServerId = node.getMetadata().get("contentServerId");
         if (node == null) {
             logger.warn("contentserver not found in service center: site={}", siteInfo.getName());
             return null;
         }
+        String contentServerId = node.getMetadata().get("contentServerId");
         for (FileServerEntity server : siteInfo.getServers()) {
             if (contentServerId != null && (server.getId() + "").equals(contentServerId)) {
                 return server;
