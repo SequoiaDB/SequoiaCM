@@ -5,7 +5,6 @@ import com.sequoiacm.cloud.authentication.dao.IPrivVersionDao;
 import com.sequoiacm.cloud.authentication.exception.BadRequestException;
 import com.sequoiacm.cloud.authentication.exception.ForbiddenException;
 import com.sequoiacm.cloud.authentication.exception.NotFoundException;
-import com.sequoiacm.cloud.authentication.exception.RestException;
 import com.sequoiacm.cloud.authentication.exception.UnauthorizedException;
 import com.sequoiacm.cloud.authentication.service.IUserService;
 import com.sequoiacm.exception.ScmError;
@@ -24,7 +23,6 @@ import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
@@ -317,7 +315,7 @@ public class ScmUserService implements IUserService {
         }
         String bcryptPassword = user.getPassword();
         BasicBSONObject saltAndDate = new BasicBSONObject();
-        String salt = Bcrypt.getPureSalt(bcryptPassword).toString();
+        String salt = Bcrypt.getPureSalt(bcryptPassword);
         saltAndDate.put("Salt", salt);
         saltAndDate.put("Date", parseDateToISO8601Date(new Date()));
         return saltAndDate;

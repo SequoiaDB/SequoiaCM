@@ -174,9 +174,6 @@ public class Bcrypt {
             -1, -1, -1, -1, -1 };
     private int[] P;
     private int[] S;
-    private static char MINOR;
-    private static int ROUND;
-    private static byte[] SALTB;
 
     public Bcrypt() {
     }
@@ -406,17 +403,21 @@ public class Bcrypt {
     }
 
     public static String hashpw(String password, String salt) throws IllegalArgumentException {
-        StringBuilder rs = getPureSalt(salt);
+        Status status = getSalt(salt);
+        StringBuilder rs = status.getRs();
+        char minor = status.getMinor();
+        int rounds = status.getRounds();
+        byte[] saltb = status.getSaltb();
 
         byte[] passwordb;
         try {
-            passwordb = (password + (MINOR >= 'a' ? "\u0000" : "")).getBytes("UTF-8");
+            passwordb = (password + (minor >= 'a' ? "\u0000" : "")).getBytes("UTF-8");
         }
         catch (UnsupportedEncodingException var13) {
             throw new AssertionError("UTF-8 is not supported");
         }
         Bcrypt B = new Bcrypt();
-        byte[] hashed = B.crypt_raw(passwordb, SALTB, ROUND);
+        byte[] hashed = B.crypt_raw(passwordb, saltb, rounds);
 
         encode_base64(hashed, bf_crypt_ciphertext.length * 4 - 1, rs);
         return rs.toString();
@@ -430,7 +431,7 @@ public class Bcrypt {
      *            string containing salt value
      * @return salt value
      */
-    public static StringBuilder getPureSalt(String salt) {
+    private static Status getSalt(String salt) {
         char minor = 0;
         StringBuilder rs = new StringBuilder();
         if (salt == null) {
@@ -463,9 +464,7 @@ public class Bcrypt {
                 }
                 else {
                     int rounds = Integer.parseInt(salt.substring(off, off + 2));
-                    ROUND = rounds;
                     String real_salt = salt.substring(off + 3, off + 25);
-
                     byte[] saltb = decode_base64(real_salt, 16);
 
                     rs.append("$2");
@@ -480,15 +479,47 @@ public class Bcrypt {
 
                     rs.append(rounds);
                     rs.append("$");
-                    MINOR = minor;
-                    SALTB = saltb;
                     encode_base64(saltb, saltb.length, rs);
-                    return rs;
+                    return new Status(rs, minor, saltb, rounds);
                 }
             }
             else {
                 throw new IllegalArgumentException("Invalid salt version");
             }
+        }
+    }
+
+    public static String getPureSalt(String salt) {
+        return getSalt(salt).getRs().toString();
+    }
+
+    public static class Status {
+        private final StringBuilder rs;
+        private final char minor;
+        private final byte[] saltb;
+        private final int rounds;
+
+        public Status(StringBuilder rs, char minor, byte[] saltb, int rounds) {
+            this.rs = rs;
+            this.minor = minor;
+            this.saltb = saltb;
+            this.rounds = rounds;
+        }
+
+        private StringBuilder getRs() {
+            return this.rs;
+        }
+
+        private char getMinor() {
+            return this.minor;
+        }
+
+        private int getRounds() {
+            return this.rounds;
+        }
+
+        private byte[] getSaltb() {
+            return this.saltb;
         }
     }
 }
