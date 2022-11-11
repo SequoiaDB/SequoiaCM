@@ -42,13 +42,14 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
     private SiteWrapper site = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private byte[] filedata1 = new byte[ 1024 * 100 ];
-    private byte[] filedata2 = new byte[ 1024 * 20 ];
-    private byte[] filedata3 = new byte[ 1024 * 50 ];
+    private byte[] filedata1 = new byte[ 1024 * 1024 * 6 ];
+    private byte[] filedata2 = new byte[ 1024 * 1024 * 7 ];
+    private byte[] filedata3 = new byte[ 1024 * 1024 * 8 ];
 
     @BeforeClass
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
+                .checkDBAndCephS3DataSource();
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
@@ -105,7 +106,7 @@ public class SetCreateTimeByBreakpointFile1815 extends TestScmBase {
         Date date = new Date( timestamp );
         breakpointFile.setCreateTime( date );
         new Random().nextBytes( data );
-        int length = 1024 * 5;
+        int length = 1024 * 1024 * 5;
         byte[] datapart = new byte[ length ];
         System.arraycopy( data, 0, datapart, 0, length );
         breakpointFile.incrementalUpload( new ByteArrayInputStream( datapart ),
