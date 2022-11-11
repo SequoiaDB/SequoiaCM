@@ -126,8 +126,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    // TODO:SEQUOIACM-858 暂时屏蔽该测试点
-    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testListInstance1() throws ScmException {
         try {
             List< String > instances = new ArrayList< String >();
