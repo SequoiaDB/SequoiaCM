@@ -69,9 +69,7 @@ public class ScmFile5363 extends TestScmBase {
         fileID = new ScmId( fileIdStr );
     }
 
-    // 问题单SEQUOIACM-1120未修改，用例暂时屏蔽
-    @Test(groups = { GroupTags.oneSite, GroupTags.twoSite,
-            GroupTags.fourSite }, enabled = false)
+    @Test(groups = { GroupTags.oneSite, GroupTags.twoSite, GroupTags.fourSite })
     public void test() throws Exception {
         // 使用byte数组创建localFile
         byte[] b = createFileByByteArray( fileSize );

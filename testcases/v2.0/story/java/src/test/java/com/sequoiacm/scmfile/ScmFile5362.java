@@ -79,9 +79,8 @@ public class ScmFile5362 extends TestScmBase {
             }
         }
 
-        // 问题单SEQUOIACM-1119未修改，暂时屏蔽该测试点
         // b、fileId为null
-        /*try {
+        try {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setContent( filePath );
             file.setFileName( fileName );
@@ -90,10 +89,10 @@ public class ScmFile5362 extends TestScmBase {
             file.save();
             Assert.fail( "预期失败实际成功！" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.INVALID_ID.getErrorCode() ) {
+            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT.getErrorCode() ) {
                 throw e;
             }
-        }*/
+        }
         runSuccess = true;
     }
 
