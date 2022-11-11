@@ -30,15 +30,14 @@ IS_FORCE = False
 
 def display(exit_code):
     print("")
-    print(" --help | -h            : print help message")
-    print(" --package-file         : SCM installation package path ")
-    print(" --host                 : hostname--at least one, ',' separated ")
-    print(" --sdb-info             : SDB information:sdb.info")
-    print(" --output               : output SCM information:scm.info")
-    print(" --ssh-info             : ssh information : filled in localbuild.conf")
-    print(" --template             : deploy template File with your hostname's number in ./localbuild/conf")
-    print(" --clean                : to clean SCM cluster")
-    print(" --force                : force to install SCM cluster")
+    print(" --help | -h                  : print help message")
+    print(" --package-file   <arg>       : SCM installation package path ")
+    print(" --host           <arg>       : hostname--at least one, ',' separated ")
+    print(" --sdb-info       <arg>       : SDB information:sdb.info")
+    print(" --output         <arg>       : output SCM information:scm.info")
+    print(" --ssh-info       <arg>       : ssh information : filled in localbuild.conf")
+    print(" --template       <arg>       : deploy template File with your hostname's number in ./localbuild/conf")
+    print(" --force                      : force to install SCM cluster")
     sys.exit(exit_code)
 
 def parse_command():
@@ -68,7 +67,12 @@ def parse_command():
             IS_FORCE = True
 
 
-def generateScmInfo(scmInfoFile, deployFile):
+def generateScmInfo(scmInfoFile, deployFile, sshInfo, template):
+    hostNum = getS3record(template)
+    if sshInfo.has_key(int(hostNum)):
+        info = sshInfo[int(hostNum)]
+    else:
+        info =  sshInfo[0]
     with open(deployFile, 'r') as file:
         data = file.readlines()
     count = 1
@@ -91,6 +95,8 @@ def generateScmInfo(scmInfoFile, deployFile):
         file.write(getWayStr + "\n")
         file.write("S3Url=")
         file.write(S3Url + "\n")
+        file.write("sshHostInfo=")
+        file.write(info + "\n")
 
 def updateCfg(template, hostList):
     with open(template, 'r') as file:
@@ -103,6 +109,18 @@ def updateCfg(template, hostList):
     with open(template, 'w') as file:
         file.write(data)
 
+def getS3record(template):
+    with open(template, 'r') as file:
+        data = file.readlines()
+    count = 1
+    for ele in data:
+        if 'BindingSite' in ele:
+            S3Str = linecache.getline(template, int(count+1))
+            arr = str(S3Str).split(",")
+            hostNum = str(arr[2]).strip().replace("hostname", "")
+        count += 1
+    return hostNum
+
 def updateWs(getWayInfo):
     with open(TEMP_DIR + "workspace_template.json", 'r') as file:
         data = file.read()
@@ -112,7 +130,7 @@ def updateWs(getWayInfo):
 
 def getSSHInfo(confFile):
     try:
-        sshArr= []
+        sshArr= {}
         cf = ConfigParser.ConfigParser()
         cf.read(confFile)
         arr = cf.sections()
@@ -122,15 +140,15 @@ def getSSHInfo(confFile):
             user = cf.get(arr[count],"user")
             pwd = cf.get(arr[count],"password")
             if str(arr[count]) != "host":
-                val = str(arr[count]).replace('host', '')
-            sshArr.append(str(user) + "," + str(pwd) + ","+ str(val))
+                val = int(str(arr[count]).replace('host', ''))
+            sshArr[val] = str(user) + "," + str(pwd)
             count += 1
         return sshArr
     except Exception as e:
         print("The information you filled in have insufficient in localbuild.conf!")
         raise e
 
-def execDeployScm(hostList, template, sdbFile, scmInfoFile, packageFile):
+def execDeployScm(hostList, template, sdbFile, scmInfoFile, packageFile, sshInfo):
     tarName = packageFile.split(os.sep)[-1]
     cfgName = template.split(os.sep)[-1]
     try:
@@ -145,7 +163,7 @@ def execDeployScm(hostList, template, sdbFile, scmInfoFile, packageFile):
             print("-----------------------------------Succeed to deploy SCM cluster---------------------------")
             if os.path.exists(scmInfoFile):
                 os.remove(scmInfoFile)
-            generateScmInfo(scmInfoFile, str(TEMP_DIR + cfgName))
+            generateScmInfo(scmInfoFile, str(TEMP_DIR + cfgName), sshInfo, template)
         else:
             raise Exception("Failed to deploy SCM cluster")
     except Exception as e:
@@ -153,42 +171,35 @@ def execDeployScm(hostList, template, sdbFile, scmInfoFile, packageFile):
 
 def existsSDBCluster(sdbFile, sshInfo):
     try:
-        sshItemArr = []
-        sshInfoArr = []
-        for ch in sshInfo:
-            arr1 = str(ch).split(",")
-            sshItemArr.append(arr1[2])
-            sshInfoArr.append(str(arr1[0]) + "," + arr1[1])
         cf = ConfigParser.ConfigParser()
         cf.read(sdbFile)
         arrSections = cf.sections()
         count = 0
         arrItems = []
+        sshArr = []
         for ele in arrSections:
             arrItems = cf.options(ele)
-            value = 0
-            if len(sshItemArr) > 1:
-                i = 1
-                while i < len(sshItemArr):
-                    if str(sshItemArr[i]) == str(count+1):
-                        value = i
-                        break
-                    i += 1
+            if sshInfo.has_key(count+1):
+                sshArr = str(sshInfo[count+1]).split(",")
+            else:
+                sshArr = str(sshInfo[0]).split(",")
             for temp in arrItems:
-                sshArr = str(sshInfoArr[value]).split(",")
                 hostStr = cf.get(ele, temp)
-                sdbInfo = hostStr.split(":")
-                ssh = SSHConnection(host = sdbInfo[0], user = sshArr[0], pwd = sshArr[1])
-                res = ssh.cmd("ps -ef | grep -v grep | grep 'sequoiadb(" +  sdbInfo[1] + ")'")
-                if res[0] != 0:
-                    raise Exception( str(sdbInfo[0]) +":" + sdbInfo[1] + "is not exists !" )
-                ssh.close()
+                sdbArr = hostStr.split(",")
+                temp = 0
+                while temp < len(sdbArr)-1 :
+                    sdbInfo = str(sdbArr[temp]).split(":")
+                    ssh = SSHConnection(host = sdbInfo[0], user = sshArr[0], pwd = sshArr[1])
+                    res = ssh.cmd("ps -ef | grep -v grep | grep 'sequoiadb(" +  sdbInfo[1] + ")'")
+                    if res[0] != 0:
+                        raise Exception( str(sdbInfo[0]) +":" + sdbInfo[1] + "is not exists !" )
+                    ssh.close()
+                    temp += 1
             count += 1
-            value = 0
     except Exception as e:
         raise e
 
-def execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile):
+def execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile, sshInfo, template):
     try:
         print("uninstalling and reinstalling ,please wait\n")
         #clean scm
@@ -202,24 +213,24 @@ def execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile):
             print("-----------------------------------Succeed to deploy SCM cluster---------------------------")
             if os.path.exists(scmInfoFile):
                 os.remove(scmInfoFile)
-            generateScmInfo(scmInfoFile, str(TEMP_DIR + cfgName))
+            generateScmInfo(scmInfoFile, str(TEMP_DIR + cfgName), sshInfo, template)
         else:
             raise Exception("Failed to deploy SCM cluster")
     except Exception as e:
         raise e
 
 
-def redeployScm(hostList, template, sdbFile, scmInfoFile, packageFile, cfgFile, isForce):
+def redeployScm(hostList, template, sdbFile, scmInfoFile, packageFile, cfgFile, isForce, sshInfo):
     cfgName = template.split(os.sep)[-1]
     try:
         if isForce:
-            execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile)
+            execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile, sshInfo, template)
         else:
             while (True):
                 print("Do you want uninstall and reinstall it ?(y/n):\n")
                 res = raw_input("Please enter your choice:")
                 if res == "Y" or res == "y":
-                    execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile)
+                    execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile, sshInfo, template)
                     break
                 elif res == "N" or res == "n":
                     print("know your choice ,exiting!")
@@ -234,42 +245,32 @@ def installScm(packageFile, hostList, template, sdbInfoFile, sshInfo, scmInfoFil
     count = 0
     flag_yes = 0
     flag_no = 0
-    sshItemArr = []
-    sshInfoArr = []
     try:
-        for ch in sshInfo:
-            arr1 = str(ch).split(",")
-            sshItemArr.append(arr1[2])
-            sshInfoArr.append(str(arr1[0]) + "," + arr1[1])
         existsSDBCluster(sdbInfoFile, sshInfo)
         while count < len(hostList):
-            value = 0
-            temp = 0
-            while temp < len(sshItemArr):
-                 if str(sshItemArr[temp]) == str(count+1):
-                    value = temp
-                    break
-                 temp += 1
-            info = str(sshInfoArr[value]).split(",")
-            ssh = SSHConnection(host = hostList[count], user = info[0], pwd = info[1])
-            scm_res = ssh.cmd("find /opt/sequoiacm/sequoiacm-cloud")
+            if sshInfo.has_key(count+1):
+                info = str(sshInfo[count+1]).split(",")
+                ssh = SSHConnection(host = hostList[count], user = info[0], pwd = info[1])
+            else:
+                info = str(sshInfo[0]).split(",")
+                ssh = SSHConnection(host = hostList[count], user = info[0], pwd = info[1])
+            scm_res = ssh.cmd("ps -ef | grep -v grep|grep sequoiacm | grep -v /localbuild/bin ")
             if scm_res[0] == 0:
                 flag_yes += 1
             else:
                 flag_no += 1
             ssh.close()
             count += 1
-            value = 0
         if flag_yes <= len(hostList) and flag_yes > 0:
             print("You already install SCM cluster!")
             cfgName = template.split(os.sep)[-1]
             shutil.copy(template, TEMP_DIR)
             updateCfg(TEMP_DIR + cfgName, hostList)
-            redeployScm(hostList, template, sdbInfoFile, scmInfoFile, packageFile, TEMP_DIR + cfgName, isForce)
+            redeployScm(hostList, template, sdbInfoFile, scmInfoFile, packageFile, TEMP_DIR + cfgName, isForce, sshInfo)
         if flag_no == len(hostList):
             if os.path.exists(TEMP_DIR + os.sep + "sequoiacm"):
                 shutil.rmtree(TEMP_DIR + os.sep + "sequoiacm")
-            execDeployScm(hostList, template, sdbInfoFile, scmInfoFile, packageFile)
+            execDeployScm(hostList, template, sdbInfoFile, scmInfoFile, packageFile, sshInfo)
     except Exception as e:
             raise e
 
@@ -293,8 +294,6 @@ if __name__ == '__main__':
         sshArr = getSSHInfo(SSH_FILE)
         if len(hostArr)==0:
             raise Exception("Missing hostname")
-        #if len(sshArr) < len(hostArr):
-        #    raise Exception("the hostname which filed in is inconsistent with localbuild.conf !")
         installScm(PACKAGE_FILE, hostArr, TEMPLATE, SDB_INFO_FILE, sshArr, SCM_INFO_FILE, IS_FORCE)
     except Exception as e:
         print(e)

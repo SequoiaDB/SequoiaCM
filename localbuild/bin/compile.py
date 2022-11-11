@@ -13,8 +13,8 @@ PACKAGE_PATH = ""
 
 def display(exit_code):
     print("")
-    print(" --help | -h            : print help message")
-    print(" --package-path         : SCM installation package path")
+    print(" --help | -h                  : print help message")
+    print(" --package-path  <arg>        : SCM installation package path")
     sys.exit(exit_code)
 
 def parse_command():

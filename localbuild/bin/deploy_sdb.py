@@ -5,6 +5,7 @@ import shutil
 import glob
 import paramiko
 import ConfigParser
+import re
 rootDir = sys.path[0]+os.sep
 sys.path.append(rootDir)
 import scmCmdExecutor
@@ -24,12 +25,12 @@ IS_FORCE = False
 
 def display(exit_code):
     print("")
-    print(" --help | -h            : print help message")
-    print(" --package-file         : SDB installation package path ")
-    print(" --host                 : hostname--at least one, ',' separated ")
-    print(" --output               : output SDB information:sdb.info")
-    print(" --ssh-info             : ssh information : filled in localbuild.conf")
-    print(" --force                : force to install SDB cluster")
+    print(" --help | -h                  : print help message")
+    print(" --package-file <arg>         : SDB installation package path ")
+    print(" --host        <arg>          : hostname--at least one, ',' separated ")
+    print(" --output      <arg>          : output SDB information:sdb.info")
+    print(" --ssh-info    <arg>          : ssh information : filled in localbuild.conf")
+    print(" --force                      : force to install SDB cluster")
     sys.exit(exit_code)
 
 def parse_command():
@@ -58,52 +59,77 @@ def parse_command():
 
 
 
-def generateSdbInfo(sdbFile, sdbHost, cluster, count):
+def generateSdbInfo(sdbInfoArr, sdbFile):
     # port fixed temporarily
-    port = 11810
-    temp = 1
     cf = ConfigParser.ConfigParser()
     cf.read(sdbFile)
-    cf.add_section('cluster'+str(count+1))
-    while temp <= int(cluster):
-        cf.set('cluster'+str(count+1), 'coord'+str(temp), str(sdbHost) + ":" + str(port))
-        port += 30
-        temp += 1
+    count = 0
+    while count < len(sdbInfoArr):
+        cf.add_section('cluster'+str(count+1))
+        cf.set('cluster'+str(count+1), 'coord', sdbInfoArr[count+1])
+        count += 1
     cf.write(open(sdbFile, 'w'))
 
+def getCoordInfo(deployInfoArr):
+    sdbInfoArr = {}
+    count = 1
+    while count < len(deployInfoArr):
+        tempStr = ""
+        deployArr = deployInfoArr[count].split('\n')
+        temp = 0
+        while temp < len(deployArr):
+            if str(deployArr[temp]).startswith("coord"):
+                coordArr = str(deployArr[temp]).split(",")
+                tempStr += str(coordArr[2]).strip() + ":" + str(coordArr[3]).strip()+","
+            temp += 1
+        sdbInfoArr[count] = tempStr
+        count += 1
+    return sdbInfoArr
 
-def execDeploySdb(ssh, localRunPath, cluster, sdbFile, host, count):
+def execDeploySdb(host, deployInfoArr, sshInfo, sdbFile):
+    info = sshInfo.split(",")
     try:
-        res = ssh.cmd("su - sdbadmin -c 'sdbstop -a'")
-        if res[0] != 0:
-            raise Exception("Failed to stop SDB cluster!")
-        ssh.cmd("chmod +x /tmp/localbuild/" + localRunPath.split(os.sep)[-1])
-        installRes = ssh.cmd("python /tmp/localbuild/installsdb/installSdb.py  --installsdb --runpath /tmp/localbuild/"  + localRunPath.split(os.sep)[-1] + " --cluster " + str(cluster))
-        if installRes[0] == 0:
-            print("-----------------------------------Succeed to install SDB cluster---------------------------")
-            generateSdbInfo(sdbFile, host, cluster, count)
-        else:
-            raise Exception("Failed to install SDB cluster")
+        ssh = SSHConnection(host = host, user = info[0], pwd = info[1])
+        sdbInfoArr = getCoordInfo(deployInfoArr)
+        count = 1
+        while count < len(deployInfoArr):
+            deployArr = deployInfoArr[count].split('\n')
+            temp = 0
+            while temp < len(deployArr):
+                if str(deployArr[temp]).startswith("coord"):
+                    coordArr = str(deployArr[temp]).split(",")
+                    break
+                temp += 1
+            ssh.cmd("echo '" + str(deployInfoArr[count]) + "' >/opt/sequoiadb/tools/deploy/sequoiadb.conf ")
+            deployRes = ssh.cmd("su - sdbadmin -c 'bash /opt/sequoiadb/tools/deploy/quickDeploy.sh --sdb'")
+            if deployRes[0] != 0:
+                raise Exception("Failed to deploy SDB cluster!")
+            ssh.cmd("/opt/sequoiadb/bin/sdb -s \"var db = new Sdb(\\\""+ str(coordArr[2]).strip() + "\\\", \\\""+ str(coordArr[3]).strip() +"\\\"); db.createDomain(\\\"domain1\\\",[\\\"group1\\\"])\"")
+            ssh.cmd("/opt/sequoiadb/bin/sdb -s \"var db = new Sdb(\\\""+ str(coordArr[2]).strip() + "\\\", \\\""+ str(coordArr[3]).strip() +"\\\"); db.createDomain(\\\"domain2\\\",[\\\"group1\\\"])\"")
+            count += 1
+        generateSdbInfo(sdbInfoArr, sdbFile)
     except Exception as e:
         raise e
 
-def installSdb(localRunPath, host, cluster, sdbFile, sshInfo, isForce, count):
+def installSdb(localRunPath, host, sshInfo, isForce):
      info = sshInfo.split(",")
      try:
         ssh = SSHConnection(host = host, user = info[0], pwd = info[1])
         ssh.mkdir("/tmp/localbuild")
-        ssh.mkdir("/tmp/localbuild/installsdb")
-        files = glob.glob(BIN_DIR + 'installsdb' + os.sep + '*')
-        for file in files:
-            ssh.upload(file, "/tmp/localbuild/installsdb/" + file.split(os.sep)[-1])
-        ssh.upload(localRunPath, "/tmp/localbuild/" + localRunPath.split(os.sep)[-1] )
+        ssh.upload(localRunPath, "/tmp/localbuild/" + localRunPath.split(os.sep)[-1])
+        ssh.cmd("chmod +x /tmp/localbuild/" + localRunPath.split(os.sep)[-1])
         sdbRes = ssh.cmd("su - sdbadmin -c  sdblist")
         if  sdbRes[0] != 0:
-            execDeploySdb(ssh, localRunPath, cluster, sdbFile, host, count)
+            ssh.cmd("/tmp/localbuild/" + localRunPath.split(os.sep)[-1] + " --mode unattended")
         else:
             if isForce:
                 print("Forcing uninstall and reinstall ,please wait")
-                execDeploySdb(ssh, localRunPath, cluster, sdbFile, host, count)
+                res = ssh.cmd("su - sdbadmin -c 'sdbstop -a'")
+                if res[0] != 0:
+                     raise Exception("Failed to stop SDB cluster!")
+                ssh.cmd("/opt/sequoiadb/uninstall --mode unattended")
+                ssh.cmd("rm -rf /opt/sequoiadb/")
+                ssh.cmd("/tmp/localbuild/" + localRunPath.split(os.sep)[-1] + " --mode unattended")
             else:
                 print("SDB cluster is exists !")
                 while (True):
@@ -111,7 +137,12 @@ def installSdb(localRunPath, host, cluster, sdbFile, sshInfo, isForce, count):
                     res = raw_input("Please enter your choice:")
                     if res == "Y" or res == "y":
                         print("uninstalling and reinstalling ,please wait")
-                        execDeploySdb(ssh, localRunPath, cluster, sdbFile, host, count)
+                        res = ssh.cmd("su - sdbadmin -c 'sdbstop -a'")
+                        if res[0] != 0:
+                            raise Exception("Failed to stop SDB cluster!")
+                        ssh.cmd("/opt/sequoiadb/uninstall --mode unattended")
+                        ssh.cmd("rm -rf /opt/sequoiadb/")
+                        ssh.cmd("/tmp/localbuild/" + localRunPath.split(os.sep)[-1] + " --mode unattended")
                         break
                     elif res == "N" or res == "n":
                         print("know your choice ,exiting!")
@@ -129,27 +160,26 @@ def installSdb(localRunPath, host, cluster, sdbFile, sshInfo, isForce, count):
         ssh.close()
 
 
-def getSdbTemplate(template):
+def getSdbTemplate(template, hostList):
     try:
-        clusterArr = []
-        cf = ConfigParser.ConfigParser()
-        cf.read(template)
-        arr = cf.sections()
-        count = 0
-        while count < len(arr):
-            num = cf.get(arr[count],"cluster")
-            if num != "":
-                clusterArr.append(str(num))
-            count += 1
-        if len(clusterArr) == 0:
+        pattern = r'\[cluster[0-9]\]\n'
+        with open(template, 'r') as file:
+            data = file.read()
+            count = 1
+            while count <= int(len(hostList)):
+                sum = count - 1
+                data = data.replace("hostname"+ str(count), str(hostList[sum])).replace(" ","").replace('\r',"")
+                count += 1
+            deployInfoArr = re.split(pattern, data)
+        if len(deployInfoArr) <= 1:
             raise Exception("The information you filled in have insufficient in deploySdbTemplate!")
-        return clusterArr
+        return deployInfoArr
     except Exception as e:
         raise e
 
 def getSSHInfo(confFile):
     try:
-        sshArr= []
+        sshArr= {}
         cf = ConfigParser.ConfigParser()
         cf.read(confFile)
         arr = cf.sections()
@@ -159,8 +189,8 @@ def getSSHInfo(confFile):
             user = cf.get(arr[count],"user")
             pwd = cf.get(arr[count],"password")
             if str(arr[count]) != "host":
-                val = str(arr[count]).replace('host', '')
-            sshArr.append(str(user) + "," + str(pwd) + ","+ str(val))
+                val = int(str(arr[count]).replace('host', ''))
+            sshArr[val] = str(user) + "," + str(pwd)
             count += 1
         return sshArr
     except Exception as e:
@@ -184,28 +214,19 @@ if __name__ == '__main__':
         hostArr = HOST.split(",")
         if len(hostArr) == 0:
             raise Exception("Missing hostname!")
-        clusterArr = getSdbTemplate(TEMPLATE)
-        sshArr = getSSHInfo(SSH_FILE)
+        deployInfoArr = getSdbTemplate(TEMPLATE, hostArr)
+        sshDict = getSSHInfo(SSH_FILE)
         count = 0
-        sshItemArr = []
-        sshInfoArr = []
-        for ch in sshArr:
-            arr1 = str(ch).split(",")
-            sshItemArr.append(arr1[2])
-            sshInfoArr.append(str(arr1[0]) + "," + arr1[1])
-        value = 0
-        if len(sshItemArr) > 1:
-            i = 1
-            while i < len(sshItemArr):
-                if str(sshItemArr[i]) == str(count+1):
-                    value = i
-                    break
-                i += 1
-        while count < len(clusterArr):
-            if int(clusterArr[count]) > 10:
-                raise Exception("The number of cluster lss than MAX_CLUSTER:10!")
-            installSdb(PACKAGE_FILE, hostArr[count], clusterArr[count], SDB_FILE, sshInfoArr[value], IS_FORCE, count)
+        while count < len(hostArr):
+            if sshDict.has_key(count+1):
+                installSdb(PACKAGE_FILE, hostArr[count], sshDict[count+1], IS_FORCE)
+            else:
+                installSdb(PACKAGE_FILE, hostArr[count], sshDict[0], IS_FORCE)
             count += 1
+        if sshDict.has_key(count+1):
+            execDeploySdb(hostArr[0], deployInfoArr, sshDict[count+1], SDB_FILE)
+        else:
+            execDeploySdb(hostArr[0], deployInfoArr, sshDict[0], SDB_FILE)
     except Exception as e:
         print(e)
         raise e

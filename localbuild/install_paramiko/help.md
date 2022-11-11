@@ -23,7 +23,7 @@ bash install_paramiko.sh --host 192.168.XX.XX,192.168.XX.XX
 
 其脚本主要作用是在填写的主机中安装paramiko外部库，修改/etc/ssh/sshd_config 修改配置文件，在/etc/environment中添加JAVA_HOME
 
-***注意:对于麒麟系统机器需要安装Python Paramiko 需要单独在其机器下拷贝Linux 文件夹，之后执行命令:***
+***注意:对于麒麟系统机器需要安装Python Paramiko 需要单独在其机器下拷贝Linux文件夹在/usr/local/目录下，之后执行命令:***
 ```shell
 bash start.sh 
 ```

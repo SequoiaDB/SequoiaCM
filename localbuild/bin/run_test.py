@@ -8,6 +8,7 @@ import paramiko
 import ConfigParser
 import re
 import linecache
+from  xml.etree.ElementTree import ElementTree,Element
 rootDir = sys.path[0]+os.sep
 sys.path.append(rootDir)
 import scmCmdExecutor
@@ -19,12 +20,14 @@ POM_PATH = rootDir + ".." + os.sep  + ".." + os.sep + "testcases" + os.sep + "v2
 XML_SERIAL_PATH = rootDir + ".." + os.sep  + ".." + os.sep + "testcases" + os.sep + "v2.0" + os.sep + "story" + os.sep + "java" + os.sep + "src" + os.sep + "test" + os.sep + "resources" + os.sep + "testng-serial.xml"
 STORY_SERIAL_PATH = rootDir + ".." + os.sep + "temp_package" + os.sep + "test-report" + os.sep + "testng_serial"
 STORY_PATH = rootDir + ".." + os.sep  + "temp_package" + os.sep + "test-report" + os.sep + "testng"
+TEST_JAR_PATH = rootDir + ".." + os.sep  + ".." + os.sep + "driver" + os.sep + "java" + os.sep + "target" + os.sep
 cmdExecutor = ScmCmdExecutor(False)
 
 
 GET_WAY_URL = ""
 MAIN_SDB_URL = ""
 S3_URL = ""
+SSH_HOST_INFO = ""
 WORKSPACE_FILE = ""
 TEST_FILE = ""
 SCM_INFO_FILE = ""
@@ -33,8 +36,8 @@ TEST_RESULT = "======================================TEST RESULT================
 def display(exit_code):
     print("")
     print(" --help | -h       : print help message")
-    print(" --scm-info        : SCM information:scm.info")
-    print(" --workspace-file  : Workspace Template File ")
+    print(" --scm-info  <arg>      : SCM information:scm.info")
+    print(" --workspace-file <arg> : Workspace Template File ")
     sys.exit(exit_code)
 
 def parse_command():
@@ -71,21 +74,96 @@ def getS3Info(s3Res):
         raise Exception("the S3key is wrong!")
     return res
 
+def read_xml(xmlPath):
+    print(xmlPath)
+    tree = ElementTree()
+    tree.parse(xmlPath)
+    return tree
+
+def write_xml(tree, xmlPath):
+    tree.write(xmlPath, encoding="utf-8", xml_declaration=True)
+
+def find_nodes(tree, path):
+    return tree.findall(path)
+
+def if_match(node, kv_map):
+    for key in kv_map:
+        if node.get(key) != kv_map.get(key):
+            return False
+    return True
+
+def get_node_by_keyvalue(nodelist, kv_map):
+    res_nodes = []
+    for node in nodelist:
+        if if_match(node, kv_map):
+            res_nodes.append(node)
+    return res_nodes
+
+def change_node_properties(nodelist, kv_map, is_delete=False):
+    for node in nodelist:
+        for key in kv_map:
+            if is_delete:
+                del node.attrib[key]
+            else:
+                node.set(key, kv_map.get(key))
+
+def UpdateXml(xmlPath, getWayInfo, mainSdbUrl, s3Arr):
+    tree = read_xml(xmlPath)
+    nodes = find_nodes(tree,'parameter')
+    res_site =get_node_by_keyvalue(nodes,{ "name" : "SITES" })
+    change_node_properties(res_site,{"value" : "twoSite" })
+    res_test =get_node_by_keyvalue(nodes,{ "name" : "RUNBASETEST" })
+    change_node_properties(res_test,{"value" : "true" })
+    res_getway =get_node_by_keyvalue(nodes,{ "name" : "GATEWAYS" })
+    change_node_properties(res_getway,{"value" : str(getWayInfo) })
+    res_sdb =get_node_by_keyvalue(nodes,{ "name" : "MAINSDBURL" })
+    change_node_properties(res_sdb,{"value" : str(mainSdbUrl) })
+    res_id =get_node_by_keyvalue(nodes,{ "name" : "S3ACCESSKEYID" })
+    change_node_properties(res_id,{"value" : str(s3Arr[1]) })
+    res_key =get_node_by_keyvalue(nodes,{ "name" : "S3SECRETKEY" })
+    change_node_properties(res_key,{"value" : str(s3Arr[2]) })
+    write_xml(tree,xmlPath)
+
+def copyJarToLib():
+    path = TEST_JAR_PATH + "sequoiacm-driver-*-release" + os.sep + "sequoiacm-driver-*" + os.sep + "*-driver-*.jar"
+    hf_path = rootDir + ".." + os.sep  + ".." + os.sep + "src" + os.sep + "imexport" + os.sep + "target" + os.sep
+    destPath = rootDir + ".." + os.sep  + ".." + os.sep + "testcases" + os.sep + "v2.0" + os.sep + "testcase-base" + os.sep + "lib" + os.sep
+    if os.path.exists(destPath):
+        del_files = glob.glob(destPath + "*-driver-*.jar")
+        for f in del_files:
+            os.remove(f)
+    if os.path.exists(TEST_JAR_PATH):
+        files = glob.glob(path)
+        for file in files:
+            jarName = file.split(os.sep)[-1]
+            shutil.copyfile(file, destPath + jarName)
+    if os.path.exists(hf_path):
+        files = glob.glob(hf_path + "sequoiacm-imexport-*.jar")
+        for file in files:
+            jarName = file.split(os.sep)[-1]
+            shutil.copyfile(file, destPath + jarName)
+
 def execTestBase(mainSdbUrl, getWayInfo, S3Url, xmlPath, reportFile, pomPath):
     try:
-        arr = str(mainSdbUrl).split(":")
+        sshArr = SSH_HOST_INFO.split(",")
+        if len(sshArr) == 0:
+            raise Exception("Missing sshInfo !")
+        arr = str(S3Url).split(":")
         if len(arr) == 0:
             raise Exception("mainSdbUrl is not exists!")
         ws_res = cmdExecutor.command("python "+ TEMP_DIR  + "sequoiacm" + os.sep + "scm.py  workspace --clean-all --conf "+ TEMP_DIR + "workspace_template.json --create --grant-all-priv")
         if ws_res == 0:
-            ssh1 = SSHConnection(host = arr[0], user = 'root', pwd = 'sequoiadb')
+            ssh1 = SSHConnection(host = arr[0], user = str(sshArr[0]), pwd =  str(sshArr[1]))
             ssh1.cmd("chmod +x /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh")
             ssh1.cmd("sh /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh set-default-region -r ws_default -u admin -p admin --url " + str(getWayInfo) )
             s3res = ssh1.cmd("sh /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh refresh-accesskey -t admin -u admin -p admin -s " + str(S3Url) )
             if s3res[0] == 0:
                 print("----------------------------Success to create S3 key----------------------------------------- ")
                 s3Arr = getS3Info(s3res)
-                res = cmdExecutor.command("mvn -f "+ pomPath +" surefire-report:report -DxmlFileName="+ xmlPath + " -DreportDir="+ reportFile + " -DmainSdbUrl="+ mainSdbUrl + " -Dsite=twoSite  -DisBaseTest=true  -DgateWayInfo="+ getWayInfo + " -DS3user="+ str(s3Arr[1]) +" -DS3Password="+ str(s3Arr[2]))
+                shutil.copy(xmlPath, TEMP_DIR)
+                xmlTempPath = TEMP_DIR + xmlPath.split(os.sep)[-1]
+                UpdateXml(xmlTempPath, getWayInfo, mainSdbUrl, s3Arr)
+                res = cmdExecutor.command("mvn -f "+ pomPath +" surefire-report:report -DxmlFileName="+ xmlTempPath + " -DreportDir="+ reportFile )
                 testName = reportFile.split(os.sep)[-1]
                 if res !=0:
                     raise Exception("Fail to test " + testName + "case !" )
@@ -112,9 +190,9 @@ def runTest(getWayInfo, mainSdbUrl, S3Url, wsPath, testFile):
         print("----------------------------------create workspace-------------------------------------")
         shutil.copy(wsPath, TEMP_DIR)
         updateWs(getWayInfo)
-        res = cmdExecutor.command("python " + rootDir + ".." + os.sep  + ".." + os.sep +"dev.py --compileTest all ")
-        if res != 0:
-            raise Exception("Failed to compileTest")
+        copyJarToLib()
+        if os.path.exists(TEMP_DIR + "test-report" ):
+            shutil.rmtree(TEMP_DIR + "test-report")
         execTestBase(mainSdbUrl, getWayInfo, S3Url, XML_PATH, STORY_PATH, POM_PATH)
         execTestBase(mainSdbUrl, getWayInfo, S3Url, XML_SERIAL_PATH, STORY_SERIAL_PATH, POM_PATH)
         print(TEST_RESULT)
@@ -122,7 +200,7 @@ def runTest(getWayInfo, mainSdbUrl, S3Url, wsPath, testFile):
         raise e
 
 def getScmInfo(scmFile):
-    global MAIN_SDB_URL, GET_WAY_URL, S3_URL
+    global MAIN_SDB_URL, GET_WAY_URL, S3_URL, SSH_HOST_INFO
     with open(scmFile) as lines:
         for line in lines:
             line = line.strip()
@@ -132,6 +210,8 @@ def getScmInfo(scmFile):
                 GET_WAY_URL = line.replace("getWayUrl=", "")
             if line.startswith("S3Url="):
                 S3_URL = line.replace("S3Url=", "")
+            if line.startswith("sshHostInfo="):
+                SSH_HOST_INFO = line.replace("sshHostInfo=", "")
 
 if __name__ == '__main__':
     try:

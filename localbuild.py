@@ -40,7 +40,7 @@ def display(exit_code):
     print(" --installscm      : install to SCM cluster ")
     print(" --cleanscm        : clean to SCM cluster ")
     print(" --runTest         : execute basic test cases")
-    print(" --host            : hostname : required, ',' separate ")
+    print(" --host <arg>      : hostname : required, ',' separate ")
     print(" --force           : force to install scm or sdb ")
     sys.exit(exit_code)
 
@@ -83,8 +83,8 @@ def installSdb():
     if len(HOST_LIST.strip()) == 0:
         raise Exception("Missing hostname!")
     HostArr = HOST_LIST.split(",")
-    cfgPath = CONF_DIR + "deploysdbHost" + str(len(HostArr))+ "_template.cfg"
-    cmd = "python "+ BIN_DIR +"deploy_sdb.py --package-file " + localRunPath[0] + " --host " + str(HOST_LIST) + " --template " + cfgPath + " --output " + SDB_INFO_FILE + " --ssh-file " +CONF_FILE
+    cfgPath = CONF_DIR + "deploysdb1Host2Cluster_template.cfg"
+    cmd = "python "+ BIN_DIR +"deploy_sdb.py --package-file " + localRunPath[0] + " --host " + str(HostArr[0]) + " --template " + cfgPath + " --output " + SDB_INFO_FILE + " --ssh-file " +CONF_FILE
     if IS_FORCE:
         cmdExecutor.command(cmd + " --force")
     else:
@@ -95,7 +95,7 @@ def installScm():
     if len(HOST_LIST.strip()) == 0:
         raise Exception("Missing hostname!")
     scmHostArr = HOST_LIST.split(",")
-    cfgPath = CONF_DIR + "deployHost" + str(len(scmHostArr))+ "_template.cfg"
+    cfgPath = CONF_DIR + "deployscm" + str(len(scmHostArr))+ "Host_template.cfg"
     tarPath = glob.glob(TEMP_DIR + 'sequoiacm-*-release.tar.gz')
     if int(len(tarPath)) == 0 or int(len(tarPath)) != 1:
         raise Exception("Missing SCM installation package or more than two SCM installation package!")
@@ -109,15 +109,13 @@ def installScm():
 def cleanScm():
     if len(HOST_LIST.strip()) == 0:
         raise Exception("Missing hostname!")
-    scmHostArr = HOST_LIST.split(",")
-    cfgPath = CONF_DIR + "deployHost" + str(len(scmHostArr))+ "_template.cfg"
-    cmd = "python " + BIN_DIR +"clean_scm.py --host " + str(HOST_LIST) + " --template "  + cfgPath + " --workspace-file " + WORKSPACE_FILE + " --ssh-file " + CONF_FILE
+    cmd = "python " + BIN_DIR +"clean_scm.py --host " + str(HOST_LIST)  + " --ssh-file " + CONF_FILE
     cmdExecutor.command(cmd)
 
 def cleanWs():
     if not os.path.exists(SCM_INFO_FILE) or len(SCM_INFO_FILE.strip()) == 0 :
         raise Exception("Missing scm.info or scm info path is not exists! ")
-    cmd = "python " + BIN_DIR +"clean_ws.py --scm-info " + str(SCM_INFO_FILE)
+    cmd = "python " + BIN_DIR +"clean_ws.py --scm-info " + str(SCM_INFO_FILE) + " --workspace-file " + str(WORKSPACE_FILE)
     cmdExecutor.command(cmd)
 
 def runTest():
