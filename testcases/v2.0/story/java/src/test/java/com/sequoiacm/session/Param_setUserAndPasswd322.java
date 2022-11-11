@@ -95,9 +95,7 @@ public class Param_setUserAndPasswd322 extends TestScmBase {
             Assert.fail( "create session shouldn't succeed when user is empty "
                     + "string" );
         } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED.getErrorCode()
-                    && e.getErrorCode() != ScmError.HTTP_NOT_FOUND
-                            .getErrorCode() ) { // SCM_BUSINESS_LOGIN_FAILED
+            if ( e.getErrorCode() != ScmError.HTTP_UNAUTHORIZED.getErrorCode()) { // SCM_BUSINESS_LOGIN_FAILED
                 throw e;
             }
         }
