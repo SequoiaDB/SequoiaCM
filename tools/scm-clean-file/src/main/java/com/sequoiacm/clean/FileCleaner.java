@@ -7,8 +7,6 @@ import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiacm.infrastructure.lock.ScmLockConfig;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
-import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
-import com.sequoiacm.infrastructure.lock.curator.CuratorZKCleaner;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
 import com.sequoiadb.net.ConfigOptions;
 import com.sequoiadb.base.DBCollection;
