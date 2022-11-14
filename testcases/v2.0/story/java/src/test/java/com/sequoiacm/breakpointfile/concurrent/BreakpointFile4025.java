@@ -48,7 +48,6 @@ public class BreakpointFile4025 extends TestScmBase {
     private String filePath = null;
     private String checkfilePath = null;
     private AtomicInteger runSuccessCount = new AtomicInteger( 0 );
-    private int threadSuccessCount = 0;
 
     @BeforeClass()
     private void setUp() throws IOException, ScmException {
@@ -78,13 +77,11 @@ public class BreakpointFile4025 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite",
             "fourSite" }, dataProvider = "dataProvider")
     private void test( ScmChecksumType checksumType ) throws Exception {
-        threadSuccessCount = 0;
         createBreakpointFile( checksumType );
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new ContinuesBreakpointFileThread() );
         es.addWorker( new ContinuesBreakpointFileThread() );
         es.run();
-        Assert.assertEquals( threadSuccessCount, 1 );
         // 检查上传文件MD5
         BreakpointUtil.checkScmFile( ws, fileName, filePath, checkfilePath );
         runSuccessCount.incrementAndGet();
@@ -117,7 +114,6 @@ public class BreakpointFile4025 extends TestScmBase {
                         .getInstance( ws, fileName );
                 FileInputStream fStream = new FileInputStream( filePath );
                 breakpointFile.upload( fStream );
-                threadSuccessCount++;
             } catch ( ScmException e ) {
                 if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
                         .getErrorCode() ) {
