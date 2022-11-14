@@ -9,11 +9,13 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.mapping.ScmMappingException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import com.sequoiadb.base.ConfigOptions;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
@@ -29,6 +31,7 @@ import java.util.concurrent.Semaphore;
 
 public class FileTransfer {
     private static final Logger logger = LoggerFactory.getLogger(FileTransfer.class);
+    private final SiteInfoMgr siteInfoMgr;
     private final int batchSize;
     private final ScmTimer timer;
     private final Sequoiadb sdb;
@@ -50,13 +53,13 @@ public class FileTransfer {
     private int fileStatusCheckBatchSize = 100;
 
 
-    public FileTransfer(int batchSize, long fileTimeout, int localSiteId,
-                        final String wsName, BSONObject matcher,
+    public FileTransfer(int batchSize, long fileTimeout, int thread, int queueSize,
+            String localSiteName, final String wsName, BSONObject matcher,
                         final List<String> urlList, final String user, final String password,
-                        int fileStatusCheckInterval, String sdbCoord, String sdbUser, String sdbPassword, int fileStatusCheckBatchSize) throws ScmException {
+            int fileStatusCheckInterval, List<String> sdbCoord, String sdbUser, String sdbPassword,
+            int fileStatusCheckBatchSize) throws ScmMappingException {
         this.wsName = wsName;
         this.fileTimeout = fileTimeout;
-        this.localSiteId = localSiteId;
         this.matcher = matcher;
         this.scope = ScmType.ScopeType.SCOPE_CURRENT;
         this.urlList = urlList;
@@ -66,9 +69,14 @@ public class FileTransfer {
         this.semp = new Semaphore(batchSize);
         submitFiles = new ConcurrentHashMap(batchSize);
         this.fileStatusCheckBatchSize = fileStatusCheckBatchSize;
-
-        sdb = new Sequoiadb(sdbCoord, sdbUser, sdbPassword);
+        sdb = new Sequoiadb(sdbCoord, sdbUser, sdbPassword, new ConfigOptions());
         sdbFileCl = sdb.getCollectionSpace(wsName + "_META").getCollection("FILE");
+        this.siteInfoMgr = new SiteInfoMgr(sdb);
+        localSiteId = siteInfoMgr.getSiteIdByName(localSiteName);
+        BasicBSONList notList = new BasicBSONList();
+        notList.add(new BasicBSONObject("site_list.$0.site_id", localSiteId));
+        matcher.put("$not", notList);
+        this.matcher = matcher;
 
         timer = ScmTimerFactory.createScmTimer();
         timer.schedule(new ScmTimerTask() {
@@ -170,7 +178,10 @@ public class FileTransfer {
         } catch (Exception e) {
             logger.warn("failed to check the file status: ws={}, fileIds{}", wsName, matcher, e);
         } finally {
-            cursor.close();
+            try {
+                cursor.close();
+            } catch (Exception e) {
+            }
         }
     }
 

@@ -1,13 +1,11 @@
 package com.sequoiacm.clean;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.mapping.ScmMappingException;
 import com.sequoiacm.common.mapping.ScmSiteObj;
 import com.sequoiacm.common.mapping.ScmWorkspaceObj;
 import com.sequoiacm.contentserver.site.ScmContentServerMapping;
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiadb.base.CollectionSpace;
@@ -17,6 +15,7 @@ import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +23,17 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SiteInfoMgr {
-    private final List<String> holdingDataSiteInstances;
-    private final int holdingDataSiteId;
-    private SdbDataLocation cleanSiteDataLocation;
-    private ConcurrentHashMap<Integer, ScmSiteObj> sites = new ConcurrentHashMap<>();
+    private List<String> holdingDataSiteInstances;
+    private final int cleanSiteId;
+    private ScmLocation cleanSiteDataLocation;
+    private ConcurrentHashMap<String, ScmSiteObj> siteNameObjMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, String> siteIdNameMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, List<String>> siteInstance = new ConcurrentHashMap<>();
     private List<Integer> wsDataLocationSiteId = new ArrayList<>();
 
-    public SiteInfoMgr(SequoiadbDatasource metaSdbDs, String wsName, int cleanSiteId,
-            int holdingDataSiteId, List<String> holdingDataSiteInstances)
-            throws ScmMappingException, InterruptedException, ScmServerException,
-            ScmDatasourceException {
+    public SiteInfoMgr(SequoiadbDatasource metaSdbDs, String wsName, String cleanSiteName, List<String> holdingDataSiteInstances) 
+            throws ScmMappingException, InterruptedException, ScmServerException, ScmDatasourceException {
         this.holdingDataSiteInstances = holdingDataSiteInstances;
-        this.holdingDataSiteId = holdingDataSiteId;
         Sequoiadb db = metaSdbDs.getConnection();
         DBCursor cursor = null;
         try {
@@ -46,9 +43,11 @@ public class SiteInfoMgr {
             while (cursor.hasNext()) {
                 BSONObject rec = cursor.getNext();
                 ScmSiteObj site = new ScmSiteObj(rec);
-                sites.put(site.getId(), site);
+                siteNameObjMap.put(site.getName(), site);
+                siteIdNameMap.put(site.getId(), site.getName());
             }
             cursor.close();
+            this.cleanSiteId = getSiteObjByName(cleanSiteName).getId();
 
             DBCollection contentServerCl = sysCs.getCollection("CONTENTSERVER");
             cursor = contentServerCl.query();
@@ -73,17 +72,14 @@ public class SiteInfoMgr {
             for (BSONObject data : ws.getDataLocation()) {
                 int siteId = BsonUtils.getNumberChecked(data, "site_id").intValue();
                 if (siteId == cleanSiteId) {
-                    cleanSiteDataLocation = new SdbDataLocation(data, sites.get(siteId).getName());
+                    String dataType = getSiteObjByName(cleanSiteName).getDataType();
+                    cleanSiteDataLocation = ScmDatasourceUtil.createDataLocation(dataType, data, cleanSiteName);
                 }
                 wsDataLocationSiteId.add(siteId);
             }
             if (cleanSiteDataLocation == null) {
                 throw new RuntimeException(
                         "clean site not in ws:" + wsName + ", clean site " + cleanSiteId);
-            }
-            if (!sites.get(cleanSiteDataLocation.getSiteId()).getDataType()
-                    .equals(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR)) {
-                throw new RuntimeException("clean site not sdb site:clean site " + cleanSiteId);
             }
         }
         finally {
@@ -95,22 +91,30 @@ public class SiteInfoMgr {
     }
 
     public String getHoldingDataSiteInstanceUrl(int siteId) {
-        if (siteId != holdingDataSiteId) {
-            throw new RuntimeException("no instance url for the site:" + siteId);
+        if (holdingDataSiteInstances == null || holdingDataSiteInstances.isEmpty()) {
+            holdingDataSiteInstances = siteInstance.get(siteId);
         }
         Random rd = new Random();
         return holdingDataSiteInstances.get(rd.nextInt(holdingDataSiteInstances.size()));
     }
 
-    public String getSitNameById(int siteId) {
-        ScmSiteObj site = sites.get(siteId);
-        if (site == null) {
-            throw new RuntimeException("site not found:" + siteId);
+    public ScmSiteObj getSiteObjByName(String siteName) {
+        ScmSiteObj siteObj = siteNameObjMap.get(siteName);
+        if (siteObj == null) {
+            throw new RuntimeException("site not found:" + siteName);
         }
-        return site.getName();
+        return siteObj;
     }
 
-    public SdbDataLocation getCleanSiteDataLocation() {
+    public String getSiteNameById(int siteId) {
+        String siteName = siteIdNameMap.get(siteId);
+        if (StringUtils.isEmpty(siteName)) {
+            throw new RuntimeException("site not found:" + siteId);
+        }
+        return siteName;
+    }
+
+    public ScmLocation getCleanSiteDataLocation() {
         return cleanSiteDataLocation;
     }
 

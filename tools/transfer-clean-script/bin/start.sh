@@ -1,42 +1,56 @@
-#!/bin/sh
+#!/bin/bash
 
-source ../conf/scm_env.sh
+basePath=$(cd `dirname $0`; pwd)
+parentDir=$(cd `dirname ${basePath}`; pwd)
+source ${parentDir}/conf/scm_env.sh
+source ${basePath}/function.sh
+wsConfPath="$(pwd)/$1"
+cd `dirname $0`
+
+setLogPath
+
+checkResult=$(checkOutFileParameter)
+if [ ! $? -eq 0 ] ;then
+  printTimeAndMsg "$checkResult" "error.out"
+  exit 1
+fi
 
 while read line
 do
   workspace=`echo $line | awk '{print $1}'`
   month=`echo $line | awk '{print $2}'`
- 
+  grepout=`crontab -l | grep -F "${cron} ${basePath}/zkClean.sh"`
+
+  # add crontab
+  if [ ! -n "$grepout" ]; then
+    printTimeAndMsg "add clean zookeeper node crontab"
+    (crontab -l | grep -v -F "${cron} ${basePath}/zkClean.sh";echo "${cron} ${basePath}/zkClean.sh") | crontab -
+  else
+    printTimeAndMsg "clean zookeeper node crontab is already exists"
+  fi
+
   # transfer
-  sh scmTransfer.sh ${workspace} ${month}
+  sh ${basePath}/scmTransfer.sh ${workspace} ${month}
   if [ ! $? -eq 0 ];  then
-    time=`date "+%Y-%m-%d %H:%M:%S"`
-    echo "${time} transfer failed,workspace=${workspace},month=${month}" >> ../log/error.out
+    printTimeAndMsg "transfer failed,workspace=${workspace},month=${month}" "error.out"
     exit 1
   fi
 
 
   # start clean background
-  time=`date "+%Y-%m-%d %H:%M:%S"`
-  echo "${time} start to clean,workspace=${workspace},month=${month}"
-  echo "nohup sh scmClean.sh ${workspace} ${month} >> ../log/clean.out 2>&1 &"
+  printTimeAndMsg "start to clean,workspace=${workspace},month=${month}"
+  printTimeAndMsg "nohup sh scmClean.sh ${workspace} ${month}" "clean.out"
 
-  nohup sh scmClean.sh ${workspace} ${month} >> ../log/clean.out 2>&1 &
+  nohup sh scmClean.sh ${workspace} ${month} >> ../log/nohup.out 2>&1 &
+done < $wsConfPath
 
-  # clean zookeeper node
-  time=`date "+%Y-%m-%d %H:%M:%S"`
-  echo "${time} start clean zookeeper node"
-
-  commandStr="java -jar $(./scmFileCleanJars.sh) zkClean --zkUrls ${zkUrls} --maxBuffer ${maxBuffer} --maxResidualTime ${maxResidualTime} --maxChildNum ${maxChildNum}"
-
-  #echo $commandStr
-  eval $commandStr
-
-  exit_code=$?
-  if [ ! $exit_code -eq 0 ]; then
-     time=`date "+%Y-%m-%d %H:%M:%S"`
-     echo "${time} failed to clean zookeeper node,exit code:${exit_code}" 
-  fi
- 
-done < $1
-
+# del crontab
+sleep 1
+cmd="ps -ef | grep scmClean.sh | grep -v 'grep'"
+psout=`eval $cmd`
+while [ ! -z "$psout" ]
+do
+  sleep 1
+  psout=`eval $cmd`
+done
+(crontab -l | grep -v -F "${basePath}/zkClean.sh") | crontab -

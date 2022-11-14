@@ -1,30 +1,33 @@
 package com.sequoiacm.clean;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
-import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.common.mapping.ScmSiteObj;
+import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
+import com.sequoiacm.datasource.dataservice.ScmService;
+import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiacm.infrastructure.lock.ScmLockConfig;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.lock.curator.CuratorLockFactory;
 import com.sequoiacm.infrastructure.lock.curator.CuratorZKCleaner;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
-import com.sequoiacm.sequoiadb.dataopertion.SdbDataOpFactoryImpl;
-import com.sequoiacm.sequoiadb.dataservice.SdbDataService;
-import com.sequoiadb.base.ConfigOptions;
+import com.sequoiadb.net.ConfigOptions;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,56 +39,55 @@ public class FileCleaner {
     private static final String passwordFile = "./scm-clean-pwd.file";
     private final SequoiadbDatasource metaSdbDs;
     private final SiteInfoMgr siteMgr;
-    private final SdbDataService cleanSiteDataService;
+    private final ScmService cleanSiteDataService;
     private final String wsName;
     private final BSONObject fileMatcher;
     private ThreadPoolExecutor threadPool;
     private final ScmLockManager lockMgr;
     private final int cleanSiteId;
-    private final String cleanSiteName;
-    private final SdbDataOpFactoryImpl sdbDataOpFactory;
-    private ScmFeignUtil feignUtil;
-    private FileCounter fileCounter = new FileCounter();
-    // private List<String> metaSdbCoord = null;
-    // private String metaSdbUser;
-    // private String metaSdbPassword;
-    //
-    // private List<String> cleanSiteLobSdbCoord;
-    // private String cleanSiteLobSdbUser;
-    // private String cleanSiteLobSdbPasswrd;
+    private final int holdingDataSiteId;
+    private final ScmDataOpFactory scmDataOpFactory;
+    private final FileCounter fileCounter = new FileCounter();
+    private final ScmShutDownHook shutDownHook;
 
-    public FileCleaner(String wsName, BSONObject fileMatcher, int cleanSiteId, int queueSize,
-            int thread, String metaSdbPassword, String metaSdbUser, List<String> metaSdbCoord,
-            String cleanSiteLobSdbUser, String cleanSiteLobSdbPasswd,
-            List<String> cleanSiteLobSdbCoordList, String zkUrls, int dataInOtherSiteId,
-            List<String> dataInOtherSiteInstanceList) throws Exception {
+    public FileCleaner(String wsName, BSONObject fileMatcher, List<String> dataInOtherSiteInstanceList,
+            String cleanSiteName, String holdingDataSiteName, int queueSize, int thread, String srcSitePasswordFile,
+            String srcSitePassword, String metaSdbPassword, String metaSdbUser,
+            List<String> metaSdbCoord, int connectTimeout, int socketTimeout, int maxConnectionNum,
+            int keepAliveTimeout, String zkUrls, Map<String, String> datasourceConf) throws Exception {
         this.wsName = wsName;
-        this.fileMatcher = fileMatcher;
-        this.cleanSiteId = cleanSiteId;
         try {
+            ConfigOptions sdbConnConf = new ConfigOptions();
+            sdbConnConf.setConnectTimeout(connectTimeout);
+            sdbConnConf.setSocketTimeout(socketTimeout);
+
+            DatasourceOptions sdbDatasourceConf = new DatasourceOptions();
+            sdbDatasourceConf.setMaxCount(maxConnectionNum);
+            sdbDatasourceConf.setKeepAliveTimeout(keepAliveTimeout);
+            List<String> preferedInstance = new ArrayList<>();
+            preferedInstance.add("M");
+            sdbDatasourceConf.setPreferedInstance(preferedInstance);
+
             metaSdbDs = new SequoiadbDatasource(metaSdbCoord, metaSdbUser, metaSdbPassword,
-                    new ConfigOptions(), new DatasourceOptions());
-            // SdbDataOpFactoryImpl factory = new SdbDataOpFactoryImpl();
-            this.siteMgr = new SiteInfoMgr(metaSdbDs, wsName, cleanSiteId, dataInOtherSiteId,
-                    dataInOtherSiteInstanceList);
-            this.cleanSiteName = siteMgr.getSitNameById(cleanSiteId);
-            SdbSiteUrl targetSiteUrl = new SdbSiteUrl(
-                    CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR,
-                    cleanSiteLobSdbCoordList, cleanSiteLobSdbUser,
-                    genPasswordFile(cleanSiteLobSdbUser, cleanSiteLobSdbPasswd),
-                    new com.sequoiadb.net.ConfigOptions(), new DatasourceOptions());
-            this.cleanSiteDataService = new SdbDataService(cleanSiteId, targetSiteUrl);
-            this.sdbDataOpFactory = new SdbDataOpFactoryImpl();
+                    sdbConnConf, sdbDatasourceConf);
+            this.siteMgr = new SiteInfoMgr(metaSdbDs, wsName, cleanSiteName, dataInOtherSiteInstanceList);
+            ScmSiteObj siteObj = siteMgr.getSiteObjByName(cleanSiteName);
+            this.cleanSiteId = siteObj.getId();
+            this.holdingDataSiteId = siteMgr.getSiteObjByName(holdingDataSiteName).getId();
+            BasicBSONList andList = new BasicBSONList();
+            andList.add(fileMatcher);
+            andList.add(new BasicBSONObject("site_list.$1.site_id", cleanSiteId));
+            this.fileMatcher = new BasicBSONObject("$and", andList);
+            if (!StringUtils.isEmpty(srcSitePassword)) {
+                srcSitePasswordFile = genPasswordFile(siteObj.getDataUser(), srcSitePassword);
+            }
+            ScmSiteUrl cleanSiteUrl = ScmDatasourceUtil.createSiteUrl(siteObj,
+                    srcSitePasswordFile, sdbConnConf, sdbDatasourceConf, datasourceConf);
+            this.scmDataOpFactory = ScmDatasourceUtil.createDataOpFactory(siteObj.getDataType());
+            this.cleanSiteDataService = ScmDatasourceUtil.createDataService(cleanSiteId, cleanSiteUrl);
             ScmLockConfig lockConf = new ScmLockConfig();
             lockConf.setUrls(zkUrls);
-            lockConf.setDisableJob(true);
             this.lockMgr = new ScmLockManager(lockConf);
-            if (!CuratorZKCleaner.isInitialized()) {
-                CuratorZKCleaner.init(new CuratorLockFactory(zkUrls).getCuratorClient(),
-                        lockConf.getCoreCleanThreads(),
-                        lockConf.getMaxCleanThreads(), lockConf.getCleanQueueSize());
-            }
-            this.feignUtil = new ScmFeignUtil();
             final ArrayBlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(queueSize);
             threadPool = new ThreadPoolExecutor(thread, thread, 60000, TimeUnit.MICROSECONDS,
                     taskQueue, new RejectedExecutionHandler() {
@@ -100,6 +102,7 @@ public class FileCleaner {
                             }
                         }
                     });
+            this.shutDownHook = new ScmShutDownHook(threadPool);
         }
         catch (Exception e) {
             destroy();
@@ -137,18 +140,10 @@ public class FileCleaner {
             cursor = fileCl.query(fileMatcher, null, null, null);
             while (cursor.hasNext()) {
                 BSONObject fileInfoNotInLock = cursor.getNext();
-                TaskCleanFile312 task = new TaskCleanFile312(metaSdbDs, wsName, lockMgr,
-                        cleanSiteName, cleanSiteId, sdbDataOpFactory,
-                        siteMgr.getCleanSiteDataLocation(), cleanSiteDataService, feignUtil,
-                        siteMgr, fileCounter,
-                        BsonUtils.getStringChecked(fileInfoNotInLock, FieldName.FIELD_CLFILE_ID),
-                        BsonUtils.getNumberChecked(fileInfoNotInLock,
-                                FieldName.FIELD_CLFILE_MAJOR_VERSION).intValue(),
-                        BsonUtils.getNumberChecked(fileInfoNotInLock,
-                                FieldName.FIELD_CLFILE_MINOR_VERSION).intValue(),
-                        BsonUtils.getStringChecked(fileInfoNotInLock,
-                                FieldName.FIELD_CLFILE_FILE_DATA_ID),
-                        remoteClientMgr);
+                TaskCleanFile task = new TaskCleanFile(metaSdbDs, wsName, lockMgr,
+                        cleanSiteId, holdingDataSiteId, scmDataOpFactory, siteMgr.getCleanSiteDataLocation(),
+                        cleanSiteDataService, siteMgr, fileCounter, fileInfoNotInLock,
+                        remoteClientMgr, threadPool, shutDownHook);
                 threadPool.submit(task);
             }
         }

@@ -11,6 +11,7 @@ import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.common.mapping.ScmMappingException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
@@ -19,6 +20,8 @@ import com.sequoiadb.base.ConfigOptions;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.datasource.DatasourceOptions;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -27,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,6 +61,7 @@ class ScmSessionWrapper {
 
 public class FileReadFromSrcSite {
     private static final Logger logger = LoggerFactory.getLogger(FileTransfer.class);
+    private SiteInfoMgr siteInfoMgr;
     private final int batchSize;
     private final ScmTimer timer;
     private final Sequoiadb sdb;
@@ -81,14 +86,14 @@ public class FileReadFromSrcSite {
     private ConcurrentLinkedQueue<ScmSessionWrapper> sessions;
 
 
-    public FileReadFromSrcSite(int batchSize, long fileTimeout, int thread, int queueSize, int localSiteId,
-                               final String wsName, BSONObject matcher,
-                               final List<String> urlList, final String user, final String password,
-                               int fileStatusCheckInterval, List<String> sdbCoord, String sdbUser, String sdbPassword, int fileStatusCheckBatchSize) throws ScmException {
+    public FileReadFromSrcSite(int batchSize, long fileTimeout, int thread, int queueSize,
+            String localSiteName, final String wsName, BSONObject matcher,
+            final List<String> urlList, final String user, final String password,
+            int fileStatusCheckInterval, List<String> sdbCoord, String sdbUser, String sdbPassword,
+            int fileStatusCheckBatchSize)
+            throws ScmException, ScmMappingException {
         this.wsName = wsName;
         this.fileTimeout = fileTimeout;
-        this.localSiteId = localSiteId;
-        this.matcher = matcher;
         this.scope = ScmType.ScopeType.SCOPE_CURRENT;
         this.urlList = urlList;
         this.user = user;
@@ -97,8 +102,16 @@ public class FileReadFromSrcSite {
         this.semp = new Semaphore(batchSize);
         submitFiles = new ConcurrentHashMap(batchSize);
         this.fileStatusCheckBatchSize = fileStatusCheckBatchSize;
+
         sdb = new Sequoiadb(sdbCoord, sdbUser, sdbPassword, new ConfigOptions());
         sdbFileCl = sdb.getCollectionSpace(wsName + "_META").getCollection("FILE");
+        this.siteInfoMgr = new SiteInfoMgr(sdb);
+        localSiteId = siteInfoMgr.getSiteIdByName(localSiteName);
+        BSONObject[] not = { new BasicBSONObject("site_list.$0.site_id", localSiteId) };
+        BSONObject[] and = { new BasicBSONObject("$not", not) };
+        matcher.put("$and", and);
+        this.matcher = matcher;
+        this.siteInfoMgr = new SiteInfoMgr(sdb);
 
         sessions = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < thread; i++) {
