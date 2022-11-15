@@ -32,8 +32,10 @@ public interface ScmUserRoleRepository {
 
     List<ScmUser> findUsersByRoleName(String roleName);
 
-    List<ScmUser> findAllUsers(ScmUserPasswordType type, Boolean enabled, String innerRoleName,
+    List<ScmUser> listUsers(ScmUserPasswordType type, Boolean enabled, String innerRoleName,
             BSONObject orderBy, long skip, long limit);
+
+    long countRoles(BSONObject filter);
 
     String generateRoleId();
 
@@ -49,7 +51,7 @@ public interface ScmUserRoleRepository {
 
     ScmRole findRoleById(String roleId);
 
-    List<ScmRole> findAllRoles(BSONObject orderBy, long skip, long limit);
+    List<ScmRole> listRoles(BSONObject filter, BSONObject orderBy, long skip, long limit);
 
     void deleteRole(ScmRole role, ITransaction t);
 

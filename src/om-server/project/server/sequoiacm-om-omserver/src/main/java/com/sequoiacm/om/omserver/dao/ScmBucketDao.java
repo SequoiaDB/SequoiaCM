@@ -14,6 +14,9 @@ public interface ScmBucketDao {
 
     Set<String> getUserAccessibleBuckets(String username) throws ScmInternalException;
 
+    List<OmBucketDetail> listBucket(BSONObject condition, BSONObject orderBy, long skip, long limit)
+            throws ScmInternalException;
+
     long countFile(String bucketName, BSONObject condition) throws ScmInternalException;
 
     List<OmFileBasic> listFile(String bucketName, BSONObject filter, BSONObject orderBy, long skip,

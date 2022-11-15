@@ -28,4 +28,7 @@ public interface ScmBucketService {
 
     void createFile(ScmOmSession session, String bucketName, String siteName, OmFileInfo fileInfo,
             BSONObject uploadConf, InputStream is) throws ScmInternalException;
+
+    List<OmBucketDetail> listBucket(ScmOmSession session, BSONObject filter, BSONObject orderBy,
+            long skip, int limit) throws ScmInternalException, ScmOmServerException;
 }

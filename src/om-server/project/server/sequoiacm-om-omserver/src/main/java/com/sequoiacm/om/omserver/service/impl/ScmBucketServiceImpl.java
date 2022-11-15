@@ -126,4 +126,20 @@ public class ScmBucketServiceImpl implements ScmBucketService {
             throw e;
         }
     }
+
+    @Override
+    public List<OmBucketDetail> listBucket(ScmOmSession session, BSONObject filter,
+            BSONObject orderBy, long skip, int limit)
+            throws ScmInternalException, ScmOmServerException {
+        String preferSite = siteChooser.chooseFromAllSite();
+        ScmBucketDao bucketDao = scmBucketDaoFactory.createScmBucketDao(session);
+        try {
+            session.resetServiceEndpoint(preferSite);
+            return bucketDao.listBucket(filter, orderBy, skip, limit);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
 }

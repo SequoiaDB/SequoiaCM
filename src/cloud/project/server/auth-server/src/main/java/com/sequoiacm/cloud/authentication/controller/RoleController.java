@@ -4,15 +4,18 @@ import com.sequoiacm.cloud.authentication.exception.BadRequestException;
 import com.sequoiacm.cloud.authentication.exception.ForbiddenException;
 import com.sequoiacm.cloud.authentication.exception.NotFoundException;
 import com.sequoiacm.cloud.authentication.service.IPrivilegeService;
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequestMapping("/api/v1")
@@ -70,7 +73,8 @@ public class RoleController {
     }
 
     @GetMapping("/roles")
-    public List<ScmRole> findAllRoles(
+    public List<ScmRole> listRoles(
+            @RequestParam(value = "filter", required = false, defaultValue = "{}") BSONObject filter,
             @RequestParam(value = "order_by", required = false) BSONObject orderBy,
             @RequestParam(value = "skip", required = false, defaultValue = "0") long skip,
             @RequestParam(value = "limit", required = false, defaultValue = "-1") long limit,
@@ -82,7 +86,7 @@ public class RoleController {
             throw new BadRequestException("limit can not be less than -1");
         }
         audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find all roles");
-        return repository.findAllRoles(orderBy, skip, limit);
+        return repository.listRoles(filter, orderBy, skip, limit);
     }
 
     @GetMapping("/roles/{roleName:.+}")
@@ -108,5 +112,19 @@ public class RoleController {
         }
         audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find role by roleId=" + roleId);
         return role;
+    }
+
+    @RequestMapping(value = "/roles", method = RequestMethod.HEAD)
+    public ResponseEntity<String> countRole(
+            @RequestParam(value = "filter", required = false, defaultValue = "{}") BSONObject filter,
+            HttpServletResponse response, Authentication auth) throws Exception {
+        String message = "count role";
+        if (null != filter) {
+            message += " by condition=" + filter;
+        }
+        audit.info(ScmAuditType.USER_DQL, auth, null, 0, message);
+        long count = repository.countRoles(filter);
+        response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+        return ResponseEntity.ok("");
     }
 }

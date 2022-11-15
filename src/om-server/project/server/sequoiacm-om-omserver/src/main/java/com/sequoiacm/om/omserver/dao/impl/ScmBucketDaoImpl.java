@@ -129,6 +129,28 @@ public class ScmBucketDaoImpl implements ScmBucketDao {
     }
 
     @Override
+    public List<OmBucketDetail> listBucket(BSONObject condition, BSONObject orderBy, long skip,
+            long limit) throws ScmInternalException {
+        List<OmBucketDetail> bucketList = new ArrayList<>();
+        ScmSession con = session.getConnection();
+        ScmCursor<ScmBucket> cursor = null;
+        try {
+            cursor = ScmFactory.Bucket.listBucket(con, condition, orderBy, skip, limit);
+            while (cursor.hasNext()) {
+                ScmBucket bucket = cursor.getNext();
+                bucketList.add(transformToBucketDetail(bucket));
+            }
+            return bucketList;
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), e.getMessage(), e);
+        }
+        finally {
+            CommonUtil.closeResource(cursor);
+        }
+    }
+
+    @Override
     public Set<String> getUserAccessibleBuckets(String username) throws ScmInternalException {
         Set<String> buckets = new TreeSet<>();
         ScmSession con = session.getConnection();

@@ -1901,6 +1901,24 @@ public class ScmFactory {
         }
 
         /**
+         * Acquires instance's count which matches the query condition
+         *
+         * @param ss
+         *            session
+         * @param condition
+         *            The condition of query role.
+         * @return count of user
+         * @throws ScmException
+         *             if error happens
+         * @since 3.2.2
+         */
+        public static long countRole(ScmSession ss, BSONObject condition) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("condition", condition);
+            return ss.getDispatcher().countRole(condition);
+        }
+
+        /**
          * Get a role with specified name.
          *
          * @param session
@@ -1953,14 +1971,14 @@ public class ScmFactory {
          * @return ScmCursor cursor
          * @throws ScmException
          *             If error happens
-         * @since 3.1
+         * @since 3.2.2
          */
-        public static ScmCursor<ScmRole> listRoles(ScmSession session, BSONObject orderBy,
-                long skip, long limit) throws ScmException {
+        public static ScmCursor<ScmRole> listRoles(ScmSession session, BSONObject condition,
+                BSONObject orderBy, long skip, long limit) throws ScmException {
             checkArgNotNull("session", session);
             checkSkip(skip);
             checkLimit(limit);
-            BsonReader reader = session.getDispatcher().listRoles(orderBy, skip, limit);
+            BsonReader reader = session.getDispatcher().listRoles(condition, orderBy, skip, limit);
             ScmCursor<ScmRole> cursor = new ScmBsonCursor<ScmRole>(reader,
                     new BsonConverter<ScmRole>() {
                         @Override
@@ -1976,12 +1994,36 @@ public class ScmFactory {
          *
          * @param session
          *            the session
+         * @param orderBy
+         *            the condition for sort, include: key is a property of
+         *            {@link ScmAttributeName.Role}, value is -1(descending) or
+         *            1(ascending)
+         * @param skip
+         *            skip to the first number record
+         * @param limit
+         *            return the total records of query, when value is -1, return all
+         *            records
+         * @return ScmCursor cursor
+         * @throws ScmException
+         *             If error happens
+         * @since 3.1
+         */
+        public static ScmCursor<ScmRole> listRoles(ScmSession session, BSONObject orderBy,
+                long skip, long limit) throws ScmException {
+            return listRoles(session, null, orderBy, skip, limit);
+        }
+
+        /**
+         * List all the roles.
+         *
+         * @param session
+         *            the session
          * @return ScmCursor cursor
          * @throws ScmException
          *             If error happens
          */
         public static ScmCursor<ScmRole> listRoles(ScmSession session) throws ScmException {
-            return listRoles(session, null, 0, -1);
+            return listRoles(session, null, null, 0, -1);
         }
 
         /**

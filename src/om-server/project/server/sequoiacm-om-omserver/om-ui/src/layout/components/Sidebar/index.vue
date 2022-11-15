@@ -28,10 +28,22 @@ export default {
   components: { SidebarItem, Logo },
   computed: {
     ...mapGetters([
-      'sidebar'
+      'sidebar',
+      'roles'
     ]),
     routes() {
-      return this.$router.options.routes
+      let routes = []
+      this.$router.options.routes.forEach(ele => {
+        let meta = ele.meta
+        if (meta) {
+          if (!meta.hasOwnProperty("roles") || this.roles.some(role => meta.roles.includes(role.role_name))) {
+            routes.push(ele)
+          }
+        } else {
+          routes.push(ele)
+        }
+      })
+      return routes
     },
     activeMenu() {
       const route = this.$route
@@ -53,4 +65,5 @@ export default {
     }
   }
 }
+
 </script>

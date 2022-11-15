@@ -3,7 +3,7 @@ package com.sequoiacm.om.omserver.service;
 
 import java.util.List;
 
-import org.bson.BSONObject;
+import com.sequoiacm.om.omserver.module.OmUserFilter;
 
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
@@ -11,6 +11,10 @@ import com.sequoiacm.om.omserver.module.OmUserInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 
 public interface ScmUserService {
+
+    public long getUserCount(ScmOmSession session, OmUserFilter userFilter)
+            throws ScmInternalException, ScmOmServerException;
+
     public OmUserInfo getUserInfo(ScmOmSession session, String username)
             throws ScmInternalException, ScmOmServerException;
 
@@ -40,6 +44,6 @@ public interface ScmUserService {
     public void enableUser(ScmOmSession session, String username)
             throws ScmInternalException, ScmOmServerException;
 
-    public List<OmUserInfo> listUsers(ScmOmSession session, BSONObject condition,
+    public List<OmUserInfo> listUsers(ScmOmSession session, OmUserFilter userFilter,
             long skip, int limit) throws ScmInternalException, ScmOmServerException;
 }

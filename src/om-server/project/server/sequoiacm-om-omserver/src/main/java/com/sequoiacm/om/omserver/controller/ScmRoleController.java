@@ -2,6 +2,8 @@ package com.sequoiacm.om.omserver.controller;
 
 import java.util.List;
 
+import com.sequoiacm.om.omserver.module.OmPrivilegeDetail;
+import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,8 @@ import com.sequoiacm.om.omserver.module.OmRoleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmRoleInfo;
 import com.sequoiacm.om.omserver.service.ScmRoleService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -71,9 +75,18 @@ public class ScmRoleController {
 
     @GetMapping("/roles")
     public List<OmRoleBasicInfo> listRoles(ScmOmSession session,
+            @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
             @RequestParam(value = RestParamDefine.SKIP, required = false, defaultValue = "0") long skip,
-            @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit)
-            throws ScmInternalException, ScmOmServerException {
-        return roleService.listRoles(session, skip, limit);
+            @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
+            HttpServletResponse response) throws ScmInternalException, ScmOmServerException {
+        long roleCount = roleService.getRoleCount(session, filter);
+        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(roleCount));
+        return roleService.listRoles(session, filter, skip, limit);
+    }
+
+    @GetMapping(value = "/roles/{role_name:.+}", params = "action=list_privilege")
+    public List<OmPrivilegeDetail> listPrivileges(ScmOmSession session,
+            @PathVariable("role_name") String roleName) throws ScmInternalException {
+        return roleService.listPrivileges(session, roleName);
     }
 }

@@ -2,6 +2,7 @@ package com.sequoiacm.om.omserver.controller;
 
 import java.util.List;
 
+import com.sequoiacm.om.omserver.module.OmUserFilter;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,8 @@ import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmUserInfo;
 import com.sequoiacm.om.omserver.service.ScmUserService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -63,15 +67,13 @@ public class ScmUserController {
 
     @PutMapping(value = "/users/{user_name:.+}", params = "action=grant_role")
     public void grantRoles(ScmOmSession session, @PathVariable("user_name") String username,
-            @RequestParam(value = RestParamDefine.ROLES, required = true) List<String> roles)
-            throws ScmInternalException, ScmOmServerException {
+            @RequestBody List<String> roles) throws ScmInternalException, ScmOmServerException {
         userservice.grantRoles(session, username, roles);
     }
 
     @PutMapping(value = "/users/{user_name:.+}", params = "action=revoke_role")
     public void revokeRoles(ScmOmSession session, @PathVariable("user_name") String username,
-            @RequestParam(value = RestParamDefine.ROLES, required = true) List<String> roles)
-            throws ScmInternalException, ScmOmServerException {
+            @RequestBody List<String> roles) throws ScmInternalException, ScmOmServerException {
         userservice.revokeRoles(session, username, roles);
     }
 
@@ -99,10 +101,13 @@ public class ScmUserController {
 
     @GetMapping("/users")
     public List<OmUserInfo> listUsers(ScmOmSession session,
-            @RequestParam(value = RestParamDefine.CONDITION, required = false) BSONObject condition,
+            @RequestParam(value = "user_filter") BSONObject userFilter,
             @RequestParam(value = RestParamDefine.SKIP, required = false, defaultValue = "0") long skip,
-            @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit)
-            throws ScmInternalException, ScmOmServerException {
-        return userservice.listUsers(session, condition, skip, limit);
+            @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
+            HttpServletResponse response) throws ScmInternalException, ScmOmServerException {
+        OmUserFilter omUserFilter = new OmUserFilter(userFilter);
+        long userCount = userservice.getUserCount(session, omUserFilter);
+        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(userCount));
+        return userservice.listUsers(session, omUserFilter, skip, limit);
     }
 }

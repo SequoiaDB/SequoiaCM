@@ -2,6 +2,7 @@ package com.sequoiacm.om.omserver.dao;
 
 import java.util.List;
 
+import com.sequoiacm.om.omserver.module.OmUserFilter;
 import org.bson.BSONObject;
 
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
@@ -29,7 +30,8 @@ public interface ScmUserDao {
 
     public void enableUser(String username) throws ScmInternalException;
 
-    public List<OmUserInfo> listUsers(BSONObject condition, long skip,
+    public List<OmUserInfo> listUsers(OmUserFilter userFilter, long skip,
             int limit) throws ScmInternalException;
 
+    long countUser(OmUserFilter userFilter) throws ScmInternalException;
 }

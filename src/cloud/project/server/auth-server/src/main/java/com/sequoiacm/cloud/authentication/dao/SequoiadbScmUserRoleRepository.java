@@ -339,10 +339,10 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
     }
 
     @Override
-    public List<ScmRole> findAllRoles(BSONObject orderBy, long skip, long limit) {
+    public List<ScmRole> listRoles(BSONObject matcher, BSONObject orderBy, long skip, long limit) {
         List<ScmRole> roles = new ArrayList<>();
         List<BSONObject> objs = template.collection(collectionSpaceName, roleCollectionName)
-                .find(null, orderBy, skip, limit);
+                .find(matcher, orderBy, skip, limit);
         for (BSONObject obj : objs) {
             ScmRole role = bsonToRole(obj);
             roles.add(role);
@@ -351,7 +351,7 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
     }
 
     @Override
-    public List<ScmUser> findAllUsers(ScmUserPasswordType type, Boolean enabled, String roleName,
+    public List<ScmUser> listUsers(ScmUserPasswordType type, Boolean enabled, String roleName,
             BSONObject orderBy, long skip, long limit) {
         BSONObject matcher = new BasicBSONObject();
         if (type != null) {
@@ -393,4 +393,8 @@ public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
         return bsonToUser(obj);
     }
 
+    @Override
+    public long countRoles(BSONObject filter) {
+        return template.collection(collectionSpaceName, roleCollectionName).count(filter);
+    }
 }

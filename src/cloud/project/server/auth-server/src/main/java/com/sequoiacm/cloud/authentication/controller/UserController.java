@@ -1,9 +1,15 @@
 package com.sequoiacm.cloud.authentication.controller;
 
 import java.util.List;
+import java.util.Map;
+
 import com.sequoiacm.cloud.authentication.service.IUserService;
+import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.session.data.sequoiadb.SequoiadbSessionRepository;
 import org.springframework.util.StringUtils;
@@ -13,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.sequoiacm.cloud.authentication.dao.IPrivVersionDao;
@@ -141,7 +148,7 @@ public class UserController {
     }
 
     @GetMapping("/v1/users")
-    public List<ScmUser> findAllUsers(
+    public List<ScmUser> listUsers(
             @RequestParam(value = "password_type", required = false) ScmUserPasswordType type,
             @RequestParam(value = "enabled", required = false) Boolean enabled,
             @RequestParam(value = "has_role", required = false) String roleName,
@@ -165,7 +172,7 @@ public class UserController {
             }
         }
 
-        List<ScmUser> findAllUsers = userRoleRepository.findAllUsers(type, enabled, innerRoleName,
+        List<ScmUser> findAllUsers = userRoleRepository.listUsers(type, enabled, innerRoleName,
                 orderBy, skip, limit);
         audit.info(ScmAuditType.USER_DQL, auth, null, 0, "find all users");
         return findAllUsers;

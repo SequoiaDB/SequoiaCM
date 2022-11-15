@@ -383,6 +383,16 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public long countRole(BSONObject condition) throws ScmException {
+        String s = encodeCondition(condition);
+        String uri = URL_PREFIX + pureUrl + AUTH + API_VERSION + ROLE + "?filter=" + s;
+        HttpHead request = new HttpHead(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.valueOf(count);
+    }
+
+    @Override
     public BSONObject getResourceById(String resourceId) throws ScmException {
         String uri = String.format("%s%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_VERSION, RESOURCE,
                 resourceId);
@@ -399,9 +409,14 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BsonReader listRoles(BSONObject orderBy, long skip, long limit) throws ScmException {
+    public BsonReader listRoles(BSONObject filter, BSONObject orderBy, long skip, long limit)
+            throws ScmException {
         String uri = String.format("%s%s%s%s%s", URL_PREFIX, pureUrl, AUTH, API_VERSION, ROLE);
         String params = "";
+        if (filter != null) {
+            final String FIELD_FILTER = "filter";
+            params = appendParam(params, FIELD_FILTER, encode(filter.toString()));
+        }
         if (orderBy != null) {
             final String FIELD_ORDER_BY = "order_by";
             params = appendParam(params, FIELD_ORDER_BY, encode(orderBy.toString()));

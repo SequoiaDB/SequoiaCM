@@ -3,6 +3,13 @@ package com.sequoiacm.om.omserver.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmUser;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.om.omserver.common.CommonUtil;
+import com.sequoiacm.om.omserver.module.OmPrivilegeBasic;
+import com.sequoiacm.om.omserver.module.OmPrivilegeDetail;
+import com.sequoiacm.om.omserver.module.OmUserInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -21,10 +28,13 @@ import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.module.OmResourceInfo;
 import com.sequoiacm.om.omserver.module.OmRoleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmRoleInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScmRoleDaoImpl implements ScmRoleDao {
 
     private ScmOmSession session;
+    private static final Logger logger = LoggerFactory.getLogger(ScmRoleDaoImpl.class);
 
     public ScmRoleDaoImpl(ScmOmSession session) {
         this.session = session;
@@ -110,12 +120,14 @@ public class ScmRoleDaoImpl implements ScmRoleDao {
     }
 
     @Override
-    public List<OmRoleBasicInfo> listRoles(long skip, int limit) throws ScmInternalException {
+    public List<OmRoleBasicInfo> listRoles(BSONObject condition, long skip, int limit)
+            throws ScmInternalException {
         ScmCursor<ScmRole> cursor = null;
         List<OmRoleBasicInfo> roleInfos = null;
         try {
             BSONObject orderBy = new BasicBSONObject().append(FieldName.FIELD_ALL_OBJECTID, 1);
-            cursor = ScmFactory.Role.listRoles(session.getConnection(), orderBy, skip, limit);
+            cursor = ScmFactory.Role.listRoles(session.getConnection(), condition, orderBy, skip,
+                    limit);
             roleInfos = new ArrayList<OmRoleBasicInfo>();
             while (cursor.hasNext()) {
                 ScmRole role = cursor.getNext();
@@ -132,6 +144,72 @@ public class ScmRoleDaoImpl implements ScmRoleDao {
             }
         }
         return roleInfos;
+    }
+
+    @Override
+    public List<OmPrivilegeDetail> listPrivileges(String roleName) throws ScmInternalException {
+        List<OmPrivilegeDetail> privilegeList = new ArrayList<>();
+        ScmCursor<ScmPrivilege> cursor = null;
+        try {
+            ScmSession conn = session.getConnection();
+            ScmRole role = ScmFactory.Role.getRole(conn, roleName);
+            cursor = ScmFactory.Privilege.listPrivileges(conn, role);
+            while (cursor.hasNext()) {
+                ScmPrivilege privilege = cursor.getNext();
+                ScmResource resource = ScmFactory.Resource.getResourceById(conn,
+                        privilege.getResourceId());
+                privilegeList.add(transformToOmPrivilegeDetail(privilege, resource));
+            }
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(),
+                    "failed to list privilege by role, roleName=" + roleName + ", errorMsg="
+                            + e.getMessage(),
+                    e);
+        }
+        finally {
+            CommonUtil.closeResource(cursor);
+        }
+        return privilegeList;
+    }
+
+    private OmPrivilegeDetail transformToOmPrivilegeDetail(ScmPrivilege privilege,
+            ScmResource resource) {
+        OmPrivilegeDetail privilegeDetail = new OmPrivilegeDetail();
+        privilegeDetail.setId(privilege.getId());
+        privilegeDetail.setResourceType(resource.getType());
+        privilegeDetail.setResourceName(resource.toStringFormat());
+        List<String> privileges = new ArrayList<>();
+        List<ScmPrivilegeType> privilegeTypes = privilege.getPrivilegeTypes();
+        for (ScmPrivilegeType privilegeType : privilegeTypes) {
+            privileges.add(privilegeType.getPriv());
+        }
+        privilegeDetail.setPrivilegeList(privileges);
+        return privilegeDetail;
+    }
+
+    @Override
+    public long countRole(BSONObject condition) throws ScmInternalException {
+        try {
+            session.getConnection();
+            try {
+                return ScmFactory.Role.countRole(session.getConnection(), condition);
+            }
+            catch (ScmException e) {
+                // 兼容旧版本服务端（HEAD 请求无法拿到预期的响应头）
+                if (e.getError().equals(ScmError.NETWORK_IO)) {
+                    logger.warn(
+                            "There is no countUser interface, maybe the version of auth-server is lower. "
+                                    + "cause by: " + e.getMessage());
+                    return listRoles(condition, 0, -1).size();
+                }
+                throw e;
+            }
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), "failed to count user, " + e.getMessage(),
+                    e);
+        }
     }
 
     private OmRoleInfo transformRole(ScmRole role, List<OmResourceInfo> resources) {

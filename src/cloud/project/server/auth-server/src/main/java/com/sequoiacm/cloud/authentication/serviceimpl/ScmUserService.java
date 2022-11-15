@@ -28,6 +28,7 @@ import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.session.data.sequoiadb.SequoiadbSessionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.text.DateFormat;
@@ -66,6 +67,8 @@ public class ScmUserService implements IUserService {
 
     @Autowired
     private TokenConfig tokenConfig;
+
+    private static final int MAX_ROLES_SIZE = 60;
 
     @Override
     public ScmUser alterUser(Authentication authentication, String username, String oldPassword,
@@ -228,6 +231,12 @@ public class ScmUserService implements IUserService {
         }
 
         if (!originRoles.equals(roles)) {
+            // 存在新增角色操作，需要进行角色数限制
+            if (addRoles != null && addRoles.size() > 0) {
+                Assert.isTrue(roles.size() <= MAX_ROLES_SIZE,
+                        "The number of roles owned by a user cannot be greater than 60, user="
+                                + user.getUsername());
+            }
             builder.roles(roles);
             altered = true;
             isAlterRoles = true;

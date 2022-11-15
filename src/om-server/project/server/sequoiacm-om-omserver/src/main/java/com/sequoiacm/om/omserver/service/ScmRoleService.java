@@ -5,9 +5,11 @@ import java.util.List;
 
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
+import com.sequoiacm.om.omserver.module.OmPrivilegeDetail;
 import com.sequoiacm.om.omserver.module.OmRoleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmRoleInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+import org.bson.BSONObject;
 
 public interface ScmRoleService {
     public OmRoleInfo getRole(ScmOmSession session, String rolename)
@@ -27,6 +29,11 @@ public interface ScmRoleService {
             String resource, String privilegeType)
             throws ScmInternalException, ScmOmServerException;
 
-    public List<OmRoleBasicInfo> listRoles(ScmOmSession session, long skip, int limit)
-            throws ScmInternalException, ScmOmServerException;;
+    public List<OmRoleBasicInfo> listRoles(ScmOmSession session, BSONObject condition, long skip,
+            int limit) throws ScmInternalException, ScmOmServerException;
+
+    long getRoleCount(ScmOmSession session, BSONObject condition) throws ScmInternalException;
+
+    List<OmPrivilegeDetail> listPrivileges(ScmOmSession session, String roleName)
+            throws ScmInternalException;
 }

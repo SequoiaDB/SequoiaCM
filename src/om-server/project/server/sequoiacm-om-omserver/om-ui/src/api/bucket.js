@@ -3,6 +3,27 @@ import request from '@/utils/request'
 const BASE_API = '/api/v1'
 
 /**
+  * 查询桶列表
+  * @param {number} page 
+  * @param {number} size 
+  * @param {object} filter 
+  * @param {object} orderby 
+  * @returns 
+  */
+ export function queryBucketList(page, size, filter, orderby) {
+  return request({
+    url: BASE_API+'/buckets',
+    method: 'get',
+    params: {
+      skip: (page-1)*size,
+      limit: size,
+      filter: filter,
+      orderby: orderby
+    }
+  })
+}
+
+/**
  * 查询用户拥有操作权限的桶
  * @returns 
  */

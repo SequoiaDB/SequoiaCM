@@ -39,9 +39,12 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject getRoleById(String roleId) throws ScmException;
 
+    long countRole(BSONObject condition) throws ScmException;
+
     BSONObject getResourceById(String resourceId) throws ScmException;
 
-    BsonReader listRoles(BSONObject orderBy, long skip, long limit) throws ScmException;
+    BsonReader listRoles(BSONObject filter, BSONObject orderBy, long skip, long limit)
+            throws ScmException;
 
     BsonReader listPrivilegesByRoleId(String roleId) throws ScmException;
 

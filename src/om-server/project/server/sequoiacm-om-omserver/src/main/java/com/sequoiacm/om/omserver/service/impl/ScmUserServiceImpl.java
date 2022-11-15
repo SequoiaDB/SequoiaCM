@@ -3,6 +3,7 @@ package com.sequoiacm.om.omserver.service.impl;
 import java.util.List;
 
 import com.sequoiacm.om.omserver.factory.ScmUserDaoFactory;
+import com.sequoiacm.om.omserver.module.OmUserFilter;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,12 @@ public class ScmUserServiceImpl implements ScmUserService {
 
     @Autowired
     private ScmUserDaoFactory scmUserDaoFactory;
+
+    @Override
+    public long getUserCount(ScmOmSession session, OmUserFilter userFilter)
+            throws ScmInternalException, ScmOmServerException {
+        return scmUserDaoFactory.createUserDao(session).countUser(userFilter);
+    }
 
     @Override
     public OmUserInfo getUserInfo(ScmOmSession session, String username)
@@ -83,9 +90,9 @@ public class ScmUserServiceImpl implements ScmUserService {
     }
 
     @Override
-    public List<OmUserInfo> listUsers(ScmOmSession session, BSONObject condition, long skip,
-            int limit) throws ScmInternalException, ScmOmServerException {
-        return scmUserDaoFactory.createUserDao(session).listUsers(condition, skip, limit);
+    public List<OmUserInfo> listUsers(ScmOmSession session, OmUserFilter userFilter,
+            long skip, int limit) throws ScmInternalException, ScmOmServerException {
+        return scmUserDaoFactory.createUserDao(session).listUsers(userFilter, skip, limit);
     }
 
 }

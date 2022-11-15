@@ -66,7 +66,7 @@ public class AuthenticationServer implements ApplicationRunner {
         final String DEFAULT_ADMIN_USER = "admin";
         final String DEFAULT_MONITOR_USER = "monitor";
 
-        List<ScmUser> users = userRoleDao.findAllUsers(null, null, null, null, 0, -1);
+        List<ScmUser> users = userRoleDao.listUsers(null, null, null, null, 0, -1);
         if (!users.isEmpty()) {
             return;
         }

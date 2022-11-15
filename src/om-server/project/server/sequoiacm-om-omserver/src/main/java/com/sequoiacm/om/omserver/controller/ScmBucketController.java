@@ -41,9 +41,19 @@ public class ScmBucketController {
     private ScmBucketService bucketService;
 
     @GetMapping(value = "/buckets", params = "action=get_related_buckets")
-    public List<String> listBucket(ScmOmSession session)
+    public List<String> getRelatedBucket(ScmOmSession session)
             throws ScmInternalException, ScmOmServerException {
         return bucketService.getUserAccessibleBuckets(session);
+    }
+
+    @GetMapping(value = "/buckets")
+    public List<OmBucketDetail> listBucket(ScmOmSession session,
+            @RequestParam(value = RestParamDefine.SKIP, required = false, defaultValue = "0") long skip,
+            @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
+            @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
+            @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy)
+            throws ScmInternalException, ScmOmServerException {
+        return bucketService.listBucket(session, filter, orderBy, skip, limit);
     }
 
     @RequestMapping(value = "/buckets/{bucket_name:.+}", method = RequestMethod.HEAD)

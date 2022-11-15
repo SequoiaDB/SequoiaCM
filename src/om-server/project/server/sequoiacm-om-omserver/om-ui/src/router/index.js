@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { getUsername, isAdminUser } from '@/utils/auth'
 
 Vue.use(Router)
 
@@ -144,6 +145,42 @@ export const constantRoutes = [
         name: 'Table',
         component: () => import('@/views/object/index'),
         meta: { title: '桶对象管理', icon: 'el-icon-takeaway-box', keepAlive:true }
+      }
+    ]
+  },
+
+  {
+    path: '/user',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/system/user/profile/index'),
+        meta: { title: '个人中心', icon: 'el-icon-user' }
+      }
+    ]
+  },
+
+  {
+    path: '/system',
+    component: Layout,
+    meta: { title: '系统管理', icon: 'el-icon-setting', roles: ['ROLE_AUTH_ADMIN'] },
+    redirect: '/user/table',
+    children: [
+      {
+        path: 'user',
+        name: 'User',
+        component: () => import('@/views/system/user/index'),
+        meta: { title: '用户管理', icon: 'el-icon-user',  keepAlive:true }      // icon: 'el-icon-setting',
+      }, 
+      {
+          path: 'role',
+          name: 'Role',
+          component: () => import('@/views/system/role/index'),
+          meta: { title: '角色管理', icon: 'el-icon-s-custom', keepAlive:true }    // icon: 'el-icon-setting'
       }
     ]
   },

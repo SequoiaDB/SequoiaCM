@@ -3,6 +3,7 @@ package com.sequoiacm.om.omserver.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.om.omserver.module.OmUserFilter;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 
@@ -17,10 +18,14 @@ import com.sequoiacm.om.omserver.dao.ScmUserDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.module.OmRoleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmUserInfo;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScmUserDaoImpl implements ScmUserDao {
 
     private ScmOmSession session;
+    private static final Logger logger = LoggerFactory.getLogger(ScmUserDaoImpl.class);
 
     public ScmUserDaoImpl(ScmOmSession session) {
         this.session = session;
@@ -155,16 +160,19 @@ public class ScmUserDaoImpl implements ScmUserDao {
     }
 
     @Override
-    public List<OmUserInfo> listUsers(BSONObject condition, long skip, int limit)
+    public List<OmUserInfo> listUsers(OmUserFilter userFilter, long skip, int limit)
             throws ScmInternalException {
         ScmCursor<ScmUser> cursor = null;
-        List<OmUserInfo> userInfos = null;
+        List<OmUserInfo> userInfos = new ArrayList<>();
         try {
-            cursor = ScmFactory.User.listUsers(session.getConnection(), condition, skip, limit);
-            userInfos = new ArrayList<OmUserInfo>();
+            cursor = ScmFactory.User.listUsers(session.getConnection(),
+                    generateCondition(userFilter), skip, limit);
             while (cursor.hasNext()) {
                 ScmUser user = cursor.getNext();
-                userInfos.add(transformUser(user));
+                if (userFilter.getNameMatcher() == null
+                        || user.getUsername().contains(userFilter.getNameMatcher())) {
+                    userInfos.add(transformUser(user));
+                }
             }
         }
         catch (ScmException e) {
@@ -177,6 +185,21 @@ public class ScmUserDaoImpl implements ScmUserDao {
             }
         }
         return userInfos;
+    }
+
+    private BSONObject generateCondition(OmUserFilter userFilter) {
+        String FIELD_HAS_ROLE = "has_role";
+        String FIELD_ENABLED = "enabled";
+
+        BSONObject condition = new BasicBSONObject();
+        condition.put(FIELD_HAS_ROLE, userFilter.getHasRole());
+        condition.put(FIELD_ENABLED, userFilter.getEnabled());
+        return condition;
+    }
+
+    @Override
+    public long countUser(OmUserFilter userFilter) throws ScmInternalException {
+        return listUsers(userFilter, 0, -1).size();
     }
 
     private OmUserInfo transformUser(ScmUser user) {

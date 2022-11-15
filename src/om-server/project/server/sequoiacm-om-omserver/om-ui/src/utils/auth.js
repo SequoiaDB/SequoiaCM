@@ -12,7 +12,6 @@ export function getUsername() {
   return Cookies.get(UsernameKey)
 }
 
-
 export function setToken(token) {
   return Cookies.set(TokenKey, token)
 }

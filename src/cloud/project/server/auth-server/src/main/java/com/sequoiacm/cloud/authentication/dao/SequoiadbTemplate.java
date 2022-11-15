@@ -154,6 +154,24 @@ public class SequoiadbTemplate {
             return objs;
         }
 
+        public long count(BSONObject matcher) {
+            Sequoiadb sdb;
+            try {
+                sdb = datasource.getConnection();
+            }
+            catch (InterruptedException e) {
+                throw new BaseException(SDBError.SDB_INTERRUPT, e);
+            }
+
+            try {
+                return sdb.getCollectionSpace(collectionSpace).getCollection(collection)
+                        .getCount(matcher);
+            }
+            finally {
+                datasource.releaseConnection(sdb);
+            }
+        }
+
         private void closeCursor(DBCursor cursor) {
             if (null != cursor) {
                 try {

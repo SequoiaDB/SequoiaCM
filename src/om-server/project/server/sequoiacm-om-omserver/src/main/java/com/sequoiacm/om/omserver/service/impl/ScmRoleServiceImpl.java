@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.sequoiacm.om.omserver.dao.ScmRoleDao;
 import com.sequoiacm.om.omserver.factory.ScmRoleDaoFactory;
+import com.sequoiacm.om.omserver.module.OmPrivilegeDetail;
+import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,8 +77,20 @@ public class ScmRoleServiceImpl implements ScmRoleService {
     }
 
     @Override
-    public List<OmRoleBasicInfo> listRoles(ScmOmSession session, long skip, int limit)
-            throws ScmInternalException, ScmOmServerException {
-        return scmRoleDaoFactory.createRoleDao(session).listRoles(skip, limit);
+    public long getRoleCount(ScmOmSession session, BSONObject condition)
+            throws ScmInternalException {
+        return scmRoleDaoFactory.createRoleDao(session).countRole(condition);
+    }
+
+    @Override
+    public List<OmRoleBasicInfo> listRoles(ScmOmSession session, BSONObject condition, long skip,
+            int limit) throws ScmInternalException, ScmOmServerException {
+        return scmRoleDaoFactory.createRoleDao(session).listRoles(condition, skip, limit);
+    }
+
+    @Override
+    public List<OmPrivilegeDetail> listPrivileges(ScmOmSession session, String roleName)
+            throws ScmInternalException {
+        return scmRoleDaoFactory.createRoleDao(session).listPrivileges(roleName);
     }
 }

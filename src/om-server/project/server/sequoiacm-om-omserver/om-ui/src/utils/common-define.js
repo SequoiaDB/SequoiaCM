@@ -94,5 +94,11 @@ export const JOB_CONFIG_PROPS = [
   }
 ]
 
+// 系统内置用户，无法删除
+export const SYSTEM_ROLES = [
+  'ROLE_AUTH_ADMIN',
+  'ROLE_AUTH_MONITOR'
+]
+
 // 列表查询时在响应头里的数据总条数标识
 export const X_RECORD_COUNT = "x-record-count"
