@@ -74,7 +74,7 @@ public class ScmFile5369 extends TestScmBase {
         fileID = new ScmId( fileIdStr );
     }
 
-    @Test(groups = { GroupTags.oneSite, GroupTags.twoSite, GroupTags.fourSite })
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new ThreadUploadFileById( fileAuthor ) );
