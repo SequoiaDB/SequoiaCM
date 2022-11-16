@@ -1,10 +1,14 @@
 package com.sequoiacm.contentserver.service;
 
+import com.sequoiacm.contentserver.model.ScmVersion;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 
+import java.io.InputStream;
 import java.util.Date;
 
 public interface IDirService {
@@ -53,4 +57,20 @@ public interface IDirService {
             throws ScmServerException;
 
     public String generateId(Date dirCreateTime) throws ScmServerException;
+
+    FileMeta createFile(ScmUser user, String ws, String parentDirId, FileMeta fileInfo,
+            InputStream data, FileUploadConf conf) throws ScmServerException;
+
+    FileMeta createFile(ScmUser user, String ws, String parentDirId, FileMeta fileInfo,
+            String breakpointFile, FileUploadConf conf) throws ScmServerException;
+
+    BSONObject getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
+            int majorVersion, int minorVersion, boolean acceptDeleteMarker)
+            throws ScmServerException;
+
+    FileMeta moveFile(ScmUser user, String ws, String moveToDirId, String fileId,ScmVersion returnVersion)
+            throws ScmServerException;
+
+    FileMeta moveFileByPath(ScmUser user, String ws, String moveToDirPath, String fileId, ScmVersion returnVersion)
+            throws ScmServerException;
 }

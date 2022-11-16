@@ -1,7 +1,10 @@
 package com.sequoiacm.infrastructure.common;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
+
+import java.util.Map;
 
 public final class BsonUtils {
     private BsonUtils() {
@@ -123,5 +126,96 @@ public final class BsonUtils {
 
     public static BSONObject getBSONChecked(BSONObject object, String field) {
         return getChecked(object, field);
+    }
+
+    public static BSONObject deepCopyRecordBSON(BSONObject obj) {
+        if (obj == null) {
+            return null;
+        }
+        try {
+            if (obj instanceof BasicBSONObject) {
+                return deepCopyBasicBSON((BasicBSONObject) obj);
+            }
+            if (obj instanceof BasicBSONList) {
+                return deepCopyBasicBSONList((BasicBSONList) obj);
+            }
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "deep copy failed:" + obj.getClass().getName() + ", " + obj.toString(), e);
+        }
+        throw new IllegalArgumentException("deep copy failed: unknown type:"
+                + obj.getClass().getName() + ", " + obj.toString());
+    }
+
+    private static BasicBSONObject deepCopyBasicBSON(BasicBSONObject bson) {
+        if (bson == null) {
+            return null;
+        }
+        BasicBSONObject ret = new BasicBSONObject();
+        for (Map.Entry<String, Object> e : bson.entrySet()) {
+            ret.put(e.getKey(), deepCopyRecordObject(e.getValue()));
+        }
+        return ret;
+    }
+
+    public static BasicBSONList deepCopyBasicBSONList(BasicBSONList bson) {
+        if (bson == null) {
+            return null;
+        }
+        BasicBSONList ret = new BasicBSONList();
+        for (Object e : bson) {
+            ret.add(deepCopyRecordObject(e));
+        }
+        return ret;
+    }
+
+    private static Object deepCopyRecordObject(Object obj) {
+        if (noNeedCopy(obj)) {
+            // 基本类型(数值、布尔）、字符串、null、无需拷贝
+            return obj;
+        }
+        if (obj instanceof BasicBSONObject) {
+            return deepCopyBasicBSON((BasicBSONObject) obj);
+        }
+        if (obj instanceof BasicBSONList) {
+            return deepCopyBasicBSONList((BasicBSONList) obj);
+        }
+        throw new IllegalArgumentException("deep copy failed: unknown type:"
+                + obj.getClass().getName() + ", " + obj.toString());
+    }
+
+    private static boolean noNeedCopy(Object o) {
+        if (o == null) {
+            return true;
+        }
+        if (o instanceof Boolean) {
+            return true;
+        }
+        if (o instanceof Character) {
+            return true;
+        }
+        if (o instanceof Byte) {
+            return true;
+        }
+        if (o instanceof Short) {
+            return true;
+        }
+        if (o instanceof Integer) {
+            return true;
+        }
+        if (o instanceof Long) {
+            return true;
+        }
+        if (o instanceof Float) {
+            return true;
+        }
+        if (o instanceof Double) {
+            return true;
+        }
+        if (o instanceof String) {
+            return true;
+        }
+        return false;
     }
 }

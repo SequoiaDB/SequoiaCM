@@ -3,17 +3,15 @@ package com.sequoiacm.contentserver.listener;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
-import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.common.BsonUtils;
 
 @Component
 public class FileOperationListenerMgr implements FileOperationListener {
@@ -44,25 +42,26 @@ public class FileOperationListenerMgr implements FileOperationListener {
 
     @Override
     @SlowLog(operation = "preCreate")
-    public void preCreate(ScmWorkspaceInfo ws, BSONObject file) throws ScmServerException {
+    public void preCreate(ScmWorkspaceInfo ws, FileMeta file) throws ScmServerException {
         for (FileOperationListener l : listeners) {
             l.preCreate(ws, file);
         }
     }
 
     @Override
-    public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws, BSONObject fileInfo)
+    public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws,
+            FileMeta latestVersionAfterUpdate)
             throws ScmServerException {
         try {
             CallbackList ret = new CallbackList();
             for (FileOperationListener l : listeners) {
-                ret.add(l.postUpdate(ws, fileInfo));
+                ret.add(l.postUpdate(ws, latestVersionAfterUpdate));
             }
             return ret;
         }
         catch (Exception e) {
-            String fileId = BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_ID);
-            logger.warn("failed to do post update:ws=" + ws.getName() + ", file=" + fileId, e);
+            logger.warn("failed to do post update:ws=" + ws.getName() + ", file="
+                    + latestVersionAfterUpdate.getId(), e);
             return OperationCompleteCallback.EMPTY_CALLBACK;
         }
     }
@@ -85,7 +84,7 @@ public class FileOperationListenerMgr implements FileOperationListener {
     }
 
     @Override
-    public void postDeleteVersion(ScmWorkspaceInfo ws, BSONObject deletedVersion) {
+    public void postDeleteVersion(ScmWorkspaceInfo ws, FileMeta deletedVersion) {
         try {
             for (FileOperationListener l : listeners) {
                 l.postDeleteVersion(ws, deletedVersion);
@@ -98,22 +97,24 @@ public class FileOperationListenerMgr implements FileOperationListener {
     }
 
     @Override
-    public void postDelete(ScmWorkspaceInfo ws, List<BSONObject> allFileVersions)
+    public void postDelete(ScmWorkspaceInfo ws, List<FileMeta> allFileVersions)
             throws ScmServerException {
+        if (allFileVersions == null || allFileVersions.size() <= 0) {
+            return;
+        }
         try {
             for (FileOperationListener l : listeners) {
                 l.postDelete(ws, allFileVersions);
             }
         }
         catch (Exception e) {
-            String fileId = BsonUtils.getStringChecked(allFileVersions.get(0),
-                    FieldName.FIELD_CLFILE_ID);
-            logger.warn("failed to do post delete:ws=" + ws.getName() + ", file=" + fileId, e);
+            logger.warn("failed to do post delete:ws=" + ws.getName() + ", file="
+                    + allFileVersions.get(0).getId(), e);
         }
     }
 
     @Override
-    public void preAddVersion(ScmWorkspaceInfo ws, BSONObject newVersionFile)
+    public void preAddVersion(ScmWorkspaceInfo ws, FileMeta newVersionFile)
             throws ScmServerException {
         for (FileOperationListener l : listeners) {
             l.preAddVersion(ws, newVersionFile);

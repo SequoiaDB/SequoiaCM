@@ -18,30 +18,21 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import java.util.HashSet;
-import java.util.Set;
+import static com.sequoiacm.contentserver.model.FileFieldExtraDefine.EXTERNAL_DATA_UNIFIED_FIELD;
+import static com.sequoiacm.contentserver.model.FileFieldExtraDefine.UNIFIED_FIELD;
 
 public class ScmFileVersionHelper {
-    private static final Set<String> UNIFIED_FIELD = new HashSet<>();
-    static {
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_NAME);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_BATCH_ID);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_ID);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
-        UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_INNER_USER);
-    }
-
-    // external_data 属性内，需要所有版本保持一致的字段
-    private static final Set<String> EXTERNAL_DATA_UNIFIED_FIELD = new HashSet<>();
-    static {
-        EXTERNAL_DATA_UNIFIED_FIELD.add(FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH);
-    }
 
     public static boolean isUnifiedField(String field) {
-        return UNIFIED_FIELD.contains(field);
+        if (UNIFIED_FIELD.contains(field)) {
+            return true;
+        }
+        if (field.startsWith(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + ".")) {
+            String extEmbedField = field
+                    .substring((FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + ".").length());
+            return EXTERNAL_DATA_UNIFIED_FIELD.contains(extEmbedField);
+        }
+        return false;
     }
 
     public static void resetNewFileVersion(BSONObject newFileVersion,
@@ -89,17 +80,16 @@ public class ScmFileVersionHelper {
         }
     }
 
-    public static BSONObject deleteNullVersionInHistory(ScmWorkspaceInfo ws, String fileId,
-            TransactionContext transactionContext, BSONObject latestVersion)
+    public static BSONObject deleteVersionInHistory(ScmWorkspaceInfo ws, String fileId,
+            ScmVersion fileVersion, TransactionContext transactionContext, BSONObject latestVersion)
             throws ScmMetasourceException, ScmServerException {
         MetaFileHistoryAccessor accessor = ScmContentModule.getInstance().getMetaService()
                 .getMetaSource()
                 .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
-        BSONObject deleter = new BasicBSONObject();
-        SequoiadbHelper.addFileIdAndCreateMonth(deleter, fileId);
-        deleter.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, CommonDefine.File.NULL_VERSION_MAJOR);
-        deleter.put(FieldName.FIELD_CLFILE_MINOR_VERSION, CommonDefine.File.NULL_VERSION_MINOR);
-        return accessor.queryAndDelete(deleter, null, latestVersion);
+        BSONObject additionalMatcher = new BasicBSONObject();
+        additionalMatcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, fileVersion.getMajorVersion());
+        additionalMatcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, fileVersion.getMinorVersion());
+        return accessor.queryAndDelete(fileId, latestVersion, additionalMatcher, null);
     }
 
     public static ScmVersion parseVersionSerial(String versionSerial) {
@@ -191,5 +181,15 @@ public class ScmFileVersionHelper {
                 .getMetaSource()
                 .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
         accessor.insert(latestFileVersion);
+    }
+
+    public static boolean isLatestVersion(ScmVersion version, ScmVersion latestVersion) {
+        if (version.equals(latestVersion)) {
+            return true;
+        }
+        if (version.getMajorVersion() == -1 && version.getMinorVersion() == -1) {
+            return true;
+        }
+        return false;
     }
 }

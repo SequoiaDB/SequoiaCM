@@ -11,9 +11,15 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathDefine;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IBatchService;
+import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -24,7 +30,9 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.metasource.MetaBatchAccessor;
 import com.sequoiacm.metasource.MetaCursor;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -35,6 +43,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
 @Service
 public class BatchServiceImpl implements IBatchService {
@@ -49,6 +59,12 @@ public class BatchServiceImpl implements IBatchService {
 
     @Autowired
     private FileOperationListenerMgr fileOpListenerMgr;
+
+    @Autowired
+    private FileMetaOperator fileMetaOperator;
+
+    @Autowired
+    private IFileService fileService;
 
     @Override
     public BSONObject getBatchInfo(ScmUser user, String workspaceName, String batchId,
@@ -150,18 +166,35 @@ public class BatchServiceImpl implements IBatchService {
                         e);
             }
 
-            // delete batch
-            batchDao.delete(wsInfo, batchId, batchCreateMonth, sessionId, userDetail,
-                    user.getUsername());
+            ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
+            // check whether the batch exists
+            BSONObject batch = metaService.getBatchInfo(wsInfo, batchId, batchCreateMonth);
+            if (null == batch) {
+                throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
+                        "batch not found:ws=" + wsInfo.getName() + ",batchId=" + batchId);
+            }
+
+            BasicBSONList files = (BasicBSONList) batch.get(FieldName.Batch.FIELD_FILES);
+            for (Object obj : files) {
+                BSONObject file = (BSONObject) obj;
+                String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
+                // detach file
+                detachFile(user, wsInfo, batchId, fileId);
+                // delete file
+                fileService.deleteFile(sessionId, userDetail, wsInfo.getName(), fileId, -1, -1,
+                        true);
+            }
+            MetaBatchAccessor batchAccessor = metaService.getMetaSource()
+                    .getBatchAccessor(wsInfo.getName(), null);
+            batchAccessor.delete(batchId, batchCreateMonth);
+
             audit.info(ScmAuditType.DELETE_BATCH, user, workspaceName, 0,
                     "delete batch by batchId=" + batchId);
         }
-        catch (ScmServerException e) {
-            throw e;
-        }
-        catch (Exception e) {
+        catch (ScmMetasourceException e) {
             logger.error("delete failed: workspace={},batchId={}", workspaceName, batchId);
-            throw e;
+            throw new ScmServerException(e.getScmError(),
+                    "failed delete batch: ws=" + workspaceName + ", batchId=" + batchId, e);
         }
         finally {
             unlock(batchLock, batchLockPath);
@@ -277,11 +310,6 @@ public class BatchServiceImpl implements IBatchService {
             String batchIdInFile = (String) fileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
             // batch has attach file
             if (isFileInBatch(batch, fileId)) {
-                if (StringUtils.isEmpty(batchIdInFile)) {
-                    // update file's batch_id
-                    ScmContentModule.getInstance().getMetaService().updateBatchIdOfFile(
-                            workspaceName, batchId, fileId, user.getUsername(), null);
-                }
                 throw new ScmServerException(ScmError.FILE_IN_SPECIFIED_BATCH,
                         "attachFile failed, the file is already in the batch: workspace="
                                 + workspaceName + ", batchId=" + batchId + ", fileId=" + fileId);
@@ -305,8 +333,10 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // attach
-            batchDao.attachFile(wsInfo, batchId, batchCreateMonth, fileId, user.getUsername());
-            callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
+            UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(workspaceName, fileId,
+                    Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID, batchId)),
+                    user.getUsername(), new Date(), FileMeta.fromRecord(fileInfo), null);
+            callback = fileOpListenerMgr.postUpdate(wsInfo, ret.getLatestVersionAfterUpdate());
             audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
                     "attach batch's file batchId=" + batchId + ", fileId=" + fileId);
         }
@@ -362,43 +392,29 @@ public class BatchServiceImpl implements IBatchService {
         }
     }
 
-    @Override
-    public void detachFile(ScmUser user, String workspaceName, String batchId, String fileId)
+    private void detachFile(ScmUser user, ScmWorkspaceInfo wsInfo, String batchId, String fileId)
             throws ScmServerException {
-
-        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
-                ScmPrivilegeDefine.UPDATE, "deattach batch's file");
-        ScmLock batchLock = null;
-        ScmLockPath batchLockPath = null;
-
         ScmLock fileLock = null;
-        ScmLockPath fileLockPath = null;
         OperationCompleteCallback callback = null;
-        try {
-            ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
-            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
-            // lock
-            try {
-                batchLockPath = ScmLockPathFactory.createBatchLockPath(wsInfo.getName(), batchId);
-                batchLock = lock(batchLockPath);
+        // file lock
+        ScmLockPath fileLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId);
 
-                // file lock
-                fileLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId);
-                fileLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
-            }
-            catch (Exception e) {
-                throw new ScmSystemException(
-                        "detachFile failed, an error occurs during get lock: workspace="
-                                + workspaceName + ",batchId=" + batchId + ",fileId=" + fileId,
-                        e);
-            }
+        try {
+            fileLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
+            String batchCreateMonth = ScmSystemUtils.getCreateMonthFromBatchId(wsInfo, batchId);
 
             BSONObject batch = getAndCheckBatch(wsInfo, batchId, batchCreateMonth);
-            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId, false);
-            String batchIdInFile = null;
-            if (null != fileInfo) {
-                batchIdInFile = (String) fileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
+            BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId,
+                    false);
+            if (fileInfo == null) {
+                logger.info(
+                        "ignore detach file from batch, file not exist: ws={}, batch={}, fileId={}",
+                        wsInfo.getName(), batchId, fileId);
+                return;
             }
+
+            String batchIdInFile = (String) fileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
+
             // file unexist
             /*
              * if (null == fileInfo) { throw new
@@ -409,7 +425,7 @@ public class BatchServiceImpl implements IBatchService {
 
             // when file not in the batch
             if (!isFileInBatch(batch, fileId)) {
-                if (null != batchIdInFile && batchId.equals(batchIdInFile)) {
+                if (batchId.equals(batchIdInFile)) {
                     // batchId = batchIdInFile, but there is no such file in the
                     // batch.
                     // it could be an exception occurred during execute
@@ -418,14 +434,40 @@ public class BatchServiceImpl implements IBatchService {
                 else {
                     throw new ScmServerException(ScmError.FILE_NOT_IN_BATCH,
                             "detachFile failed, the file is not in the batch: workspace="
-                                    + workspaceName + "batchId=" + batchId + ",fileId=" + fileId);
+                                    + wsInfo.getName() + "batchId=" + batchId + ",fileId="
+                                    + fileId);
                 }
             }
 
             // detach
-            batchDao.detachFile(wsInfo, batchId, batchCreateMonth, fileId, user.getUsername());
-            callback = fileOpListenerMgr.postUpdate(wsInfo, fileInfo);
+            UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId,
+                    Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID, null)),
+                    user.getUsername(), new Date(), FileMeta.fromRecord(fileInfo), null);
+            callback = fileOpListenerMgr.postUpdate(wsInfo, ret.getLatestVersionAfterUpdate());
+        }
+        finally {
+            if (fileLock != null) {
+                fileLock.unlock();
+            }
+        }
 
+        audit.info(ScmAuditType.UPDATE_BATCH, user, wsInfo.getName(), 0,
+                "detach batch's file batchId=" + batchId + ", fileId=" + fileId);
+        callback.onComplete();
+    }
+
+    @Override
+    public void detachFile(ScmUser user, String workspaceName, String batchId, String fileId)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.UPDATE, "deattach batch's file");
+        ScmLock batchLock = null;
+        ScmLockPath batchLockPath = null;
+        try {
+            ScmWorkspaceInfo wsInfo = getWorkspace(workspaceName);
+            batchLockPath = ScmLockPathFactory.createBatchLockPath(wsInfo.getName(), batchId);
+            batchLock = lock(batchLockPath);
+            detachFile(user, wsInfo, batchId, fileId);
         }
         catch (ScmServerException e) {
             throw e;
@@ -436,16 +478,11 @@ public class BatchServiceImpl implements IBatchService {
             throw e;
         }
         finally {
-            unlock(fileLock, fileLockPath);
             unlock(batchLock, batchLockPath);
         }
-        callback.onComplete();
-
-        audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
-                "detach batch's file batchId=" + batchId + ", fileId=" + fileId);
     }
 
-    private ScmLock lock(ScmLockPath lockPath) throws Exception {
+    private ScmLock lock(ScmLockPath lockPath) throws ScmServerException {
         return ScmLockManager.getInstance().acquiresLock(lockPath);
     }
 

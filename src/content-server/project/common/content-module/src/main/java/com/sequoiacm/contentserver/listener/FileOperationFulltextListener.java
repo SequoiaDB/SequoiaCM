@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -19,7 +20,6 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOpFeedback;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation.OperationType;
@@ -56,7 +56,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
     }
 
     @Override
-    public void postDeleteVersion(ScmWorkspaceInfo ws, BSONObject deletedVersion)
+    public void postDeleteVersion(ScmWorkspaceInfo ws, FileMeta deletedVersion)
             throws ScmServerException {
         ScmWorkspaceFulltextExtData fulltextExt = ws.getFulltextExtData();
 
@@ -65,15 +65,15 @@ public class FileOperationFulltextListener implements FileOperationListener {
         }
 
         ScmFileFulltextExtData fileExtData = new ScmFileFulltextExtData(
-                BsonUtils.getBSON(deletedVersion, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
+                deletedVersion.getExternalData());
         if (fileExtData.getIdxStatus() == ScmFileFulltextStatus.CREATED) {
-            String fileId = BsonUtils.getStringChecked(deletedVersion, FieldName.FIELD_CLFILE_ID);
-            putDropIndexMsg(fulltextExt, fileId, fileExtData.getIdxDocumentId());
+            putDropIndexMsg(fulltextExt, deletedVersion.getId(), fileExtData.getIdxDocumentId());
         }
     }
 
     @Override
-    public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws, BSONObject oldFile)
+    public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws,
+            FileMeta latestVersionAfterUpdate)
             throws ScmServerException {
         ScmWorkspaceFulltextExtData wsFulltextExt = ws.getFulltextExtData();
         if (!wsFulltextExt.isEnabled()) {
@@ -81,10 +81,8 @@ public class FileOperationFulltextListener implements FileOperationListener {
         }
 
         ScmFileFulltextExtData fileExtData = new ScmFileFulltextExtData(
-                BsonUtils.getBSON(oldFile, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
-
-        String fileId = BsonUtils.getStringChecked(oldFile, FieldName.FIELD_CLFILE_ID);
-
+                latestVersionAfterUpdate.getExternalData());
+        String fileId = latestVersionAfterUpdate.getId();
         boolean isMatchFulltext = getFileIfMatchFulltextCondition(ws, fileId,
                 wsFulltextExt.getFileMatcher()) != null;
         if (isMatchFulltext) {
@@ -111,7 +109,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
     }
 
     @Override
-    public void postDelete(ScmWorkspaceInfo ws, List<BSONObject> allFileVersions)
+    public void postDelete(ScmWorkspaceInfo ws, List<FileMeta> allFileVersions)
             throws ScmServerException {
         ScmWorkspaceFulltextExtData fulltextExt = ws.getFulltextExtData();
 
@@ -119,12 +117,11 @@ public class FileOperationFulltextListener implements FileOperationListener {
             return;
         }
 
-        for (BSONObject f : allFileVersions) {
+        for (FileMeta f : allFileVersions) {
             ScmFileFulltextExtData fileExtData = new ScmFileFulltextExtData(
-                    BsonUtils.getBSON(f, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA));
+                    f.getExternalData());
             if (fileExtData.getIdxStatus() == ScmFileFulltextStatus.CREATED) {
-                String fileId = BsonUtils.getStringChecked(f, FieldName.FIELD_CLFILE_ID);
-                putDropIndexMsgForDeleteFileSilence(fulltextExt, fileId);
+                putDropIndexMsgForDeleteFileSilence(fulltextExt, f.getId());
                 return;
             }
         }
@@ -278,17 +275,17 @@ public class FileOperationFulltextListener implements FileOperationListener {
     }
 
     @Override
-    public void preCreate(ScmWorkspaceInfo ws, BSONObject file) throws ScmServerException {
-        BSONObject extData = BsonUtils.getBSON(file, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+    public void preCreate(ScmWorkspaceInfo ws, FileMeta file) throws ScmServerException {
+        BSONObject extData = file.getExternalData();
         if (extData == null) {
             extData = new BasicBSONObject();
-            file.put(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA, extData);
+            file.setExternalData(extData);
         }
         extData.putAll(new ScmFileFulltextExtData().toBson());
     }
 
     @Override
-    public void preAddVersion(ScmWorkspaceInfo ws, BSONObject newVersionFile)
+    public void preAddVersion(ScmWorkspaceInfo ws, FileMeta newVersionFile)
             throws ScmServerException {
         preCreate(ws, newVersionFile);
     }

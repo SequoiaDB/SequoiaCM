@@ -3,17 +3,15 @@ package com.sequoiacm.contentserver.controller;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.MimeType;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
-import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
-import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.contentserver.service.impl.Converter;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
@@ -127,44 +125,33 @@ public class BucketController {
         // statistical traffic
         incrementTraffic(CommonDefine.Metrics.PREFIX_FILE_UPLOAD + bucket.getWorkspace());
 
-        BasicBSONObject fileInfo = new BasicBSONObject();
-        fileInfo.append(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, MimeType.OCTET_STREAM);
         BSONObject description = (BSONObject) JSON.parse(RestUtils.urlDecode(fileInfoStr));
-        fileInfo.putAll(description);
+        FileMeta fileMeta = FileMeta.fromUser(bucket.getWorkspace(), description,
+                user.getUsername());
 
-        MetaDataManager.getInstence().checkPropeties(bucket.getWorkspace(),
-                (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_CLASS_ID),
-                (BSONObject) fileInfo.get(FieldName.FIELD_CLFILE_PROPERTIES));
-
-        OverwriteOption overwriteOption = null;
-        ClientUploadConf uploadConf = new ClientUploadConf(
+        ClientUploadConf clientUploadConf = new ClientUploadConf(
                 BsonUtils.getBooleanOrElse(uploadConfig, CommonDefine.RestArg.FILE_IS_OVERWRITE,
                         false),
                 BsonUtils.getBooleanOrElse(uploadConfig, CommonDefine.RestArg.FILE_IS_NEED_MD5,
                         true));
-        if (uploadConf.isOverwrite()) {
-            overwriteOption = OverwriteOption.doOverwrite(sessionId, userDetail);
-        }
-        else {
-            overwriteOption = OverwriteOption.doNotOverwrite();
-        }
 
-        BSONObject createdFile;
+        FileMeta createdFile;
         InputStream is = request.getInputStream();
         try {
             if (null != breakpointFileName) {
-                createdFile = service.createFile(user, bucketName, fileInfo, breakpointFileName,
-                        overwriteOption);
+                createdFile = service.createFile(user, bucketName, fileMeta, breakpointFileName,
+                        clientUploadConf.isOverwrite());
             }
             else {
-                createdFile = service.createFile(user, bucketName, fileInfo, is, overwriteOption);
+                createdFile = service.createFile(user, bucketName, fileMeta, is,
+                        clientUploadConf.isOverwrite());
             }
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(is);
         }
 
-        return createdFile;
+        return createdFile.toBSONObject();
     }
 
     @PostMapping(path = "/buckets/{name}/files", params = "action=detach_file")
@@ -231,8 +218,12 @@ public class BucketController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        return service.deleteFile(user, bucketName, fileName, isPhysical,
+        FileMeta ret = service.deleteFile(user, bucketName, fileName, isPhysical,
                 new SessionInfoWrapper(sessionId, userDetail));
+        if (ret != null) {
+            return ret.toBSONObject();
+        }
+        return null;
     }
 
     @DeleteMapping(path = "/buckets/{name}/files", params = "action=delete_file_version")

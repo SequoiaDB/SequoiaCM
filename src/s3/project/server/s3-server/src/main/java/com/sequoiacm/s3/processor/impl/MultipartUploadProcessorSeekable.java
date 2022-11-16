@@ -1,15 +1,12 @@
 package com.sequoiacm.s3.processor.impl;
 
 import com.sequoiacm.common.CommonHelper;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.model.OverwriteOption;
-import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -298,20 +295,17 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
             // update uploadMeta and write object meta
             BSONObject file = buildFileInfoFromUpload(upload);
-            ScmDataInfoDetail dataInfoDetail = new ScmDataInfoDetail(new ScmDataInfo(
-                    DEFAULT_DATA_TYPE, destDataId, CommonHelper.getDate(dataCreateTime)));
-            dataInfoDetail.setSiteId(upload.getSiteId());
-            dataInfoDetail.setSize(copyAction.getCompleteSize());
-            dataInfoDetail.setEtag(completeEtag);
+            FileMeta fileMeta = FileMeta.fromUser(upload.getWsName(), file,
+                    session.getUser().getUsername());
+            fileMeta.resetDataInfo(destDataId, dataCreateTime, DEFAULT_DATA_TYPE,
+                    copyAction.getCompleteSize(), null, upload.getSiteId());
+            fileMeta.setEtag(completeEtag);
 
-            BSONObject newFile = scmBucketService.createFile(session.getUser(), bucketName, file,
-                    dataInfoDetail,
-                    callbackUpload,
-                    OverwriteOption.doNotOverwrite());
-
-            S3ObjectMeta objMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, newFile);
+            FileMeta newFileMeta = scmBucketService.createFile(session.getUser(), bucketName,
+                    fileMeta, callbackUpload, false);
+            S3ObjectMeta objMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
+                    newFileMeta.toBSONObject());
             response.setVersionId(objMeta.getVersionId());
-
             return response;
         }
         catch (Exception e) {

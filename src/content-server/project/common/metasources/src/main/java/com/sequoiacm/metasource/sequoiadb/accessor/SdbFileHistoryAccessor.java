@@ -2,11 +2,13 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.LruMap;
+import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaFileAccessor;
 import com.sequoiadb.base.Sequoiadb;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,6 +131,8 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
             BSONObject updator = new BasicBSONObject("$set", newFileInfo);
             BSONObject matcher = new BasicBSONObject();
             SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
+            matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
+            matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
             return updateAndReturnNew(matcher, updator);
         }
         catch (SdbMetasourceException e) {
@@ -171,10 +175,36 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     }
 
     @Override
-    public BSONObject queryAndDelete(BSONObject matcher, BSONObject orderby,
-            BSONObject latestVersion) throws ScmMetasourceException {
-        BSONObject ret = baseAccesor.queryAndDelete(matcher, orderby);
-        return compatibilityProcessor.fixHistoryRecord(ret, latestVersion);
+    public BSONObject queryAndDelete(String fileId, BSONObject latestVersion,
+            BSONObject additionalMatcher, BSONObject orderby) throws ScmMetasourceException {
+        BSONObject ret = null;
+        MetaCursor cursor = queryAndDeleteWithCursor(fileId, latestVersion, additionalMatcher,
+                orderby);
+        try {
+            while (cursor.hasNext()) {
+                ret = cursor.getNext();
+            }
+        }
+        finally {
+            cursor.close();
+        }
+        return ret;
+    }
+
+    @Override
+    public MetaCursor queryAndDeleteWithCursor(String fileId, BSONObject latestVersion,
+            BSONObject additionalMatcher, BSONObject orderby) throws ScmMetasourceException {
+
+        BSONObject deletor = new BasicBSONObject();
+        SequoiadbHelper.addFileIdAndCreateMonth(deletor, fileId);
+        BasicBSONList andArr = new BasicBSONList();
+        andArr.add(deletor);
+        if (additionalMatcher != null) {
+            andArr.add(additionalMatcher);
+        }
+        MetaCursor cursor = baseAccesor
+                .queryAndDeleteWithCursor(new BasicBSONObject("$and", andArr), orderby);
+        return new SpecifiedFileCursorWithFix(cursor, latestVersion, compatibilityProcessor);
     }
 
     @Override
@@ -186,20 +216,20 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     public MetaCursor query(BSONObject matcher, BSONObject orderBy, long skip, long limit)
             throws ScmMetasourceException {
         MetaCursor metaCursor = baseAccesor.query(matcher, null, orderBy, skip, limit);
-        return new CompatibilityCursorWrapper(metaCursor, compatibilityProcessor);
+        return new CursorWithUpdateIncompleteRecord(metaCursor, compatibilityProcessor);
     }
 
     @Override
     public MetaCursor query(BSONObject matcher, BSONObject orderBy, BSONObject hint, long skip,
             long limit) throws ScmMetasourceException {
         MetaCursor metaCursor = baseAccesor.query(matcher, null, orderBy, hint, skip, limit, 0);
-        return new CompatibilityCursorWrapper(metaCursor, compatibilityProcessor);
+        return new CursorWithUpdateIncompleteRecord(metaCursor, compatibilityProcessor);
     }
 
     @Override
     public MetaCursor query(BSONObject matcher, BSONObject orderBy) throws ScmMetasourceException {
         MetaCursor metaCursor = baseAccesor.query(matcher, null, orderBy);
-        return new CompatibilityCursorWrapper(metaCursor, compatibilityProcessor);
+        return new CursorWithUpdateIncompleteRecord(metaCursor, compatibilityProcessor);
     }
 
     @Override
@@ -219,6 +249,13 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
             throws ScmMetasourceException {
         BSONObject ret = baseAccesor.queryAndUpdate(matcher, updator, null, true);
         return compatibilityProcessor.fixHistoryRecordAndUpdateMeta(ret);
+    }
+
+    @Override
+    public MetaCursor queryAndUpdate(BSONObject matcher, BSONObject updater)
+            throws ScmMetasourceException {
+        MetaCursor cursor = baseAccesor.queryAndUpdateWithCursor(matcher, updater, null, true);
+        return new CursorWithUpdateIncompleteRecord(cursor, compatibilityProcessor);
     }
 
     @Override
@@ -351,11 +388,41 @@ class CompatibilityProcessor {
     }
 }
 
-class CompatibilityCursorWrapper implements MetaCursor {
+class SpecifiedFileCursorWithFix implements MetaCursor {
+    private final MetaCursor specifiedFileCursor;
+    private final CompatibilityProcessor compatibilityProcessor;
+    private final BSONObject latestVersion;
+
+    public SpecifiedFileCursorWithFix(MetaCursor specifiedFileCursor, BSONObject latestVersion,
+            CompatibilityProcessor compatibilityProcessor) throws SdbMetasourceException {
+        this.specifiedFileCursor = specifiedFileCursor;
+        this.latestVersion = latestVersion;
+        this.compatibilityProcessor = compatibilityProcessor;
+
+    }
+
+    @Override
+    public boolean hasNext() throws ScmMetasourceException {
+        return specifiedFileCursor.hasNext();
+    }
+
+    @Override
+    public BSONObject getNext() throws ScmMetasourceException {
+        return compatibilityProcessor.fixHistoryRecord(specifiedFileCursor.getNext(),
+                latestVersion);
+    }
+
+    @Override
+    public void close() {
+        specifiedFileCursor.close();
+    }
+}
+
+class CursorWithUpdateIncompleteRecord implements MetaCursor {
     private final MetaCursor metaCursor;
     private final CompatibilityProcessor compatibilityProcessor;
 
-    public CompatibilityCursorWrapper(MetaCursor metaCursor,
+    public CursorWithUpdateIncompleteRecord(MetaCursor metaCursor,
             CompatibilityProcessor compatibilityProcessor) {
         this.metaCursor = metaCursor;
         this.compatibilityProcessor = compatibilityProcessor;

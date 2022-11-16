@@ -88,7 +88,12 @@ public class ScmFileServicePriv {
 
     public void checkWsPriority(ScmUser user, String wsName, ScmPrivilegeDefine op, String opDesc)
             throws ScmServerException {
-        if (!hasWsPriority(user.getUsername(), wsName, op.getFlag(), opDesc)) {
+        checkWsPriority(user, wsName, op.getFlag(), opDesc);
+    }
+
+    public void checkWsPriority(ScmUser user, String wsName, int op, String opDesc)
+            throws ScmServerException {
+        if (!hasWsPriority(user.getUsername(), wsName, op, opDesc)) {
             logger.error("do not have priority to {}:user={},ws={}", opDesc, user.getUsername(),
                     wsName);
             throw new ScmOperationUnauthorizedException(opDesc
@@ -181,12 +186,12 @@ public class ScmFileServicePriv {
         }
     }
 
-    public void checkDirPriorityById(ScmUser user, String wsName, IDirService dirService,
+    public void checkDirPriorityById(ScmUser user, String wsName,
             String dirId, ScmPrivilegeDefine op, String opDesc) throws ScmServerException {
-        checkDirPriorityById(user, wsName, dirService, dirId, op.getFlag(), opDesc);
+        checkDirPriorityById(user, wsName, dirId, op.getFlag(), opDesc);
     }
 
-    public void checkDirPriorityById(ScmUser user, String wsName, IDirService dirService,
+    public void checkDirPriorityById(ScmUser user, String wsName,
             String dirId, int opFlag, String opDesc) throws ScmServerException {
         // check workspace priority first
         if (hasWsPriority(user.getUsername(), wsName, opFlag, opDesc)) {
@@ -324,8 +329,8 @@ public class ScmFileServicePriv {
     }
 
     public void checkFilePriorityByFileId(ScmUser user, String wsName, IFileService fileService,
-            String fileId, int majorVerion, int minorVersion, IDirService dirService,
-            ScmPrivilegeDefine op, String opDesc) throws ScmServerException {
+            String fileId, int majorVerion, int minorVersion, ScmPrivilegeDefine op, String opDesc)
+            throws ScmServerException {
         // check workspace priority first
         if (hasWsPriority(user.getUsername(), wsName, op.getFlag(), opDesc)) {
             return;

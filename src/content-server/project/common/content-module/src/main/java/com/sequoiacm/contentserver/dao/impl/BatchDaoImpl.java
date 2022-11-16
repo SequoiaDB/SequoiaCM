@@ -14,6 +14,7 @@ import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -35,11 +36,7 @@ import java.util.Set;
 
 @Repository
 public class BatchDaoImpl implements IBatchDao {
-    @Autowired
-    private FileOperationListenerMgr listenerMgr;
     private static final Logger logger = LoggerFactory.getLogger(BatchDaoImpl.class);
-    @Autowired
-    private BucketInfoManager bucketInfoMgr;
 
     @Override
     public String insert(ScmWorkspaceInfo wsInfo, BSONObject batchInfo, String userName)
@@ -59,43 +56,6 @@ public class BatchDaoImpl implements IBatchDao {
         return batchId;
     }
 
-    @Override
-    public void delete(ScmWorkspaceInfo ws, String batchId, String batchCreateMonth,
-            String sessionId, String userDetail, String user) throws ScmServerException {
-        try {
-            ScmMetaService metaService = ScmContentModule.getInstance().getMetaService();
-            // check whether the batch exists
-            BSONObject batch = metaService.getBatchInfo(ws, batchId, batchCreateMonth);
-            if (null == batch) {
-                throw new ScmServerException(ScmError.BATCH_NOT_FOUND,
-                        "batch not found:ws=" + ws.getName() + ",batchId=" + batchId);
-            }
-
-            MetaBatchAccessor batchAccessor = metaService.getMetaSource()
-                    .getBatchAccessor(ws.getName(), null);
-            FileDeletorDao fileDeletorDao = new FileDeletorDao(sessionId, userDetail, listenerMgr,
-                    bucketInfoMgr);
-            BasicBSONList files = (BasicBSONList) batch.get(FieldName.Batch.FIELD_FILES);
-            for (Object obj : files) {
-                BSONObject file = (BSONObject) obj;
-                String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
-                // detach file
-                metaService.batchDetachFile(ws.getName(), batchCreateMonth, batchId, fileId, user);
-                // delete file
-                fileDeletorDao.init(ws, fileId, true);
-                fileDeletorDao.delete();
-            }
-            batchAccessor.delete(batchId, batchCreateMonth);
-        }
-        catch (ScmServerException e) {
-            throw new ScmServerException(e.getError(),
-                    "deleteBatch failed: workspace=" + ws.getName() + ",batchId=" + batchId, e);
-        }
-        catch (Exception e) {
-            throw new ScmSystemException(
-                    "deleteBatch failed: workspace=" + ws.getName() + ",batchId=" + batchId, e);
-        }
-    }
 
     @Override
     public BSONObject queryById(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth)
@@ -135,33 +95,6 @@ public class BatchDaoImpl implements IBatchDao {
         }
     }
 
-    @Override
-    public void attachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
-            String fileId, String user) throws ScmServerException {
-        try {
-            ScmContentModule.getInstance().getMetaService().batchAttachFile(wsInfo, batchId,
-                    batchCreateMonth, fileId, user);
-        }
-        catch (ScmServerException e) {
-            logger.error("attachFile failed: workspace={}, batchId={}, fileId={}", wsInfo.getName(),
-                    batchId, fileId);
-            throw e;
-        }
-    }
-
-    @Override
-    public void detachFile(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
-            String fileId, String updateUser) throws ScmServerException {
-        try {
-            ScmContentModule.getInstance().getMetaService().batchDetachFile(wsInfo.getName(),
-                    batchId, batchCreateMonth, fileId, updateUser);
-        }
-        catch (ScmServerException e) {
-            logger.error("detachFile failed: workspace={}, batchId={},fileId={}", wsInfo.getName(),
-                    batchId, fileId);
-            throw e;
-        }
-    }
 
     @Override
     public boolean updateById(ScmWorkspaceInfo wsInfo, String batchId, String batchCreateMonth,
@@ -279,7 +212,7 @@ public class BatchDaoImpl implements IBatchDao {
 
         fieldName = FieldName.Batch.FIELD_TAGS;
         BSONObject tagsValue = (BSONObject) batchObj.get(fieldName);
-        result.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue, fieldName));
+        result.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue));
 
         return result;
     }
@@ -343,7 +276,7 @@ public class BatchDaoImpl implements IBatchDao {
         fieldName = FieldName.Batch.FIELD_TAGS;
         if (batchObj.containsField(fieldName)) {
             BSONObject tagsValue = (BSONObject) batchObj.get(fieldName);
-            batchObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue, fieldName));
+            batchObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue));
         }
     }
 

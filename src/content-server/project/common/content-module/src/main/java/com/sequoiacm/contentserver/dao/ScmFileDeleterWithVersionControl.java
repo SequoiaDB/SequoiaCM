@@ -1,6 +1,5 @@
 package com.sequoiacm.contentserver.dao;
 
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
@@ -11,19 +10,17 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaExistException;
+import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
-import com.sequoiacm.metasource.ContentModuleMetaSource;
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaFileAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
-import com.sequoiacm.metasource.TransactionContext;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -43,10 +40,13 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
     private final String userDetail;
     private final String sessionId;
     private final String userName;
+    private final FileMetaOperator fileMetaOperator;
+    private final FileAddVersionDao addVersionDao;
 
     public ScmFileDeleterWithVersionControl(String sessionId, String userDetail, String userName,
             ScmBucket bucket, String fileName, FileOperationListenerMgr listenerMgr,
-            BucketInfoManager bucketInfoMgr) throws ScmServerException {
+            BucketInfoManager bucketInfoMgr, FileMetaOperator fileMetaOperator,
+            FileAddVersionDao addVersionDao) throws ScmServerException {
         this.fileName = fileName;
         this.bucket = bucket;
         this.listenerMgr = listenerMgr;
@@ -56,15 +56,23 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         this.sessionId = sessionId;
         this.userDetail = userDetail;
         this.userName = userName;
+        this.fileMetaOperator = fileMetaOperator;
+        this.addVersionDao = addVersionDao;
     }
 
-    private String queryFileId() throws ScmMetasourceException, ScmServerException {
-        BSONObject file = bucket.getFileTableAccessor(null).queryOne(
-                new BasicBSONObject(FieldName.BucketFile.FILE_NAME, fileName), null, null);
-        if (file == null) {
-            return null;
+    private String queryFileId() throws ScmServerException {
+        try {
+            BSONObject file = bucket.getFileTableAccessor(null).queryOne(
+                    new BasicBSONObject(FieldName.BucketFile.FILE_NAME, fileName), null, null);
+            if (file == null) {
+                return null;
+            }
+            return BsonUtils.getStringChecked(file, FieldName.BucketFile.FILE_ID);
         }
-        return BsonUtils.getStringChecked(file, FieldName.BucketFile.FILE_ID);
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(), "failed to get file info: bucket="
+                    + bucket.getName() + ", fileName=" + fileName, e);
+        }
     }
 
     private boolean isFileInBucket(BSONObject fileInfo, String expectFileInBucket)
@@ -82,7 +90,7 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
     }
 
     @Override
-    public BSONObject delete() throws ScmServerException {
+    public FileMeta delete() throws ScmServerException {
         if (bucket.getVersionStatus() == ScmBucketVersionStatus.Disabled) {
             // disabled 状态走物理删除
             if (contentModule.getLocalSiteInfo().isRootSite()) {
@@ -92,15 +100,26 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
             // 将本次版本控制删除转发给主站点，由主站点进行处理（这里不能直接发一个物理删除给主站点，需要让主站点按版本控制删除流程再次锁内检查文件，再做物理删除）
             return forwardToMainSite();
         }
+        String fileId = queryFileId();
+        if (fileId == null) {
+            try {
+                return createDeleteMarkerFile();
 
-        // bucket version enabled or suspend
+            }
+            catch (FileMetaExistException e) {
+                logger.debug(
+                        "failed to create delete marker file cause by file exist, try add delete marker version: bucket={}, fileName={}",
+                        bucket.getName(), fileName, e);
+                return addDeleteMarkerVersion(e.getExistFileId());
+            }
+        }
+        return addDeleteMarkerVersion(fileId);
+    }
+
+    private FileMeta addDeleteMarkerVersion(String fileId) throws ScmServerException {
         FileInfoAndOpCompleteCallback fileInfoAndOpCompleteCallback;
         ScmLock wLock = null;
         try {
-            String fileId = queryFileId();
-            if (fileId == null) {
-                return createDeleteMarkerFile();
-            }
             ScmLockPath fileLockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(),
                     fileId);
             wLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
@@ -116,42 +135,28 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
                 // 所以这里认为指定桶下已经不存在这个文件了，直接创建 deleteMarker
                 return createDeleteMarkerFile();
             }
-
-            BSONObject newFileVersion = createDeleteMarkerBSON();
-            FileAddVersionDao addVersionDao = new FileAddVersionDao(wsInfo, fileId, null,
-                    bucketInfoMgr, listenerMgr);
+            FileMeta newFileVersion = FileMeta.deleteMarkerMeta(wsInfo.getName(), fileName,
+                    userName, bucket.getId());
             fileInfoAndOpCompleteCallback = addVersionDao
-                    .addVersion(FileAddVersionDao.Context.lockInCaller(newFileVersion,
-                            latestVersionInLock));
+                    .addVersion(FileAddVersionDao.Context.lockInCaller(wsInfo.getName(),
+                            newFileVersion, FileMeta.fromRecord(latestVersionInLock), null));
         }
-        catch (FileExistWhenCreateDeleteMarker retryException) {
+        catch (FileMetaExistException e) {
             logger.debug(
-                    "failed to create delete marker file cause by file exist, try delete again: bucket={}, fileName={}",
-                    bucket.getName(), fileName, retryException);
+                    "failed to create delete marker file cause by file exist, try add delete marker version: bucket={}, fileName={}",
+                    bucket.getName(), fileName, e);
             if (wLock != null) {
                 wLock.unlock();
                 wLock = null;
             }
-            return delete();
-        }
-        catch (ScmServerException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            ScmError error = ScmError.SYSTEM_ERROR;
-            if (e instanceof ScmMetasourceException) {
-                error = ((ScmMetasourceException) e).getScmError();
-            }
-            throw new ScmServerException(error,
-                    "failed to delete file with version control: bucket=" + bucket.getName()
-                            + ", fileName=" + fileName,
-                    e);
+            return addDeleteMarkerVersion(e.getExistFileId());
         }
         finally {
             if (wLock != null) {
                 wLock.unlock();
             }
         }
+
         fileInfoAndOpCompleteCallback.getCallback().onComplete();
         return fileInfoAndOpCompleteCallback.getFileInfo();
     }
@@ -174,14 +179,8 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
                 return;
             }
             ScmFileDeletorPysical fileDeleterPhysical = new ScmFileDeletorPysical(sessionId,
-                    userDetail, wsInfo, fileId, listenerMgr, bucketInfoMgr);
-            fileDeleterPhysical.deleteInMainSiteNoLock(latestVersionInLock);
-        }
-        catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(),
-                    "failed to delete file with version control: bucket=" + bucket.getName()
-                            + ", fileName=" + fileName,
-                    e);
+                    userDetail, wsInfo, fileId, listenerMgr, fileMetaOperator);
+            fileDeleterPhysical.deleteInMainSiteNoLock();
         }
         finally {
             if (wLock != null) {
@@ -190,87 +189,19 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         }
     }
 
-    private BSONObject forwardToMainSite() throws ScmServerException {
+    private FileMeta forwardToMainSite() throws ScmServerException {
         String remoteSiteName = contentModule.getMainSiteName();
         ContentServerClient client = ContentServerClientFactory
                 .getFeignClientByServiceName(remoteSiteName);
-        return client.deleteFileInBucket(sessionId, userDetail, bucket.getName(), fileName, false);
+        return FileMeta.fromRecord(client.deleteFileInBucket(sessionId, userDetail,
+                bucket.getName(), fileName, false));
     }
 
-    private BSONObject createDeleteMarkerBSON() throws ScmServerException {
-        BSONObject deleteMarkerBson = new BasicBSONObject();
-        deleteMarkerBson.put(FieldName.FIELD_CLFILE_NAME, fileName);
 
-        Date date = new Date();
-        String fileId = ScmIdGenerator.FileId.get(date);
-        deleteMarkerBson = ScmFileOperateUtils.formatFileObj(wsInfo, deleteMarkerBson, fileId, date,
-                userName);
-        deleteMarkerBson.put(FieldName.FIELD_CLFILE_DELETE_MARKER, true);
-        deleteMarkerBson.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, bucket.getId());
-        return deleteMarkerBson;
-    }
-
-    private BSONObject createDeleteMarkerFile()
-            throws ScmMetasourceException, ScmServerException, FileExistWhenCreateDeleteMarker {
-        BSONObject deleteMarkerFile = createDeleteMarkerBSON();
-        if (bucket.getVersionStatus() == ScmBucketVersionStatus.Suspended) {
-            deleteMarkerFile.put(FieldName.FIELD_CLFILE_MAJOR_VERSION,
-                    CommonDefine.File.NULL_VERSION_MAJOR);
-            deleteMarkerFile.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
-                    CommonDefine.File.NULL_VERSION_MINOR);
-            deleteMarkerFile.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, "1.0");
-        }
-
-        BSONObject bucketFileRel = ScmFileOperateUtils.createBucketFileRel(deleteMarkerFile);
-        ContentModuleMetaSource metasource = contentModule.getMetaService().getMetaSource();
-        TransactionContext trans = metasource.createTransactionContext();
-        try {
-            MetaAccessor bucketFileTableAccessor = bucket.getFileTableAccessor(trans);
-            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
-                    wsInfo.getName(), trans);
-            trans.begin();
-            try {
-                bucketFileTableAccessor.insert(bucketFileRel);
-            }
-            catch (ScmMetasourceException e) {
-                if (e.getScmError() == ScmError.METASOURCE_RECORD_EXIST) {
-                    throw new FileExistWhenCreateDeleteMarker(e);
-                }
-                throw e;
-            }
-
-            try {
-                fileAccessor.insert(deleteMarkerFile);
-            }
-            catch (ScmMetasourceException e) {
-                trans.rollback();
-                if (e.getScmError() == ScmError.FILE_TABLE_NOT_FOUND) {
-                    logger.debug("create table", e);
-                    try {
-                        metasource.getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null)
-                                .createFileTable(deleteMarkerFile);
-                    }
-                    catch (Exception ex) {
-                        throw new ScmServerException(ScmError.METASOURCE_ERROR,
-                                "insert file failed, create file table failed:ws="
-                                        + wsInfo.getName() + ", file=" + deleteMarkerFile,
-                                ex);
-                    }
-                    return createDeleteMarkerFile();
-                }
-                throw e;
-            }
-            trans.commit();
-        }
-        catch (Exception e) {
-            trans.rollback();
-            throw e;
-        }
-        finally {
-            trans.close();
-        }
-
-        return deleteMarkerFile;
+    private FileMeta createDeleteMarkerFile() throws ScmServerException {
+        FileMeta fileMeta = FileMeta.deleteMarkerMeta(wsInfo.getName(), fileName, userName,
+                bucket.getId());
+        return fileMetaOperator.createFileMeta(wsInfo.getName(), fileMeta, null).getNewFile();
     }
 
     private static class FileExistWhenCreateDeleteMarker extends Exception {

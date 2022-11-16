@@ -1,8 +1,10 @@
 package com.sequoiacm.contentserver.dao;
 
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.module.ScmBucketVersionStatus;
+import com.sequoiacm.contentserver.pipeline.file.module.AddFileMetaVersionResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import org.bson.BSONObject;
+
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.AsyncUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
@@ -11,61 +13,62 @@ import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
-import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
-import com.sequoiacm.metasource.ScmMetasourceException;
-import com.sequoiacm.metasource.TransactionContext;
-import org.bson.BSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FileAddVersionDao {
 
     public static class Context {
-        private BSONObject currentLatestVersion;
-        private BSONObject newVersion;
+        private FileMeta currentLatestVersion;
+        private String fileId;
+
+        private FileMeta newVersion;
+        private String ws;
+        private TransactionCallback transactionCallback;
         private boolean hasLock;
 
-        private Context(boolean hasLock, BSONObject newVersion, BSONObject currentLatestVersion) {
+        private Context(boolean hasLock, String ws, String fileId, FileMeta newVersion,
+                FileMeta currentLatestVersion, TransactionCallback transactionCallback) {
             this.currentLatestVersion = currentLatestVersion;
             this.newVersion = newVersion;
             this.hasLock = hasLock;
+            this.ws = ws;
+            this.transactionCallback = transactionCallback;
+            this.fileId = fileId;
         }
 
         // FileAddVersionDao 的调用者已经持有文件锁，Dao 在处理时无需再获取锁
-        public static Context lockInCaller(BSONObject newVersion, BSONObject latestVersion) {
-            return new Context(true, newVersion, latestVersion);
+        public static Context lockInCaller(String ws, FileMeta newVersion, FileMeta latestVersion,
+                TransactionCallback transactionCallback) {
+            return new Context(true, ws, latestVersion.getId(), newVersion, latestVersion,
+                    transactionCallback);
         }
 
         // FileAddVersionDao 在处理时会先获取文件锁，再处理文件
-        public static Context standard(BSONObject newVersion) {
-            return new Context(false, newVersion, null);
+        public static Context standard(String ws, String fileId, FileMeta newVersion,
+                TransactionCallback transactionCallback) {
+            return new Context(false, ws, fileId, newVersion, null, transactionCallback);
         }
     }
 
-    private final ScmContentModule contentModule;
-    private final ScmWorkspaceInfo ws;
-    private final String fileId;
-    private final BucketInfoManager bucketMgr;
-    private final TransactionCallback transCallback;
-    private final FileOperationListenerMgr listenerMgr;
+    @Autowired
+    private BucketInfoManager bucketMgr;
+    @Autowired
+    private FileOperationListenerMgr listenerMgr;
 
-    public FileAddVersionDao(ScmWorkspaceInfo ws, String fileId,
-            TransactionCallback transactionCallback, BucketInfoManager bucketInfoManager,
-            FileOperationListenerMgr listenerMgr) {
-        contentModule = ScmContentModule.getInstance();
-        this.ws = ws;
-        this.fileId = fileId;
-        this.bucketMgr = bucketInfoManager;
-        this.transCallback = transactionCallback;
-        this.listenerMgr = listenerMgr;
-    }
+    @Autowired
+    private FileMetaOperator fileMetaOperator;
 
-    private FileInfoAndOpCompleteCallback addVersion(BSONObject newFileVersion)
+    private FileInfoAndOpCompleteCallback addVersion(String wsName, String fileId,
+            FileMeta newFileVersion, TransactionCallback transactionCallback)
             throws ScmServerException {
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
@@ -75,166 +78,42 @@ public class FileAddVersionDao {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                         "file not exist: ws=" + ws.getName() + ", fileId=" + fileId);
             }
-            return addVersionNoLock(newFileVersion, latestFileVersion);
+            FileMeta latestFileVersionMeta = FileMeta.fromRecord(latestFileVersion);
+            return addVersionNoLock(wsName, newFileVersion, latestFileVersionMeta,
+                    transactionCallback);
         }
         finally {
             writeLock.unlock();
         }
     }
 
-    private FileInfoAndOpCompleteCallback addVersionNoLock(BSONObject newFileVersion,
-            BSONObject latestFileVersion)
+    private FileInfoAndOpCompleteCallback addVersionNoLock(String wsName, FileMeta newFileVersion,
+            FileMeta latestFileVersion, TransactionCallback transactionCallback)
             throws ScmServerException {
-        OperationCompleteCallback operationCompleteCallback;
-        BSONObject deletedVersion = null;
-        TransactionContext transactionContext = null;
-        try {
-            ScmFileVersionHelper.resetNewFileVersion(newFileVersion, latestFileVersion);
-            listenerMgr.preAddVersion(ws, newFileVersion);
-
-            ScmBucket fileBucket = null;
-            Number bucketId = BsonUtils.getNumber(newFileVersion,
-                    FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
-            if (bucketId != null) {
-                fileBucket = bucketMgr.getBucketById(bucketId.longValue());
-                if (fileBucket != null) {
-                    checkFileMd5EtagExist(newFileVersion);
-                }
-            }
-
-            // 文件不属于任何bucket时，按 ENABLED 情况进行处理
-            ScmBucketVersionStatus versionStatus = fileBucket == null
-                    ? ScmBucketVersionStatus.Enabled
-                    : fileBucket.getVersionStatus();
-
-            transactionContext = contentModule.getMetaService().getMetaSource()
-                    .createTransactionContext();
-            transactionContext.begin();
-            if (versionStatus == ScmBucketVersionStatus.Disabled
-                    || versionStatus == ScmBucketVersionStatus.Suspended) {
-                // 桶版本为关闭状态或暂停状态时，新增的文件版本必须是 null 版本
-                // 一个文件中只能存在一个 null 版本，需要把旧的 null 版本删除掉，再添加新的 null 版本
-                // 为了减少数据库操作次数，可以将删除最新表记录 + 插入新版本记录的操作优化成更新操作
-                if (!ScmFileVersionHelper.isSpecifiedVersion(latestFileVersion,
-                        CommonDefine.File.NULL_VERSION_MAJOR,
-                        CommonDefine.File.NULL_VERSION_MINOR)) {
-                    // 最新版本不是 null version，去历史表删除 version 版本
-                    deletedVersion = ScmFileVersionHelper.deleteNullVersionInHistory(ws, fileId,
-                            transactionContext, latestFileVersion);
-                    // 把最新版本复制到历史表
-                    ScmFileVersionHelper.insertVersionToHistory(ws, latestFileVersion,
-                            transactionContext);
-                }
-                else {
-                    // 最新版本是 null version
-                    deletedVersion = latestFileVersion;
-                }
-
-                newFileVersion.put(FieldName.FIELD_CLFILE_VERSION_SERIAL,
-                        newFileVersion.get(FieldName.FIELD_CLFILE_MAJOR_VERSION) + "."
-                                + newFileVersion.get(FieldName.FIELD_CLFILE_MINOR_VERSION));
-                newFileVersion.put(FieldName.FIELD_CLFILE_MAJOR_VERSION,
-                        CommonDefine.File.NULL_VERSION_MAJOR);
-                newFileVersion.put(FieldName.FIELD_CLFILE_MINOR_VERSION,
-                        CommonDefine.File.NULL_VERSION_MINOR);
-                // 更新操作，将新版元数据覆盖到最新表的记录上
-                updateLatestVersionAsNewVersion(newFileVersion, latestFileVersion,
-                        transactionContext);
-            }
-            else if (versionStatus == ScmBucketVersionStatus.Enabled) {
-                ScmFileVersionHelper.insertVersionToHistory(ws, latestFileVersion,
-                        transactionContext);
-                updateLatestVersionAsNewVersion(newFileVersion, latestFileVersion,
-                        transactionContext);
-            }
-            else {
-                throw new ScmServerException(ScmError.SYSTEM_ERROR,
-                        "unknown version status: versionStatus=" + versionStatus);
-            }
-
-            if (transCallback != null) {
-                transCallback.beforeTransactionCommit(transactionContext);
-            }
-            transactionContext.commit();
-            if (deletedVersion != null) {
-                listenerMgr.postDeleteVersion(ws, deletedVersion);
-            }
-            operationCompleteCallback = listenerMgr.postAddVersion(ws, fileId);
-        }
-        catch (ScmMetasourceException e) {
-            rollback(transactionContext);
-            throw new ScmServerException(e.getScmError(), "failed to add new version: ws="
-                    + ws.getName() + ", fileId=" + fileId + ", newVersion=" + newFileVersion, e);
-        }
-        catch (Exception e) {
-            rollback(transactionContext);
-            throw e;
-        }
-        finally {
-            close(transactionContext);
-        }
-        if (deletedVersion != null) {
-            final ScmFileDataDeleterWrapper dataDeleter = new ScmFileDataDeleterWrapper(ws,
-                    deletedVersion);
-            AsyncUtils.execute(new Runnable() {
-                @Override
-                public void run() {
-                    dataDeleter.deleteDataSilence();
-                }
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
+        listenerMgr.preAddVersion(ws, newFileVersion);
+        AddFileMetaVersionResult res = fileMetaOperator.addFileMetaVersion(wsName,
+                newFileVersion, latestFileVersion, transactionCallback);
+        if (res.getDeletedVersion() != null) {
+            listenerMgr.postDeleteVersion(ws, res.getDeletedVersion());
+            AsyncUtils.execute(() -> {
+                final ScmFileDataDeleterWrapper dataDeleter = new ScmFileDataDeleterWrapper(ws,
+                        res.getDeletedVersion());
+                dataDeleter.deleteDataSilence();
             });
         }
+        OperationCompleteCallback operationCompleteCallback = listenerMgr.postAddVersion(ws,
+                res.getNewVersion().getId());
         return new FileInfoAndOpCompleteCallback(newFileVersion, operationCompleteCallback);
-    }
-
-    private void updateLatestVersionAsNewVersion(BSONObject newFileVersion,
-            BSONObject latestFileVersion, TransactionContext transactionContext)
-            throws ScmMetasourceException, ScmServerException {
-        boolean updateSuccess = ScmFileVersionHelper.updateLatestVersionAsNewVersion(ws, fileId,
-                newFileVersion, latestFileVersion, transactionContext);
-        if (!updateSuccess) {
-            // 即便我们拿着文件锁，这里更新最新表文件记录还是有可能会出现文件不存在的场景（脏读）：
-            // A 线程全新创建 file1，当最新表记录和关系表记录都写入到表里面时，事务尚未提交
-            // B 线程给 file1 加个版本，当 B 线程将最新表记录，拷贝一份插入到历史表，进到这个函数准备将新增的版本更新至最新表
-            // 此时 A 线程事务发生了回滚，B 线程在这里就会发现更新不到记录，所以抛个异常，让外面回滚 B 线程的所有操作，否则会引起元数据紊乱
-            throw new ScmServerException(ScmError.FILE_NOT_FOUND,
-                    "file not found: ws=" + ws.getName() + ", fileId=" + fileId);
-        }
-    }
-
-    private void checkFileMd5EtagExist(BSONObject newFileVersion) throws ScmServerException {
-        if (BsonUtils.getBooleanOrElse(newFileVersion, FieldName.FIELD_CLFILE_DELETE_MARKER,
-                false)) {
-            return;
-        }
-
-        String md5 = BsonUtils.getString(newFileVersion, FieldName.FIELD_CLFILE_FILE_MD5);
-        if (md5 == null || md5.isEmpty()) {
-            String etag = BsonUtils.getString(newFileVersion, FieldName.FIELD_CLFILE_FILE_ETAG);
-            if (etag == null || etag.isEmpty()) {
-                throw new ScmServerException(ScmError.INVALID_ARGUMENT,
-                        "failed to create new version, the file version in bucket must contain md5/etag attribute : ws="
-                                + ws.getName() + ", file=" + fileId);
-            }
-        }
     }
 
     public FileInfoAndOpCompleteCallback addVersion(Context context) throws ScmServerException {
         if (context.hasLock) {
-            return addVersionNoLock(context.newVersion, context.currentLatestVersion);
+            return addVersionNoLock(context.ws, context.newVersion, context.currentLatestVersion,
+                    context.transactionCallback);
         }
-        return addVersion(context.newVersion);
-    }
-
-    private void close(TransactionContext transactionContext) {
-        if (transactionContext != null) {
-            transactionContext.close();
-        }
-    }
-
-    private void rollback(TransactionContext transactionContext) {
-        if (transactionContext != null) {
-            transactionContext.rollback();
-        }
+        return addVersion(context.ws, context.fileId, context.newVersion,
+                context.transactionCallback);
     }
 
 }

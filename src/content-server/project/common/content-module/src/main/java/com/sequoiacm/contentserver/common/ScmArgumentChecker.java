@@ -14,14 +14,14 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 
 public class ScmArgumentChecker {
-    public static Object checkAndCorrectClass(BSONObject classValue, String fieldName)
+    public static BSONObject checkAndCorrectClass(BSONObject classValue, String fieldName)
             throws ScmServerException {
         if (null == classValue) {
             classValue = new BasicBSONObject();
         }
         else if (!(classValue instanceof Map)) {
             throw new ScmInvalidArgumentException(
-                    "field [ " + fieldName + " ] is not Json format!");
+                    "class properties is not json format: " + classValue);
         }
 
         // SEQUOIACM-312
@@ -33,13 +33,13 @@ public class ScmArgumentChecker {
         return classValue;
     }
 
-    public static Object checkAndCorrectTags(BSONObject tagsValue, String fieldName)
+    public static Set<Object> checkAndCorrectTags(BSONObject tagsValue)
             throws ScmServerException {
         if (null == tagsValue) {
-            return new BasicBSONList();
+            return new HashSet<>();
         }
         else if (!(tagsValue instanceof List)) {
-            throw new ScmInvalidArgumentException("field [" + fieldName + "] is not Json format!");
+            throw new ScmInvalidArgumentException("tag is not json list format: " + tagsValue);
         }
         else {
             BasicBSONList tagsList = (BasicBSONList) tagsValue;

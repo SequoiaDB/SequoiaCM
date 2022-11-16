@@ -30,15 +30,15 @@ public interface MetaFileHistoryAccessor {
 
     public void createFileTable(BSONObject file) throws ScmMetasourceException;
     
-    // update and return old
+    // update and return new
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
             BSONObject newFileInfo) throws ScmMetasourceException;
 
     public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
             throws ScmMetasourceException;
 
-    public BSONObject queryAndDelete(BSONObject matcher, BSONObject orderby,
-            BSONObject latestVersion) throws ScmMetasourceException;
+    public BSONObject queryAndDelete(String fileId, BSONObject latestVersion,
+            BSONObject additionalMatcher, BSONObject orderby) throws ScmMetasourceException;
 
     public void insert(BSONObject insertor) throws ScmMetasourceException;
 
@@ -57,9 +57,14 @@ public interface MetaFileHistoryAccessor {
 
     BSONObject updateAndReturnNew(BSONObject matcher, BSONObject updator) throws ScmMetasourceException;
 
+    MetaCursor queryAndUpdate(BSONObject matcher, BSONObject updater) throws ScmMetasourceException;
+
     public long count(BSONObject matcher) throws ScmMetasourceException;
 
     public double sum(BSONObject matcher, String field) throws ScmMetasourceException;
 
     boolean isIndexFieldExist(String fieldName) throws SdbMetasourceException;
+
+    public MetaCursor queryAndDeleteWithCursor(String fileId, BSONObject latestVersion,
+            BSONObject additionalMatcher, BSONObject orderby) throws ScmMetasourceException;
 }

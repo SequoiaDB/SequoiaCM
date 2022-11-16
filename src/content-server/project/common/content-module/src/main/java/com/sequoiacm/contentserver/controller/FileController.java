@@ -3,22 +3,28 @@ package com.sequoiacm.contentserver.controller;
 import com.sequoiacm.common.*;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmVersion;
-import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
@@ -47,6 +53,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -88,7 +96,7 @@ public class FileController {
             String ignoreStr = "/api/v1/files/path";
             String filePath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
             filePath = ScmSystemUtils.formatFilePath(filePath);
-            file = fileService.getFileInfoByPath(user, workspaceName, filePath,
+            file = dirService.getFileInfoByPath(user, workspaceName, filePath,
                     version.getMajorVersion(), version.getMinorVersion(), false);
         }
         else if (type.equals("id")) {
@@ -129,13 +137,13 @@ public class FileController {
             throws ScmServerException, IOException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         InputStream inputStreamEntity = null;
-        BSONObject updatedFileInfo;
+        FileMeta updatedFileInfo;
         try {
             ScmVersion version = new ScmVersion(majorVersion, minorVersion);
 
             if (newFileProperties != null) {
-                updatedFileInfo = fileService.updateFileInfo(user, workspaceName, fileId,
-                        newFileProperties, version.getMajorVersion(), version.getMinorVersion());
+                updatedFileInfo = updateFileInfo(user, workspaceName, fileId, version,
+                        newFileProperties);
             }
             else if (newBreakPointFileContent != null) {
                 // update content by breakPoint
@@ -157,8 +165,27 @@ public class FileController {
 
         audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
                 "update file by fileId=" + fileId);
-        String fileInfoUtf8 = RestUtils.urlEncode(updatedFileInfo.toString());
+        String fileInfoUtf8 = RestUtils.urlEncode(updatedFileInfo.toBSONObject().toString());
         response.setHeader(CommonDefine.RestArg.FILE_INFO, fileInfoUtf8);
+    }
+
+    private FileMeta updateFileInfo(ScmUser user, String workspaceName, String fileId,
+            ScmVersion version, BSONObject newFileProperties) throws ScmServerException {
+        checkUpdateInfoObj(workspaceName, fileId, version.getMajorVersion(),
+                version.getMinorVersion(), newFileProperties);
+        String moveToDirId = (String) newFileProperties.get(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        if (moveToDirId != null) {
+            return dirService.moveFile(user, workspaceName, moveToDirId, fileId, version);
+        }
+        String moveToDirPath = (String) newFileProperties
+                .get(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+        if (moveToDirPath != null) {
+            return dirService.moveFileByPath(user, workspaceName, moveToDirPath, fileId, version);
+        }
+
+        return fileService.updateFileInfo(user, workspaceName, fileId, newFileProperties,
+                version.getMajorVersion(), version.getMinorVersion());
+
     }
 
     @RequestMapping(value = "/files", method = RequestMethod.GET)
@@ -194,139 +221,80 @@ public class FileController {
         // statistical traffic
         incrementTraffic(CommonDefine.Metrics.PREFIX_FILE_UPLOAD + workspaceName);
 
-        BasicBSONObject fileInfo = new BasicBSONObject();
-        fileInfo.append(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, MimeType.OCTET_STREAM);
+        BSONObject description = (BSONObject) JSON.parse(RestUtils.urlDecode(desc));
 
-        BSONObject fullFileInfo;
-        String message = "";
-        // it's always return a not null InputStream whether the client set
-        // InputStreamEntity or not
+        logger.debug("file description:{}", description);
+        FileMeta fileMeta = FileMeta.fromUser(workspaceName, description, user.getUsername());
+
         InputStream is = request.getInputStream();
-
         String username = auth.getName();
         try {
-            BSONObject description = (BSONObject) JSON.parse(RestUtils.urlDecode(desc));
-            fileInfo.putAll(description);
-            logger.debug("file description:{}", fileInfo);
+            ClientUploadConf clientUploadConf = new ClientUploadConf(uploadConfig);
 
-            // check properties create by zhangping
-            MetaDataManager.getInstence().checkPropeties(workspaceName,
-                    (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_CLASS_ID),
-                    (BSONObject) fileInfo.get(FieldName.FIELD_CLFILE_PROPERTIES));
+            FileUploadConf fileUploadConf = new FileUploadConf(
+                    clientUploadConf.isOverwrite() ? FileExistStrategy.OVERWRITE
+                            : FileExistStrategy.THROW_EXCEPTION,
+                    clientUploadConf.isNeedMd5());
+            ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
+                    .getWorkspaceInfoCheckExist(workspaceName);
+            String parentDirId = BsonUtils.getStringOrElse(description,
+                    FieldName.FIELD_CLFILE_DIRECTORY_ID, CommonDefine.Directory.SCM_ROOT_DIR_ID);
+            if (!wsInfo.isEnableDirectory()) {
+                if (!parentDirId.isEmpty()
+                        && !parentDirId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
+                    throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                            "directory feature is disable, can not specified directory id for create file");
+                }
+            }
 
-            ScmFileServicePriv privService = ScmFileServicePriv.getInstance();
-
-            // overwrite file priv
-            ClientUploadConf uploadConf = new ClientUploadConf(uploadConfig);
-
-            ScmUserPasswordType userPasswordType = ((ScmUser) auth.getPrincipal())
-                    .getPasswordType();
-            if (null != breakpointFileName) {
-                fullFileInfo = fileService.uploadFile(user, workspaceName, breakpointFileName,
-                        fileInfo, sessionId, userDetail, userPasswordType, uploadConf);
+            FileMeta createdFile;
+            if (wsInfo.isEnableDirectory()) {
+                createdFile = createFileInDir(user, workspaceName, parentDirId, fileMeta,
+                        breakpointFileName, is, fileUploadConf);
             }
             else {
-                fullFileInfo = fileService.uploadFile(user, workspaceName, is, fileInfo, sessionId,
-                        userDetail, userPasswordType, uploadConf);
-                message = "create file , file id=" + fullFileInfo.get(FieldName.FIELD_CLFILE_ID)
-                        + ", file name="
-                        + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+                createdFile = createFile(user, workspaceName, fileMeta, breakpointFileName, is,
+                        fileUploadConf);
             }
+
+            BSONObject createdFileBson = createdFile.toBSONObject();
+            BSONObject body = new BasicBSONObject(CommonDefine.RestArg.FILE_RESP_FILE_INFO,
+                    createdFileBson);
+            ResponseEntity.BodyBuilder respBuilder = ResponseEntity.ok();
+            if (ScmStatisticsType.FILE_UPLOAD.equals(statisticsType)) {
+                ScmStatisticsFileMeta staticsExtra = ScmFileOperateUtils.createStatisticsFileMeta(
+                        createdFileBson, workspaceName, username, -1, breakpointFileName);
+                respBuilder.header(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER,
+                        staticsExtra.toJSON());
+            }
+            return respBuilder.body(body);
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(is);
         }
-
-        BSONObject body = new BasicBSONObject(CommonDefine.RestArg.FILE_RESP_FILE_INFO,
-                fullFileInfo);
-        ResponseEntity.BodyBuilder e = ResponseEntity.ok();
-        if (ScmStatisticsType.FILE_UPLOAD.equals(statisticsType)) {
-            ScmStatisticsFileMeta staticsExtra = ScmFileOperateUtils.createStatisticsFileMeta(fullFileInfo,
-                    workspaceName, username, -1, breakpointFileName);
-            e.header(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER, staticsExtra.toJSON());
-        }
-        return e.body(body);
     }
 
-    // @PostMapping("/files")
-    // public BSONObject uploadFile(
-    // @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
-    // @RequestParam(value = CommonDefine.RestArg.FILE_MULTIPART_FILE, required
-    // = false) MultipartFile file,
-    // @RequestParam(value = CommonDefine.RestArg.FILE_BREAKPOINT_FILE, required
-    // = false) String breakpointFileName,
-    // @RequestParam(CommonDefine.RestArg.FILE_DESCRIPTION) BSONObject
-    // description,
-    // Authentication auth) throws ScmServerException {
-    // if (file == null && !StringUtils.hasText(breakpointFileName)) {
-    // throw new ScmInvalidArgumentException(
-    // "Missing " + CommonDefine.RestArg.FILE_MULTIPART_FILE + " or "
-    // + CommonDefine.RestArg.FILE_BREAKPOINT_FILE);
-    // }
-    //
-    // if (file != null && StringUtils.hasText(breakpointFileName)) {
-    // throw new ScmInvalidArgumentException(
-    // "Specify both " + CommonDefine.RestArg.FILE_MULTIPART_FILE + " and "
-    // + CommonDefine.RestArg.FILE_BREAKPOINT_FILE);
-    // }
-    //
-    // BasicBSONObject fileInfo = new BasicBSONObject();
-    // if (file != null) {
-    // fileInfo.append(FieldName.FIELD_CLFILE_NAME, file.getOriginalFilename());
-    // fileInfo.append(FieldName.FIELD_CLFILE_FILE_AUTHOR, "");
-    // fileInfo.append(FieldName.FIELD_CLFILE_FILE_TITLE, "");
-    // fileInfo.append(FieldName.FIELD_CLFILE_FILE_MIME_TYPE,
-    // file.getContentType());
-    // }
-    //
-    // if (null != description && !description.isEmpty()) {
-    // fileInfo.putAll(description);
-    // }
-    //
-    // logger.debug("file description:{}", fileInfo);
-    // // check properties create by zhangping
-    // MetaDataManager.getInstence().checkPropeties(workspaceName,
-    // (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_CLASS_ID),
-    // (BSONObject) fileInfo.get(FieldName.FIELD_CLFILE_PROPERTIES));
-    //
-    // String username = auth.getName();
-    // ScmFileServicePriv.getInstance().checkDirPriorityById(auth.getName(),
-    // workspaceName,
-    // dirService, (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID),
-    // ScmPrivilegeDefine.CREATE, "create file");
-    //
-    // InputStream is = null;
-    // BSONObject fullFileInfo;
-    // String message = "";
-    // try {
-    // if (file != null) {
-    // is = RestUtils.getInputStream(file);
-    // fullFileInfo = fileService.uploadFile(workspaceName, username, is,
-    // fileInfo);
-    // message = "create file , file id=" +
-    // fullFileInfo.get(FieldName.FIELD_CLFILE_ID)
-    // + ", file name="
-    // + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME));
-    // }
-    // else {
-    // fullFileInfo = fileService.uploadFile(workspaceName, username,
-    // breakpointFileName,
-    // fileInfo);
-    // message = "create breakpointFile , file id="
-    // + fullFileInfo.get(FieldName.FIELD_CLFILE_ID) + ", breakpointFileName="
-    // + breakpointFileName;
-    // }
-    // }
-    // finally {
-    // ScmSystemUtils.closeResource(is);
-    // }
-    //
-    // audit.info(ScmAuditType.CREATE_FILE, auth, workspaceName, 0,
-    // message);
-    // return new BasicBSONObject(CommonDefine.RestArg.FILE_RESP_FILE_INFO,
-    // fullFileInfo);
-    // }
+    private FileMeta createFileInDir(ScmUser user, String ws, String parentDirId, FileMeta fileInfo,
+            String breakpointFile, InputStream fileData, FileUploadConf uploadConf)
+            throws ScmServerException {
+        if (breakpointFile == null) {
+            return dirService.createFile(user, ws, parentDirId, fileInfo, fileData, uploadConf);
+        }
+        else {
+            return dirService.createFile(user, ws, parentDirId, fileInfo, breakpointFile,
+                    uploadConf);
+        }
+    }
 
+    private FileMeta createFile(ScmUser user, String ws, FileMeta fileInfo, String breakpointFile,
+            InputStream fileData, FileUploadConf uploadConf) throws ScmServerException {
+        if (breakpointFile == null) {
+            return fileService.createFile(user, ws, fileInfo, uploadConf, fileData);
+        }
+        else {
+            return fileService.createFile(user, ws, fileInfo, uploadConf, breakpointFile);
+        }
+    }
 
     // 文件下载接口在网关 DownloadFileStatisticsDeciderImpl 中对其进行了捕获，修改下载接口需要考虑网关
     @GetMapping("/files/{file_id}")
@@ -467,7 +435,10 @@ public class FileController {
         ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
         filePath = ScmSystemUtils.formatFilePath(filePath);
-        fileService.deleteFileByPath(sessionId, userDetail, user, workspaceName, filePath,
+        BSONObject fileInfo = dirService.getFileInfoByPath(user, workspaceName, filePath,
+                majorVersion, minorVersion, true);
+        fileService.deleteFile(sessionId, userDetail, user, workspaceName,
+                BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_ID),
                 version.getMajorVersion(), version.getMinorVersion(), isPhysical);
     }
 
@@ -557,5 +528,106 @@ public class FileController {
         ScmUser user = (ScmUser) auth.getPrincipal();
         fileService.deleteVersion(user, workspaceName, fileId, version.getMajorVersion(),
                 version.getMinorVersion());
+    }
+
+    private void checkUpdateInfoObj(String wsName, String fileId, int major, int minor,
+            BSONObject updateInfoObj) throws ScmServerException {
+        // only one properties now.
+        Set<String> objFields = updateInfoObj.keySet();
+        if (objFields.size() != 1) {
+            if (objFields.size() != 2) {
+                throw new ScmInvalidArgumentException(
+                        "invlid argument,updates only one properties at a time:updator="
+                                + updateInfoObj);
+            }
+
+            // key number = 2
+            if (!objFields.contains(FieldName.FIELD_CLFILE_PROPERTIES)
+                    || !objFields.contains(FieldName.FIELD_CLFILE_FILE_CLASS_ID)) {
+                // must contain id and properties
+                throw new ScmInvalidArgumentException(
+                        "invlid argument,updates only classId and properties at a time:updator="
+                                + updateInfoObj);
+            }
+        }
+
+        Set<String> availableFields = new HashSet<>();
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        availableFields.add(FieldName.FIELD_CLFILE_NAME);
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+
+        availableFields.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        availableFields.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+
+        availableFields.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+        availableFields.add(FieldName.FIELD_CLFILE_PROPERTIES);
+        availableFields.add(FieldName.FIELD_CLFILE_TAGS);
+        availableFields.add(FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+
+        for (String field : objFields) {
+            // SEQUOIACM-312
+            // {class_properties.key:value}
+            if (field.startsWith(FieldName.FIELD_CLFILE_PROPERTIES + ".")) {
+                String subKey = field.substring((FieldName.FIELD_CLFILE_PROPERTIES + ".").length());
+                MetaDataManager.getInstence().validateKeyFormat(subKey,
+                        FieldName.FIELD_CLFILE_PROPERTIES);
+            }
+            else if (!availableFields.contains(field)) {
+                throw new ScmOperationUnsupportedException(
+                        "field can't be modified:fieldName=" + field);
+            }
+        }
+
+        // value type is string. and can't be null
+        Set<String> valueCheckStringFields = new HashSet<>();
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_NAME);
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        valueCheckStringFields.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+
+        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+
+        for (String field : valueCheckStringFields) {
+            if (updateInfoObj.containsField(field)) {
+                ScmMetaSourceHelper.checkExistString(updateInfoObj, field);
+            }
+        }
+
+        // value type is bson, check the format
+        String fieldName = FieldName.FIELD_CLFILE_PROPERTIES;
+        if (updateInfoObj.containsField(fieldName)) {
+            BSONObject classValue = (BSONObject) updateInfoObj.get(fieldName);
+            updateInfoObj.put(fieldName,
+                    ScmArgumentChecker.checkAndCorrectClass(classValue, fieldName));
+        }
+
+        fieldName = FieldName.FIELD_CLFILE_TAGS;
+        if (updateInfoObj.containsField(fieldName)) {
+            BSONObject tagsValue = (BSONObject) updateInfoObj.get(fieldName);
+            updateInfoObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue));
+        }
+
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
+        String fileName = (String) updateInfoObj.get(FieldName.FIELD_CLFILE_NAME);
+        if (fileName != null) {
+            ScmFileOperateUtils.checkFileName(ws, fileName);
+        }
+
+        if (updateInfoObj.containsField(FieldName.FIELD_CLFILE_FILE_CLASS_ID)
+                || updateInfoObj.containsField(FieldName.FIELD_CLFILE_PROPERTIES)
+                || MetaDataManager.getInstence().isUpdateSingleClassProperty(updateInfoObj,
+                        FieldName.FIELD_CLFILE_PROPERTIES)) {
+            String classIdKey = FieldName.FIELD_CLFILE_FILE_CLASS_ID;
+            String propertiesKey = FieldName.FIELD_CLFILE_PROPERTIES;
+            BSONObject oldFileVersion = ScmContentModule.getInstance().getMetaService()
+                    .getFileInfo(ws.getMetaLocation(), ws.getName(), fileId, major, minor, false);
+            String classId = (String) oldFileVersion.get(classIdKey);
+            MetaDataManager.getInstence().checkUpdateProperties(ws.getName(), updateInfoObj,
+                    classIdKey, propertiesKey, classId);
+        }
     }
 }

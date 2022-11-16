@@ -8,16 +8,8 @@ import com.sequoiacm.contentserver.cache.ScmDirPath;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
-import com.sequoiacm.contentserver.dao.FileDeletorDao;
-import com.sequoiacm.contentserver.dao.FileInfoUpdater;
-import com.sequoiacm.contentserver.dao.FileInfoUpdaterFactory;
-import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
-import com.sequoiacm.contentserver.lock.ScmLockManager;
-import com.sequoiacm.contentserver.lock.ScmLockPath;
-import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.*;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
@@ -1575,75 +1567,6 @@ public class ScmMetaService {
         }
     }
 
-    public void batchAttachFile(ScmWorkspaceInfo ws, String batchId, String batchCreateMonth,
-            String fileId, String updateUser) throws ScmServerException {
-        TransactionContext context = null;
-        try {
-            context = metasource.createTransactionContext();
-            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(ws.getName(), context);
-
-            context.begin();
-            updateBatchIdOfFile(ws.getName(), batchId, fileId, updateUser, context);
-            batchAccessor.attachFile(batchId, batchCreateMonth, fileId, updateUser);
-            context.commit();
-        }
-        catch (ScmServerException e) {
-            rollbackTransaction(context);
-            throw new ScmServerException(e.getError(), "batchAttachFile failed: workspace="
-                    + ws.getName() + ",batchId=" + batchId + ",fileId=" + fileId, e);
-        }
-        catch (Exception e) {
-            rollbackTransaction(context);
-            throw new ScmSystemException("batchAttachFile failed: workspace=" + ws.getName()
-                    + ",batchId=" + batchId + ",fileId=" + fileId, e);
-        }
-        finally {
-            closeTransactionContext(context);
-        }
-    }
-
-    public void batchDetachFile(String wsName, String batchId, String batchCreateMonth,
-            String fileId, String updateUser) throws ScmServerException {
-        TransactionContext context = null;
-        try {
-            context = metasource.createTransactionContext();
-            MetaBatchAccessor batchAccessor = metasource.getBatchAccessor(wsName, context);
-
-            context.begin();
-            batchAccessor.detachFile(batchId, batchCreateMonth, fileId, updateUser);
-            updateBatchIdOfFile(wsName, "", fileId, updateUser, context);
-            context.commit();
-        }
-        catch (ScmServerException e) {
-            rollbackTransaction(context);
-            throw new ScmServerException(e.getError(), "batchDetachFile failed: workspace=" + wsName
-                    + ",batchId=" + batchId + ",fileId=" + fileId, e);
-        }
-        catch (Exception e) {
-            rollbackTransaction(context);
-            throw new ScmSystemException("batchDetachFile failed: workspace=" + wsName + ",batchId="
-                    + batchId + ",fileId=" + fileId, e);
-        }
-        finally {
-            closeTransactionContext(context);
-        }
-    }
-
-    public void updateBatchIdOfFile(String wsName, String newBatchId, String fileId, String user,
-            TransactionContext context) throws ScmServerException {
-        BSONObject updator = new BasicBSONObject(FieldName.FIELD_CLFILE_BATCH_ID, newBatchId);
-
-        FileInfoUpdater fileInfoUpdater = FileInfoUpdaterFactory.create(updator);
-        if (null == context) {
-            fileInfoUpdater.update(ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName),
-                    fileId, -1, -1, updator, user);
-        }
-        else {
-            fileInfoUpdater.update(ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName),
-                    fileId, -1, -1, updator, user, context);
-        }
-    }
-
     public boolean updateBatchInfo(String wsName, String batchId, String batchCreateMonth,
             BSONObject updator) throws ScmServerException {
         try {
@@ -2052,47 +1975,6 @@ public class ScmMetaService {
         catch (Exception e) {
             throw new ScmSystemException(
                     "count batch failed:siteId=" + siteId + ",matcher=" + matcher, e);
-        }
-    }
-
-    public void updateFileMd5(String user, ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, String dataId, String md5) throws ScmServerException {
-        ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId);
-        ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
-        try {
-            BSONObject fileInfo = getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId,
-                    majorVersion, minorVersion, false);
-            if (fileInfo == null) {
-                throw new ScmFileNotFoundException("file not exist:workspace=" + wsInfo.getName()
-                        + ",fileId=" + fileId + ",version="
-                        + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
-            }
-            // 锁内确认文件数据没有发生变化（桶内 -2.0 版本文件可以被重复覆盖，而文件的 ID、版本号不会发生变化，所以这里查出来的文件比对以下 data Id）
-            if (!BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID)
-                    .equals(dataId)) {
-                // 文件已经被另外一个线程覆盖了，直接返回
-                return;
-            }
-
-            // 当文件已经存在ETAG时，不能同时更新文件的ETAG，因为会破坏 S3 对象 ETAG 的定义（描述对象内容，相当于摘要）
-            BSONObject newFileInfo = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
-            String etag = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_ETAG);
-            if (etag == null || etag.isEmpty()) {
-                newFileInfo.put(FieldName.FIELD_CLFILE_FILE_ETAG, SignUtil.toHex(md5));
-            }
-
-            FileInfoUpdater updater = FileInfoUpdaterFactory.create(newFileInfo);
-            updater.update(wsInfo, fileId, majorVersion, minorVersion, newFileInfo, user);
-        }
-        catch (ScmServerException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            throw new ScmSystemException("update md5 failed:fileId=" + fileId + ",majorVersion="
-                    + majorVersion + ",minorVersion=" + minorVersion + ",md5=" + md5, e);
-        }
-        finally {
-            writeLock.unlock();
         }
     }
 

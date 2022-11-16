@@ -178,11 +178,10 @@ public class MetaDataManager {
     public void checkPropeties(String wsName, String classId, BSONObject properties)
             throws ScmServerException {
         if (null == classId) {
-            if (null != properties) {
+            if (null != properties && !properties.isEmpty()) {
                 throw new ScmServerException(ScmError.METADATA_CHECK_ERROR,
                         "classId=" + classId + ",properties=" + properties);
             }
-
             return;
         }
 

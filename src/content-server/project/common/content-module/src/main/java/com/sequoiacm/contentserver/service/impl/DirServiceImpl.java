@@ -3,15 +3,31 @@ package com.sequoiacm.contentserver.service.impl;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DirCreatorDao;
 import com.sequoiacm.contentserver.dao.DirOperator;
 import com.sequoiacm.contentserver.dao.DirUpdatorDao;
 import com.sequoiacm.contentserver.dao.DireDeletorDao;
+import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
+import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
+import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
+import com.sequoiacm.contentserver.lock.ScmLockManager;
+import com.sequoiacm.contentserver.lock.ScmLockPath;
+import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
+import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
+import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IDirService;
+import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -19,7 +35,9 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaDirAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
@@ -30,6 +48,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 @Service
@@ -39,10 +60,19 @@ public class DirServiceImpl implements IDirService {
     @Autowired
     private ScmAudit audit;
 
+    @Autowired
+    private IFileService fileService;
+
+    @Autowired
+    private FileMetaOperator fileMetaOperator;
+
+    @Autowired
+    private FileOperationListenerMgr listenerMgr;
+
     @Override
     public BSONObject getDirInfoById(ScmUser user, String wsName, String dirId)
             throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, dirId,
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, dirId,
                 ScmPrivilegeDefine.READ, "get dir path info by id");
         try {
             ScmContentModule contentModule = ScmContentModule.getInstance();
@@ -179,7 +209,7 @@ public class DirServiceImpl implements IDirService {
                     ScmPrivilegeDefine.DELETE, "delete dir by path");
         }
         else {
-            ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, id,
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, id,
                     ScmPrivilegeDefine.DELETE, "delete dir by id");
         }
 
@@ -229,7 +259,7 @@ public class DirServiceImpl implements IDirService {
     public BSONObject createDirByPidAndName(ScmUser user, String wsName, String name,
             String parentID) throws ScmServerException {
 
-        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, parentID,
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, parentID,
                 ScmPrivilegeDefine.CREATE, "create dir by parentIdAndName");
 
         ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
@@ -262,7 +292,7 @@ public class DirServiceImpl implements IDirService {
     @Override
     public long reanmeDirById(ScmUser user, String wsName, String dirId, String newName)
             throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, dirId,
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, dirId,
                 ScmPrivilegeDefine.DELETE, "delete source when rename dir by id");
         ScmFileServicePriv.getInstance().checkDirPriorityByOldIdAndNewName(user, wsName, this,
                 dirId, newName, ScmPrivilegeDefine.CREATE, "create target when rename dir by id");
@@ -345,7 +375,7 @@ public class DirServiceImpl implements IDirService {
                     this, dirId, newParentPath, ScmPrivilegeDefine.CREATE,
                     "create target when move dir by path");
         }
-        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, this, dirId,
+        ScmFileServicePriv.getInstance().checkDirPriorityById(user, wsName, dirId,
                 ScmPrivilegeDefine.DELETE, "delete source when move dir by id");
         ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
         if (!ws.isEnableDirectory()) {
@@ -456,5 +486,187 @@ public class DirServiceImpl implements IDirService {
     @Override
     public String generateId(Date dirCreateTime) throws ScmServerException {
         return ScmIdGenerator.DirectoryId.get();
+    }
+
+    @Override
+    public FileMeta createFile(ScmUser user, String ws, String parentDirId, FileMeta fileInfo,
+            InputStream data, FileUploadConf conf) throws ScmServerException {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(ws);
+        if (!wsInfo.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+                    "directory feature is disabled: workspace=" + ws);
+        }
+
+        checkPrivForCreateFile(user, ws, parentDirId, conf);
+        fileInfo.setDirId(parentDirId);
+        FileMeta fileMeta = fileService.createFile(ws, fileInfo, conf, data);
+        audit.info(ScmAuditType.CREATE_FILE, user, ws, 0,
+                "create file , fileId=" + fileMeta.getId() + ", fileName=" + fileMeta.getName());
+        return fileMeta;
+    }
+
+    private void checkPrivForCreateFile(ScmUser user, String ws, String parentDirId,
+            FileUploadConf conf) throws ScmServerException {
+        if (conf.getExistStrategy() == FileExistStrategy.OVERWRITE) {
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, ws, parentDirId,
+                    ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag(),
+                    "overwrite file for delete and create");
+            ScmFileServicePriv.getInstance().checkWsPriority(user, ws, ScmPrivilegeDefine.UPDATE,
+                    "overwrite file for detach batch");
+        }
+        else {
+            ScmFileServicePriv.getInstance().checkDirPriorityById(user, ws, parentDirId,
+                    ScmPrivilegeDefine.CREATE, "create file");
+        }
+    }
+
+    @Override
+    public FileMeta createFile(ScmUser user, String ws, String parentDirId, FileMeta fileInfo,
+            String breakpointFile, FileUploadConf conf) throws ScmServerException {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(ws);
+        if (!wsInfo.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+                    "directory feature is disabled: workspace=" + ws);
+        }
+        checkPrivForCreateFile(user, ws, parentDirId, conf);
+        fileInfo.setDirId(parentDirId);
+        FileMeta fileMeta = fileService.createFile(ws, fileInfo, conf, breakpointFile);
+        audit.info(ScmAuditType.CREATE_FILE, user, ws, 0, "create file , fileId=" + fileMeta.getId()
+                + ", fileName=" + fileMeta.getName() + ", breakpointFile=" + breakpointFile);
+        return fileMeta;
+    }
+
+    @Override
+    public BSONObject getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
+            int majorVersion, int minorVersion, boolean acceptDeleteMarker)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkDirPriority(user, workspaceName, filePath,
+                ScmPrivilegeDefine.READ, "get file by path");
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
+        if (!ws.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to get file, directory is disable:ws=" + workspaceName + ", filePath="
+                            + filePath);
+        }
+        String fileName = ScmSystemUtils.basename(filePath);
+        String parentDirPath = ScmSystemUtils.dirname(filePath);
+        BSONObject fileInfo = null;
+        try {
+            BSONObject parentDir = getDirInfoByPath(workspaceName, parentDirPath);
+            String parentDirId = (String) parentDir.get(FieldName.FIELD_CLDIR_ID);
+            fileInfo = contentModule.getMetaService().getFileInfo(ws, parentDirId, fileName,
+                    majorVersion, minorVersion, acceptDeleteMarker);
+        }
+        catch (ScmServerException e) {
+            // DIR_NOT_FOUND ==> FILE_NOT_FOUND
+            if (e.getError() != ScmError.DIR_NOT_FOUND) {
+                throw e;
+            }
+        }
+        if (fileInfo == null) {
+            throw new ScmFileNotFoundException("file not exist:workspace=" + workspaceName
+                    + ",filePath=" + filePath + ",version="
+                    + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
+        }
+
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file by filePath=" + filePath
+                + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        return fileInfo;
+    }
+
+    @Override
+    public FileMeta moveFile(ScmUser user, String ws, String moveToDirId, String fileId,
+            ScmVersion returnVersion)
+            throws ScmServerException {
+        ScmFileServicePriv.getInstance().checkFilePriorityByFileId(user, ws, fileService, fileId,
+                -1, -1, ScmPrivilegeDefine.UPDATE, "move file");
+
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(ws);
+
+        if (!wsInfo.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to move file, directory is disable:ws=" + ws + ", fileId=" + fileId);
+        }
+
+        ScmLock dirLock = null;
+        ScmLock fileLock = null;
+        UpdateFileMetaResult ret;
+        OperationCompleteCallback callback;
+        try {
+            ScmLockPath fileLockPath = ScmLockPathFactory.createFileLockPath(ws, fileId);
+            fileLock = ScmLockManager.getInstance().acquiresWriteLock(fileLockPath);
+            if (!moveToDirId.equals(CommonDefine.Directory.SCM_ROOT_DIR_ID)) {
+                ScmLockPath dirLockPath = ScmLockPathFactory.createDirLockPath(ws, moveToDirId);
+                dirLock = readLock(dirLockPath);
+            }
+
+            BSONObject currentLatestVersionBSON = ScmContentModule.getInstance().getMetaService()
+                    .getFileInfo(wsInfo.getMetaLocation(), wsInfo.getName(), fileId, -1, -1);
+            if (currentLatestVersionBSON == null) {
+                throw new ScmServerException(ScmError.FILE_NOT_FOUND,
+                        "file not found: ws=" + wsInfo.getName() + ", fileId=" + fileId);
+            }
+            checkExistDir(ws, BsonUtils.getStringChecked(currentLatestVersionBSON,
+                    FieldName.FIELD_CLFILE_NAME), moveToDirId);
+
+            BSONObject parentDirMatcher = new BasicBSONObject();
+            parentDirMatcher.put(FieldName.FIELD_CLDIR_ID, moveToDirId);
+
+            if (ScmContentModule.getInstance().getMetaService().getDirCount(ws,
+                    parentDirMatcher) <= 0) {
+                throw new ScmServerException(ScmError.DIR_NOT_FOUND,
+                        "parent directory not exist:id=" + moveToDirId);
+            }
+            ret = fileMetaOperator.updateFileMeta(ws, fileId,
+                    Collections.singletonList(
+                            new FileMetaUpdater(FieldName.FIELD_CLFILE_DIRECTORY_ID, moveToDirId)),
+                    user.getUsername(), new Date(), FileMeta.fromRecord(currentLatestVersionBSON),
+                    returnVersion);
+            callback = listenerMgr.postUpdate(wsInfo, ret.getLatestVersionAfterUpdate());
+        }
+        finally {
+            unlock(dirLock);
+            unlock(fileLock);
+        }
+        audit.info(ScmAuditType.FILE_DML, user, ws, 0,
+                "move file fileId=" + fileId + ", moveToDir=" + moveToDirId);
+        callback.onComplete();
+        return ret.getSpecifiedReturnVersion();
+    }
+
+    private void unlock(ScmLock lock) {
+        if (lock != null) {
+            lock.unlock();
+        }
+    }
+
+    private void checkExistDir(String ws, String name, String parentDirId)
+            throws ScmServerException {
+        BSONObject existDirMatcher = new BasicBSONObject();
+        existDirMatcher.put(FieldName.FIELD_CLDIR_NAME, name);
+        existDirMatcher.put(FieldName.FIELD_CLDIR_PARENT_DIRECTORY_ID, parentDirId);
+        long dirCount = ScmContentModule.getInstance().getMetaService().getDirCount(ws,
+                existDirMatcher);
+        if (dirCount > 0) {
+            throw new ScmServerException(ScmError.DIR_EXIST,
+                    "a directory with the same name exists:name=" + name + ",parentDirectoryId="
+                            + parentDirId);
+        }
+    }
+
+    private ScmLock readLock(ScmLockPath lockPath) throws ScmServerException {
+        return ScmLockManager.getInstance().acquiresReadLock(lockPath);
+    }
+
+    @Override
+    public FileMeta moveFileByPath(ScmUser user, String ws, String moveToDirPath, String fileId,
+            ScmVersion returnVersion)
+            throws ScmServerException {
+        BSONObject dirId = getDirInfoByPath(ws, moveToDirPath);
+        return moveFile(user, ws, BsonUtils.getStringChecked(dirId, FieldName.FIELD_CLDIR_ID),
+                fileId, returnVersion);
     }
 }

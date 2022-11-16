@@ -4,6 +4,8 @@ import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.exception.ScmError;
 
+import java.util.Objects;
+
 public class ScmVersion implements Comparable<ScmVersion> {
     private int majorVersion = -1;
     private int minorVersion = -1;
@@ -32,6 +34,16 @@ public class ScmVersion implements Comparable<ScmVersion> {
     public ScmVersion() {
     }
 
+    public ScmVersion(String versionSerial) throws ScmServerException {
+        String[] versionArr = versionSerial.split("\\.");
+        if (versionArr.length != 2) {
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
+                    "invalid version serail:" + versionSerial);
+        }
+        majorVersion = Integer.parseInt(versionArr[0]);
+        minorVersion = Integer.parseInt(versionArr[1]);
+    }
+
     public int getMajorVersion() {
         return majorVersion;
     }
@@ -56,11 +68,22 @@ public class ScmVersion implements Comparable<ScmVersion> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScmVersion that = (ScmVersion) o;
+        return majorVersion == that.majorVersion &&
+                minorVersion == that.minorVersion;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(majorVersion, minorVersion);
+    }
+
+    @Override
     public String toString() {
-        if(isAssigned()) {
-            return majorVersion + "." + minorVersion;
-        }
-        return "null";
+        return majorVersion + "." + minorVersion;
     }
 
     @Override

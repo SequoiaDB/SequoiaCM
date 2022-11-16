@@ -4,12 +4,13 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.IndexName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
+import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
-import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
 import com.sequoiacm.contentserver.model.ScmVersion;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.IScmBucketService;
@@ -137,17 +138,21 @@ public class ObjServiceImpl implements ObjectService {
 
             BSONObject fileInfo = FileMappingUtil.buildFileInfo(req.getObjectMeta());
             fileInfo.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, objCreateTime);
+            FileMeta fileMeta = FileMeta.fromUser(s3Bucket.getRegion(), fileInfo,
+                    session.getUser().getUsername());
+            fileMeta.resetDataInfo(dataDetail.getDataInfo().getId(),
+                    dataDetail.getDataInfo().getCreateTime().getTime(),
+                    dataDetail.getDataInfo().getType(), dataDetail.getSize(), dataDetail.getMd5(),
+                    dataDetail.getSiteId());
 
-            BSONObject createdFile = scmBucketService.createFile(session.getUser(),
-                    s3Bucket.getBucketName(), fileInfo,
-                    dataDetail, null,
-                    OverwriteOption.doNotOverwrite());
+            FileMeta createdFile = scmBucketService.createFile(session.getUser(),
+                    s3Bucket.getBucketName(), fileMeta, (TransactionCallback) null, false);
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
                     "create s3 object meta: bucketName=" + s3Bucket.getBucketName() + ", key="
                             + req.getObjectMeta().getKey());
 
             S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(s3Bucket.getBucketName(),
-                    createdFile);
+                    createdFile.toBSONObject());
             PutObjectResult res = new PutObjectResult();
             res.seteTag(s3ObjMeta.getEtag());
             if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
@@ -478,7 +483,7 @@ public class ObjServiceImpl implements ObjectService {
             throws S3ServerException {
         try {
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
-            BSONObject deleteMarker = scmBucketService.deleteFile(session.getUser(), bucketName,
+            FileMeta deleteMarker = scmBucketService.deleteFile(session.getUser(), bucketName,
                     objectName, false,
                     new SessionInfoWrapper(session.getSessionId(), session.getUserDetail()));
             audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
@@ -486,7 +491,8 @@ public class ObjServiceImpl implements ObjectService {
             if (deleteMarker == null) {
                 return null;
             }
-            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, deleteMarker);
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
+                    deleteMarker.toBSONObject());
             DeleteObjectResult ret = new DeleteObjectResult();
             ret.setDeleteMarker(s3ObjMeta.isDeleteMarker());
             if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
@@ -506,7 +512,7 @@ public class ObjServiceImpl implements ObjectService {
     public DeleteObjectResult deleteObject(ScmSession session, String bucketName, String objectKey,
             String versionId) throws S3ServerException {
         try {
-            BSONObject deletedVersion = null;
+            FileMeta deletedVersion = null;
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             if (versionId != null) {
                 if (versionId.equals(S3CommonDefine.NULL_VERSION_ID)) {
@@ -533,7 +539,8 @@ public class ObjServiceImpl implements ObjectService {
             if (deletedVersion == null) {
                 return null;
             }
-            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, deletedVersion);
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
+                    deletedVersion.toBSONObject());
             DeleteObjectResult ret = new DeleteObjectResult();
             ret.setDeleteMarker(s3ObjMeta.isDeleteMarker());
             ret.setVersionId(s3ObjMeta.getVersionId());

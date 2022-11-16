@@ -5,9 +5,8 @@ import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
-import com.sequoiacm.contentserver.model.OverwriteOption;
 import com.sequoiacm.contentserver.model.ScmBucket;
-import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
@@ -37,15 +36,14 @@ public interface IScmBucketService {
 
     long countBucket(ScmUser user, BSONObject condition) throws ScmServerException;
 
-    BSONObject createFile(ScmUser user, String bucket, BSONObject fileInfo, InputStream data,
-                          OverwriteOption overwriteOption) throws ScmServerException;
+    FileMeta createFile(ScmUser user, String bucket, FileMeta fileInfo, InputStream data,
+            boolean isOverWrite) throws ScmServerException;
 
-    BSONObject createFile(ScmUser user, String bucket, BSONObject fileInfo, String breakpointFile,
-            OverwriteOption overwriteOption) throws ScmServerException;
+    FileMeta createFile(ScmUser user, String bucket, FileMeta fileInfo, String breakpointFile,
+            boolean isOverWrite) throws ScmServerException;
 
-    BSONObject createFile(ScmUser user, String bucket, BSONObject fileInfo,
-                          ScmDataInfoDetail data, TransactionCallback transactionCallback,
-                          OverwriteOption overwriteOption) throws ScmServerException;
+    FileMeta createFile(ScmUser user, String bucket, FileMeta fileInfo,
+            TransactionCallback transactionCallback, boolean isOverWrite) throws ScmServerException;
 
     BSONObject getFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
             int minorVersion) throws ScmServerException;
@@ -70,13 +68,13 @@ public interface IScmBucketService {
             ScmBucketVersionStatus bucketVersionStatus) throws ScmServerException;
 
     // 删除文件若发生了新增版本（deleteMarker），则返回这个新增的版本，否则返回null
-    BSONObject deleteFile(ScmUser user, String bucket, String fileName, boolean isPhysical,
+    FileMeta deleteFile(ScmUser user, String bucket, String fileName, boolean isPhysical,
             SessionInfoWrapper sessionInfoWrapper) throws ScmServerException;
 
     // 返回被删除的版本
-    BSONObject deleteFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
+    FileMeta deleteFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
             int minorVersion) throws ScmServerException;
 
-    BSONObject deleteNullVersionFile(ScmUser user, String bucket, String fileName)
+    FileMeta deleteNullVersionFile(ScmUser user, String bucket, String fileName)
             throws ScmServerException;
 }

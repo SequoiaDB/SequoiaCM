@@ -1,8 +1,8 @@
 package com.sequoiacm.contentserver.dao;
 
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.exception.ScmServerException;
-import org.bson.BSONObject;
 
 public interface ScmFileDeletor {
-    public BSONObject delete() throws ScmServerException;
+    public FileMeta delete() throws ScmServerException;
 }

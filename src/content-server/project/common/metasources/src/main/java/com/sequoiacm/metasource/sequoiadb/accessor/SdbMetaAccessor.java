@@ -109,7 +109,7 @@ public class SdbMetaAccessor implements MetaAccessor {
         }
     }
 
-    boolean deleteAndCheck(BSONObject deletor) throws SdbMetasourceException {
+    boolean deleteAndCheck(BSONObject deletor) throws ScmMetasourceException {
         BSONObject res = queryAndDelete(deletor);
         if (res == null) {
             return false;
@@ -120,13 +120,12 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     // return an matching record (old), and delete all matching records.
-    public BSONObject queryAndDelete(BSONObject deletor) throws SdbMetasourceException {
+    public BSONObject queryAndDelete(BSONObject deletor) throws ScmMetasourceException {
         return queryAndDelete(deletor, null);
     }
 
-    // return an matching record (old), and delete all matching records.
     @SlowLog(operation = "accessMeta")
-    public BSONObject queryAndDelete(BSONObject deletor, BSONObject orderby)
+    public MetaCursor queryAndDeleteWithCursor(BSONObject deletor, BSONObject orderby)
             throws SdbMetasourceException {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
@@ -137,29 +136,49 @@ public class SdbMetaAccessor implements MetaAccessor {
 
             cursor = cl.queryAndRemove(deletor, null, orderby, null, 0, -1,
                     DBQuery.FLG_QUERY_WITH_RETURNDATA);
-            BSONObject ret = null;
-            while (cursor.hasNext()) {
-                ret = cursor.getNext();
+            SdbMetaCursor sdbCursor;
+            if (context != null) {
+                // 连接在事务中自行管理，不需要将连接托管给 MetaCursor
+                sdbCursor = new SdbMetaCursor(cursor);
             }
-            if (ret != null) {
-                ret.removeField("_id");
+            else {
+                sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
             }
-            return ret;
+            return sdbCursor;
         }
         catch (BaseException e) {
+            SequoiadbHelper.closeCursor(cursor);
+            releaseConnection(sdb);
             throw new SdbMetasourceException(e.getErrorCode(),
                     "delete failed:table=" + csName + "." + clName + ",deletor=" + deletor, e);
         }
         catch (SdbMetasourceException e) {
+            SequoiadbHelper.closeCursor(cursor);
+            releaseConnection(sdb);
             throw e;
         }
         catch (Exception e) {
+            SequoiadbHelper.closeCursor(cursor);
+            releaseConnection(sdb);
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "delete failed:table=" + csName + "." + clName + ",deletor=" + deletor, e);
         }
+    }
+
+    // return an matching record (old), and delete all matching records.
+    @SlowLog(operation = "accessMeta")
+    public BSONObject queryAndDelete(BSONObject deletor, BSONObject orderby)
+            throws ScmMetasourceException {
+        MetaCursor cursor = queryAndDeleteWithCursor(deletor, orderby);
+        try {
+            BSONObject ret = null;
+            while (cursor.hasNext()) {
+                ret = cursor.getNext();
+            }
+            return ret;
+        }
         finally {
-            SequoiadbHelper.closeCursor(cursor);
-            releaseConnection(sdb);
+            cursor.close();
         }
     }
 
@@ -380,26 +399,18 @@ public class SdbMetaAccessor implements MetaAccessor {
         return queryAndUpdate(matcher, updator, hint, false);
     }
 
+
     // return an matching record (old|new), and update all matching records.
     @Override
     @SlowLog(operation = "accessMeta")
     public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
             boolean returnNew) throws SdbMetasourceException {
-        Sequoiadb sdb = null;
-        DBCursor cursor = null;
+        MetaCursor cursor = null;
         try {
-            sdb = getConnection();
-            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
-            DBCollection cl = cs.getCollection(getClName());
-
-            cursor = cl.queryAndUpdate(matcher, null, null, hint, updator, 0, -1,
-                    DBQuery.FLG_QUERY_WITH_RETURNDATA, returnNew);
+            cursor = queryAndUpdateWithCursor(matcher, updator, hint, returnNew);
             BSONObject ret = null;
             while (cursor.hasNext()) {
                 ret = cursor.getNext();
-            }
-            if (ret != null) {
-                ret.removeField("_id");
             }
             return ret;
         }
@@ -417,8 +428,53 @@ public class SdbMetaAccessor implements MetaAccessor {
                     e);
         }
         finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    @SlowLog(operation = "accessMeta")
+    public MetaCursor queryAndUpdateWithCursor(BSONObject matcher, BSONObject updator,
+            BSONObject hint, boolean returnNew) throws SdbMetasourceException {
+        Sequoiadb sdb = null;
+        DBCursor cursor = null;
+        try {
+            sdb = getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
+            DBCollection cl = cs.getCollection(getClName());
+
+            cursor = cl.queryAndUpdate(matcher, null, null, hint, updator, 0, -1,
+                    DBQuery.FLG_QUERY_WITH_RETURNDATA, returnNew);
+
+            SdbMetaCursor sdbCursor = null;
+            if (context != null) {
+                // 连接在事务中自行管理，不需要将连接托管给 MetaCursor
+                sdbCursor = new SdbMetaCursor(cursor);
+            }
+            else {
+                sdbCursor = new SdbMetaCursor(getMetaSource(), sdb, cursor);
+            }
+            return sdbCursor;
+        }
+        catch (BaseException e) {
             SequoiadbHelper.closeCursor(cursor);
             releaseConnection(sdb);
+            throw new SdbMetasourceException(e.getErrorCode(), "update table failed:table=" + csName
+                    + "." + clName + ",matcher=" + matcher + ",updator=" + updator, e);
+        }
+        catch (SdbMetasourceException e) {
+            SequoiadbHelper.closeCursor(cursor);
+            releaseConnection(sdb);
+            throw e;
+        }
+        catch (Exception e) {
+            SequoiadbHelper.closeCursor(cursor);
+            releaseConnection(sdb);
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update table failed:table=" + csName + "." + clName + ",matcher=" + matcher
+                            + ",updator=" + updator,
+                    e);
         }
     }
 

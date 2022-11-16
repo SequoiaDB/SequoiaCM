@@ -145,17 +145,5 @@ public class BucketInfoManager {
         return b;
     }
 
-    public ScmBucket getBucket(long id) throws ScmServerException {
-        ScmBucket b = bucketCacheIdMap.get(id);
-        if (b != null) {
-            return b;
-        }
-
-        b = ContenserverConfClient.getInstance().getBucketById(id);
-        if (b != null) {
-            putCache(b);
-        }
-        return b;
-    }
 
 }

@@ -1,18 +1,18 @@
 package com.sequoiacm.contentserver.dao;
 
 import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
-import org.bson.BSONObject;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 
 public class FileInfoAndOpCompleteCallback {
-    private final BSONObject fileInfo;
+    private final FileMeta fileInfo;
     private final OperationCompleteCallback callback;
 
-    public FileInfoAndOpCompleteCallback(BSONObject fileInfo, OperationCompleteCallback callback) {
+    public FileInfoAndOpCompleteCallback(FileMeta fileInfo, OperationCompleteCallback callback) {
         this.fileInfo = fileInfo;
         this.callback = callback;
     }
 
-    public BSONObject getFileInfo() {
+    public FileMeta getFileInfo() {
         return fileInfo;
     }
 
