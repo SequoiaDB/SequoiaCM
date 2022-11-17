@@ -72,3 +72,12 @@ div:focus {
 .no-select {
   user-select: none;
 }
+
+.el-message {
+  max-width: 80%;
+  word-break: break-all;
+}
+
+.el-tooltip__popper {
+  max-width: 800px;
+}
