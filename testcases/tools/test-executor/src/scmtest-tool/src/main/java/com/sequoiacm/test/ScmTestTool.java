@@ -55,7 +55,7 @@ public class ScmTestTool {
         }
     }
 
-    private static void  displaySubcommandsDesc() {
+    private static void displaySubcommandsDesc() {
         System.out.println("Usage: <subcommand> [args]");
         System.out.println("Type '<subcommand> --help' for help on a specific subcommand");
         System.out.println("Available subcommands:");
@@ -66,7 +66,8 @@ public class ScmTestTool {
 
     private static void initSubCommands() {
         try {
-            List<ScmTestSubcommand> instances = RefUtil.initInstancesAnnotatedWith(Subcommand.class);
+            List<ScmTestSubcommand> instances = RefUtil
+                    .initInstancesAnnotatedWith(Subcommand.class);
             for (ScmTestSubcommand instance : instances) {
                 commands.put(instance.getName(), instance);
                 logger.debug("Init subcommand:" + instance.getName());

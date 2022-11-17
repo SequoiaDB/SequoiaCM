@@ -1,9 +1,9 @@
 package com.sequoiacm.test.exec;
 
 import com.sequoiacm.test.common.CommonUtil;
-import com.sequoiacm.test.config.RemotePathConfig;
 import com.sequoiacm.test.module.ExecResult;
-import com.sequoiacm.test.module.HostInfo;
+import com.sequoiacm.test.module.WorkPath;
+import com.sequoiacm.test.module.Worker;
 import com.sequoiacm.test.ssh.Ssh;
 import com.sequoiacm.test.ssh.SshMgr;
 import org.bson.BSONObject;
@@ -17,8 +17,8 @@ public class ScmTestRemoteProgress extends ScmTestProgress {
 
     private static final Logger logger = LoggerFactory.getLogger(ScmTestRemoteProgress.class);
 
-    public ScmTestRemoteProgress(HostInfo hostInfo, Future<ExecResult> future) {
-        super(hostInfo, future);
+    public ScmTestRemoteProgress(Worker worker, Future<ExecResult> future) {
+        super(worker, future);
     }
 
     @Override
@@ -26,8 +26,9 @@ public class ScmTestRemoteProgress extends ScmTestProgress {
         BSONObject testProgress = null;
         Ssh ssh = null;
         try {
-            ssh = SshMgr.getInstance().getSsh(hostInfo);
-            ExecResult execResult = ssh.exec("cat " + RemotePathConfig.TEST_PROGRESS_PATH, null);
+            WorkPath workPath = worker.getWorkPath();
+            ssh = SshMgr.getInstance().getSsh(worker.getHostInfo());
+            ExecResult execResult = ssh.exec("cat " + workPath.getTestProgressPath(), null);
             if (execResult.getExitCode() != 0) {
                 throw new IOException(execResult.getStdErr());
             }
@@ -35,8 +36,8 @@ public class ScmTestRemoteProgress extends ScmTestProgress {
             testProgress = CommonUtil.parseJsonString(progressContent);
         }
         catch (Exception e) {
-            logger.debug("Failed to update the test progress, remoteHost={}, cause by:{}",
-                    hostInfo.getHostname(), e.getMessage());
+            logger.debug("Failed to update the test progress, remoteWorker={}, cause by:{}",
+                    worker.getName(), e.getMessage());
         }
         finally {
             CommonUtil.closeResource(ssh);

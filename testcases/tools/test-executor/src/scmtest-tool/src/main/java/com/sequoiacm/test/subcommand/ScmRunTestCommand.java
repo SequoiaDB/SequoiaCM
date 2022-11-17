@@ -1,11 +1,13 @@
 package com.sequoiacm.test.subcommand;
 
+import com.sequoiacm.test.common.CommonDefine;
+import com.sequoiacm.test.common.CommonUtil;
 import com.sequoiacm.test.common.ScmTestRunner;
 import com.sequoiacm.test.module.RunTestOptions;
 import com.sequoiacm.test.config.ScmTestToolProps;
-import com.sequoiacm.test.module.HostInfo;
 import com.sequoiacm.test.module.TestTaskInfo;
 import com.sequoiacm.test.module.TestTaskInfoGroup;
+import com.sequoiacm.test.module.Worker;
 import com.sequoiacm.test.project.ScmTestNgXmlRefactor;
 import com.sequoiacm.test.project.ScmTestProject;
 import com.sequoiacm.test.project.ScmTestProjectMgr;
@@ -27,11 +29,11 @@ public class ScmRunTestCommand extends ScmTestSubcommand<RunTestOptions> {
     public static final String OPT_PACKAGE = "packages";
     public static final String OPT_CLASS = "classes";
 
-    public static final String OPT_TAG_TYPE = "tag";
-    public static final String OPT_GROUP = "group";
+    public static final String OPT_SITES = "sites";
     public static final String OPT_THREAD_COUNT = "thread";
 
     public static final String OPT_NO_COMPILE = "nocompile";
+    public static final String OPT_RUN_BASE = "runbase";
 
     @Override
     public String getName() {
@@ -45,10 +47,8 @@ public class ScmRunTestCommand extends ScmTestSubcommand<RunTestOptions> {
 
     @Override
     protected RunTestOptions parseCommandLineArgs(CommandLine commandLine) {
-        if (commandLine.hasOption(OPT_TESTNG) && commandLine.hasOption(OPT_TAG_TYPE)) {
-            throw new IllegalArgumentException("Cannot specify both options at the same time: "
-                    + OPT_TESTNG + "," + OPT_TAG_TYPE);
-        }
+        CommonUtil.assertTrue(commandLine.hasOption(OPT_PROJECT),
+                "missing required option:" + OPT_PROJECT);
         if ((commandLine.hasOption(OPT_CLASS) || commandLine.hasOption(OPT_PACKAGE))
                 && !commandLine.hasOption(OPT_TESTNG)) {
             throw new IllegalArgumentException(
@@ -61,22 +61,22 @@ public class ScmRunTestCommand extends ScmTestSubcommand<RunTestOptions> {
     @Override
     protected Options commandOptions() {
         Options ops = new Options();
-        ops.addOption(Option.builder().longOpt(OPT_PROJECT).hasArg(true).required(true)
+        ops.addOption(Option.builder().longOpt(OPT_PROJECT).hasArg(true)
                 .desc("specifies the test project to be executed.").build());
-        ops.addOption(Option.builder().longOpt(OPT_TESTNG).hasArg(true).required(false)
+        ops.addOption(Option.builder().longOpt(OPT_TESTNG).hasArg(true)
                 .desc("specifies the testng XML list.").build());
-        ops.addOption(Option.builder().longOpt(OPT_PACKAGE).hasArg(true).required(false)
+        ops.addOption(Option.builder().longOpt(OPT_PACKAGE).hasArg(true)
                 .desc("specifies the list of package within testng XML.").build());
-        ops.addOption(Option.builder().longOpt(OPT_CLASS).hasArg(true).required(false)
+        ops.addOption(Option.builder().longOpt(OPT_CLASS).hasArg(true)
                 .desc("specifies the list of class within testng XML.").build());
-        ops.addOption(Option.builder().longOpt(OPT_TAG_TYPE).hasArg(true).required(false)
-                .desc("filter out testng XML which containing this tag.").build());
-        ops.addOption(Option.builder().longOpt(OPT_GROUP).hasArg(true).required(false)
-                .desc("append the testng XML group filter.").build());
-        ops.addOption(Option.builder().longOpt(OPT_THREAD_COUNT).hasArg(true).required(false)
+        ops.addOption(Option.builder().longOpt(OPT_SITES).hasArg(true)
+                .desc("specifies the number of sites.").build());
+        ops.addOption(Option.builder().longOpt(OPT_THREAD_COUNT).hasArg(true)
                 .desc("the count of threads for concurrent testcase.").build());
-        ops.addOption(Option.builder().longOpt(OPT_NO_COMPILE).hasArg(false).required(false)
+        ops.addOption(Option.builder().longOpt(OPT_NO_COMPILE).hasArg(false)
                 .desc("no need to compile the test project.").build());
+        ops.addOption(Option.builder().longOpt(OPT_RUN_BASE).hasArg(false)
+                .desc("run base testcase only.").build());
         return ops;
     }
 
@@ -108,12 +108,20 @@ public class ScmRunTestCommand extends ScmTestSubcommand<RunTestOptions> {
     private List<TestTaskInfoGroup> generateTaskInfo(List<TestNgXml> testNgXmlList,
             RunTestOptions options) throws IOException {
         ScmTestToolProps testToolProps = ScmTestToolProps.getInstance();
-        List<HostInfo> hostInfoList = testToolProps.getWorkers();
+        List<Worker> workers = testToolProps.getWorkers();
 
         List<TestTaskInfoGroup> taskGroupList = new ArrayList<>();
         for (TestNgXml testNgXml : testNgXmlList) {
             ScmTestNgXmlRefactor refactor = testNgXml.createRefactor();
             refactor.resetParameters(testToolProps.getTestNgParameters());
+            if (options.getSites() != null) {
+                refactor.updateParameter(CommonDefine.SITES, options.getSites());
+                // 部分预置 XML 仍使用组过滤站点数，兼容此类情况
+                refactor.updateGroupFilter(options.getSites());
+            }
+            if (options.isRunBase()) {
+                refactor.updateParameter(CommonDefine.RUNBASETEST, "true");
+            }
 
             if (options.getPackages() != null || options.getClasses() != null) {
                 refactor.cleanPackagesAndClasses();
@@ -124,17 +132,14 @@ public class ScmRunTestCommand extends ScmTestSubcommand<RunTestOptions> {
                     refactor.resetClasses(options.getClasses());
                 }
             }
-            if (options.getGroup() != null) {
-                refactor.appendGroupFilter(options.getGroup());
-            }
             if (testNgXml.isConcurrent()) {
-                refactor.divide(hostInfoList);
                 if (options.getThreadCount() != null) {
                     refactor.resetThreadCount(options.getThreadCount());
                 }
+                refactor.divide(workers);
             }
             else {
-                refactor.divide(Collections.singletonList(hostInfoList.get(0)));
+                refactor.divide(Collections.singletonList(workers.get(0)));
             }
 
             List<TestTaskInfo> taskInfoList = refactor.doRefactor();
@@ -151,10 +156,6 @@ public class ScmRunTestCommand extends ScmTestSubcommand<RunTestOptions> {
     private List<TestNgXml> getTestNgXmlList(ScmTestProject testProject, RunTestOptions option) {
         if (option.getTestngConf() != null) {
             return testProject.getTestNgXmlByName(option.getTestngConf());
-        }
-
-        if (option.getTag() != null) {
-            return testProject.getTestNgXmlByTag(option.getTag());
         }
 
         return testProject.getTestNgXmlList();

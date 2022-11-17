@@ -3,7 +3,7 @@ package com.sequoiacm.test.exec;
 import com.sequoiacm.test.common.BsonUtil;
 import com.sequoiacm.test.config.ScmTestToolProps;
 import com.sequoiacm.test.module.ExecResult;
-import com.sequoiacm.test.module.HostInfo;
+import com.sequoiacm.test.module.Worker;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 public abstract class ScmTestProgress {
 
     private final static Logger logger = LoggerFactory.getLogger(ScmTestProgress.class);
-    protected HostInfo hostInfo;
+    protected Worker worker;
     protected Future<ExecResult> future;
     protected int total = -1;
     protected int successCount;
@@ -23,8 +23,10 @@ public abstract class ScmTestProgress {
     protected int skippedCount;
     private String runningTestcase;
 
-    protected ScmTestProgress(HostInfo hostInfo, Future<ExecResult> future) {
-        this.hostInfo = hostInfo;
+    private boolean hasNewFailures;
+
+    protected ScmTestProgress(Worker worker, Future<ExecResult> future) {
+        this.worker = worker;
         this.future = future;
     }
 
@@ -63,22 +65,22 @@ public abstract class ScmTestProgress {
             execResult = future.get();
             if (total == -1) {
                 if (execResult.getExitCode() == 0) {
-                    logger.error("Failed to read the test progress file. host={}",
-                            hostInfo.getHostname());
+                    logger.error("Failed to read the test progress file. worker={}",
+                            worker.getName());
                 }
                 else {
-                    logger.error("Test exec failed, host={}, detail: {}", hostInfo.getHostname(),
+                    logger.error("Test exec failed, worker={}, detail: {}", worker.getName(),
                             execResult);
                 }
             }
             else {
-                logger.debug("The exec result of test, host={}, detail:{}", hostInfo.getHostname(),
+                logger.debug("The exec result of test, worker={}, detail:{}", worker.getName(),
                         execResult);
             }
         }
         catch (Exception e) {
-            logger.warn("Failed to get the exec result, host={}, cause by: {}",
-                    hostInfo.getHostname(), e.getMessage(), e);
+            logger.warn("Failed to get the exec result, worker={}, cause by: {}", worker.getName(),
+                    e.getMessage(), e);
         }
 
         return total != -1;
@@ -88,14 +90,21 @@ public abstract class ScmTestProgress {
         return total == successCount + skippedCount;
     }
 
+    public boolean isFailedCountChanged() {
+        return hasNewFailures;
+    }
+
     public void updateProgress() {
         BSONObject bson = readFromProgressFile();
         if (bson != null) {
             total = BsonUtil.getIntegerChecked(bson, "total");
             successCount = BsonUtil.getIntegerChecked(bson, "success");
-            failedCount = BsonUtil.getIntegerChecked(bson, "failed");
             skippedCount = BsonUtil.getIntegerChecked(bson, "skipped");
             runningTestcase = BsonUtil.getStringChecked(bson, "running");
+
+            int tmpFailedCount = BsonUtil.getIntegerChecked(bson, "failed");
+            hasNewFailures = (tmpFailedCount > failedCount);
+            failedCount = tmpFailedCount;
         }
     }
 
@@ -104,7 +113,7 @@ public abstract class ScmTestProgress {
     @Override
     public String toString() {
         if (total != -1) {
-            String progress = getPaddingHostname(hostInfo.getHostname()) + " |" + " total:" + total
+            String progress = getPaddingNameOfWorker(worker.getName()) + " |" + " total:" + total
                     + ", success:" + successCount + ", failed:" + failedCount + ", skipped:"
                     + skippedCount;
             if (runningTestcase.length() > 0) {
@@ -112,10 +121,10 @@ public abstract class ScmTestProgress {
             }
             return progress;
         }
-        return hostInfo.getHostname() + " | waiting to run... ";
+        return getPaddingNameOfWorker(worker.getName()) + " | waiting to run... ";
     }
 
-    private String getPaddingHostname(String hostname) {
+    private String getPaddingNameOfWorker(String hostname) {
         int maxLen = ScmTestToolProps.getInstance().getMaxLenOfHostname();
         StringBuilder sb = new StringBuilder(hostname);
         int i = hostname.length();

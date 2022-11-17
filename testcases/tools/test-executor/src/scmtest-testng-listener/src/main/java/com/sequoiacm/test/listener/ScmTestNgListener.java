@@ -11,19 +11,23 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ScmTestNgListener implements ITestListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ScmTestNgListener.class);
-    private static String testProgressFilePath = System.getProperty("basePath") + "tmp"
-            + File.separator + "test-progress.json";
+    private static String tmpDirPath = System.getProperty("basePath") + "tmp" + File.separator;
+    private static String testProgressFilePath = tmpDirPath + "test-progress.json";
+    private static String errorDetailFilePath = tmpDirPath + "error.detail";
 
-    private int startAndSkipTestCount;
-    private int total;
-    private int successCount;
-    private int failedCount;
-    private int skippedCount;
+    private long total;
+    private AtomicLong startAndSkipTestCount = new AtomicLong(0);
+    private AtomicLong successCount = new AtomicLong(0);
+    private AtomicLong failedCount = new AtomicLong(0);
+    private AtomicLong skippedCount = new AtomicLong(0);
     private Set<String> runningTestcase = ConcurrentHashMap.newKeySet();
+    private Queue<ErrorTestCase> errorTestCaseQueue = new ConcurrentLinkedQueue<>();
     private Timer timer = new Timer(true);
 
     @Override
@@ -45,31 +49,39 @@ public class ScmTestNgListener implements ITestListener {
     }
 
     @Override
-    public synchronized void onTestStart(ITestResult iTestResult) {
-        runningTestcase.add(iTestResult.getTestClass().getName());
-        if (++startAndSkipTestCount > total) {
-            total = startAndSkipTestCount;
-        }
+    public void onTestStart(ITestResult iTestResult) {
+        // 如果执行过程，打印正在执行的全量用例名（e.g.
+        // com.sequoiacm.s3.partupload.concurrent.MultipartUpload4336），跑并发用例时可读性较差
+        // 用例名中存在编号作为唯一标志，因此只需要记录类名（e.g. MultipartUpload4336）即可
+        String fullnameOfTestcase = iTestResult.getTestClass().getName();
+        runningTestcase.add(fullnameOfTestcase.substring(fullnameOfTestcase.lastIndexOf(".") + 1));
+        startAndSkipTestCount.incrementAndGet();
     }
 
     @Override
-    public synchronized void onTestSuccess(ITestResult iTestResult) {
-        runningTestcase.remove(iTestResult.getTestClass().getName());
-        successCount++;
+    public void onTestSuccess(ITestResult iTestResult) {
+        String fullnameOfTestcase = iTestResult.getTestClass().getName();
+        runningTestcase
+                .remove(fullnameOfTestcase.substring(fullnameOfTestcase.lastIndexOf(".") + 1));
+        successCount.incrementAndGet();
     }
 
     @Override
-    public synchronized void onTestFailure(ITestResult iTestResult) {
-        runningTestcase.remove(iTestResult.getTestClass().getName());
-        failedCount++;
+    public void onTestFailure(ITestResult iTestResult) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        iTestResult.getThrowable().printStackTrace(pw);
+        String fullnameOfTestcase = iTestResult.getTestClass().getName();
+        errorTestCaseQueue.add(new ErrorTestCase(fullnameOfTestcase, sw.toString()));
+        runningTestcase
+                .remove(fullnameOfTestcase.substring(fullnameOfTestcase.lastIndexOf(".") + 1));
+        failedCount.incrementAndGet();
     }
 
     @Override
-    public synchronized void onTestSkipped(ITestResult iTestResult) {
-        skippedCount++;
-        if (++startAndSkipTestCount > total) {
-            total = startAndSkipTestCount;
-        }
+    public void onTestSkipped(ITestResult iTestResult) {
+        skippedCount.incrementAndGet();
+        startAndSkipTestCount.incrementAndGet();
     }
 
     @Override
@@ -78,21 +90,34 @@ public class ScmTestNgListener implements ITestListener {
     }
 
     private synchronized void refreshResultFile() {
+        // 1. 更新错误用例信息
+        if (errorTestCaseQueue.size() > 0) {
+            StringBuilder errorDetails = new StringBuilder();
+            ErrorTestCase curError;
+            while ((curError = errorTestCaseQueue.poll()) != null) {
+                errorDetails.append(curError);
+            }
+            updateResourceFile(errorDetailFilePath, errorDetails.toString(), true);
+        }
+        // 2. 更新执行进度
         JSONObject testProgress = new JSONObject();
-        testProgress.put("total", total);
+        testProgress.put("total", Math.max(total, startAndSkipTestCount.get()));
         testProgress.put("success", successCount);
         testProgress.put("failed", failedCount);
         testProgress.put("skipped", skippedCount);
         testProgress.put("running", setToString(runningTestcase, ", "));
+        updateResourceFile(testProgressFilePath, testProgress.toString(), false);
+    }
 
+    private void updateResourceFile(String filePath, String content, boolean isAppend) {
         BufferedWriter writer = null;
         OutputStreamWriter opsWriter = null;
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(testProgressFilePath, false);
+            fos = new FileOutputStream(filePath, isAppend);
             opsWriter = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
             writer = new BufferedWriter(opsWriter);
-            writer.write(testProgress.toString());
+            writer.write(content);
         }
         catch (IOException e) {
             logger.error("Write data error, cause by:" + e);
@@ -124,5 +149,21 @@ public class ScmTestNgListener implements ITestListener {
                 }
             }
         }
+    }
+}
+
+class ErrorTestCase {
+
+    private String testcaseName;
+    private String errorDetail;
+
+    public ErrorTestCase(String testcaseName, String errorDetail) {
+        this.testcaseName = testcaseName;
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String toString() {
+        return "[error_test]:" + testcaseName + "\n" + "[error_stack]:" + errorDetail + "\n";
     }
 }

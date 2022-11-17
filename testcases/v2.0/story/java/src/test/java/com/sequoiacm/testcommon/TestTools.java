@@ -509,24 +509,24 @@ public class TestTools {
         public static String getFileByType( FileType fileType )
                 throws Exception {
             switch ( fileType ) {
-            case DOC:
-                return loader.getResource( "file/file_doc.doc" ).getPath();
-            case DOCX:
-                return loader.getResource( "file/file_docx.docx" ).getPath();
-            case TEXT:
-                return loader.getResource( "file/file_txt.txt" ).getPath();
-            case XLS:
-                return loader.getResource( "file/file_xls.xls" ).getPath();
-            case XLSX:
-                return loader.getResource( "file/file_xlsx.xlsx" ).getPath();
-            case BMP:
-                return loader.getResource( "file/file_bmp.bmp" ).getPath();
-            case JPEG:
-                return loader.getResource( "file/file_jpeg.JPG" ).getPath();
-            case PNG:
-                return loader.getResource( "file/file_png.PNG" ).getPath();
-            default:
-                throw new Exception( "file is not found!!!!" );
+                case DOC:
+                    return TestScmBase.resourceFilePath + "file_doc.doc";
+                case DOCX:
+                    return TestScmBase.resourceFilePath + "file_docx.docx";
+                case TEXT:
+                    return TestScmBase.resourceFilePath + "file_txt.txt";
+                case XLS:
+                    return TestScmBase.resourceFilePath + "file_xls.xls";
+                case XLSX:
+                    return TestScmBase.resourceFilePath + "file_xlsx.xlsx";
+                case BMP:
+                    return TestScmBase.resourceFilePath + "file_bmp.bmp";
+                case JPEG:
+                    return TestScmBase.resourceFilePath + "file_jpeg.JPG";
+                case PNG:
+                    return TestScmBase.resourceFilePath + "file_png.PNG";
+                default:
+                    throw new Exception("file is not found!!!!");
             }
         }
 

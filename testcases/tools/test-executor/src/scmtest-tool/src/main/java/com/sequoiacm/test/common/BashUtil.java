@@ -9,7 +9,10 @@ import java.io.*;
 public class BashUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(BashUtil.class);
-    private static boolean isWindowsSystem = System.getProperty("os.name").contains("Windows");
+
+    public static boolean isWindowsSystem() {
+        return System.getProperty("os.name").contains("Windows");
+    }
 
     public static ExecResult exec(String command) throws IOException {
         int exitCode;
@@ -18,7 +21,7 @@ public class BashUtil {
         Runtime runtime = Runtime.getRuntime();
         Process process = null;
         try {
-            if (isWindowsSystem) {
+            if (isWindowsSystem()) {
                 command = "cmd /c " + command;
             }
             logger.debug("Executing command locally, command:{}", command);
@@ -43,7 +46,7 @@ public class BashUtil {
         try {
             int pid = 0;
             ExecResult killResult = null;
-            if (isWindowsSystem) {
+            if (isWindowsSystem()) {
                 String searchCommand = "wmic process where name=\"cmd.exe\" get commandline,processid /value";
                 String stdOut = exec(searchCommand).getStdOut().trim();
 

@@ -1,7 +1,7 @@
 package com.sequoiacm.test.ssh;
 
 import com.jcraft.jsch.*;
-import com.sequoiacm.test.config.RemotePathConfig;
+import com.sequoiacm.test.common.CommonDefine;
 import com.sequoiacm.test.module.ExecResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,13 +131,13 @@ public class Ssh implements Closeable {
 
         for (ChannelSftp.LsEntry item : fileAndFolderList) {
             if (!item.getAttrs().isDir()) {
-                channel.get(remotePath + RemotePathConfig.LINUX_SEPARATOR + item.getFilename(),
+                channel.get(remotePath + CommonDefine.LINUX_PATH_SEPARATOR + item.getFilename(),
                         localPath + File.separator + item.getFilename());
             }
             else if (!".".equals(item.getFilename()) && !"..".equals(item.getFilename())) {
                 new File(localPath + File.separator + item.getFilename()).mkdirs();
                 recursiveFolderDownload(localPath + File.separator + item.getFilename(),
-                        remotePath + RemotePathConfig.LINUX_SEPARATOR + item.getFilename(),
+                        remotePath + CommonDefine.LINUX_PATH_SEPARATOR + item.getFilename(),
                         channel);
             }
         }

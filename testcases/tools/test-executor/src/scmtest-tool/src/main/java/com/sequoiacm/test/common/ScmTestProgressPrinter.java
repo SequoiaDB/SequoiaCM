@@ -4,22 +4,29 @@ import com.sequoiacm.test.exec.ScmTestProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ScmTestProgressPrinter {
 
     private final static Logger logger = LoggerFactory.getLogger(ScmTestProgressPrinter.class);
+    private ScmTestRunner.ReportCollectCallback reportCollectCallback;
     private List<ScmTestProgress> testProgresses;
     private String currentTestStep;
 
-    public ScmTestProgressPrinter(List<ScmTestProgress> testProgresses, String currentTestStep) {
+    public ScmTestProgressPrinter(List<ScmTestProgress> testProgresses, String currentTestStep,
+            ScmTestRunner.ReportCollectCallback reportCollectCallback) {
         this.testProgresses = testProgresses;
         this.currentTestStep = currentTestStep;
+        this.reportCollectCallback = reportCollectCallback;
     }
 
     public void printUntilAllTestCompleted() throws Exception {
         while (true) {
             printTestProgress();
+            checkFailedProgress();
             if (isProgressComplete(testProgresses)) {
                 printTestProgress();
                 break;
@@ -52,9 +59,22 @@ public class ScmTestProgressPrinter {
         if (ShutdownHookMgr.getInstance().isShutDown()) {
             throw new InterruptedException("The process was interrupted");
         }
-        logger.info(currentTestStep + " : total:" + total + ", success:" + success + ", failed:" + failed
-                + ", skipped:" + skipped + System.lineSeparator() + progressOfEachHost
-                + System.lineSeparator());
+        String currentTime = new SimpleDateFormat(" [HH:mm:ss]").format(new Date());
+        logger.info(currentTestStep + " : total:" + total + ", success:" + success + ", failed:"
+                + failed + ", skipped:" + skipped + currentTime + System.lineSeparator()
+                + progressOfEachHost + System.lineSeparator());
+    }
+
+    private void checkFailedProgress() {
+        List<ScmTestProgress> failedProgresses = new ArrayList<>();
+        for (ScmTestProgress testProgress : testProgresses) {
+            if (testProgress.isFailedCountChanged()) {
+                failedProgresses.add(testProgress);
+            }
+        }
+        if (failedProgresses.size() != 0) {
+            reportCollectCallback.callback(failedProgresses);
+        }
     }
 
     private boolean isProgressComplete(List<ScmTestProgress> scmTestProgresses) {

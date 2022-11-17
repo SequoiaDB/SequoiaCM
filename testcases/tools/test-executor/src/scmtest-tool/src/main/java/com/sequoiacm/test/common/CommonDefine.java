@@ -13,5 +13,13 @@ public class CommonDefine {
      * Configuration constants
      */
     public final static String LOCALHOST = "localhost";
+    public final static String LINUX_PATH_SEPARATOR = "/";
+
+    /**
+     * Parameter in TestNG xml
+     */
+    public final static String SITES = "SITES";
+    public final static String RUNBASETEST = "RUNBASETEST";
+    public final static String DATADIR = "DATADIR";
 
 }

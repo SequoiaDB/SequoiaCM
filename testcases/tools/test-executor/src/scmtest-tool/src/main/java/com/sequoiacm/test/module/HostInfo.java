@@ -1,10 +1,10 @@
 package com.sequoiacm.test.module;
 
-import com.sequoiacm.test.common.CommonDefine;
-import com.sequoiacm.test.common.StringUtil;
-
 import java.util.List;
 import java.util.Objects;
+
+import com.sequoiacm.test.common.CommonDefine;
+import com.sequoiacm.test.common.StringUtil;
 
 public class HostInfo {
 
@@ -13,6 +13,7 @@ public class HostInfo {
     private String user;
     private String password;
     private String javaHome;
+    private boolean isLocalHost;
 
     public HostInfo() {
 
@@ -21,6 +22,7 @@ public class HostInfo {
     public HostInfo(String host) {
         if (Objects.equals(CommonDefine.LOCALHOST, host)) {
             this.hostname = host;
+            this.isLocalHost = true;
         }
         else {
             List<String> params = StringUtil.string2List(host, ":");
@@ -37,7 +39,7 @@ public class HostInfo {
     }
 
     public boolean isLocalHost() {
-        return Objects.equals(CommonDefine.LOCALHOST, hostname);
+        return isLocalHost;
     }
 
     public String getHostname() {
@@ -66,7 +68,7 @@ public class HostInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, password, hostname, port);
+        return Objects.hash(hostname);
     }
 
     @Override
@@ -76,13 +78,11 @@ public class HostInfo {
         if (obj == null || getClass() != obj.getClass())
             return false;
         HostInfo that = (HostInfo) obj;
-        return Objects.equals(user, that.user) && Objects.equals(password, that.password)
-                && Objects.equals(hostname, that.hostname) && Objects.equals(port, that.port);
+        return Objects.equals(hostname, that.hostname);
     }
 
     @Override
     public String toString() {
-        return "HostInfo{" + "hostname='" + hostname + '\'' + ", port=" + port + ", user='" + user
-                + '\'' + ", password='" + password + '\'' + '}';
+        return "HostInfo{" + "hostname='" + hostname + '\'' + '}';
     }
 }

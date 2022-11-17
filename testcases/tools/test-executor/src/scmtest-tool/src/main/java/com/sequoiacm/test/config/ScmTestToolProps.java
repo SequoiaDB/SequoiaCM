@@ -1,17 +1,26 @@
 package com.sequoiacm.test.config;
 
+import com.sequoiacm.test.common.BashUtil;
 import com.sequoiacm.test.common.CommonUtil;
 import com.sequoiacm.test.common.StringUtil;
 import com.sequoiacm.test.common.CommonDefine;
 import com.sequoiacm.test.module.HostInfo;
+import com.sequoiacm.test.module.Worker;
 import com.sequoiacm.test.ssh.Ssh;
 import com.sequoiacm.test.ssh.SshMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class ScmTestToolProps {
 
@@ -20,7 +29,8 @@ public class ScmTestToolProps {
     private static volatile ScmTestToolProps INSTANCE;
 
     private String workPath;
-    private LinkedList<HostInfo> hostInfoList = new LinkedList<>();
+    private Map<HostInfo, Integer> hostCounter = new HashMap<>();
+    private LinkedList<Worker> workers = new LinkedList<>();
     private Map<String, String> testNgParameter = new HashMap<>();
     private int maxLenOfHostname;
 
@@ -37,25 +47,38 @@ public class ScmTestToolProps {
 
     private ScmTestToolProps() {
         logger.info("Initializing the test configure...");
-        intiToolProps();
-        CommonUtil.assertTrue(hostInfoList.size() > 0, "Please configure the test workers");
-        // 若执行机包含本机，则将其“置顶”，保证串行用例可优先在本地执行
-        modifyHostOrder();
+        initToolProps();
+        CommonUtil.assertTrue(hostCounter.size() > 0, "Please configure the test workers");
+        initWorkers();
         logger.info("Initialize the test configure success");
     }
 
-    private void modifyHostOrder() {
-        for (int i = 0; i < hostInfoList.size(); i++) {
-            if (hostInfoList.get(i).getHostname().equals(CommonDefine.LOCALHOST)) {
-                HostInfo localhost = hostInfoList.get(i);
-                hostInfoList.remove(i);
-                hostInfoList.addFirst(localhost);
-                break;
+    private void initWorkers() {
+        Set<HostInfo> hosts = hostCounter.keySet();
+        for (HostInfo host : hosts) {
+            String currentHostWorkPath = workPath;
+            String pathSeparator = CommonDefine.LINUX_PATH_SEPARATOR;
+            if (host.isLocalHost() && BashUtil.isWindowsSystem()) {
+                currentHostWorkPath = LocalPathConfig.WORK_PATH;
+                pathSeparator = File.separator;
+            }
+            currentHostWorkPath += "work-path";
+            Integer hostCount = hostCounter.get(host);
+            for (int i = 1; i <= hostCount; i++) {
+                Worker worker = new Worker(host, i, currentHostWorkPath, pathSeparator);
+                maxLenOfHostname = Math.max(maxLenOfHostname, worker.getName().length());
+                // 若执行机包含本机，则将其“置顶”，保证串行用例可优先在本地执行
+                if (host.isLocalHost() && i == 1) {
+                    workers.addFirst(worker);
+                }
+                else {
+                    workers.addLast(worker);
+                }
             }
         }
     }
 
-    private void intiToolProps() {
+    private void initToolProps() {
         Properties props = new Properties();
         String filePath = LocalPathConfig.TOOL_CONF_PATH;
         if (filePath != null) {
@@ -78,16 +101,17 @@ public class ScmTestToolProps {
             String key = (String) en.nextElement();
             String value = props.getProperty(key);
             if (key.equals(CommonDefine.WORKERS)) {
+                hostCounter.clear();
                 List<String> hostList = StringUtil.string2List(value, ",");
                 for (String host : hostList) {
                     HostInfo hostInfo = new HostInfo(host);
-                    maxLenOfHostname = Math.max(maxLenOfHostname, hostInfo.getHostname().length());
-                    hostInfoList.add(hostInfo);
+                    Integer countOfCurrentHost = hostCounter.getOrDefault(hostInfo, 0) + 1;
+                    hostCounter.put(hostInfo, countOfCurrentHost);
                 }
             }
             else if (key.equals(CommonDefine.WORK_PATH)) {
-                if (!value.endsWith("/")) {
-                    value += "/";
+                if (!value.endsWith(CommonDefine.LINUX_PATH_SEPARATOR)) {
+                    value += CommonDefine.LINUX_PATH_SEPARATOR;
                 }
                 this.workPath = value;
             }
@@ -111,38 +135,41 @@ public class ScmTestToolProps {
     }
 
     private void checkJavaHome() {
-        for (HostInfo hostInfo : hostInfoList) {
-            if (hostInfo.isLocalHost()) {
+        Set<HostInfo> hosts = hostCounter.keySet();
+        for (HostInfo host : hosts) {
+            if (host.isLocalHost()) {
                 continue;
             }
 
             Ssh ssh = null;
             try {
-                ssh = SshMgr.getInstance().getSsh(hostInfo);
+                ssh = SshMgr.getInstance().getSsh(host);
                 String javaHome = ssh.searchEnv("JAVA_HOME");
-                hostInfo.resetJavaHome(javaHome);
-            } catch (IOException e) {
+                host.resetJavaHome(javaHome);
+            }
+            catch (IOException e) {
                 throw new IllegalArgumentException("Failed to search JAVA_HOME, host ="
-                        + hostInfo.getHostname() + ", cause by=" + e.getMessage(), e);
-            } finally {
+                        + host.getHostname() + ", cause by=" + e.getMessage(), e);
+            }
+            finally {
                 CommonUtil.closeResource(ssh);
             }
         }
     }
 
     private void checkHostIsReachable() {
-        for (HostInfo hostInfo : hostInfoList) {
-            if (hostInfo.isLocalHost()) {
+        Set<HostInfo> hosts = hostCounter.keySet();
+        for (HostInfo host : hosts) {
+            if (host.isLocalHost()) {
                 continue;
             }
 
             Ssh ssh;
             try {
-                ssh = SshMgr.getInstance().getSsh(hostInfo);
+                ssh = SshMgr.getInstance().getSsh(host);
             }
             catch (Exception e) {
-                throw new IllegalArgumentException("Host is unreachable:" + hostInfo.getHostname(),
-                        e);
+                throw new IllegalArgumentException("Host is unreachable:" + host.getHostname(), e);
             }
 
             try {
@@ -151,12 +178,12 @@ public class ScmTestToolProps {
                 }
                 catch (Exception e) {
                     throw new IllegalArgumentException("This user may not be sudoer:username="
-                            + hostInfo.getUser() + ", host=" + hostInfo.getHostname(), e);
+                            + host.getUser() + ", host=" + host.getHostname(), e);
                 }
 
                 if (!ssh.isSftpAvailable()) {
                     throw new IllegalArgumentException(
-                            "Sftp service may not be available, host=" + hostInfo.getHostname());
+                            "Sftp service may not be available, host=" + host.getHostname());
                 }
             }
             finally {
@@ -165,16 +192,12 @@ public class ScmTestToolProps {
         }
     }
 
-    public List<HostInfo> getWorkers() {
-        return hostInfoList;
+    public List<Worker> getWorkers() {
+        return workers;
     }
 
     public int getMaxLenOfHostname() {
         return maxLenOfHostname;
-    }
-
-    public String getWorkPath() {
-        return workPath;
     }
 
     public Map<String, String> getTestNgParameters() {

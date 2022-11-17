@@ -11,17 +11,16 @@ public class RunTestOptions {
 
     private String project;
     private List<String> testngConf;
-    private String tag;
 
     private List<String> packages;
     private List<String> classes;
     private String threadCount;
-    private String group;
+    private String sites;
     private boolean isNeedCompile;
+    private boolean isRunBase;
 
     public RunTestOptions(CommandLine cl) {
         project = cl.getOptionValue(ScmRunTestCommand.OPT_PROJECT);
-        tag = cl.getOptionValue(ScmRunTestCommand.OPT_TAG_TYPE);
 
         if (cl.hasOption(ScmRunTestCommand.OPT_TESTNG)) {
             testngConf = StringUtil.string2List(cl.getOptionValue(ScmRunTestCommand.OPT_TESTNG),
@@ -40,7 +39,7 @@ public class RunTestOptions {
                     "Only one testng XML can be specified when specifying the packages or classes");
         }
 
-        group = cl.getOptionValue(ScmRunTestCommand.OPT_GROUP);
+        sites = cl.getOptionValue(ScmRunTestCommand.OPT_SITES);
         threadCount = cl.getOptionValue(ScmRunTestCommand.OPT_THREAD_COUNT);
         if (threadCount != null) {
             CommonUtil.assertTrue(StringUtil.isPositiveInteger(threadCount),
@@ -48,6 +47,7 @@ public class RunTestOptions {
         }
 
         isNeedCompile = !cl.hasOption(ScmRunTestCommand.OPT_NO_COMPILE);
+        isRunBase = cl.hasOption(ScmRunTestCommand.OPT_RUN_BASE);
     }
 
     public String getProject() {
@@ -66,12 +66,8 @@ public class RunTestOptions {
         return classes;
     }
 
-    public String getTag() {
-        return tag;
-    }
-
-    public String getGroup() {
-        return group;
+    public String getSites() {
+        return sites;
     }
 
     public String getThreadCount() {
@@ -80,5 +76,9 @@ public class RunTestOptions {
 
     public boolean isNeedCompile() {
         return isNeedCompile;
+    }
+
+    public boolean isRunBase() {
+        return isRunBase;
     }
 }

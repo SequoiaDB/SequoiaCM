@@ -26,7 +26,6 @@ public class ProjectDefine {
     public static final String TEST_SUITE_NAME = "name";
     public static final String TEST_SUITE_TESTNG_XML_PATH = "testngXmlPath";
     public static final String TEST_SUITE_IS_CONCURRENT = "isConcurrent";
-    public static final String TEST_SUITE_TAGS = "tags";
     public static final String TEST_SUITE_PRIORITY = "priority";
 
 }

@@ -6,13 +6,13 @@ import java.io.IOException;
 public class LocalPathConfig {
 
     public static String BASE_PATH = System.getProperty("common.basePath", ".");
+    public static String WORK_PATH = BASE_PATH + "work-dir" + File.separator;
     public static String JARS_PATH = BASE_PATH + "jars" + File.separator;
     private static String LISTENER_JAR_PATH;
 
     public static String TMP_PATH = BASE_PATH + "tmp" + File.separator;
-    public static String LOCAL_TEST_PROGRESS_PATH = TMP_PATH + "test-progress.json";
 
-    public static String OUTPUT_PATH = BASE_PATH + "output" + File.separator;
+    public static String CONSOLE_OUT_PATH = BASE_PATH + "console-out" + File.separator;
     public static String TEST_OUTPUT_PATH = BASE_PATH + "test-output" + File.separator;
 
     public static String LOG_PATH = BASE_PATH + "log" + File.separator;

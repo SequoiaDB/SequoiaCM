@@ -67,6 +67,7 @@ public class TestScmBase {
     protected static String omServerUrl;
 
     protected static boolean isfulltextExists = false;
+    protected static String resourceFilePath;
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
@@ -166,6 +167,8 @@ public class TestScmBase {
                 session.close();
             }
         }
+
+        resourceFilePath = FileLoader.loadAndGetFilePath(dataDirectory, "story");
     }
 
     @AfterSuite(alwaysRun = true)

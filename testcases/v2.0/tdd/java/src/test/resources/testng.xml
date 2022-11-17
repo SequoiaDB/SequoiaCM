@@ -10,7 +10,7 @@
     <parameter name="SCMUSER" value="admin"/>
     <parameter name="SCMPASSWD" value="admin"/>
     <parameter name="GATEWAYS" value="server1ip:server1port,server2ip:server2port"/>
-    <parameter name="DATADIRECTORY" value="/tmp/ci_cm"/>
+    <parameter name="DATADIR" value="/tmp/ci_cm"/>
 
     <listeners>
           <listener class-name = "com.sequoiacm.testcommon.TestScmListener"/>

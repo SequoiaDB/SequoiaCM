@@ -42,13 +42,13 @@ public class ScmTestMultiCenterBase {
             "SCMUSER",
             "SCMPASSWD",
             "GATEWAYS",
-            "DATADIRECTORY"
+            "DATADIR"
     })
 
 
     @BeforeSuite
     public void initSuite(String MAINSDBURL, String SDBUSER, String SDBPASSWD, String SCMUSER,
-                          String SCMPASSWD, String GATEWAYS, String DATADIRECTORY) throws ScmException {
+                          String SCMPASSWD, String GATEWAYS, String DATADIR) throws ScmException {
 
         // 解析配置参数
         String sdbUrl = MAINSDBURL;
@@ -124,7 +124,7 @@ public class ScmTestMultiCenterBase {
             System.exit(-3);
         }
 
-        dataDirectory = DATADIRECTORY;
+        dataDirectory = DATADIR;
 
         srcFile = getDataDirectory() + File.separator + "test.txt";
         String randomStr = ScmTestTools.randomString(6);

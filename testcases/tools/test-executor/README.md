@@ -49,30 +49,29 @@ python dev.py
 3.1 指定工程测试
 
 ```shell
-python scmtest.py runtest --project story --tag star --group fourSite
+python scmtest.py runtest --project story --sites fourSite
 ```
 
 3.2 指定 testng.xml 测试
 
 ```shell
-python scmtest.py runtest --project story --testng-conf testng_env_before --group fourSite
+python scmtest.py runtest --project story --testng-conf testng_env_before --sites fourSite
 ```
 
 3.3 指定包测试
 
 ```shell
-python scmtest.py runtest --project story --testng-conf testng --packages com.sequoiacm.asynctask,com.sequoiacm.asynctask.concurrent  --group fourSite
+python scmtest.py runtest --project story --testng-conf testng --packages com.sequoiacm.asynctask,com.sequoiacm.asynctask.concurrent --sites fourSite
 ```
 
 runtest 参数介绍与限制
 
 ```shell
 --project        #指定测试工程（必填、唯一）
---tag            #过滤出指定标签的测试用例
---testng-conf    #指定具体的 testng 的 xml 模板（逗号分隔，不能与 --tag 同时指定）
+--testng-conf    #指定具体的 testng 的 xml 模板（逗号分隔）
 --packages       #指定需要执行的包（逗号分隔，依赖于 --testng-conf）
 --classess       #指定需要执行的类（逗号分隔，依赖于 --testng-conf）
---group          #指定 group 过滤执行测试用例
+--sites          #指定SCM集群的站点数
 --thread         #指定并发用例的线程数（对串行用例不生效）
 --nocompile      #本次运行不编译指定的测试工程（project）
 --help           #打印帮助信息

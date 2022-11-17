@@ -2,8 +2,8 @@ package com.sequoiacm.test.exec;
 
 import com.sequoiacm.test.common.*;
 import com.sequoiacm.test.module.ExecResult;
-import com.sequoiacm.test.module.HostInfo;
 import com.sequoiacm.test.module.TestTaskInfo;
+import com.sequoiacm.test.module.Worker;
 import com.sequoiacm.test.ssh.Ssh;
 import com.sequoiacm.test.ssh.SshMgr;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class ScmTestExecutorFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(ScmTestExecutorFactory.class);
-    private static Map<HostInfo, ScmTestExecutor> testExecutorMap = new HashMap<>();
+    private static Map<Worker, ScmTestExecutor> testExecutorMap = new HashMap<>();
     private static volatile ScmTestExecutorFactory INSTANCE;
 
     private ScmTestExecutorFactory() {
@@ -42,12 +42,12 @@ public class ScmTestExecutorFactory {
     }
 
     public ScmTestExecutor createExecutor(TestTaskInfo taskInfo) throws IOException {
-        HostInfo hostInfo = taskInfo.getHostInfo();
-        ScmTestExecutor testExecutor = testExecutorMap.get(hostInfo);
+        Worker worker = taskInfo.getWorker();
+        ScmTestExecutor testExecutor = testExecutorMap.get(worker);
         if (testExecutor == null) {
-            testExecutor = hostInfo.isLocalHost() ? new ScmTestLocalExecutor(taskInfo)
+            testExecutor = worker.isLocalWorker() ? new ScmTestLocalExecutor(taskInfo)
                     : new ScmTestRemoteExecutor(taskInfo);
-            testExecutorMap.put(hostInfo, testExecutor);
+            testExecutorMap.put(worker, testExecutor);
         }
         else {
             testExecutor.updateTaskInfo(taskInfo);
@@ -56,51 +56,51 @@ public class ScmTestExecutorFactory {
     }
 
     private static void checkAndAbortAllExecutor() {
-        for (Map.Entry<HostInfo, ScmTestExecutor> entry : testExecutorMap.entrySet()) {
-            HostInfo hostInfo = entry.getKey();
+        for (Map.Entry<Worker, ScmTestExecutor> entry : testExecutorMap.entrySet()) {
+            Worker worker = entry.getKey();
             ScmTestExecutor testExecutor = entry.getValue();
             if (testExecutor.getTaskInfo().isDone()) {
                 continue;
             }
 
             String execCommand = testExecutor.getTaskInfo().getExecCommand();
-            if (hostInfo.isLocalHost()) {
+            if (worker.isLocalWorker()) {
                 BashUtil.searchProcessAndKill(execCommand);
+                continue;
             }
-            else {
-                Ssh ssh = null;
-                try {
-                    ssh = SshMgr.getInstance().getSsh(hostInfo);
-                    String psCommand = "ps -eo pid,cmd | grep -w \""
-                            + StringUtil.subStringBefore(execCommand, " >")
-                            + "\" | grep -v -e grep -e bash";
-                    ExecResult psResult = ssh.exec(psCommand, null);
 
-                    String processDes = psResult.getStdOut().trim();
-                    String pidStr = StringUtil.subStringBefore(processDes, " ");
-                    if (pidStr.length() > 0) {
-                        int pid = Integer.parseInt(pidStr);
-                        logger.info("Killing the remote testcase program, host={}, pid={}",
-                                hostInfo.getHostname(), pid);
+            Ssh ssh = null;
+            try {
+                ssh = SshMgr.getInstance().getSsh(worker.getHostInfo());
+                String psCommand = "ps -eo pid,cmd | grep -w \""
+                        + StringUtil.subStringBefore(execCommand, " >")
+                        + "\" | grep -v -e grep -e bash";
+                ExecResult psResult = ssh.exec(psCommand, null);
 
-                        ExecResult execResult = ssh.sudoExec("kill -9 " + pid);
-                        if (execResult.getExitCode() == 0) {
-                            logger.info("Kill the remote test program success, host={}, pid={}",
-                                    hostInfo.getHostname(), pid);
-                        }
-                        else {
-                            throw new IOException(execResult.getStdErr());
-                        }
+                String processDes = psResult.getStdOut().trim();
+                String pidStr = StringUtil.subStringBefore(processDes, " ");
+                if (pidStr.length() > 0) {
+                    int pid = Integer.parseInt(pidStr);
+                    logger.info("Killing the remote testcase program, worker={}, pid={}",
+                            worker.getName(), pid);
+
+                    ExecResult execResult = ssh.sudoExec("kill -9 " + pid);
+                    if (execResult.getExitCode() == 0) {
+                        logger.info("Kill the remote test program success, worker={}, pid={}",
+                                worker.getName(), pid);
+                    }
+                    else {
+                        throw new IOException(execResult.getStdErr());
                     }
                 }
-                catch (Exception e) {
-                    logger.error(
-                            "Failed to check and kill the remote testcase program, host={}, cause by: {}",
-                            hostInfo.getHostname(), e.getMessage(), e);
-                }
-                finally {
-                    CommonUtil.closeResource(ssh);
-                }
+            }
+            catch (Exception e) {
+                logger.error(
+                        "Failed to check and kill the remote testcase program, worker={}, cause by: {}",
+                        worker.getName(), e.getMessage(), e);
+            }
+            finally {
+                CommonUtil.closeResource(ssh);
             }
         }
     }
