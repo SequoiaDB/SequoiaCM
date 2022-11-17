@@ -207,7 +207,7 @@ final class RestClient {
             CloseableHttpResponse response = client.execute(request);
             CloseableHttpResponseWrapper respWrapper = new CloseableHttpResponseWrapper(response,
                     null);
-            handleException(respWrapper);
+            handleException(respWrapper, request);
             return respWrapper;
         }
         catch (ConnectionPoolTimeoutException e) {
@@ -231,7 +231,7 @@ final class RestClient {
         try {
             CloseableHttpResponse resp = c.execute(request);
             CloseableHttpResponseWrapper respWrapper = new CloseableHttpResponseWrapper(resp, c);
-            handleException(respWrapper);
+            handleException(respWrapper, request);
             return respWrapper;
         }
         catch (ScmException e) {
@@ -243,7 +243,8 @@ final class RestClient {
         }
     }
 
-    private static void handleException(CloseableHttpResponseWrapper respWrapper)
+    private static void handleException(CloseableHttpResponseWrapper respWrapper,
+            HttpRequestBase request)
             throws ScmException {
         int httpStatusCode = respWrapper.getStatusLine().getStatusCode();
 
@@ -267,7 +268,7 @@ final class RestClient {
                 }
             }
 
-            throw new ScmException(errcode, message);
+            throw new ScmException(errcode, message, request.getURI().toString());
         }
         finally {
             consumeResp(respWrapper);

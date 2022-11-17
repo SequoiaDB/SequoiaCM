@@ -8,6 +8,7 @@ public class ScmException extends Exception {
 
     private ScmError error;
     private int errcode;
+    private String requestUrl; // nullable
 
     /**
      * Use this to specify the error object, error message and exception chaining.
@@ -44,6 +45,23 @@ public class ScmException extends Exception {
     }
 
     /**
+     * Use this to specify the error code and error message.
+     * 
+     * @param errorCode
+     *            The error code return by content server.
+     * @param message
+     *            The error message.
+     * @param requestUrl
+     *            The request url.
+     */
+    public ScmException(int errorCode, String message, String requestUrl) {
+        super(message);
+        this.error = ScmError.getScmError(errorCode);
+        this.errcode = errorCode;
+        this.requestUrl = requestUrl;
+    }
+
+    /**
      * Returns the error object.
      * @return The enumeration object of sequoiacm error.
      */
@@ -72,7 +90,11 @@ public class ScmException extends Exception {
      * @return The exception description.
      */
     public String toString() {
-        return String.format("%s, error=%s(%d): %s",
+        String res = String.format("%s, error=%s(%d): %s",
                 super.toString(), error.name(), errcode, error.getErrorDescription());
+        if (requestUrl != null) {
+            res = res + ", requestUrl=" + requestUrl;
+        }
+        return res;
     }
 }
