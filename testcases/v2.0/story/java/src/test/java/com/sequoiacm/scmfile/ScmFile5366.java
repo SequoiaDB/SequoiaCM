@@ -1,12 +1,12 @@
 package com.sequoiacm.scmfile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
-import com.sequoiacm.client.element.ScmContentLocation;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -16,12 +16,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @descreption SCM-5366:并发上传文件，指定相同FileId
@@ -120,7 +117,7 @@ public class ScmFile5366 extends TestScmBase {
                         + fileID + " ;实际文件id为:" + scmId );
                 threadSuccessNum++;
             } catch ( ScmException e ) {
-                if ( e.getErrorCode() != ScmError.METASOURCE_RECORD_EXIST
+                if ( e.getErrorCode() != ScmError.FILE_EXIST
                         .getErrorCode() ) {
                     throw e;
                 }
