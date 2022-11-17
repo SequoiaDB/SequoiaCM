@@ -228,30 +228,9 @@ public class CephS3Utils extends TestScmBase {
      * } return readLen; }
      */
 
-    private static String getBucketName( SiteWrapper site, WsWrapper ws ) {
-        String bucketName = "";
-
-        // get bucketName prefix
-        String containerPrefix = ws.getContainerPrefix( site.getSiteId() );
-        if ( null == containerPrefix ) {
-            containerPrefix = ws.getName() + "-scmfile";
-        }
-
-        // get bucketName postFix
-        String dstType = ws.getDataShardingTypeForOtherDs( site.getSiteId() );
-        if ( null == dstType ) {
-            dstType = "month";
-        }
-        String postFix = TestSdbTools.getCsClPostfix( dstType );
-
-        // get bucketName
-        if ( dstType.equals( "none" ) ) {
-            containerPrefix += "-";
-        }
-        bucketName = ( containerPrefix + postFix ).toLowerCase()
-                .replaceAll( "_", "-" );
-
-        return bucketName;
+    private static String getBucketName( SiteWrapper site, WsWrapper ws )
+            throws ScmException {
+        return getBucketName( site, ws.getName() );
     }
 
     public static String getBucketName( SiteWrapper site, String wsName )
