@@ -1,23 +1,18 @@
 package com.sequoiacm.batch;
 
-import java.util.List;
-
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import com.sequoiacm.client.core.ScmBatch;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.List;
 
 /**
  * @FileName SCM-1304: 解除不属于本批次的文件
@@ -51,7 +46,8 @@ public class DetachFile1304 extends TestScmBase {
         // batch.attachFile(fileId);
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    //SEQUOIACM-1141
+    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void test() throws Exception {
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         try {
