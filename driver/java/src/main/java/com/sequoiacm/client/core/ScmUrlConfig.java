@@ -1,6 +1,7 @@
 package com.sequoiacm.client.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,6 +161,20 @@ public class ScmUrlConfig {
         return results;
     }
 
+    List<UrlInfo> getUrlInfo() {
+        List<UrlInfo> results = new ArrayList<UrlInfo>();
+        for (Entry<String, RegionUrl> regionEntry : regions.entrySet()) {
+            String region = regionEntry.getKey();
+            Collection<ZoneUrl> zones = regionEntry.getValue().getZones();
+            for (ZoneUrl zone : zones) {
+                for (String url : zone.getUrl()) {
+                    results.add(new UrlInfo(url, region, zone.getName()));
+                }
+            }
+        }
+        return results;
+    }
+
     String getTargetSite() {
         return targetSite;
     }
@@ -299,6 +314,10 @@ class RegionUrl {
     public String getName() {
         return region;
     }
+
+    Collection<ZoneUrl> getZones() {
+        return zones.values();
+    }
 }
 
 class ZoneUrl {
@@ -324,5 +343,64 @@ class ZoneUrl {
 
     public String getName() {
         return zone;
+    }
+}
+
+class UrlInfo {
+    private String url;
+    private String region;
+    private String zone;
+
+    public UrlInfo(String url, String region, String zone) {
+        this.url = url;
+        this.region = region;
+        this.zone = zone;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        UrlInfo urlInfo = (UrlInfo) o;
+
+        return url != null ? url.equals(urlInfo.url) : urlInfo.url == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return url != null ? url.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "UrlInfo{" + "url='" + url + '\'' + ", region='" + region + '\'' + ", zone='" + zone
+                + '\'' + '}';
     }
 }

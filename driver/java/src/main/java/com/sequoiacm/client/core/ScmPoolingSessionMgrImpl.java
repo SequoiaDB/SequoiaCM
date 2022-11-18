@@ -7,6 +7,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.ScmHelper;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.NetUtil;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -62,6 +63,8 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
 
     private Map<String, Boolean> gatewayHealthStatus = new ConcurrentHashMap<String, Boolean>();
 
+    private Map<String, UrlInfo> gatewayUrlInfo = new ConcurrentHashMap<String, UrlInfo>();
+
     private final CloseableHttpClient httpClient;
 
     private final ScmSessionPoolConf sessionPoolConf;
@@ -70,12 +73,16 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
 
     private boolean closed = false;
 
+    private ScmUrlConfig basicUrl;
+
     ScmPoolingSessionMgrImpl(ScmSessionPoolConf conf) throws ScmException {
         try {
             this.sessionPoolConf = conf;
             this.authSessionQueue = new ScmSessionQueue(conf.getMaxCacheSize());
             this.notAuthSessionQueue = new ScmSessionQueue(conf.getMaxCacheSize());
             this.abnormalSessionQueue = new ScmSessionQueue(ABNORMAL_SESSION_QUEUE_SIZE);
+            this.basicUrl = conf.getSessionConfig().getUrlConfig();
+            addToUrlInfo(this.basicUrl.getUrlInfo());
             this.httpClient = createHttpClient();
             startTask();
         }
@@ -93,9 +100,19 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
     private void startTask() throws ScmInvalidArgumentException {
         // start sync gateway urls task
         long interval = sessionPoolConf.getSynGatewayUrlsInterval();
-        final SyncGatewayAddrTask syncGatewayAddrTask = new SyncGatewayAddrTask(this,
-                sessionPoolConf.getSessionConfig());
         if (interval > 0) {
+            SyncGatewayAddrTask syncGatewayAddrTask = new SyncGatewayAddrTask(this, this.basicUrl,
+                    new SyncGatewayAddrCallback() {
+                        public void onNewUrlSync(List<UrlInfo> newUrls) {
+                            try {
+                                addToUrlInfo(newUrls);
+                                updateScmUrlConfig(newUrls);
+                            }
+                            catch (ScmInvalidArgumentException e) {
+                                logger.warn("failed to update url config", e);
+                            }
+                        }
+                    });
             syncGatewayAddrTaskTimer = ScmTimerFactory.createScmTimer();
             syncGatewayAddrTaskTimer.schedule(syncGatewayAddrTask, interval, interval);
         }
@@ -103,14 +120,19 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
         // start check gateway urls task
         interval = sessionPoolConf.getCheckGatewayUrlsInterval();
         CheckGatewayUrlsTask checkGatewayUrlsTask = new CheckGatewayUrlsTask(httpClient,
-                gatewayHealthStatus, new CheckGatewayUrlsTask.UrlsProvider() {
+                this, new CheckGatewayUrlsTask.UrlsProvider() {
                     @Override
-                    public List<String> getUrls() {
-                        List<String> currentUrls = syncGatewayAddrTask.getCurrentUrls();
-                        List<String> pureUrls = new ArrayList<String>(currentUrls.size());
+                    public Set<String> getUrls() {
+                        List<String> currentUrls = sessionPoolConf.getSessionConfig().getUrls();
+                        Set<String> pureUrls = new HashSet<String>(currentUrls.size());
                         // host:ip/siteName => host:ip
                         for (String url : currentUrls) {
                             pureUrls.add(getPureUrl(url));
+                        }
+                        for (Map.Entry<String, Boolean> entry : gatewayHealthStatus.entrySet()) {
+                            if (!entry.getValue()) {
+                                pureUrls.add(getPureUrl(entry.getKey()));
+                            }
                         }
                         return pureUrls;
                     }
@@ -129,6 +151,7 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
         idleConnectionMonitorTimer.schedule(idleConnectionMonitorTask,
                 HTTP_CLIENT_IDLE_CONNECTION_MONITOR_INTERVAL,
                 HTTP_CLIENT_IDLE_CONNECTION_MONITOR_INTERVAL);
+
     }
 
     @Override
@@ -253,8 +276,18 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
 
     private boolean isHealth(ScmSession scmSession) {
         String gatewayUrl = getPureUrl(scmSession.getUrl());
+        return isGatewayUrlHealth(gatewayUrl);
+    }
+
+    private boolean isGatewayUrlHealth(String gatewayUrl) {
         Boolean health = gatewayHealthStatus.get(gatewayUrl);
         return health == null || health;
+    }
+
+    private void addToUrlInfo(List<UrlInfo> urlInfo) {
+        for (UrlInfo info : urlInfo) {
+            gatewayUrlInfo.put(getPureUrl(info.getUrl()), info);
+        }
     }
 
     private String getPureUrl(String url) {
@@ -358,6 +391,7 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
             abnormalSessionQueue = null;
             lastAccessTimeMap.clear();
             gatewayHealthStatus.clear();
+            gatewayUrlInfo.clear();
         }
         catch (Exception e) {
             logger.warn("failed to release resource", e);
@@ -413,7 +447,7 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
                                     .getAttribute(HTTP_CLIENT_HOST_ATTRIBUTE);
                             if (httpHost != null) {
                                 String url = httpHost.getHostName() + ":" + httpHost.getPort();
-                                markGatewayUnhealthy(url);
+                                recordGatewayHealthStatus(url, false);
                             }
                         }
                         if (exception instanceof NoHttpResponseException && executionCount <= 1) {
@@ -425,9 +459,94 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
         return httpClientBuilder.build();
     }
 
-    private void markGatewayUnhealthy(String url) {
-        logger.debug("mark gateway unhealthy: " + url);
-        gatewayHealthStatus.put(url, false);
+    void recordGatewayHealthStatus(String gatewayUrl, boolean status) {
+        boolean hasChange = false;
+        Boolean beforeStatus = gatewayHealthStatus.get(gatewayUrl);
+        if (beforeStatus == null || beforeStatus != status) {
+            hasChange = true;
+        }
+        gatewayHealthStatus.put(gatewayUrl, status);
+
+        if (hasChange) {
+            try {
+                removeUnhealthyUrlFromUrlConfig();
+            }
+            catch (ScmInvalidArgumentException e) {
+                logger.warn("failed to remove unhealthy url:{}", gatewayUrl, e);
+            }
+        }
+        if (!status) {
+            logger.debug("mark gateway unhealthy: " + gatewayUrl);
+        }
+        else {
+            logger.debug("mark gateway healthy: " + gatewayUrl);
+            try {
+                addNewUrlToUrlConfig(gatewayUrl);
+            }
+            catch (ScmInvalidArgumentException e) {
+                logger.warn("failed to add healthy url:{}", gatewayUrl, e);
+            }
+        }
+    }
+
+    private synchronized void updateScmUrlConfig(List<UrlInfo> newUrls)
+            throws ScmInvalidArgumentException {
+        ScmUrlConfig.Builder builder = ScmUrlConfig.custom();
+        List<UrlInfo> urlInfo = this.basicUrl.getUrlInfo();
+        for (UrlInfo info : urlInfo) {
+            if (isGatewayUrlHealth(getPureUrl(info.getUrl()))) {
+                builder.addUrl(info.getRegion(), info.getZone(),
+                        Collections.singletonList(info.getUrl()));
+            }
+        }
+        for (UrlInfo newUrl : newUrls) {
+            builder.addUrl(newUrl.getRegion(), newUrl.getZone(),
+                    Collections.singletonList(newUrl.getUrl()));
+        }
+        this.sessionPoolConf.getSessionConfig().setUrlConfig(builder.build());
+    }
+
+    private synchronized void addNewUrlToUrlConfig(String pureUrl)
+            throws ScmInvalidArgumentException {
+        UrlInfo toAddUrl = gatewayUrlInfo.get(pureUrl);
+        if (toAddUrl == null) {
+            return;
+        }
+        ScmUrlConfig oldUrlConfig = this.sessionPoolConf.getSessionConfig().getUrlConfig();
+        List<UrlInfo> urlInfo = oldUrlConfig.getUrlInfo();
+        if (!urlInfo.contains(toAddUrl)) {
+            ScmUrlConfig build = ScmUrlConfig.custom(oldUrlConfig).addUrl(toAddUrl.getRegion(),
+                    toAddUrl.getZone(), Collections.singletonList(toAddUrl.getUrl())).build();
+            this.sessionPoolConf.getSessionConfig().setUrlConfig(build);
+        }
+    }
+
+    private synchronized void removeUnhealthyUrlFromUrlConfig() throws ScmInvalidArgumentException {
+        List<UrlInfo> urlInfo = this.sessionPoolConf.getSessionConfig().getUrlConfig().getUrlInfo();
+        Iterator<UrlInfo> iterator = urlInfo.iterator();
+        boolean removed = false;
+        while (iterator.hasNext()) {
+            if (!isGatewayUrlHealth(getPureUrl(iterator.next().getUrl()))) {
+                iterator.remove();
+                removed = true;
+            }
+        }
+        if (!removed) {
+            return;
+        }
+        if (urlInfo.size() <= 0) {
+            // recovery
+            this.sessionPoolConf.getSessionConfig()
+                    .setUrlConfig(ScmUrlConfig.custom(this.basicUrl).build());
+        }
+        else {
+            ScmUrlConfig.Builder builder = ScmUrlConfig.custom();
+            for (UrlInfo info : urlInfo) {
+                builder.addUrl(info.getRegion(), info.getZone(),
+                        Collections.singletonList(info.getUrl()));
+            }
+            this.sessionPoolConf.getSessionConfig().setUrlConfig(builder.build());
+        }
     }
 
     static class ScmSessionQueue {
@@ -490,27 +609,27 @@ class CheckGatewayUrlsTask extends ScmTimerTask {
 
     private final RestDispatcher restDispatcher;
 
-    private final Map<String, Boolean> statusMap;
+    private final ScmPoolingSessionMgrImpl sessionMgr;
 
     private final UrlsProvider urlsProvider;
 
-    public CheckGatewayUrlsTask(CloseableHttpClient httpClient, Map<String, Boolean> statusMap,
+    public CheckGatewayUrlsTask(CloseableHttpClient httpClient, ScmPoolingSessionMgrImpl sessionMgr,
             UrlsProvider urlsProvider) {
         this.restDispatcher = new RestDispatcher("", null, httpClient);
-        this.statusMap = statusMap;
+        this.sessionMgr = sessionMgr;
         this.urlsProvider = urlsProvider;
     }
 
     @Override
     public void run() {
-        List<String> urls = urlsProvider.getUrls();
+        Set<String> urls = urlsProvider.getUrls();
         logger.debug("begin check gateway urls: " + urls);
         if (urls == null || urls.size() <= 0) {
             return;
         }
         for (String url : urls) {
             boolean isHealth = ScmHelper.checkGatewayHealth(url, restDispatcher);
-            statusMap.put(url, isHealth);
+            sessionMgr.recordGatewayHealthStatus(url, isHealth);
             if (!isHealth) {
                 logger.info("gateway node is unhealthy: " + url);
             }
@@ -518,7 +637,7 @@ class CheckGatewayUrlsTask extends ScmTimerTask {
     }
 
     public interface UrlsProvider {
-        List<String> getUrls();
+        Set<String> getUrls();
     }
 }
 
@@ -539,24 +658,25 @@ class ClearAbnormalSessionsTask extends ScmTimerTask {
     }
 }
 
+interface SyncGatewayAddrCallback {
+    void onNewUrlSync(List<UrlInfo> newUrls);
+}
+
 class SyncGatewayAddrTask extends ScmTimerTask {
     private static final Logger logger = LoggerFactory.getLogger(SyncGatewayAddrTask.class);
     private ScmSessionMgr sessionMgr;
     private ScmUrlConfig basicUrlConfig;
     private Map<String, String> basicIpUrlsMap;
-    private ScmConfigOption configOption;
+    private SyncGatewayAddrCallback callback;
+    private Map<String, Integer> ipSimilarityMap = new HashMap<String, Integer>();
 
-    private ScmUrlConfig remoteUrlConfig;
-    private ScmUrlConfig currentUrlConfig;
-    private List<ScmGatewayUrl> remoteNewUrls;
-
-    public SyncGatewayAddrTask(ScmSessionMgr sessionMgr, ScmConfigOption configOption)
+    public SyncGatewayAddrTask(ScmSessionMgr sessionMgr, ScmUrlConfig basicUrlConfig,
+            SyncGatewayAddrCallback callback)
             throws ScmInvalidArgumentException {
         this.sessionMgr = sessionMgr;
-        this.configOption = configOption;
-        this.basicUrlConfig = configOption.getUrlConfig();
-        this.currentUrlConfig = configOption.getUrlConfig();
+        this.basicUrlConfig = basicUrlConfig;
         this.basicIpUrlsMap = getIpUrls(basicUrlConfig.getUrl());
+        this.callback = callback;
     }
 
     @Override
@@ -568,42 +688,34 @@ class SyncGatewayAddrTask extends ScmTimerTask {
                     .getServiceInstanceList(ss, "gateway");
             if (gatewayInstances.size() <= 0) {
                 logger.warn("latest gateway addr is empty");
-                resetUrlConfig();
                 return;
             }
 
-            String targetSite = configOption.getUrlConfig().getTargetSite();
+            String targetSite = basicUrlConfig.getTargetSite();
             String urlTail = targetSite == null ? "" : "/" + targetSite;
-
-            ScmUrlConfig.Builder remoteUrlsBuilder = ScmUrlConfig.custom();
-            remoteNewUrls = new ArrayList<ScmGatewayUrl>();
-
+            List<UrlInfo> remoteNewUrls = new ArrayList<UrlInfo>();
             for (ScmServiceInstance instance : gatewayInstances) {
                 if (!"UP".equals(instance.getStatus())) {
                     continue;
                 }
-                String instanceUrl = instance.getIp() + ":" + instance.getPort() + urlTail;
+                String ip = getAvailableInstanceIp(instance, ss);
+                if (ip == null) {
+                    continue;
+                }
+                String instanceUrl = ip + ":" + instance.getPort() + urlTail;
                 if (!basicIpUrlsMap.containsKey(instanceUrl)) {
-                    remoteNewUrls.add(new ScmGatewayUrl(instanceUrl, instance.getRegion(),
-                            instance.getZone()));
-                    remoteUrlsBuilder.addUrl(instance.getRegion(), instance.getZone(),
-                            Collections.singletonList(instanceUrl));
-                }
-                else {
-                    remoteUrlsBuilder.addUrl(instance.getRegion(), instance.getZone(),
-                            Collections.singletonList(basicIpUrlsMap.get(instanceUrl)));
+                    remoteNewUrls.add(
+                            new UrlInfo(instanceUrl, instance.getRegion(), instance.getZone()));
                 }
             }
-            remoteUrlConfig = remoteUrlsBuilder.build();
-            if (remoteUrlConfig.getUrl().size() > 0) {
-                configOption.setUrlConfig(remoteUrlConfig);
-                currentUrlConfig = remoteUrlConfig;
+            if (remoteNewUrls.size() > 0) {
+                callback.onNewUrlSync(remoteNewUrls);
+                logger.debug("sync new gateway addr:" + remoteNewUrls);
             }
-            logger.debug("sync gateway addr:" + remoteUrlConfig.getUrl());
+
         }
         catch (Exception e) {
             logger.warn("failed to sync gateway addr list", e);
-            resetUrlConfig();
         }
         finally {
             if (ss != null) {
@@ -612,27 +724,66 @@ class SyncGatewayAddrTask extends ScmTimerTask {
         }
     }
 
-    private void resetUrlConfig() {
-        try {
-            ScmUrlConfig urlConfig = ScmUrlConfig.custom(basicUrlConfig).build();
-            if (remoteNewUrls != null && remoteNewUrls.size() > 0) {
-                for (ScmGatewayUrl remoteNewUrl : remoteNewUrls) {
-                    urlConfig.addUrl(remoteNewUrl.getRegion(), remoteNewUrl.getZone(),
-                            Collections.singletonList(remoteNewUrl.getZone()));
+    private String getAvailableInstanceIp(ScmServiceInstance instance, ScmSession ss) {
+        Set<IpWithSimilarity> ipSet = new TreeSet<IpWithSimilarity>();
+        if (NetUtil.isValidIp(instance.getIp())) {
+            ipSet.add(new IpWithSimilarity(instance.getIp(), getIpSimilarity(instance.getIp())));
+        }
+        if (instance.getMetadata() != null) {
+            String ipListStr = (String) instance.getMetadata().get("ipList");
+            if (ipListStr != null && !ipListStr.isEmpty()) {
+                for (String ip : ipListStr.split(",")) {
+                    if (NetUtil.isValidIp(ip)) {
+                        ipSet.add(new IpWithSimilarity(ip, getIpSimilarity(ip)));
+                    }
                 }
             }
-            configOption.setUrlConfig(urlConfig);
-            this.currentUrlConfig = urlConfig;
-            logger.debug("reset gateway addr list: " + urlConfig.getUrl());
         }
-        catch (ScmInvalidArgumentException e) {
-            logger.warn("failed to reset gateway addr list", e);
+        for (IpWithSimilarity ipWithSimilarity : ipSet) {
+            String ip = ipWithSimilarity.getIp();
+            if (ScmHelper.checkGatewayHealth(ip + ":" + instance.getPort(), ss.getDispatcher())) {
+                logger.debug("chosen gateway url: {}:{}", ip, instance.getPort());
+                return ip;
+            }
+            else {
+                logger.debug("gateway url is unhealthy: ip={},port={}", ip, instance.getPort());
+            }
         }
+        logger.warn("no available ip for gateway instance:{}, ipList={}", instance, ipSet);
+        return null;
+    }
 
+    private int getIpSimilarity(String ip) {
+        Integer similarity = ipSimilarityMap.get(ip);
+        if (similarity != null) {
+            return similarity;
+        }
+        similarity = getCommonPrefixLength(ip, getFirstBasicIp());
+        ipSimilarityMap.put(ip, similarity);
+        return similarity;
+    }
+
+    private static int getCommonPrefixLength(String str1, String str2) {
+        int minLen = Math.min(str1.length(), str2.length());
+        int count = 0;
+        for (int i = 0; i < minLen; i++) {
+            if (str1.charAt(i) == str2.charAt(i)) {
+                count++;
+            }
+            else {
+                break;
+            }
+        }
+        return count;
+    }
+
+    private String getFirstBasicIp() {
+        String basicIpUrl = this.basicIpUrlsMap.keySet().iterator().next();
+        return basicIpUrl.substring(0, basicIpUrl.indexOf(":"));
     }
 
     private Map<String, String> getIpUrls(List<String> urls) throws ScmInvalidArgumentException {
-        Map<String, String> ipUrlsMap = new HashMap<String, String>();
+        Map<String, String> ipUrlsMap = new LinkedHashMap<String, String>();
         for (String basicUrl : urls) {
             int index = basicUrl.indexOf(":");
             if (index <= -1) {
@@ -651,44 +802,38 @@ class SyncGatewayAddrTask extends ScmTimerTask {
         return ipUrlsMap;
     }
 
-    public List<String> getCurrentUrls() {
-        return currentUrlConfig.getUrl();
-    }
+    static class IpWithSimilarity implements Comparable<IpWithSimilarity> {
 
-    static class ScmGatewayUrl {
-        private String url;
-        private String region;
-        private String zone;
+        private String ip;
+        private int similarity;
 
-        public ScmGatewayUrl(String url, String region, String zone) {
-            this.url = url;
-            this.region = region;
-            this.zone = zone;
+        public IpWithSimilarity(String ip, int similarity) {
+            this.ip = ip;
+            this.similarity = similarity;
         }
 
-        public String getUrl() {
-            return url;
+        @Override
+        public int compareTo(IpWithSimilarity other) {
+            if (ip.equals(other.getIp())) {
+                return 0;
+            }
+            int res = other.getSimilarity() - this.similarity;
+            if (res == 0) {
+                return this.compareTo(other);
+            }
+            else {
+                return res;
+            }
         }
 
-        public void setUrl(String url) {
-            this.url = url;
+        public String getIp() {
+            return ip;
         }
 
-        public String getRegion() {
-            return region;
+        public int getSimilarity() {
+            return similarity;
         }
 
-        public void setRegion(String region) {
-            this.region = region;
-        }
-
-        public String getZone() {
-            return zone;
-        }
-
-        public void setZone(String zone) {
-            this.zone = zone;
-        }
     }
 
 }

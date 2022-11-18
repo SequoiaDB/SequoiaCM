@@ -1,9 +1,22 @@
 package com.sequoiacm.infrastructure.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 public class NetUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(NetUtil.class);
+
+    public static final String LOCALHOST = "127.0.0.1";
+    public static final String ANYHOST = "0.0.0.0";
+
     public static boolean isSameHost(String host1, String host2) throws UnknownHostException {
         if (host1.equals(host2)) {
             return true;
@@ -74,4 +87,55 @@ public class NetUtil {
             return false;
         }
     }
+
+    public static List<String> getAllNetworkInterfaceIp() {
+        List<String> ipList = new ArrayList<String>();
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            if (interfaces == null) {
+                return ipList;
+            }
+            while (interfaces.hasMoreElements()) {
+                try {
+                    NetworkInterface network = interfaces.nextElement();
+                    if (!network.isUp()) {
+                        continue;
+                    }
+                    Enumeration<InetAddress> addresses = network.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        try {
+                            InetAddress address = addresses.nextElement();
+                            if (isValidAddress(address)) {
+                                ipList.add(address.getHostAddress());
+                            }
+                        }
+                        catch (Throwable e) {
+                            logger.warn("Failed to retrieving ip address, " + e.getMessage(), e);
+                        }
+                    }
+                }
+                catch (Throwable e) {
+                    logger.warn("Failed to retrieving ip address, " + e.getMessage(), e);
+                }
+            }
+        }
+        catch (Throwable e) {
+            logger.warn("Failed to retrieving ip address, " + e.getMessage(), e);
+        }
+        return ipList;
+    }
+
+    private static boolean isValidAddress(InetAddress address) {
+        if (address == null || address.isLoopbackAddress())
+            return false;
+        String ipStr = address.getHostAddress();
+        return isValidIp(ipStr);
+    }
+
+
+    public static boolean isValidIp(String ipStr) {
+        return (ipStr != null && !ANYHOST.equals(ipStr) && !LOCALHOST.equals(ipStr)
+                && isIpStr(ipStr));
+    }
+
 }
