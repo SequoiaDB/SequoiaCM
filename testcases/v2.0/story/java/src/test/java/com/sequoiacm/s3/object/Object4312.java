@@ -78,7 +78,9 @@ public class Object4312 extends TestScmBase {
         S3Utils.clearBucket( rootS3Client, bucketName );
     }
 
-    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite, GroupTags.base })
+    // SEQUOIACM-1147
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite,
+            GroupTags.base }, enabled = false)
     public void test() throws Exception {
         // 在主站点ws下创建桶，创建文件
         rootS3Client.createBucket( bucketName );
