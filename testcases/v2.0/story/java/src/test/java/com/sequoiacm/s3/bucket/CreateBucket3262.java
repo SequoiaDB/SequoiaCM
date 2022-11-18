@@ -47,7 +47,8 @@ public class CreateBucket3262 extends TestScmBase {
         S3Utils.clearBucket( s3B, bucketNameC );
     }
 
-    @Test
+    // SEQUOIACM-1146
+    @Test(enabled = false)
     public void test() throws ScmException {
         // 用户A创建桶A
         s3A.createBucket( bucketNameA );

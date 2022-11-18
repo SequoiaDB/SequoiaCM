@@ -57,7 +57,8 @@ public class Object4992 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // SEQUOIACM-1146
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     public void test() throws Exception {
         s3Client.createBucket( bucketName, s3WS.getName() );
 
@@ -78,10 +79,10 @@ public class Object4992 extends TestScmBase {
                 ScmWorkspaceUtil.deleteWs( wsName, session );
             }
         } finally {
-            if( s3Client != null ){
+            if ( s3Client != null ) {
                 s3Client.shutdown();
             }
-            if( session != null ){
+            if ( session != null ) {
                 session.close();
             }
         }
