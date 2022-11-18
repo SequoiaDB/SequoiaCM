@@ -104,7 +104,8 @@ public class StatisticsFile3819 extends TestScmBase {
         StatisticsUtils.waitStatisticalInfoCount( fileNums );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // 问题单SEQUOIACM-1148屏蔽用例
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     public void test() throws Exception {
         // 设置查询截止时间
         calendar.set( Calendar.DAY_OF_YEAR,

@@ -188,6 +188,8 @@ public class ConfUtil extends TestScmBase {
      * @throws ScmException
      */
     public static void deleteGateWayStatisticalConf() throws Exception {
+        // 删除配置前清理统计表
+        StatisticsUtils.clearStatisticalInfo();
         SiteWrapper site = ScmInfo.getSite();
         ScmSession session = null;
         try {
@@ -239,8 +241,6 @@ public class ConfUtil extends TestScmBase {
 
             }
         }
-        // 清理统计表
-        StatisticsUtils.clearStatisticalInfo();
     }
 
     public static ScmUpdateConfResultSet deleteConf( ScmSession session,
@@ -561,8 +561,8 @@ public class ConfUtil extends TestScmBase {
             ScmFactory.User.alterUser( session, scmUser, modifier );
             for ( int i = 0; i < allSites.size(); i++ ) {
                 if ( !passwordType.equals( ScmUserPasswordType.LDAP ) ) {
-                    ScmAuthUtils.checkPriority( allSites.get( i ), name,
-                            name, role, wsp );
+                    ScmAuthUtils.checkPriority( allSites.get( i ), name, name,
+                            role, wsp );
                 } else {
                     ScmAuthUtils.checkPriority( allSites.get( i ),
                             TestScmBase.ldapUserName, TestScmBase.ldapPassword,

@@ -384,6 +384,9 @@ public class StatisticsUtils extends TestScmBase {
         Map< String, String > confMap2 = new HashMap<>();
         confMap2.put( "scm.statistics.timeGranularity", "DAY" );
         ConfUtil.updateConf( ConfUtil.ADMINSERVER_SERVICE_NAME, confMap2 );
+
+        // 更新后清理统计表
+        StatisticsUtils.clearStatisticalInfo();
     }
 
     /**
