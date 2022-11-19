@@ -45,8 +45,8 @@ public class UploadAndGetFile1403 extends TestScmBase {
     private ScmId fileId = null;
 
     private String fileName = "breakpointfile1403";
-    private int fileSize = 1024 * 1024 * 1;
-    private int uploadedSize = 1024 * 800;
+    private int fileSize = 1024 * 1024 * 6;
+    private int uploadedSize = 1024 * 1024 *5;
     private File localPath = null;
     private String filePath = null;
     private String downloadPath = null;
