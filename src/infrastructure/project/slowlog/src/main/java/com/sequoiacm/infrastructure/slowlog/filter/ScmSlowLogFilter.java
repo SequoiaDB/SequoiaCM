@@ -3,6 +3,7 @@ package com.sequoiacm.infrastructure.slowlog.filter;
 import com.sequoiacm.infrastructure.slowlog.SlowLogContext;
 import com.sequoiacm.infrastructure.slowlog.SlowLogContextImpl;
 import com.sequoiacm.infrastructure.slowlog.SlowLogManager;
+import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppender;
 import com.sequoiacm.infrastructure.slowlog.config.SlowLogConfig;
 import com.sequoiacm.infrastructure.slowlog.module.OperationStatistics;
 import com.sequoiacm.infrastructure.slowlog.util.SlowLogPrintWriterWrapper;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.core.Ordered;
+import org.springframework.cloud.sleuth.instrument.web.TraceFilter;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,11 +32,12 @@ import java.util.*;
 
 // AutoConfig by resources/META-INF/spring.factories
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(ScmSlowLogFilter.ORDER)
 @EnableConfigurationProperties(SlowLogConfig.class)
 public class ScmSlowLogFilter extends OncePerRequestFilter {
 
-    private static final Logger slowLogger = LoggerFactory.getLogger("slowlog");
+    public static final int ORDER = TraceFilter.ORDER + 1;
+
     private static final Logger logger = LoggerFactory.getLogger(ScmSlowLogFilter.class);
 
     private static final String USER_AUTH = "x-auth-token";
@@ -128,6 +130,9 @@ public class ScmSlowLogFilter extends OncePerRequestFilter {
     }
 
     private void logResult(SlowResult slowResult, SlowLogContext logContext) {
+        if (slowLogConfig.getAppenderList().size() <= 0) {
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("Request processing is too slow: spend=").append(logContext.getSpend())
                 .append("ms, details=");
@@ -181,7 +186,10 @@ public class ScmSlowLogFilter extends OncePerRequestFilter {
             sb.append("]");
         }
         sb.append("]");
-        slowLogger.warn(sb.toString());
+        String log = sb.toString();
+        for (SlowLogAppender appender : slowLogConfig.getAppenderList()) {
+            appender.log(log);
+        }
     }
 
     private String formatDate(Date date) {

@@ -7,9 +7,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.infrastructure.common.ExceptionChecksUtils;
@@ -105,6 +107,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String SERVICE_CENTER = "/service-center";
     private static final String CONFIG_SERVER = "/config-server";
     private static final String FULLTEXT_SERVER = "/fulltext-server";
+    private static final String SERVICE_TRACE = "/service-trace";
     private static final String FULLTEXT = "fulltext";
     private static final String ACCESSKEY = "accesskey";
     private static final String BUCKETS = "buckets/";
@@ -2535,6 +2538,59 @@ public class RestDispatcher implements MessageDispatcher {
         return BsonUtils.getStringChecked(resp, "status");
     }
 
+    @Override
+    public BSONObject listTrace(Long minDuration, String serviceName, Date startTime, Date endTime,
+            Map<String, String> queryCondition, int limit) throws ScmException {
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.appendURL(URL_PREFIX, pureUrl, SERVICE_TRACE, API_VERSION, "traces");
+        uriBuilder.appendParam("limit", String.valueOf(limit));
+        if (serviceName != null) {
+            uriBuilder.appendParam("serviceName", serviceName);
+        }
+        if (minDuration != null) {
+            uriBuilder.appendParam("minDuration", String.valueOf(minDuration));
+        }
+        if (endTime != null) {
+            uriBuilder.appendParam("endTs", String.valueOf(endTime.getTime()));
+        }
+        if (startTime != null) {
+            if (endTime == null) {
+                endTime = new Date();
+            }
+            uriBuilder.appendParam("lookback",
+                    String.valueOf(endTime.getTime() - startTime.getTime()));
+        }
+        if (queryCondition != null) {
+            Set<Map.Entry<String, String>> entries = queryCondition.entrySet();
+            StringBuilder condition = new StringBuilder();
+            int count = 0;
+            for (Map.Entry<String, String> entry : entries) {
+                count++;
+                condition.append(entry.getKey());
+                if (entry.getValue() != null) {
+                    condition.append("=").append(entry.getValue());
+                }
+                if (count < entries.size()) {
+                    condition.append(" and ");
+                }
+            }
+            uriBuilder.appendParam("annotationQuery", condition.toString());
+        }
+        HttpGet request = new HttpGet(uriBuilder.toString());
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+        return resp;
+    }
+
+    @Override
+    public BSONObject getTrace(String traceId) throws ScmException {
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.appendURL(URL_PREFIX, pureUrl, SERVICE_TRACE, API_VERSION, "trace/", traceId);
+        HttpGet request = new HttpGet(uriBuilder.toString());
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+        return resp;
+    }
     private String encrypt(String str) throws ScmException {
         try {
             return ScmPasswordMgr.getInstance().encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, str);

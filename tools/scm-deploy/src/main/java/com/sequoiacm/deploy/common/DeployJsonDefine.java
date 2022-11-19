@@ -4,6 +4,7 @@ public class DeployJsonDefine {
     public static final String SERVICE_CENTER = "serviceCenter";
     public static final String AUTH_SERVER = "authServer";
     public static final String GATEWAY = "gateway";
+    public static final String SERVICE_TRACE = "serviceTrace";
     public static final String CONFIG_SERVER = "config-server";
     public static final String ADMIN_SERVER = "adminServer";
     public static final String SCHEDULE_SERVER = "schedule-server";

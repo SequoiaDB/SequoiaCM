@@ -2,8 +2,8 @@ package com.sequoiacm.cloud.gateway.forward.decider;
 
 import javax.servlet.http.HttpServletRequest;
 
-public interface CustomForwardDecider {
-    // 决定一个请求要不要走自实现的转发逻辑
+public interface ForwardDecider {
+    // 决定一个请求的转发方式
     Decision decide(HttpServletRequest req);
 }
 

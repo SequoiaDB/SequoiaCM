@@ -1,9 +1,13 @@
 package com.sequoiacm.infrastructure.slowlog.config;
 
+import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppender;
+import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppenderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.annotation.Import;
 import org.springframework.util.AntPathMatcher;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +16,7 @@ import java.util.*;
 
 @ConfigurationProperties(prefix = "scm.slowlog")
 @RefreshScope
+@Import(SlowLogAppenderFactory.class)
 public class SlowLogConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SlowLogConfig.class);
@@ -29,6 +34,13 @@ public class SlowLogConfig {
 
     private List<SlowLogRequest> parsedRequestList = Collections.emptyList();
 
+    private String appender;
+
+    private List<SlowLogAppender> appenderList = new ArrayList<>();
+
+    @Autowired
+    private SlowLogAppenderFactory slowLogAppenderFactory;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -37,6 +49,31 @@ public class SlowLogConfig {
     public void init() {
         this.parsedRequestList = parseRequest();
         parseOperation();
+        initAppender();
+    }
+
+    private void initAppender() {
+        appenderList.clear();
+        if (appender == null) {
+            appenderList = slowLogAppenderFactory.createDefaultAppenderList();
+        }
+        else {
+            Set<String> existAppenderSet = new HashSet<>();
+            for (String appenderName : appender.split(",")) {
+                SlowLogAppender slowLogAppender = slowLogAppenderFactory
+                        .createAppender(appenderName);
+                if (slowLogAppender == null) {
+                    logger.warn("unrecognized slowlog appender name: " + appenderName);
+                }
+                else {
+                    if (existAppenderSet.contains(slowLogAppender.getName())) {
+                        continue;
+                    }
+                    appenderList.add(slowLogAppender);
+                    existAppenderSet.add(slowLogAppender.getName());
+                }
+            }
+        }
     }
 
     @PreDestroy
@@ -124,6 +161,14 @@ public class SlowLogConfig {
 
     public boolean isRequestConfigured() {
         return !request.isEmpty() || allRequest >= 0;
+    }
+
+    public void setAppender(String appender) {
+        this.appender = appender;
+    }
+
+    public List<SlowLogAppender> getAppenderList() {
+        return appenderList;
     }
 
     private List<SlowLogRequest> parseRequest() {

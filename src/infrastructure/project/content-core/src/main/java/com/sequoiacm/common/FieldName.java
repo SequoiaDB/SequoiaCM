@@ -526,4 +526,26 @@ public class FieldName {
         public static final String FILE_VERSION_SERIAL = FieldName.FIELD_CLFILE_VERSION_SERIAL;
         public static final String FILE_DELETE_MARKER = FieldName.FIELD_CLFILE_DELETE_MARKER;
     }
+
+    public static final class TraceSpan {
+
+        public static final String TRACE_ID = "traceId";
+        public static final String SPAN_ID = "id";
+        public static final String PARENT_SPAN_ID = "parentId";
+        public static final String SPAN_NAME = "name";
+        public static final String TIMESTAMP = "timestamp";
+        public static final String DURATION = "duration";
+        public static final String ANNOTATIONS = "annotations";
+        public static final String TAGS = "binaryAnnotations";
+    }
+
+    public static final class TraceAnnotation {
+        public static final String TIMESTAMP = "timestamp";
+        public static final String VALUE = "value";
+        public static final String ENDPOINT = "endpoint";
+        public static final String SERVICE_NAME = "serviceName";
+        public static final String IP = "ipv4";
+        public static final String PORT = "port";
+
+    }
 }

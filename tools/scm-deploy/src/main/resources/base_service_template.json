@@ -6,7 +6,16 @@
             "eureka.client.register-with-eureka": "true",
             "eureka.client.fetch-registry": "true",
             "eureka.client.prefer-same-zone-eureka": "true",
-            "spring.zipkin.enabled": "false",
+            "scm.jvm.options":"''"
+        }
+    ],
+    "serviceTrace": [
+        {
+            "hostname":"localhost",
+            "server.port": "8890",
+            "eureka.client.register-with-eureka": "true",
+            "eureka.client.fetch-registry": "true",
+            "eureka.client.prefer-same-zone-eureka": "true",
             "scm.jvm.options":"''"
         }
     ],
@@ -27,7 +36,6 @@
             "eureka.client.register-with-eureka": "true",
             "eureka.client.fetch-registry": "true",
             "eureka.client.prefer-same-zone-eureka": "true",
-            "spring.zipkin.enabled": "false",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
             "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
@@ -51,7 +59,6 @@
             "eureka.client.fetch-registry": "true",
             "eureka.client.prefer-same-zone-eureka": "true",
             "scm.jvm.options":"''",
-            "spring.zipkin.enabled": "false",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
             "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
@@ -67,7 +74,6 @@
             "eureka.client.fetch-registry": "true",
             "eureka.client.prefer-same-zone-eureka": "true",
             "zuul.routes.api-a.path": "/**",
-            "spring.zipkin.enabled": "false",
             "spring.application.name": "config-server",
             "scm.zookeeper.urls": "localhost:2181",
             "scm.store.sequoiadb.urls": "localhost:11810",
@@ -83,7 +89,6 @@
             "eureka.client.fetch-registry": "true",
             "eureka.client.prefer-same-zone-eureka": "true",
             "zuul.routes.api-a.path": "/**",
-            "spring.zipkin.enabled": "false",
             "spring.application.name": "schedule-server",
             "scm.zookeeper.urls": "localhost:2181",
             "scm.store.sequoiadb.urls": "localhost:11810",

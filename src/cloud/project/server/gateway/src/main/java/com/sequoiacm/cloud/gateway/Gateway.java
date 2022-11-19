@@ -43,6 +43,7 @@ public class Gateway implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         confClient.registerConfigPropVerifier(
-                new PreventingModificationVerifier("scm.", "scm.statistics.", "scm.slowlog."));
+                new PreventingModificationVerifier("scm.", "scm.statistics.", "scm.slowlog.",
+                        "scm.trace."));
     }
 }

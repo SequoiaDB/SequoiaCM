@@ -10,8 +10,6 @@
             "eureka.client.region": "beijing",
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
-            "spring.zipkin.enabled": "false",
-            "spring.zipkin.base-url": "http://localhost:8890",
             "scm.jvm.options":"''"
         }
     ],
@@ -40,8 +38,6 @@
             "eureka.client.region": "beijing",
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
-            "spring.zipkin.enabled": "false",
-            "spring.zipkin.base-url": "http://localhost:8890",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
             "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
@@ -83,8 +79,6 @@
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
             "scm.jvm.options":"''",
-            "spring.zipkin.enabled": "true",
-            "spring.zipkin.base-url": "http://localhost:8890",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
             "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",

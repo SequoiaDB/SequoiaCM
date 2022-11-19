@@ -445,6 +445,7 @@ public class ScmDeployInfoMgr {
 
     private void checkServiceNode(List<NodeInfo> serviceNodes,
             Map<String, List<Integer>> portsOnHost) {
+        int serviceTraceCount = 0;
         for (NodeInfo node : serviceNodes) {
             if (!zoneNames.contains(node.getZone())) {
                 throw new IllegalArgumentException("invalid service node, unregnized zoneName:"
@@ -454,6 +455,14 @@ public class ScmDeployInfoMgr {
                 throw new IllegalArgumentException("invalid service type: node=" + node);
             }
             checkPortConflict(portsOnHost, node.getHostName(), node.getPort());
+            if (node.getServiceType() == ServiceType.SERVICE_TRACE) {
+                serviceTraceCount++;
+            }
+        }
+        if (serviceTraceCount > 1) {
+            throw new IllegalArgumentException(
+                    "The number of service-trace nodes exceeds the limit: maxCount=1, currentCount="
+                            + serviceTraceCount);
         }
     }
 

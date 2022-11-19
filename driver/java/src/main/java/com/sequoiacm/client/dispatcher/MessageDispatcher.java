@@ -3,6 +3,7 @@ package com.sequoiacm.client.dispatcher;
 import java.io.Closeable;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -389,4 +390,9 @@ public interface MessageDispatcher extends Closeable {
             String secretkey) throws ScmException;
 
     String getHealthStatus(String url, String healthPath) throws ScmException;
+
+    BSONObject listTrace(Long minDuration, String serviceName, Date startTime, Date endTime,
+            Map<String, String> queryCondition, int limit) throws ScmException;
+
+    BSONObject getTrace(String traceId) throws ScmException;
 }

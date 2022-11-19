@@ -6,6 +6,7 @@ com.sequoiacm.infrastructure.common.OutStreamFlushQueue,\
 com.sequoiacm.infrastructure.common.ScmLoadBalancerUtil,\
 com.sequoiacm.infrastructure.dispatcher.ScmRestClientAutoConfiguration,\
 com.sequoiacm.infrastructure.ribbon.ScmRibbonClientAutoConfiguration,\
+com.sequoiacm.infrastructure.trace.ScmTraceAutoConfiguration,\
 com.sequoiacm.infrastructure.config.ScmEurekaClientAutoConfiguration,\
 com.sequoiacm.infrastructure.config.SpringClientFactoryPostProcess
 

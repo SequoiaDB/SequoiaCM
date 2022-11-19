@@ -19,10 +19,27 @@ public class FixTomcatPollerThreadExit {
     private FixTomcatPollerThreadExit() {
     }
 
+    public synchronized void fix(){
+        if (isTomcatClassPresent()) {
+            doFix();
+        }
+    }
+
+    private boolean isTomcatClassPresent() {
+        try {
+            Class.forName("org.apache.catalina.util.ServerInfo", false, getClass().getClassLoader());
+            return true;
+        }
+        catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+
     /**
      * 修改Tomcat中当poller无法创建新线程,导致poller线程直接退出而未断开现有连接的错误
      */
-    public synchronized void fix() {
+    private void doFix() {
         String tomcatVersion = ServerInfo.getServerNumber();
         if (!TOMCAT_VERSION.equals(tomcatVersion)){
             throw new RuntimeException("The changes made to tomcat are only valid for version" + TOMCAT_VERSION);

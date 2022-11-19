@@ -4,6 +4,7 @@ import com.sequoiacm.infrastructure.monitor.core.*;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmProcessInfoEndpoint;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmThreadInfoEndpoint;
 import com.sequoiacm.infrastructure.monitor.endpoint.ScmTomcatConnectInfoEndpoint;
+import com.sequoiacm.infrastructure.monitor.endpoint.ScmUndertowConnectInfoEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
@@ -50,6 +52,13 @@ public class OmMonitorAutoConfig {
     @ConditionalOnClass(name = { "org.apache.catalina.Manager" })
     public ScmTomcatConnectInfoEndpoint scmTomcatConnectInfoEndpoint(Environment environment) {
         return new ScmTomcatConnectInfoEndpoint(environment.getProperty("server.port"));
+    }
+
+    @Bean
+    @ConditionalOnClass(name = { "io.undertow.Undertow" })
+    public ScmUndertowConnectInfoEndpoint scmUndertowConnectInfoEndpoint(
+            EmbeddedWebApplicationContext applicationContext) {
+        return new ScmUndertowConnectInfoEndpoint(applicationContext);
     }
 
     @Bean

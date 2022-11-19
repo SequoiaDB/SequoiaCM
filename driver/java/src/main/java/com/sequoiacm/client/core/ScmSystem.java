@@ -1,13 +1,17 @@
 package com.sequoiacm.client.core;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.sequoiacm.client.element.ScmCleanTaskConfig;
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
 import com.sequoiacm.client.element.ScmSpaceRecycleScope;
 import com.sequoiacm.client.element.ScmSpaceRecyclingTaskConfig;
 import com.sequoiacm.client.element.ScmTransferTaskConfig;
+import com.sequoiacm.client.element.trace.ScmTrace;
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -1263,5 +1267,147 @@ public class ScmSystem {
         if (arg == null) {
             throw new ScmInvalidArgumentException(argName + " is null");
         }
+    }
+
+    /**
+     * Provide service trace operations.
+     *
+     * @since 3.2
+     */
+    public static class ServiceTrace {
+
+        /**
+         * Get the trace list.
+         * 
+         * @param ss
+         *            session.
+         * @param limit
+         *            max record count.
+         * @return trace list.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmTrace> listTrace(ScmSession ss, int limit) throws ScmException {
+            return listTrace(ss, null, null, null, null, null, limit);
+        }
+
+        /**
+         * Get the trace list.
+         * 
+         * @param ss
+         *            session.
+         * @param startTime
+         *            start time.
+         * @param endTime
+         *            end time.
+         * @param limit
+         *            max record count.
+         * @return trace list.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmTrace> listTrace(ScmSession ss, Date startTime, Date endTime,
+                int limit) throws ScmException {
+            return listTrace(ss, null, null, startTime, endTime, null, limit);
+        }
+
+        /**
+         * Get the trace list.
+         *
+         * @param ss
+         *            session.
+         * @param minDuration
+         *            minimum duration time with microseconds.
+         * @param limit
+         *            max record count.
+         * @return trace list.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmTrace> listTrace(ScmSession ss, Long minDuration, int limit)
+                throws ScmException {
+            return listTrace(ss, null, minDuration, null, null, null, limit);
+        }
+
+        /**
+         * Get the trace list.
+         *
+         * @param ss
+         *            session.
+         * @param serviceName
+         *            match trace containing the specified service name(if null, match
+         *            all trace).
+         * @param minDuration
+         *            minimum duration time with microseconds.
+         * @param startTime
+         *            start time.
+         * @param endTime
+         *            end time.
+         * @param queryCondition
+         *            tag query condition.
+         * @param limit
+         *            max record count.
+         * @return trace list.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmTrace> listTrace(ScmSession ss, String serviceName, Long minDuration,
+                Date startTime, Date endTime, Map<String, String> queryCondition, int limit)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            if (limit <= 0) {
+                throw new ScmInvalidArgumentException(
+                        "limit must be greater than 0: limit=" + limit);
+            }
+            if (minDuration != null && minDuration <= 0) {
+                throw new ScmInvalidArgumentException(
+                        "minDuration must be greater than 0: minDuration=" + minDuration);
+            }
+            if (startTime != null && endTime != null && endTime.getTime() < startTime.getTime()) {
+                throw new ScmInvalidArgumentException(
+                        "endTime must be greater than or equal to startTime: startTime="
+                                + startTime.getTime() + " ,endTime=" + endTime.getTime());
+            }
+            if (queryCondition != null && queryCondition.containsKey(null)) {
+                throw new ScmInvalidArgumentException(
+                        "queryCondition cannot contains null key:queryCondition=" + queryCondition);
+            }
+            BasicBSONList traceList = (BasicBSONList) ss.getDispatcher().listTrace(minDuration,
+                    serviceName, startTime, endTime, queryCondition, limit);
+            List<ScmTrace> scmTraceList = new ArrayList<ScmTrace>();
+            for (Object o : traceList) {
+                BasicBSONList spanBsonList = (BasicBSONList) o;
+                scmTraceList.add(new ScmTrace(spanBsonList));
+            }
+            return scmTraceList;
+        }
+
+        /**
+         * Get trace by trace id.
+         * 
+         * @param ss
+         *            session.
+         * @param traceId
+         *            trace id.
+         * @return trace info.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmTrace getTrace(ScmSession ss, String traceId) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("traceId", traceId);
+            try {
+                BasicBSONList traceSpanList = (BasicBSONList) ss.getDispatcher().getTrace(traceId);
+                return new ScmTrace(traceSpanList);
+            }
+            catch (ScmException e) {
+                if (e.getError() == ScmError.HTTP_NOT_FOUND) {
+                    throw new ScmInvalidArgumentException("traceId is not exist:traceId=" + traceId,
+                            e);
+                }
+                throw e;
+            }
+        }
+
     }
 }

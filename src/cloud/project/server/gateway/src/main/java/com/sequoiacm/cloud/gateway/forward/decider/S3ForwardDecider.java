@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -68,7 +69,11 @@ class S3ForwardDeciderConfig {
 @EnableWorkspaceSubscriber
 @Component
 @EnableScmServiceDiscoveryClient
-public class S3ForwardDecider implements CustomForwardDecider {
+@Order(S3ForwardDecider.ORDER)
+public class S3ForwardDecider implements ForwardDecider {
+
+    public static final int ORDER = ZuulPrefixForwardDecider.ORDER + 1;
+
     public static final String S3_REQUEST_MARKER_ATTRIBUTE = S3ForwardDecider.class.getName()
             + ".S3_REQUEST_MARKER";
     private static final Logger logger = LoggerFactory.getLogger(S3ForwardDecider.class);
@@ -133,13 +138,13 @@ public class S3ForwardDecider implements CustomForwardDecider {
     @Override
     public Decision decide(HttpServletRequest req) {
         if (!isS3Request(req)) {
-            return Decision.shouldNotForward();
+            return Decision.unrecognized();
         }
         req.setAttribute(S3_REQUEST_MARKER_ATTRIBUTE, S3_REQUEST_MARKER_ATTRIBUTE);
         String targetApi = req.getRequestURI();
         logger.debug("s3 request, choosing s3 service name to forward... : {}", targetApi);
         String s3Service = chooseS3ServiceName(req);
-        return Decision.shouldForward(s3Service, targetApi, null, false, false);
+        return Decision.shouldCustomForward(s3Service, targetApi, null, false, false);
     }
 
     private boolean isS3Request(HttpServletRequest req) {

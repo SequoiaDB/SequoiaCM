@@ -11,8 +11,6 @@
             "eureka.client.availability-zones.beijing": "zone1",
             "eureka.client.service-url.zone1": "http://localhost:8800/eureka/",
             "zuul.routes.api-a.path": "/**",
-            "spring.zipkin.enabled": "false",
-            "spring.zipkin.base-url": "http://localhost:8820",
             "spring.application.name": "schedule-server",
             "scm.zookeeper.urls": "localhost:2181",
             "scm.store.sequoiadb.urls": "localhost:11810",

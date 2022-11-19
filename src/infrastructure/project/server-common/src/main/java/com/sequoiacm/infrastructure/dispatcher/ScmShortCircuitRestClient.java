@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
 /**
  * 引入 Hystrix 与 Ribbon 熔断逻辑
  */
-public class ScmShortCircuitRestClient extends ScmBasicRestClient {
+public class ScmShortCircuitRestClient extends ScmTraceRestClient {
 
     public ScmShortCircuitRestClient(ScmRestClientConfig config) {
         super(config);

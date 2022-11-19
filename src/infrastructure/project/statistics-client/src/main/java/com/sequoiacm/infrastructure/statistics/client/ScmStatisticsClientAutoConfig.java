@@ -16,7 +16,7 @@ public class ScmStatisticsClientAutoConfig {
     }
 
     @Bean
-    public ScmStatisticsRawDataReporter reporter(ScmStatisticsReporterConfig config,
+    public ScmStatisticsRawDataReporter scmStatisticsRawDataReporter(ScmStatisticsReporterConfig config,
             ScmStatisticsClient c, List<StatisticsRawDataFlush> rawDataFlushList) {
         return new ScmStatisticsRawDataReporter(config, c, rawDataFlushList);
     }

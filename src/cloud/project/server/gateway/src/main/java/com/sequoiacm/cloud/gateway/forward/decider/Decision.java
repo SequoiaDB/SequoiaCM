@@ -8,16 +8,19 @@ public class Decision {
     private boolean chunkedForward;
     private boolean setFrowardPrefix;
 
-    public static Decision shouldForward(String serviceName, String targetApi, String contentType,
-            boolean chunkedForward, boolean setFrowardPrefix) {
+    public static Decision shouldCustomForward(String serviceName, String targetApi,
+            String contentType, boolean chunkedForward, boolean setFrowardPrefix) {
         return new Decision(true, serviceName, targetApi, contentType, chunkedForward,
                 setFrowardPrefix);
     }
 
-    public static Decision shouldNotForward() {
-        return new Decision(false, null, null, null, false, false);
+    public static Decision unrecognized() {
+        return null;
     }
 
+    public static Decision shouldForward(String serviceName) {
+        return new Decision(false, serviceName, null, null, false, false);
+    }
     private Decision(boolean isCustomForward, String serviceName, String targetApi,
             String contentType, boolean chunkedForward, boolean setFrowardPrefix) {
         this.isCustomForward = isCustomForward;
