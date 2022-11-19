@@ -1,15 +1,12 @@
 package com.sequoiacm.s3.object;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,18 +25,16 @@ import java.io.IOException;
  * @version 1.0
  */
 public class Object4282 extends TestScmBase {
-    private AmazonS3 s3Client = null;
     private SiteWrapper site = null;
     private ScmSession session = null;
-    private String wsNameA = "ws_4282_A";
-    private String wsNameB = "ws_4282_B";
     private ScmWorkspace ws_test_A = null;
     private ScmWorkspace ws_test_B = null;
     private boolean runSuccess = false;
-    private String bucketName = "bucket4282";
     private String key = "object4282";
     private File localPath = null;
     private String filePath = null;
+    private ScmId fileAId;
+    private ScmId fileCId;
     private int fileSize = 1024;
 
     @BeforeClass
@@ -54,15 +49,17 @@ public class Object4282 extends TestScmBase {
 
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-        ScmWorkspaceUtil.deleteWs( wsNameA, session );
-        ScmWorkspaceUtil.deleteWs( wsNameB, session );
-        int siteNum = ScmInfo.getSiteNum();
 
-        ws_test_A = ScmWorkspaceUtil.createWS( session, wsNameA, siteNum );
-        ScmWorkspaceUtil.wsSetPriority( session, wsNameA );
-
-        ws_test_B = ScmWorkspaceUtil.createS3WS( session, wsNameB );
-        ScmWorkspaceUtil.wsSetPriority( session, wsNameB );
+        // 开启目录工作区
+        WsWrapper wsp = ScmInfo.getWs();
+        ws_test_A = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
+        Assert.assertTrue( ws_test_A.isEnableDirectory(),
+                ws_test_A.toString() );
+        // 未开启目录工作区
+        ws_test_B = ScmFactory.Workspace.getWorkspace( TestScmBase.s3WorkSpaces,
+                session );
+        Assert.assertFalse( ws_test_B.isEnableDirectory(),
+                ws_test_B.toString() );
     }
 
     @Test
@@ -71,7 +68,7 @@ public class Object4282 extends TestScmBase {
         ScmFile fileA = ScmFactory.File.createInstance( ws_test_A );
         fileA.setFileName( key + "\\%;:*?\"<>|" );
         fileA.setContent( filePath );
-        fileA.save();
+        fileAId = fileA.save();
 
         // '/' failed if directory is enable
         try {
@@ -81,8 +78,6 @@ public class Object4282 extends TestScmBase {
             fileB.save();
             Assert.fail( "'/' is invalid in file name if directory is enable" );
         } catch ( ScmException e ) {
-            System.out.println( "create file:" + bucketName + ", error:"
-                    + e.getError().getErrorDescription() );
             Assert.assertEquals( "Invalid argument",
                     e.getError().getErrorDescription() );
         }
@@ -91,8 +86,7 @@ public class Object4282 extends TestScmBase {
         ScmFile fileC = ScmFactory.File.createInstance( ws_test_B );
         fileC.setFileName( key + "/" );
         fileC.setContent( filePath );
-        fileC.save();
-
+        fileCId = fileC.save();
         runSuccess = true;
     }
 
@@ -100,15 +94,11 @@ public class Object4282 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess ) {
-                S3Utils.clearBucket( session, bucketName );
-                ScmWorkspaceUtil.deleteWs( wsNameA, session );
-                ScmWorkspaceUtil.deleteWs( wsNameB, session );
+                ScmFactory.File.deleteInstance( ws_test_A, fileAId, true );
+                ScmFactory.File.deleteInstance( ws_test_B, fileCId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
-            if ( s3Client != null ) {
-                s3Client.shutdown();
-            }
             if ( session != null ) {
                 session.close();
             }
