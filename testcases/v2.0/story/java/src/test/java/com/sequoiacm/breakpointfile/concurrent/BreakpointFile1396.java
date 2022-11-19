@@ -50,7 +50,8 @@ public class BreakpointFile1396 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
-        List< SiteWrapper > DBSites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
+        List< SiteWrapper > DBSites = ScmBreakpointFileUtils
+                .checkDBAndCephS3DataSource();
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
         filePath = localPath + File.separator + "localFile_" + fileSize
@@ -106,9 +107,10 @@ public class BreakpointFile1396 extends TestScmBase {
             try {
                 breakpointFile.upload( new File( filePath ) );
             } catch ( ScmException e ) {
-                Assert.assertEquals( e.getErrorCode(),
-                        ScmError.OUT_OF_BOUND.getErrorCode(),
-                        "upload breakpointFile" );
+                if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
+                        .getErrorCode() ) {
+                    throw e;
+                }
             } finally {
                 session.close();
             }
