@@ -66,7 +66,8 @@ public class WsFlow2213 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "fourSite" })
+    // 问题单SEQUOIACM-1149未修改暂时屏蔽用例
+    @Test(groups = { "fourSite" }, enabled = false)
     private void test() throws Exception {
         // upload
         ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsName, session );
