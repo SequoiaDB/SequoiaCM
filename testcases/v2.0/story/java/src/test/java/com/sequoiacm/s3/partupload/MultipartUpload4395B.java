@@ -31,7 +31,7 @@ import java.util.List;
 
 public class MultipartUpload4395B extends TestScmBase {
     private boolean runSuccess = false;
-    private String bucketName = "bucket4395";
+    private String bucketName = "bucket4395b";
     private String baseKeyName = "object4395.png";
     private int objectNum = 2015;
     private String prefix = "dir";

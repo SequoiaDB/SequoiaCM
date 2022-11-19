@@ -29,7 +29,7 @@ import java.util.List;
 
 public class MultipartUpload4395A extends TestScmBase {
     private boolean runSuccess = false;
-    private final String bucketName = "bucket4395";
+    private final String bucketName = "bucket4395a";
     private AmazonS3 s3Client = null;
 
     @BeforeClass
