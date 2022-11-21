@@ -34,6 +34,9 @@ SequoiaCM 配置
 |scm.statistics. rawDataReportPeriod|num|网关每隔多长时间将统计原始数据上报给监控服务，默认值：10000，单位：毫秒|
 |scm.s3.userAgent|str|网关会借助 User-Agent 头来识别 S3 请求，当请求头包含该配置的指定值时，将会被网关识别为 S3 请求，默认值：aws-sdk-java，该配置允许配置多个，使用逗号进行分割|
 |scm.s3.chooserRefreshInterval|num|网关在决策 S3 请求发往哪个站点时，会依赖自身构筑的集群信息缓存，此配置控制缓存的刷新间隔，默认值：180000，单位：毫秒|
+|scm.trace.enbaled|boolean|是否开启链路追踪功能，默认值：false，支持动态更新|
+|scm.trace.samplePercentage|num|配置链路追踪的请求采样率，默认值：10（表示采样 10% 的请求），可选值：[0,100]，支持动态更新|
+|scm.trace.sampleServices|str|配置链路追踪采样的下游服务列表，多个用逗号隔开，不存在该配置时默认对所有下游服务采样，支持动态更新|
 
 ##注册中心##
 
@@ -161,6 +164,7 @@ SequoiaCM 配置
 |配置项| 类型| 说明|
 |------|-----|-----|
 |scm.jvm.options|str|配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|
+|zipkin.storage.mem.max-spans|num|配置链路追踪服务所存储的最大 span 数量，默认值：50000，超过大小时会丢弃最旧的 span|
 
 [public_config]:Maintainance/Node_Config/Readme.md
 [audit_log]:Maintainance/Diaglog/audit_log.md

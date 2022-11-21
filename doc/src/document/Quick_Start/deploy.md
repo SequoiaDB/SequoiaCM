@@ -20,6 +20,7 @@
 |全文检索服务|scmServer:8610|提供文件的全文检索功能|
 |OM管理服务|scmServer:9000|提供SequoiaCM集群的可视化管理功能|
 |S3 服务|scmServer:16000|提供 S3 协议处理能力|
+|链路追踪服务| scmServer:8890| 提供分布式链路追踪能力 |
 
 >  **Note：**
 > 
@@ -193,6 +194,7 @@
     zone1,     admin-server,      scmServer,      8900, 
     zone1,     mq-server,         scmServer,      8710, 
     zone1,     om-server,         scmServer,      9000, 
+    zone1,     service-trace,     scmServer,      8890, 
     zone1,     fulltext-server,   scmServer,      8610, '{"scm.fulltext.es.urls": "http://esServer:9200", "scm.fulltext.textualParser.pic.tessdataDir": "/usr/share/tesseract-ocr/tessdata/"}'
     ```
 
@@ -200,6 +202,7 @@
     > 
     >  * 本段配置用于描述各个微服务的节点配置
     >  * 全文检索服务配置项 scm.fulltext.es.urls 表示 Elasticsearch 地址，scm.fulltext.textualParser.pic.tessdataDir 表示 Teesract 引擎训练数据所在目录
+    >  * 目前在同一个 SequoiaCM 集群中仅允许部署一个 service-trace 节点
    
 4. 执行部署
 

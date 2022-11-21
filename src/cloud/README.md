@@ -47,8 +47,6 @@ SequoiaCM Cloud是基于Spring Cloud开发的SequoiaCM微服务框架，包含�
 | ------ | ------------- |
 | server.port | 8080 |
 | eureka.client.serviceUrl.defaultZone | http://localhost:8800/eureka/ |
-| spring.zipkin.enabled | false |
-| spring.zipkin.base-url | http://localhost:8890 |
 
 2. Service Center
 
@@ -63,8 +61,6 @@ SequoiaCM Cloud是基于Spring Cloud开发的SequoiaCM微服务框架，包含�
 | server.port | 8810 |
 | eureka.client.register-with-eureka | false |
 | eureka.client.serviceUrl.defaultZone | http://localhost:8800/eureka/ |
-| spring.zipkin.enabled | false |
-| spring.zipkin.base-url | http://localhost:8890 |
 | scm.auth.sequoiadb.urls | - |
 | scm.auth.sequoiadb.username | - |
 | scm.auth.sequoiadb.password | - |

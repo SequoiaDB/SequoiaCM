@@ -152,6 +152,12 @@
                 "file": "fulltext_operation",
                 "cn": "全文检索操作",
                 "en": "Fulltext Search Operation"
+            },
+            {
+                "id": 1668588590,
+                "file": "service_trace_operation",
+                "cn": "链路追踪操作",
+                "en": "Service Trace Operation"
             }]
         },
         {
@@ -254,6 +260,12 @@
                 "file": "s3_server",
                 "cn": "S3 服务",
                 "en": "S3 Service"
+            },
+            {
+                "id": 1668590056,
+                "file": "service_trace",
+                "cn": "链路追踪服务",
+                "en": "Trace Service"
             }]
         },
         {

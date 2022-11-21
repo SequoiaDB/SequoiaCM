@@ -38,8 +38,6 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
 |eureka.instance.hostname|str|描述此实例所在机器的主机名，用于节点间通信，不配置则通过一定的规则自动获取，在多网卡/IP环境下建议手动指定主机名|
 |spring.cloud.client.hostname|str|描述此实例所在机器的主机名，用于生成节点 ID，不配置则通过一定的规则自动获取，在多网卡/IP环境下建议手动指定主机名；此配置项应该与 eureka.instance.hostname 同时配置|
 |eureka.instance.ip-address|str|描述此实例所在机器的 IP 地址，不配置则通过一定的规则自动获取，在多网卡/IP环境下建议手动指定 IP 地址|
-|spring.zipkin.enabled|boolean|是否开启服务跟踪，默认 false|
-|spring.zipkin.base-url|str|配置服务跟踪节点的地址，如：http://192.168.31.90:8890|
 |ribbon.MaxAutoRetries|num|对同一个实例请求的最大重试次数（不包括第一次），默认值：0|
 |ribbon.MaxAutoRetriesNextServer|num|请求失败时，更换下一个实例进行重试，该参数表示最大更换次数（不包含第一个实例），默认值：1|
 |ribbon.OkToRetryOnAllOperations|boolean|是否所有请求都进行重试，默认值：false|
@@ -73,7 +71,6 @@ eureka.instance.metadata-map.zone=zone1
 eureka.client.prefer-same-zone-eureka=true
 eureka.client.register-with-eureka=true
 eureka.client.fetch-registry=true
-spring.zipkin.enabled=false
  ```
 
  > **Note:**
@@ -96,7 +93,6 @@ eureka.instance.metadata-map.zone=zone1
 eureka.client.prefer-same-zone-eureka=true
 eureka.client.register-with-eureka=true
 eureka.client.fetch-registry=true
-spring.zipkin.enabled=false
  ```
 
  > **Note:**

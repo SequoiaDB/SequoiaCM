@@ -4,7 +4,7 @@ createnode 子命令提供创建 Cloud 服务节点的功能。
 
 |选项       |缩写 |描述                                                   |是否必填|
 |-----------|-----|---------------------------------------------------- |--------|
-|--type     |-t   |节点类型，可选值：service-center、gateway、auth-server、admin-server|是      |
+|--type     |-t   |节点类型，可选值：service-center、gateway、auth-server、admin-server、service-trace|是      |
 |           |-D   |节点配置参数，如指定节点端口号：-Dserver.port=8190       |是|
 |--adurl    |     |审计日志入库地址，Sequoiadb 协调节点地址，如：sdb1:1180,sdb2:1180							|是|
 |--aduser   |     |审计日志入库用户名，Sequoiadb 用户名|是|
