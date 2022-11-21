@@ -36,6 +36,7 @@ public class SessionMgr4584 extends TestScmBase {
         // 设置无效Url
         ScmSessionPoolConf conf = createSessionPoolConf( "123456",
                 TestScmBase.scmUserName, TestScmBase.scmPassword );
+        conf.setSynGatewayUrlsInterval( 1000 );
         try {
             ScmFactory.Session.createSessionMgr( conf );
             Assert.fail( "except fail but success" );
