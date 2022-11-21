@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiadb.threadexecutor.ResultStore;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -26,7 +29,6 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
@@ -43,7 +45,8 @@ public class BreakpointFile1396 extends TestScmBase {
     private ScmWorkspace ws = null;
 
     private String fileName = "scmfile1396";
-    private int fileSize = 1024 * 1024 * 10;
+    private int fileSize = 1024 * 1024 * 6;
+    private int threadNums = 10;
     private File localPath = null;
     private String filePath = null;
     private String checkfilePath = null;
@@ -69,17 +72,17 @@ public class BreakpointFile1396 extends TestScmBase {
     }
 
     @Test(groups = { GroupTags.base })
-    private void test() throws ScmException, IOException {
+    private void test() throws Exception {
+        BreakpointUtil.createBreakpointFile( ws, filePath, fileName,
+                1024 * 1024 * 5, ScmChecksumType.CRC32 );
 
-        BreakpointUtil.createBreakpointFile( ws, filePath, fileName, 1024 * 512,
-                ScmChecksumType.CRC32 );
-
-        UploadBreakpointFileThread thread = new UploadBreakpointFileThread();
-        thread.start( 10 );
-        thread.isSuccess();
+        ThreadExecutor es = new ThreadExecutor();
+        for ( int i = 0; i < threadNums; i++ ) {
+            es.addWorker( new UploadBreakpointFileThread() );
+        }
+        es.run();
         // 检查上传文件MD5
         BreakpointUtil.checkScmFile( ws, fileName, filePath, checkfilePath );
-
     }
 
     @AfterClass
@@ -95,9 +98,9 @@ public class BreakpointFile1396 extends TestScmBase {
         }
     }
 
-    private class UploadBreakpointFileThread extends TestThreadBase {
+    private class UploadBreakpointFileThread extends ResultStore {
 
-        @Override
+        @ExecuteOrder(step = 1)
         public void exec() throws Exception {
             ScmSession session = TestScmTools.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
