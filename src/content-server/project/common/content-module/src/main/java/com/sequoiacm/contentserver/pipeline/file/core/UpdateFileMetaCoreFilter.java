@@ -61,7 +61,7 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
     private void updateAllHistoryVersion(UpdateFileMetaContext context,
             MetaFileHistoryAccessor historyAccessor, BSONObject historyVersionUpdater)
             throws ScmMetasourceException, ScmServerException {
-        if (historyVersionUpdater.isEmpty()) {
+        if (historyVersionUpdater == null || historyVersionUpdater.isEmpty()) {
             return;
         }
         BSONObject idMatcher = new BasicBSONObject();
@@ -83,6 +83,9 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
             Map<ScmVersion, BSONObject> historyVersionMapUpdater,
             MetaFileHistoryAccessor historyAccessor)
             throws ScmMetasourceException, ScmServerException {
+        if (historyVersionMapUpdater == null) {
+            return;
+        }
         for (Map.Entry<ScmVersion, BSONObject> entry : historyVersionMapUpdater.entrySet()) {
             BSONObject ret = historyAccessor.updateFileInfo(context.getFileId(),
                     entry.getKey().getMajorVersion(), entry.getKey().getMinorVersion(),
@@ -105,7 +108,7 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
     private void updateLatestVersion(UpdateFileMetaContext context,
             BSONObject latestVersionUpdater, MetaFileAccessor fileAccessor)
             throws ScmMetasourceException, ScmServerException {
-        if (!latestVersionUpdater.isEmpty()) {
+        if (latestVersionUpdater != null && !latestVersionUpdater.isEmpty()) {
             BSONObject idMatcher = new BasicBSONObject();
             SequoiadbHelper.addFileIdAndCreateMonth(idMatcher, context.getFileId());
             BSONObject ret = fileAccessor.queryAndUpdate(idMatcher, new BasicBSONObject("$set", latestVersionUpdater), null, true);
