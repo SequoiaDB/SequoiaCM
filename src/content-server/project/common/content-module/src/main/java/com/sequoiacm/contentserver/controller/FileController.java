@@ -223,12 +223,12 @@ public class FileController {
 
         BSONObject description = (BSONObject) JSON.parse(RestUtils.urlDecode(desc));
 
-        logger.debug("file description:{}", description);
-        FileMeta fileMeta = FileMeta.fromUser(workspaceName, description, user.getUsername());
-
         InputStream is = request.getInputStream();
         String username = auth.getName();
         try {
+            logger.debug("file description:{}", description);
+            FileMeta fileMeta = FileMeta.fromUser(workspaceName, description, user.getUsername());
+
             ClientUploadConf clientUploadConf = new ClientUploadConf(uploadConfig);
 
             FileUploadConf fileUploadConf = new FileUploadConf(
