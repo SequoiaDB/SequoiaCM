@@ -407,10 +407,9 @@ public class BatchServiceImpl implements IBatchService {
             BSONObject fileInfo = ScmContentModule.getInstance().getCurrentFileInfo(wsInfo, fileId,
                     false);
             if (fileInfo == null) {
-                logger.info(
-                        "ignore detach file from batch, file not exist: ws={}, batch={}, fileId={}",
-                        wsInfo.getName(), batchId, fileId);
-                return;
+                throw new ScmServerException(ScmError.FILE_NOT_IN_BATCH,
+                        "detachFile failed, the file is not in the batch: workspace="
+                                + wsInfo.getName() + "batchId=" + batchId + ",fileId=" + fileId);
             }
 
             String batchIdInFile = (String) fileInfo.get(FieldName.FIELD_CLFILE_BATCH_ID);
