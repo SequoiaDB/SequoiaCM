@@ -193,8 +193,12 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         String remoteSiteName = contentModule.getMainSiteName();
         ContentServerClient client = ContentServerClientFactory
                 .getFeignClientByServiceName(remoteSiteName);
-        return FileMeta.fromRecord(client.deleteFileInBucket(sessionId, userDetail,
-                bucket.getName(), fileName, false));
+        BSONObject ret = client.deleteFileInBucket(sessionId, userDetail, bucket.getName(),
+                fileName, false);
+        if (ret == null) {
+            return null;
+        }
+        return FileMeta.fromRecord(ret);
     }
 
 
