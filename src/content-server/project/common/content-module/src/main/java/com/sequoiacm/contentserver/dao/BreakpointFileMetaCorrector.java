@@ -43,9 +43,9 @@ public class BreakpointFileMetaCorrector {
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
-                    file.getWorkspaceName(), ws.getDataLocation(), contentModule.getDataService(),
+                    file.getWorkspaceName(), ws.getDataLocation(file.getWsVersion()), contentModule.getDataService(),
                     new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                            new Date(file.getCreateTime())));
+                            new Date(file.getCreateTime()), file.getWsVersion()));
             if (reader.getSize() < file.getUploadSize()) {
                 logger.warn("breakpoint file data is corrupted: file={}", file);
                 return false;
@@ -69,9 +69,9 @@ public class BreakpointFileMetaCorrector {
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
-                    file.getWorkspaceName(), ws.getDataLocation(), contentModule.getDataService(),
+                    file.getWorkspaceName(), ws.getDataLocation(file.getWsVersion()), contentModule.getDataService(),
                     new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                            new Date(file.getCreateTime())));
+                            new Date(file.getCreateTime()), file.getWsVersion()));
             if (reader.getSize() < file.getUploadSize()) {
                 throw new ScmServerException(ScmError.DATA_CORRUPTED,
                         "breakpoint file data is corrupted: file=" + file);

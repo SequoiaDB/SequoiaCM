@@ -12,6 +12,10 @@ public interface ContentModuleMetaSource extends MetaSource {
 
     public MetaAccessor getWorkspaceAccessor(TransactionContext transaction);
 
+    MetaAccessor getWorkspaceHistoryAccessor(TransactionContext transaction);
+
+    MetaAccessor getWorkspaceHistoryAccessor();
+
     public MetaAccessor getUserAccessor();
 
     public MetaAccessor getStrategyAccessor();

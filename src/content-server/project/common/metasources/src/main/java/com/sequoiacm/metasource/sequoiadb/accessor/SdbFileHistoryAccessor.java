@@ -67,8 +67,8 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
 
     @Override
     public boolean addToSiteList(String fileId, int majorVersion, int minorVersion, int siteId,
-            Date date) throws ScmMetasourceException {
-        return baseAccesor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date);
+            Date date, int wsVersion) throws ScmMetasourceException {
+        return baseAccesor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date, wsVersion);
     }
 
     @Override

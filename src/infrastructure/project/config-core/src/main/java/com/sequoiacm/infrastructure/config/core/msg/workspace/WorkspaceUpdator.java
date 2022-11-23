@@ -5,14 +5,19 @@ import org.bson.BasicBSONObject;
 
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdator;
+import org.bson.types.BasicBSONList;
+
+import java.util.List;
 
 public class WorkspaceUpdator implements ConfigUpdator {
     private String wsName;
     private Integer removeDataLocationId;
     private BSONObject addDataLocation;
+    private BasicBSONList updateDataLocation;
+    private Boolean updateMerge;
     private String newDesc;
     private BSONObject externalData;
-    private BSONObject oldWsRecord;
+    private BSONObject matcher;
     private String preferred;
     private String newSiteCacheStrategy;
 
@@ -20,9 +25,9 @@ public class WorkspaceUpdator implements ConfigUpdator {
         this.wsName = wsName;
     }
 
-    public WorkspaceUpdator(String wsName, BSONObject oldWsRecord) {
+    public WorkspaceUpdator(String wsName, BSONObject matcher) {
         this.wsName = wsName;
-        this.oldWsRecord = oldWsRecord;
+        this.matcher = matcher;
     }
 
     public void setExternalData(BSONObject externalData) {
@@ -51,14 +56,19 @@ public class WorkspaceUpdator implements ConfigUpdator {
         if (removeDataLocationId != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_REMOVE_DATALOCATION, removeDataLocationId);
         }
+        if (updateDataLocation != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATE_DATALOCATION, updateDataLocation);
+        }
         if (externalData != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_EXTERNAL_DATA, externalData);
         }
         if (preferred != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_PREFERRED, preferred);
         }
+
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
-        obj.put(ScmRestArgDefine.WORKSPACE_CONF_OLD_WS, oldWsRecord);
+        obj.put(ScmRestArgDefine.WORKSPACE_CONF_MATCHER, matcher);
+        obj.put(ScmRestArgDefine.WORKSPACE_CONF_OLD_WS, matcher);
         return obj;
     }
 
@@ -94,12 +104,12 @@ public class WorkspaceUpdator implements ConfigUpdator {
         this.newDesc = newDesc;
     }
 
-    public BSONObject getOldWsRecord() {
-        return oldWsRecord;
+    public BSONObject getMatcher() {
+        return matcher;
     }
 
-    public void setOldWsRecord(BSONObject oldWsRecord) {
-        this.oldWsRecord = oldWsRecord;
+    public void setMatcher(BSONObject matcher) {
+        this.matcher = matcher;
     }
 
     public void setPreferred(String preferred) {
@@ -115,5 +125,21 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     public String getNewSiteCacheStrategy() {
         return newSiteCacheStrategy;
+    }
+
+    public void setUpdateDataLocation(BasicBSONList updateDataLocation) {
+        this.updateDataLocation = updateDataLocation;
+    }
+
+    public BasicBSONList getUpdateDataLocation() {
+        return updateDataLocation;
+    }
+
+    public void setUpdateMerge(Boolean updateMerge) {
+        this.updateMerge = updateMerge;
+    }
+
+    public Boolean isMerge() {
+        return updateMerge;
     }
 }

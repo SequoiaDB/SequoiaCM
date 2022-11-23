@@ -9,6 +9,7 @@ import org.bson.BSONObject;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface ScmDataOpFactory {
     ScmDataWriter createWriter(int siteId, String wsName, ScmLocation location, ScmService service,
@@ -31,16 +32,15 @@ public interface ScmDataOpFactory {
     ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException;
 
-    default ScmDataRemovingSpaceRecycler createDataRemovingSpaceRecycler(
-            String wsName, String siteName, ScmLocation location, ScmService service)
+    default ScmDataRemovingSpaceRecycler createDataRemovingSpaceRecycler(String wsName,
+            String siteName, Map<Integer, ScmLocation> locations, ScmService service)
             throws ScmDatasourceException {
         return new NoOpDataRemovingSpaceRecycler();
     }
 
     default ScmDataSpaceRecycler createScmDataSpaceRecycler(List<String> tableNames,
-            Date recycleBeginningTime, Date recycleEndingTIme,
-            String wsName, String siteName, ScmLocation location, ScmService service)
-            throws ScmDatasourceException {
+                                                            Date recycleBeginningTime, Date recycleEndingTIme, String wsName, String siteName,
+                                                            ScmService service) throws ScmDatasourceException {
         return new NoOpDataSpaceRecycler();
     }
 

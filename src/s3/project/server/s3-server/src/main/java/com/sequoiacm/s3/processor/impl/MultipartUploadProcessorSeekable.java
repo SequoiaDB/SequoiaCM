@@ -6,6 +6,7 @@ import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
@@ -98,8 +99,8 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             transaction.begin();
             uploadDao.insertUploadMeta(transaction, meta);
 
-            dataInfo1 = createData(wsName);
-            dataInfo2 = createData(wsName);
+            dataInfo1 = createData(wsName, meta.getWsVersion());
+            dataInfo2 = createData(wsName, meta.getWsVersion());
 
             Part nPart1 = new Part(uploadId, 0, dataInfo1.getDataId(), dataInfo1.getCreateTime(), 0,
                     null);
@@ -112,10 +113,10 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         catch (Exception e) {
             transaction.rollback();
             if (dataInfo1 != null) {
-                deleteData(wsName, dataInfo1.getDataId(), dataInfo1.getCreateTime());
+                deleteData(wsName, dataInfo1.getDataId(), dataInfo1.getCreateTime(), meta.getWsVersion());
             }
             if (dataInfo2 != null) {
-                deleteData(wsName, dataInfo2.getDataId(), dataInfo2.getCreateTime());
+                deleteData(wsName, dataInfo2.getDataId(), dataInfo2.getCreateTime(), meta.getWsVersion());
             }
             throw new S3ServerException(S3Error.PART_INIT_MULTIPART_UPLOAD_FAILED,
                     "init upload failed", e);
@@ -127,7 +128,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
     @Override
     public Part uploadPart(String wsName, long uploadId, int partNumber, String contentMD5,
-            InputStream inputStream, long contentLength)
+            InputStream inputStream, long contentLength, int wsVersion)
             throws S3ServerException, ScmLockException, ScmDatasourceException, IOException,
             NoSuchAlgorithmException, ScmServerException, ScmMetasourceException {
         PreparedData preparedData = null;
@@ -137,7 +138,8 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             tryEnableReservedParts(uploadId, contentLength);
             ScmLockPath lockPathPart = lockPathFactory.createPartLockPath(uploadId, partNumber);
             lockPart = lockManger.acquiresWriteLock(lockPathPart, 60 * 1000);
-            preparedData = prepareStoreDataForPart(wsName, uploadId, partNumber, contentLength);
+            preparedData = prepareStoreDataForPart(wsName, uploadId, partNumber, contentLength,
+                    wsVersion);
 
             String eTag;
             if (contentLength > 0) {
@@ -147,13 +149,13 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
                     is = new InputStreamWithCalc(inputStream);
                     writer = datasourceService.getScmSeekableDataWriter(wsName,
                             preparedData.getDestDataInfo().getDataId(), DEFAULT_DATA_TYPE,
-                            preparedData.getDestDataInfo().getCreateTime());
+                            preparedData.getDestDataInfo().getCreateTime(), wsVersion);
                     writePartData(writer, (partNumber - 1) * contentLength, is);
                 }
                 catch (ScmDatasourceException e) {
                     if (e.getScmError(ScmError.DATA_WRITE_ERROR)
                             .getErrorCode() == ScmError.DATA_PIECES_INFO_OVERFLOW.getErrorCode()) {
-                        createNewReservedPart(wsName, uploadId, contentLength);
+                        createNewReservedPart(wsName, uploadId, contentLength, wsVersion);
                     }
                     logger.error("write data failed. partnumber=" + partNumber + ", length="
                             + contentLength);
@@ -215,7 +217,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             if (preparedData != null && preparedData.getCreateNewData()
                     && preparedData.getDestDataInfo() != null) {
                 deleteData(wsName, preparedData.getDestDataInfo().getDataId(),
-                        preparedData.getDestDataInfo().getCreateTime());
+                        preparedData.getDestDataInfo().getCreateTime(), wsVersion);
             }
             throw e;
         }
@@ -249,7 +251,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         }
         else {
             // create a new data
-            DataInfo dataInfo = createData(wsName);
+            DataInfo dataInfo = createData(wsName, upload.getWsVersion());
             destDataId = dataInfo.getDataId();
             dataCreateTime = dataInfo.getCreateTime();
         }
@@ -257,14 +259,14 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         ScmSeekableDataWriter writer = null;
         try {
             writer = datasourceService.getScmSeekableDataWriter(wsName, destDataId,
-                    DEFAULT_DATA_TYPE, dataCreateTime);
+                    DEFAULT_DATA_TYPE, dataCreateTime, upload.getWsVersion());
             for (int i = 0; i < copyAction.getCopyList().size(); i++) {
                 CopyPartInfo copyPart = copyAction.getCopyList().get(i);
 
                 if (copyPart.getPartSize() > 0) {
                     ScmDataReader dataReader = datasourceService.getScmDataReader(wsName,
                             copyPart.getSrcDataID(), DEFAULT_DATA_TYPE,
-                            copyPart.getSrcDataCreateTime());
+                            copyPart.getSrcDataCreateTime(), upload.getWsVersion());
                     try {
                         copyObjectData(writer, copyPart.getDestOffset(), dataReader,
                                 (copyPart.getPartNumber() - 1) * copyPart.getPartSize(),
@@ -298,7 +300,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             FileMeta fileMeta = FileMeta.fromUser(upload.getWsName(), file,
                     session.getUser().getUsername());
             fileMeta.resetDataInfo(destDataId, dataCreateTime, DEFAULT_DATA_TYPE,
-                    copyAction.getCompleteSize(), null, upload.getSiteId());
+                    copyAction.getCompleteSize(), null, upload.getSiteId(), upload.getWsVersion());
             fileMeta.setEtag(completeEtag);
 
             FileMeta newFileMeta = scmBucketService.createFile(session.getUser(), bucketName,
@@ -310,7 +312,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         }
         catch (Exception e) {
             if (copyAction.getBaseDataId() == null) {
-                deleteData(wsName, destDataId, dataCreateTime);
+                deleteData(wsName, destDataId, dataCreateTime, upload.getWsVersion());
             }
             throw new S3ServerException(S3Error.PART_COMPLETE_MULTIPART_UPLOAD_FAILED,
                     "complete upload failed. bucket:" + bucketName + ", uploadId:"
@@ -339,7 +341,9 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
                         continue;
                     }
 
-                    deleteDataIgnoreNotExist(wsName, part.getDataId(), part.getDataCreateTime());
+                    deleteDataIgnoreNotExist(wsName,
+                            new ScmDataInfo(DEFAULT_DATA_TYPE, part.getDataId(),
+                                    new Date(part.getDataCreateTime()), uploadMeta.getWsVersion()));
                 }
             }
             else {
@@ -349,7 +353,9 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
                         continue;
                     }
 
-                    deleteDataIgnoreNotExist(wsName, part.getDataId(), part.getDataCreateTime());
+                    deleteDataIgnoreNotExist(wsName,
+                            new ScmDataInfo(DEFAULT_DATA_TYPE, part.getDataId(),
+                                    new Date(part.getDataCreateTime()), uploadMeta.getWsVersion()));
                 }
             }
         }
@@ -361,14 +367,14 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
                 uploadMeta.getUploadId());
     }
 
-    private void deleteDataIgnoreNotExist(String wsName, String dataId, long dataCreateTime) {
+    private void deleteDataIgnoreNotExist(String wsName, ScmDataInfo dataInfo) {
         try {
-            datasourceService.deleteDataLocal(wsName, dataId, DEFAULT_DATA_TYPE, dataCreateTime);
+            datasourceService.deleteDataLocal(wsName, dataInfo);
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.DATA_NOT_EXIST) {
-                logger.error("delete data failed. wsName:{}, dataId:{}, createTime:{}", wsName,
-                        dataId, dataCreateTime, e);
+                logger.error("delete data failed. wsName:{}, dataInfo:{}", wsName,
+                        dataInfo.toString(), e);
             }
         }
     }
@@ -415,7 +421,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
     }
 
     private PreparedData prepareStoreDataForPart(String wsName, long uploadId, int partNumber,
-            long contentLength)
+            long contentLength, int wsVersion)
             throws S3ServerException, ScmServerException, ScmMetasourceException {
         Boolean createNewData = false;
         PreparedData preparedData = new PreparedData();
@@ -452,7 +458,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         }
 
         if (createNewData) {
-            dataInfo = createData(wsName);
+            dataInfo = createData(wsName, wsVersion);
         }
 
         preparedData.setDestDataInfo(dataInfo);
@@ -461,9 +467,9 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         return preparedData;
     }
 
-    private void createNewReservedPart(String wsName, long uploadId, long size)
+    private void createNewReservedPart(String wsName, long uploadId, long size, int wsVersion)
             throws ScmServerException {
-        DataInfo dataInfo = createData(wsName);
+        DataInfo dataInfo = createData(wsName, wsVersion);
         int partNumber = -2;
         try {
             Part partReserved = partDao.queryOnePart(uploadId, null,
@@ -485,7 +491,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         catch (Exception e) {
             logger.warn("create new reserved part fail. uploadId:" + uploadId
                     + ", reserved partNumber:" + partNumber, e);
-            deleteData(wsName, dataInfo.getDataId(), dataInfo.getCreateTime());
+            deleteData(wsName, dataInfo.getDataId(), dataInfo.getCreateTime(), wsVersion);
         }
     }
 
@@ -756,9 +762,9 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         return false;
     }
 
-    private void deleteData(String wsName, String dataId, long dataCreateTime) {
+    private void deleteData(String wsName, String dataId, long dataCreateTime, int wsVersion) {
         try {
-            datasourceService.deleteDataLocal(wsName, dataId, DEFAULT_DATA_TYPE, dataCreateTime);
+            datasourceService.deleteDataLocal(wsName, new ScmDataInfo(DEFAULT_DATA_TYPE, dataId, new Date(dataCreateTime), wsVersion) );
         }
         catch (Exception e) {
             logger.error("delete data failed. wsName:{}, dataId:{}, createTime：{}", wsName, dataId,
@@ -766,12 +772,11 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         }
     }
 
-    private DataInfo createData(String wsName) throws ScmServerException {
+    private DataInfo createData(String wsName, int wsVersion) throws ScmServerException {
         Date createTime = new Date();
         String dataId = ScmIdGenerator.FileId.get(createTime);
-        datasourceService.createDataInLocal(wsName, dataId, DEFAULT_DATA_TYPE,
-                createTime.getTime());
-
+        datasourceService.createDataInLocal(wsName,
+                new ScmDataInfo(DEFAULT_DATA_TYPE, dataId, createTime, wsVersion));
         return new DataInfo(dataId, createTime.getTime());
     }
 

@@ -126,6 +126,21 @@
                 }
             ]
         },
+		{
+            "csName": "SCMSYSTEM",
+            "clName": "WORKSPACE_HISTORY",                     
+            "indexes": [
+                {
+                    "name": "idx_workspace_name_version",
+                    "indexDef": {
+                        "name": 1,
+                        "version": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                }
+            ]
+        },
         {
             "csName": "SCMSYSTEM",
             "clName": "SUBSCRIBERS",

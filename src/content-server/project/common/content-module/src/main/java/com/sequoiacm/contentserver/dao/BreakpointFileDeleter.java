@@ -60,7 +60,7 @@ public class BreakpointFileDeleter {
 
     private void abortBreakpointFile() throws ScmServerException, ScmDatasourceException {
         ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory().createBreakpointWriter(
-                workspaceInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                workspaceInfo.getDataLocation(file.getWsVersion()), ScmContentModule.getInstance().getDataService(),
                 workspaceInfo.getName(), file.getFileName(), file.getDataId(),
                 new Date(file.getCreateTime()), false, file.getUploadSize(),
                 file.getExtraContext());
@@ -75,13 +75,13 @@ public class BreakpointFileDeleter {
 
     private void deleteCompleteFile() throws ScmServerException {
         ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                new Date(file.getCreateTime()));
+                new Date(file.getCreateTime()), file.getWsVersion());
 
         ScmDataDeletor dataDeleter;
         try {
             dataDeleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
                     ScmContentModule.getInstance().getLocalSite(), file.getWorkspaceName(),
-                    workspaceInfo.getDataLocation(),
+                    workspaceInfo.getDataLocation(dataInfo.getWsVersion()),
                     ScmContentModule.getInstance().getDataService(), dataInfo);
             dataDeleter.delete();
         }

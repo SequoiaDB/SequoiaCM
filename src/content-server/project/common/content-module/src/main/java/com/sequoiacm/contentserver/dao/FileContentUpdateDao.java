@@ -54,12 +54,14 @@ public class FileContentUpdateDao {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(wsName);
         ScmLockPath breakpointFilelockPath = ScmLockPathFactory.createBPLockPath(wsName,
+
                 breakpointFileName);
         ScmLock breakpointFileXLock = ScmLockManager.getInstance()
                 .acquiresLock(breakpointFilelockPath);
         try {
             BreakpointFile breakpointFile =contentModule.getMetaService()
                     .getBreakpointFile(wsName, breakpointFileName);
+
             if (breakpointFile == null) {
                 throw new ScmInvalidArgumentException(String.format(
                         "BreakpointFile is not found: /%s/%s", wsName, breakpointFileName));
@@ -82,10 +84,11 @@ public class FileContentUpdateDao {
                         "BreakpointFile has no md5: /%s/%s", wsName, breakpointFileName));
             }
 
+
             return updateMeta(wsInfo, user, fileId, breakpointFile.getCreateTime(),
                     breakpointFile.getDataId(),
                     breakpointFile.getUploadSize(), breakpointFile.getSiteId(), breakpointFileName,
-                    breakpointFile.getMd5());
+                    breakpointFile.getMd5(), breakpointFile.getWsVersion());
         }
         finally {
             unlock(breakpointFileXLock);
@@ -110,11 +113,12 @@ public class FileContentUpdateDao {
         // write data
         Date createDate = new Date();
         String dataId = ScmIdGenerator.FileId.get(createDate);
-        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId, createDate);
+        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId, createDate,
+                ws.getVersion());
         ScmDataWriter dataWriter = null;
         try {
             dataWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
-                    contentModule.getLocalSite(), ws.getName(), ws.getDataLocation(),
+                    contentModule.getLocalSite(), ws.getName(), ws.getDataLocation(dataInfo.getWsVersion()),
                     contentModule.getDataService(), dataInfo);
         }
         catch (ScmDatasourceException e) {
@@ -140,7 +144,7 @@ public class FileContentUpdateDao {
         // write meta
         try {
             return updateMeta(ws, user, fileId, createDate.getTime(), dataId,
-                    dataWriter.getSize(), contentModule.getLocalSite(), null, md5);
+                    dataWriter.getSize(), contentModule.getLocalSite(), null, md5, dataInfo.getWsVersion());
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
@@ -201,7 +205,7 @@ public class FileContentUpdateDao {
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
                     ScmContentModule.getInstance().getLocalSite(), ws.getName(),
-                    ws.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                    ws.getDataLocation(dataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deletor.delete();
         }
@@ -214,7 +218,7 @@ public class FileContentUpdateDao {
     // insert historyRec, update currentFileRec, delete breakFileRec, return
     // updated info
     private FileMeta updateMeta(ScmWorkspaceInfo ws, String user, String fileId, long createTime,
-            String dataId, long dataSize, int siteId, final String breakFileName, String md5)
+            String dataId, long dataSize, int siteId, final String breakFileName, String md5, int wsVersion)
             throws ScmServerException {
         FileInfoAndOpCompleteCallback ret = null;
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
@@ -226,9 +230,11 @@ public class FileContentUpdateDao {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                         "file not exist: ws=" + ws.getName() + ", fileId=" + fileId);
             }
+
             FileMeta newVersion = createNewVersionMeta(ws.getName(), user, latestFileVersionInLock,
                     dataId, siteId,
-                    dataSize, createTime, md5);
+                    dataSize, createTime, md5, wsVersion);
+
             TransactionCallback transactionCallback = null;
             if (breakFileName != null) {
                 transactionCallback = new TransactionCallback() {
@@ -257,10 +263,10 @@ public class FileContentUpdateDao {
     }
 
     private FileMeta createNewVersionMeta(String ws, String user, BSONObject currentLatestVersion,
-            String dataId, int siteId, long size, long createTime, String md5)
+            String dataId, int siteId, long size, long createTime, String md5, int wsVersion)
             throws ScmServerException {
         FileMeta fileMeta = FileMeta.fromUser(ws, currentLatestVersion, user);
-        fileMeta.resetDataInfo(dataId, createTime, ENDataType.Normal.getValue(), size, md5, siteId);
+        fileMeta.resetDataInfo(dataId, createTime, ENDataType.Normal.getValue(), size, md5, siteId, wsVersion);
         return fileMeta;
     }
 

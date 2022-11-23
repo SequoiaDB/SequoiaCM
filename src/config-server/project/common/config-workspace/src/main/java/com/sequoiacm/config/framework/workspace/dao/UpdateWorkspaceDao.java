@@ -1,13 +1,26 @@
 package com.sequoiacm.config.framework.workspace.dao;
 
+import com.sequoiacm.config.framework.lock.ScmLockManager;
+import com.sequoiacm.config.framework.lock.ScmLockPathFactory;
+import com.sequoiacm.config.framework.workspace.checker.DataLocationConfigChecker;
+import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceHistoryTableDao;
+import com.sequoiacm.config.metasource.exception.MetasourceException;
+import com.sequoiacm.config.metasource.sequoiadb.SequoiadbHelper;
+import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
+import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
+import com.sequoiacm.infrastructure.lock.ScmLock;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.event.ScmConfEvent;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
 import com.sequoiacm.config.framework.operator.ScmConfOperateResult;
@@ -24,7 +37,12 @@ import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceNotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Component
+@EnableScmServiceDiscoveryClient
 public class UpdateWorkspaceDao {
 
     @Autowired
@@ -37,106 +55,91 @@ public class UpdateWorkspaceDao {
     private BsonConverterMgr bsonConverterMgr;
 
     @Autowired
-    private DefaultVersionDao versionDao;
+    private ScmServiceDiscoveryClient scmServiceDiscoveryClient;
+
+    @Autowired
+    private DataLocationConfigChecker dataLocationConfigChecker;
 
     public ScmConfOperateResult update(WorkspaceUpdator updator) throws ScmConfigException {
         ScmConfOperateResult opRes = new ScmConfOperateResult();
+        checkNodeVersions();
+
+        ScmLock lock = null;
         Transaction transaction = metasource.createTransaction();
         try {
             transaction.begin();
             SysWorkspaceTableDao table = workspaceMetaservice.getSysWorkspaceTable(transaction);
+            SysWorkspaceHistoryTableDao workspaceHistoryTable = workspaceMetaservice
+                    .getSysWorkspaceHistoryTable(transaction);
 
-            BSONObject wsNameMatcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
-                    updator.getWsName());
             BSONObject matcher;
-            if (updator.getOldWsRecord() != null) {
-                matcher = updator.getOldWsRecord();
+            if (updator.getMatcher() != null) {
+                // content-server 发送的 matcher 是一个完整的记录
+                // fulltext 发送的 matcher 是 wsName + {external_data.fulltext_sch_name}
+                matcher = updator.getMatcher();
             }
             else {
-                matcher = wsNameMatcher;
-            }
-
-            String newDesc = updator.getNewDesc();
-            BSONObject newWsRecord = null;
-            if (newDesc != null) {
-                BasicBSONObject descUpdator = new BasicBSONObject(
-                        FieldName.FIELD_CLWORKSPACE_DESCRIPTION, newDesc);
-                newWsRecord = table.updateAndCheck(matcher, descUpdator);
-                if (newWsRecord == null) {
-                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
-                            "client workspace cache is not latest");
-                }
-                matcher = wsNameMatcher;
-            }
-
-            String newSiteCacheStrategy = updator.getNewSiteCacheStrategy();
-            if(newSiteCacheStrategy != null){
-                BasicBSONObject siteCacheStrategyUpdator = new BasicBSONObject(
-                        FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY, newSiteCacheStrategy);
-                newWsRecord = table.updateAndCheck(matcher, siteCacheStrategyUpdator);
-                if (newWsRecord == null) {
-                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
-                            "client workspace cache is not latest");
-                }
-                matcher = wsNameMatcher;
-            }
-
-            if (updator.getPreferred() != null) {
-                BasicBSONObject updater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_PREFERRED,
-                        updator.getPreferred());
-                newWsRecord = table.updateAndCheck(matcher, updater);
-                if (newWsRecord == null) {
-                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
-                            "client workspace cache is not latest");
-                }
                 matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
                         updator.getWsName());
             }
 
-            Integer removeLocationId = updator.getRemoveDataLocationId();
-            if (removeLocationId != null) {
-                newWsRecord = table.removeDataLocation(matcher, removeLocationId);
-                if (newWsRecord == null) {
-                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
-                            "client workspace cache is not latest");
-                }
-                matcher = wsNameMatcher;
+            lock = ScmLockManager.getInstance().acquiresLock(
+                    ScmLockPathFactory.createWorkspaceConfOpLockPath(updator.getWsName()));
+
+            BSONObject bakWsRecord = table.queryOne(matcher, null, null);
+            if (bakWsRecord == null) {
+                throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
+                        "workspace cache is not latest. matcher:" + matcher);
             }
 
-            BSONObject addDataLocation = updator.getAddDataLocation();
-            if (addDataLocation != null) {
-                newWsRecord = table.addDataLocation(matcher, addDataLocation);
-                if (newWsRecord == null) {
-                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
-                            "client workspace cache is not latest");
-                }
-                matcher = wsNameMatcher;
+            BSONObject versionSet;
+            if (bakWsRecord.get(FieldName.FIELD_CLWORKSPACE_VERSION) != null) {
+                versionSet = new BasicBSONObject(SequoiadbHelper.DOLLAR_INC,
+                        new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_VERSION, 1));
+            }
+            else {
+                versionSet = new BasicBSONObject(SequoiadbHelper.DOLLAR_SET,
+                        new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_VERSION, 2));
             }
 
-            BSONObject externalData = updator.getExternalData();
-            if (externalData != null) {
-                newWsRecord = table.updateExternalData(matcher, externalData);
-                if (newWsRecord == null) {
-                    throw new ScmConfigException(ScmConfError.CLIENT_WROKSPACE_CACHE_EXPIRE,
-                            "client workspace cache is not latest");
-                }
+            BSONObject newWsRecord;
+            if (updator.getNewDesc() != null) {
+                newWsRecord = table.updateDescription(matcher, updator.getNewDesc(), versionSet);
             }
-
-            if (newWsRecord == null) {
+            else if (updator.getNewSiteCacheStrategy() != null) {
+                newWsRecord = table.updateSiteCacheStrategy(matcher,
+                        updator.getNewSiteCacheStrategy(), versionSet);
+            }
+            else if (updator.getPreferred() != null) {
+                newWsRecord = table.updatePreferred(matcher, updator.getPreferred(), versionSet);
+            }
+            else if (updator.getRemoveDataLocationId() != null) {
+                newWsRecord = table.removeDataLocation(matcher, updator.getRemoveDataLocationId(),
+                        versionSet);
+            }
+            else if (updator.getAddDataLocation() != null) {
+                newWsRecord = table.addDataLocation(matcher, updator.getAddDataLocation(),
+                        versionSet);
+            }
+            else if (updator.getUpdateDataLocation() != null) {
+                newWsRecord = table.updateDataLocation(matcher, updator.getUpdateDataLocation(),
+                        versionSet);
+            }
+            else if (updator.getExternalData() != null) {
+                newWsRecord = table.updateExternalData(matcher, updator.getExternalData(),
+                        versionSet);
+            }
+            else {
                 throw new ScmConfigException(ScmConfError.INVALID_ARG, "update nothing:" + updator);
             }
+
+            backupWSVersion(workspaceHistoryTable, bakWsRecord);
 
             WorkspaceConfig wsConfig = (WorkspaceConfig) bsonConverterMgr
                     .getMsgConverter(ScmConfigNameDefine.WORKSPACE).convertToConfig(newWsRecord);
 
-            Integer oldVersion = versionDao.getVersion(ScmConfigNameDefine.WORKSPACE,
-                    wsConfig.getWsName());
-            Assert.notNull(oldVersion, "version record is null");
-            Integer newVersion = versionDao.updateVersion(ScmConfigNameDefine.WORKSPACE,
-                    wsConfig.getWsName(), ++oldVersion, transaction);
-            Assert.notNull(oldVersion, "version record is null");
-
-            ScmConfEvent event = createEvent(wsConfig, removeLocationId, newVersion);
+            ScmConfEvent event = createEvent(wsConfig,
+                    (int) newWsRecord.get(FieldName.FIELD_CLWORKSPACE_VERSION));
             opRes.setConfig(wsConfig);
             opRes.addEvent(event);
 
@@ -150,14 +153,54 @@ public class UpdateWorkspaceDao {
         }
         finally {
             transaction.close();
+            if (lock != null) {
+                lock.unlock();
+            }
         }
-
     }
 
-    private ScmConfEvent createEvent(WorkspaceConfig wsConfig, Integer removeLocationId,
-            Integer newVersion) {
+    private ScmConfEvent createEvent(WorkspaceConfig wsConfig, Integer newVersion) {
         WorkspaceNotifyOption notifycation = new WorkspaceNotifyOption(wsConfig.getWsName(),
                 newVersion, EventType.UPDATE);
         return new ScmConfEventBase(ScmConfigNameDefine.WORKSPACE, notifycation);
+    }
+
+    private void checkNodeVersions() throws ScmConfigException {
+        List<ScmServiceInstance> instances = scmServiceDiscoveryClient.getInstances();
+        // 3.2.2 版本开始支持工作区多版本，需全部工作区相关节点升级到3.2.2及以上版本才能修改工作区配置
+        // 否则旧版本的业务节点无法识别和记录工作区版本，文件元数据中丢失工作区版本可能会导致无法定位到文件的具体写入位置
+        String startVersion = "3.2.2";
+        String version_str = "version";
+        for (ScmServiceInstance node : instances) {
+            Map<String, String> metaData = node.getMetadata();
+            String version = metaData.get(version_str);
+            if (version == null || version.isEmpty()
+                    || dataLocationConfigChecker.compareVersion(version, startVersion) < 0) {
+                // 排除掉下列基础服务，剩余的就是config-server，s3-server和content-server
+                // 如果以后有新增服务类型，版本号一定高于3.2.2
+                if (node.getServiceName().equalsIgnoreCase("ADMIN-SERVER")
+                        || node.getServiceName().equalsIgnoreCase("SERVICE-CENTER")
+                        || node.getServiceName().equalsIgnoreCase("MQ-SERVER")
+                        || node.getServiceName().equalsIgnoreCase("FULLTEXT-SERVER")
+                        || node.getServiceName().equalsIgnoreCase("SCHEDULE-SERVER")
+                        || node.getServiceName().equalsIgnoreCase("AUTH-SERVER")
+                        || node.getServiceName().equalsIgnoreCase("GATEWAY")
+                        || node.getServiceName().equalsIgnoreCase("OM-SERVER")) {
+                    continue;
+                }
+                throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                        "workspace cannot be modified when the version of some nodes is lower than "
+                                + startVersion + ", node " + node.getServiceName() + "("
+                                + node.getHost() + ":" + node.getPort() + ") version " + version);
+            }
+        }
+    }
+
+    private void backupWSVersion(SysWorkspaceHistoryTableDao wsHistoryTable, BSONObject bakWsRecord)
+            throws MetasourceException {
+        if (bakWsRecord.get(FieldName.FIELD_CLWORKSPACE_VERSION) == null) {
+            bakWsRecord.put(FieldName.FIELD_CLWORKSPACE_VERSION, 1);
+        }
+        wsHistoryTable.insert(bakWsRecord);
     }
 }

@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class FileReaderDao {
     private static final Logger logger = LoggerFactory.getLogger(FileReaderDao.class);
@@ -50,9 +51,7 @@ public class FileReaderDao {
         this.wsName = wsInfo.getName();
 
         ScmContentModule contentModule = ScmContentModule.getInstance();
-
-
-        ScmDataInfo dataInfo = new ScmDataInfo(fileRecord);
+        localSiteId = contentModule.getLocalSite();
         long size = BsonUtils.getLong(fileRecord, FieldName.FIELD_CLFILE_FILE_SIZE);
         BasicBSONList sites = BsonUtils.getArray(fileRecord, FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         List<ScmFileLocation> siteList = new ArrayList<>();
@@ -61,15 +60,23 @@ public class FileReaderDao {
             pullNullSite();
         }
 
-        localSiteId = contentModule.getLocalSite();
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
 
         if (isReadLocalOnly(flag)) {
-            fileReader = new ScmLocalFileReader(localSiteId, wsInfo, dataInfo);
+            ScmFileLocation localFileLocation = fileLocationMap.get(localSiteId);
+            if (null == localFileLocation) {
+                throw new ScmServerException(ScmError.DATA_NOT_EXIST,
+                        "Data is not exist in the site. siteId:" + localSiteId + ", wsName:"
+                                + wsName + ", fileId:" + fileId);
+            }
+            ScmDataInfo localDataInfo = new ScmDataInfo(fileRecord,
+                    localFileLocation.getWsVersion());
+            fileReader = new ScmLocalFileReader(localSiteId, wsInfo, localDataInfo);
             return;
         }
 
         isNeedSeek = isNeedSeek(flag);
-        if(!isNeedSeek && wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.NEVER){
+        if (!isNeedSeek && wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.NEVER) {
             // 当工作缓存策略为不缓存时，同时客户端不需要 seek，置位 FORCE_NO_CACHE
             flag |= CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE;
         }
@@ -77,10 +84,12 @@ public class FileReaderDao {
         List<Integer> siteIdList = CommonHelper.getFileLocationIdList(siteList);
         boolean dontCacheLocal = false;
         // read from local
-        if (isLocalSiteHaveData(localSiteId, siteList)) {
+        if (fileLocationMap.get(localSiteId) != null) {
             // create local reader
             try {
-                fileReader = createLocalReader(dataInfo, size);
+                ScmDataInfo localDataInfo = new ScmDataInfo(fileRecord,
+                        fileLocationMap.get(localSiteId).getWsVersion());
+                fileReader = createLocalReader(localDataInfo, size);
                 return;
             }
             catch (ScmServerException e) {
@@ -108,6 +117,8 @@ public class FileReaderDao {
             throw new ScmServerException(ScmError.INVALID_ARGUMENT,
                     "unsupported create seekable remote reader, if dont cache local");
         }
+
+        ScmDataInfo writeLocalDataInfo = new ScmDataInfo(fileRecord, wsInfo.getVersion());
         while (siteIdList.size() != 0) {
             SiteInfo siteInfo = ScmStrategyMgr.getInstance().getNearestSite(wsInfo, siteIdList,
                     localSiteId, fileId);
@@ -115,14 +126,14 @@ public class FileReaderDao {
 
             if (siteInfo.getFlag() == StrategyDefine.SiteType.FLAG_GOTO_SITE) {
                 fileReader = createRemoteReader(remoteId, sessionId, userDetail, flag, size,
-                        dataInfo, dontCacheLocal);
+                        writeLocalDataInfo, dontCacheLocal);
                 return;
             }
 
             try {
                 fileReader = createRemoteReader(remoteId, sessionId, userDetail,
-                        flag | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE, size, dataInfo,
-                        dontCacheLocal);
+                        flag | CommonDefine.ReadFileFlag.SCM_READ_FILE_LOCALSITE, size,
+                        writeLocalDataInfo, dontCacheLocal);
                 return;
             }
             catch (Exception e) {
@@ -137,7 +148,7 @@ public class FileReaderDao {
         }
         throw new ScmServerException(ScmError.DATA_ERROR,
                 "can not read data from any site:siteList=" + siteList + ",wsName="
-                        + wsInfo.getName() + ",fileId=" + dataInfo.getId());
+                        + wsInfo.getName() + ",fileId=" + writeLocalDataInfo.getId());
     }
 
     public String getWsName() {

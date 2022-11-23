@@ -25,6 +25,7 @@ public class MetaSourceDefine {
         public static final String CL_SITE = "SITE";
         public static final String CL_CONTENTSERVER = "CONTENTSERVER";
         public static final String CL_WORKSPACE = "WORKSPACE";
+        public static final String CL_WORKSPACE_HISTORY = "WORKSPACE_HISTORY";
         public static final String CL_USER = "USER";
         public static final String CL_SESSION = "SESSION";
         public static final String CL_TASK = "TASK";

@@ -8,4 +8,5 @@ public class ScmLockPathDefine {
     public static final String NODE_CONF_OP_MUTEX = "node_conf_op_mutex";
     public static final String GLOBAL_METADATA_MUTEX = "global_METADATA_mutex";
     public static final String CLOBAL_CONF_PROPS_MUTEX = "global_conf_props_mutex";
+    public static final String WORKSPACE_CONF_OP_MUTEX = "workspace_conf_op_mutex";
 }

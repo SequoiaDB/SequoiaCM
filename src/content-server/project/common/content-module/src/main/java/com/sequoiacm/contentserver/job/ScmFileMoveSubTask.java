@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.job;
 
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.dao.FileTransferDao;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class ScmFileMoveSubTask extends ScmFileSubTask {
 
@@ -40,18 +42,17 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
         String dataId = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         int majorVersion = (int) fileInfo.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
         int minorVersion = (int) fileInfo.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
-        ScmDataInfo dataInfo = new ScmDataInfo(fileInfo);
         int localSiteId = ScmContentModule.getInstance().getLocalSite();
         int targetSiteId = (int) getTask().getTaskInfo().get(FieldName.Task.FIELD_TARGET_SITE);
 
         BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-        List<Integer> fileDataSiteIdList = CommonHelper.getFileLocationIdList(siteList);
-        if (!fileDataSiteIdList.contains(localSiteId)) {
+        Map<Integer, ScmFileLocation> fileDataSiteList = CommonHelper.getFileLocationList(siteList);
+        if (fileDataSiteList.get(localSiteId) == null) {
             logger.warn(
                     "skip, file data not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
-                    fileDataSiteIdList);
+                    fileDataSiteList);
             taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
             return;
         }
@@ -90,6 +91,7 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                     new TaskTransfileInterrupter(getTask()), getTask().getDataCheckLevel());
             FileTransferDao.FileTransferResult transferResult = fileTransferDao.doTransfer(file);
             if (transferResult == FileTransferDao.FileTransferResult.SUCCESS) {
+                ScmDataInfo dataInfo = new ScmDataInfo(fileInfo, fileDataSiteList.get(localSiteId).getWsVersion());
                 cleanFile(ws, fileId, majorVersion, minorVersion, dataInfo);
                 taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
                 return;

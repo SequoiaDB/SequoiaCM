@@ -324,6 +324,15 @@ public class ScmContentCommandUtil {
         return metaOpDesc.toString();
     }
 
+    public static String getMergeTo() {
+        StringBuilder metaOpDesc = new StringBuilder();
+        metaOpDesc.append("whether merge to data location, the value is boolean\n");
+        metaOpDesc.append("true: merge with the data location specified on the server\n");
+        metaOpDesc.append("false: overwrite the data location specified on the server\n");
+        metaOpDesc.append("default mergeTo is true\n");
+        return metaOpDesc.toString();
+    }
+
     public static List<String> parseListUrls(String gatewayUrl) {
         List<String> urls = new ArrayList<>();
         String[] arr = gatewayUrl.split(",");

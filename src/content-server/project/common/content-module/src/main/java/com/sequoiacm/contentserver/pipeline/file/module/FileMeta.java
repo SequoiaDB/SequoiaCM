@@ -283,7 +283,7 @@ public class FileMeta implements Cloneable {
     }
 
     public ScmDataInfo getDataInfo() {
-        return new ScmDataInfo(dataType, dataId, new Date(dataCreateTime));
+        return new ScmDataInfo(dataType, dataId, new Date(dataCreateTime), 0);
     }
 
     public static FileMeta deleteMarkerMeta(String ws, String fileName, String user, long bucketId)
@@ -405,7 +405,7 @@ public class FileMeta implements Cloneable {
     }
 
     public void resetDataInfo(String dataId, long dataCreateTime, int dataType, long dataSize,
-            String md5, int dataSite) {
+            String md5, int dataSite, int wsVersion) {
         this.dataId = dataId;
         this.dataCreateTime = dataCreateTime;
         this.dataType = dataType;
@@ -416,6 +416,7 @@ public class FileMeta implements Cloneable {
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID, dataSite);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, dataCreateTime);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, dataCreateTime);
+        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION, wsVersion);
         BasicBSONList sites = new BasicBSONList();
         sites.add(oneSite);
         this.siteList = sites;

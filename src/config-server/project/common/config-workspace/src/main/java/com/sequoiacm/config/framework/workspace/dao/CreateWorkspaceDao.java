@@ -45,7 +45,6 @@ public class CreateWorkspaceDao {
     @Autowired
     private DefaultVersionDao versionDao;
 
-
     @Autowired
     private DataLocationConfigChecker dataLocationConfigChecker;
 
@@ -63,6 +62,7 @@ public class CreateWorkspaceDao {
         wsConfig.setCreateTime(createTime.getTime());
         wsConfig.setUpdateTime(createTime.getTime());
         wsConfig.setUpdateUser(wsConfig.getCreateUser());
+        wsConfig.setVersion(1);
         Transaction transaction = null;
         BSONObject wsRecord = null;
         boolean isNeedRollbackMetaTable = false;
@@ -123,9 +123,6 @@ public class CreateWorkspaceDao {
                 dirDao.insert(rootDir.toReocord());
             }
 
-            // insert ws version record
-            versionDao.createVersion(ScmConfigNameDefine.WORKSPACE, wsConfig.getWsName(),
-                    transaction);
 
             // insert metadata version record
             versionDao.createVersion(ScmConfigNameDefine.META_DATA, wsConfig.getWsName(),
@@ -202,6 +199,7 @@ public class CreateWorkspaceDao {
         }
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                 wsConfig.getSiteCacheStrategy());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_VERSION, wsConfig.getVersion());
         return wsRecord;
     }
 }

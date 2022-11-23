@@ -58,7 +58,7 @@ public class ScmSpaceRecycleTask extends ScmTaskBase {
             Date endingTime = getEndingTime();
             scmDataSpaceRecycler = ScmDataOpFactoryAssit.getFactory().createScmDataSpaceRecycler(
                     queryAllTableNames(), beginningTime, endingTime, wsInfo.getName(),
-                    contentModule.getLocalSiteInfo().getName(), wsInfo.getDataLocation(),
+                    contentModule.getLocalSiteInfo().getName(),
                     contentModule.getDataService());
         }
         catch (Exception e) {

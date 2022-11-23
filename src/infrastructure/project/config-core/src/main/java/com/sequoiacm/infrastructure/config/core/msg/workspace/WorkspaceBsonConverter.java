@@ -102,10 +102,17 @@ public class WorkspaceBsonConverter implements BsonConverter {
     public ConfigUpdator convertToConfigUpdator(BSONObject configUpdatorObj) {
         String wsName = BsonUtils.getStringChecked(configUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_CONF_WORKSPACENAME);
-        BSONObject oldWsRecord = BsonUtils.getBSON(configUpdatorObj,
-                ScmRestArgDefine.WORKSPACE_CONF_OLD_WS);
+        // 3.2.2 之前使用 WORKSPACE_CONF_OLD_WS 传递 matcher，
+        // 3.2.2 之后改为使用 WORKSPACE_CONF_MATCHER 传递 matcher
+        // 此处为兼容处理
+        BSONObject matcher = BsonUtils.getBSON(configUpdatorObj,
+                ScmRestArgDefine.WORKSPACE_CONF_MATCHER);
+        if (null == matcher) {
+            matcher = BsonUtils.getBSON(configUpdatorObj,
+                    ScmRestArgDefine.WORKSPACE_CONF_OLD_WS);
+        }
 
-        WorkspaceUpdator configUpdator = new WorkspaceUpdator(wsName, oldWsRecord);
+        WorkspaceUpdator configUpdator = new WorkspaceUpdator(wsName, matcher);
 
         BSONObject wsUpdatorObj = BsonUtils.getBSONChecked(configUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_CONF_UPDATOR);
@@ -113,6 +120,8 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 BsonUtils.getBSON(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_ADD_DATALOCATION));
         configUpdator.setRemoveDataLocationId(BsonUtils.getInteger(wsUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_CONF_REMOVE_DATALOCATION));
+        configUpdator.setUpdateDataLocation(
+                (BasicBSONList) BsonUtils.getBSON(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_UPDATE_DATALOCATION));
         configUpdator.setNewDesc(
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_DESCRIPTION));
         configUpdator.setNewSiteCacheStrategy(BsonUtils.getString(wsUpdatorObj,

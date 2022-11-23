@@ -2,16 +2,10 @@ package com.sequoiacm.contentserver.remote;
 
 import java.util.List;
 
+import com.sequoiacm.common.ScmFileLocation;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.exception.ScmServerException;
@@ -93,7 +87,8 @@ public interface ContentServerClient {
     public void deleteData(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion)
             throws ScmServerException;
 
     @DeleteMapping(value = "/internal/v1/datasource/{dataId}?action=delete_data_in_site_list")
@@ -102,7 +97,8 @@ public interface ContentServerClient {
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST) List<Integer> siteList)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST) List<Integer> siteList,
+            @RequestBody(required = false) List<ScmFileLocation> siteLocationList)
             throws ScmServerException;
 
     @GetMapping(value = "/internal/v1/datasource/{dataId}")
@@ -110,7 +106,8 @@ public interface ContentServerClient {
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
-            @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag)
+            @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion)
             throws ScmServerException;
 
     @GetMapping(value = "/internal/v1/datasource/{dataId}")
@@ -119,7 +116,8 @@ public interface ContentServerClient {
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
-            @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag)
+            @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion)
             throws ScmServerException;
 
     @RequestMapping(value = "/internal/v1/datasource/{dataId}", method = RequestMethod.HEAD)
@@ -128,7 +126,8 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) int wsVersion)
             throws ScmServerException;
 
     @DeleteMapping(value = "/internal/v1/datasource/tables")

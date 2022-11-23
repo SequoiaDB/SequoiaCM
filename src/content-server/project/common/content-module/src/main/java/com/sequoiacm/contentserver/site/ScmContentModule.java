@@ -1,18 +1,22 @@
 package com.sequoiacm.contentserver.site;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.model.ScmWorkspaceItem;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.metasource.ScmMetasourceException;
+import com.sequoiacm.metasource.*;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +72,8 @@ public class ScmContentModule {
                     contentModule = newContentModule;
                     tmp.clear();
                     logger.info("server init success:rootSiteId={},mySite={}",
-                            contentModule.bizConf.getRootSiteId(), contentModule.bizConf.getMySite().getId());
+                            contentModule.bizConf.getRootSiteId(),
+                            contentModule.bizConf.getMySite().getId());
                 }
             }
             catch (ScmServerException e) {
@@ -299,6 +304,24 @@ public class ScmContentModule {
         }
     }
 
+    public void workspaceMapAddHistory(ScmWorkspaceItem hisWsItem) {
+        ReentrantReadWriteLock.WriteLock wLock = wsReadWriteLock.writeLock();
+        wLock.lock();
+        try {
+            ScmWorkspaceInfo workspaceInfoById = workspaceMap.get(hisWsItem.getId());
+            if (workspaceInfoById != null) {
+                workspaceInfoById.addHistoryWsItem(hisWsItem);
+            }
+            ScmWorkspaceInfo workspaceInfoByName = workspaceMapByName.get(hisWsItem.getName());
+            if (workspaceInfoByName != null) {
+                workspaceInfoByName.addHistoryWsItem(hisWsItem);
+            }
+        }
+        finally {
+            wLock.unlock();
+        }
+    }
+
     public void reloadSite(String siteName) throws ScmServerException {
         bizConf.reloadSite(siteName);
     }
@@ -415,7 +438,8 @@ public class ScmContentModule {
         }
     }
 
-    public ScmWorkspaceInfo getWorkspaceInfoCheckLocalSite(int workspaceId) throws ScmServerException {
+    public ScmWorkspaceInfo getWorkspaceInfoCheckLocalSite(int workspaceId)
+            throws ScmServerException {
         int localSiteId = getLocalSite();
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo(workspaceId);
         if (null == wsInfo) {
@@ -434,7 +458,7 @@ public class ScmContentModule {
     }
 
     private boolean isSiteInWorkspace(ScmWorkspaceInfo wsInfo, int siteId) {
-        if (null != wsInfo.getLocationObj(siteId)) {
+        if (null != wsInfo.getSiteDataLocation(siteId)) {
             return true;
         }
         else {
@@ -463,7 +487,8 @@ public class ScmContentModule {
         return wsInfo;
     }
 
-    public ScmWorkspaceInfo getWorkspaceInfoCheckLocalSite(String wsName) throws ScmServerException {
+    public ScmWorkspaceInfo getWorkspaceInfoCheckLocalSite(String wsName)
+            throws ScmServerException {
         int localSiteId = getLocalSite();
         ScmWorkspaceInfo wsInfo = getWorkspaceInfoCheckExist(wsName);
 
@@ -471,8 +496,8 @@ public class ScmContentModule {
 
         if (!isServerInWorkspace) {
             throw new ScmServerException(ScmError.SERVER_NOT_IN_WORKSPACE,
-                    "my site[" + getLocalSiteInfo().getName()
-                    + "] is not in the workspace[" + wsInfo.getName() + "]");
+                    "my site[" + getLocalSiteInfo().getName() + "] is not in the workspace["
+                            + wsInfo.getName() + "]");
         }
 
         return wsInfo;

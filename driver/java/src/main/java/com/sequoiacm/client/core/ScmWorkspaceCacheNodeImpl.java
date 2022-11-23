@@ -100,6 +100,18 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
     }
 
     @Override
+    public void updateDataLocation(List<ScmDataLocation> dataLocations) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.updateDataLocation(dataLocations);
+    }
+
+    @Override
+    public void updateDataLocation(List<ScmDataLocation> dataLocations, boolean mergeTo) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.updateDataLocation(dataLocations, mergeTo);
+    }
+
+    @Override
     public ScmShardingType getBatchShardingType() {
         checkScmWorkspace();
         return scmWorkspace.getBatchShardingType();

@@ -1,5 +1,6 @@
 package com.sequoiacm.config.metasource.sequoiadb;
 
+import com.sequoiadb.base.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -10,12 +11,10 @@ import com.sequoiacm.config.metasource.TableDaoBase;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.DBCursor;
-import com.sequoiadb.base.DBQuery;
-import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
+
+import java.util.List;
 
 public class SequoiadbTableDao extends TableDaoBase {
     private static final Logger logger = LoggerFactory.getLogger(SequoiadbTableDao.class);
@@ -23,6 +22,9 @@ public class SequoiadbTableDao extends TableDaoBase {
     private String csName;
     private String clName;
     private SequoiadbTransaction transaction;
+
+    private static final int SDB_IXM_CREATING = -387; // DB error code
+    private static final int SDB_IXM_COVER_CREATING = -389; // DB error code
 
     public SequoiadbTableDao(SequoiadbMetasource sdbMetasource, String csName, String clName) {
         this.sdbMetasource = sdbMetasource;
@@ -187,6 +189,7 @@ public class SequoiadbTableDao extends TableDaoBase {
         }
     }
 
+    @Override
     public BSONObject updateAndReturnNew(BSONObject matcher, BSONObject updator)
             throws MetasourceException {
         DBCursor cursor = null;
@@ -257,6 +260,79 @@ public class SequoiadbTableDao extends TableDaoBase {
             throw new MetasourceException(
                     "count failed:csName=" + csName + ",clName=" + clName + ",matcher=" + matcher,
                     e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public void ensureTable(List<String> indexFields, List<String> uniqueIndexField)
+            throws MetasourceException {
+        ensureCollection();
+        if (indexFields != null) {
+            for (String idxField : indexFields) {
+                ensureIndex("idx_" + idxField, new BasicBSONObject(idxField, 1), false);
+            }
+        }
+        if (uniqueIndexField != null) {
+            for (String idxField : uniqueIndexField) {
+                ensureIndex("idx_" + idxField, new BasicBSONObject(idxField, 1), true);
+            }
+        }
+    }
+
+    protected void ensureCollection() throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            if (cs.isCollectionExist(clName)) {
+                return;
+            }
+            cs.createCollection(clName);
+            logger.info("create collection:{}.{}, option={}", csName, clName);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_DMS_EXIST.getErrorCode()) {
+                return;
+            }
+            throw new MetasourceException("failed to create cl:" + csName + "." + clName, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    protected void ensureIndex(String idxName, BSONObject indexDefinition, boolean isUnique)
+            throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            CollectionSpace cs = db.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            DBCursor cursor = cl.getIndex(idxName);
+            if (cursor != null) {
+                try {
+                    if (cursor.hasNext()) {
+                        cursor.close();
+                        return;
+                    }
+                }
+                finally {
+                    cursor.close();
+                }
+            }
+            cl.createIndex(idxName, indexDefinition, isUnique, false);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() != SDBError.SDB_IXM_EXIST.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_REDEF.getErrorCode()
+                    && e.getErrorCode() != SDBError.SDB_IXM_EXIST_COVERD_ONE.getErrorCode()
+                    && e.getErrorCode() != SDB_IXM_CREATING
+                    && e.getErrorCode() != SDB_IXM_COVER_CREATING) {
+                throw new MetasourceException("failed to create cl index:" + csName + "." + clName
+                        + ", idxName=" + idxName + ", idxDef=" + indexDefinition + ", isUnique="
+                        + isUnique, e);
+            }
         }
         finally {
             releaseConnection(db);

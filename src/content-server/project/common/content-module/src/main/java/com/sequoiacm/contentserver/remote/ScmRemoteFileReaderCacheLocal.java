@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.remote;
 
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +24,14 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
     private ScmWorkspaceInfo wsInfo;
     private String workspaceName;
     private ScmDataWriter fileWriter = null;
+    private ScmDataInfo fileWriterDataInfo;
 
     private ScmRemoteFileReader remoteReader;
     private int remoteSiteId;
 
     public ScmRemoteFileReaderCacheLocal(String sessionId, String userDetail, int localSiteId, int remoteSiteId,
             ScmWorkspaceInfo wsInfo, String fileId, int majorVersion, int minorVersion,
-            ScmDataWriter fileWriter, int flag) throws ScmServerException {
+            ScmDataWriter fileWriter, int flag, ScmDataInfo fileWriterDataInfo) throws ScmServerException {
         this.localSiteId = localSiteId;
         this.remoteSiteId = remoteSiteId;
         this.fileId = fileId;
@@ -39,6 +41,7 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
         this.workspaceName = wsInfo.getName();
 
         this.fileWriter = fileWriter;
+        this.fileWriterDataInfo = fileWriterDataInfo;
         this.remoteReader = new ScmRemoteFileReader(sessionId, userDetail, remoteSiteId, wsInfo, fileId, majorVersion, minorVersion, flag);
     }
 
@@ -48,7 +51,7 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
         try {
             FileCommonOperator.closeWriter(fileWriter);
             FileCommonOperator.addSiteInfoToList(wsInfo,
-                    fileId, majorVersion, minorVersion, localSiteId);
+                    fileId, majorVersion, minorVersion, localSiteId, fileWriterDataInfo.getWsVersion());
         }
         catch (Exception e) {
             // we ignore this exception because our purpose is read file, not

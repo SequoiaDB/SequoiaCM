@@ -57,6 +57,19 @@ public class CommonHelper {
         return isExistNull;
     }
 
+    public static Map<Integer, ScmFileLocation> getFileLocationList(BasicBSONList siteList) {
+        Map<Integer, ScmFileLocation> fileLocationMap = new HashMap<Integer, ScmFileLocation>();
+        for (Object o : siteList) {
+            BSONObject bo = (BSONObject) o;
+            if (null != bo) {
+                ScmFileLocation location = new ScmFileLocation(bo);
+                fileLocationMap.put(location.getSiteId(), location);
+            }
+        }
+
+        return fileLocationMap;
+    }
+
     public static List<Integer> getFileLocationIdList(BasicBSONList siteList) {
         List<ScmFileLocation> locationList = new ArrayList<ScmFileLocation>();
         getFileLocationList(siteList, locationList);

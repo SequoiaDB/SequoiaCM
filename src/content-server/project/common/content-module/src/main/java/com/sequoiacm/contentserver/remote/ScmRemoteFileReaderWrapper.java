@@ -50,15 +50,17 @@ public class ScmRemoteFileReaderWrapper extends ScmFileReader {
 
             // if data exist in local, 'createLocalFileWriter' will assign
             // innerReader as localFileReader
+            ScmDataInfo localDataInfo = new ScmDataInfo(dataInfo.getType(), dataInfo.getId(),
+                    dataInfo.getCreateTime(), wsInfo.getVersion());
             localFileWriter = createLocalFileWriter(localSiteId, wsInfo, fileId, majorVersion,
-                    minorVersion, size, dataInfo);
+                    minorVersion, size, localDataInfo);
             if (localFileWriter != null) {
                 logger.debug(
                         "try lock success, read file from remote and cache local:ws={},fileId={},version={}.{}",
                         wsInfo.getName(), fileId, majorVersion, minorVersion);
                 innerReader = new ScmRemoteFileReaderCacheLocal(sessionId, userDetail, localSiteId,
                         remoteSiteId, wsInfo, fileId, majorVersion, minorVersion, localFileWriter,
-                        flag);
+                        flag, localDataInfo);
                 return;
             }
 
@@ -99,7 +101,7 @@ public class ScmRemoteFileReaderWrapper extends ScmFileReader {
         ScmDataWriter fileWriter = null;
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
-                    wsInfo.getName(), wsInfo.getDataLocation(),
+                    wsInfo.getName(), wsInfo.getDataLocation(dataInfo.getWsVersion()),
                     ScmContentModule.getInstance().getDataService(), dataInfo);
         }
         catch (ScmDatasourceException e) {
@@ -112,7 +114,7 @@ public class ScmRemoteFileReaderWrapper extends ScmFileReader {
                     // 2. residue data
                     // we have fileContentLock, just add it again.
                     FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                            localSiteId);
+                            localSiteId, dataInfo.getWsVersion());
                     innerReader = new ScmLocalFileReader(localSiteId, wsInfo, dataInfo);
                     return null;
                 }
@@ -140,7 +142,7 @@ public class ScmRemoteFileReaderWrapper extends ScmFileReader {
         ScmDataWriter fileWriter = null;
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
-                    wsInfo.getName(), wsInfo.getDataLocation(),
+                    wsInfo.getName(), wsInfo.getDataLocation(dataInfo.getWsVersion()),
                     ScmContentModule.getInstance().getDataService(), dataInfo);
         }
         catch (Exception e) {

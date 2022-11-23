@@ -2,292 +2,246 @@ package com.sequoiacm.contentserver.model;
 
 import java.util.*;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
+import com.sequoiacm.contentserver.site.ScmContentModule;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.ConcurrentLruMap;
+import com.sequoiacm.infrastructure.common.ConcurrentLruMapFactory;
+import com.sequoiacm.metasource.MetaAccessor;
+import com.sequoiacm.metasource.MetaCursor;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.common.mapping.ScmWorkspaceObj;
 import com.sequoiacm.contentserver.cache.ScmDirCache;
-import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.datasourcemgr.ScmDataSourceType;
-import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.site.ScmBizConf;
-import com.sequoiacm.contentserver.site.ScmSite;
-import com.sequoiacm.datasource.DatalocationFactory;
-import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.ScmLocation;
-import com.sequoiacm.datasource.metadata.ScmSiteUrl;
-import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
-import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 
 public class ScmWorkspaceInfo {
     private static final Logger logger = LoggerFactory.getLogger(ScmWorkspaceInfo.class);
-    private final String preferred;
 
-    private String name;
-    private int id;
-    private String description;
-    private String createUser;
-    private long createTime;
-    private long updateTime;
-    private String updateUser;
-    private MetaSourceLocation metaLocation;
-    private ScmLocation dataLocation;
-    private Map<Integer, ScmLocation> dataLocations = new HashMap<>();
-    private Map<Integer, BSONObject> dataInfoMap = new LinkedHashMap<>();
-    private BSONObject wsBson;
-    private ScmDirCache dirCache;
-
-    private ScmWorkspaceFulltextExtData fulltextExtData;
-
-    private ScmShardingType batchShardingType;
-    private String batchIdTimeRegex;
-    private String batchIdTimePattern;
-    private boolean batchFileNameUnique;
-    private boolean enableDirectory;
-    private ScmSiteCacheStrategy siteCacheStrategy;
+    private ScmWorkspaceItem currentWorkspace;
+    private ConcurrentLruMap</* versionId */Integer, ScmWorkspaceItem> workspaceHistories = ConcurrentLruMapFactory.create(10);
 
     public ScmWorkspaceInfo(ScmBizConf bizConf, BSONObject workspaceObj) throws ScmServerException {
-        try {
-            ScmWorkspaceObj wsObj = new ScmWorkspaceObj(workspaceObj);
-            this.name = wsObj.getName();
-            this.id = wsObj.getId();
-            this.description = wsObj.getDescriptions();
-            this.createUser = wsObj.getCreateUser();
-            this.updateTime = wsObj.getUpdateTime();
-            this.createTime = wsObj.getCreateTime();
-            this.updateUser = wsObj.getUpdateUser();
-            this.wsBson = workspaceObj;
-
-            BSONObject metaShardingType = new BasicBSONObject();
-            metaShardingType.put(FieldName.FIELD_CLWORKSPACE_META_SHARDING_TYPE,
-                    wsObj.getMetaShardingType());
-            this.metaLocation = new SdbMetaSourceLocation(wsObj.getMetaLocation(),
-                    metaShardingType);
-
-            for (BSONObject dataLocationObj : wsObj.getDataLocation()) {
-                int siteId = getSiteId(dataLocationObj);
-                dataInfoMap.put(siteId, dataLocationObj);
-                ScmLocation location = createDataLocation(bizConf, dataLocationObj,
-                        wsObj.getDataShardingType(), wsObj.getDataOption());
-                dataLocations.put(location.getSiteId(), location);
-                if (bizConf.getLocateSiteId() == siteId) {
-                    this.dataLocation = location;
-                }
-            }
-
-            checkWorkspace(bizConf);
-            if (PropertiesUtils.enableDirCache()) {
-                dirCache = new ScmDirCache(name, PropertiesUtils.getDirCacheMaxSize());
-            }
-
-            fulltextExtData = new ScmWorkspaceFulltextExtData(name, id, wsObj.getExternalData());
-            batchShardingType = ScmShardingType.getShardingType(wsObj.getBatchShardingType());
-            batchFileNameUnique = wsObj.isBatchFileNameUnique();
-            batchIdTimePattern = wsObj.getBatchIdTimePattern();
-            batchIdTimeRegex = wsObj.getBatchIdTimeRegex();
-            enableDirectory = wsObj.isEnableDirectory();
-            preferred = wsObj.getPreferred();
-            siteCacheStrategy = wsObj.getSiteCacheStrategy();
-        }
-        catch (ScmServerException e) {
-            logger.error("parse workspace info failed:record=" + workspaceObj.toString());
-            throw e;
-        }
-        catch (Exception e) {
-            logger.error("parse workspace info failed:record=" + workspaceObj.toString());
-            throw new ScmInvalidArgumentException(
-                    "parse workspace info failed:record=" + workspaceObj.toString(), e);
-        }
-    }
-
-    public BSONObject getWsBson() {
-        return wsBson;
+        currentWorkspace = new ScmWorkspaceItem(bizConf, workspaceObj, false);
     }
 
     public boolean isBatchSharding() {
-        return batchShardingType != ScmShardingType.NONE;
+        return currentWorkspace.isBatchSharding();
     }
 
     public ScmShardingType getBatchShardingType() {
-        return batchShardingType;
+        return currentWorkspace.getBatchShardingType();
     }
 
     public String getBatchIdTimeRegex() {
-        return batchIdTimeRegex;
+        return currentWorkspace.getBatchIdTimeRegex();
     }
 
     public boolean isBatchUseSystemId() {
-        return batchIdTimePattern == null || batchIdTimeRegex == null;
+        return currentWorkspace.isBatchUseSystemId();
     }
 
     public String getBatchIdTimePattern() {
-        return batchIdTimePattern;
+        return currentWorkspace.getBatchIdTimePattern();
     }
 
     public boolean isBatchFileNameUnique() {
-        return batchFileNameUnique;
-    }
-
-    private void checkWorkspace(ScmBizConf bizConf) throws ScmServerException {
-        int rootSiteId = bizConf.getRootSiteId();
-
-        if (metaLocation.getSiteId() != rootSiteId) {
-            logger.error("meta site must be root site:wsName=" + name + ",metaSite="
-                    + metaLocation.getSiteId() + ",rootSite=" + rootSiteId);
-            throw new ScmInvalidArgumentException("meta site must be root site:wsName=" + name
-                    + ",metaSite=" + metaLocation.getSiteId() + ",rootSite=" + rootSiteId);
-        }
-
-        if (null == dataLocation && bizConf.getLocateSiteId() == rootSiteId) {
-            // i am root site, this ws does not contain my datalocation
-            throw new ScmInvalidArgumentException("root site data location is null:wsName=" + name
-                    + ",site=" + bizConf.getLocateSiteId());
-        }
-    }
-
-    private ScmLocation createSdbDataLocation(ScmSite siteInfo, BSONObject dataLocationObj,
-            BSONObject defaultSdbShardingType, BSONObject defaultSdbDataOptions)
-            throws ScmDatasourceException {
-        // do not modify dataLocation,
-        BasicBSONObject newDataLocationObj = new BasicBSONObject();
-        newDataLocationObj.putAll(dataLocationObj);
-
-        if (!newDataLocationObj.containsField(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE)) {
-            newDataLocationObj.put(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE,
-                    defaultSdbShardingType);
-        }
-
-        if (!newDataLocationObj.containsField(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS)) {
-            newDataLocationObj.put(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS, defaultSdbDataOptions);
-        }
-
-        return new SdbDataLocation(newDataLocationObj, siteInfo.getName());
-
-    }
-
-    private int getSiteId(BSONObject dataLocationObj) throws ScmServerException {
-        Object tmp = dataLocationObj.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-        if (null == tmp) {
-            throw new ScmInvalidArgumentException(
-                    "field is not exist:fieldName=" + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-        }
-
-        int siteId = (int) tmp;
-        return siteId;
-    }
-
-    private ScmLocation createDataLocation(ScmBizConf bizConf, BSONObject dataLocationObj,
-            BSONObject defaultSdbShardingType, BSONObject defaultSdbDataOptions)
-            throws ScmServerException {
-        int siteId = getSiteId(dataLocationObj);
-        ScmSite siteInfo = bizConf.getSiteInfo(siteId);
-        if (null == siteInfo) {
-            throw new ScmInvalidArgumentException("site is not exist:siteId=" + siteId);
-        }
-
-        try {
-            ScmSiteUrl siteUrl = siteInfo.getDataUrl();
-            ScmLocation scmLocation;
-            if (siteUrl.getType().equals(ScmDataSourceType.SEQUOIADB.getName())) {
-                scmLocation = createSdbDataLocation(siteInfo, dataLocationObj,
-                        defaultSdbShardingType,
-                        defaultSdbDataOptions);
-            }
-            else {
-                scmLocation = DatalocationFactory.createDataLocation(siteUrl.getType(),
-                        dataLocationObj, siteInfo.getName());
-            }
-            return scmLocation;
-        }
-        catch (NoClassDefFoundError e) {
-            logger.error("create dataLocation failed:location=" + dataLocationObj);
-            throw new ScmSystemException("create dataLocation failed:location=" + dataLocationObj,
-                    e);
-        }
-        catch (ScmDatasourceException e) {
-            throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR), e.getMessage(), e);
-        }
+        return currentWorkspace.isBatchFileNameUnique();
     }
 
     public MetaSourceLocation getMetaLocation() {
-        return metaLocation;
+        return currentWorkspace.getMetaLocation();
     }
 
     public ScmLocation getDataLocation() {
-        return dataLocation;
+        return currentWorkspace.getDataLocation();
     }
 
-    public BSONObject getLocationObj(int siteId) {
-        return dataInfoMap.get(siteId);
+    public ScmLocation getDataLocation(int versionId) throws ScmServerException {
+        ScmWorkspaceItem workspaceItem = getWorkspaceVersion(versionId);
+        return workspaceItem.getDataLocation();
+    }
+
+    public ScmLocation getSiteDataLocation(int siteId) {
+        return currentWorkspace.getDataLocations().get(siteId);
+    }
+
+    public ScmLocation getSiteDataLocation(int siteId, int version) throws ScmServerException {
+        ScmWorkspaceItem workspaceItem = getWorkspaceVersion(version);
+        return workspaceItem.getDataLocations().get(siteId);
+    }
+
+    private ScmWorkspaceItem getWorkspaceVersion(int version) throws ScmServerException {
+        if (version == currentWorkspace.getVersion()) {
+            return currentWorkspace;
+        }
+
+        if (workspaceHistories.get(version) != null) {
+            return workspaceHistories.get(version);
+        }
+
+        ScmWorkspaceItem workspaceItem = loadHistoryWorkspace(getName(), version);
+        if (workspaceItem == null) {
+            throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
+                    "the workspace of the specified version does not exist. wsName" + getName()
+                            + ", versionId:" + version);
+        }
+        return workspaceItem;
+    }
+
+    public ScmWorkspaceItem loadHistoryWorkspace(String wsName, int versionId)
+            throws ScmServerException {
+        MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
+                .getWorkspaceHistoryAccessor();
+
+        BSONObject matcher = new BasicBSONObject();
+        matcher.put(FieldName.FIELD_CLWORKSPACE_NAME, wsName);
+        matcher.put(FieldName.FIELD_CLWORKSPACE_VERSION, versionId);
+
+        BSONObject wsObj = ScmMetaSourceHelper.queryOne(accessor, matcher);
+
+        if (wsObj != null) {
+            ScmWorkspaceItem hisWsItem = new ScmWorkspaceItem(ScmContentModule.getInstance().getBizConf(), wsObj, true);
+            ScmContentModule.getInstance().workspaceMapAddHistory(hisWsItem);
+            return hisWsItem;
+        }
+
+        return null;
+    }
+
+    public Map<Integer, ScmLocation> getDataLocationAllVersions() throws ScmServerException {
+        Map<Integer, ScmLocation> scmLocations = new HashMap<>();
+        boolean queryAllHistory = false;
+
+        int needVersion = currentWorkspace.getVersion();
+        scmLocations.put(needVersion, currentWorkspace.getDataLocation());
+
+        --needVersion;
+        while (needVersion > 0) {
+            if (workspaceHistories.get(needVersion) == null) {
+                queryAllHistory = true;
+                break;
+            }
+            --needVersion;
+        }
+
+        if (queryAllHistory) {
+            List<ScmWorkspaceItem> workspaceItems = getHistoryWorkspaces(getName());
+            for (ScmWorkspaceItem item : workspaceItems) {
+                scmLocations.put(item.getVersion(), item.getDataLocation());
+            }
+        }
+        else {
+            for (ScmWorkspaceItem item : workspaceHistories.getValuesCopy()) {
+                scmLocations.put(item.getVersion(), item.getDataLocation());
+            }
+        }
+        return scmLocations;
+    }
+
+    public List<ScmWorkspaceItem> getHistoryWorkspaces(String wsName) throws ScmServerException {
+        MetaCursor cursor = null;
+        try {
+            List<ScmWorkspaceItem> workspaceItems = new ArrayList<>();
+            MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
+                    .getWorkspaceHistoryAccessor();
+
+            BSONObject matcher = new BasicBSONObject();
+            matcher.put(FieldName.FIELD_CLWORKSPACE_NAME, wsName);
+
+            cursor = accessor.query(matcher, null, null);
+            while (cursor.hasNext()) {
+                workspaceItems.add(new ScmWorkspaceItem(ScmContentModule.getInstance().getBizConf(), cursor.getNext(), true));
+            }
+
+            return workspaceItems;
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "Failed to query history workspace: " + wsName, e);
+        }
+        finally {
+            if (null != cursor) {
+                cursor.close();
+            }
+        }
     }
 
     public String getName() {
-        return name;
+        return currentWorkspace.getName();
     }
 
     public int getId() {
-        return id;
+        return currentWorkspace.getId();
     }
 
     public BSONObject getBSONObject() {
-        return wsBson;
+        return currentWorkspace.getBSONObject();
     }
 
     public Set<Integer> getDataSiteIds() {
-        return dataInfoMap.keySet();
+        return currentWorkspace.getDataSiteIds();
     }
 
     public String getDescription() {
-        return description;
+        return currentWorkspace.getDescription();
     }
 
     public String getCreateUser() {
-        return createUser;
+        return currentWorkspace.getCreateUser();
     }
 
     public long getCreateTime() {
-        return createTime;
+        return currentWorkspace.getCreateTime();
     }
 
     public long getUpdateTime() {
-        return updateTime;
+        return currentWorkspace.getUpdateTime();
     }
 
     public String getUpdateUser() {
-        return updateUser;
+        return currentWorkspace.getUpdateUser();
     }
 
     public ScmDirCache getDirCache() {
-        return dirCache;
+        return currentWorkspace.getDirCache();
     }
 
     public ScmWorkspaceFulltextExtData getFulltextExtData() {
-        return fulltextExtData;
+        return currentWorkspace.getFulltextExtData();
     }
 
     public boolean isEnableDirectory() {
-        return enableDirectory;
+        return currentWorkspace.isEnableDirectory();
     }
 
     public Map<Integer, ScmLocation> getDataLocations() {
-        return dataLocations;
+        return currentWorkspace.getDataLocations();
     }
 
     public String getPreferred() {
-        return preferred;
+        return currentWorkspace.getPreferred();
     }
 
     public ScmSiteCacheStrategy getSiteCacheStrategy() {
-        return siteCacheStrategy;
+        return currentWorkspace.getSiteCacheStrategy();
+    }
+
+    public int getVersion() {
+        return currentWorkspace.getVersion();
+    }
+
+    public void addHistoryWsItem(ScmWorkspaceItem item) {
+        workspaceHistories.put(item.getVersion(), item);
     }
 }

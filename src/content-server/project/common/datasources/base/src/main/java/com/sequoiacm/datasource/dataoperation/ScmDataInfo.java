@@ -12,18 +12,23 @@ public class ScmDataInfo {
     private int type;
     private String id;
     private Date createTime;
+    private int wsVersion = 1;
 
-    public ScmDataInfo(BSONObject fileInfo) {
-        type = (int)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_TYPE);
-        id = (String)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
-        createTime = CommonHelper.getDate(
+    public ScmDataInfo(BSONObject fileInfo, Integer wsVersion) {
+        this.type = (int)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_TYPE);
+        this.id = (String)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        this.createTime = CommonHelper.getDate(
                 (long)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME));
+        if (wsVersion != null){
+            this.wsVersion = wsVersion;
+        }
     }
 
-    public ScmDataInfo(int dataType, String dataId, Date dataCreateTime) {
-        type = dataType;
-        id = dataId;
-        createTime = dataCreateTime;
+    public ScmDataInfo(int dataType, String dataId, Date dataCreateTime, int wsVersion) {
+        this.type = dataType;
+        this.id = dataId;
+        this.createTime = dataCreateTime;
+        this.wsVersion = wsVersion;
     }
 
     public int getType() {
@@ -38,6 +43,14 @@ public class ScmDataInfo {
         return createTime;
     }
 
+    public void setWsVersion(int wsVersion) {
+        this.wsVersion = wsVersion;
+    }
+
+    public int getWsVersion() {
+        return wsVersion;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -47,6 +60,8 @@ public class ScmDataInfo {
         sb.append(id);
         sb.append(",createTime=");
         sb.append(createTime);
+        sb.append(",wsVersion=");
+        sb.append(wsVersion);
 
         return sb.toString();
     }

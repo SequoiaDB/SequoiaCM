@@ -143,7 +143,7 @@ public class ObjServiceImpl implements ObjectService {
             fileMeta.resetDataInfo(dataDetail.getDataInfo().getId(),
                     dataDetail.getDataInfo().getCreateTime().getTime(),
                     dataDetail.getDataInfo().getType(), dataDetail.getSize(), dataDetail.getMd5(),
-                    dataDetail.getSiteId());
+                    dataDetail.getSiteId(), dataDetail.getDataInfo().getWsVersion());
 
             FileMeta createdFile = scmBucketService.createFile(session.getUser(),
                     s3Bucket.getBucketName(), fileMeta, (TransactionCallback) null, false);
@@ -190,9 +190,7 @@ public class ObjServiceImpl implements ObjectService {
             return;
         }
         try {
-            datasourceService.deleteData(s3Bucket.getRegion(), dataDetail.getDataInfo().getId(),
-                    dataDetail.getDataInfo().getType(),
-                    dataDetail.getDataInfo().getCreateTime().getTime(), dataDetail.getSiteId());
+            datasourceService.deleteData(s3Bucket.getRegion(), dataDetail.getDataInfo(), dataDetail.getSiteId());
         }
         catch (Exception e) {
             logger.warn("failed to delete data: ws={}, dataId={}, siteId={}", s3Bucket.getRegion(),
@@ -269,8 +267,8 @@ public class ObjServiceImpl implements ObjectService {
             String matchEtagString = trimQuotes(matchEtag);
             if (!matchEtagString.equals(eTag)) {
                 throw new S3ServerException(S3Error.OBJECT_IF_MATCH_FAILED,
-                        "if-match failed: if-match value:" + matchEtag
-                                + ", current object eTag:" + eTag);
+                        "if-match failed: if-match value:" + matchEtag + ", current object eTag:"
+                                + eTag);
             }
             isMatch = true;
         }
@@ -292,8 +290,7 @@ public class ObjServiceImpl implements ObjectService {
                 if (!isMatch) {
                     throw new S3ServerException(S3Error.OBJECT_IF_UNMODIFIED_SINCE_FAILED,
                             "if-unmodified-since failed: if-unmodified-since value:"
-                                    + unModifiedSince
-                                    + ", current object lastModifiedTime:"
+                                    + unModifiedSince + ", current object lastModifiedTime:"
                                     + new Date(lastModifiedTime));
                 }
             }
@@ -305,8 +302,7 @@ public class ObjServiceImpl implements ObjectService {
             if (getSecondTime(date.getTime()) >= getSecondTime(lastModifiedTime)) {
                 if (!isNoneMatch) {
                     throw new S3ServerException(S3Error.OBJECT_IF_MODIFIED_SINCE_FAILED,
-                            "if-modified-since failed: if-modified-since value:"
-                                    + modifiedSince
+                            "if-modified-since failed: if-modified-since value:" + modifiedSince
                                     + ", current object lastModifiedTime:"
                                     + new Date(lastModifiedTime));
                 }
@@ -328,12 +324,12 @@ public class ObjServiceImpl implements ObjectService {
             InputStream objectData;
             if (range != null) {
                 CommonUtil.analyseRangeWithFileSize(range, s3ObjectMeta.getSize());
-                objectData = new ScmFileInputStreamAdapter(session, fileService, s3Bucket.getRegion(),
-                        fileInfo, range.getStart(), range.getContentLength());
+                objectData = new ScmFileInputStreamAdapter(session, fileService,
+                        s3Bucket.getRegion(), fileInfo, range.getStart(), range.getContentLength());
             }
             else {
-                objectData = new ScmFileInputStreamAdapter(session, fileService, s3Bucket.getRegion(),
-                        fileInfo, 0, Long.MAX_VALUE);
+                objectData = new ScmFileInputStreamAdapter(session, fileService,
+                        s3Bucket.getRegion(), fileInfo, 0, Long.MAX_VALUE);
             }
             audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
                     "get s3 object: bucketName=" + bucketName + ", key=" + objectName);
@@ -403,8 +399,8 @@ public class ObjServiceImpl implements ObjectService {
             }
             checkIsValidCopy(request, sourceObjectMeta);
             S3BasicObjectMeta destObjectMeta = buildDestObjectMeta(request, sourceObjectMeta);
-            ScmFileInputStreamAdapter fileReader = new ScmFileInputStreamAdapter(session, fileService,
-                    srcBucket.getRegion(), fileInfo, 0, Long.MAX_VALUE);
+            ScmFileInputStreamAdapter fileReader = new ScmFileInputStreamAdapter(session,
+                    fileService, srcBucket.getRegion(), fileInfo, 0, Long.MAX_VALUE);
             PutObjectResult result;
             try {
                 result = putObject(session,
@@ -534,8 +530,8 @@ public class ObjServiceImpl implements ObjectService {
                         objectKey, -1, -1);
             }
             audit.info(ScmAuditType.DELETE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
-                    "delete s3 object: bucketName=" + bucketName + ", key=" + objectKey + ", version="
-                            + (versionId == null ? "nullMarker" : versionId));
+                    "delete s3 object: bucketName=" + bucketName + ", key=" + objectKey
+                            + ", version=" + (versionId == null ? "nullMarker" : versionId));
             if (deletedVersion == null) {
                 return null;
             }
@@ -634,9 +630,8 @@ public class ObjServiceImpl implements ObjectService {
         Bucket s3Bucket = bucketService.getBucket(session, bucketName);
         S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, startAfter, delimiter);
         for (RecordWrapper content : scanResult.getContent()) {
-            listObjectsResult
-                    .addContent(
-                            FileMappingUtil.buildListObjContent(content.getRecord(), encodingType));
+            listObjectsResult.addContent(
+                    FileMappingUtil.buildListObjContent(content.getRecord(), encodingType));
         }
         for (String commonPrefix : scanResult.getCommonPrefixSet()) {
             listObjectsResult.addCommonPrefix(
@@ -648,12 +643,12 @@ public class ObjServiceImpl implements ObjectService {
             String nextKeyMarker = nextOffset.getCommonPrefix() == null
                     ? nextOffset.getObjKeyStartAfter()
                     : nextOffset.getCommonPrefix();
-            listObjectsResult.setNextMarker(
-                    S3Codec.encode(nextKeyMarker, encodingType));
+            listObjectsResult.setNextMarker(S3Codec.encode(nextKeyMarker, encodingType));
         }
         audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                "list s3 object v1: bucketName=" + bucketName + ", prefix=" + prefix + ", delimiter="
-                        + delimiter + ", startAfter=" + startAfter + ",encodeType=" + encodingType);
+                "list s3 object v1: bucketName=" + bucketName + ", prefix=" + prefix
+                        + ", delimiter=" + delimiter + ", startAfter=" + startAfter + ",encodeType="
+                        + encodingType);
         return listObjectsResult;
     }
 
@@ -668,7 +663,7 @@ public class ObjServiceImpl implements ObjectService {
             return listVersionsResult;
         }
 
-        if(maxKeys > MAX_KEYS){
+        if (maxKeys > MAX_KEYS) {
             maxKeys = MAX_KEYS;
         }
 
@@ -676,7 +671,8 @@ public class ObjServiceImpl implements ObjectService {
         S3ScanResult scanResult = scanVersion(bucketName, maxKeys, prefix, keyMarker,
                 versionIdMarker, delimiter);
         for (RecordWrapper content : scanResult.getContent()) {
-            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, content.getRecord());
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
+                    content.getRecord());
             boolean isLatestVersion = ((ListVersionRecordWrapper) content).isLatestVersion();
             if (s3ObjMeta.isDeleteMarker()) {
                 listVersionsResult.addDeleteMarker(FileMappingUtil.buildListDeleteMarker(s3ObjMeta,
@@ -779,9 +775,8 @@ public class ObjServiceImpl implements ObjectService {
         S3ScanResult scanResult = scan(bucketName, maxKeys, prefix, context.getLastMarker(),
                 delimiter);
         for (RecordWrapper content : scanResult.getContent()) {
-            listObjectsResult
-                    .addContent(
-                            FileMappingUtil.buildListObjContent(content.getRecord(), encodingType));
+            listObjectsResult.addContent(
+                    FileMappingUtil.buildListObjContent(content.getRecord(), encodingType));
         }
         for (String commonPrefix : scanResult.getCommonPrefixSet()) {
             listObjectsResult.addCommonPrefix(
@@ -799,15 +794,15 @@ public class ObjServiceImpl implements ObjectService {
         }
         listObjectsResult.setKeyCount(scanResult.getSize());
         audit.info(ScmAuditType.S3_OBJECT_DQL, session.getUser(), s3Bucket.getRegion(), 0,
-                "list s3 object v2: bucketName=" + bucketName + ", prefix=" + prefix + ", delimiter="
-                        + delimiter + ", startAfter=" + startAfter + ",encodeType=" + encodingType
-                        + ", continueToken=" + continueToken);
+                "list s3 object v2: bucketName=" + bucketName + ", prefix=" + prefix
+                        + ", delimiter=" + delimiter + ", startAfter=" + startAfter + ",encodeType="
+                        + encodingType + ", continueToken=" + continueToken);
         return listObjectsResult;
     }
 
     private S3ScanResult scan(String bucketName, int maxKeys, String prefix, String startAfter,
             String delimiter) throws S3ServerException {
-        if(maxKeys > MAX_KEYS){
+        if (maxKeys > MAX_KEYS) {
             maxKeys = MAX_KEYS;
         }
 
@@ -892,7 +887,7 @@ class ScmFileInputStreamAdapter extends InputStream {
     private long maxReadLen;
 
     public ScmFileInputStreamAdapter(ScmSession session, IFileService fileService, String ws,
-                                     BSONObject fileInfo, long start, long len) throws ScmServerException {
+            BSONObject fileInfo, long start, long len) throws ScmServerException {
         int readFlag = 0;
         maxReadLen = len;
         this.fileInfo = fileInfo;

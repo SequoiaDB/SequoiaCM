@@ -17,7 +17,7 @@ public class ScmLocalFileReader extends ScmFileReader {
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
                     ScmContentModule.getInstance().getLocalSite(),
-                    wsInfo.getName(), wsInfo.getDataLocation(),
+                    wsInfo.getName(), wsInfo.getDataLocation(dataInfo.getWsVersion()),
                     ScmContentModule.getInstance().getDataService(), dataInfo);
         } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_READ_ERROR),

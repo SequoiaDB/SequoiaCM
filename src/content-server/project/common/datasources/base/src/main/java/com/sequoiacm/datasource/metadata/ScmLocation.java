@@ -5,6 +5,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import java.util.Date;
@@ -12,10 +13,12 @@ import java.util.Date;
 public abstract class ScmLocation {
     private int siteId;
     private String siteName;
+    private BSONObject record;
 
     public abstract String getType();
 
     public ScmLocation(BSONObject record, String siteName) throws ScmDatasourceException {
+        this.record = record;
         try {
             siteId = (int) record.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
             this.siteName = siteName;
@@ -93,6 +96,8 @@ public abstract class ScmLocation {
     public void setSiteName(String siteName) {
         this.siteName = siteName;
     }
+
+    public BSONObject asBSON(){ return BsonUtils.deepCopyRecordBSON(record);}
 
     @Override
     public boolean equals(Object right) {

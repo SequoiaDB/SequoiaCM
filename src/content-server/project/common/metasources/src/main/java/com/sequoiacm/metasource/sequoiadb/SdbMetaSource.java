@@ -5,6 +5,7 @@ import java.util.List;
 import com.sequoiacm.metasource.MetaSpaceRecyclingLogAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbMetaAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbSpaceRecyclingLogAccessor;
+import com.sequoiacm.metasource.sequoiadb.accessor.SdbWorkspaceHistoryAccessor;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
@@ -95,6 +96,17 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     @Override
     public MetaWorkspaceAccessor getWorkspaceAccessor() {
         return getWorkspaceAccessor(null);
+    }
+
+    @Override
+    public MetaAccessor getWorkspaceHistoryAccessor(TransactionContext transactionContext) {
+        return new SdbWorkspaceHistoryAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_WORKSPACE_HISTORY, transactionContext);
+    }
+
+    @Override
+    public MetaAccessor getWorkspaceHistoryAccessor() {
+        return getWorkspaceHistoryAccessor(null);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.service.impl;
 
 import com.sequoiacm.contentserver.model.ScmBucket;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
@@ -78,7 +79,7 @@ public class MultiPartServiceImpl implements MultiPartService {
             UploadMeta uploadMeta) throws S3ServerException {
         try {
             ScmBucket bucket = getBucket(session.getUser(), bucketName);
-            ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
+            ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
             ScmSite siteInfo = ScmContentModule.getInstance().getLocalSiteInfo();
 
             Long uploadId = idGeneratorDao.getNewId(S3CommonDefine.IdType.TYPE_UPLOAD);
@@ -89,6 +90,7 @@ public class MultiPartServiceImpl implements MultiPartService {
             uploadMeta.setSiteId(siteInfo.getId());
             uploadMeta.setSiteType(siteInfo.getDataUrl().getType());
             uploadMeta.setWsName(bucket.getWorkspace());
+            uploadMeta.setWsVersion(wsInfo.getVersion());
 
             MultipartUploadProcessor processor = multipartUploadProcessorMgr
                     .getProcessor(siteInfo.getDataUrl().getType());
@@ -133,7 +135,7 @@ public class MultiPartServiceImpl implements MultiPartService {
                                 + uploadMeta.getSiteId());
             }
             return processor.uploadPart(bucket.getWorkspace(), uploadId, partNumber, contentMD5,
-                    inputStream, contentLength);
+                    inputStream, contentLength, uploadMeta.getWsVersion());
         }
         catch (ScmLockTimeoutException e) {
             throw new S3ServerException(S3Error.PART_UPLOAD_CONFLICT, "The uploadId is busy", e);

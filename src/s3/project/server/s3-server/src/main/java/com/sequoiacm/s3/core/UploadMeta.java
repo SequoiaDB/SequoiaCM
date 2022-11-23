@@ -26,6 +26,7 @@ public class UploadMeta {
     public static final String META_EXPIRES = "expires";
     public static final String META_CONTENT_LANGUAGE = "content_language";
     public static final String META_LIST = "meta_list";
+    public static final String META_WS_VERSION = "ws_version";
 
     private String key;
     private long bucketId;
@@ -44,6 +45,7 @@ public class UploadMeta {
     private Map<String, String> metaList = new HashMap<>();
     private int metaListLength = 0;
     private String wsName;
+    private int wsVersion;
 
     public UploadMeta() {
     }
@@ -86,6 +88,12 @@ public class UploadMeta {
         }
         if (record.get(UploadMeta.META_LIST) != null) {
             this.metaList = ((BSONObject) record.get(UploadMeta.META_LIST)).toMap();
+        }
+        if (record.get(UploadMeta.META_WS_VERSION) != null) {
+            this.wsVersion = (int) record.get(UploadMeta.META_WS_VERSION);
+        }
+        else {
+            this.wsVersion = 1;
         }
     }
 
@@ -221,6 +229,14 @@ public class UploadMeta {
         return metaListLength;
     }
 
+    public void setWsVersion(int wsVersion) {
+        this.wsVersion = wsVersion;
+    }
+
+    public int getWsVersion() {
+        return wsVersion;
+    }
+
     public UploadMeta(HttpServletRequest req) throws S3ServerException {
         Enumeration<String> names = req.getHeaderNames();
         while (names.hasMoreElements()) {
@@ -250,6 +266,6 @@ public class UploadMeta {
                 + ", contentEncoding='" + contentEncoding + '\'' + ", contentType='" + contentType
                 + '\'' + ", cacheControl='" + cacheControl + '\'' + ", contentDisposition='"
                 + contentDisposition + '\'' + ", expires='" + expires + '\'' + ", contentLanguage='"
-                + contentLanguage + '\'' + ", metaList=" + metaList + '}';
+                + contentLanguage + '\'' + ", metaList=" + metaList + ", wsVersoin=" + wsVersion + '}';
     }
 }

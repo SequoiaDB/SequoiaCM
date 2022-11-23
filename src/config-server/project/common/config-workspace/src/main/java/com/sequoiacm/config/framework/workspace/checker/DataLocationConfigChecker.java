@@ -122,7 +122,7 @@ public class DataLocationConfigChecker {
      * @param version2
      * @return version1>version2 : 1, version1=version2 : 0, version1<version2 : -1
      */
-    private int compareVersion(String version1, String version2) {
+    public int compareVersion(String version1, String version2) {
         // 去除非数字字符和"."
         version1 = version1.replaceAll("[^\\d.]", "");
         version2 = version2.replaceAll("[^\\d.]", "");

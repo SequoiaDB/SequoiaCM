@@ -195,8 +195,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     @Override
     public ScmObjectCursor<ScmBucket> listBucket(ScmUser user, BSONObject condition,
             BSONObject orderBy, long skip, long limit) throws ScmServerException {
-        return ContenserverConfClient.getInstance().listBucket(condition,
-                orderBy, skip, limit);
+        return ContenserverConfClient.getInstance().listBucket(condition, orderBy, skip, limit);
     }
 
     @Override
@@ -274,9 +273,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
     private void deleteDataSilence(String ws, ScmDataInfoDetail dataDetail) {
         try {
-            datasourceService.deleteData(ws, dataDetail.getDataInfo().getId(),
-                    dataDetail.getDataInfo().getType(),
-                    dataDetail.getDataInfo().getCreateTime().getTime(), dataDetail.getSiteId());
+            datasourceService.deleteData(ws, dataDetail.getDataInfo(), dataDetail.getSiteId());
         }
         catch (Exception e) {
             logger.warn("failed to delete data: ws={}, dataId={}, siteId={}", ws,
@@ -305,8 +302,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         return ret;
     }
 
-    private MetaCursor listFile(BSONObject condition, BSONObject selector,
-            BSONObject orderBy, long skip, long limit, ScmBucket bucket) throws ScmServerException {
+    private MetaCursor listFile(BSONObject condition, BSONObject selector, BSONObject orderBy,
+            long skip, long limit, ScmBucket bucket) throws ScmServerException {
         ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
         try {
             MetaAccessor accessor = bucket.getFileTableAccessor(null);
@@ -347,8 +344,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
         String fileId = getFileId(bucket, fileName);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName + ", fileId="
-                        + fileId);
+                "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName
+                        + ", fileId=" + fileId);
         return fileId;
     }
 
@@ -466,8 +463,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmBucket ret = ContenserverConfClient.getInstance()
                 .updateBucketVersionStatus(user.getUsername(), bucketName, bucketVersionStatus);
         audit.info(ScmAuditType.UPDATE_SCM_BUCKET, user, bucket.getWorkspace(), 0,
-                "update bucket version status: bucketName=" + bucketName + ", ws=" + bucket.getWorkspace()
-                        + ", versionStatus=" + bucketVersionStatus);
+                "update bucket version status: bucketName=" + bucketName + ", ws="
+                        + bucket.getWorkspace() + ", versionStatus=" + bucketVersionStatus);
         return ret;
     }
 
@@ -635,15 +632,14 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
     @Override
     public BSONObject getFileVersion(ScmUser user, String bucketName, String fileName,
-            int majorVersion, int minorVersion)
-            throws ScmServerException {
+            int majorVersion, int minorVersion) throws ScmServerException {
         ScmBucket bucket = getBucket(bucketName);
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
         BSONObject ret = getFileVersion(bucketName, fileName, majorVersion, minorVersion);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
-                "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName + ", version="
-                        + majorVersion + "." + minorVersion);
+                "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName
+                        + ", version=" + majorVersion + "." + minorVersion);
         return ret;
     }
 
@@ -683,4 +679,3 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         }
     }
 }
-

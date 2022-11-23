@@ -3,6 +3,7 @@ package com.sequoiacm.config.framework.workspace.metasource;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -51,6 +52,14 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             return new SysWorkspaceTableDaoSdbImpl(sdbMetasource);
         }
         return new SysWorkspaceTableDaoSdbImpl(transaction);
+    }
+
+    @Override
+    public SysWorkspaceHistoryTableDaoSdbImpl getSysWorkspaceHistoryTable(Transaction transaction) {
+        if (transaction == null) {
+            return new SysWorkspaceHistoryTableDaoSdbImpl(sdbMetasource);
+        }
+        return new SysWorkspaceHistoryTableDaoSdbImpl(transaction);
     }
 
     @PostConstruct
@@ -496,11 +505,5 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             ret.add((String) csName);
         }
         return ret;
-    }
-
-    @Override
-    public TableDao getWorkspaceHistoryTable() {
-        return sdbMetasource.getCollection(MetaSourceDefine.SequoiadbTableName.CS_SCMSYSTEM,
-                MetaSourceDefine.SequoiadbTableName.CL_WORKSPACE_HISTORY);
     }
 }

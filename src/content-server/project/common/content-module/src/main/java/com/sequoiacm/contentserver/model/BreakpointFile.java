@@ -20,6 +20,7 @@ public class BreakpointFile {
     private boolean isNeedMd5;
     private String md5;
     private BSONObject extraContext;
+    private int wsVersion;
 
     public BreakpointFile setMd5(String md5) {
         this.md5 = md5;
@@ -163,6 +164,15 @@ public class BreakpointFile {
     public BreakpointFile setExtraContext(BSONObject extraContext) {
         this.extraContext = extraContext;
         return this;
+    }
+
+    public BreakpointFile setWsVersion(int wsVersion) {
+        this.wsVersion = wsVersion;
+        return this;
+    }
+
+    public int getWsVersion() {
+        return wsVersion;
     }
 
     @Override

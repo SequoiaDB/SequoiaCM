@@ -218,7 +218,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
     }
 
     public boolean addToSiteList(String fileId, int majorVersion, int minorVersion, int siteId,
-            Date date) throws SdbMetasourceException {
+            Date date, int wsVersion) throws SdbMetasourceException {
         try {
             BSONObject matcher = SequoiadbHelper.dollarSiteNotInList(siteId);
             // matcher.put(FieldName.FIELD_CLFILE_ID, fileId);
@@ -226,7 +226,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
             matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
 
-            BSONObject updator = SequoiadbHelper.pushOneSiteToList(siteId, date.getTime());
+            BSONObject updator = SequoiadbHelper.pushOneSiteToList(siteId, date.getTime(), wsVersion);
             return updateAndCheck(matcher, updator);
         }
         catch (SdbMetasourceException e) {

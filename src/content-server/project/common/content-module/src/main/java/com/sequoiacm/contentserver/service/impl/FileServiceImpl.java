@@ -269,8 +269,7 @@ public class FileServiceImpl implements IFileService {
             BSONObject fileInfo, int readFlag) throws ScmServerException {
         return new FileReaderDao(sessionId, userDetail,
                 ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(workspaceName),
-                fileInfo,
-                readFlag);
+                fileInfo, readFlag);
     }
 
     @Override
@@ -565,14 +564,15 @@ public class FileServiceImpl implements IFileService {
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         List<ScmFileLocation> siteList = new ArrayList<>();
         CommonHelper.getFileLocationList(siteBson, siteList);
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(siteBson);
 
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         String md5 = null;
-        if (CommonHelper.isSiteExist(contentModule.getLocalSite(), siteList)) {
+        if (fileLocationMap.get(contentModule.getLocalSite()) != null) {
             // 在本地读取数据计算MD5
-            ScmDataInfo dataInfo = new ScmDataInfo(fileInfo);
+            ScmDataInfo dataInfo = new ScmDataInfo(fileInfo, fileLocationMap.get(contentModule.getLocalSite()).getWsVersion());
             md5 = ScmSystemUtils.calcMd5(ws, dataInfo);
             updateFileMd5(user.getUsername(), ws, fileId, majorVersion, minorVersion,
                     dataInfo.getId(), md5);
@@ -691,21 +691,19 @@ public class FileServiceImpl implements IFileService {
         BasicBSONList result = new BasicBSONList();
         ScmContentModule contentServer = ScmContentModule.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoCheckLocalSite(workspaceName);
-        Map<Integer, ScmLocation> wsDataLocations = ws.getDataLocations();
         BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         Date createTime = new Date(
                 CommonHelper.toLongValue(fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)));
         String dataId = BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(siteList);
 
-        for (Object siteObj : siteList) {
-            BasicBSONObject siteBson = (BasicBSONObject) siteObj;
-            Integer siteId = BsonUtils.getIntegerChecked(siteBson,
-                    FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID);
-            ScmLocation scmLocation = wsDataLocations.get(siteId);
+        for (ScmFileLocation fileLocation : fileLocationMap.values()) {
+            ScmLocation scmLocation = ws.getSiteDataLocation(fileLocation.getSiteId(),
+                    fileLocation.getWsVersion());
             BSONObject contentLocation = ScmContentLocationResolver
-                    .getResolver(scmLocation.getType())
-                    .resolve(siteId, ws, contentServer.getAllSiteInfo(), createTime, dataId);
+                    .getResolver(scmLocation.getType()).resolve(fileLocation.getSiteId(), ws,
+                            contentServer.getAllSiteInfo(), createTime, dataId, fileLocation.getWsVersion());
             result.add(contentLocation);
         }
         audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
@@ -722,5 +720,4 @@ public class FileServiceImpl implements IFileService {
                 + ", fileId=" + fileId + ", version=" + majorVersion + "." + minorVersion);
         return ret;
     }
-
 }

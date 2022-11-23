@@ -1,9 +1,9 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
-import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.datasource.dataoperation.ScmDataSpaceRecycler;
 import com.sequoiacm.datasource.dataoperation.ScmSpaceRecyclingCallback;
 import com.sequoiacm.datasource.dataoperation.ScmSpaceRecyclingInfo;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.metasource.MetaSource;
@@ -15,9 +15,7 @@ import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class SdbDataSpaceRecyclerImpl implements ScmDataSpaceRecycler {
 
@@ -25,20 +23,18 @@ public class SdbDataSpaceRecyclerImpl implements ScmDataSpaceRecycler {
 
     private String wsName;
     private String siteName;
-    private final SdbDataLocation location;
     private final SdbDataService service;
     private final MetaDataOperator metaDataOperator;
     private List<String> recyclableCsNames;
     private ScmLockManager lockManager;
 
     public SdbDataSpaceRecyclerImpl(MetaSource metaSource, List<String> allTableNames,
-            Date recycleBeginningTime, Date recycleEndingTIme, String wsName, String siteName,
-            SdbDataLocation location, SdbDataService service, ScmLockManager lockManager) {
+                                    Date recycleBeginningTime, Date recycleEndingTIme, String wsName, String siteName,
+                                    SdbDataService service, ScmLockManager lockManager) {
         this.metaDataOperator = new MetaDataOperator(metaSource, wsName, siteName,
                 service.getSiteId());
         this.wsName = wsName;
         this.siteName = siteName;
-        this.location = location;
         this.service = service;
         this.recyclableCsNames = getRecyclableCsNames(allTableNames, recycleBeginningTime,
                 recycleEndingTIme);
@@ -94,14 +90,10 @@ public class SdbDataSpaceRecyclerImpl implements ScmDataSpaceRecycler {
 
     private List<String> getRecyclableCsNames(List<String> allCsNames, Date recycleBeginningTime,
             Date recycleEndingTIme) {
-        ScmShardingType shardingType = location.getCsShardingType();
-        if (shardingType == null || shardingType == ScmShardingType.NONE) {
-            return allCsNames;
-        }
-
         List<String> recyclableCsNames = new ArrayList<>();
+
         for (String csName : allCsNames) {
-            Date csShardingTime = location.getCsShardingBeginningTime(csName, wsName);
+            Date csShardingTime = SdbDataLocation.getCsShardingBeginningTime(csName, wsName);
             if (csShardingTime == null) {
                 recyclableCsNames.add(csName);
             }

@@ -106,6 +106,31 @@ public abstract class ScmWorkspace {
     public abstract void removeDataLocation(String siteName) throws ScmException;
 
     /**
+     * Update data locations to the workspace.
+     *
+     * @param dataLocations
+     *            update data location.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void updateDataLocation(List<ScmDataLocation> dataLocations) throws ScmException;
+
+
+    /**
+     * Update data locations to the workspace.
+     *
+     * @param dataLocations
+     *            update data location.
+     * @param mergeTo
+     *              true : merge exist data location
+     *              false : replace data location
+     *              default : true
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void updateDataLocation(List<ScmDataLocation> dataLocations, boolean mergeTo) throws ScmException;
+
+    /**
      * Returns the sharding type of batch.
      * 
      * @return batch sharding type.

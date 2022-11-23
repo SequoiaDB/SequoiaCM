@@ -133,19 +133,19 @@ public class ScmMetaService {
     }
 
     public void addSiteInfoToFile(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, int siteId, Date date) throws ScmServerException {
+            int minorVersion, int siteId, Date date, int wsVersion) throws ScmServerException {
         try {
             MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
                     wsInfo.getName(), null);
             boolean isSuccess = fileAccessor.addToSiteList(fileId, majorVersion, minorVersion,
-                    siteId, date);
+                    siteId, date, wsVersion);
             if (isSuccess) {
                 return;
             }
 
             MetaFileHistoryAccessor historyAccessor = metasource
                     .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
-            historyAccessor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date);
+            historyAccessor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date, wsVersion);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(
@@ -1342,7 +1342,7 @@ public class ScmMetaService {
     }
 
     public BreakpointFile createBreakpointFile(String createUser, String workspaceName,
-            String fileName, ChecksumType checksumType, long createTime, boolean isNeedMd5)
+            String fileName, ChecksumType checksumType, long createTime, boolean isNeedMd5, int wsVersion)
             throws ScmServerException {
         MetaBreakpointFileAccessor accessor = metasource.getBreakpointFileAccessor(workspaceName,
                 null);
@@ -1352,7 +1352,7 @@ public class ScmMetaService {
         BreakpointFile file = new BreakpointFile();
         file.setWorkspaceName(workspaceName).setFileName(fileName).setChecksumType(checksumType)
                 .setSiteId(site.getId()).setSiteName(site.getName()).setCreateUser(createUser)
-                .setCreateTime(createTime).setNeedMd5(isNeedMd5);
+                .setCreateTime(createTime).setNeedMd5(isNeedMd5).setWsVersion(wsVersion);
 
         try {
             accessor.insert(breakpointFileBsonConverter.convert(file));

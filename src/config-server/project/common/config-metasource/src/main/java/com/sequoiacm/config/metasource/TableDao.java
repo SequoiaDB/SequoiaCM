@@ -4,11 +4,16 @@ import org.bson.BSONObject;
 
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 
+import java.util.List;
+
 public interface TableDao {
     public void delete(BSONObject matcher) throws MetasourceException;
 
     // delete and return old
     public BSONObject deleteAndCheck(BSONObject matcher) throws MetasourceException;
+
+    BSONObject updateAndReturnNew(BSONObject matcher, BSONObject updator)
+            throws MetasourceException ;
 
     public void insert(BSONObject record) throws MetasourceException;
 
@@ -31,4 +36,5 @@ public interface TableDao {
 
     public int generateId() throws MetasourceException;
 
+    public void ensureTable(List<String> indexFields, List<String> uniqueIndexField) throws MetasourceException;
 }

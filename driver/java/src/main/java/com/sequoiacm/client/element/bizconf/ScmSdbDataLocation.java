@@ -57,10 +57,6 @@ public class ScmSdbDataLocation extends ScmDataLocation {
     public ScmSdbDataLocation(BSONObject obj) throws ScmInvalidArgumentException {
         super(obj);
         domainName = (String) obj.get(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
-        if (domainName == null) {
-            throw new ScmInvalidArgumentException("missing field:fieldName="
-                    + FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN + ", obj=" + obj);
-        }
         BSONObject sharding = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (sharding != null) {
             String clShardingStr = (String) sharding.get(FieldName.FIELD_CLWORKSPACE_DATA_CL);
@@ -103,6 +99,19 @@ public class ScmSdbDataLocation extends ScmDataLocation {
         super(siteName);
         checkValueNotNull(domainName, "domainName");
         this.domainName = domainName;
+    }
+
+    /**
+     * Create a sequoiadb data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmSdbDataLocation(String siteName)
+            throws ScmInvalidArgumentException {
+        super(siteName);
     }
 
     /**
@@ -224,7 +233,9 @@ public class ScmSdbDataLocation extends ScmDataLocation {
     @Override
     public BSONObject getBSONObject() {
         BSONObject bson = super.getBSONObject();
-        bson.put(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN, domainName);
+        if (domainName != null) {
+            bson.put(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN, domainName);
+        }
         BSONObject shardingType = new BasicBSONObject();
         if (csShardingType != null) {
             shardingType.put(FieldName.FIELD_CLWORKSPACE_DATA_CS, getCsShardingType().getName());

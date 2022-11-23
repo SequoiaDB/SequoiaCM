@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.MetadataAttr;
@@ -67,7 +68,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 .registerTypeAdapter(BSONObject.class, new BSONObjectGsonTypeAdapter())
                 .registerTypeAdapter(ScmBucketAttachFailure.class,
                         new ScmAttachFailureTypeAdapter())
-                .registerTypeAdapter(ScmBucket.class, new BucketGsonTypeAdapter()).build();
+                .registerTypeAdapter(ScmBucket.class, new BucketGsonTypeAdapter())
+                .registerTypeAdapter(ScmFileLocation.class, new ScmFileLocationGsonTypeAdapter())
+                .build();
 
         converters.add(converter);
 

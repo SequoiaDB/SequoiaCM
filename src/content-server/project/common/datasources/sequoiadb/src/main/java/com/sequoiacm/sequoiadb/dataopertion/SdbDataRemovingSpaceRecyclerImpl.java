@@ -1,9 +1,12 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
+import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.datasource.dataoperation.ScmDataRemovingSpaceRecycler;
 import com.sequoiacm.datasource.dataoperation.ScmSpacePartitionInfo;
 import com.sequoiacm.datasource.dataoperation.ScmSpaceRecyclingInfo;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
@@ -17,12 +20,7 @@ import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRecycler {
 
@@ -34,7 +32,7 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
 
     private String wsName;
     private String siteName;
-    private final SdbDataLocation location;
+    private final Map<Integer, ScmLocation> locations;
     private final SdbDataService service;
     private final MetaDataOperator metaDataOperator;
 
@@ -44,12 +42,12 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
     private ScmLockManager lockManager;
 
     public SdbDataRemovingSpaceRecyclerImpl(MetaSource metaSource, String wsName, String siteName,
-            SdbDataLocation location, SdbDataService service, ScmLockManager lockManager) {
+                                            Map<Integer, ScmLocation> locations, SdbDataService service, ScmLockManager lockManager) {
         this.metaDataOperator = new MetaDataOperator(metaSource, wsName, siteName,
                 service.getSiteId());
         this.wsName = wsName;
         this.siteName = siteName;
-        this.location = location;
+        this.locations = locations;
         this.service = service;
         this.lockManager = lockManager;
     }
@@ -58,14 +56,18 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
     public void notifyFileDataRemoving(BSONObject fileInfo) {
         long dataCreateTime = BsonUtils.getLong(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
-        String shardingStr = location.getCsShardingStr(new Date(dataCreateTime));
-        ScmSpacePartitionInfo partitionInfo = new ScmSpacePartitionInfo(shardingStr);
-        if (!partitionInfoList.contains(partitionInfo)) {
-            partitionInfoList.add(partitionInfo);
-            if (partitionInfoList.size() > RETAIN_PARTITION_COUNT) {
-                tryDeletePartitions(partitionInfoList.size() - RETAIN_PARTITION_COUNT,
-                        MAX_ALLOW_RECYCLING_COUNT);
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(BsonUtils.getArray(fileInfo, FieldName.FIELD_CLFILE_FILE_SITE_LIST));
+        ScmLocation location = locations.get(fileLocationMap.get(service.getSiteId()));
+        if (location != null) {
+            String csName = ((SdbDataLocation) location).getDataCsName(wsName, new Date(dataCreateTime));
+            ScmSpacePartitionInfo partitionInfo = new ScmSpacePartitionInfo(csName);
+            if (!partitionInfoList.contains(partitionInfo)) {
+                partitionInfoList.add(partitionInfo);
             }
+        }
+        if (partitionInfoList.size() > RETAIN_PARTITION_COUNT) {
+            tryDeletePartitions(partitionInfoList.size() - RETAIN_PARTITION_COUNT,
+                    MAX_ALLOW_RECYCLING_COUNT);
         }
     }
 
@@ -77,7 +79,7 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
                 continue;
             }
             partition.setRecyclingCount(partition.getRecyclingCount() + 1);
-            String csName = location.getDataCsName(wsName, partition.getShardingStr());
+            String csName = partition.getCsName();
             try {
                 boolean deleted = SdbCsRecycleHelper.deleteCsIfEmpty(csName, siteName, service,
                         metaDataOperator, lockManager);
@@ -86,8 +88,7 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
                     deletedCsSet.add(csName);
                     deleteFailedCsSet.remove(csName);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("failed to try delete collectionSpace:{}", csName, e);
                 deleteFailedCsSet.add(csName);
             }

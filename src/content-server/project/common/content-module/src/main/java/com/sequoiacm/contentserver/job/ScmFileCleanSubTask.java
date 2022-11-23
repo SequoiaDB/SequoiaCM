@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.job;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class ScmFileCleanSubTask extends ScmFileSubTask {
 
@@ -130,12 +132,13 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             return;
         }
 
-        ScmDataInfo dataInfo = new ScmDataInfo(file);
+        int localSiteId = ScmContentModule.getInstance().getLocalSite();
         long size = (long) file.get(FieldName.FIELD_CLFILE_FILE_SIZE);
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         List<Integer> fileDataSiteIdList = CommonHelper.getFileLocationIdList(sites);
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
 
-        if (!fileDataSiteIdList.contains(ScmContentModule.getInstance().getLocalSite())) {
+        if (fileLocationMap.get(localSiteId) == null) {
             logger.warn(
                     "skip, file data is not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
@@ -144,7 +147,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             return;
         }
 
-        if (!fileDataSiteIdList.contains(dataInOtherSiteId)) {
+        if (fileLocationMap.get(dataInOtherSiteId) == null) {
             // 锁外检查，文件在本站点和一个远端站点（dataInOtherSiteId），锁住本站点和远端站点后，发现文件已不存在于远端站点，安全起见放弃本站点的文件清理
             logger.warn(
                     "skip, file data is not in locking remote site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}, lockingRemoteSite={}",
@@ -154,15 +157,17 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             return;
         }
         ScmWorkspaceInfo ws = getWorkspaceInfo();
+        ScmDataInfo localDataInfo = new ScmDataInfo(file, fileLocationMap.get(localSiteId).getWsVersion());
+        ScmDataInfo remoteDataInfo = new ScmDataInfo(file, fileLocationMap.get(dataInOtherSiteId).getWsVersion());
         // 确认对端站点数据确实可用(规避极端情况下，数据损坏等问题)，再删除本地站点数据
-        if (checkRemoteDataIsSame(fileId, dataInOtherSiteId, ws, dataInfo, size)) {
+        if (checkRemoteDataIsSame(fileId, dataInOtherSiteId, ws, localDataInfo, remoteDataInfo, size)) {
             FileCommonOperator.deleteSiteFromFile(ws, fileId, majorVersion, minorVersion,
                     ScmContentModule.getInstance().getLocalSite());
             try {
                 ScmDataDeletor deleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
                         ScmContentModule.getInstance().getLocalSite(), ws.getName(),
-                        ws.getDataLocation(), ScmContentModule.getInstance().getDataService(),
-                        dataInfo);
+                        ws.getDataLocation(localDataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
+                        localDataInfo);
                 deleter.delete();
             }
             catch (ScmDatasourceException e) {
@@ -187,18 +192,18 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
     }
 
     private boolean checkRemoteDataIsSame(String fileId, int dataInOtherSiteId, ScmWorkspaceInfo ws,
-            ScmDataInfo dataInfo, long size) {
+            ScmDataInfo localDataInfo, ScmDataInfo remoteDataInfo, long size) {
         try {
             String dataCheckLevel = getTask().getDataCheckLevel();
             if (dataCheckLevel.equals(CommonDefine.DataCheckLevel.WEEK)) {
-                return FileCommonOperator.isRemoteDataExist(dataInOtherSiteId, ws, dataInfo, size);
+                return FileCommonOperator.isRemoteDataExist(dataInOtherSiteId, ws, remoteDataInfo, size);
             }
             else {
                 String localDataMd5 = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_MD5);
                 if (localDataMd5 == null) {
-                    localDataMd5 = ScmSystemUtils.calcMd5(getWorkspaceInfo(), dataInfo);
+                    localDataMd5 = ScmSystemUtils.calcMd5(getWorkspaceInfo(), localDataInfo);
                 }
-                return FileCommonOperator.isRemoteDataExist(dataInOtherSiteId, ws, dataInfo,
+                return FileCommonOperator.isRemoteDataExist(dataInOtherSiteId, ws, remoteDataInfo,
                         localDataMd5);
             }
         }

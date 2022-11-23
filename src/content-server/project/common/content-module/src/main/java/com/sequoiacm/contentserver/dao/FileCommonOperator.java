@@ -39,7 +39,7 @@ public class FileCommonOperator {
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                    wsInfo.getDataLocation(dataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             if (size == reader.getSize()) {
                 return true;
@@ -68,7 +68,7 @@ public class FileCommonOperator {
             client = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteName);
         }
         DataInfo headDataInfo = client.headDataInfo(remoteSiteName, wsName, dataInfo.getId(),
-                dataInfo.getType(), dataInfo.getCreateTime().getTime());
+                dataInfo.getType(), dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion());
         return headDataInfo.getSize();
     }
 
@@ -79,7 +79,7 @@ public class FileCommonOperator {
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                    wsInfo.getDataLocation(dataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deletor.delete();
             logger.info("delete residul file content success:localSiteId={},wsName={},dataId={}",
@@ -202,12 +202,12 @@ public class FileCommonOperator {
     }
 
     public static void addSiteInfoToList(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, int addedSiteId) throws ScmServerException {
+            int minorVersion, int addedSiteId, int wsVersion) throws ScmServerException {
         logger.info("add site to site list:wsName=" + wsInfo.getName() + ",fileId=" + fileId
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + addedSiteId);
         ScmContentModule.getInstance().getMetaService().addSiteInfoToFile(wsInfo, fileId,
-                majorVersion, minorVersion, addedSiteId, new Date());
+                majorVersion, minorVersion, addedSiteId, new Date(), wsVersion);
 
     }
 

@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.dao;
 
+import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
@@ -19,11 +20,12 @@ import java.util.List;
 
 public class ScmFileDataDeleter {
     private static final Logger logger = LoggerFactory.getLogger(ScmFileDataDeleter.class);
-    private List<Integer> siteList;
+    private List<ScmFileLocation> siteList;
     private ScmWorkspaceInfo ws;
     private ScmDataInfo dataInfo;
 
-    public ScmFileDataDeleter(List<Integer> siteList, ScmWorkspaceInfo ws, ScmDataInfo dataInfo) {
+    public ScmFileDataDeleter(List<ScmFileLocation> siteList, ScmWorkspaceInfo ws,
+            ScmDataInfo dataInfo) {
         this.siteList = siteList;
         this.ws = ws;
         this.dataInfo = dataInfo;
@@ -35,27 +37,35 @@ public class ScmFileDataDeleter {
         }
         int localSite = ScmContentModule.getInstance().getLocalSite();
         if (localSite != ScmContentModule.getInstance().getMainSite()) {
+            List<Integer> siteIdList = new ArrayList<>();
+            for (ScmFileLocation fileLocation : siteList) {
+                siteIdList.add(fileLocation.getSiteId());
+            }
+
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(ScmContentModule.getInstance().getMainSiteName());
             client.deleteDataInSiteList(ws.getName(), dataInfo.getId(), dataInfo.getType(),
-                    dataInfo.getCreateTime().getTime(), siteList);
+                    dataInfo.getCreateTime().getTime(), siteIdList, siteList);
             return;
         }
 
         List<Integer> deleteFailedList = new ArrayList<>();
-        for (Integer siteId : siteList) {
+        for (ScmFileLocation site : siteList) {
+            ScmDataInfo scmDataInfo = new ScmDataInfo(dataInfo.getType(), dataInfo.getId(),
+                    dataInfo.getCreateTime(), site.getWsVersion());
             try {
-                if (siteId == localSite) {
-                    deleteDataLocal();
+                if (site.getSiteId() == localSite) {
+                    deleteDataLocal(scmDataInfo);
                     continue;
                 }
-                ScmInnerRemoteDataDeletor deleter = new ScmInnerRemoteDataDeletor(siteId, ws,
-                        dataInfo);
+                ScmInnerRemoteDataDeletor deleter = new ScmInnerRemoteDataDeletor(site.getSiteId(),
+                        ws, scmDataInfo);
                 deleter.delete();
             }
             catch (Exception e) {
-                deleteFailedList.add(siteId);
-                logger.warn("failed to delete data: siteId={}, dataInfo={}", siteId, dataInfo, e);
+                deleteFailedList.add(site.getSiteId());
+                logger.warn("failed to delete data: siteId={}, dataInfo={}", site.getSiteId(),
+                        scmDataInfo, e);
             }
         }
         if (deleteFailedList.size() > 0) {
@@ -65,12 +75,12 @@ public class ScmFileDataDeleter {
         }
     }
 
-    private void deleteDataLocal() throws ScmServerException {
+    private void deleteDataLocal(ScmDataInfo dataInfo) throws ScmServerException {
         try {
             ScmDataDeletor deletor = ScmDataOpFactoryAssit.getFactory().createDeletor(
                     ScmContentModule.getInstance().getLocalSite(), ws.getName(),
-                    ws.getDataLocation(), ScmContentModule.getInstance().getDataService(),
-                    dataInfo);
+                    ws.getDataLocation(dataInfo.getWsVersion()),
+                    ScmContentModule.getInstance().getDataService(), dataInfo);
             deletor.delete();
         }
         catch (ScmDatasourceException e) {

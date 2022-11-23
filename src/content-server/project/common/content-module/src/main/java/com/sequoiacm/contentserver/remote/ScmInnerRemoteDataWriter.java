@@ -180,7 +180,9 @@ public class ScmInnerRemoteDataWriter {
                 + CommonDefine.RestArg.WORKSPACE_NAME + "=" + wsName + "&"
                 + CommonDefine.RestArg.DATASOURCE_DATA_TYPE + "=" + dataInfo.getType() + "&"
                 + CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME + "="
-                + dataInfo.getCreateTime().getTime();
+                + dataInfo.getCreateTime().getTime() + "&"
+                + CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION + "="
+                + dataInfo.getWsVersion();
         config.setUrl(addr);
         config.setDoOutput(true);
         config.setDoInput(true);

@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.model;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -24,6 +25,7 @@ public class BreakpointFileBsonConverter extends AbstractBsonConverter<Breakpoin
     public static final String BSON_FIELD_IS_NEED_MD5 = "is_need_md5";
     public static final String BSON_FIELD_MD5 = "md5";
     public static final String BSON_FIELD_EXTRA_CONTEXT = "extra_context";
+    public static final String BSON_FIELD_WS_VERSION = "ws_version";
 
     @Override
     public BreakpointFile convert(BSONObject obj) {
@@ -44,6 +46,13 @@ public class BreakpointFileBsonConverter extends AbstractBsonConverter<Breakpoin
                 .setNeedMd5(getBooleanOrElse(obj, BSON_FIELD_IS_NEED_MD5, false))
                 .setMd5(getString(obj, BSON_FIELD_MD5))
                 .setExtraContext(BsonUtils.getBSON(obj, BSON_FIELD_EXTRA_CONTEXT));
+        Object temp = obj.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION);
+        if (null != temp) {
+            file.setWsVersion((Integer) temp);
+        }
+        else {
+            file.setWsVersion(1);
+        }
         return file;
     }
 
@@ -65,6 +74,7 @@ public class BreakpointFileBsonConverter extends AbstractBsonConverter<Breakpoin
         obj.put(BSON_FIELD_IS_NEED_MD5, value.isNeedMd5());
         obj.put(BSON_FIELD_MD5, value.getMd5());
         obj.put(BSON_FIELD_EXTRA_CONTEXT, value.getExtraContext());
+        obj.put(BSON_FIELD_WS_VERSION, value.getWsVersion());
         return obj;
     }
 }

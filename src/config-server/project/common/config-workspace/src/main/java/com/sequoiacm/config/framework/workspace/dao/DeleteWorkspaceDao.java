@@ -49,12 +49,17 @@ public class DeleteWorkspaceDao {
             TableDao sysWsDao = workspaceMetaservice.getSysWorkspaceTable(transaction);
             oldWsRec = sysWsDao.deleteAndCheck(sysWsRecMatcher);
             if (oldWsRec != null) {
-                // delete ws version
                 versionDao.deleteVersion(ScmConfigNameDefine.WORKSPACE, filter.getWsName(),
                         transaction);
+
                 // delete metadata version
                 versionDao.deleteVersion(ScmConfigNameDefine.META_DATA, filter.getWsName(),
                         transaction);
+
+                // delete history workspace
+                TableDao historyWSTable = workspaceMetaservice.getSysWorkspaceHistoryTable(transaction);
+                historyWSTable.delete(sysWsRecMatcher);
+
                 transaction.commit();
             }
             else {

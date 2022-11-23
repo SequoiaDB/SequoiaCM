@@ -229,17 +229,18 @@ public class SequoiadbHelper {
         return matcher;
     }
 
-    private static BSONObject generateOneSiteInList(int siteId, long time) {
+    private static BSONObject generateOneSiteInList(int siteId, long time, int wsVersion) {
         BSONObject oneSite = new BasicBSONObject();
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID, siteId);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, time);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, time);
+        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION, wsVersion);
 
         return new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_SITE_LIST, oneSite);
     }
 
-    public static BSONObject pushOneSiteToList(int siteId, long time) {
-        BSONObject siteInfo = generateOneSiteInList(siteId, time);
+    public static BSONObject pushOneSiteToList(int siteId, long time, int wsVersion) {
+        BSONObject siteInfo = generateOneSiteInList(siteId, time, wsVersion);
         return new BasicBSONObject(SEQUOIADB_MODIFIER_PUSH, siteInfo);
     }
 

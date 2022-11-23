@@ -16,7 +16,6 @@ public class ScmFileDataDeleterWrapper {
     private final ScmWorkspaceInfo wsInfo;
     private FileMeta fileMeta;
 
-
     public ScmFileDataDeleterWrapper(ScmWorkspaceInfo wsInfo, FileMeta fileMeta) {
         this.fileMeta = fileMeta;
         this.wsInfo = wsInfo;
@@ -34,7 +33,7 @@ public class ScmFileDataDeleterWrapper {
             for (ScmFileLocation fileLocation : siteList) {
                 siteIdList.add(fileLocation.getSiteId());
             }
-            ScmFileDataDeleter dataDeleter = new ScmFileDataDeleter(siteIdList, wsInfo,
+            ScmFileDataDeleter dataDeleter = new ScmFileDataDeleter(siteList, wsInfo,
                     fileMeta.getDataInfo());
             dataDeleter.deleteData();
         }

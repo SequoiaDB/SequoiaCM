@@ -11,6 +11,8 @@ public interface WorkspaceMetaSerivce {
 
     SysWorkspaceTableDao getSysWorkspaceTable(Transaction transaction);
 
+    SysWorkspaceHistoryTableDao getSysWorkspaceHistoryTable(Transaction transaction);
+
     void createWorkspaceMetaTable(WorkspaceConfig wsConfig)
             throws MetasourceException;
 
@@ -22,5 +24,4 @@ public interface WorkspaceMetaSerivce {
     void deleteWorkspaceMetaTable(String wsName) throws MetasourceException;
 
     void deleteWorkspaceMetaTable(BSONObject wsRecord) throws MetasourceException;
-    TableDao getWorkspaceHistoryTable();
 }

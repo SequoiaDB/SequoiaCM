@@ -1,5 +1,7 @@
 package com.sequoiacm.common;
 
+import java.lang.reflect.Field;
+
 public class FieldName {
     public static final String FIELD_ALL_OBJECTID = "_id"; // objectid
 
@@ -77,6 +79,7 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_CREATETIME = "create_time";
     public static final String FIELD_CLWORKSPACE_UPDATEUSER = "update_user";
     public static final String FIELD_CLWORKSPACE_UPDATETIME = "update_time";
+    public static final String FIELD_CLWORKSPACE_VERSION = "version"; // int
     // hbase location
     // public static final String FIELD_CLWORKSPACE_HBASE_CLIENT_PAUSE =
     // "hbase.client.pause";
@@ -161,11 +164,15 @@ public class FieldName {
     public static final String FIELD_CLFILE_FILE_SITE_LIST = "site_list"; // array,
                                                                           // [{site_id:1,
                                                                           // last_access_time:1485239715515}]
+                                                                          // ws_version
     public static final String FIELD_CLFILE_FILE_SITE_LIST_ID = "site_id"; // int
     // last read content's time
     public static final String FIELD_CLFILE_FILE_SITE_LIST_TIME = "last_access_time";// long
     // last create content's time
     public static final String FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME = "create_time";// long
+    // the workspace version when writing the site
+    public static final String FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION = "ws_version";// int
+
     public static final String FIELD_CLFILE_FILE_TITLE = "title"; // string,
                                                                   // mytitle1
     public static final String FIELD_CLFILE_FILE_AUTHOR = "author"; // string,
@@ -526,9 +533,8 @@ public class FieldName {
         public static final String FILE_VERSION_SERIAL = FieldName.FIELD_CLFILE_VERSION_SERIAL;
         public static final String FILE_DELETE_MARKER = FieldName.FIELD_CLFILE_DELETE_MARKER;
     }
-
+    
     public static final class TraceSpan {
-
         public static final String TRACE_ID = "traceId";
         public static final String SPAN_ID = "id";
         public static final String PARENT_SPAN_ID = "parentId";
@@ -546,6 +552,12 @@ public class FieldName {
         public static final String SERVICE_NAME = "serviceName";
         public static final String IP = "ipv4";
         public static final String PORT = "port";
+    }
 
+    public static final class ScmFileLocation {
+        public static final String SITE_ID = "siteId";
+        public static final String DATE = "date";
+        public static final String CREATE_DATE = "createDate";
+        public static final String WS_VERSION = "wsVersion";
     }
 }

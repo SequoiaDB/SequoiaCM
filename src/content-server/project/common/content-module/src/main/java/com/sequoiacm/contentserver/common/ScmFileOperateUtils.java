@@ -218,12 +218,12 @@ public class ScmFileOperateUtils {
     }
 
     public static void addDataInfo(BSONObject formatFileObject, String dataId, Date dataCreateTime,
-            int siteId, long size, String md5) {
-        addDataInfo(formatFileObject, dataId, dataCreateTime, siteId, size, md5, null);
+            int siteId, long size, String md5, int wsVersion) {
+        addDataInfo(formatFileObject, dataId, dataCreateTime, siteId, size, md5, null, wsVersion);
     }
 
     public static void addDataInfo(BSONObject formatFileObject, String dataId, Date dataCreateTime,
-            int siteId, long size, String md5, String etag) {
+            int siteId, long size, String md5, String etag, int wsVersion) {
         formatFileObject.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, dataId);
         formatFileObject.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME,
                 dataCreateTime.getTime());
@@ -240,6 +240,7 @@ public class ScmFileOperateUtils {
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID, siteId);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, dataCreateTime.getTime());
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, dataCreateTime.getTime());
+        oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION, wsVersion);
         BSONObject sites = BsonUtils.getBSONChecked(formatFileObject,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         sites.put("0", oneSite);

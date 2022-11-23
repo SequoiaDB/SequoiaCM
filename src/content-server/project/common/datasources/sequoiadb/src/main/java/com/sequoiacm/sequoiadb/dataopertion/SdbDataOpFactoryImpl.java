@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
     private static final Logger logger = LoggerFactory.getLogger(SdbDataOpFactoryImpl.class);
@@ -150,10 +151,10 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
 
     @Override
     public ScmDataRemovingSpaceRecycler createDataRemovingSpaceRecycler(String wsName,
-            String siteName, ScmLocation location, ScmService service) throws SequoiadbException {
+            String siteName, Map<Integer, ScmLocation> locations, ScmService service) throws SequoiadbException {
         try {
             return new SdbDataRemovingSpaceRecyclerImpl(metaSource, wsName, siteName,
-                    (SdbDataLocation) location, (SdbDataService) service, lockManager);
+                    locations, (SdbDataService) service, lockManager);
         }
         catch (Exception e) {
             String msg = String.format(
@@ -167,11 +168,11 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
 
     @Override
     public ScmDataSpaceRecycler createScmDataSpaceRecycler(List<String> tableNames,
-            Date recycleBeginningTime, Date recycleEndingTime, String wsName, String siteName,
-            ScmLocation location, ScmService service) throws ScmDatasourceException {
+                                                           Date recycleBeginningTime, Date recycleEndingTime, String wsName, String siteName,
+                                                           ScmService service) throws ScmDatasourceException {
         try {
             return new SdbDataSpaceRecyclerImpl(metaSource, tableNames, recycleBeginningTime,
-                    recycleEndingTime, wsName, siteName, (SdbDataLocation) location,
+                    recycleEndingTime, wsName, siteName,
                     (SdbDataService) service, lockManager);
         }
         catch (Exception e) {

@@ -1,6 +1,5 @@
 package com.sequoiacm.contentserver.service.impl;
 
-
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.common.AsyncUtils;
@@ -31,6 +30,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.IResource;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
@@ -46,11 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 @Service
@@ -70,7 +66,8 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     public BSONObject getWorkspace(ScmUser user, String workspaceName) throws ScmServerException {
         audit.info(ScmAuditType.WS_DQL, user, workspaceName, 0,
                 "get workspace by wsName=" + workspaceName);
-        ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(workspaceName);
+        ScmWorkspaceInfo ws = ScmContentModule.getInstance()
+                .getWorkspaceInfoCheckLocalSite(workspaceName);
         return ws.getBSONObject();
     }
 
@@ -105,8 +102,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         WorkspaceCreator creator = new WorkspaceCreator(wsName, createUser, wsConf);
         BSONObject ret = creator.create();
 
-        audit.info(ScmAuditType.CREATE_WS, user, wsName, 0,
-                "create workspace by wsConf=" + wsConf);
+        audit.info(ScmAuditType.CREATE_WS, user, wsName, 0, "create workspace by wsConf=" + wsConf);
         return ret;
     }
 
@@ -130,9 +126,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
 
         if (!isEnforced) {
-            ScmWorkspaceInfo ws =contentModule.getWorkspaceInfo(wsName);
+            ScmWorkspaceInfo ws = contentModule.getWorkspaceInfo(wsName);
             if (ws != null) {
-                long fileCount =contentModule.getMetaService().getCurrentFileCount(ws, null);
+                long fileCount = contentModule.getMetaService().getCurrentFileCount(ws, null);
                 if (fileCount > 0) {
                     throw new ScmServerException(ScmError.WORKSPACE_NOT_EMPTY,
                             "workspace is not empty:wsName=" + wsName);
@@ -313,7 +309,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     private WorkspaceUpdator validateUpdator(String wsName, ClientWorkspaceUpdator updator)
             throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmWorkspaceInfo wsInfo =contentModule.getWorkspaceInfoCheckLocalSite(wsName);
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         List<Integer> dataLocationAfterUpdate = new ArrayList<>(wsInfo.getDataLocations().keySet());
 
         WorkspaceUpdator confUpdator = new WorkspaceUpdator(wsName,
@@ -323,11 +319,10 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         confUpdator.setNewSiteCacheStrategy(updator.getSiteCacheStrategy() == null ? null
                 : updator.getSiteCacheStrategy().name());
 
-        BasicBSONList updatedDatalocations = (BasicBSONList) wsInfo.getBSONObject()
-                .get(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION);
+        Map<Integer, ScmLocation> oldDataLocations = wsInfo.getDataLocations();
         ClientLocationOutline addDataLocation = updator.getAddDataLocation();
         if (addDataLocation != null) {
-            ScmSite addSite =contentModule.getSiteInfo(addDataLocation.getSiteName());
+            ScmSite addSite = contentModule.getSiteInfo(addDataLocation.getSiteName());
             if (addSite == null) {
                 throw new ScmInvalidArgumentException(
                         "unknown data location:siteName=" + addDataLocation.getSiteName());
@@ -340,25 +335,61 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
             catch (ScmDatasourceException e) {
                 throw new ScmInvalidArgumentException(
-                        "invlid data location:location=" + addDataLocation);
+                        "invalid data location:location=" + addDataLocation);
             }
 
-            for (Object dataLocation : updatedDatalocations) {
-                BSONObject dataLocationObj = (BSONObject) dataLocation;
-                int id = (int) dataLocationObj.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-                if (id == addSite.getId()) {
-                    throw new ScmInvalidArgumentException(
-                            "duplicate data location:siteName=" + addDataLocation.getSiteName());
-                }
+            if (oldDataLocations.get(addSite.getId()) != null) {
+                throw new ScmInvalidArgumentException(
+                        "duplicate data location:siteName=" + addDataLocation.getSiteName());
             }
             confUpdator.setAddDataLocation(addDataLocation.toCompleteBSON());
             dataLocationAfterUpdate.add(addSite.getId());
         }
 
+        List<ClientLocationOutline> clientUpdateDataLocations = updator.getUpdateDataLocation();
+        if (clientUpdateDataLocations != null && clientUpdateDataLocations.size() > 0) {
+            BasicBSONList updateDataLocationBson = new BasicBSONList();
+            for (ClientLocationOutline updateDataLocation : clientUpdateDataLocations) {
+                ScmSite updateSite = contentModule.getSiteInfo(updateDataLocation.getSiteName());
+                if (updateSite == null) {
+                    throw new ScmInvalidArgumentException(
+                            "unknown data location:siteName=" + updateDataLocation.getSiteName());
+                }
+
+                if (null == oldDataLocations.get(updateSite.getId())) {
+                    throw new ScmInvalidArgumentException(
+                            "site does not exist:siteName=" + updateDataLocation.getSiteName());
+                }
+
+                updateDataLocation.addSiteId(updateSite.getId());
+                BSONObject mergedDataLocation;
+                if (updator.getUpdateMerge()) {
+                    mergedDataLocation = mergeDataLocation(updateDataLocation.toCompleteBSON(),
+                            wsInfo.getSiteDataLocation(updateSite.getId()).asBSON());
+                }
+                else {
+                    mergedDataLocation = updateDataLocation.toCompleteBSON();
+                }
+
+                try {
+                    DatalocationFactory.createDataLocation(updateSite.getDataUrl().getType(),
+                            mergedDataLocation, updateSite.getName());
+                }
+                catch (ScmDatasourceException e) {
+                    throw new ScmInvalidArgumentException(
+                            "invalid data location:location=" + mergedDataLocation, e);
+                }
+
+                updateDataLocationBson.add(mergedDataLocation);
+            }
+
+            confUpdator.setUpdateDataLocation(updateDataLocationBson);
+        }
+
         String removeDataLocationSiteName = updator.getRemoveDataLocation();
         ScmSite removeSite = null;
         if (removeDataLocationSiteName != null) {
-            removeSite =contentModule.getSiteInfo(removeDataLocationSiteName);
+            removeSite = contentModule.getSiteInfo(removeDataLocationSiteName);
             if (removeSite == null) {
                 throw new ScmInvalidArgumentException(
                         "unknown data location:siteName=" + removeDataLocationSiteName);
@@ -368,16 +399,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                         "can not remove root site:siteName=" + removeDataLocationSiteName);
             }
 
-            boolean isRemoveSiteInLocationList = false;
-            for (Object dataLocation : updatedDatalocations) {
-                BSONObject dataLocationObj = (BSONObject) dataLocation;
-                int id = (int) dataLocationObj.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
-                if (id == removeSite.getId()) {
-                    isRemoveSiteInLocationList = true;
-                }
-            }
-
-            if (!isRemoveSiteInLocationList) {
+            if (null == oldDataLocations.get(removeSite.getId())) {
                 throw new ScmInvalidArgumentException(
                         "site not in data location list:siteName=" + removeSite.getName());
             }
@@ -405,5 +427,47 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             confUpdator.setPreferred(updator.getPreferred());
         }
         return confUpdator;
+    }
+
+    private BSONObject mergeDataLocation(BSONObject clientDataLocation, BSONObject oldDataLocation)
+            throws ScmInvalidArgumentException {
+        if (null == oldDataLocation) {
+            throw new ScmInvalidArgumentException("dataLocation does not exist: siteId ="
+                    + clientDataLocation.get(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID));
+        }
+
+        BSONObject mergeBson = oldDataLocation;
+        mergeDataLocationBSON(mergeBson, clientDataLocation);
+
+        return mergeBson;
+    }
+
+    // merge bson from sourceBson to baseBson
+    private void mergeDataLocationBSON(BSONObject baseBson, BSONObject sourceBson)
+            throws ScmInvalidArgumentException {
+        Set<String> sourceKeySet = sourceBson.keySet();
+
+        for (String field : sourceKeySet) {
+            Object tmp = sourceBson.get(field);
+            if (tmp instanceof BasicBSONObject) {
+                BSONObject tmpBson;
+                if (baseBson.get(field) != null) {
+                    tmpBson = (BSONObject) baseBson.get(field);
+                }
+                else {
+                    tmpBson = new BasicBSONObject();
+                }
+                mergeDataLocationBSON(tmpBson, (BSONObject) tmp);
+                baseBson.put(field, tmpBson);
+            }
+            else if (tmp instanceof BasicBSONList) {
+                // BasicBSONList merge is not supported
+                throw new ScmInvalidArgumentException(
+                        "BasicBSONList copy is not supported. field =" + field);
+            }
+            else {
+                baseBson.put(field, sourceBson.get(field));
+            }
+        }
     }
 }

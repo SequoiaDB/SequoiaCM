@@ -16,8 +16,8 @@ public class ScmInnerRemoteDataDeletor {
     private ScmWorkspaceInfo wsInfo;
     private ScmDataInfo dataInfo;
 
-    public ScmInnerRemoteDataDeletor(int remoteSiteId, ScmWorkspaceInfo wsInfo, ScmDataInfo dataInfo)
-            throws ScmServerException {
+    public ScmInnerRemoteDataDeletor(int remoteSiteId, ScmWorkspaceInfo wsInfo,
+            ScmDataInfo dataInfo) throws ScmServerException {
         this.remoteSiteId = remoteSiteId;
         this.wsInfo = wsInfo;
         this.dataInfo = dataInfo;
@@ -25,15 +25,16 @@ public class ScmInnerRemoteDataDeletor {
 
     public void delete() throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
-        ScmSite remoteSiteInfo =contentModule.getSiteInfo(remoteSiteId);
+        ScmSite remoteSiteInfo = contentModule.getSiteInfo(remoteSiteId);
         try {
-            ContentServerClient c = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteInfo.getName());
-            c.deleteData(wsInfo.getName(), dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime().getTime());
+            ContentServerClient c = ContentServerClientFactory
+                    .getFeignClientByServiceName(remoteSiteInfo.getName());
+            c.deleteData(wsInfo.getName(), dataInfo.getId(), dataInfo.getType(),
+                    dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion());
         }
         catch (Exception e) {
-            logger.error("delete remote data failed:remote="
-                    + remoteSiteInfo.getName() + ",ws=" + wsInfo.getName()
-                    + ",dataId=" + dataInfo.getId(), e);
+            logger.error("delete remote data failed:remote=" + remoteSiteInfo.getName() + ",ws="
+                    + wsInfo.getName() + ",dataId=" + dataInfo.getId(), e);
         }
 
     }

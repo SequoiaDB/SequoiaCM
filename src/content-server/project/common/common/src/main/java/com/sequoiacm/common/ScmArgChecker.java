@@ -24,6 +24,7 @@ public class ScmArgChecker {
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME);
+            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
@@ -113,6 +114,9 @@ public class ScmArgChecker {
                     return true;
                 }
                 if (arr[2].equals(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME)) {
+                    return true;
+                }
+                if (arr[2].equals(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION)) {
                     return true;
                 }
                 return false;

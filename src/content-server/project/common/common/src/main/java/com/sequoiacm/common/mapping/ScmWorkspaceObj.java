@@ -32,6 +32,7 @@ public class ScmWorkspaceObj {
     private boolean enableDirectory;
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
+    private Integer version;
 
     public ScmWorkspaceObj(BSONObject obj) throws ScmMappingException {
         try {
@@ -85,6 +86,8 @@ public class ScmWorkspaceObj {
             siteCacheStrategy = ScmSiteCacheStrategy.getStrategy(
                     BsonUtils.getStringOrElse(obj, FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                             ScmSiteCacheStrategy.ALWAYS.name()));
+
+            version = (Integer) obj.get(FieldName.FIELD_CLWORKSPACE_VERSION);
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),
@@ -190,5 +193,9 @@ public class ScmWorkspaceObj {
     }
     public ScmSiteCacheStrategy getSiteCacheStrategy() {
         return siteCacheStrategy;
+    }
+
+    public Integer getVersion() {
+        return version;
     }
 }

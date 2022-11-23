@@ -52,6 +52,14 @@ ScmWorkspace workspace1 = ScmFactory.Workspace.getWorkspace("test_ws", session);
 // 更新工作区描述
 workspace1.updatedDescription("test workspace");
 ```
+```lang-javascript
+// 更新工作区中 rootSite 站点的属性，修改CS的分区规则为按月划分
+ScmSdbDataLocation sdbDataLocation= new ScmSdbDataLocation("rootSite");
+sdbDataLocation.setCsShardingType(ScmShardingType.MONTH);
+List<ScmDataLocation> dataLocationList = new ArrayList<>();
+dataLocationList.add(sdbDataLocation);
+workspace1.updateDataLocation(dataLocationList);
+```
 
 * 删除工作区
 

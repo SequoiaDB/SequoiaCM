@@ -26,6 +26,7 @@ public class WorkspaceConfig implements Config {
     private boolean enableDirectory = false;
     private String preferred;
     private String siteCacheStrategy = ScmSiteCacheStrategy.ALWAYS.name();
+    private int version;
 
     public WorkspaceConfig() {
     }
@@ -166,6 +167,14 @@ public class WorkspaceConfig implements Config {
         this.siteCacheStrategy = siteCacheStrategy;
     }
 
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject wsConfigObj = new BasicBSONObject();
@@ -186,6 +195,7 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY, siteCacheStrategy);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_VERSION, version);
         return wsConfigObj;
     }
 

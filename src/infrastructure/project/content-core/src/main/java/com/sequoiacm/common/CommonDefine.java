@@ -299,6 +299,8 @@ public class CommonDefine {
         public static final String WORKSPACE_UPDATOR = "updator";
         public static final String WORKSPACE_UPDATOR_ADD_DATA_LOCATION = "add_data_location";
         public static final String WORKSPACE_UPDATOR_REMOVE_DATA_LOCATION = "rmove_data_location";
+        public static final String WORKSPACE_UPDATOR_UPDATE_DATA_LOCATION = "update_data_location";
+        public static final String WORKSPACE_UPDATOR_MERGE = "merge";
         public static final String WORKSPACE_UPDATOR_DESCRIPTION = "description";
         public static final String WORKSPACE_UPDATOR_PREFERRED = "preferred";
         public static final String WORKSPACE_UPDATOR_SITE_CACHE_STRATEGY = "site_cache_strategy";
@@ -316,6 +318,7 @@ public class CommonDefine {
         public static final String DATASOURCE_SITE_NAME = "site_name";
         public static final String DATASOURCE_SITE_ID = "site_id";
         public static final String DATASOURCE_SITE_LIST = "site_list";
+        public static final String DATASOURCE_SITE_LIST_WS_VERSION = "ws_version";
 
         public static final String FILE_ID = "id";
         public static final String FILE_READ_FLAG = "read_flag";

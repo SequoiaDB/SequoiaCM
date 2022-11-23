@@ -4,20 +4,12 @@ import java.util.Objects;
 
 public class ScmSpacePartitionInfo {
 
-    private String shardingStr;
-
     private int recyclingCount;
 
-    public ScmSpacePartitionInfo(String shardingStr) {
-        this.shardingStr = shardingStr;
-    }
+    private String csName;
 
-    public String getShardingStr() {
-        return shardingStr;
-    }
-
-    public void setShardingStr(String shardingStr) {
-        this.shardingStr = shardingStr;
+    public ScmSpacePartitionInfo(String csName) {
+        this.csName = csName;
     }
 
     public int getRecyclingCount() {
@@ -26,6 +18,10 @@ public class ScmSpacePartitionInfo {
 
     public void setRecyclingCount(int recyclingCount) {
         this.recyclingCount = recyclingCount;
+    }
+
+    public String getCsName() {
+        return csName;
     }
 
     @Override
@@ -37,11 +33,11 @@ public class ScmSpacePartitionInfo {
 
         ScmSpacePartitionInfo that = (ScmSpacePartitionInfo) o;
 
-        return Objects.equals(shardingStr, that.shardingStr);
+        return Objects.equals(csName, that.csName);
     }
 
     @Override
     public int hashCode() {
-        return shardingStr != null ? shardingStr.hashCode() : 0;
+        return csName != null ? csName.hashCode() : 0;
     }
 }

@@ -3,9 +3,11 @@ package com.sequoiacm.clean;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockPathDefine;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
@@ -127,7 +129,8 @@ public class TaskCleanFile implements Runnable {
         ContentServerClient client = remoteClientMgr.getClient(url);
         try {
             DataInfo a = client.headDataInfo(siteInfoMgr.getSiteNameById(dataInOtherSiteId), ws,
-                    dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime().getTime());
+                    dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion());
+
             if (size == a.getSize()) {
                 return true;
             }
@@ -173,30 +176,32 @@ public class TaskCleanFile implements Runnable {
         }
 
         long size = (long) file.get(FieldName.FIELD_CLFILE_FILE_SIZE);
-        ScmDataInfo dataInfo = new ScmDataInfo(file);
+//        ScmDataInfo dataInfo = new ScmDataInfo(file);
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-        List<Integer> fileDataSiteIdList = CommonHelper.getFileLocationIdList(sites);
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
 
-        if (!fileDataSiteIdList.contains(cleanSiteId)) {
+        if (fileLocationMap.get(cleanSiteId) != null) {
             logger.warn(
                     "skip, file data is not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
-                    ws, fileId, majorVersion, minorVersion, fileDataSiteIdList);
+                    ws, fileId, majorVersion, minorVersion, fileLocationMap);
             return DoFileRes.SKIP;
         }
 
-        if (!fileDataSiteIdList.contains(dataInOtherSiteId)) {
+        if (fileLocationMap.get(dataInOtherSiteId) != null) {
             // 锁外检查，文件在本站点和一个远端站点（dataInOtherSiteId），锁住本站点和远端站点后，发现文件已不存在于远端站点，安全起见放弃本站点的文件清理
             logger.warn(
                     "skip, file data is not in locking remote site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}, lockingRemoteSite={}",
-                    ws, fileId, majorVersion, minorVersion, fileDataSiteIdList, dataInOtherSiteId);
+                    ws, fileId, majorVersion, minorVersion, fileLocationMap, dataInOtherSiteId);
             return DoFileRes.SKIP;
         }
         // 确认对端站点数据确实可用(规避极端情况下，数据损坏等问题)，再删除本地站点数据
-        if (isRemoteDataExist(dataInOtherSiteId, dataInfo, size)) {
+        ScmDataInfo remoteDataInfo = new ScmDataInfo(file, fileLocationMap.get(dataInOtherSiteId).getWsVersion());
+        if (isRemoteDataExist(dataInOtherSiteId, remoteDataInfo, size)) {
             deleteSiteFromFile(fileId, majorVersion, minorVersion);
             try {
+                ScmDataInfo cleanDataInfo = new ScmDataInfo(file, fileLocationMap.get(cleanSiteId).getWsVersion());
                 ScmDataDeletor deleter = scmDataOpFactory.createDeletor(cleanSiteId, ws,
-                        cleanSiteDataLocation, cleanSiteDataService, dataInfo);
+                        cleanSiteDataLocation, cleanSiteDataService, cleanDataInfo);
                 deleter.delete();
             }
             catch (ScmDatasourceException e) {

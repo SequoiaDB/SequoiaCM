@@ -3,7 +3,12 @@ package com.sequoiacm.contentserver.remote;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
+import org.springframework.cloud.netflix.feign.support.SpringEncoder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,9 +44,16 @@ public class ContentServerClientFactory {
             return siteMapFeignClient.get(name);
         }
         else {
+            ObjectFactory<HttpMessageConverters> converters = new ObjectFactory<HttpMessageConverters>() {
+                @Override
+                public HttpMessageConverters getObject() throws BeansException {
+                    return new HttpMessageConverters(new MappingJackson2HttpMessageConverter());
+                }
+            };
             ContentServerClient client = scmFeignClient.builder()
                     .typeDecoder(DataInfo.class, dataInfoDecoder)
                     .exceptionConverter(exceptionConverter)
+                    .encoder(new SpringEncoder(converters))
                     .loggerLevel(Level.BASIC)
                     .objectMapper(mapper)
                     .serviceTarget(ContentServerClient.class, name.toLowerCase());

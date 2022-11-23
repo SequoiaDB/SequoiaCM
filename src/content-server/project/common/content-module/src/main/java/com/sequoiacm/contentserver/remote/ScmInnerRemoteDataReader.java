@@ -50,7 +50,7 @@ public class ScmInnerRemoteDataReader {
         try {
             client = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteName);
             resp = client.readData(wsInfo.getName(), targetSiteName, dataInfo.getId(),
-                    dataInfo.getType(), dataInfo.getCreateTime().getTime(), flag);
+                    dataInfo.getType(), dataInfo.getCreateTime().getTime(), flag, dataInfo.getWsVersion());
             RemoteCommonUtil.checkResponse("readData", resp);
             expectDataLen = Long.valueOf(
                     RemoteCommonUtil.firstOrNull(resp.headers(), CommonDefine.RestArg.DATA_LENGTH));

@@ -22,6 +22,7 @@ public class SdbHelper {
     public final static String CL_SITE = "SITE";
     public final static String CL_CONTENTSERVER = "CONTENTSERVER";
     public final static String CL_WORKSPACE = "WORKSPACE";
+    public final static String CL_WORKSPACE_HISTORY = "WORKSPACE_HISTORY";
     public final static String CL_USER = "USER";
     public final static String CL_TASK = "TASK";
     public final static String CL_SCHEDULE = "SCHEDULE";

@@ -28,6 +28,7 @@ import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -282,7 +283,7 @@ public class FileCreatorDao {
 
             fileMeta.resetDataInfo(breakpointFile.getDataId(), breakpointFile.getCreateTime(),
                     ENDataType.Normal.getValue(), breakpointFile.getUploadSize(),
-                    breakpointFile.getMd5(), contentModule.getLocalSite());
+                    breakpointFile.getMd5(), contentModule.getLocalSite(), breakpointFile.getWsVersion());
             res = createMeta(uploadConf, wsInfo, fileMeta, (context) -> {
                 ScmContentModule.getInstance().getMetaService()
                         .deleteBreakpointFile(wsInfo.getName(), breakpointFileName, context);
@@ -341,7 +342,7 @@ public class FileCreatorDao {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(ws);
         ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), idInfo.dataId,
-                idInfo.fileCreateDate);
+                idInfo.fileCreateDate, wsInfo.getVersion());
 
         boolean hasCreateData = false;
 
@@ -361,7 +362,7 @@ public class FileCreatorDao {
                 writeData(dataInfo, fileWriter, is);
                 fileMeta.resetDataInfo(dataInfo.getId(), dataInfo.getCreateTime().getTime(),
                         dataInfo.getType(), fileWriter.getSize(), null,
-                        contentModule.getLocalSite());
+                        contentModule.getLocalSite(), dataInfo.getWsVersion());
             }
             else {
                 InputStreamWithCalcMd5 md5Is = new InputStreamWithCalcMd5(is, false);
@@ -370,7 +371,7 @@ public class FileCreatorDao {
                     String md5 = md5Is.calcMd5();
                     fileMeta.resetDataInfo(dataInfo.getId(), dataInfo.getCreateTime().getTime(),
                             dataInfo.getType(), fileWriter.getSize(), md5,
-                            ScmContentModule.getInstance().getLocalSite());
+                            ScmContentModule.getInstance().getLocalSite(), dataInfo.getWsVersion());
                 }
                 finally {
                     ScmSystemUtils.closeResource(md5Is);
@@ -400,7 +401,7 @@ public class FileCreatorDao {
         try {
             ScmDataDeletor deleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                    wsInfo.getDataLocation(dataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deleter.delete();
         }

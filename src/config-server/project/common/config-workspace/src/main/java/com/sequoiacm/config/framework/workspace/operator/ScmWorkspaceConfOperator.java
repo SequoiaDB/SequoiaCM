@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sequoiacm.config.framework.common.DefaultVersionDao;
 import com.sequoiacm.config.framework.operator.ScmConfOperateResult;
 import com.sequoiacm.config.framework.operator.ScmConfOperator;
 import com.sequoiacm.config.framework.workspace.dao.CreateWorkspaceDao;
@@ -39,9 +38,6 @@ public class ScmWorkspaceConfOperator implements ScmConfOperator {
     @Autowired
     private GetWorkspaceDao wsFinder;
 
-    @Autowired
-    private DefaultVersionDao versionDao;
-
     private List<ScmWorkspaceListener> workspaceListeners = new ArrayList<>();
 
     @Override
@@ -52,7 +48,7 @@ public class ScmWorkspaceConfOperator implements ScmConfOperator {
     @Override
     public List<Version> getConfVersion(VersionFilter filter) throws ScmConfigException {
         DefaultVersionFilter versionFilter = (DefaultVersionFilter) filter;
-        return versionDao.getVerions(versionFilter);
+        return wsFinder.getVersions(versionFilter);
     }
 
     @Override

@@ -36,6 +36,7 @@ public class ScmWorkspaceInfo {
     private boolean enableDirectory;
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
+    private int version;
 
     /**
      * Create a instance of ScmWorkspaceInfo.
@@ -68,6 +69,10 @@ public class ScmWorkspaceInfo {
             this.enableDirectory = wsObj.isEnableDirectory();
             this.preferred = wsObj.getPreferred();
             this.siteCacheStrategy = wsObj.getSiteCacheStrategy();
+            this.version = 1;
+            if (wsObj.getVersion() != null) {
+                this.version = wsObj.getVersion();
+            }
         }
         catch (ScmMappingException e) {
             throw new ScmInvalidArgumentException(e.getMessage(), e);
@@ -221,7 +226,8 @@ public class ScmWorkspaceInfo {
         sb.append("batchIdTimeRegex:" + batchIdTimeRegex).append(",");
         sb.append("batchIdTimePattern:" + batchIdTimePattern).append(",");
         sb.append("batchFileNameUnique:" + batchFileNameUnique).append(",");
-        sb.append("siteCacheStrategy:" + siteCacheStrategy);
+        sb.append("siteCacheStrategy:" + siteCacheStrategy).append(",");
+        sb.append("version:" + version);
         return sb.toString();
 
     }
@@ -296,5 +302,14 @@ public class ScmWorkspaceInfo {
      */
     public ScmSiteCacheStrategy getSiteCacheStrategy() {
         return siteCacheStrategy;
+    }
+
+    /**
+     * Return the version of workspace.
+     *
+     * @return version.
+     */
+    public int getVersion() {
+        return version;
     }
 }

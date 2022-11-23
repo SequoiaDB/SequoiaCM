@@ -224,6 +224,28 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         _update(updator);
     }
 
+    @Override
+    public void updateDataLocation(List<ScmDataLocation> dataLocations) throws ScmException {
+        updateDataLocation(dataLocations, true);
+    }
+
+    @Override
+    public void updateDataLocation(List<ScmDataLocation> dataLocations, boolean mergeTo) throws ScmException {
+        if (dataLocations == null || 0 == dataLocations.size()) {
+            throw new ScmInvalidArgumentException("dataLocations is null");
+        }
+
+        BasicBSONList dataLocationList = new BasicBSONList();
+        for (ScmDataLocation dataLocation : dataLocations){
+            dataLocationList.add(dataLocation.getBSONObject());
+        }
+        BasicBSONObject updator = new BasicBSONObject(
+                CommonDefine.RestArg.WORKSPACE_UPDATOR_UPDATE_DATA_LOCATION,
+                dataLocationList);
+        updator.put(CommonDefine.RestArg.WORKSPACE_UPDATOR_MERGE, mergeTo);
+        _update(updator);
+    }
+
     private void _update(BSONObject updator) throws ScmException {
         BSONObject newWsObj = session.getDispatcher().updateWorkspace(name, updator);
         refresh(newWsObj);

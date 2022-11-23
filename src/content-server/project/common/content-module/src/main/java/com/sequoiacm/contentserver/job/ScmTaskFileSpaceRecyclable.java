@@ -31,7 +31,7 @@ public abstract class ScmTaskFileSpaceRecyclable extends ScmTaskFile {
                         .createDataRemovingSpaceRecycler(
                                 getWorkspaceInfo().getName(),
                                 contentModule.getLocalSiteInfo().getName(),
-                                getWorkspaceInfo().getDataLocation(),
+                                getWorkspaceInfo().getDataLocationAllVersions(),
                                 contentModule.getDataService());
             }
             catch (ScmDatasourceException e) {

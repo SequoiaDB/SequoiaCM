@@ -37,6 +37,9 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         if (toolName.equals("addsite")) {
             instance = new ScmAddSiteToWsToolmpl();
         }
+        if (toolName.equals("updatesites")) {
+            instance = new ScmUpdateSiteToWsToolImpl();
+        }
         if (toolName.equals("update-preferred")) {
             instance = new ScmUpdatePreferredWsToolImpl();
         }
@@ -49,6 +52,8 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         System.out.println("Available subcommands:");
         System.out.println("addsite");
         new ScmAddSiteToWsToolmpl().printHelp(isFullHelp);
+        System.out.println("updatesites");
+        new ScmUpdateSiteToWsToolImpl().printHelp(isFullHelp);
         System.out.println("update-preferred");
         new ScmUpdatePreferredWsToolImpl().printHelp(isFullHelp);
     }

@@ -11,7 +11,7 @@ public interface MetaFileAccessor extends MetaAccessor {
             throws ScmMetasourceException;
 
     public boolean addToSiteList(String fileId, int majorVersion, int minorVersion, int siteId,
-            Date date) throws ScmMetasourceException;
+            Date date, int wsVersion) throws ScmMetasourceException;
 
     public boolean deleteNullFromSiteList(String fileId, int majorVersion, int minorVersion)
             throws ScmMetasourceException;

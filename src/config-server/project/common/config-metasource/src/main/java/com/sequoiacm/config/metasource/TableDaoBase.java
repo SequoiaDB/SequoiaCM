@@ -17,7 +17,11 @@ public abstract class TableDaoBase implements TableDao {
         MetaCursor cursor = query(matcher, seletor, orderBy);
         try {
             if (cursor.hasNext()) {
-                return cursor.getNext();
+                BSONObject ret = cursor.getNext();
+                if (ret != null) {
+                    ret.removeField("_id");
+                }
+                return ret;
             }
             else {
                 return null;

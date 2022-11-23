@@ -90,7 +90,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory()
                     .createBreakpointWriter(
                             contentModule.getWorkspaceInfoCheckLocalSite(file.getWorkspaceName())
-                                    .getDataLocation(),
+                                    .getDataLocation(file.getWsVersion()),
                             ScmContentModule.getInstance().getDataService(),
                             file.getWorkspaceName(), file.getFileName(), file.getDataId(),
                             new Date(file.getCreateTime()), false, file.getUploadSize(),
@@ -150,7 +150,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             }
 
             file = contentModule.getMetaService().createBreakpointFile(user.getUsername(),
-                    workspaceName, fileName, checksumType, createTime, isNeedMd5);
+                    workspaceName, fileName, checksumType, createTime, isNeedMd5, workspaceInfo.getVersion());
 
             if (fileStream != null) {
                 BreakpointFileUploader uploader = new BreakpointFileUploader(user.getUsername(),
@@ -322,7 +322,7 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             }
 
             ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                    new Date(file.getCreateTime()));
+                    new Date(file.getCreateTime()), file.getWsVersion());
             String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
             file.setMd5(md5);
             file.setNeedMd5(true);

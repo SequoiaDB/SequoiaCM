@@ -1,5 +1,9 @@
 package com.sequoiacm.config.server;
 
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceHistoryTableDao;
+import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaSerivce;
+import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,8 @@ import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 
+import java.util.Arrays;
+
 @EnableDiscoveryClient
 @EnableScmMonitorServer
 @EnableAsync
@@ -36,6 +42,9 @@ public class ScmConfigApplication implements ApplicationRunner {
 
     @Autowired
     ScmConfClient confClient;
+
+    @Autowired
+    private WorkspaceMetaSerivce workspaceMetaservice;
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(ScmConfigApplication.class).bannerMode(Banner.Mode.OFF)
@@ -57,6 +66,9 @@ public class ScmConfigApplication implements ApplicationRunner {
         // TODO: use IP + port for contentserverId
         ScmIdGenerator.FileId.init(0, 102);
 
+        SysWorkspaceHistoryTableDao workspaceHistoryTable = workspaceMetaservice
+                .getSysWorkspaceHistoryTable(null);
+        workspaceHistoryTable.initWorkspaceHistoryTable();
     }
 
 }

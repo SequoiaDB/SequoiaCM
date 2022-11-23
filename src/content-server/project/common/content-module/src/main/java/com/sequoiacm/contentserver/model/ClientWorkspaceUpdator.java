@@ -6,13 +6,19 @@ import org.bson.BasicBSONObject;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import org.bson.types.BasicBSONList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientWorkspaceUpdator {
     private String description;
     private String removeDataLocation;
     private ClientLocationOutline addDataLocation;
+    private List<ClientLocationOutline> updateDataLocation;
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
+    private Boolean updateMerge = true;
 
     public ClientWorkspaceUpdator() {
     }
@@ -57,11 +63,28 @@ public class ClientWorkspaceUpdator {
         this.siteCacheStrategy = siteCacheStrategy;
     }
 
+    public List<ClientLocationOutline> getUpdateDataLocation() {
+        return updateDataLocation;
+    }
+
+    public void setUpdateDataLocation(List<ClientLocationOutline> updateDataLocation) {
+        this.updateDataLocation = updateDataLocation;
+    }
+
+    public void setUpdateMerge(Boolean updateMerge) {
+        this.updateMerge = updateMerge;
+    }
+
+    public Boolean getUpdateMerge() {
+        return updateMerge;
+    }
+
     @Override
     public String toString() {
         return "ClientWorkspaceUpdator{" + "description='" + description + '\''
                 + ", removeDataLocation='" + removeDataLocation + '\'' + ", addDataLocation="
-                + addDataLocation + ", preferred='" + preferred + '\'' + ", siteCacheStrategy="
+                + addDataLocation + ", updateDataLocation="
+                + updateDataLocation + ", preferred='" + preferred + '\'' + ", siteCacheStrategy="
                 + siteCacheStrategy + '}';
     }
 
@@ -92,9 +115,29 @@ public class ClientWorkspaceUpdator {
         if (addDataLocation != null) {
             updator.setAddDataLocation(new ClientLocationOutline(addDataLocation));
         }
+        BasicBSONList updateDataLocation = (BasicBSONList) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_UPDATE_DATA_LOCATION);
+        if (updateDataLocation != null) {
+            List<ClientLocationOutline> dataLocation = new ArrayList<>();
+            for (Object location : updateDataLocation) {
+                dataLocation.add(new ClientLocationOutline((BasicBSONObject)location));
+            }
+            updator.setUpdateDataLocation(dataLocation);
+        }
+
+        Object updateMerge = objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_MERGE);
+        if (updateMerge != null){
+            updator.setUpdateMerge((Boolean) updateMerge);
+        }
+        else {
+            updator.setUpdateMerge(true);
+        }
+
         String preferred = (String) objCopy
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_PREFERRED);
         updator.setPreferred(preferred);
+
         if (!objCopy.isEmpty()) {
             throw new ScmInvalidArgumentException(
                     "failed to update workspace, updator contain invalid key:" + objCopy.keySet());

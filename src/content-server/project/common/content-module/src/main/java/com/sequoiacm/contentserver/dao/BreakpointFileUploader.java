@@ -72,7 +72,7 @@ public class BreakpointFileUploader {
 
         try {
             dataWriter = ScmDataOpFactoryAssit.getFactory().createBreakpointWriter(
-                    workspaceInfo.getDataLocation(),
+                    workspaceInfo.getDataLocation(file.getWsVersion()),
                     ScmContentModule.getInstance().getDataService(), file.getWorkspaceName(),
                     file.getFileName(), file.getDataId(), new Date(file.getCreateTime()),
                     createData, file.getUploadSize(), file.getExtraContext());
@@ -159,7 +159,7 @@ public class BreakpointFileUploader {
                         file.setCompleted(true);
                         if (file.isNeedMd5()) {
                             ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
-                                    file.getDataId(), new Date(file.getCreateTime()));
+                                    file.getDataId(), new Date(file.getCreateTime()), file.getWsVersion());
                             String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
                             file.setMd5(md5);
                         }
@@ -188,7 +188,7 @@ public class BreakpointFileUploader {
                 file.setUploadTime(System.currentTimeMillis());
                 if (file.isNeedMd5()) {
                     ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(),
-                            file.getDataId(), new Date(file.getCreateTime()));
+                            file.getDataId(), new Date(file.getCreateTime()), file.getWsVersion());
                     String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
                     file.setMd5(md5);
                 }
