@@ -180,14 +180,14 @@ public class TaskCleanFile implements Runnable {
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
 
-        if (fileLocationMap.get(cleanSiteId) != null) {
+        if (fileLocationMap.get(cleanSiteId) == null) {
             logger.warn(
                     "skip, file data is not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     ws, fileId, majorVersion, minorVersion, fileLocationMap);
             return DoFileRes.SKIP;
         }
 
-        if (fileLocationMap.get(dataInOtherSiteId) != null) {
+        if (fileLocationMap.get(dataInOtherSiteId) == null) {
             // 锁外检查，文件在本站点和一个远端站点（dataInOtherSiteId），锁住本站点和远端站点后，发现文件已不存在于远端站点，安全起见放弃本站点的文件清理
             logger.warn(
                     "skip, file data is not in locking remote site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}, lockingRemoteSite={}",
