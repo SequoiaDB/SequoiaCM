@@ -41,6 +41,7 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
 import com.sequoiacm.metasource.MetaCursor;
@@ -222,7 +223,7 @@ public class FileServiceImpl implements IFileService {
                         ? ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag()
                         : ScmPrivilegeDefine.CREATE.getFlag(),
                 "create file");
-        FileMeta ret = fileCreatorDao.createFile(workspace, fileMeta, conf, fileData);
+        FileMeta ret = createFile(workspace, fileMeta, conf, fileData);
         audit.info(ScmAuditType.CREATE_FILE, user, workspace, 0,
                 "create file , fileId=" + fileMeta.getId() + ", fileName=" + fileMeta.getName());
         return ret;
@@ -231,7 +232,9 @@ public class FileServiceImpl implements IFileService {
     @Override
     public FileMeta createFile(String workspace, FileMeta fileMeta, FileUploadConf conf,
             InputStream fileData) throws ScmServerException {
-        return fileCreatorDao.createFile(workspace, fileMeta, conf, fileData);
+        FileMeta ret = fileCreatorDao.createFile(workspace, fileMeta, conf, fileData);
+        FlowRecorder.getInstance().addUploadSize(workspace, ret.getSize());
+        return ret;
     }
 
     @Override
