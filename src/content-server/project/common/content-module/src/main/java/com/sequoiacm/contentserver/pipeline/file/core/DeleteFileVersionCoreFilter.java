@@ -57,7 +57,7 @@ public class DeleteFileVersionCoreFilter implements Filter<DeleteFileVersionCont
             deleteHistoryVersion(context, wsInfo, latestVersionBeforeDelete, fileHistoryAccessor);
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private void deleteLatestVersion(DeleteFileVersionContext context, ScmWorkspaceInfo wsInfo,

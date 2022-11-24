@@ -20,6 +20,6 @@ public class DeleteFileBatchFilter implements Filter<DeleteFileContext> {
                             + ",batch=" + context.getDeletedLatestVersion().getBatchId());
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

@@ -21,12 +21,12 @@ public class DeleteFileBucketFilter implements Filter<DeleteFileContext> {
     public PipelineResult executionPhase(DeleteFileContext context) throws ScmServerException {
         // 桶下删除文件，需要删除桶关系
         if (context.getDeletedLatestVersion().getBucketId() == null) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
         ScmBucket bucket = bucketInfoManager
                 .getBucketById(context.getDeletedLatestVersion().getBucketId());
         if (bucket == null) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         try {
@@ -42,6 +42,6 @@ public class DeleteFileBucketFilter implements Filter<DeleteFileContext> {
                     e);
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

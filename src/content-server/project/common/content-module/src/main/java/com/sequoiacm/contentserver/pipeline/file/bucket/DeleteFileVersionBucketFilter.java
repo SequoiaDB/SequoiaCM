@@ -32,7 +32,7 @@ public class DeleteFileVersionBucketFilter implements Filter<DeleteFileVersionCo
         // case2: 删除了历史版本，无需处理
         // case3: 删除了最后一个版本，需要删除桶关系表记录
         if (context.getLatestVersionBeforeDelete().getBucketId() == null) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         ScmBucket bucket = bucketInfoManager
@@ -42,7 +42,7 @@ public class DeleteFileVersionBucketFilter implements Filter<DeleteFileVersionCo
                     "failed to update bucket relation, file bucket not exist: ws={}, fileId={}, bucketId={}",
                     context.getWs(), context.getFileId(),
                     context.getLatestVersionBeforeDelete().getBucketId());
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         try {
@@ -51,7 +51,7 @@ public class DeleteFileVersionBucketFilter implements Filter<DeleteFileVersionCo
                 bucket.getFileTableAccessor(context.getTransactionContext())
                         .delete(new BasicBSONObject(FieldName.BucketFile.FILE_NAME,
                                 context.getLatestVersionBeforeDelete().getName()));
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
 
             // 桶关系表映射的是最新的版本：
@@ -61,7 +61,7 @@ public class DeleteFileVersionBucketFilter implements Filter<DeleteFileVersionCo
                     .getLatestVersionAfterDelete().getMajorVersion()
                     && context.getLatestVersionBeforeDelete().getMinorVersion() == context
                             .getLatestVersionAfterDelete().getMinorVersion()) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
 
             BSONObject bucketFileUpdater = ScmMetaSourceHelper.createBucketFileUpdatorByFileUpdator(
@@ -83,6 +83,6 @@ public class DeleteFileVersionBucketFilter implements Filter<DeleteFileVersionCo
                             + context.getLatestVersionBeforeDelete().getName(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

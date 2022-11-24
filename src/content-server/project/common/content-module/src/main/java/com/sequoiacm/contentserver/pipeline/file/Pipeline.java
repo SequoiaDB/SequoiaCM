@@ -6,6 +6,7 @@ import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.module.OverwriteFileContext;
 import com.sequoiacm.contentserver.pipeline.file.core.OverwriteFileCoreFilter;
 import com.sequoiacm.contentserver.pipeline.file.dir.OverwriteFileDirFilter;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -71,11 +72,16 @@ public class Pipeline<C> {
     final PipelineResult filterExecutionPhase(C context) throws ScmServerException {
         for (FilterComparableWrapper<C> f : filters) {
             PipelineResult res = f.getInnerFilter().executionPhase(context);
-            if (res == PipelineResult.REDO_PIPELINE) {
+            if (res.getStatus() == PipelineResult.Status.REDO_PIPELINE) {
                 return res;
             }
+            if (res.getStatus() == PipelineResult.Status.SUCCESS) {
+                continue;
+            }
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
+                    "unknown pipeline result: " + res.getStatus());
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     public String getFiltersDesc() {

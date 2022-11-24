@@ -14,7 +14,7 @@ public class DeleteFileVersionBatchFilter implements Filter<DeleteFileVersionCon
         // 文件不在批次下不处理
         if (context.getLatestVersionBeforeDelete().getBatchId() == null
                 || context.getLatestVersionBeforeDelete().getBatchId().trim().isEmpty()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         // 文件处于批次下不允许删除最后一个版本
@@ -25,6 +25,6 @@ public class DeleteFileVersionBatchFilter implements Filter<DeleteFileVersionCon
                             + ",batch=" + context.getLatestVersionBeforeDelete().getBatchId());
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

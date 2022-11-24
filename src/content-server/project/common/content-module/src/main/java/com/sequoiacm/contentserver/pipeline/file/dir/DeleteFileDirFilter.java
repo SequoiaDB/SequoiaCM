@@ -16,7 +16,7 @@ public class DeleteFileDirFilter implements Filter<DeleteFileContext> {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
                 .getWorkspaceInfoCheckExist(context.getWs());
         if (!wsInfo.isEnableDirectory()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         try {
@@ -34,6 +34,6 @@ public class DeleteFileDirFilter implements Filter<DeleteFileContext> {
                     e);
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

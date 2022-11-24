@@ -19,7 +19,7 @@ public class AddFileVersionDirFilter implements Filter<AddFileVersionContext> {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
                 .getWorkspaceInfoCheckExist(context.getWs());
         if (!wsInfo.isEnableDirectory()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         BSONObject relUpdater = ScmMetaSourceHelper
@@ -38,6 +38,6 @@ public class AddFileVersionDirFilter implements Filter<AddFileVersionContext> {
                             + ", fileName=" + context.getNewVersion().getName(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

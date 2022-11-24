@@ -15,11 +15,11 @@ public class OverwriteFileBatchFilter implements Filter<OverwriteFileContext> {
     @Override
     public PipelineResult executionPhase(OverwriteFileContext context) throws ScmServerException {
         if (!context.isOverwrittenFileConflict()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
         if (context.getOverwrittenFile().getBatchId() == null
                 || context.getOverwrittenFile().getBatchId().isEmpty()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         // 被覆盖文件与正在创建的文件冲突，且被覆盖的文件处于批次下，解除被覆盖文件的批次关系
@@ -40,6 +40,6 @@ public class OverwriteFileBatchFilter implements Filter<OverwriteFileContext> {
                             + ", batch=" + context.getOverwrittenFile().getBatchId(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

@@ -29,7 +29,7 @@ public class AddFileVersionBucketFilter implements Filter<AddFileVersionContext>
     public PipelineResult executionPhase(AddFileVersionContext context) throws ScmServerException {
         // 文件若处于桶下，新增版本需要根据桶的版本控制状态，调整新增版本的版本号，并将桶关系表更新下，映射至本次新增的版本
         if (context.getNewVersion().getBucketId() == null) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         ScmBucket bucket = bucketInfoManager.getBucketById(context.getNewVersion().getBucketId());
@@ -83,6 +83,6 @@ public class AddFileVersionBucketFilter implements Filter<AddFileVersionContext>
                             + context.getNewVersion().getName() + ", fileId=" + context.getFileId(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

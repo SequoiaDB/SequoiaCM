@@ -44,11 +44,11 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
             FileMetaUpdater attachToBucketUpdater = context
                     .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
             if (attachToBucketUpdater == null) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
             Long attachToBucketId = (Long) attachToBucketUpdater.getValue();
             if (attachToBucketId == null) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
 
             ScmBucket attachToBucket = bucketInfoManager.getBucketById(attachToBucketId);
@@ -92,7 +92,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
 
             createBucketRelation(context, wsInfo, attachToBucket, latestVersionEtagUpdater,
                     context.getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_NAME));
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         // 文件已经在桶下，不允许改名、不允许关联到新桶，允许取消桶关联attachToBucketUpdater(bucketId=null)
@@ -109,12 +109,12 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
             Long attachToBucketId = (Long) attachToBucketUpdater.getValue();
             if (attachToBucketId == null) {
                 deleteBucketRelation(context, fileCurrentBucket);
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
             if (attachToBucketId == fileCurrentBucket.getId()) {
                 logger.info("file already in the specified bucket: ws={}, fileId={}, bucket={}",
                         context.getWs(), context.getFileId(), fileCurrentBucket.getName());
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
             throw new ScmServerException(ScmError.FILE_IN_ANOTHER_BUCKET,
                     "file already in another bucket:ws=" + wsInfo.getName() + ", bucketName="
@@ -123,7 +123,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
 
         updateBucketRelation(context, fileCurrentBucket);
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private void deleteBucketRelation(UpdateFileMetaContext context, ScmBucket fileCurrentBucket)

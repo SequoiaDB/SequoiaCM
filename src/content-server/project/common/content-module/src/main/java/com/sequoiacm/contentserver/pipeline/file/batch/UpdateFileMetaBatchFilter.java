@@ -27,21 +27,21 @@ public class UpdateFileMetaBatchFilter implements Filter<UpdateFileMetaContext> 
             FileMetaUpdater batchIdUpdater = context
                     .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID);
             if (batchIdUpdater == null) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
             String attachToBatchId = (String) batchIdUpdater.getValue();
             if (attachToBatchId == null) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
             attachToBatch(context, contentModule, wsInfo, attachToBatchId);
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         // 文件已经处于批次下，检查是否有 updater（attachBatchId==null） 想要将文件取消关联（但是不允许关联到新的批次）
         FileMetaUpdater batchIdUpdater = context
                 .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID);
         if (batchIdUpdater == null) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
         String attachToBatchId = (String) batchIdUpdater.getValue();
         if (attachToBatchId != null) {
@@ -57,7 +57,7 @@ public class UpdateFileMetaBatchFilter implements Filter<UpdateFileMetaContext> 
                             + attachToBatchId + ", fileId=" + context.getFileId());
         }
         detachFromBatch(context, contentModule, wsInfo, currentBatchId);
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private void detachFromBatch(UpdateFileMetaContext context, ScmContentModule contentModule,

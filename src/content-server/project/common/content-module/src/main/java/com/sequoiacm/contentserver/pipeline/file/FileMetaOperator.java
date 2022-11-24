@@ -111,30 +111,38 @@ public class FileMetaOperator {
     private <C> void invokePipelines(List<Pipeline<C>> pipelineList, C context,
             ContextRedoHandler<C> redoHandler) throws ScmServerException, ScmMetasourceException {
         int redoCount = 0;
+        PipelineResult res = null;
         while (redoCount++ < MAX_REDO_COUNT) {
-            PipelineResult res = invokePipelines(pipelineList, context);
-            if (res == PipelineResult.SUCCESS) {
+            res = invokePipelines(pipelineList, context);
+            if (res.getStatus() == PipelineResult.Status.SUCCESS) {
                 return;
             }
-            if (res == PipelineResult.REDO_PIPELINE) {
+            if (res.getStatus() == PipelineResult.Status.REDO_PIPELINE) {
                 redoHandler.beforeRedo(context);
                 continue;
             }
             throw new ScmServerException(ScmError.SYSTEM_ERROR, "unknown PipelineResult:" + res);
         }
+        if (res == null) {
+            // 不可能走到这个分支：MAX_REDO_COUNT <=0
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
+                    "invalid MAX_REDO_COUNT: " + MAX_REDO_COUNT);
+        }
+        if (res.getCause() != null) {
+            throw res.getCause();
+        }
         throw new ScmServerException(ScmError.SYSTEM_ERROR, "failed to invoke pipeline");
-
     }
 
     private <C> PipelineResult invokePipelines(List<Pipeline<C>> pipelineList, C context)
             throws ScmServerException {
         for (Pipeline<C> p : pipelineList) {
             PipelineResult res = p.execute(context);
-            if (res != PipelineResult.SUCCESS) {
+            if (res.getStatus() != PipelineResult.Status.SUCCESS) {
                 return res;
             }
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     public UpdateFileMetaResult updateFileMeta(String ws, String fileId,

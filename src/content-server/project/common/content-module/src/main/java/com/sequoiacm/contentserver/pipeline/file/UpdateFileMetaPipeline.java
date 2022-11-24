@@ -54,7 +54,7 @@ public class UpdateFileMetaPipeline extends Pipeline<UpdateFileMetaContext> {
     void postInvokeFilter(PipelineResult pipelineResult, UpdateFileMetaContext context)
             throws ScmServerException {
         super.postInvokeFilter(pipelineResult, context);
-        if (pipelineResult != PipelineResult.SUCCESS) {
+        if (pipelineResult.getStatus() != PipelineResult.Status.SUCCESS) {
             return;
         }
         if (context.getExpectUpdatedFileMeta() == null) {

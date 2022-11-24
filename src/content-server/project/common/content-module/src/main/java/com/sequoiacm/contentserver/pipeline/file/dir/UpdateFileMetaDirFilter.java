@@ -29,7 +29,7 @@ public class UpdateFileMetaDirFilter implements Filter<UpdateFileMetaContext> {
                         "failed to move file: ws=" + wsInfo.getName() + ", fileId="
                                 + context.getFileId());
             }
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         BSONObject relUpdater = new BasicBSONObject();
@@ -59,7 +59,7 @@ public class UpdateFileMetaDirFilter implements Filter<UpdateFileMetaContext> {
                     + wsInfo.getName() + ", fileId=" + context.getFileId(), e);
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private boolean isLatestVersion(FileMetaUpdater fileMetaUpdater, int latestMajorVersion,

@@ -21,7 +21,7 @@ public class DeleteFileVersionDirFilter implements Filter<DeleteFileVersionConte
 
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(context.getWs());
         if (!wsInfo.isEnableDirectory()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         try {
@@ -32,7 +32,7 @@ public class DeleteFileVersionDirFilter implements Filter<DeleteFileVersionConte
                         .deleteRel(context.getFileId(),
                                 context.getLatestVersionBeforeDelete().getDirId(),
                                 context.getLatestVersionBeforeDelete().getName());
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
 
             // 目录关系表映射的是最新的版本：
@@ -42,7 +42,7 @@ public class DeleteFileVersionDirFilter implements Filter<DeleteFileVersionConte
                     .getLatestVersionAfterDelete().getMajorVersion()
                     && context.getLatestVersionBeforeDelete().getMinorVersion() == context
                             .getLatestVersionAfterDelete().getMinorVersion()) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
 
             BSONObject relUpdater = ScmMetaSourceHelper.createRelUpdatorByFileUpdator(
@@ -63,6 +63,6 @@ public class DeleteFileVersionDirFilter implements Filter<DeleteFileVersionConte
                             + context.getLatestVersionBeforeDelete().getName(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

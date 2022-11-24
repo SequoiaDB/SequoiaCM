@@ -33,7 +33,7 @@ public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
                                 .getShouldDeleteVersion().getMinorVersion()) {
                     updateLatestFile(context, ws);
                     context.setDeletedVersion(context.getCurrentLatestVersion());
-                    return PipelineResult.SUCCESS;
+                    return PipelineResult.success();
                 }
 
                 ScmFileVersionHelper.insertVersionToHistory(ws,
@@ -47,14 +47,14 @@ public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
                 if (deletedVersion != null) {
                     context.setDeletedVersion(FileMeta.fromRecord(deletedVersion));
                 }
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
 
             ScmFileVersionHelper.insertVersionToHistory(ws,
                     context.getCurrentLatestVersion().toBSONObject(),
                     context.getTransactionContext());
             updateLatestFile(context, ws);
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),

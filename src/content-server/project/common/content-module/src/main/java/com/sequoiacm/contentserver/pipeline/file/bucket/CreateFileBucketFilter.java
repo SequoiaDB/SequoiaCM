@@ -45,7 +45,7 @@ public class CreateFileBucketFilter implements Filter<CreateFileContext> {
 
         Long bucketId = fileMeta.getBucketId();
         if (bucketId == null) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         ScmBucket bucket = bucketInfoManager.getBucketById(bucketId);
@@ -80,8 +80,12 @@ public class CreateFileBucketFilter implements Filter<CreateFileContext> {
                         fileMeta.getName(), e);
                 String fileId = findFile(bucket, fileMeta.getName());
                 if (fileId == null) {
-                    // 写入关系表时索引冲突，查找冲突文件时又未找到，另上层重新触发一次 Pipeline
-                    return PipelineResult.REDO_PIPELINE;
+                    // 写入关系表时索引冲突，查找冲突文件时又未找到，通知上层重新触发一次 Pipeline，同时把异常带出去，用于停止重试时提示用户
+                    return PipelineResult
+                            .redo(new ScmServerException(
+                                    ScmError.FILE_EXIST, "file already exist: bucket="
+                                            + bucket.getName() + ", fileName=" + fileMeta.getName(),
+                                    e));
                 }
                 throw new FileMetaExistException(
                         "failed to create file, create bucket relation failed: bucket="
@@ -94,7 +98,7 @@ public class CreateFileBucketFilter implements Filter<CreateFileContext> {
                     e);
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private String findFile(ScmBucket bucket, String fileName) throws ScmServerException {

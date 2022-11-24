@@ -44,7 +44,8 @@ public class CreateFileCoreFilter implements Filter<CreateFileContext> {
                                     + ", file=" + context.getFileMeta().getId(),
                             ex);
                 }
-                return PipelineResult.REDO_PIPELINE;
+                return PipelineResult.redo(new ScmServerException(e.getScmError(),
+                        "failed to create file table:" + context.getFileMeta().getSimpleDesc(), e));
             }
             if (e.getScmError() == ScmError.METASOURCE_RECORD_EXIST) {
                 throw new FileMetaExistException("insert file failed, file exist:ws="
@@ -56,6 +57,6 @@ public class CreateFileCoreFilter implements Filter<CreateFileContext> {
                             + ", file=" + context.getFileMeta().getId(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 }

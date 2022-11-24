@@ -9,7 +9,6 @@ import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaExistException;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
-import com.sequoiacm.contentserver.pipeline.file.bucket.CreateFileBucketFilter;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -24,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CreateFileDirFilter implements Filter<CreateFileContext> {
-    private static final Logger logger = LoggerFactory.getLogger(CreateFileBucketFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(CreateFileDirFilter.class);
 
     @Override
     public PipelineResult executionPhase(CreateFileContext context) throws ScmServerException {
@@ -41,7 +40,7 @@ public class CreateFileDirFilter implements Filter<CreateFileContext> {
                 throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                         "directory feature is disable, can not specified directory id for create file");
             }
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         try {
@@ -57,7 +56,10 @@ public class CreateFileDirFilter implements Filter<CreateFileContext> {
                         fileMeta.getName(), e);
                 String fileId = findFile(wsInfo.getName(), fileMeta.getDirId(), fileMeta.getName());
                 if (fileId == null) {
-                    return PipelineResult.REDO_PIPELINE;
+                    // 写入关系表时索引冲突，查找冲突文件时又未找到，通知上层重新触发一次 Pipeline，同时把异常带出去，用于停止重试时提示用户
+                    return PipelineResult.redo(
+                            new ScmServerException(ScmError.FILE_EXIST, "file already exist: dirId="
+                                    + fileMeta.getDirId() + ", fileName=" + fileMeta.getName(), e));
                 }
                 throw new FileMetaExistException(
                         "failed to create file, create dir relation failed: dirId="
@@ -69,7 +71,7 @@ public class CreateFileDirFilter implements Filter<CreateFileContext> {
                             + fileMeta.getDirId() + ", fileName=" + fileMeta.getName(),
                     e);
         }
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private String findFile(String ws, String dirId, String name) throws ScmServerException {

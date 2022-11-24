@@ -34,7 +34,7 @@ public class DeleteFileCoreFilter implements Filter<DeleteFileContext> {
             context.setDeletedLatestVersion(FileMeta.fromRecord(latestVersion));
 
             if (context.getDeletedLatestVersion().isFirstVersion()) {
-                return PipelineResult.SUCCESS;
+                return PipelineResult.success();
             }
             cursor = contentModule.getMetaService().getMetaSource()
                     .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(),
@@ -43,7 +43,7 @@ public class DeleteFileCoreFilter implements Filter<DeleteFileContext> {
             while (cursor.hasNext()) {
                 context.getDeletedHistoryVersions().add(FileMeta.fromRecord(cursor.getNext()));
             }
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(), "failed to delete file: ws="

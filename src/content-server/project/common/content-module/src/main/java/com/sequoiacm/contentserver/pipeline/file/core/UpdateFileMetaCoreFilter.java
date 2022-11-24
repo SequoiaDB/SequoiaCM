@@ -55,7 +55,7 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
                     + context.getWs() + ", fileId=" + context.getFileId(), e);
         }
 
-        return PipelineResult.SUCCESS;
+        return PipelineResult.success();
     }
 
     private void updateAllHistoryVersion(UpdateFileMetaContext context,

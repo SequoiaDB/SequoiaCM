@@ -57,7 +57,7 @@ public class OverwriteFileDirFilter implements Filter<OverwriteFileContext> {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(context.getWs());
         if (!wsInfo.isEnableDirectory()) {
-            return PipelineResult.SUCCESS;
+            return PipelineResult.success();
         }
 
         try {
