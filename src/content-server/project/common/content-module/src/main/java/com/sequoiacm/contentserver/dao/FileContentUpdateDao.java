@@ -265,7 +265,8 @@ public class FileContentUpdateDao {
     private FileMeta createNewVersionMeta(String ws, String user, BSONObject currentLatestVersion,
             String dataId, int siteId, long size, long createTime, String md5, int wsVersion)
             throws ScmServerException {
-        FileMeta fileMeta = FileMeta.fromUser(ws, currentLatestVersion, user);
+        // currentLatestVersion 来自表中存在的文件元数据，无需检查 classProperties （同时有可能该文件的元数据模型已被删除，若检查可能会不通过）
+        FileMeta fileMeta = FileMeta.fromUser(ws, currentLatestVersion, user, false);
         fileMeta.resetDataInfo(dataId, createTime, ENDataType.Normal.getValue(), size, md5, siteId, wsVersion);
         return fileMeta;
     }

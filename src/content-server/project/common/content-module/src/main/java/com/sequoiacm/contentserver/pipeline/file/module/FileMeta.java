@@ -299,12 +299,15 @@ public class FileMeta implements Cloneable {
 
     public static FileMeta fromUser(String ws, BSONObject userFileObject, String user)
             throws ScmServerException {
+        return fromUser(ws, userFileObject, user, true);
+    }
+
+    public static FileMeta fromUser(String ws, BSONObject userFileObject, String user,
+                                    boolean checkPropsClass) throws ScmServerException {
         FileMeta fileMeta = new FileMeta();
         if (userFileObject == null) {
             userFileObject = new BasicBSONObject();
         }
-
-        String fieldName = FieldName.FIELD_CLFILE_NAME;
 
         String fileName = BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_NAME);
         ScmFileOperateUtils.checkFileName(
@@ -320,13 +323,15 @@ public class FileMeta implements Cloneable {
 
         fileMeta.classId = BsonUtils.getString(userFileObject,
                 FieldName.FIELD_CLFILE_FILE_CLASS_ID);
-
         BSONObject classValue = BsonUtils.getBSON(userFileObject,
                 FieldName.FIELD_CLFILE_PROPERTIES);
-        classValue = BsonUtils.deepCopyRecordBSON(classValue);
-        MetaDataManager.getInstence().checkPropeties(ws, fileMeta.classId, classValue);
-        fileMeta.classProperties = ScmArgumentChecker.checkAndCorrectClass(classValue, fieldName);
-
+        fileMeta.classProperties = BsonUtils.deepCopyRecordBSON(classValue);
+        if (checkPropsClass) {
+            MetaDataManager.getInstence().checkPropeties(ws, fileMeta.classId,
+                    fileMeta.classProperties);
+            fileMeta.classProperties = ScmArgumentChecker.checkAndCorrectClass(
+                    fileMeta.classProperties, FieldName.FIELD_CLFILE_PROPERTIES);
+        }
 
         BSONObject tagsValue = BsonUtils.getBSON(userFileObject, FieldName.FIELD_CLFILE_TAGS);
         tagsValue = BsonUtils.deepCopyRecordBSON(tagsValue);
