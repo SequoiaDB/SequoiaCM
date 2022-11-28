@@ -121,7 +121,9 @@ public class ScheduleTask5225 extends TestScmBase {
                         createTimeOfMonth3 } };
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, dataProvider = "dataProvider")
+    // 问题单SEQUOIACM-1159影响，用例屏蔽
+    @Test(groups = { "twoSite",
+            "fourSite" }, dataProvider = "dataProvider", enabled = false)
     public void test( ScmShardingType dataLocationShardingType,
             String fileCreateTime1, String fileCreateTime2,
             String fileCreateTime3 ) throws Exception {

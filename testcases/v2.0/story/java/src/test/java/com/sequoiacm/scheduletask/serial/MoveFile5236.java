@@ -72,7 +72,8 @@ public class MoveFile5236 extends TestScmBase {
         prepare();
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // 问题单SEQUOIACM-1159影响，用例屏蔽
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     public void test() throws Exception {
         long year = 365L * 24L * 60L * 60L * 1000L;
         long fileACreate_time = now - year;
