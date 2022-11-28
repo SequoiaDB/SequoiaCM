@@ -135,7 +135,7 @@
     <!-- 用户详情弹框 -->
     <user-detail-dialog ref="userDetailDialog" :user="currentUserDetail"></user-detail-dialog>
     <!-- 角色分配弹框 -->
-    <user-role-dialog ref="userRoleDialog" :user="currentUser" :allRoles="allRoles" :hasRoles="roleOfCurrentUser" @refreshTable="queryTableData"></user-role-dialog>
+    <user-role-dialog ref="userRoleDialog" :user="currentUser" :allRoles="allRoles" :hasRoles="roleOfCurrentUser" @onRoleChanged="queryTableData"></user-role-dialog>
     <!-- 重置用户密码弹框 -->
     <user-reset-pwd-dialog :username="currentUser" :roles="roleOfCurrentUser" ref="userResetPwdDialog"></user-reset-pwd-dialog>
   </div>

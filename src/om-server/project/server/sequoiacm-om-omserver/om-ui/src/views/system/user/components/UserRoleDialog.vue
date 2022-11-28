@@ -52,6 +52,7 @@ export default {
           this.$message.success(`角色移除成功`)
         })
       }
+      this.$emit('onRoleChanged')
     },
     show() {
       this.detailDialogVisible = true
