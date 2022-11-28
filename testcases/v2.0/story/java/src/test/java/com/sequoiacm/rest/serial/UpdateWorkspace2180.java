@@ -54,7 +54,8 @@ public class UpdateWorkspace2180 extends TestScmBase {
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 
-    @Test(groups = { "fourSite" })
+    // 问题单SEQUOIACM-1158影响，屏蔽该用例
+    @Test(groups = { "fourSite" }, enabled = false)
     private void test() throws Exception {
         int siteNum = ScmInfo.getSiteNum();
         ScmWorkspaceUtil.createWS( session, wsName, siteNum );
@@ -82,7 +83,7 @@ public class UpdateWorkspace2180 extends TestScmBase {
      * @throws ScmInvalidArgumentException
      */
     private BSONObject siteBson( SiteWrapper site )
-            throws ScmInvalidArgumentException{
+            throws ScmInvalidArgumentException {
         String siteName = site.getSiteName();
         String dataType = site.getDataType().toString();
         switch ( dataType ) {
