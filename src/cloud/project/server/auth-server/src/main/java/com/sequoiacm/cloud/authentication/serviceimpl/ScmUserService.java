@@ -339,10 +339,10 @@ public class ScmUserService implements IUserService {
         }
         if (!IMAdmin && isModifyMyself) {
             if ((passwordType != null) || (addRoles != null && addRoles.size() > 0)
-                    || (delRoles != null && delRoles.size() > 0) || (enabled != null)
-                    || (cleanSessions != null)) {
-                throw new BadRequestException("Can not modify information other than password: "
-                        + currentUser.getUsername());
+                    || (delRoles != null && delRoles.size() > 0) || (enabled != null)) {
+                throw new BadRequestException(
+                        "Current user only supports changing password, user="
+                                + currentUser.getUsername());
             }
         }
     }
