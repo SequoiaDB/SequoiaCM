@@ -72,7 +72,6 @@ public class FileTransferDao {
 
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
-        ScmDataInfo localDataInfo = new ScmDataInfo(file, fileLocationMap.get(localSiteId).getWsVersion());
 
         if (fileLocationMap.get(localSiteId) == null) {
             throw new ScmServerException(ScmError.DATA_NOT_EXIST,
@@ -80,6 +79,9 @@ public class FileTransferDao {
                             + ",version="
                             + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
+
+        ScmDataInfo localDataInfo = new ScmDataInfo(file,
+                fileLocationMap.get(localSiteId).getWsVersion());
 
         if (fileLocationMap.get(remoteSiteId) != null) {
             logger.warn("file is already exist in target site:fileId={},target={},version={}",
