@@ -32,7 +32,7 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
 
     private String wsName;
     private String siteName;
-    private final Map<Integer, ScmLocation> locations;
+    private final Map</* ws_version */Integer, ScmLocation> locations;
     private final SdbDataService service;
     private final MetaDataOperator metaDataOperator;
 
@@ -57,7 +57,8 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
         long dataCreateTime = BsonUtils.getLong(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(BsonUtils.getArray(fileInfo, FieldName.FIELD_CLFILE_FILE_SITE_LIST));
-        ScmLocation location = locations.get(fileLocationMap.get(service.getSiteId()));
+        ScmLocation location = locations
+                .get(fileLocationMap.get(service.getSiteId()).getWsVersion());
         if (location != null) {
             String csName = ((SdbDataLocation) location).getDataCsName(wsName, new Date(dataCreateTime));
             ScmSpacePartitionInfo partitionInfo = new ScmSpacePartitionInfo(csName);

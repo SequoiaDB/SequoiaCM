@@ -123,17 +123,22 @@ public class ScmWorkspaceInfo {
         Map<Integer, ScmLocation> scmLocations = new HashMap<>();
         boolean queryAllHistory = false;
 
-        int needVersion = currentWorkspace.getVersion();
-        scmLocations.put(needVersion, currentWorkspace.getDataLocation());
+        int currentVersion = currentWorkspace.getVersion();
+        ScmLocation currentLocation = currentWorkspace.getDataLocation();
 
-        --needVersion;
+        int needVersion = currentVersion - 1;
         while (needVersion > 0) {
-            if (workspaceHistories.get(needVersion) == null) {
+            ScmWorkspaceItem item = workspaceHistories.get(needVersion);
+            if (item == null) {
                 queryAllHistory = true;
+                scmLocations.clear();
                 break;
             }
+            scmLocations.put(item.getVersion(), item.getDataLocation());
             --needVersion;
         }
+
+        scmLocations.put(currentVersion, currentLocation);
 
         if (queryAllHistory) {
             List<ScmWorkspaceItem> workspaceItems = getHistoryWorkspaces(getName());
@@ -141,11 +146,7 @@ public class ScmWorkspaceInfo {
                 scmLocations.put(item.getVersion(), item.getDataLocation());
             }
         }
-        else {
-            for (ScmWorkspaceItem item : workspaceHistories.getValuesCopy()) {
-                scmLocations.put(item.getVersion(), item.getDataLocation());
-            }
-        }
+
         return scmLocations;
     }
 
