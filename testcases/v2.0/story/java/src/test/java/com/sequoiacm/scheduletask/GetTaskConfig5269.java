@@ -42,7 +42,8 @@ public class GetTaskConfig5269 extends TestScmBase {
                 .is( fileName ).get();
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // SEQUOIACM-1164影响，用例暂时屏蔽
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     public void test() throws Exception {
         // 测试迁移任务
         testTransferTask();

@@ -67,7 +67,8 @@ public class SpaceRecycle5246 extends TestScmBase {
         createFile();
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // SEQUOIACM-1164影响，用例暂时屏蔽
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     public void test() throws Exception {
         // 创建空间回收任务
         ScmSpaceRecycleScope scmSpaceRecycleScope = ScmSpaceRecycleScope
