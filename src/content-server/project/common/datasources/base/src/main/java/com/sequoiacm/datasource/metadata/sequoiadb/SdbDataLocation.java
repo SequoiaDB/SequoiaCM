@@ -156,11 +156,11 @@ public class SdbDataLocation extends SdbLocation {
         // ws_default_LOB_202203 --> 20220301
         // ws_default_LOB_2022Q3 --> 20220901
         // ws_default_LOB_20220801 --> 20220801
-        String shardingStr = csName
-                .substring(wsName.length() + SdbMetaDefine.CS_LOB_EXTRA.length() + 1);
-        if (shardingStr.length() == 0) {
+        if (csName.length() <= wsName.length() + SdbMetaDefine.CS_LOB_EXTRA.length()) {
             return null;
         }
+        String shardingStr = csName
+                .substring(wsName.length() + SdbMetaDefine.CS_LOB_EXTRA.length() + 1);
 
         try {
             Calendar calendar = parseCSTime(shardingStr);
