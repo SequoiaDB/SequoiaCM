@@ -29,7 +29,7 @@ def display(exit_code):
 def parse_command():
     global HOST_LIST, SSH_INFO_FILE
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "host=", "ssh-file="])
+        options, args = getopt.getopt(sys.argv[1:], "h", ["help", "host=", "ssh-file="])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)

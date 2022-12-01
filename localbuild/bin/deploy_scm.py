@@ -43,7 +43,7 @@ def display(exit_code):
 def parse_command():
     global PACKAGE_FILE, TEMPLATE, SDB_INFO_FILE, SCM_INFO_FILE, HOST_LIST, SSH_FILE, IS_FORCE
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help","package-file=", "template=", "sdb-info=", "host=", "output=", "ssh-file=","force"])
+        options, args = getopt.getopt(sys.argv[1:], "h", ["help","package-file=", "template=", "sdb-info=", "host=", "output=", "ssh-file=","force"])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)
@@ -203,7 +203,7 @@ def execRedeployScm(hostList, cfgFile, cfgName, scmInfoFile, sshInfo, template):
     try:
         print("uninstalling and reinstalling ,please wait\n")
         #clean scm
-        cleanRes = cmdExecutor.command("python " + BIN_DIR + "clean_scm.py --host " + HOST_LIST + " --template "  + str(TEMPLATE) + "  --workspace-file " + CONF_DIR + "workspace_template.json" + " --ssh-file " + SSH_FILE )
+        cleanRes = cmdExecutor.command("python " + BIN_DIR + "clean_scm.py --host " + HOST_LIST  + " --ssh-file " + SSH_FILE )
         if cleanRes != 0:
             raise Exception("Failed to clean scm environment")
         scmRes = cmdExecutor.command("python " + TEMP_DIR  + "sequoiacm" + os.sep + "scm.py cluster --deploy --conf " + str(cfgFile))

@@ -36,7 +36,7 @@ def display(exit_code):
 def parse_command():
     global PACKAGE_FILE, HOST, SDB_FILE, IS_FORCE, SSH_FILE, TEMPLATE
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "package-file=", "host=", "output=", "ssh-file=", "template=", "force"])
+        options, args = getopt.getopt(sys.argv[1:], "h", ["help", "package-file=", "host=", "output=", "ssh-file=", "template=", "force"])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)

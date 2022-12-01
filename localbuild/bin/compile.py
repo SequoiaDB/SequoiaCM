@@ -20,7 +20,7 @@ def display(exit_code):
 def parse_command():
     global PACKAGE_PATH
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "package-path="])
+        options, args = getopt.getopt(sys.argv[1:], "h", ["help", "package-path="])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)

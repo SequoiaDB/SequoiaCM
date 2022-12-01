@@ -47,7 +47,7 @@ def display(exit_code):
 def parse_command():
     global IS_INSTALL_SCM, IS_INSTALL_SDB, COMPILE, IS_RUN_TEST, HOST_LIST, IS_FORCE, IS_CLEAN_SCM, IS_CLEAN_WS
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "compile", "installsdb", "installscm", "cleanscm", "runtest", "host=", "force", "cleanws"])
+        options, args = getopt.getopt(sys.argv[1:], "hc", ["help", "compile", "installsdb", "installscm", "cleanscm", "runtest", "host=", "force", "cleanws"])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)

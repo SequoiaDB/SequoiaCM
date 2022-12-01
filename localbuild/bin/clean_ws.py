@@ -29,7 +29,7 @@ def display(exit_code):
 def parse_command():
     global SCM_INFO_FILE, WORKSPACE_FILE
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc:at:", ["help", "scm-info=", "workspace-file="])
+        options, args = getopt.getopt(sys.argv[1:], "h", ["help", "scm-info=", "workspace-file="])
     except getopt.GetoptError, e:
         print ("Error:", e)
         sys.exit(-1)
