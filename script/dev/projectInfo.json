@@ -126,10 +126,6 @@
 			},
 			{
 				"type": "copy",
-				"src": "../../tools/transfer-clean-script/target/sequoiacm-transfer-clean-file"
-			},
-			{
-				"type": "copy",
 				"src": "../../tools/scm-diagnose/target/sequoiacm-scm-diagnose"
 			}
 			]
