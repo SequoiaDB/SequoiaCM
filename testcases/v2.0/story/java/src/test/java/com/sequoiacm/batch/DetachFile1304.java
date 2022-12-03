@@ -46,8 +46,7 @@ public class DetachFile1304 extends TestScmBase {
         // batch.attachFile(fileId);
     }
 
-    //SEQUOIACM-1141
-    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         ScmBatch batch = ScmFactory.Batch.getInstance( ws, batchId );
         try {
