@@ -31,10 +31,17 @@
 
 <script>
 import { updatePwd } from "@/api/user"
+import { mapGetters } from 'vuex'
+import { logout } from '@/utils/auth'
 export default {
   props: { 
     username: { type: String },
     roles: { type: Array }
+  },
+  computed: {
+    ...mapGetters([
+    'user_name'
+    ])
   },
   data() {
     const equalToPassword = (rule, value, callback) => { 
@@ -69,8 +76,16 @@ export default {
       this.$refs["form"].validate(
         valid => { if (valid) {
           updatePwd(this.username, this.user.oldPassword, this.user.newPassword).then(response => {
-            this.$message.success("密码重置成功"); 
-            this.close()
+            if (this.username === this.user_name) {
+              this.$message.success("当前用户密码重置成功，请重新登录验证")
+              setTimeout(() => {
+                logout(null)
+              }, 1000)
+            } 
+            else {
+              this.$message.success("密码重置成功"); 
+              this.close()
+            }
           }); 
         } }
       ); 

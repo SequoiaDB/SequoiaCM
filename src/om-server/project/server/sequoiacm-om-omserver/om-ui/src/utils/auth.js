@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie'
 import CryptoJS from 'crypto-js'
+import store from '../store'
+import router from '../router'
 import { randomStr } from './index'
 const TokenKey = 'scm_token'
 const UsernameKey = 'username'
@@ -44,15 +46,25 @@ export function encrypt(password) {
   return head + encryptByDES(password,key,iv)
 }
 
-
 function encryptByDES(message, key, iv) {
-  const keyHex = CryptoJS.enc.Utf8.parse(key) 
-  const ivHex = CryptoJS.enc.Utf8.parse(iv) 
+  const keyHex = CryptoJS.enc.Utf8.parse(key)
+  const ivHex = CryptoJS.enc.Utf8.parse(iv)
   const encrypted = CryptoJS.DES.encrypt(message, keyHex, {
     iv: ivHex,
-    mode: CryptoJS.mode.CBC, 
+    mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7
   })
   return encrypted.ciphertext.toString() // 加密出来为 hex格式密文
 }
 
+/**
+ * logout
+ */
+export async function logout(redirectPath) {
+  await store.dispatch('user/logout')
+  let path = '/login'
+  if (redirectPath != null) {
+    path = path + '?redirect=' + redirectPath
+  }
+  router.push(path)
+}

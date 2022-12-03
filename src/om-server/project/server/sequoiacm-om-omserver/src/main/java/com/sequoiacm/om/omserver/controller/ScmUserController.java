@@ -59,7 +59,7 @@ public class ScmUserController {
     public void changePassword(ScmOmSession session, @PathVariable("user_name") String username,
             @RequestParam(value = RestParamDefine.OLD_PASSWORD, required = false) String oldPassword,
             @RequestParam(value = RestParamDefine.NEW_PASSWORD, required = true) String newPassword,
-            @RequestParam(value = RestParamDefine.CLEAB_SESSIONS, required = false, defaultValue = "false") boolean cleanSessions)
+            @RequestParam(value = RestParamDefine.CLEAB_SESSIONS, required = false, defaultValue = "true") boolean cleanSessions)
             throws ScmInternalException, ScmOmServerException {
         userservice.changePassword(session, username, passwordMgr.decrypt(oldPassword),
                 passwordMgr.decrypt(newPassword), cleanSessions);

@@ -18,6 +18,7 @@
 </template>
 <script> 
 import { updatePwd } from "@/api/user"; 
+import { logout } from '@/utils/auth';
 export default { 
   props: { 
     username: { type: String } 
@@ -56,9 +57,10 @@ export default {
       this.$refs["form"].validate(
         valid => { if (valid) {
           updatePwd(this.username, this.user.oldPassword, this.user.newPassword).then(response => {
-            this.$message.success("密码修改成功")
-            // 重置表单
-            this.clearForm()
+            this.$message.success("密码修改成功，请重新登录验证")
+            setTimeout(() => {
+              logout(null)
+            }, 1000)
           })
         } 
       })

@@ -249,7 +249,7 @@ public class ScmUserService implements IUserService {
             ScmUser newUser = builder.build();
             updateUser(newUser, isAlterRoles);
 
-            if (securityAltered && cleanSessions != null && cleanSessions && !isModifyMyself) {
+            if (securityAltered && cleanSessions != null && cleanSessions) {
                 sessionRepository.deleteSessions(username);
             }
 
