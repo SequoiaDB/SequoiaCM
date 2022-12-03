@@ -1244,6 +1244,12 @@
                 "en": "Compatibility"
             }]
         },
+		{
+                "id": 1670036546,
+                "file": "uninstall",
+                "cn": "卸载",
+                "en": "uninstall"
+		},
         {
             "id": 1648803144,
             "dir": "Security",
