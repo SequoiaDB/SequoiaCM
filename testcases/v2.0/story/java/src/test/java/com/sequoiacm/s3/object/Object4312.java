@@ -4,23 +4,16 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.*;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @Descreption SCM-4312:使用S3协议跨站点上传下载文件
@@ -78,9 +71,7 @@ public class Object4312 extends TestScmBase {
         S3Utils.clearBucket( rootS3Client, bucketName );
     }
 
-    // SEQUOIACM-1147
-    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite,
-            GroupTags.base }, enabled = false)
+    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite, GroupTags.base })
     public void test() throws Exception {
         // 在主站点ws下创建桶，创建文件
         rootS3Client.createBucket( bucketName );
