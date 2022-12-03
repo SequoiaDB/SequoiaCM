@@ -8,6 +8,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.testng.Assert;
@@ -47,8 +48,7 @@ public class CreateBucket3262 extends TestScmBase {
         S3Utils.clearBucket( s3B, bucketNameC );
     }
 
-    // SEQUOIACM-1146
-    @Test(enabled = false)
+    @Test(groups = { GroupTags.base })
     public void test() throws ScmException {
         // 用户A创建桶A
         s3A.createBucket( bucketNameA );

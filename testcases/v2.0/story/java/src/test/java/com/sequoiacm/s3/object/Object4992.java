@@ -5,6 +5,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -57,8 +58,7 @@ public class Object4992 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    // SEQUOIACM-1146
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     public void test() throws Exception {
         s3Client.createBucket( bucketName, s3WS.getName() );
 
