@@ -94,9 +94,8 @@ public class UpdateContentAndDefineAttr1938 extends TestScmBase {
         fileId = VersionUtils.createFileByFile( ws, fileName, filePath );
     }
 
-    // SEQUOIACM-1143
     @Test(groups = { "oneSite", "twoSite",
-            "fourSite" }, dataProvider = "testProvider", enabled = false)
+            "fourSite" }, dataProvider = "testProvider")
     private void test( String className, String attrStr, Object value )
             throws Exception {
         updateContentAndSetAttr( attrStr, value, className );
