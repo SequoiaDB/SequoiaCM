@@ -27,7 +27,9 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ContenserverConfClient {
     private static ContenserverConfClient instance = new ContenserverConfClient();
@@ -296,6 +298,7 @@ public class ContenserverConfClient {
         bucketConfig.setWorkspace(ws);
         bucketConfig.setName(bucketName);
         bucketConfig.setVersionStatus(ScmBucketVersionStatus.Disabled.name());
+        bucketConfig.setCustomTag(new HashMap<>());
         bucketConfig.setUpdateUser(user);
         try {
             BucketConfig ret = (BucketConfig) client.createConf(ScmConfigNameDefine.BUCKET,
@@ -314,8 +317,9 @@ public class ContenserverConfClient {
 
     public ScmBucket updateBucketVersionStatus(String user, String bucketName,
             ScmBucketVersionStatus status) throws ScmServerException {
-        BucketConfigUpdater bucketConfigUpdater = new BucketConfigUpdater(bucketName, status.name(),
-                user);
+        BucketConfigUpdater bucketConfigUpdater = new BucketConfigUpdater(bucketName);
+        bucketConfigUpdater.setVersionStatus(status.name());
+        bucketConfigUpdater.setUpdateUser(user);
         try {
             BucketConfig ret = (BucketConfig) client.updateConfig(ScmConfigNameDefine.BUCKET,
                     bucketConfigUpdater, false);
@@ -345,13 +349,31 @@ public class ContenserverConfClient {
         }
     }
 
+    public void updateBucketTag(String username, String bucketName, Map<String, String> customTag)
+            throws ScmServerException {
+        BucketConfigUpdater bucketConfigUpdater = new BucketConfigUpdater(bucketName);
+        bucketConfigUpdater.setUpdateUser(username);
+        bucketConfigUpdater.setCustomTag(customTag);
+        try {
+            client.updateConfig(ScmConfigNameDefine.BUCKET, bucketConfigUpdater, false);
+        }
+        catch (ScmConfigException e) {
+            if (e.getError() == ScmConfError.BUCKET_NOT_EXIST) {
+                throw new ScmServerException(ScmError.BUCKET_NOT_EXISTS,
+                        "bucket not exists: bucketName=" + bucketName, e);
+            }
+            throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
+                    "failed to update bucket: bucket=" + bucketName, e);
+        }
+    }
+
     private ScmBucket convertBucketConf(BucketConfig ret) {
         ScmBucketVersionStatus versionStatus = ScmBucketVersionStatus.parse(ret.getVersionStatus());
         if (versionStatus == null) {
             throw new IllegalArgumentException("invalid version status:" + ret.toString());
         }
         return new ScmBucket(ret.getName(), ret.getId(), ret.getCreateTime(), ret.getCreateUser(),
-                ret.getWorkspace(), ret.getFileTable(), versionStatus, ret.getUpdateUser(),
-                ret.getUpdateTime(), bucketInfoMgr);
+                ret.getWorkspace(), ret.getFileTable(), versionStatus, ret.getCustomTag(),
+                ret.getUpdateUser(), ret.getUpdateTime(), bucketInfoMgr);
     }
 }

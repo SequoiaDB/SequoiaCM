@@ -40,6 +40,8 @@ public class FileMappingUtil {
         BasicBSONObject metaData = new BasicBSONObject(meta.getMetaList());
         ret.put(FieldName.FIELD_CLFILE_CUSTOM_METADATA, metaData);
         ret.put(FieldName.FIELD_CLFILE_FILE_TITLE, "");
+        BasicBSONObject customTag = new BasicBSONObject(meta.getTagging());
+        ret.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, customTag);
         return ret;
     }
 
@@ -107,6 +109,15 @@ public class FileMappingUtil {
             }
         }
         ret.setMetaList(metalist);
+        
+        Map<String, String> tagging = new HashMap<>();
+        BSONObject customTag = BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+        if (customTag != null) {
+            for (String key : customTag.keySet()) {
+                tagging.put(key, (String) customTag.get(key));
+            }
+        }
+        ret.setTagging(tagging);
 
         BSONObject externalData = BsonUtils.getBSON(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);

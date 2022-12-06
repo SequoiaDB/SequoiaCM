@@ -34,6 +34,11 @@ public class ScmTestMultiCenterBase {
 
     private static String srcFile;
 
+    private static String s3AccessKeyID;
+    private static String s3SecretKey;
+    private static String s3WorkSpaces;
+    private static List<String> gatewayList;
+
     @Parameters({
             "MAINSDBURL",
             "SDBUSER",
@@ -42,13 +47,15 @@ public class ScmTestMultiCenterBase {
             "SCMUSER",
             "SCMPASSWD",
             "GATEWAYS",
-            "DATADIR"
+
+            "DATADIR", "S3ACCESSKEYID", "S3SECRETKEY", "S3WOKERSPACES",
     })
 
 
     @BeforeSuite
     public void initSuite(String MAINSDBURL, String SDBUSER, String SDBPASSWD, String SCMUSER,
-                          String SCMPASSWD, String GATEWAYS, String DATADIR) throws ScmException {
+            String SCMPASSWD, String GATEWAYS, String DATADIR, String S3ACCESSKEYID,
+            String S3SECRETKEY, String S3WOKERSPACES) throws ScmException {
 
         // 解析配置参数
         String sdbUrl = MAINSDBURL;
@@ -57,7 +64,11 @@ public class ScmTestMultiCenterBase {
 
         scmUser = SCMUSER;
         scmPasswd = SCMPASSWD;
-        List<String> gatewayList = Arrays.asList(GATEWAYS.split(","));
+        gatewayList = Arrays.asList(GATEWAYS.split(","));
+
+        s3AccessKeyID = S3ACCESSKEYID;
+        s3SecretKey = S3SECRETKEY;
+        s3WorkSpaces = S3WOKERSPACES;
 
         ScmSession session = ScmFactory.Session
                 .createSession(new ScmConfigOption(gatewayList.get(0), scmUser, scmPasswd));
@@ -195,4 +206,19 @@ public class ScmTestMultiCenterBase {
         return srcFile;
     }
 
+    public static String getS3AccessKeyID() {
+        return s3AccessKeyID;
+    }
+
+    public static String getS3SecretKey() {
+        return s3SecretKey;
+    }
+
+    public static String getS3WorkSpaces() {
+        return s3WorkSpaces;
+    }
+
+    public static List<String> getGatewayList() {
+        return gatewayList;
+    }
 }

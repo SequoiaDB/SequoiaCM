@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BucketServiceImpl implements BucketService {
@@ -236,5 +237,84 @@ public class BucketServiceImpl implements BucketService {
                     "get bucket versioning failed. bucketname=" + bucketName, e);
         }
 
+    }
+
+    @Override
+    public void setBucketTag(ScmSession session, String bucketName, Map<String, String> customTag)
+            throws S3ServerException {
+        try {
+            scmBucketService.setBucketTag(session.getUser(), bucketName, customTag);
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "The specified bucket does not exist. bucket name = " + bucketName, e);
+            }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not access the specified bucket. bucket name = " + bucketName, e);
+            }
+            if (e.getError() == ScmError.BUCKET_INVALID_CUSTOMTAG) {
+                throw new S3ServerException(S3Error.BUCKET_INVALID_TAGGING, e.getMessage(), e);
+            }
+            if (e.getError() == ScmError.BUCKET_CUSTOMTAG_TOO_LARGE) {
+                throw new S3ServerException(S3Error.BUCKET_TAGGING_TOO_LARGE, e.getMessage(), e);
+            }
+            throw new S3ServerException(S3Error.BUCKET_TAGGING_PUT_FAILED,
+                    "put bucket tagging failed. bucketname=" + bucketName + ",tagging=" + customTag,
+                    e);
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.BUCKET_TAGGING_PUT_FAILED,
+                    "put bucket tagging failed. bucketname=" + bucketName + ",tagging=" + customTag,
+                    e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getBucketTag(ScmSession session, String bucketName)
+            throws S3ServerException {
+        try {
+            return scmBucketService.getBucketTag(session.getUser(), bucketName);
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "The specified bucket does not exist. bucket name = " + bucketName, e);
+            }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not access the specified bucket. bucket name = " + bucketName, e);
+            }
+            throw new S3ServerException(S3Error.BUCKET_TAGGING_GET_FAILED,
+                    "get bucket tagging failed. bucketname=" + bucketName, e);
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.BUCKET_TAGGING_GET_FAILED,
+                    "get bucket tagging failed. bucketname=" + bucketName, e);
+        }
+    }
+
+    @Override
+    public void deleteBucketTag(ScmSession session, String bucketName) throws S3ServerException {
+        try {
+            scmBucketService.deleteBucketTag(session.getUser(), bucketName);
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.BUCKET_NOT_EXISTS) {
+                throw new S3ServerException(S3Error.BUCKET_NOT_EXIST,
+                        "The specified bucket does not exist. bucket name = " + bucketName, e);
+            }
+            if (e.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                throw new S3ServerException(S3Error.ACCESS_DENIED,
+                        "You can not access the specified bucket. bucket name = " + bucketName, e);
+            }
+            throw new S3ServerException(S3Error.BUCKET_TAGGING_DELETE_FAILED,
+                    "delete bucket tagging failed. bucketname=" + bucketName, e);
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.BUCKET_TAGGING_DELETE_FAILED,
+                    "delete bucket tagging failed. bucketname=" + bucketName, e);
+        }
     }
 }

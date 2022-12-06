@@ -843,6 +843,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         objectMeta.setContentLanguage(upload.getContentLanguage());
         objectMeta.setExpires(upload.getExpires());
         objectMeta.setMetaList(upload.getMetaList());
+        objectMeta.setTagging(upload.getTagging());
 
         BSONObject ret = FileMappingUtil.buildFileInfo(objectMeta);
         return ret;

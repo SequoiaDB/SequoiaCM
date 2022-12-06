@@ -55,6 +55,9 @@ public class OmFileDetail extends OmFileBasic {
 
     @JsonProperty("custom_metadata")
     private Map<String, String> customMetadata;
+    
+    @JsonProperty("custom_tag")
+    private Map<String, String> customTag;
 
     @JsonProperty("class_id")
     private String classId;
@@ -138,6 +141,14 @@ public class OmFileDetail extends OmFileBasic {
 
     public void setCustomMetadata(Map<String, String> customMetadata) {
         this.customMetadata = customMetadata;
+    }
+
+    public Map<String, String> getCustomTag() {
+        return customTag;
+    }
+
+    public void setCustomTag(Map<String, String> customTag) {
+        this.customTag = customTag;
     }
 
     public String getBatchId() {

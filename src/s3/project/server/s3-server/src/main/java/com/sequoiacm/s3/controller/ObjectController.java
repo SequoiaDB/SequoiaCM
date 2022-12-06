@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
@@ -23,6 +25,9 @@ import com.sequoiacm.s3.model.DeleteObjects;
 import com.sequoiacm.s3.model.DeleteObjectsResult;
 import com.sequoiacm.s3.model.ObjectDeleted;
 import com.sequoiacm.s3.model.ObjectToDel;
+import com.sequoiacm.s3.model.Tag;
+import com.sequoiacm.s3.model.TagSet;
+import com.sequoiacm.s3.model.Tagging;
 import com.sequoiacm.s3.utils.MD5Utils;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -449,6 +454,7 @@ public class ObjectController {
             @PathVariable("bucketname") String bucketName, ScmSession session,
             @RequestHeader(name = RestParamDefine.CopyObjectHeader.X_AMZ_COPY_SOURCE) String copySource,
             @RequestHeader(name = RestParamDefine.CopyObjectHeader.METADATA_DIRECTIVE, required = false) String directive,
+            @RequestHeader(name = RestParamDefine.CopyObjectHeader.TAGGING_DIRECTIVE, required = false) String taggingDirective,
             HttpServletRequest httpServletRequest, HttpServletResponse response,
             CopyObjectMatcher matcher) throws S3ServerException, IOException {
 
@@ -463,9 +469,10 @@ public class ObjectController {
             ObjectUri sourceUri = new ObjectUri(copySource);
 
             boolean copyMeta = directiveCopy(directive);
+            boolean copyTagging = directiveCopy(taggingDirective);
 
             CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucketName, objectName,
-                    requestHeaders, xMeta, sourceUri, copyMeta, matcher);
+                    requestHeaders, xMeta, sourceUri, copyMeta, copyTagging, matcher);
             CopyObjectResult result = objectService.copyObject(session, copyObjectRequest);
             HttpHeaders headers = new HttpHeaders();
             if (result.getVersionId() != null) {
@@ -485,6 +492,96 @@ public class ObjectController {
             logger.error(
                     "copy object failed. bucketName={}, bucketName/objectName={}, " + "source={}",
                     bucketName, httpServletRequest.getRequestURI(), copySource);
+            throw e;
+        }
+    }
+
+    @PutMapping(value = "/{bucketname:.+}/**", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<?> putObjectTag(@PathVariable("bucketname") String bucketName,
+            @RequestParam(value = RestParamDefine.VERSION_ID, required = false) String versionId,
+            HttpServletRequest request, ScmSession session) throws S3ServerException {
+        try {
+            String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
+            Tagging tagging = getTagging(request);
+            if (tagging.getTagList() == null || tagging.getTagList().size() == 0) {
+                Map<String, String> customTag = new HashMap<>();
+                objectService.setObjectTag(session, bucketName, objectName, customTag, versionId);
+            }
+            else {
+                checkObjectTagKey(tagging);
+                objectService.setObjectTag(session, bucketName, objectName, tagging.toMap(),
+                        versionId);
+            }
+            HttpHeaders headers = new HttpHeaders();
+            if (versionId != null) {
+                headers.add(RestParamDefine.ObjectTagResultHeader.VERSION_ID, versionId);
+            }
+            return ResponseEntity.ok().headers(headers).build();
+        }
+        catch (Exception e) {
+            logger.error(
+                    "set object tag failed. bucketName={}, bucketName/objectName={}, versionId={}",
+                    bucketName, request.getRequestURI(), versionId);
+            throw e;
+        }
+    }
+
+    @GetMapping(value = "/{bucketname:.+}/**", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<?> getObjectTag(@PathVariable("bucketname") String bucketName,
+            @RequestParam(value = RestParamDefine.VERSION_ID, required = false) String versionId,
+            HttpServletRequest request, ScmSession session) throws S3ServerException {
+        try {
+            String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
+            Map<String, String> customTag = objectService.getObjectTag(session, bucketName,
+                    objectName, versionId);
+            HttpHeaders headers = new HttpHeaders();
+            if (versionId != null) {
+                headers.add(RestParamDefine.ObjectTagResultHeader.VERSION_ID, versionId);
+            }
+            Tagging tagging = new Tagging(customTag);
+            return ResponseEntity.ok().headers(headers).body(tagging);
+        }
+        catch (Exception e) {
+            logger.error(
+                    "get object tag failed. bucketName={}, bucketName/objectName={}, versionId={}",
+                    bucketName, request.getRequestURI(), versionId);
+            throw e;
+        }
+    }
+
+    @DeleteMapping(value = "/{bucketname:.+}/**", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
+    public void deleteObjectTag(@PathVariable("bucketname") String bucketName,
+            HttpServletRequest request, ScmSession session) throws S3ServerException {
+        try {
+            String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
+            objectService.deleteObjectTag(session, bucketName, objectName, null);
+        }
+        catch (Exception e) {
+            logger.error("delete object tag failed. bucketName={}, bucketName/objectName={}",
+                    bucketName, request.getRequestURI());
+            throw e;
+        }
+    }
+
+    @DeleteMapping(value = "/{bucketname:.+}/**", params = { RestParamDefine.TAGGING,
+            RestParamDefine.VERSION_ID }, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<?> deleteObjectTagByVersionId(
+            @PathVariable("bucketname") String bucketName,
+            @RequestParam(value = RestParamDefine.VERSION_ID) String versionId,
+            HttpServletRequest request, ScmSession session) throws S3ServerException {
+        try {
+            String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
+            objectService.deleteObjectTag(session, bucketName, objectName, versionId);
+            HttpHeaders headers = new HttpHeaders();
+            if (versionId != null) {
+                headers.add(RestParamDefine.ObjectTagResultHeader.VERSION_ID, versionId);
+            }
+            return ResponseEntity.ok().headers(headers).build();
+        }
+        catch (Exception e) {
+            logger.error(
+                    "delete object tag failed. bucketName={}, bucketName/objectName={}, versionId={}",
+                    bucketName, request.getRequestURI(), versionId);
             throw e;
         }
     }
@@ -518,6 +615,8 @@ public class ObjectController {
                     String.valueOf(objectMeta.getVersionId()));
         }
         response.addHeader(RestParamDefine.GetObjectResHeader.ACCEPT_RANGES, "bytes");
+        response.addHeader(RestParamDefine.GetObjectResHeader.TAG_COUNT,
+                String.valueOf(objectMeta.getTagging().size()));
 
         if (null != objectMeta.getMetaList()) {
             Map<String, String> metaList = objectMeta.getMetaList();
@@ -652,6 +751,41 @@ public class ObjectController {
         }
         catch (Exception e) {
             throw new S3ServerException(S3Error.MALFORMED_XML, "get delete objects failed", e);
+        }
+    }
+
+    private Tagging getTagging(HttpServletRequest httpServletRequest) throws S3ServerException {
+        Tagging tagging = null;
+        try {
+            String content = CommonUtil.readStream(httpServletRequest);
+            if (content.length() > 0) {
+                ObjectMapper objectMapper = new XmlMapper();
+                tagging = objectMapper.readValue(content, Tagging.class);
+            }
+            if (tagging == null) {
+                throw new S3ServerException(S3Error.MALFORMED_XML, "tagging is null");
+            }
+            return tagging;
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.MALFORMED_XML, "get tagging failed", e);
+        }
+    }
+
+    private void checkObjectTagKey(Tagging tagging) throws S3ServerException {
+        Set<String> set = new HashSet<>();
+        List<TagSet> tagSets = tagging.getTagList();
+        for (TagSet tagSet : tagSets) {
+            List<Tag> tagList = tagSet.getTag();
+            if (tagList == null) {
+                continue;
+            }
+            for (Tag tag : tagList) {
+                if (!set.add(tag.getKey())) {
+                    throw new S3ServerException(S3Error.OBJECT_TAGGING_SAME_KEY,
+                            "the object tag can not contain same key");
+                }
+            }
         }
     }
 }

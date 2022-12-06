@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 public class FileServiceImpl implements IFileService {
@@ -383,6 +384,10 @@ public class FileServiceImpl implements IFileService {
             BSONObject fileInfo, int majorVersion, int minorVersion) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkFilePriorityByFileId(user, workspaceName, this,
                 fileId, majorVersion, minorVersion, ScmPrivilegeDefine.UPDATE, "update file by id");
+        BSONObject customTag = BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+        if (customTag != null) {
+            fileInfo.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new TreeMap<>(customTag.toMap()));
+        }
         FileMeta ret = fileInfoUpdatorDao.updateInfo(user.getUsername(), workspaceName, fileId,
                 majorVersion, minorVersion, fileInfo);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,

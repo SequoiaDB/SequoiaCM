@@ -59,8 +59,10 @@ public class ScmFileUtil {
         ScmTags scmTags = new ScmTags();
         scmTags.addTags(fileInfo.getTags());
         scmFile.setTags(scmTags);
-        // 添加自由标签
+        // 添加自由元数据
         scmFile.setCustomMetadata(fileInfo.getCustomMetadata());
+        // 添加自由标签
+        scmFile.setCustomTag(fileInfo.getCustomTag());
         // 设置元数据
         if (!StringUtils.isEmpty(fileInfo.getClassId())) {
             ScmClassProperties classProperties = new ScmClassProperties(fileInfo.getClassId());

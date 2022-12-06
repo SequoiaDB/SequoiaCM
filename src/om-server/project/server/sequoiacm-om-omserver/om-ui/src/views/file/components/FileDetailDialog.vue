@@ -46,11 +46,36 @@
           <el-col :span="9"><span class="value">{{$util.parseTime(curVersionFileDetail.update_time)}}</span></el-col>
         </el-row>
         <el-row v-if="customMetadataList.length!==0">
-          <el-col :span="3"><span class="key" style="line-height:30px;">自由标签</span></el-col>
+          <el-col :span="3"><span class="key" style="line-height:30px;">自由元数据</span></el-col>
           <el-col :span="21">
             <template>
               <el-table
                 :data="customMetadataList"
+                border
+                size="mini"
+                max-height="200"
+                style="width: 80%">
+                <el-table-column
+                  prop="key"
+                  label="key"
+                  width="180"
+                  show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                  prop="value"
+                  label="value"
+                  show-overflow-tooltip>
+                </el-table-column>
+              </el-table>
+            </template>
+          </el-col>
+        </el-row>
+        <el-row v-if="customTagList.length!==0">
+          <el-col :span="3"><span class="key" style="line-height:30px;">自由标签</span></el-col>
+          <el-col :span="21">
+            <template>
+              <el-table
+                :data="customTagList"
                 border
                 size="mini"
                 max-height="200"
@@ -106,11 +131,11 @@
           <el-col :span="21">
             <el-select
               id="select_file_detail_version"
-              v-model="curVersion" 
-              value-key="Id" 
-              filterable 
-              size="small" 
-              style="width:50%" 
+              v-model="curVersion"
+              value-key="Id"
+              filterable
+              size="small"
+              style="width:50%"
               @change="handleVersionChange">
                 <el-option
                   v-for="item in multiVofCurFile"
@@ -139,9 +164,9 @@
         </el-row>
         <el-row>
           <el-col :span="3">
-            <span class="key" style="line-height:35px;">存储站点</span> 
+            <span class="key" style="line-height:35px;">存储站点</span>
           </el-col>
-          <el-col :span="21">        
+          <el-col :span="21">
             <el-tooltip placement="top"
               v-for="siteItem of this.curVersionFileDetail.sites"
               :key="siteItem.site_name">
@@ -169,7 +194,7 @@
 import {queryFileDetail} from '@/api/file'
 export default {
   setup() {
-  }, 
+  },
   props: {
     workspace: {
       type: String,
@@ -192,7 +217,8 @@ export default {
       curVersionFileDetail: {
         tags: []
       },
-      customMetadataList: []
+      customMetadataList: [],
+      customTagList: []
     }
   },
   methods: {
@@ -222,10 +248,16 @@ export default {
       queryFileDetail(this.workspace, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version).then(res => {
         this.curVersionFileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
         let customMetadata = this.curVersionFileDetail.custom_metadata
+        let customTag = this.curVersionFileDetail.custom_tag
         this.customMetadataList = []
+        this.customTagList = []
         for (let key in customMetadata) {
           let value = customMetadata[key]
           this.customMetadataList.push({ 'key': key, 'value': value})
+        }
+        for (let key in customTag) {
+          let value = customTag[key]
+          this.customTagList.push({ 'key': key, 'value': value})
         }
       })
     },
@@ -273,7 +305,7 @@ export default {
 }
 .value {
   font-size: 14px;
-  overflow: hidden; 
+  overflow: hidden;
   color: #606266;
 }
 .el-tag {

@@ -1,6 +1,10 @@
 package com.sequoiacm.s3.core;
 
+import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.s3.common.RestParamDefine;
+import com.sequoiacm.s3.exception.S3ServerException;
+import com.sequoiacm.s3.utils.CommonUtil;
+import org.springframework.util.StringUtils;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -53,7 +57,7 @@ public class S3PutObjectRequest {
 
     public S3PutObjectRequest(String bucketName, String objectKey,
             Map<String, String> requestHeaders, Map<String, String> xMeta, long realContenLength,
-            String contentMD5, InputStream body) {
+            String contentMD5, InputStream body) throws S3ServerException {
         objectMeta.setBucket(bucketName);
         objectMeta.setKey(objectKey);
 
@@ -80,6 +84,12 @@ public class S3PutObjectRequest {
         }
         objectMeta.setMetaList(metaList);
         objectMeta.setSize(realContenLength);
+        String taggingStr = requestHeaders.get(RestParamDefine.PutObjectHeader.X_AMZ_TAGGING);
+        Map<String, String> tagMap = new HashMap<>();
+        if (!StringUtils.isEmpty(taggingStr)) {
+            tagMap = CommonUtil.parseObjectTagging(taggingStr);
+        }
+        objectMeta.setTagging(tagMap);
         String objectCreateTimeStr = requestHeaders
                 .get(RestParamDefine.PutObjectHeader.X_SCM_OBJECT_CREATE_TIME);
         if (objectCreateTimeStr != null) {

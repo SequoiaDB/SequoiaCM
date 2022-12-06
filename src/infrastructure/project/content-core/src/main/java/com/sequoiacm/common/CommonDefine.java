@@ -328,6 +328,7 @@ public class CommonDefine {
         public static final String FILE_LIST_SCOPE = "scope";
         public static final String FILE_FILTER = "filter";
         public static final String FILE_DESCRIPTION = "description";
+        public static final String FILE_CUSTOM_TAG = "custom_tag";
         public static final String FILE_INFO = "file_info";
         public static final String FILE_MULTIPART_FILE = "file";
         public static final String FILE_RESP_FILE_INFO = "file";
@@ -420,6 +421,7 @@ public class CommonDefine {
         public static final String ATTACH_FAILURE_EXT_INFO = "external_info";
         public static final String ATTACH_FAILURE_EXT_INFO_BUCKET_NAME = "bucket_name";
         public static final String BUCKET_VERSION_STATUS = "version_status";
+        public static final String BUCKET_CUSTOM_TAG = "custom_tag";
         public static final String NULL_MARKER_ONLY = "null_marker_only";
 
     }

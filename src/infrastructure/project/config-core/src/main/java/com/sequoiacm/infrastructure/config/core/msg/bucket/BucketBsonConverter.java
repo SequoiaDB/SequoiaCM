@@ -15,6 +15,7 @@ import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
 import com.sequoiacm.infrastructure.config.core.msg.DefaultVersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
+import org.springframework.util.StringUtils;
 
 @Converter
 public class BucketBsonConverter implements BsonConverter {
@@ -32,6 +33,7 @@ public class BucketBsonConverter implements BsonConverter {
         bucketConfig.setWorkspace(BsonUtils.getStringChecked(config, FieldName.Bucket.WORKSPACE));
         bucketConfig.setFileTable(BsonUtils.getString(config, FieldName.Bucket.FILE_TABLE));
         bucketConfig.setVersionStatus(BsonUtils.getString(config, FieldName.Bucket.VERSION_STATUS));
+        bucketConfig.setCustomTag(BsonUtils.getBSON(config, FieldName.Bucket.CUSTOM_TAG).toMap());
         return bucketConfig;
     }
 
@@ -71,10 +73,19 @@ public class BucketBsonConverter implements BsonConverter {
 
     @Override
     public ConfigUpdator convertToConfigUpdator(BSONObject configUpdator) {
-        return new BucketConfigUpdater(
-                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.NAME),
-                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.VERSION_STATUS),
-                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.UPDATE_USER));
+        BucketConfigUpdater updater = new BucketConfigUpdater(
+                BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.NAME));
+        String versionStatus = BsonUtils.getString(configUpdator, FieldName.Bucket.VERSION_STATUS);
+        if (!StringUtils.isEmpty(versionStatus)) {
+            updater.setVersionStatus(
+                    BsonUtils.getString(configUpdator, FieldName.Bucket.VERSION_STATUS));
+        }
+        BSONObject customTag = BsonUtils.getBSON(configUpdator, FieldName.Bucket.CUSTOM_TAG);
+        if (customTag != null) {
+            updater.setCustomTag(customTag.toMap());
+        }
+        updater.setUpdateUser(BsonUtils.getStringChecked(configUpdator, FieldName.Bucket.UPDATE_USER));
+        return updater;
     }
 
     @Override

@@ -6,6 +6,8 @@ import org.bson.BasicBSONObject;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
+import java.util.Map;
+
 public class BucketConfig implements Config {
     private String name;
     private long id;
@@ -14,6 +16,7 @@ public class BucketConfig implements Config {
     private String createUser;
     private String workspace;
     private String versionStatus;
+    private Map<String, String> customTag;
     private long updateTime;
     private String updateUser;
 
@@ -92,6 +95,14 @@ public class BucketConfig implements Config {
         this.versionStatus = versionStatus;
     }
 
+    public Map<String, String> getCustomTag() {
+        return customTag;
+    }
+
+    public void setCustomTag(Map<String, String> customTag) {
+        this.customTag = customTag;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BasicBSONObject ret = new BasicBSONObject();
@@ -102,6 +113,7 @@ public class BucketConfig implements Config {
         ret.put(FieldName.Bucket.CREATE_USER, createUser);
         ret.put(FieldName.Bucket.FILE_TABLE, fileTable);
         ret.put(FieldName.Bucket.VERSION_STATUS, versionStatus);
+        ret.put(FieldName.Bucket.CUSTOM_TAG, customTag);
         ret.put(FieldName.Bucket.UPDATE_TIME, updateTime);
         ret.put(FieldName.Bucket.UPDATE_USER, updateUser);
         return ret;
@@ -112,6 +124,7 @@ public class BucketConfig implements Config {
         return "BucketConfig{" + "name='" + name + '\'' + ", id=" + id + ", fileTable='" + fileTable
                 + '\'' + ", createTime=" + createTime + ", createUser='" + createUser + '\''
                 + ", workspace='" + workspace + '\'' + ", versionStatus='" + versionStatus + '\''
-                + ", updateTime=" + updateTime + ", updateUser='" + updateUser + '\'' + '}';
+                + ", customTag=" + customTag + ", updateTime=" + updateTime + ", updateUser='"
+                + updateUser + '\'' + '}';
     }
 }

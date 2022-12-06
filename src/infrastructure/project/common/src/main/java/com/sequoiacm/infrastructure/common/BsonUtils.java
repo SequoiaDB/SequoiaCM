@@ -4,6 +4,7 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public final class BsonUtils {
@@ -166,6 +167,17 @@ public final class BsonUtils {
         BasicBSONList ret = new BasicBSONList();
         for (Object e : bson) {
             ret.add(deepCopyRecordObject(e));
+        }
+        return ret;
+    }
+
+    public static Map<String, Object> deepCopyMap(Map<String, Object> map) {
+        if (map == null) {
+            return null;
+        }
+        Map<String, Object> ret = new HashMap<String, Object>();
+        for (Map.Entry<String, Object> e : map.entrySet()) {
+            ret.put(e.getKey(), deepCopyRecordObject(e.getValue()));
         }
         return ret;
     }

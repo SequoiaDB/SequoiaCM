@@ -24,6 +24,9 @@ public class OmFileInfo {
 
     @JsonProperty("custom_metadata")
     private Map<String, String> customMetadata;
+    
+    @JsonProperty("custom_tag")
+    private Map<String, String> customTag;
 
     @JsonProperty("class_id")
     private String classId;
@@ -69,6 +72,10 @@ public class OmFileInfo {
 
     public Map<String, String> getCustomMetadata() {
         return customMetadata;
+    }
+
+    public Map<String, String> getCustomTag() {
+        return customTag;
     }
 
     public String getClassId() {

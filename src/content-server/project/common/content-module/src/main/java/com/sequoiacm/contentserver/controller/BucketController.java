@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -104,6 +105,7 @@ public class BucketController {
                 ret.put(FieldName.Bucket.CREATE_USER, b.getCreateUser());
                 ret.put(FieldName.Bucket.CREATE_TIME, b.getCreateTime());
                 ret.put(FieldName.Bucket.VERSION_STATUS, b.getVersionStatus().name());
+                ret.put(FieldName.Bucket.CUSTOM_TAG, b.getCustomTag());
                 ret.put(FieldName.Bucket.UPDATE_TIME, b.getUpdateTime());
                 ret.put(FieldName.Bucket.UPDATE_USER, b.getUpdateUser());
                 return ret.toString();
@@ -288,5 +290,20 @@ public class BucketController {
         metricServices.increment(namePrefix + "." + CommonHelper.getCurrentDay(today));
         // remove 30 days ago records
         metricServices.reset(namePrefix + "." + CommonHelper.getDateBeforeDays(today, 30));
+    }
+
+    @PostMapping(path = "/buckets/{name}/tags")
+    public void setBucketTag(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.BUCKET_CUSTOM_TAG) Map<String, String> customTag,
+            Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        service.setBucketTag(user, bucketName, customTag);
+    }
+
+    @DeleteMapping(path = "/buckets/{name}/tags")
+    public void deleteBucketTag(@PathVariable("name") String bucketName,
+            Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        service.deleteBucketTag(user, bucketName);
     }
 }

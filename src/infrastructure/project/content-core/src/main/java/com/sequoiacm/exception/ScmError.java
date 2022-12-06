@@ -112,6 +112,8 @@ public enum ScmError {
     FILE_IS_CLOSED(-608, "File Is Closed"),
     INPUT_STREAM_CLOSED(-609, "InputStream Is Closed"),
     OUTPUT_STREAM_CLOSED(-610, "OutputStream Is Closed"),
+    FILE_INVALID_CUSTOMTAG(-611, "File customTag invalid"),
+    FILE_CUSTOMTAG_TOO_LARGE(-612, "File customTag too large"),
 
     CONFIG_SERVER_ERROR(-700, "Config server error"),
     WORKSPACE_CACHE_EXPIRE(-701, "Workspace cache is expire"),
@@ -121,6 +123,8 @@ public enum ScmError {
     BUCKET_EXISTS(-850, "Bucket already exists"),
     BUCKET_NOT_EXISTS(-851, "Bucket is not exist"),
     BUCKET_NOT_EMPTY(-852, "Bucket is not empty"),
+    BUCKET_INVALID_CUSTOMTAG(-853, "Bucket customTag is invalid"),
+    BUCKET_CUSTOMTAG_TOO_LARGE(-854, "Bucket customTag too large"),
 
     FULL_TEXT_INDEX_ALREADY_CREATED(-900, "full text index already created"),
     FULL_TEXT_INDEX_IS_DELETING(-901, "full text index is deleting"),

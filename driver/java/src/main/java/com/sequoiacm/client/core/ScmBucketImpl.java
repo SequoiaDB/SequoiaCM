@@ -11,7 +11,9 @@ import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 class ScmBucketImpl implements ScmBucket {
     private ScmWorkspace ws;
@@ -24,6 +26,7 @@ class ScmBucketImpl implements ScmBucket {
     private ScmBucketVersionStatus versionStatus;
     private Date updateTime;
     private String updateUser;
+    private Map<String, String> customTag;
 
     public ScmBucketImpl(ScmSession session, BSONObject obj) throws ScmException {
         ScmWorkspace workspace = ScmFactory.Workspace
@@ -47,6 +50,7 @@ class ScmBucketImpl implements ScmBucket {
         this.updateTime = new Date(timeLong);
         updateUser = BsonUtils.getStringChecked(obj, FieldName.Bucket.UPDATE_USER);
         this.ws = ws;
+        this.customTag = BsonUtils.getBSONObjectChecked(obj, FieldName.Bucket.CUSTOM_TAG).toMap();
         String versionStatusStr = BsonUtils.getStringChecked(obj, FieldName.Bucket.VERSION_STATUS);
         this.versionStatus = ScmBucketVersionStatus.parse(versionStatusStr);
         if (versionStatus == null) {
@@ -189,5 +193,26 @@ class ScmBucketImpl implements ScmBucket {
 
     public String getUpdateUser() {
         return updateUser;
+    }
+
+    @Override
+    public void setCustomTag(Map<String, String> customTag) throws ScmException {
+        customTag = customTag == null ? Collections.<String, String> emptyMap() : customTag;
+        if (customTag.containsKey(null)) {
+            throw new ScmException(ScmError.BUCKET_INVALID_CUSTOMTAG, "the customTag key is null");
+        }
+        session.getDispatcher().setBucketTag(name, customTag);
+        this.customTag = customTag;
+    }
+
+    @Override
+    public Map<String, String> getCustomTag() {
+        return this.customTag;
+    }
+
+    @Override
+    public void deleteCustomTag() throws ScmException {
+        session.getDispatcher().deleteBucketTag(name);
+        this.customTag.clear();
     }
 }

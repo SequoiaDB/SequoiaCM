@@ -24,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebMvc
@@ -70,6 +71,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                         new ScmAttachFailureTypeAdapter())
                 .registerTypeAdapter(ScmBucket.class, new BucketGsonTypeAdapter())
                 .registerTypeAdapter(ScmFileLocation.class, new ScmFileLocationGsonTypeAdapter())
+                .registerTypeAdapter(Map.class, new MapGsonTypeAdapter())
                 .build();
 
         converters.add(converter);
@@ -96,5 +98,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public void addFormatters(FormatterRegistry registry) {
         // for controller parameter (@RquesParam), JSON => Object
         registry.addConverter(new BSONObjectGsonTypeAdapter());
+        registry.addConverter(new MapGsonTypeAdapter());
     }
 }

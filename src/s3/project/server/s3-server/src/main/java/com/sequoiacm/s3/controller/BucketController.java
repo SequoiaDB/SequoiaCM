@@ -3,6 +3,11 @@ package com.sequoiacm.s3.controller;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import com.sequoiacm.s3.model.CreateBucketConfiguration;
+import com.sequoiacm.s3.model.ListBucketResult;
+import com.sequoiacm.s3.model.LocationConstraint;
+import com.sequoiacm.s3.model.Tagging;
+import com.sequoiacm.s3.utils.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +32,10 @@ import com.sequoiacm.s3.common.RestParamDefine;
 import com.sequoiacm.s3.core.Bucket;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
-import com.sequoiacm.s3.model.CreateBucketConfiguration;
-import com.sequoiacm.s3.model.ListBucketResult;
-import com.sequoiacm.s3.model.LocationConstraint;
 import com.sequoiacm.s3.service.BucketService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @S3Controller
 public class BucketController {
@@ -118,18 +123,39 @@ public class BucketController {
         }
     }
 
-    private String getLocation(HttpServletRequest httpServletRequest) throws S3ServerException {
-        int ONCE_READ_BYTES = 1024;
-        try {
-            ServletInputStream inputStream = httpServletRequest.getInputStream();
-            StringBuilder stringBuilder = new StringBuilder();
-            byte[] b = new byte[ONCE_READ_BYTES];
-            int len = inputStream.readLine(b, 0, ONCE_READ_BYTES);
-            while (len > 0) {
-                stringBuilder.append(new String(b, 0, len));
-                len = inputStream.readLine(b, 0, ONCE_READ_BYTES);
+    @PutMapping(value = "/{bucketname:.+}", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
+    public void putBucketTag(@PathVariable("bucketname") String bucketName,
+            HttpServletRequest httpServletRequest, ScmSession session) throws S3ServerException {
+        Tagging tagging = getTagging(httpServletRequest);
+        if (tagging.getTagList() == null) {
+            Map<String, String> customTag = new HashMap<>();
+            bucketService.setBucketTag(session, bucketName, customTag);
+        }
+        else {
+            if (tagging.getTagList().size() > 1) {
+                throw new S3ServerException(S3Error.MALFORMED_XML, "get tagging failed");
             }
-            String content = stringBuilder.toString();
+            bucketService.setBucketTag(session, bucketName, tagging.toMap());
+        }
+    }
+    
+    @GetMapping(value = "/{bucketname:.+}", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<Tagging> getBucketTag(@PathVariable("bucketname") String bucketName,
+            ScmSession session) throws S3ServerException {
+        Map<String, String> customTag = bucketService.getBucketTag(session, bucketName);
+        Tagging tagging = new Tagging(customTag);
+        return ResponseEntity.ok().body(tagging);
+    }
+
+    @DeleteMapping(value = "/{bucketname:.+}", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
+    public void deleteBucketTag(@PathVariable("bucketname") String bucketName,
+            ScmSession session) throws S3ServerException {
+        bucketService.deleteBucketTag(session, bucketName);
+    }
+
+    private String getLocation(HttpServletRequest httpServletRequest) throws S3ServerException {
+        try {
+            String content = CommonUtil.readStream(httpServletRequest);
             if (content.length() > 0) {
                 ObjectMapper objectMapper = new XmlMapper();
                 return objectMapper.readValue(content, CreateBucketConfiguration.class).getLocationConstraint();
@@ -140,6 +166,24 @@ public class BucketController {
         }
         catch (Exception e) {
             throw new S3ServerException(S3Error.MALFORMED_XML, "get location failed", e);
+        }
+    }
+
+    private Tagging getTagging(HttpServletRequest httpServletRequest) throws S3ServerException {
+        Tagging tagging = null;
+        try {
+            String content = CommonUtil.readStream(httpServletRequest);
+            if (content.length() > 0) {
+                ObjectMapper objectMapper = new XmlMapper();
+                tagging = objectMapper.readValue(content, Tagging.class);
+            }
+            if (tagging == null) {
+                throw new S3ServerException(S3Error.MALFORMED_XML, "tagging is null");
+            }
+            return tagging;
+        }
+        catch (Exception e) {
+            throw new S3ServerException(S3Error.MALFORMED_XML, "get tagging failed", e);
         }
     }
 }

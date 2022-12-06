@@ -29,11 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class BucketDao {
@@ -228,18 +230,27 @@ public class BucketDao {
         try {
             transaction.begin();
             TableDao bucketTable = metaService.getBucketTable(transaction);
-            BSONObject newRecord = bucketTable.updateAndCheck(
-                    new BasicBSONObject(FieldName.Bucket.NAME, bucketConfigUpdater.getBucketName()),
-                    new BasicBSONObject(FieldName.Bucket.VERSION_STATUS,
-                            bucketConfigUpdater.getVersionStatus())
-                                    .append(FieldName.Bucket.UPDATE_USER,
-                                            bucketConfigUpdater.getUpdateUser())
-                                    .append(FieldName.Bucket.UPDATE_TIME,
-                                            System.currentTimeMillis()));
+            BSONObject matcher = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME,
+                    bucketConfigUpdater.getBucketName());
+            BSONObject newRecord = null;
+
+            BSONObject updator = new BasicBSONObject()
+                    .append(FieldName.Bucket.UPDATE_USER, bucketConfigUpdater.getUpdateUser())
+                    .append(FieldName.Bucket.UPDATE_TIME, System.currentTimeMillis());
+            String versionStatus = bucketConfigUpdater.getVersionStatus();
+            if (!StringUtils.isEmpty(versionStatus)) {
+                updator.put(FieldName.Bucket.VERSION_STATUS, versionStatus);
+            }
+            Map<String, String> customTag = bucketConfigUpdater.getCustomTag();
+            if (customTag != null) {
+                updator.put(FieldName.Bucket.CUSTOM_TAG, customTag);
+            }
+            newRecord = bucketTable.updateAndCheck(matcher, updator);
             if (newRecord == null) {
                 throw new ScmConfigException(ScmConfError.BUCKET_NOT_EXIST,
                         "bucket not exist:" + bucketConfigUpdater.getBucketName());
             }
+
             Integer bucketVersion = versionDao.increaseVersion(ScmConfigNameDefine.BUCKET,
                     bucketConfigUpdater.getBucketName(), transaction);
             Integer globalVersion = versionDao.increaseVersion(ScmConfigNameDefine.BUCKET,

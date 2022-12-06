@@ -29,6 +29,9 @@ public enum S3Error {
     BUCKET_VERSIONING_GET_FAILED(-364, "GetBucketVersioningFailed", "Get bucket versioning failed."),
     BUCKET_LOCATION_GET_FAILED(-365, "GetBucketLocationFailed", "Get bucket location failed."),
     BUCKET_GET_FAILED(-366, "GetBucketFailed", "Get bucket failed."),
+    BUCKET_TAGGING_PUT_FAILED(-367, "PutBucketTaggingFailed", "Put bucket tagging failed."),
+    BUCKET_TAGGING_GET_FAILED(-368, "GetBucketTaggingFailed", "Get bucket tagging failed."),
+    BUCKET_TAGGING_DELETE_FAILED(-369, "DeleteBucketTaggingFailed", "Delete bucket tagging failed."),
 
     // custom error code -- object error
     OBJECT_PUT_FAILED(-380, "PutObjectFailed", "Put object failed."),
@@ -41,6 +44,9 @@ public enum S3Error {
 
     OBJECT_INVALID_TIME(-400, "InvalidArgument", "Time is invalid"),
     OBJECT_IS_IN_USE(-401, "ObjectIsInUse", "The object is in use."),
+    OBJECT_PUT_TAGGING_FIELD(-402, "PutObjectTagFailed", "Put object tagging failed"),
+    OBJECT_GET_TAGGING_FIELD(-403, "GetObjectTagFailed", "Get object tagging failed"),
+    OBJECT_DELETE_TAGGING_FIELD(-404, "DeleteObjectTagFailed", "Delete object tagging failed"),
 
     // custom error code -- multipart upload error
     PART_INIT_MULTIPART_UPLOAD_FAILED(-420, "InitMultipartUploadFailed", "Init multipart upload failed."),
@@ -66,6 +72,8 @@ public enum S3Error {
     BUCKET_TOO_MANY_BUCKETS(-505, "TooManyBuckets", "You have attempted to create more buckets than allowed."),
     BUCKET_INVALID_VERSIONING_STATUS(-506, "InvalidVersioningStatus", "The versioning status is invalid."),
     BUCKET_INVALID_LOCATION(-507, "InvalidLocation", "The location is invalid."),
+    BUCKET_TAGGING_TOO_LARGE(-508, "BadRequest", "Bucket tag count cannot be greater than 50"),
+    BUCKET_INVALID_TAGGING(-509, "InvalidTag", "The TagKey you have provided is invalid"),
 
     // AWS error code -- object error
     OBJECT_INVALID_KEY(-520, "InvalidKey", "Invalid Key."),
@@ -81,6 +89,9 @@ public enum S3Error {
     OBJECT_INVALID_VERSION(-530, "InvalidArgument", "Invalid version id specified"),
     OBJECT_INVALID_RANGE(-531, "InvalidArgument", "Invalid range."),
     OBJECT_INCOMPLETE_BODY(-532, "IncompleteBody", "You did not provide the number bytes specified by the Content-Length HTTP header."),
+    OBJECT_TAGGING_TOO_LARGE(-533, "BadRequest", "Object tags cannot be greater than 10"),
+    OBJECT_INVALID_TAGGING(-534, "InvalidTag", "The TagKey you have provided is invalid"),
+    OBJECT_TAGGING_SAME_KEY(-535, "InvalidTag", "Cannot provide multiple Tags with the same key"),
 
     // AWS error code -- get object error
     OBJECT_IF_MODIFIED_SINCE_FAILED(-540, "NotModified", "If-Modified-Since not match"),

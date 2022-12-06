@@ -59,7 +59,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 public class ScmBucketServiceImpl implements IScmBucketService {
@@ -665,6 +668,41 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             throws ScmServerException {
         return getFileVersion(user, bucketName, fileName, CommonDefine.File.NULL_VERSION_MAJOR,
                 CommonDefine.File.NULL_VERSION_MINOR);
+    }
+
+    @Override
+    public void setBucketTag(ScmUser user, String bucketName, Map<String, String> customTag)
+            throws ScmServerException {
+        ScmBucket bucket = getBucket(bucketName);
+        ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
+                bucket.getName(), ScmPrivilegeDefine.UPDATE, "set bucket tag");
+        ScmArgChecker.Bucket.checkBucketTag(customTag);
+        ContenserverConfClient.getInstance().updateBucketTag(user.getUsername(),
+                bucketName, new TreeMap<>(customTag));
+        audit.info(ScmAuditType.UPDATE_SCM_BUCKET, user, bucket.getWorkspace(), 0,
+                "set bucket tag : bucketName=" + bucketName + ", ws=" + bucket.getWorkspace()
+                        + ", tag=" + customTag);
+    }
+
+    @Override
+    public Map<String, String> getBucketTag(ScmUser user, String bucketName)
+            throws ScmServerException {
+        ScmBucket bucket = getBucket(bucketName);
+        ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
+                bucket.getName(), ScmPrivilegeDefine.READ, "get bucket tag");
+        return bucket.getCustomTag();
+    }
+
+    @Override
+    public void deleteBucketTag(ScmUser user, String bucketName) throws ScmServerException {
+        ScmBucket bucket = getBucket(bucketName);
+        ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
+                bucket.getName(), ScmPrivilegeDefine.UPDATE, "delete bucket tag");
+        Map<String, String> customTag = new HashMap<>();
+        ContenserverConfClient.getInstance().updateBucketTag(user.getUsername(),
+                bucketName, customTag);
+        audit.info(ScmAuditType.UPDATE_SCM_BUCKET, user, bucket.getWorkspace(), 0,
+                "delete bucket tag : bucketName=" + bucketName + ", ws=" + bucket.getWorkspace());
     }
 
     private void transactionRollback(TransactionContext transactionContext) {

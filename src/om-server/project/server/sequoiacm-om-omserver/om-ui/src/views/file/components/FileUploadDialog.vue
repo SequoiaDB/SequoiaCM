@@ -67,16 +67,6 @@
           <el-form-item label="作者" prop="author">
             <el-input id="input_file_author" v-model="form.author" placeholder="请输入作者"></el-input>
           </el-form-item>
-          <el-form-item label="自由标签" prop="customMetadata">
-            <div v-if="this.form.customMetadata.length > 0">
-              <div v-for="(item, index) in this.form.customMetadata" :key="index" style="margin-top: 5px">
-                <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
-                <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
-                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomMeta">删除</el-button>
-              </div>
-            </div>
-            <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomMeta">添加自由标签</el-button>
-          </el-form-item> 
           <el-form-item label="标签" prop="tags">
             <el-tag
               id="tag_list"
@@ -185,6 +175,26 @@
           <el-form-item label="文件名" prop="name">
             <el-input id="input_file_name" v-model="form.name" placeholder="请输入文件名"></el-input>
           </el-form-item>
+          <el-form-item label="自由元数据" prop="customMetadata">
+            <div v-if="this.form.customMetadata.length > 0">
+              <div v-for="(item, index) in this.form.customMetadata" :key="index" style="margin-top: 5px">
+                <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
+                <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
+                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomMeta">删除</el-button>
+              </div>
+            </div>
+            <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomMeta">添加自由元数据</el-button>
+          </el-form-item> 
+          <el-form-item label="自由标签" prop="customTag">
+            <div v-if="this.form.customTag.length > 0">
+              <div v-for="(item, index) in this.form.customTag" :key="index" style="margin-top: 5px">
+                <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
+                <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
+                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomTag">删除</el-button>
+              </div>
+            </div>
+            <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomTag">添加自由标签</el-button>
+          </el-form-item>
         </el-form>
       <span slot="footer" class="dialog-footer" style="border:1px soild red">
         <el-button id="btn_upload_file" type="primary" @click="submitForm" size="mini" :disabled="uploadForbidden">保 存</el-button>
@@ -272,6 +282,7 @@ export default {
         attributeName: '',
         fileContentList: [],
         customMetadata: [],
+        customTag: [],
         tags: [],
         name: '',
       },
@@ -365,6 +376,10 @@ export default {
       for (let item of this.form.customMetadata) {
         custom_metadata[item.key] = item.value
       }
+      let custom_tag = {}
+      for (let item of this.form.customTag) {
+        custom_tag[item.key] = item.value
+      }
       let fileInfo = {
         name: this.form.name,
         title: this.form.title,
@@ -373,6 +388,7 @@ export default {
         tags: this.form.tags,
         class_id: this.form.classId,
         custom_metadata,
+        custom_tag,
         class_properties
       }
       let desc=encodeURIComponent(this.$util.toPrettyJson(fileInfo))
@@ -519,13 +535,21 @@ export default {
       this.tagInputVisible = false;
       this.tagInputValue = '';
     },
-    // 删除自由标签
+    // 删除自由元数据
     deleteCustomMeta(index) {
       this.form.customMetadata.splice(index, 1)
     },
-    // 捕获自由标签添加事件
+    // 捕获自由元数据添加事件
     addCustomMeta() {
       this.form.customMetadata.push({ 'key': '', 'value': ''})
+    },
+    // 删除自由标签
+    deleteCustomTag(index) {
+      this.form.customTag.splice(index, 1)
+    },
+    // 捕获自由标签添加事件
+    addCustomTag() {
+      this.form.customTag.push({ 'key': '', 'value': ''})
     },
     // 动态添加元数据属性
     addAttributes() {

@@ -9,6 +9,7 @@ public class RestParamDefine {
     public static final String VERSIONING = "versioning";
     public static final String LOCATION = "location";
     public static final String DELIMITER = "delimiter-config";
+    public static final String TAGGING = "tagging";
 
     public static final String UPLOADS = "uploads";
     public static final String UPLOADID = "uploadId";
@@ -84,6 +85,7 @@ public class RestParamDefine {
         public static final String EXPIRES = "expires";
         public static final String CONTENT_LANGUAGE = "content-language";
         public static final String X_SCM_OBJECT_CREATE_TIME = "x-scm-object-create-time";
+        public static final String X_AMZ_TAGGING = "x-amz-tagging";
     }
 
     public static class PutObjectResultHeader {
@@ -98,6 +100,7 @@ public class RestParamDefine {
         public static final String IF_UNMODIFIED_SINCE = "x-amz-copy-source-if-unmodified-since";
         public static final String IF_MATCH = "x-amz-copy-source-if-match";
         public static final String IF_NONE_MATCH = "x-amz-copy-source-if-none-match";
+        public static final String TAGGING_DIRECTIVE = "x-amz-tagging-directive";
     }
 
     public static class HeadObjectHeader {
@@ -110,6 +113,10 @@ public class RestParamDefine {
     public static class CopyObjectResultHeader {
         public static final String VERSION_ID = "x-amz-version-id";
         public static final String SOURCE_VERSION_ID = "x-amz-copy-source-version-id";
+    }
+    
+    public static class ObjectTagResultHeader {
+        public static final String VERSION_ID = "x-amz-version-id";
     }
 
     public static class GetObjectReqPara {
@@ -143,6 +150,7 @@ public class RestParamDefine {
         public static final String VERSION_ID = "x-amz-version-id";
         public static final String DELETE_MARKER = "x-amz-delete-marker";
         public static final String ACCEPT_RANGES = "Accept-Ranges";
+        public static final String TAG_COUNT = "x-amz-tagging-count";
     }
 
     public static class DeleteObjectResultHeader {

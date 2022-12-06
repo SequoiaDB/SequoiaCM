@@ -1,8 +1,11 @@
 package com.sequoiacm.s3.core;
 
+import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.s3.common.RestParamDefine;
 import com.sequoiacm.s3.exception.S3ServerException;
+import com.sequoiacm.s3.utils.CommonUtil;
 import org.bson.BSONObject;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
@@ -26,6 +29,7 @@ public class UploadMeta {
     public static final String META_EXPIRES = "expires";
     public static final String META_CONTENT_LANGUAGE = "content_language";
     public static final String META_LIST = "meta_list";
+    public static final String TAGGING = "tagging";
     public static final String META_WS_VERSION = "ws_version";
 
     private String key;
@@ -43,6 +47,7 @@ public class UploadMeta {
     private String expires;
     private String contentLanguage;
     private Map<String, String> metaList = new HashMap<>();
+    private Map<String, String> tagging = new HashMap<>();
     private int metaListLength = 0;
     private String wsName;
     private int wsVersion;
@@ -88,6 +93,9 @@ public class UploadMeta {
         }
         if (record.get(UploadMeta.META_LIST) != null) {
             this.metaList = ((BSONObject) record.get(UploadMeta.META_LIST)).toMap();
+        }
+        if (record.get(UploadMeta.TAGGING) != null) {
+            this.tagging = ((BSONObject) record.get(UploadMeta.TAGGING)).toMap();
         }
         if (record.get(UploadMeta.META_WS_VERSION) != null) {
             this.wsVersion = (int) record.get(UploadMeta.META_WS_VERSION);
@@ -229,6 +237,14 @@ public class UploadMeta {
         return metaListLength;
     }
 
+    public Map<String, String> getTagging() {
+        return tagging;
+    }
+
+    public void setTagging(Map<String, String> tagging) {
+        this.tagging = tagging;
+    }
+
     public void setWsVersion(int wsVersion) {
         this.wsVersion = wsVersion;
     }
@@ -256,16 +272,24 @@ public class UploadMeta {
         contentType = req.getHeader(RestParamDefine.PutObjectHeader.CONTENT_TYPE);
         expires = req.getHeader(RestParamDefine.PutObjectHeader.EXPIRES);
         contentLanguage = req.getHeader(RestParamDefine.PutObjectHeader.CONTENT_LANGUAGE);
+        String taggingStr = req.getHeader(RestParamDefine.PutObjectHeader.X_AMZ_TAGGING);
+        Map<String, String> tagMap = new HashMap<>();
+        if (!StringUtils.isEmpty(taggingStr)) {
+            tagMap = CommonUtil.parseObjectTagging(taggingStr);
+        }
+        this.tagging = tagMap;
     }
 
     @Override
     public String toString() {
-        return "UploadMeta{key='" + key + "'" + ", bucketId=" + bucketId + ", uploadId=" + uploadId
-                + ", wsName='" + wsName + "'" + ", siteId=" + siteId + ", siteType='" + siteType
-                + "'" + ", uploadStatus=" + uploadStatus + ", uploadTime=" + lastModified
-                + ", contentEncoding='" + contentEncoding + '\'' + ", contentType='" + contentType
-                + '\'' + ", cacheControl='" + cacheControl + '\'' + ", contentDisposition='"
-                + contentDisposition + '\'' + ", expires='" + expires + '\'' + ", contentLanguage='"
-                + contentLanguage + '\'' + ", metaList=" + metaList + ", wsVersoin=" + wsVersion + '}';
+        return "UploadMeta{" + "key='" + key + '\'' + ", bucketId=" + bucketId + ", dataId='"
+                + dataId + '\'' + ", siteId=" + siteId + ", siteType='" + siteType + '\''
+                + ", uploadId=" + uploadId + ", uploadStatus=" + uploadStatus + ", lastModified="
+                + lastModified + ", contentEncoding='" + contentEncoding + '\'' + ", contentType='"
+                + contentType + '\'' + ", cacheControl='" + cacheControl + '\''
+                + ", contentDisposition='" + contentDisposition + '\'' + ", expires='" + expires
+                + '\'' + ", contentLanguage='" + contentLanguage + '\'' + ", metaList=" + metaList
+                + ", tagging=" + tagging + ", metaListLength=" + metaListLength + ", wsName='"
+                + wsName + '\'' + ", wsVersion=" + wsVersion + '}';
     }
 }

@@ -14,6 +14,7 @@ public class S3BasicObjectMeta {
     private String contentLanguage;
     private long size;
     private Map<String, String> metaList = new HashMap<>();
+    private Map<String, String> tagging = new HashMap<>();
 
     public S3BasicObjectMeta() {
     }
@@ -29,6 +30,7 @@ public class S3BasicObjectMeta {
         contentLanguage = other.contentLanguage;
         size = other.size;
         metaList = new HashMap<>(other.metaList);
+        this.tagging = other.tagging;
     }
 
     @Override
@@ -37,7 +39,8 @@ public class S3BasicObjectMeta {
                 + ", contentEncoding='" + contentEncoding + '\'' + ", contentType='" + contentType
                 + '\'' + ", cacheControl='" + cacheControl + '\'' + ", contentDisposition='"
                 + contentDisposition + '\'' + ", expires='" + expires + '\'' + ", contentLanguage='"
-                + contentLanguage + '\'' + ", size=" + size + ", metaList=" + metaList + '}';
+                + contentLanguage + '\'' + ", size=" + size + ", metaList=" + metaList
+                + ", tagging=" + tagging + '}';
     }
 
     public String getKey() {
@@ -132,4 +135,11 @@ public class S3BasicObjectMeta {
         return ret;
     }
 
+    public Map<String, String> getTagging() {
+        return tagging;
+    }
+
+    public void setTagging(Map<String, String> tagging) {
+        this.tagging = tagging;
+    }
 }

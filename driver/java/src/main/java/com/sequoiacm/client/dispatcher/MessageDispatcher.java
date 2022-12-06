@@ -395,4 +395,8 @@ public interface MessageDispatcher extends Closeable {
             Map<String, String> queryCondition, int limit) throws ScmException;
 
     BSONObject getTrace(String traceId) throws ScmException;
+
+    void setBucketTag(String bucketName, Map<String, String> customTag) throws ScmException;
+
+    void deleteBucketTag(String bucketName) throws ScmException;
 }

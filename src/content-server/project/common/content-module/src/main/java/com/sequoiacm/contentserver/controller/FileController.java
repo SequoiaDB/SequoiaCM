@@ -8,10 +8,9 @@ import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
-import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
+import com.sequoiacm.contentserver.model.FileFieldExtraDefine;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -53,7 +52,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -182,7 +181,6 @@ public class FileController {
         if (moveToDirPath != null) {
             return dirService.moveFileByPath(user, workspaceName, moveToDirPath, fileId, version);
         }
-
         return fileService.updateFileInfo(user, workspaceName, fileId, newFileProperties,
                 version.getMajorVersion(), version.getMinorVersion());
 
@@ -551,51 +549,15 @@ public class FileController {
             }
         }
 
-        Set<String> availableFields = new HashSet<>();
-        availableFields.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
-        availableFields.add(FieldName.FIELD_CLFILE_NAME);
-        availableFields.add(FieldName.FIELD_CLFILE_FILE_TITLE);
-        availableFields.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
-
-        availableFields.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
-        availableFields.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
-
-        availableFields.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
-        availableFields.add(FieldName.FIELD_CLFILE_PROPERTIES);
-        availableFields.add(FieldName.FIELD_CLFILE_TAGS);
-        availableFields.add(FieldName.FIELD_CLFILE_CUSTOM_METADATA);
-
-        for (String field : objFields) {
-            // SEQUOIACM-312
-            // {class_properties.key:value}
-            if (field.startsWith(FieldName.FIELD_CLFILE_PROPERTIES + ".")) {
-                String subKey = field.substring((FieldName.FIELD_CLFILE_PROPERTIES + ".").length());
-                MetaDataManager.getInstence().validateKeyFormat(subKey,
-                        FieldName.FIELD_CLFILE_PROPERTIES);
-            }
-            else if (!availableFields.contains(field)) {
-                throw new ScmOperationUnsupportedException(
-                        "field can't be modified:fieldName=" + field);
-            }
+        // check file customTag
+        if (objFields.contains(FieldName.FIELD_CLFILE_CUSTOM_TAG)) {
+            Map<String, String> customTag = BsonUtils
+                    .getBSON(updateInfoObj, FieldName.FIELD_CLFILE_CUSTOM_TAG).toMap();
+            ScmArgChecker.File.checkFileTag(customTag);
         }
 
-        // value type is string. and can't be null
-        Set<String> valueCheckStringFields = new HashSet<>();
-        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
-        valueCheckStringFields.add(FieldName.FIELD_CLFILE_NAME);
-        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_TITLE);
-        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
-
-        valueCheckStringFields.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
-        valueCheckStringFields.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
-
-        valueCheckStringFields.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
-
-        for (String field : valueCheckStringFields) {
-            if (updateInfoObj.containsField(field)) {
-                ScmMetaSourceHelper.checkExistString(updateInfoObj, field);
-            }
-        }
+        FileFieldExtraDefine.checkAvailableFields(objFields);
+        FileFieldExtraDefine.checkStringFields(updateInfoObj);
 
         // value type is bson, check the format
         String fieldName = FieldName.FIELD_CLFILE_PROPERTIES;

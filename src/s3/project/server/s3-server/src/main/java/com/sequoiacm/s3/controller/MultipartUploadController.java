@@ -52,7 +52,7 @@ public class MultipartUploadController {
 
     @PostMapping(value = "/{bucketname:.+}/**", params = RestParamDefine.UPLOADS, produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity initMultiPartUpload(@PathVariable("bucketname") String bucketName,
-            HttpServletRequest httpServletRequest, ScmSession session) throws S3ServerException {
+            HttpServletRequest httpServletRequest, ScmSession session) throws Exception {
         try {
             logger.debug("initMultiPartUploadObject. bucketName={}, requestURI={}", bucketName,
                     httpServletRequest.getRequestURI());

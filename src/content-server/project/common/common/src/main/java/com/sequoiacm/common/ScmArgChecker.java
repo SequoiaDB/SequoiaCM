@@ -2,7 +2,10 @@ package com.sequoiacm.common;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -156,6 +159,30 @@ public class ScmArgChecker {
                         "the matcher parameter contains an invalid key: " + e.getMessage(), e);
             }
         }
+
+        public static void checkFileTag(Map<String, String> customTag) throws ScmServerException {
+            if (customTag.size() > 10) {
+                throw new ScmServerException(ScmError.FILE_CUSTOMTAG_TOO_LARGE,
+                        "the file tag number can not more than 10");
+            }
+
+            for (Map.Entry<String, String> entry : customTag.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key == null || key.length() == 0) {
+                    throw new ScmServerException(ScmError.FILE_INVALID_CUSTOMTAG,
+                            "the file tag key is null or empty");
+                }
+                if (key.length() > 128) {
+                    throw new ScmServerException(ScmError.FILE_INVALID_CUSTOMTAG,
+                            "the file tag key length can not more than 128");
+                }
+                if (value != null && value.length() > 256) {
+                    throw new ScmServerException(ScmError.FILE_INVALID_CUSTOMTAG,
+                            "the file tag value length more than 256");
+                }
+            }
+        }
     }
 
     public static class Bucket {
@@ -167,6 +194,20 @@ public class ScmArgChecker {
                 return false;
             }
             return true;
+        }
+
+        public static void checkBucketTag(Map<String, String> customTag) throws ScmServerException {
+            if (customTag.size() > 50) {
+                throw new ScmServerException(ScmError.BUCKET_CUSTOMTAG_TOO_LARGE,
+                        "the bucket tag number can not more than 50");
+            }
+
+            for (String key : customTag.keySet()) {
+                if (key == null || key.length() == 0) {
+                    throw new ScmServerException(ScmError.BUCKET_INVALID_CUSTOMTAG,
+                            "the bucket tag key is null or empty");
+                }
+            }
         }
     }
 

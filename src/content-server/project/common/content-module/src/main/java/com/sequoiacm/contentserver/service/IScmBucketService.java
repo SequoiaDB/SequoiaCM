@@ -15,6 +15,7 @@ import org.bson.BSONObject;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 public interface IScmBucketService {
     ScmBucket createBucket(ScmUser user, String ws, String name) throws ScmServerException;
@@ -77,4 +78,11 @@ public interface IScmBucketService {
 
     FileMeta deleteNullVersionFile(ScmUser user, String bucket, String fileName)
             throws ScmServerException;
+
+    void setBucketTag(ScmUser user, String bucketName, Map<String, String> customTag)
+            throws ScmServerException;
+
+    Map<String, String> getBucketTag(ScmUser user, String bucketName) throws ScmServerException;
+
+    void deleteBucketTag(ScmUser user, String bucketName) throws ScmServerException;
 }

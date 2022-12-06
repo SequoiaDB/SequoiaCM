@@ -193,6 +193,7 @@ public class FieldName {
     public static final String FIELD_CLFILE_CUSTOM_METADATA = "custom_metadata";
     public static final String FIELD_CLFILE_VERSION_SERIAL = "version_serial";
     public static final String FIELD_CLFILE_DELETE_MARKER = "delete_marker";
+    public static final String FIELD_CLFILE_CUSTOM_TAG = "custom_tag";
 
     // CL_FILE only(file & document)
     public static final String FIELD_CLFILE_EXTRA_STATUS = "status"; // int, 0
@@ -515,6 +516,7 @@ public class FieldName {
         public static final String CREATE_TIME = "create_time";
         public static final String WORKSPACE = "workspace";
         public static final String VERSION_STATUS = "version_control_status";
+        public static final String CUSTOM_TAG = "custom_tag";
         public static final String UPDATE_TIME = "update_time";
         public static final String UPDATE_USER = "update_user";
     }

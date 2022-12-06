@@ -6,6 +6,7 @@ import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import org.bson.BSONObject;
 
 import java.util.Date;
+import java.util.Map;
 
 public interface ScmBucket {
     /**
@@ -177,4 +178,21 @@ public interface ScmBucket {
      * @return
      */
     String getUpdateUser();
+
+    /**
+     * Set the bucket tag
+     * @param customTag custom tag
+     */
+    void setCustomTag(Map<String, String> customTag) throws ScmException;
+
+    /**
+     * Returns the bucket tag
+     * @return bucket tag
+     */
+    Map<String, String> getCustomTag();
+
+    /**
+     * Delete the bucket tag
+     */
+    void deleteCustomTag() throws ScmException;
 }

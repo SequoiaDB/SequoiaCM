@@ -1,6 +1,12 @@
 package com.sequoiacm.contentserver.model;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
+import com.sequoiacm.contentserver.metadata.MetaDataManager;
+import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
+import com.sequoiacm.exception.ScmServerException;
+import org.bson.BSONObject;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +28,7 @@ public class FileFieldExtraDefine {
         USER_FIELD.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
         USER_FIELD.add(FieldName.FIELD_CLREL_FILE_MIME_TYPE);
         USER_FIELD.add(FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+        USER_FIELD.add(FieldName.FIELD_CLFILE_CUSTOM_TAG);
     }
 
     public static boolean isUserField(String key) {
@@ -33,6 +40,61 @@ public class FileFieldExtraDefine {
             return true;
         }
         return false;
+    }
+
+    public static final Set<String> AVAILABLE_FIELD = new HashSet<>();
+    static {
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_NAME);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        AVAILABLE_FIELD.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_PROPERTIES);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_TAGS);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+        AVAILABLE_FIELD.add(FieldName.FIELD_CLFILE_CUSTOM_TAG);
+    }
+
+    public static void checkAvailableFields(Set<String> objFields) throws ScmServerException {
+        for (String field : objFields) {
+            // SEQUOIACM-312
+            // {class_properties.key:value}
+            if (field.startsWith(FieldName.FIELD_CLFILE_PROPERTIES + ".")) {
+                String subKey = field.substring((FieldName.FIELD_CLFILE_PROPERTIES + ".").length());
+                MetaDataManager.getInstence().validateKeyFormat(subKey,
+                        FieldName.FIELD_CLFILE_PROPERTIES);
+            }
+            else if (!AVAILABLE_FIELD.contains(field)) {
+                throw new ScmOperationUnsupportedException(
+                        "field can't be modified:fieldName=" + field);
+            }
+        }
+    }
+
+    // value type is string. and can't be null
+    public static final Set<String> VALUE_CHECK_STRING_FIELDS = new HashSet<>();
+    static {
+        VALUE_CHECK_STRING_FIELDS.add(FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        VALUE_CHECK_STRING_FIELDS.add(FieldName.FIELD_CLFILE_NAME);
+        VALUE_CHECK_STRING_FIELDS.add(FieldName.FIELD_CLFILE_FILE_TITLE);
+        VALUE_CHECK_STRING_FIELDS.add(FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+
+        VALUE_CHECK_STRING_FIELDS.add(FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        VALUE_CHECK_STRING_FIELDS.add(CommonDefine.Directory.SCM_REST_ARG_PARENT_DIR_PATH);
+
+        VALUE_CHECK_STRING_FIELDS.add(FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+    }
+    
+    public static void checkStringFields(BSONObject obj) throws ScmServerException {
+        for (String field : VALUE_CHECK_STRING_FIELDS) {
+            if (obj.containsField(field)) {
+                ScmMetaSourceHelper.checkExistString(obj, field);
+            }
+        }
     }
 
     // 文件所有版本需要保持一致的属性

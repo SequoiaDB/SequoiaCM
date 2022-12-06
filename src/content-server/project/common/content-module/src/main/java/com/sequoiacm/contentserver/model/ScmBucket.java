@@ -9,6 +9,7 @@ import com.sequoiacm.metasource.*;
 import org.bson.BSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 public class ScmBucket {
     private final BucketInfoManager bucketInfoMgr;
@@ -19,12 +20,13 @@ public class ScmBucket {
     private String workspace;
     private String fileTable;
     private ScmBucketVersionStatus versionStatus;
+    private Map<String, String> customTag;
     private String updateUser;
     private long updateTime;
 
     public ScmBucket(String name, long id, long createTime, String createUser, String workspace,
-            String fileTable, ScmBucketVersionStatus versionStatus, String updateUser,
-            long updateTime, BucketInfoManager bucketInfoManager) {
+            String fileTable, ScmBucketVersionStatus versionStatus, Map<String, String> customTag,
+            String updateUser, long updateTime, BucketInfoManager bucketInfoManager) {
         this.name = name;
         this.id = id;
         this.createTime = createTime;
@@ -33,6 +35,7 @@ public class ScmBucket {
         this.fileTable = fileTable;
         this.bucketInfoMgr = bucketInfoManager;
         this.versionStatus = versionStatus;
+        this.customTag = customTag;
         this.updateTime = updateTime;
         this.updateUser = updateUser;
     }
@@ -48,6 +51,7 @@ public class ScmBucket {
                 ", workspace='" + workspace + '\'' +
                 ", fileTable='" + fileTable + '\'' +
                 ", versionStatus=" + versionStatus +
+                ", customTag=" + customTag + 
                 ", updateUser='" + updateUser + '\'' +
                 ", updateTime=" + updateTime +
                 '}';
@@ -75,6 +79,14 @@ public class ScmBucket {
 
     public void setVersionStatus(ScmBucketVersionStatus versionStatus) {
         this.versionStatus = versionStatus;
+    }
+
+    public Map<String, String> getCustomTag() {
+        return customTag;
+    }
+
+    public void setCustomTag(Map<String, String> customTag) {
+        this.customTag = customTag;
     }
 
     public void setFileTable(String fileTable) {

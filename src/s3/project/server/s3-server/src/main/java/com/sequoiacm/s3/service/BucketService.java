@@ -7,6 +7,8 @@ import com.sequoiacm.s3.model.ListBucketResult;
 import com.sequoiacm.s3.model.LocationConstraint;
 import com.sequoiacm.s3.model.VersioningConfigurationBase;
 
+import java.util.Map;
+
 public interface BucketService {
     void createBucket(ScmSession session, String bucketName, String region)
             throws S3ServerException;
@@ -25,4 +27,12 @@ public interface BucketService {
 
     VersioningConfigurationBase getBucketVersionStatus(ScmSession session, String bucketName)
             throws S3ServerException;
+
+    void setBucketTag(ScmSession session, String bucketName, Map<String, String> bucketTag)
+            throws S3ServerException;
+
+    Map<String, String> getBucketTag(ScmSession session, String bucketName)
+            throws S3ServerException;
+
+    void deleteBucketTag(ScmSession session, String bucketName) throws S3ServerException;
 }

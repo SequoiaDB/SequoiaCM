@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.infrastructure.common.ExceptionChecksUtils;
 import com.sequoiacm.infrastructure.common.SignatureUtils;
@@ -2600,4 +2602,21 @@ public class RestDispatcher implements MessageDispatcher {
         }
     }
 
+    @Override
+    public void setBucketTag(String bucketName, Map<String, String> customTag) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName) + "/tags";
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.BUCKET_CUSTOM_TAG,
+                gson.toJson(customTag)));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+    
+    @Override
+    public void deleteBucketTag(String bucketName) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName) + "/tags";
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
 }

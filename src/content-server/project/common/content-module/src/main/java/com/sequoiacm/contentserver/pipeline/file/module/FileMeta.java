@@ -23,6 +23,8 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class FileMeta implements Cloneable {
@@ -58,6 +60,7 @@ public class FileMeta implements Cloneable {
     private boolean deleteMarker;
     private int status;
     private String transId;
+    private Map<String, String> customTag;
     // 新增字段需要调整如下函数：
     // FileMeta(FileMeta fileMeta) 深拷贝构造
     // toBSONObject()
@@ -98,6 +101,7 @@ public class FileMeta implements Cloneable {
         this.deleteMarker = fileMeta.deleteMarker;
         this.status = fileMeta.status;
         this.transId = fileMeta.transId;
+        this.customTag = fileMeta.customTag;
     }
 
     private FileMeta() {
@@ -267,6 +271,14 @@ public class FileMeta implements Cloneable {
         return transId;
     }
 
+    public Map<String, String> getCustomTag() {
+        return customTag;
+    }
+
+    public void setCustomTag(Map<String, String> customTag) {
+        this.customTag = customTag;
+    }
+
     public boolean isNullVersion() {
         if (majorVersion == CommonDefine.File.NULL_VERSION_MAJOR
                 && minorVersion == CommonDefine.File.NULL_VERSION_MINOR) {
@@ -364,6 +376,14 @@ public class FileMeta implements Cloneable {
         fileMeta.siteList = new BasicBSONList();
         fileMeta.dataId = null;
         fileMeta.dataCreateTime = null;
+
+        BSONObject customTag = BsonUtils.getBSON(userFileObject, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+        customTag = BsonUtils.deepCopyRecordBSON(customTag);
+        Map<String, String> newCustomTag = new HashMap<>();
+        if (customTag != null) {
+            newCustomTag.putAll(customTag.toMap());
+        }
+        fileMeta.customTag = newCustomTag;
 
         fileMeta.user = user;
 
@@ -476,6 +496,7 @@ public class FileMeta implements Cloneable {
         bson.put(FieldName.FIELD_CLFILE_DELETE_MARKER, deleteMarker);
         bson.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, status);
         bson.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, transId);
+        bson.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
         return bson;
     }
 
@@ -553,6 +574,10 @@ public class FileMeta implements Cloneable {
         fileMeta.status = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_EXTRA_STATUS,
                 ServiceDefine.FileStatus.NORMAL);
         fileMeta.transId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_EXTRA_TRANS_ID);
+        BSONObject customTagBson = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+        if (customTagBson != null) {
+            fileMeta.customTag = BsonUtils.deepCopyMap(customTagBson.toMap());
+        }
     }
 
     public String getSimpleDesc() {

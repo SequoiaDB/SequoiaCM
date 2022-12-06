@@ -5,18 +5,19 @@ import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdator;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import java.util.Map;
+
 public class BucketConfigUpdater implements ConfigUpdator {
     // target
     private String bucketName;
 
     // new version status
     private String versionStatus;
+    private Map<String, String> customTag;
     private String updateUser;
 
-    public BucketConfigUpdater(String bucketName, String versionStatus, String updateUser) {
+    public BucketConfigUpdater(String bucketName) {
         this.bucketName = bucketName;
-        this.versionStatus = versionStatus;
-        this.updateUser = updateUser;
     }
 
     public String getBucketName() {
@@ -35,6 +36,14 @@ public class BucketConfigUpdater implements ConfigUpdator {
         this.versionStatus = versionStatus;
     }
 
+    public Map<String, String> getCustomTag() {
+        return customTag;
+    }
+
+    public void setCustomTag(Map<String, String> customTag) {
+        this.customTag = customTag;
+    }
+
     public void setUpdateUser(String updateUser) {
         this.updateUser = updateUser;
     }
@@ -42,13 +51,15 @@ public class BucketConfigUpdater implements ConfigUpdator {
     @Override
     public String toString() {
         return "BucketConfigUpdater{" + "bucketName='" + bucketName + '\'' + ", versionStatus='"
-                + versionStatus + '\'' + ", updateUser='" + updateUser + '\'' + '}';
+                + versionStatus + '\'' + ", customTag=" + customTag + ", updateUser='" + updateUser
+                + '\'' + '}';
     }
 
     @Override
     public BSONObject toBSONObject() {
         return new BasicBSONObject().append(FieldName.Bucket.NAME, bucketName)
                 .append(FieldName.Bucket.VERSION_STATUS, versionStatus)
+                .append(FieldName.Bucket.CUSTOM_TAG, customTag)
                 .append(FieldName.Bucket.UPDATE_USER, updateUser);
     }
 

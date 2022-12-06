@@ -1,8 +1,11 @@
 package com.sequoiacm.s3.core;
 
 import com.sequoiacm.s3.common.RestParamDefine;
+import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.model.CopyObjectMatcher;
 import com.sequoiacm.s3.model.ObjectUri;
+import com.sequoiacm.s3.utils.CommonUtil;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +14,8 @@ public class CopyObjectRequest {
     private CopyObjectMatcher sourceObjectMatcher;
     private S3BasicObjectMeta destObjectMeta = null;
     private boolean useSourceObjectMeta = false;
+    private Map<String, String> newObjectTagging;
+    private boolean useSourceObjectTagging = false;
     private String sourceObjectBucket;
     private String sourceObjectKey;
     private String sourceObjectVersion;
@@ -39,6 +44,22 @@ public class CopyObjectRequest {
         this.useSourceObjectMeta = useSourceObjectMeta;
     }
 
+    public Map<String, String> getNewObjectTagging() {
+        return newObjectTagging;
+    }
+
+    public void setNewObjectTagging(Map<String, String> newObjectTagging) {
+        this.newObjectTagging = newObjectTagging;
+    }
+
+    public boolean isUseSourceObjectTagging() {
+        return useSourceObjectTagging;
+    }
+
+    public void setUseSourceObjectTagging(boolean useSourceObjectTagging) {
+        this.useSourceObjectTagging = useSourceObjectTagging;
+    }
+
     public String getSourceObjectBucket() {
         return sourceObjectBucket;
     }
@@ -65,7 +86,8 @@ public class CopyObjectRequest {
 
     public CopyObjectRequest(String destBucketName, String destObjectKey,
             Map<String, String> requestHeaders, Map<String, String> xMeta,
-            ObjectUri sourceObjectUri, boolean useSourceObjectMeta, CopyObjectMatcher matcher) {
+            ObjectUri sourceObjectUri, boolean useSourceObjectMeta, boolean useSourceObjectTagging,
+            CopyObjectMatcher matcher) throws S3ServerException {
         destObjectMeta = new S3BasicObjectMeta();
         destObjectMeta.setBucket(destBucketName);
         destObjectMeta.setKey(destObjectKey);
@@ -94,20 +116,29 @@ public class CopyObjectRequest {
         }
         destObjectMeta.setMetaList(metaList);
 
+        String taggingStr = requestHeaders.get(RestParamDefine.PutObjectHeader.X_AMZ_TAGGING);
+        Map<String, String> tagMap = new HashMap<>();
+        if (!StringUtils.isEmpty(taggingStr)) {
+            tagMap = CommonUtil.parseObjectTagging(taggingStr);
+        }
+        this.newObjectTagging = tagMap;
+
         sourceObjectBucket = sourceObjectUri.getBucketName();
         sourceObjectKey = sourceObjectUri.getObjectName();
         sourceObjectVersion = sourceObjectUri.getVersionId();
 
         this.sourceObjectMatcher = matcher;
         this.useSourceObjectMeta = useSourceObjectMeta;
+        this.useSourceObjectTagging = useSourceObjectTagging;
     }
 
     @Override
     public String toString() {
         return "CopyObjectRequest{" + "sourceObjectMatcher=" + sourceObjectMatcher
                 + ", destObjectMeta=" + destObjectMeta + ", useSourceObjectMeta="
-                + useSourceObjectMeta + ", sourceObjectBucket='" + sourceObjectBucket + '\''
-                + ", sourceObjectKey='" + sourceObjectKey + '\'' + ", sourceObjectVersion='"
-                + sourceObjectVersion + '\'' + '}';
+                + useSourceObjectMeta + ", newObjectTagging=" + newObjectTagging
+                + ", useSourceObjectTagging=" + useSourceObjectTagging + ", sourceObjectBucket='"
+                + sourceObjectBucket + '\'' + ", sourceObjectKey='" + sourceObjectKey + '\''
+                + ", sourceObjectVersion='" + sourceObjectVersion + '\'' + '}';
     }
 }

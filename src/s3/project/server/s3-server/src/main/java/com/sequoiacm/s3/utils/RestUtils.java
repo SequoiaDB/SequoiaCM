@@ -154,6 +154,10 @@ public class RestUtils {
             case OBJECT_INVALID_ENCODING_TYPE:
             case PARAMETER_NOT_SUPPORT:
             case OBJECT_COPY_INVALID_DEST:
+            case BUCKET_TAGGING_TOO_LARGE:
+            case BUCKET_INVALID_TAGGING:
+            case OBJECT_TAGGING_TOO_LARGE:
+            case OBJECT_INVALID_TAGGING:
                 status = HttpStatus.BAD_REQUEST;
                 break;
             case INVALID_ACCESSKEYID:

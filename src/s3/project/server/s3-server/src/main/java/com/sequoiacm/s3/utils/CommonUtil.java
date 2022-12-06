@@ -1,7 +1,10 @@
 package com.sequoiacm.s3.utils;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +13,9 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.s3.core.Range;
 import com.sequoiacm.s3.exception.S3Error;
 import com.sequoiacm.s3.exception.S3ServerException;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 
 public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
@@ -103,5 +109,29 @@ public class CommonUtil {
         range.setContentLength(readLength);
     }
 
+    public static String readStream(HttpServletRequest httpServletRequest) throws IOException {
+        int ONCE_READ_BYTES = 1024;
+        ServletInputStream inputStream = httpServletRequest.getInputStream();
+        StringBuilder stringBuilder = new StringBuilder();
+        byte[] b = new byte[ONCE_READ_BYTES];
+        int len = inputStream.read(b, 0, ONCE_READ_BYTES);
+        while (len > 0) {
+            stringBuilder.append(new String(b, 0, len));
+            len = inputStream.read(b, 0, ONCE_READ_BYTES);
+        }
+        return stringBuilder.toString();
+    }
 
+    public static Map<String, String> parseObjectTagging(String taggingStr)
+            throws S3ServerException {
+        Map<String, String> tagMap = new HashMap<>();
+        for (String s : taggingStr.split("&")) {
+            String[] arr = s.split("=");
+            if (tagMap.put(arr[0], arr[1]) != null) {
+                throw new S3ServerException(S3Error.OBJECT_TAGGING_SAME_KEY,
+                        "the object tag can not contain same key");
+            }
+        }
+        return tagMap;
+    }
 }

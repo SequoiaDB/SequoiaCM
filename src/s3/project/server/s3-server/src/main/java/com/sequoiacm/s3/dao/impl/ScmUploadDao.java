@@ -196,6 +196,7 @@ public class ScmUploadDao implements UploadDao {
         uploadMeta.put(UploadMeta.META_CONTENT_TYPE, meta.getContentType());
         uploadMeta.put(UploadMeta.META_EXPIRES, meta.getExpires());
         uploadMeta.put(UploadMeta.META_LIST, meta.getMetaList());
+        uploadMeta.put(UploadMeta.TAGGING, meta.getTagging());
         uploadMeta.put(UploadMeta.META_STATUS, meta.getUploadStatus());
         uploadMeta.put(UploadMeta.META_WS_VERSION, meta.getWsVersion());
 

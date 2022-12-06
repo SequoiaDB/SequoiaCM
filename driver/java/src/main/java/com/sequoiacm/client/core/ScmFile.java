@@ -806,4 +806,27 @@ public abstract class ScmFile {
      * @return version serial.
      */
     public abstract ScmVersionSerial getVersionSerial();
+
+    /**
+     * Set the file custom tag
+     * @param customTag custom tag
+     */
+    public abstract void setCustomTag(Map<String, String> customTag) throws ScmException;
+
+    /**
+     * Get the file custom tag
+     * @return custom tag
+     */
+    public abstract Map<String, String> getCustomTag() throws ScmException;
+
+    /**
+     * Delete the file custom tag
+     */
+    public abstract void deleteCustomTag() throws ScmException;
+
+    /**
+     * Get the file custom tag number
+     * @return custom tag number
+     */
+    public abstract int getCustomTagCount();
 }

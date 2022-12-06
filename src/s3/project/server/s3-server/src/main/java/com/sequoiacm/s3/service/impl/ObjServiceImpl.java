@@ -3,6 +3,7 @@ package com.sequoiacm.s3.service.impl;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.IndexName;
+import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
@@ -80,6 +81,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Component
 public class ObjServiceImpl implements ObjectService {
@@ -446,6 +448,11 @@ public class ObjServiceImpl implements ObjectService {
             S3BasicObjectMeta ret = new S3BasicObjectMeta(sourceObjectMeta);
             ret.setBucket(request.getDestObjectMeta().getBucket());
             ret.setKey(request.getDestObjectMeta().getKey());
+            if (request.isUseSourceObjectTagging()) {
+                ret.setTagging(sourceObjectMeta.getTagging());
+            } else {
+                ret.setTagging(request.getNewObjectTagging());
+            }
             return ret;
         }
         request.getDestObjectMeta().setSize(sourceObjectMeta.getSize());
@@ -877,6 +884,89 @@ public class ObjServiceImpl implements ObjectService {
         return true;
     }
 
+    @Override
+    public void setObjectTag(ScmSession session, String bucketName, String objectName,
+            Map<String, String> customTag, String versionId) throws S3ServerException {
+        try {
+            Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+            ScmArgChecker.File.checkFileTag(customTag);
+            String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectName);
+            BSONObject newProperties = new BasicBSONObject();
+            newProperties.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
+            if (versionId == null) {
+                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
+                        newProperties, -1, -1);
+            }
+            else {
+                ScmVersion version = VersionUtil.parseVersion(versionId);
+                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
+                        newProperties, version.getMajorVersion(), version.getMinorVersion());
+            }
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                        "object not exist: bucket=" + bucketName + ", object=" + objectName, e);
+            }
+            if (e.getError() == ScmError.FILE_INVALID_CUSTOMTAG) {
+                throw new S3ServerException(S3Error.OBJECT_INVALID_TAGGING, e.getMessage(), e);
+            }
+            if (e.getError() == ScmError.FILE_CUSTOMTAG_TOO_LARGE) {
+                throw new S3ServerException(S3Error.OBJECT_TAGGING_TOO_LARGE, e.getMessage(), e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_PUT_TAGGING_FIELD,
+                    "failed to set object tagging: bucket=" + bucketName + ", object=" + objectName,
+                    e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getObjectTag(ScmSession session, String bucketName,
+            String objectName, String versionId) throws S3ServerException {
+        try {
+            BSONObject fileInfo = getFileInfo(session, bucketName, objectName, versionId);
+            return BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG).toMap();
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                        "object not exist: bucket=" + bucketName + ", object=" + objectName, e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_GET_TAGGING_FIELD,
+                    "failed to get object tagging: bucket=" + bucketName + ", object=" + objectName,
+                    e);
+        }
+    }
+
+    @Override
+    public void deleteObjectTag(ScmSession session, String bucketName, String objectName,
+            String versionId) throws S3ServerException {
+        try {
+            Bucket s3Bucket = bucketService.getBucket(session, bucketName);
+            String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectName);
+            BSONObject newProperties = new BasicBSONObject();
+            newProperties.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject());
+            if (versionId == null) {
+                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
+                        newProperties, -1, -1);
+            }
+            else {
+                ScmVersion version = VersionUtil.parseVersion(versionId);
+                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
+                        newProperties, version.getMajorVersion(), version.getMinorVersion());
+            }
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.FILE_NOT_FOUND) {
+                throw new S3ServerException(S3Error.OBJECT_NO_SUCH_KEY,
+                        "object not exist: bucket=" + bucketName + ", object=" + objectName, e);
+            }
+            throw new S3ServerException(S3Error.OBJECT_DELETE_TAGGING_FIELD,
+                    "failed to delete object tagging: bucket=" + bucketName + ", object="
+                            + objectName,
+                    e);
+        }
+    }
 }
 
 class ScmFileInputStreamAdapter extends InputStream {
