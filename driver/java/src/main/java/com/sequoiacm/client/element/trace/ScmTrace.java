@@ -17,11 +17,12 @@ public class ScmTrace {
     private long duration;
     private String requestUrl;
     private int spanCount;
+    private boolean isComplete;
     private ScmTraceSpan firstSpan;
 
     public ScmTrace(BasicBSONList spanBsonList) throws ScmException {
-        if (spanBsonList == null) {
-            throw new ScmInvalidArgumentException("spanBsonList is null");
+        if (spanBsonList == null || spanBsonList.isEmpty()) {
+            throw new ScmInvalidArgumentException("spanBsonList is empty");
         }
         List<ScmTraceSpan> spanList = new ArrayList<ScmTraceSpan>();
         for (Object o : spanBsonList) {
@@ -31,12 +32,13 @@ public class ScmTrace {
         for (ScmTraceSpan scmTraceSpan : spanList) {
             scmTraceSpan.setNextSpans(getSpanChildren(scmTraceSpan.getSpanId(), spanList));
             if (scmTraceSpan.getParentId() == null) {
-                this.firstSpan = scmTraceSpan;
-                this.traceId = scmTraceSpan.getTraceId();
-                this.requestUrl = scmTraceSpan.getRequestUrl();
-                this.duration = scmTraceSpan.getDuration();
+                isComplete = true;
             }
         }
+        this.firstSpan = spanList.get(0);
+        this.traceId = firstSpan.getTraceId();
+        this.requestUrl = firstSpan.getRequestUrl();
+        this.duration = firstSpan.getDuration();
         this.spanCount = spanList.size();
     }
 
@@ -95,10 +97,19 @@ public class ScmTrace {
         return firstSpan;
     }
 
+    /**
+     * Return whether the trace is complete.
+     * 
+     * @return Whether the trace is complete.
+     */
+    public boolean isComplete() {
+        return isComplete;
+    }
+
     @Override
     public String toString() {
         return "ScmTrace{" + "traceId='" + traceId + '\'' + ", duration=" + duration
-                + ", requestUrl='" + requestUrl + '\'' + ", spanCount=" + spanCount + ", firstSpan="
-                + firstSpan + '}';
+                + ", requestUrl='" + requestUrl + '\'' + ", spanCount=" + spanCount
+                + ", isComplete=" + isComplete + ", firstSpan=" + firstSpan + '}';
     }
 }
