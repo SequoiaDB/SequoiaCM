@@ -288,6 +288,9 @@ public class CommonDefine {
     }
 
     public static class RestArg {
+
+        public static final String NODES = "nodes";
+        public static final String SERVICES = "services";
         public static final String DATA_LENGTH = "data_length";
 
         public static final String WORKSPACE_NAME = "workspace_name";

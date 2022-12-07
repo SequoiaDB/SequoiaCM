@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import org.bson.BSONObject;
 
@@ -264,6 +265,8 @@ public interface MessageDispatcher extends Closeable {
     BSONObject updateWorkspace(String wsName, BSONObject updator) throws ScmException;
 
     BsonReader listHealth(String serviceName) throws ScmException;
+
+    BasicBSONList getCheckConnResult(String node, ScmCheckConnTarget target) throws ScmException;
 
     BsonReader listHostInfo() throws ScmException;
 

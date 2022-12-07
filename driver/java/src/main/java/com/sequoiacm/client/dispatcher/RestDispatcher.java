@@ -15,6 +15,7 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.infrastructure.common.ExceptionChecksUtils;
 import com.sequoiacm.infrastructure.common.SignatureUtils;
@@ -39,6 +40,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.HttpContext;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -76,6 +78,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String URL_SEP = "/";
     private static final String URL_PREFIX = "http://";
     private static final String API_VERSION = "/api/v1/";
+    private static final String INTERNAL_VERSION = "/internal/v1/";
     private static final String API_V2_VERSION = "/api/v2/";
     private static final String LOGIN = "/login";
     private static final String V2LOCALLOGIN = "/v2/localLogin";
@@ -1933,6 +1936,45 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public BasicBSONList getCheckConnResult(String node, ScmCheckConnTarget target)
+            throws ScmException {
+        String uri = URL_PREFIX + node + INTERNAL_VERSION + "connectivity-check";
+        HttpPost request = new HttpPost(uri);
+        BasicBSONList ret = null;
+
+        if (target.isAll()) {
+            ret = (BasicBSONList) RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                    request);
+        }
+        else {
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.NODES,
+                    listToString(target.getInstances())));
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.SERVICES,
+                    listToString(target.getServices())));
+            ret = (BasicBSONList) RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                    request, params);
+        }
+        return ret;
+    }
+
+    private String listToString(List<String> list) throws ScmException {
+        StringBuilder strBuilder = new StringBuilder();
+        for (String item : list) {
+            if (item == null || item.isEmpty()) {
+                throw new ScmException(ScmError.INVALID_ARGUMENT, "item can not be null or empty");
+            }
+            if (strBuilder.length() == 0) {
+                strBuilder.append(item);
+            }
+            else {
+                strBuilder.append("," + item);
+            }
+        }
+        return strBuilder.toString();
+    }
+
+    @Override
     public BsonReader listHostInfo() throws ScmException {
         String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + MONITOR + "host_info";
         logger.info(uri);
@@ -2612,7 +2654,7 @@ public class RestDispatcher implements MessageDispatcher {
                 gson.toJson(customTag)));
         RestClient.sendRequest(getHttpClient(), sessionId, request, params);
     }
-    
+
     @Override
     public void deleteBucketTag(String bucketName) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName) + "/tags";

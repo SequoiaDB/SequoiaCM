@@ -50,6 +50,11 @@
             <version>0.9.11</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-driver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -2,9 +2,13 @@ package com.sequoiacm.client.core;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.client.dispatcher.RestDispatcher;
+import com.sequoiacm.client.element.ScmCheckConnResult;
+import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.client.element.ScmCleanTaskConfig;
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
 import com.sequoiacm.client.element.ScmSpaceRecycleScope;
@@ -46,6 +50,72 @@ import com.sequoiacm.common.ScmArgChecker;
  * @since 2.1
  */
 public class ScmSystem {
+
+    /**
+     * Provide scm cluster connectivity operations.
+     *
+     * @since 3.2.2
+     */
+    public static class Diagnose {
+
+        /**
+         * check scm node connectivity.
+         *
+         * @param srcNode
+         *            srcNode ( ip:port ) .
+         * @param target
+         *            check target instance or service.
+         * @return the node with cluster connectivity list
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmCheckConnResult> checkConnectivity(String srcNode,
+                ScmCheckConnTarget target) throws ScmException {
+            ScmRequestConfig config = ScmRequestConfig.custom().setConnectTimeout(2000)
+                    .setSocketTimeout(300000).build();
+            List<ScmCheckConnResult> ret = new ArrayList<ScmCheckConnResult>();
+            RestDispatcher dispatcher = null;
+            BasicBSONList resp = null;
+            try {
+                dispatcher = new RestDispatcher(srcNode, config);
+                resp = dispatcher.getCheckConnResult(srcNode, target);
+            }
+            finally {
+                if (dispatcher != null) {
+                    dispatcher.close();
+                }
+            }
+            for (Object o : resp) {
+                BSONObject resultBson = (BSONObject) o;
+                ScmCheckConnResult result = new ScmCheckConnResult(resultBson);
+                ret.add(result);
+            }
+            return ret;
+        }
+
+        /**
+         * check scm cluster connectivity.
+         *
+         * @param session
+         *            session.
+         * @return the cluster connectivity Map
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static Map<ScmServiceInstance, List<ScmCheckConnResult>> checkConnectivity(
+                ScmSession session) throws ScmException {
+            Map<ScmServiceInstance, List<ScmCheckConnResult>> connResultMap = new HashMap<ScmServiceInstance, List<ScmCheckConnResult>>();
+            List<ScmServiceInstance> serviceInstances = ScmSystem.ServiceCenter
+                    .getServiceInstanceList(session, null);
+            ScmCheckConnTarget target = ScmCheckConnTarget.builder().allInstance().build();
+            for (ScmServiceInstance instance : serviceInstances) {
+                List<ScmCheckConnResult> results = checkConnectivity(
+                        instance.getIp() + ":" + instance.getPort(), target);
+                connResultMap.put(instance, results);
+            }
+            return connResultMap;
+        }
+    }
 
     /**
      * Provide configuration operations.
@@ -1240,6 +1310,7 @@ public class ScmSystem {
             BasicBSONList instanceList = BsonUtils.getArrayChecked(appObj, "instance");
             for (Object instance : instanceList) {
                 BSONObject instanceObj = (BSONObject) instance;
+                String hostName = BsonUtils.getStringChecked(instanceObj, "hostName");
                 String ip = BsonUtils.getStringChecked(instanceObj, "ipAddr");
                 BSONObject portObj = BsonUtils.getBSONObjectChecked(instanceObj, "port");
                 String status = BsonUtils.getString(instanceObj, "status");
@@ -1257,8 +1328,8 @@ public class ScmSystem {
                         .getObjectOrElse(metaDataObj, "isContentServer", "false").toString());
                 boolean isRooSiteInstance = Boolean.valueOf(BsonUtils
                         .getObjectOrElse(metaDataObj, "isRootSiteInstance", "false").toString());
-                serverList.add(new ScmServiceInstance(serviceName, region, zone, ip, port, status,
-                        isContentServer, isRooSiteInstance, metaDataObj));
+                serverList.add(new ScmServiceInstance(hostName, serviceName, region, zone, ip, port,
+                        status, isContentServer, isRooSiteInstance, metaDataObj));
             }
         }
     }

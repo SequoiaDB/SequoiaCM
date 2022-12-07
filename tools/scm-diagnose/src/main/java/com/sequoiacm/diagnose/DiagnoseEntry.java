@@ -3,6 +3,7 @@ package com.sequoiacm.diagnose;
 import com.sequoiacm.diagnose.command.Command;
 import com.sequoiacm.diagnose.command.SubCommand;
 import com.sequoiacm.diagnose.utils.RefUtils;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ public class DiagnoseEntry {
     private static String binPath = System.getProperty("binPath");
 
     public static void main(String[] args) throws Exception {
-
+        ScmHelper.configToolsLog("diagnoseLogback.xml");
         initSubCommands();
 
         if (args.length <= 0) {

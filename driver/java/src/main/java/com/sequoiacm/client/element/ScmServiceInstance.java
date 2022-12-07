@@ -9,6 +9,7 @@ public class ScmServiceInstance {
     private BSONObject metadata;
     private int port;
     private String serviceName;
+    private String hostName;
     private String ip;
     private String region;
     private String zone;
@@ -75,6 +76,22 @@ public class ScmServiceInstance {
             String status, boolean isContentServer, boolean isRootSite, BSONObject metadata) {
         this(serviceName, region, zone, ip, port, status, isContentServer, isRootSite);
         this.metadata = metadata;
+    }
+
+    public ScmServiceInstance(String hostName, String serviceName, String region, String zone,
+            String ip, int port, String status, boolean isContentServer, boolean isRootSite,
+            BSONObject metaDataObj) {
+        this(serviceName, region, zone, ip, port, status, isContentServer, isRootSite, metaDataObj);
+        this.hostName = hostName;
+    }
+
+    /**
+     * Returns the hostName of the service instance.
+     *
+     * @return hostName.
+     */
+    public String getHostName() {
+        return hostName;
     }
 
     /**

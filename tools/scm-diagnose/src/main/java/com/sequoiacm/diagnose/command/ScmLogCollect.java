@@ -79,7 +79,7 @@ public class ScmLogCollect extends SubCommand {
 
     public void run(String[] args)
             throws ScmToolsException, IOException, ParseException, InterruptedException {
-        Options ops = addLogParam();
+        Options ops = addParam();
         CommandLine commandLine = new DefaultParser().parse(ops, args, false);
 
         String logbackPath = commandLine.getOptionValue(LOGBACK_PATH);
@@ -361,7 +361,7 @@ public class ScmLogCollect extends SubCommand {
     }
 
     protected void printHelp() throws ParseException {
-        Options ops = addLogParam();
+        Options ops = addParam();
         HelpFormatter help = new HelpFormatter();
         help.printHelp(getName() + " [options]", ops);
     }
@@ -532,7 +532,7 @@ public class ScmLogCollect extends SubCommand {
         return seactionMap;
     }
 
-    protected Options addLogParam() throws ParseException {
+    protected Options addParam() throws ParseException {
         Options ops = new Options();
         ops.addOption(Option.builder("h").longOpt("help").hasArg(false).required(false).build());
         ops.addOption(Option.builder(null).longOpt(HOSTS).desc("scm collect log machines")

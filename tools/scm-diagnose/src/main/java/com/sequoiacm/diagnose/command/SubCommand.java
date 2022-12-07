@@ -6,7 +6,7 @@ import org.apache.commons.cli.ParseException;
 
 public abstract class SubCommand {
 
-    protected abstract Options addLogParam() throws ParseException;
+    protected abstract Options addParam() throws ParseException;
 
     public abstract String getName();
 
