@@ -16,7 +16,6 @@ SequoiaCM 支持监控网关服务、内容服务、S3 服务的请求处理耗�
 |scm.slowlog.request.xxx     |num        |单独配置某类请求的告警阈值，xxx 填写请求方式和地址，如：scm.slowlog.request.[POST/api/v1/files]=10000 配置文件上传请求的告警阈值为 10 秒，由于请求地址中包含特殊字符，需要用 [ ] 包裹。下方的表格中列举了常见的请求及其请求路径 |
 |scm.slowlog.allOperation    |num        |配置全局内部操作的告警阈值，当某个内部操作的执行时间大于或等于此值时，会在日志文件中打印慢操作告警信息。 默认值：-1（负数表示无限大的告警阈值），单位：毫秒    |
 |scm.slowlog.operation.xxx   |num        |单独配置某个内部操作的告警阈值，xxx 填写具体的操作名称，当前具体支持的操作请见下方的内部操作说明列表   |
-|scm.slowlog.operation.xxx   |num        |单独配置某个内部操作的告警阈值，xxx 填写具体的操作名称，当前具体支持的操作请见下方的内部操作说明列表                                                                                          |
 |scm.slowlog.appender        |str        |配置慢操作信息输出的位置：LOGGER：输出到日志文件、TRACER：输出到链路追踪系统的链路信息中，可同时配置多个（用逗号隔开），默认值：LOGGER,TRACER                                                    |
 
 **常见请求及其请求路径说明列表**
