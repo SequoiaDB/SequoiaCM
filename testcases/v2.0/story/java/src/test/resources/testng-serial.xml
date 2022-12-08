@@ -42,10 +42,11 @@
             <package name="com.sequoiacm.reloadconf.serial"/>
             <package name="com.sequoiacm.readcachefile.serial"/>
             <package name="com.sequoiacm.scmfile.serial"/>
-            <!--fulltext-->
-            <!--  <package name="com.sequoiacm.fulltextsearch"/>-->
-            <!--  <package name="com.sequoiacm.fulltextsearch.concurrent"/>-->
-            <!--  <package name="com.sequoiacm.fulltextsearch.serial"/>-->
+            
+            <package name="com.sequoiacm.fulltextsearch"/>
+            <package name="com.sequoiacm.fulltextsearch.concurrent"/>
+            <package name="com.sequoiacm.fulltextsearch.serial"/>
+
             <!--only one task is allowed under a ws -->
             <!--task-->
             <package name="com.sequoiacm.task"/>
