@@ -1,7 +1,10 @@
 package com.sequoiacm.infrastructure.common;
 
+import com.sequoiacm.infrastructure.ribbon.ScmLoadBalancerRuleConfig;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public enum ScmParameterCheckEnum {
@@ -16,7 +19,10 @@ public enum ScmParameterCheckEnum {
     CircuitBreakerSleepWindowInMilliseconds("hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds", new CheckIsNaturalNumberAndRange(
             1, Integer.MAX_VALUE)),
     ExecutionIsolationSemaphoreMaxConcurrentRequests("hystrix.command.default.execution.isolation.semaphore.maxConcurrentRequests", new CheckIsNaturalNumberAndRange(
-            1, Integer.MAX_VALUE));
+            1, Integer.MAX_VALUE)),
+    RibbonLocalPreferred("scm.ribbon.localPreferred", new CheckIsBoolean()),
+    GroupAccessMode("eureka.instance.metadata-map.groupAccessMode", new CheckInValues(ScmLoadBalancerRuleConfig.GROUP_ACCESS_MODE_ACROSS,
+            ScmLoadBalancerRuleConfig.GROUP_ACCESS_MODE_ALONG));
 
     private final String key;
 
@@ -99,6 +105,23 @@ class CheckIsNaturalNumberAndRange extends ScmParameterValidate {
             return new CheckParameterResult(false,
                     "The value of " + key + " is " + value + "," + value
                             + " is not in the range of [" + minValue + "," + maxValue + "]");
+        }
+        return new CheckParameterResult(true, "check successful");
+    }
+}
+
+class CheckInValues extends ScmParameterValidate {
+
+    private List<String> values;
+
+    CheckInValues(String... values) {
+        this.values = Arrays.asList(values);
+    }
+
+    @Override
+    CheckParameterResult validate(String key, String value) {
+        if (!values.contains(value)) {
+            return new CheckParameterResult(false, "The value of " + key + " must be in " + values);
         }
         return new CheckParameterResult(true, "check successful");
     }

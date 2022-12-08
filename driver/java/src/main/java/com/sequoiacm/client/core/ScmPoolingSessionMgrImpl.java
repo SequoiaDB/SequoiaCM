@@ -1,5 +1,6 @@
 package com.sequoiacm.client.core;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.dispatcher.RestDispatcher;
 import com.sequoiacm.client.element.ScmServiceInstance;
@@ -7,7 +8,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.ScmHelper;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.common.NetUtil;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -21,6 +21,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +41,10 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
 
     private static final int ABNORMAL_SESSION_QUEUE_SIZE = 1000;
     private static final long HTTP_CLIENT_IDLE_CONNECTION_MONITOR_INTERVAL = 5000;
+    private static final long REFRESH_NODE_GROUP_INTERVAL = 30000;
     private static final String AUTHORIZATION = "x-auth-token";
     private static final String HTTP_CLIENT_HOST_ATTRIBUTE = "http.target_host";
+    public static final String NODE_GROUP = "nodeGroup";
 
     private ScmSessionQueue authSessionQueue;
     private ScmSessionQueue notAuthSessionQueue;
@@ -51,6 +54,7 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
     private ScmTimer checkGatewayAddrTaskTimer;
     private ScmTimer clearAbnormalSessionsTaskTimer;
     private ScmTimer idleConnectionMonitorTimer;
+    private ScmTimer refreshNodeGroupTimer;
 
     // Dummy value to associate with an Object in the outerSessions Map
     private static final Object PRESENT = new Object();
@@ -74,6 +78,10 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
     private boolean closed = false;
 
     private ScmUrlConfig basicUrl;
+
+    private ScmUrlConfig lastUsedUrlConfig;
+    private List<ScmUrlConfig> lastSplitUrlConfigs;
+    private volatile boolean nodeGroupInitialed;
 
     ScmPoolingSessionMgrImpl(ScmSessionPoolConf conf) throws ScmException {
         try {
@@ -146,6 +154,22 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
         clearAbnormalSessionsTaskTimer = ScmTimerFactory.createScmTimer();
         clearAbnormalSessionsTaskTimer.schedule(clearAbnormalSessionsTask, interval, interval);
 
+        // start refresh node group task
+        if (sessionPoolConf.getNodeGroup() != null) {
+            refreshNodeGroupTimer = ScmTimerFactory.createScmTimer();
+            refreshNodeGroupTimer.schedule(new ScmTimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        refreshUrlNodeGroup();
+                    }
+                    catch (ScmException e) {
+                        logger.warn("failed to refresh node group", e);
+                    }
+                }
+            }, REFRESH_NODE_GROUP_INTERVAL, REFRESH_NODE_GROUP_INTERVAL);
+        }
+
         // start httpClient idleConnectionMonitor task
         idleConnectionMonitorTimer = ScmTimerFactory.createScmTimer();
         idleConnectionMonitorTimer.schedule(idleConnectionMonitorTask,
@@ -156,6 +180,7 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
 
     @Override
     public ScmSession getSession(SessionType sessionType) throws ScmException {
+        beforeGetSession();
         Lock lock = closedStateLock.readLock();
         lock.lock();
         try {
@@ -239,13 +264,157 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
     }
 
     private ScmSession createSession(SessionType sessionType) throws ScmException {
-        ScmSession scmSession = ScmFactory.Session.priorityAccess(sessionType,
-                sessionPoolConf.getSessionConfig().getUrlConfig(),
-                sessionPoolConf.getSessionConfig(), this);
-        if (sessionType == SessionType.AUTH_SESSION) {
-            lastAccessTimeMap.put(scmSession.getSessionId(), System.currentTimeMillis());
+        List<ScmUrlConfig> splitUrlConfigs = null;
+        ScmUrlConfig currentUrlConfig = sessionPoolConf.getSessionConfig().getUrlConfig();
+        if (lastUsedUrlConfig != currentUrlConfig || lastSplitUrlConfigs == null) {
+            synchronized (this) {
+                splitUrlConfigs = splitAndSortUrlConfig(currentUrlConfig);
+                lastSplitUrlConfigs = splitUrlConfigs;
+                lastUsedUrlConfig = currentUrlConfig;
+            }
         }
-        return scmSession;
+        else {
+            splitUrlConfigs = lastSplitUrlConfigs;
+        }
+        ScmException lastException = null;
+        for (ScmUrlConfig config : splitUrlConfigs) {
+            try {
+                ScmSession scmSession = ScmFactory.Session.priorityAccess(sessionType, config,
+                        sessionPoolConf.getSessionConfig(), this);
+                if (sessionType == SessionType.AUTH_SESSION) {
+                    lastAccessTimeMap.put(scmSession.getSessionId(), System.currentTimeMillis());
+                }
+                return scmSession;
+            }
+            catch (ScmException e) {
+                lastException = e;
+            }
+        }
+        if (lastException != null) {
+            throw lastException;
+        }
+        throw new ScmInvalidArgumentException(
+                "no available url, urls=" + lastUsedUrlConfig.getUrl());
+    }
+
+    private void beforeGetSession() throws ScmException {
+        if (!nodeGroupInitialed) {
+            synchronized (this) {
+                if (!nodeGroupInitialed) {
+                    refreshUrlNodeGroup();
+                    nodeGroupInitialed = true;
+                }
+            }
+        }
+    }
+
+    private void refreshUrlNodeGroup() throws ScmException {
+        if (sessionPoolConf.getNodeGroup() == null) {
+            return;
+        }
+        ScmSession scmSession = null;
+        try {
+            scmSession = createTempNotAuthSession();
+            List<ScmServiceInstance> gatewayList = ScmSystem.ServiceCenter
+                    .getServiceInstanceList(scmSession, "gateway");
+            for (UrlInfo urlInfo : this.gatewayUrlInfo.values()) {
+                String[] split = (getPureUrl(urlInfo.getUrl())).split(":");
+                String host = split[0];
+                int port = Integer.parseInt(split[1]);
+                for (ScmServiceInstance gateway : gatewayList) {
+                    if ((host.equals(gateway.getHostName())
+                            || gateway.getAllValidIp().contains(host))
+                            && port == gateway.getPort()) {
+                        BSONObject metadata = gateway.getMetadata();
+                        if (metadata != null) {
+                            urlInfo.setNodeGroup((String) metadata.get(NODE_GROUP));
+                        }
+                    }
+                }
+            }
+            nodeGroupInitialed = true;
+        }
+        finally {
+            if (scmSession != null) {
+                scmSession.close();
+            }
+        }
+    }
+
+    private List<ScmUrlConfig> splitAndSortUrlConfig(ScmUrlConfig urlConfig)
+            throws ScmInvalidArgumentException {
+        List<ScmUrlConfig> urlConfigs = new ArrayList<ScmUrlConfig>();
+        String nodeGroup = sessionPoolConf.getNodeGroup();
+        if (nodeGroup == null) {
+            urlConfigs.add(urlConfig);
+            return urlConfigs;
+        }
+        String zone = sessionPoolConf.getSessionConfig().getZone();
+        ScmUrlConfig.Builder sameZoneAndSameGroup = ScmUrlConfig.custom();
+        ScmUrlConfig.Builder sameZoneAndDiffGroup = ScmUrlConfig.custom();
+        ScmUrlConfig.Builder diffZoneAndSameGroup = ScmUrlConfig.custom();
+        ScmUrlConfig.Builder diffZoneAndDiffGroup = ScmUrlConfig.custom();
+
+        for (String url : urlConfig.getUrl()) {
+            UrlInfo urlInfo = gatewayUrlInfo.get(getPureUrl(url));
+            if (urlInfo.getZone().equals(zone) && nodeGroup.equals(urlInfo.getNodeGroup())) {
+                sameZoneAndSameGroup.addUrl(urlInfo.getRegion(), urlInfo.getZone(),
+                        Collections.singletonList(urlInfo.getUrl()));
+            }
+            else if (urlInfo.getZone().equals(zone) && !nodeGroup.equals(urlInfo.getNodeGroup())) {
+                sameZoneAndDiffGroup.addUrl(urlInfo.getRegion(), urlInfo.getZone(),
+                        Collections.singletonList(urlInfo.getUrl()));
+            }
+            else if (!urlInfo.getZone().equals(zone) && nodeGroup.equals(urlInfo.getNodeGroup())) {
+                diffZoneAndSameGroup.addUrl(urlInfo.getRegion(), urlInfo.getZone(),
+                        Collections.singletonList(urlInfo.getUrl()));
+            }
+            else if (!urlInfo.getZone().equals(zone) && !nodeGroup.equals(urlInfo.getNodeGroup())) {
+                diffZoneAndDiffGroup.addUrl(urlInfo.getRegion(), urlInfo.getZone(),
+                        Collections.singletonList(urlInfo.getUrl()));
+            }
+        }
+
+        if (sessionPoolConf.getGroupAccessMode() == ScmType.NodeGroupAccessMode.ACROSS) {
+            ScmUrlConfig tempConfig = sameZoneAndSameGroup.build();
+            if (!tempConfig.getUrl().isEmpty()) {
+                urlConfigs.add(tempConfig);
+            }
+            tempConfig = sameZoneAndDiffGroup.build();
+            if (!tempConfig.getUrl().isEmpty()) {
+                urlConfigs.add(tempConfig);
+            }
+            tempConfig = diffZoneAndSameGroup.build();
+            if (!tempConfig.getUrl().isEmpty()) {
+                urlConfigs.add(tempConfig);
+            }
+            tempConfig = diffZoneAndDiffGroup.build();
+            if (!tempConfig.getUrl().isEmpty()) {
+                urlConfigs.add(tempConfig);
+            }
+        }
+        else if (sessionPoolConf.getGroupAccessMode() == ScmType.NodeGroupAccessMode.ALONG) {
+            ScmUrlConfig tempConfig = sameZoneAndSameGroup.build();
+            if (!tempConfig.getUrl().isEmpty()) {
+                urlConfigs.add(tempConfig);
+            }
+        }
+        else {
+            throw new ScmInvalidArgumentException(
+                    "unrecognized groupAccessMode:" + sessionPoolConf.getGroupAccessMode());
+        }
+        if (urlConfigs.isEmpty()) {
+            throw new ScmInvalidArgumentException("no available url for nodeGroup:" + nodeGroup
+                    + ", groupAccessMode=" + sessionPoolConf.getGroupAccessMode() + ", urls="
+                    + urlConfig.getUrl());
+        }
+        return urlConfigs;
+    }
+
+    ScmSession createTempNotAuthSession() throws ScmException {
+        return ScmFactory.Session.priorityAccess(SessionType.AUTH_SESSION,
+                sessionPoolConf.getSessionConfig().getUrlConfig(),
+                sessionPoolConf.getSessionConfig(), null);
     }
 
     private boolean isAvailable(ScmSession scmSession) {
@@ -382,6 +551,9 @@ class ScmPoolingSessionMgrImpl implements ScmSessionMgr {
             }
             if (idleConnectionMonitorTimer != null) {
                 idleConnectionMonitorTimer.cancel();
+            }
+            if (refreshNodeGroupTimer != null) {
+                refreshNodeGroupTimer.cancel();
             }
             if (httpClient != null && outerSessions.isEmpty()) {
                 httpClient.close();
@@ -664,13 +836,13 @@ interface SyncGatewayAddrCallback {
 
 class SyncGatewayAddrTask extends ScmTimerTask {
     private static final Logger logger = LoggerFactory.getLogger(SyncGatewayAddrTask.class);
-    private ScmSessionMgr sessionMgr;
+    private ScmPoolingSessionMgrImpl sessionMgr;
     private ScmUrlConfig basicUrlConfig;
     private Map<String, String> basicIpUrlsMap;
     private SyncGatewayAddrCallback callback;
     private Map<String, Integer> ipSimilarityMap = new HashMap<String, Integer>();
 
-    public SyncGatewayAddrTask(ScmSessionMgr sessionMgr, ScmUrlConfig basicUrlConfig,
+    public SyncGatewayAddrTask(ScmPoolingSessionMgrImpl sessionMgr, ScmUrlConfig basicUrlConfig,
             SyncGatewayAddrCallback callback)
             throws ScmInvalidArgumentException {
         this.sessionMgr = sessionMgr;
@@ -683,7 +855,7 @@ class SyncGatewayAddrTask extends ScmTimerTask {
     public void run() {
         ScmSession ss = null;
         try {
-            ss = sessionMgr.getSession(SessionType.NOT_AUTH_SESSION);
+            ss = sessionMgr.createTempNotAuthSession();
             List<ScmServiceInstance> gatewayInstances = ScmSystem.ServiceCenter
                     .getServiceInstanceList(ss, "gateway");
             if (gatewayInstances.size() <= 0) {
@@ -704,8 +876,14 @@ class SyncGatewayAddrTask extends ScmTimerTask {
                 }
                 String instanceUrl = ip + ":" + instance.getPort() + urlTail;
                 if (!basicIpUrlsMap.containsKey(instanceUrl)) {
-                    remoteNewUrls.add(
-                            new UrlInfo(instanceUrl, instance.getRegion(), instance.getZone()));
+                    UrlInfo urlInfo = new UrlInfo(instanceUrl, instance.getRegion(),
+                            instance.getZone());
+                    BSONObject metadata = instance.getMetadata();
+                    if (metadata != null) {
+                        urlInfo.setNodeGroup(
+                                (String) metadata.get(ScmPoolingSessionMgrImpl.NODE_GROUP));
+                    }
+                    remoteNewUrls.add(urlInfo);
                 }
             }
             if (remoteNewUrls.size() > 0) {
@@ -726,18 +904,8 @@ class SyncGatewayAddrTask extends ScmTimerTask {
 
     private String getAvailableInstanceIp(ScmServiceInstance instance, ScmSession ss) {
         Set<IpWithSimilarity> ipSet = new TreeSet<IpWithSimilarity>();
-        if (NetUtil.isValidIp(instance.getIp())) {
-            ipSet.add(new IpWithSimilarity(instance.getIp(), getIpSimilarity(instance.getIp())));
-        }
-        if (instance.getMetadata() != null) {
-            String ipListStr = (String) instance.getMetadata().get("ipList");
-            if (ipListStr != null && !ipListStr.isEmpty()) {
-                for (String ip : ipListStr.split(",")) {
-                    if (NetUtil.isValidIp(ip)) {
-                        ipSet.add(new IpWithSimilarity(ip, getIpSimilarity(ip)));
-                    }
-                }
-            }
+        for (String ip : instance.getAllValidIp()) {
+            ipSet.add(new IpWithSimilarity(ip, getIpSimilarity(ip)));
         }
         for (IpWithSimilarity ipWithSimilarity : ipSet) {
             String ip = ipWithSimilarity.getIp();

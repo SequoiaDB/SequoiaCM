@@ -1,5 +1,6 @@
 package com.sequoiacm.client.core;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,10 @@ public class ScmSessionPoolConf {
     private long synGatewayUrlsInterval = 0;
 
     private long clearAbnormalSessionInterval = DEFAULT_CLEAR_ABNORMAL_SESSION_INTERVAL;
+
+    private String nodeGroup;
+
+    private ScmType.NodeGroupAccessMode groupAccessMode;
 
     private ScmConfigOption sessionConfig;
 
@@ -264,6 +269,59 @@ public class ScmSessionPoolConf {
     }
 
     /**
+     * Get the node group.
+     * 
+     * @since 3.2.2
+     * @return the node group.
+     */
+    public String getNodeGroup() {
+        return nodeGroup;
+    }
+
+    /**
+     * Set the node group, It will control the use of the gateway address when
+     * creating the session.
+     * 
+     * @param nodeGroup
+     *            the node group.
+     * @since 3.2.2
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public void setNodeGroup(String nodeGroup) throws ScmInvalidArgumentException {
+        checkNotNull(nodeGroup, "nodeGroup");
+        this.nodeGroup = nodeGroup;
+        if (this.groupAccessMode == null) {
+            this.groupAccessMode = ScmType.NodeGroupAccessMode.getDefaultAccessMode(nodeGroup);
+        }
+    }
+
+    /**
+     * Get the group access mode.
+     * 
+     * @since 3.2.2
+     * @return the group access mode.
+     */
+    public ScmType.NodeGroupAccessMode getGroupAccessMode() {
+        return groupAccessMode;
+    }
+
+    /**
+     * Set the group access mode.
+     * 
+     * @see ScmType.NodeGroupAccessMode
+     * @param groupAccessMode
+     *            the group access mode.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public void setGroupAccessMode(ScmType.NodeGroupAccessMode groupAccessMode)
+            throws ScmInvalidArgumentException {
+        checkNotNull(groupAccessMode, "groupAccessMode");
+        this.groupAccessMode = groupAccessMode;
+    }
+
+    /**
      * Create a config builder.
      *
      * @return builder.
@@ -342,6 +400,16 @@ public class ScmSessionPoolConf {
             return conf;
         }
 
+        public Builder setNodeGroup(String group) throws ScmInvalidArgumentException {
+            conf.setNodeGroup(group);
+            return this;
+        }
+
+        public Builder setGroupAccessMode(ScmType.NodeGroupAccessMode groupAccessMode)
+                throws ScmInvalidArgumentException {
+            conf.setGroupAccessMode(groupAccessMode);
+            return this;
+        }
     }
 
 }

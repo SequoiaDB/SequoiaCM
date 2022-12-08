@@ -350,6 +350,7 @@ class UrlInfo {
     private String url;
     private String region;
     private String zone;
+    private String nodeGroup;
 
     public UrlInfo(String url, String region, String zone) {
         this.url = url;
@@ -381,6 +382,14 @@ class UrlInfo {
         this.zone = zone;
     }
 
+    public String getNodeGroup() {
+        return nodeGroup;
+    }
+
+    public void setNodeGroup(String nodeGroup) {
+        this.nodeGroup = nodeGroup;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -401,6 +410,6 @@ class UrlInfo {
     @Override
     public String toString() {
         return "UrlInfo{" + "url='" + url + '\'' + ", region='" + region + '\'' + ", zone='" + zone
-                + '\'' + '}';
+                + '\'' + ", nodeGroup='" + nodeGroup + '\'' + '}';
     }
 }

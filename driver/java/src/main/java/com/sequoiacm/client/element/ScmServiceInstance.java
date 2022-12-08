@@ -1,6 +1,11 @@
 package com.sequoiacm.client.element;
 
+import com.sequoiacm.infrastructure.common.NetUtil;
 import org.bson.BSONObject;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Scm service instance.
@@ -119,6 +124,29 @@ public class ScmServiceInstance {
      */
     public String getIp() {
         return ip;
+    }
+
+    /**
+     * Returns all ip of the service instance.
+     *
+     * @return all valid ip.
+     */
+    public Set<String> getAllValidIp() {
+        Set<String> ipSet = new HashSet<String>();
+        if (NetUtil.isValidIp(ip)) {
+            ipSet.add(ip);
+        }
+        if (this.metadata != null) {
+            String ipListStr = (String) this.metadata.get("ipList");
+            if (ipListStr != null && !ipListStr.isEmpty()) {
+                for (String ip : ipListStr.split(",")) {
+                    if (NetUtil.isValidIp(ip)) {
+                        ipSet.add(ip);
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableSet(ipSet);
     }
 
     /**

@@ -379,4 +379,49 @@ public class ScmType {
         DIRECTED;
 
     }
+
+    /**
+     * Provides a set of constants to specify the NodeGroupAccessMode type.
+     */
+    public enum NodeGroupAccessMode {
+        /**
+         * A constants representing the type of along NodeGroupAccessMode. In this mode,
+         * only gateway nodes of the same zone and same group can be selected.
+         * 
+         * @since 3.2.2
+         */
+        ALONG("along"),
+
+        /**
+         * A constants representing the type of across NodeGroupAccessMode. In this
+         * mode, gateway nodes of different zone and group can be selected when there
+         * is no matching node.
+         * 
+         * @since 3.2.2
+         */
+        ACROSS("across");
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        NodeGroupAccessMode(String name) {
+            this.name = name;
+        }
+
+        public static NodeGroupAccessMode getDefaultAccessMode(String nodeGroup) {
+            if ("online".equals(nodeGroup)) {
+                return ACROSS;
+            }
+            else if ("batch".equals(nodeGroup)) {
+                return ALONG;
+            }
+            else {
+                return ACROSS;
+            }
+        }
+    }
+
 }
