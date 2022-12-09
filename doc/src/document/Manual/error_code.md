@@ -80,11 +80,15 @@
 | FILE_IS_CLOSED | -608 | 文件已关闭 |
 | INPUT_STREAM_CLOSED | -609 | 输入流已关闭 |
 | OUTPUT_STREAM_CLOSED | -610 | 输出流已关闭 | 
+| FILE_INVALID_CUSTOMTAG | -611 | 文件自由标签非法 |
+| FILE_CUSTOMTAG_TOO_LARGE | -612 | 文件自由标签数量过大 |
 | CONFIG_SERVER_ERROR | -700 | 配置服务错误 |
 | WORKSPACE_CACHE_EXPIRE | -701 | 工作区缓存区过期 |
 | BUCKET_EXISTS | -850 | 桶已存在 |
 | BUCKET_NOT_EXISTS | -851 | 桶不存在 |
 | BUCKET_NOT_EMPTY | -852 | 桶非空 |
+| BUCKET_INVALID_CUSTOMTAG | -853 | 桶标签非法 |
+| BUCKET_CUSTOMTAG_TOO_LARGE | -854 | 桶标签数量过大 |
 | FULL_TEXT_INDEX_ALREADY_CREATED | -900 | 全文索引已创建 |
 | FULL_TEXT_INDEX_IS_DELETING | -901 | 全文索引正在删除 |
 | FULL_TEXT_INDEX_IS_CREATING | -902 | 全文索引正在被创建 |
