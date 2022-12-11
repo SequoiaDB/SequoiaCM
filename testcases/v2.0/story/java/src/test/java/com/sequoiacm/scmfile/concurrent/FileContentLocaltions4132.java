@@ -98,15 +98,17 @@ public class FileContentLocaltions4132 extends TestScmBase {
             ScmSession session = null;
             try {
                 session = TestScmTools.createSession( site );
+                System.out
+                        .println( "----sessionId = " + session.getSessionId() );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 List< ScmContentLocation > fileContentLocationsInfo1 = file
                         .getContentLocations();
-                ScmFileUtils.checkContentLocation( fileContentLocationsInfo1, site,
-                        fileId, ws );
+                ScmFileUtils.checkContentLocation( fileContentLocationsInfo1,
+                        site, fileId, ws );
                 threadSuccessNum++;
-            }finally {
+            } finally {
                 session.close();
             }
         }
