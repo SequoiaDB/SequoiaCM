@@ -11,7 +11,8 @@ public enum ScmNodeTypeEnum {
     FULLTEXTSERVER("fulltext-server", "1", "sequoiacm-fulltext-server-"),
     MQSERVER("mq-server", "1", "sequoiacm-mq-server-"),
     S3SERVER("s3-server", "1", "sequoiacm-s3-server-"),
-    OMSERVER("om-server", "1", "sequoiacm-om-omserver-");
+    OMSERVER("om-server", "1", "sequoiacm-om-omserver-"),
+    CONTENTSERVER("content-server", "1", "sequoiacm-content-server-");
 
     private final String name;
     private final String typeNum;
@@ -33,6 +34,15 @@ public enum ScmNodeTypeEnum {
 
     public String getJarNamePrefix() {
         return jarNamePrefix;
+    }
+
+    public static ScmNodeTypeEnum getScmNodeByName(String name) {
+        for (ScmNodeTypeEnum nodeType : ScmNodeTypeEnum.values()) {
+            if (nodeType.getName().equals(name)) {
+                return nodeType;
+            }
+        }
+        throw new IllegalArgumentException(name + "not exit scm service");
     }
 
 }

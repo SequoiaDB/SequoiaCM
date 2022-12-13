@@ -9,11 +9,7 @@ import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmCheckConnResult;
 import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.diagnose.execption.LogCollectException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.tool.common.ScmCommon;
-import com.sequoiacm.infrastructure.tool.common.ScmHelper;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -22,13 +18,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.StringUtils;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,15 +28,13 @@ import java.util.Map;
 @Command
 public class ScmConnCheck extends SubCommand {
 
-    public static final String NAME = "conn-check";
+    private static final String NAME = "conn-check";
 
-    public static final String GATEWAY = "gateway";
+    private static final String GATEWAY = "gateway";
 
-    public static ScmSession session = null;
+    private static ScmSession session = null;
 
-    private static final String LOGBACK_PATH = "logback-path";
-
-    public static Map<String, List<ScmServiceInstance>> ipCheckMap = new HashMap();
+    private static Map<String, List<ScmServiceInstance>> ipCheckMap = new HashMap();
 
     private static final Logger logger = LoggerFactory.getLogger(ScmConnCheck.class);
 
@@ -61,8 +48,6 @@ public class ScmConnCheck extends SubCommand {
             System.exit(0);
         }
 
-        String logbackPath = commandLine.getOptionValue(LOGBACK_PATH);
-        changeLogbackFile(logbackPath);
         String gatewayAddress = commandLine.getOptionValue(GATEWAY);
         try {
             createSession(gatewayAddress);
@@ -98,7 +83,7 @@ public class ScmConnCheck extends SubCommand {
     }
 
     private static List<ScmCheckConnResult> getFailedResult(List<ScmCheckConnResult> allResult) {
-        ArrayList<ScmCheckConnResult> errorResult = new ArrayList<>();
+        List<ScmCheckConnResult> errorResult = new ArrayList<>();
         if (allResult == null || allResult.size() < 1) {
             return errorResult;
         }
@@ -243,26 +228,6 @@ public class ScmConnCheck extends SubCommand {
         System.out.println();
     }
 
-    private void changeLogbackFile(String logbackPath) throws ScmToolsException, IOException {
-        InputStream is = null;
-        try {
-            if (StringUtils.isEmpty(logbackPath)) {
-                is = new ClassPathResource("diagnoseLogback.xml").getInputStream();
-            }
-            else {
-                is = new FileInputStream(logbackPath);
-            }
-            ScmHelper.configToolsLog(is);
-        }
-        catch (FileNotFoundException e) {
-            throw new ScmToolsException(
-                    "logbackPath is " + logbackPath + "The logback xml file does not exist",
-                    LogCollectException.FILE_NOT_FIND);
-        }
-        finally {
-            ScmCommon.closeResource(is);
-        }
-    }
 
     @Override
     protected Options addParam() throws ParseException {
@@ -270,8 +235,6 @@ public class ScmConnCheck extends SubCommand {
         ops.addOption(Option.builder("h").longOpt("help").hasArg(false).required(false).build());
         ops.addOption(Option.builder(null).longOpt(GATEWAY).desc("gateway url").optionalArg(true)
                 .hasArg(true).required(true).build());
-        ops.addOption(Option.builder(null).longOpt(LOGBACK_PATH).desc("logback path")
-                .optionalArg(true).hasArg(true).required(false).build());
         return ops;
     }
 

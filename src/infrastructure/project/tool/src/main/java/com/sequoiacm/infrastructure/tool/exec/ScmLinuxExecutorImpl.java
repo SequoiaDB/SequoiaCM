@@ -108,10 +108,6 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
     }
 
-    private String getPidStr(String psTrimedStr) {
-        return psTrimedStr.substring(0, psTrimedStr.indexOf(" "));
-    }
-
     // 24613 sequoiacm-contentserver-2.2.0.jar
     // --spring.config.location=/opt/sequoiacm/conf/scm/15200/application.properties
     // --logging.config=/opt/sequoiacm/conf/scm/15200/logback.xml
@@ -194,8 +190,8 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     }
 
     public void _getNodeStatus(ScmNodeType nodeType, ScmNodeStatus res) throws ScmToolsException {
-        String[] psCmd = { "/bin/sh", "-c", "ps -eo pid,cmd | grep " + nodeType.getJarNamePrefix()
-                + " | grep -w -v grep | grep -w -v nohup" };
+        String[] psCmd = { "/bin/sh", "-c",
+                ScmCommandUtil.getPidCommandByjarName(nodeType.getJarNamePrefix()) };
         Process ps = null;
         int rc;
         try {
@@ -275,10 +271,8 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         // --spring.config.location=/opt/sequoiacm/conf/scm/15200/application.properties
         // --logging.config=/opt/sequoiacm/conf/scm/15200/logback.xml
         try {
-            String lineTrim = lineSrc.trim();
-            String pidStr = getPidStr(lineTrim);
-            int pid = Integer.valueOf(pidStr);
-            String confPath = getConfPathStr(lineTrim, nodeType.getJarNamePrefix());
+            int pid = ScmCommandUtil.getPidFromPsResult(lineSrc);
+            String confPath = getConfPathStr(lineSrc.trim(), nodeType.getJarNamePrefix());
             if (null != confPath) {
                 if (confPath.startsWith(".")) {
                     File f = new File("");

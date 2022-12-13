@@ -1,6 +1,6 @@
 package com.sequoiacm.diagnose.common;
 
-import com.sequoiacm.diagnose.execption.LogCollectException;
+import com.sequoiacm.diagnose.execption.CollectException;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public enum Services {
@@ -47,8 +47,8 @@ public enum Services {
                 return value;
             }
         }
-        throw new ScmToolsException("scm not have this services, servicesName=" + servicesName,
-                LogCollectException.INVALID_ARG);
+        throw new ScmToolsException("scm not have this services,servicesName=" + servicesName,
+                CollectException.INVALID_ARG);
     }
 
 }

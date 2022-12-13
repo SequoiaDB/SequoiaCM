@@ -26,7 +26,7 @@ public class SshExecRes {
 
     @Override
     public String toString() {
-        return "SshExecRes{" + "exitCode=" + exitCode + ", stdOut='" + stdOut + '\'' + ", stdErr='"
+        return "SshExecRes{" + "exitCode=" + exitCode + ",stdOut='" + stdOut + '\'' + ",stdErr='"
                 + stdErr + '\'' + '}';
     }
 }

@@ -7,9 +7,9 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./log/scm-log-collector.log</file>
+        <file>./log/scm-diagnose.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>./log/scm-log-collector.log</fileNamePattern>
+            <fileNamePattern>./log/scm-diagnose.%i.log</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>10</maxIndex>
         </rollingPolicy>
@@ -25,13 +25,10 @@
 
     <logger name="org.apache" additivity="false" level="WARN">
         <appender-ref ref="FILE"/>
-        <appender-ref ref="stdout"/>
     </logger>
 
     <root level="INFO">
         <appender-ref ref="FILE"/>
-        <appender-ref ref="stdout"/>
     </root>
 
 </configuration>
-

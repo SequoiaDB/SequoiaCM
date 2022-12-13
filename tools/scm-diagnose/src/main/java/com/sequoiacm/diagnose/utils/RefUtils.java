@@ -13,7 +13,7 @@ public class RefUtils {
     @SuppressWarnings("unchecked")
     public static <T> List<T> initInstancesAnnotatedWith(
             final Class<? extends Annotation> annotation) throws RuntimeException {
-        ArrayList<T> ret = new ArrayList<>();
+        List<T> ret = new ArrayList<>();
         try {
             Reflections reflections = new Reflections("com.sequoiacm.diagnose.command");
             Set<Class<?>> classes = reflections.getTypesAnnotatedWith(annotation);

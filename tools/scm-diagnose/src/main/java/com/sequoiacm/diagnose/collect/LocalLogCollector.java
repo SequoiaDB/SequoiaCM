@@ -1,10 +1,10 @@
 package com.sequoiacm.diagnose.collect;
 
 import com.sequoiacm.diagnose.command.ScmLogCollect;
-import com.sequoiacm.diagnose.common.LogCollectResult;
+import com.sequoiacm.diagnose.common.CollectResult;
 import com.sequoiacm.diagnose.common.Services;
-import com.sequoiacm.diagnose.config.LogCollectConfig;
-import com.sequoiacm.diagnose.execption.LogCollectException;
+import com.sequoiacm.diagnose.config.CollectConfig;
+import com.sequoiacm.diagnose.execption.CollectException;
 import com.sequoiacm.diagnose.utils.ExecLinuxCommandUtils;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.commons.io.FileUtils;
@@ -28,42 +28,39 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class LocalLogCollector extends LogCollector {
-    static final Logger logger = LoggerFactory.getLogger(LocalLogCollector.class);
-    String collectCurrentServiceName = null;
-
-    String hostAddress = "localhost";
+    private static final Logger logger = LoggerFactory.getLogger(LocalLogCollector.class);
+    private String hostAddress = "localhost";
 
     @Override
-    public LogCollectResult call() throws Exception {
+    public CollectResult call() throws Exception {
         try {
             this.start();
         }
-        catch (ScmToolsException e) {
-            return new LogCollectResult(-1, "local host collect log failed," + e.getMessage(), e);
+        catch (Exception e) {
+            return new CollectResult(-1, "local host collect log failed," + e.getMessage(), e);
         }
-        return new LogCollectResult(0, "local host collect log successful");
+        return new CollectResult(0, "local host collect log successful");
     }
 
     @Override
     public void start() throws ScmToolsException, IOException {
         System.out.println("[INFO ] local host start log collect");
-        if (!isExistDir(LogCollectConfig.getInstallPath())
-                || lsSubDirectory(LogCollectConfig.getInstallPath()).size() < 1) {
+        if (!isExistDir(CollectConfig.getInstallPath())
+                || lsSubDirectory(CollectConfig.getInstallPath()).size() < 1) {
             throw new ScmToolsException(
                     "scm install path is not exist or not install in local,install path="
-                            + LogCollectConfig.getInstallPath(),
-                    LogCollectException.SCM_NOT_EXIST_ERROR);
+                            + CollectConfig.getInstallPath(),
+                    CollectException.SCM_NOT_EXIST_ERROR);
         }
 
         try {
             hostAddress = InetAddress.getLocalHost().getHostAddress();
         }
         catch (UnknownHostException e) {
-            throw new ScmToolsException("get local ip failed", LogCollectException.SYSTEM_ERROR, e);
+            throw new ScmToolsException("local get ip failed", CollectException.SYSTEM_ERROR, e);
         }
 
-        for (String serviceName : LogCollectConfig.getServiceList()) {
-            collectCurrentServiceName = serviceName;
+        for (String serviceName : CollectConfig.getServiceList()) {
 
             if (Services.Daemon.getServiceName().equals(serviceName)) {
                 collectDaemon();
@@ -71,20 +68,20 @@ public class LocalLogCollector extends LogCollector {
             }
 
             // service install path :gateway-----opt/sequoiacm/sequoiacm-cloud/log/gateway
-            String servicePath = LogCollectConfig.getInstallPath() + File.separator
-                    + LogCollectConfig.serviceMap.get(serviceName);
+            String servicePath = CollectConfig.getInstallPath() + File.separator
+                    + CollectConfig.getServerMap().get(serviceName);
             if (!isExistDir(servicePath)) {
                 logger.info("local host don't install " + serviceName);
-                return;
+                continue;
             }
 
             List<String> serviceNodeFile = lsSubDirectory(servicePath);
             // node not exist
             if (serviceNodeFile.size() < 1) {
-                return;
+                continue;
             }
 
-            File destServiceFile = new File(LogCollectConfig.getOutputPath() + File.separator
+            File destServiceFile = new File(CollectConfig.getOutputPath() + File.separator
                     + ScmLogCollect.currentCollectPath + File.separator + serviceName);
             FileUtils.forceMkdir(destServiceFile);
 
@@ -94,15 +91,15 @@ public class LocalLogCollector extends LogCollector {
 
                 // ls maxLogCount Logfile
                 List<String> logFiles = lsCopyLogFile(nodePath, serviceName,
-                        LogCollectConfig.getMaxLogCount());
+                        CollectConfig.getMaxLogCount());
                 if (logFiles.size() < 1) {
-                    return;
+                    continue;
                 }
                 copyNoteLogfiles(destServiceFile.getAbsolutePath(), hostAddress + "_" + nodeDir,
                         nodePath, logFiles);
             }
         }
-
+        System.out.println("[INFO ] local host log collect finished");
     }
 
     private void copyNoteLogfiles(String destServicePath, String destNodePath, String srcDir,
@@ -110,12 +107,12 @@ public class LocalLogCollector extends LogCollector {
         String outputPath = destServicePath + File.separator + destNodePath;
         File outputFile = new File(outputPath);
         FileUtils.forceMkdir(outputFile);
-        if (LogCollectConfig.isNeedZipCopy()) {
+        if (CollectConfig.isNeedZipCopy()) {
             String tarName = outputPath + File.separator + destNodePath + ".tar.gz";
             boolean zipResult = ExecLinuxCommandUtils.zipFile(tarName, srcDir, logFiles);
             if (!zipResult) {
                 throw new ScmToolsException("zipFile failed:,file=" + tarName,
-                        LogCollectException.TAR_FILE_FAILED);
+                        CollectException.TAR_FILE_FAILED);
             }
         }
         else {
@@ -129,7 +126,7 @@ public class LocalLogCollector extends LogCollector {
         File srcFile = new File(src);
         if (!srcFile.exists()) {
             throw new ScmToolsException("copy file failed,srcFile not exist,path=" + src,
-                    LogCollectException.FILE_NOT_FIND);
+                    CollectException.FILE_NOT_FIND);
         }
         File destFile = new File(dest);
         FileUtils.forceMkdirParent(destFile);
@@ -137,7 +134,7 @@ public class LocalLogCollector extends LogCollector {
         if (!createSuccessful) {
             throw new ScmToolsException(
                     "create file failed, file already exists,path=" + destFile.getAbsolutePath(),
-                    LogCollectException.FILE_ALREADY_EXIST);
+                    CollectException.FILE_ALREADY_EXIST);
         }
         BufferedReader br = null;
         BufferedWriter bw = null;
@@ -153,7 +150,7 @@ public class LocalLogCollector extends LogCollector {
         }
         catch (Exception e) {
             throw new ScmToolsException("copyFile file failed:,copy " + src + " to " + dest,
-                    LogCollectException.COPY_FILE_FAILED, e);
+                    CollectException.COPY_FILE_FAILED, e);
         }
         finally {
             if (br != null) {
@@ -167,7 +164,7 @@ public class LocalLogCollector extends LogCollector {
     }
 
     private void collectDaemon() throws ScmToolsException, IOException {
-        String daemonInstallPath = LogCollectConfig.getInstallPath() + File.separator
+        String daemonInstallPath = CollectConfig.getInstallPath() + File.separator
                 + Services.Daemon.getServiceInstallPath();
 
         if (!isExistDir(daemonInstallPath)) {
@@ -176,13 +173,13 @@ public class LocalLogCollector extends LogCollector {
         }
 
         List<String> logFiles = lsCopyLogFile(daemonInstallPath, Services.Daemon.getServiceName(),
-                LogCollectConfig.getMaxLogCount());
+                CollectConfig.getMaxLogCount());
 
         if (logFiles.size() < 1) {
             return;
         }
 
-        File destDaemonDir = new File(LogCollectConfig.getOutputPath() + File.separator
+        File destDaemonDir = new File(CollectConfig.getOutputPath() + File.separator
                 + ScmLogCollect.currentCollectPath + File.separator
                 + Services.Daemon.getServiceName());
         FileUtils.forceMkdir(destDaemonDir);
@@ -195,7 +192,7 @@ public class LocalLogCollector extends LogCollector {
     private List<String> lsCopyLogFile(String path, String serviceName, int maxLogCount)
             throws ScmToolsException {
         File file = new File(path);
-        ArrayList<String> logList = new ArrayList<>();
+        List<String> logList = new ArrayList<>();
         if (!file.isDirectory()) {
             return logList;
         }
@@ -236,7 +233,7 @@ public class LocalLogCollector extends LogCollector {
     }
 
     private List<String> lsSubDirectory(String path) throws ScmToolsException {
-        ArrayList<String> dirList = new ArrayList<>();
+        List<String> dirList = new ArrayList<>();
         if (!isExistDir(path)) {
             return dirList;
         }

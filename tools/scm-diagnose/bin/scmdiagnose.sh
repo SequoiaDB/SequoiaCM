@@ -21,4 +21,4 @@ fi
 
 CLASSPATH="$JARPATH"
 
-$JAVA -DuserWorkingDirectory=$USER_WORKING_DIR -DbinPath=$BINPATH  -cp $CLASSPATH $MAINCLASS "$@"
+$JAVA -DuserWorkingDirectory=$USER_WORKING_DIR -cp $CLASSPATH $MAINCLASS "$@"

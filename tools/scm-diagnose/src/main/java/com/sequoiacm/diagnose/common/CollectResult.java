@@ -2,18 +2,18 @@ package com.sequoiacm.diagnose.common;
 
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
-public class LogCollectResult {
+public class CollectResult {
     private int code;
     private String msg;
 
-    private ScmToolsException exception;
+    private Exception exception;
 
-    public LogCollectResult(int code, String msg) {
+    public CollectResult(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public LogCollectResult(int code, String msg, ScmToolsException exception) {
+    public CollectResult(int code, String msg, Exception exception) {
         this.code = code;
         this.msg = msg;
         this.exception = exception;
@@ -28,7 +28,7 @@ public class LogCollectResult {
         return msg;
     }
 
-    public ScmToolsException getException() {
+    public Exception getException() {
         return exception;
     }
 }

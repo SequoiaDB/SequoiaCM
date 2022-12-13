@@ -1,10 +1,10 @@
 package com.sequoiacm.diagnose.collect;
 
 import com.sequoiacm.diagnose.command.ScmLogCollect;
-import com.sequoiacm.diagnose.common.LogCollectResult;
+import com.sequoiacm.diagnose.common.CollectResult;
 import com.sequoiacm.diagnose.common.Services;
-import com.sequoiacm.diagnose.config.LogCollectConfig;
-import com.sequoiacm.diagnose.execption.LogCollectException;
+import com.sequoiacm.diagnose.config.CollectConfig;
+import com.sequoiacm.diagnose.execption.CollectException;
 import com.sequoiacm.diagnose.ssh.Ssh;
 import com.sequoiacm.diagnose.utils.ExecLinuxCommandUtils;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -34,28 +34,29 @@ public class RemoteLogCollector extends LogCollector {
     private String TEMP_PATH = "/tmp";
 
     @Override
-    public LogCollectResult call() throws Exception {
+    public CollectResult call() throws Exception {
         try {
             this.start();
-            return new LogCollectResult(0, "remote host " + ssh.getHost() + " collect successful");
+            return new CollectResult(0, "remote host " + ssh.getHost() + " collect successful");
         }
-        catch (ScmToolsException | IOException e) {
-            return new LogCollectResult(-1,
-                    "remote host " + ssh.getHost() + " collect failed :" + e.getMessage(),
-                    (ScmToolsException) e);
+        catch (Exception e) {
+            return new CollectResult(-1,
+                    "remote host " + ssh.getHost() + " collect failed:" + e.getMessage(), e);
         }
     }
 
     @Override
     public void start() throws ScmToolsException, IOException {
         System.out.println("[INFO ] remote host " + getSsh().getHost() + " start log collect");
-        String tempCollectPath = TEMP_PATH + File.separator + LogCollectConfig.getResultDir();
+        String tempCollectPath = TEMP_PATH + File.separator + CollectConfig.getResultDir();
         try {
             checkScmInstallPath();
             ssh.rmDir(tempCollectPath);
             ssh.mkdir(tempCollectPath);
             remoteCollectLogFile();
             ssh.rmDir(tempCollectPath + "*");
+            System.out
+                    .println("[INFO ] remote host " + getSsh().getHost() + " log collect finished");
         }
         catch (ScmToolsException | IOException e) {
             throw e;
@@ -70,8 +71,8 @@ public class RemoteLogCollector extends LogCollector {
             ssh.checkExistDir(servicePath);
         }
         catch (ScmToolsException e) {
-            if (e.getExitCode() == LogCollectException.FILE_NOT_FIND) {
-                logger.info(LogCollectConfig.getServerMap().get(collectCurrentServiceName)
+            if (e.getExitCode() == CollectException.FILE_NOT_FIND) {
+                logger.info(CollectConfig.getServerMap().get(collectCurrentServiceName)
                         + " not install in remote host " + ssh.getHost());
                 return false;
             }
@@ -84,37 +85,37 @@ public class RemoteLogCollector extends LogCollector {
 
     private void checkScmInstallPath() throws ScmToolsException {
         try {
-            ssh.checkExistDir(LogCollectConfig.getInstallPath());
-            List<String> lsFiles = ssh.lsFile(LogCollectConfig.getInstallPath());
+            ssh.checkExistDir(CollectConfig.getInstallPath());
+            List<String> lsFiles = ssh.lsFile(CollectConfig.getInstallPath());
             if (lsFiles.size() < 1) {
                 throw new ScmToolsException(
-                        "scm not install in remote host " + ssh.getHost() + " ,install path="
-                                + LogCollectConfig.getInstallPath(),
-                        LogCollectException.SCM_NOT_EXIST_ERROR);
+                        "scm not install in remote host " + ssh.getHost() + ",install path="
+                                + CollectConfig.getInstallPath(),
+                        CollectException.SCM_NOT_EXIST_ERROR);
             }
         }
         catch (ScmToolsException e) {
-            if (e.getExitCode() == LogCollectException.FILE_NOT_FIND) {
+            if (e.getExitCode() == CollectException.FILE_NOT_FIND) {
                 throw new ScmToolsException(
                         "scm install path is not exist or not install in remote host "
-                                + ssh.getHost() + " ,install path="
-                                + LogCollectConfig.getInstallPath(),
-                        LogCollectException.SCM_NOT_EXIST_ERROR);
+                                + ssh.getHost() + ",install path="
+                                + CollectConfig.getInstallPath(),
+                        CollectException.SCM_NOT_EXIST_ERROR);
             }
             throw new ScmToolsException(e.getMessage(), e.getExitCode(), e);
         }
     }
 
     public void remoteCollectLogFile() throws ScmToolsException, IOException {
-        for (String serverName : LogCollectConfig.getServiceList()) {
+        for (String serverName : CollectConfig.getServiceList()) {
             collectCurrentServiceName = serverName;
             if (Services.Daemon.getServiceName().equals(serverName)) {
                 collectDaemon();
                 continue;
             }
 
-            String serverInstallPath = LogCollectConfig.getInstallPath() + File.separator
-                    + LogCollectConfig.getServerMap().get(serverName);
+            String serverInstallPath = CollectConfig.getInstallPath() + File.separator
+                    + CollectConfig.getServerMap().get(serverName);
             // serviceInstallPath exist
             boolean isInstall = checkServiceInstall(serverInstallPath);
             if (!isInstall) {
@@ -129,8 +130,8 @@ public class RemoteLogCollector extends LogCollector {
 
             for (String nodeDir : serviceNodes) {
                 String nodePath = serverInstallPath + File.separator + nodeDir;
-                List<String> logFiles = ssh.lsCopyLogFile(collectCurrentServiceName, nodePath,
-                        LogCollectConfig.getMaxLogCount());
+                List<String> logFiles = ssh.lsCopyLogFile(serverName, nodePath,
+                        CollectConfig.getMaxLogCount());
                 if (logFiles.size() < 1) {
                     continue;
                 }
@@ -143,14 +144,14 @@ public class RemoteLogCollector extends LogCollector {
             throws ScmToolsException, IOException {
 
         // zip
-        String tempService = TEMP_PATH + File.separator + LogCollectConfig.getResultDir()
+        String tempService = TEMP_PATH + File.separator + CollectConfig.getResultDir()
                 + File.separator + collectCurrentServiceName;
         String tempTarName = tempService + File.separator + tarDir + ".tar.gz";
         ssh.mkdir(tempService);
         ssh.zipFile(tempTarName, nodePath, logFiles);
 
         // copy
-        String LocalCollectPath = LogCollectConfig.getOutputPath() + File.separator
+        String LocalCollectPath = CollectConfig.getOutputPath() + File.separator
                 + ScmLogCollect.currentCollectPath + File.separator + collectCurrentServiceName
                 + File.separator + tarDir;
         FileUtils.forceMkdir(new File(LocalCollectPath));
@@ -158,35 +159,29 @@ public class RemoteLogCollector extends LogCollector {
         ssh.copyFileFromRemote(tempTarName, LocalTarName);
 
         // unzip
-        if (!LogCollectConfig.isNeedZipCopy()) {
-            localUnzipNodeTar(LocalTarName, LocalCollectPath);
-        }
-    }
-
-    public void localUnzipNodeTar(String tarName, String tarOutputPath)
-            throws ScmToolsException, IOException {
-        File outputFile = new File(tarOutputPath);
-        FileUtils.forceMkdir(outputFile);
-
-        boolean unzipResult = ExecLinuxCommandUtils.unzip(tarName, tarOutputPath);
-        if (unzipResult) {
-            File tarFile = new File(tarName);
-            if (!tarFile.delete()) {
-                logger.warn("file delete failed,path=" + tarFile.getAbsolutePath(),
-                        LogCollectException.FILE_NOT_FIND);
+        if (!CollectConfig.isNeedZipCopy()) {
+            boolean result = ExecLinuxCommandUtils.localUnzipNodeTar(LocalTarName,
+                    LocalCollectPath);
+            if (result) {
+                File tarFile = new File(LocalTarName);
+                if (!tarFile.delete()) {
+                    logger.warn("file delete failed,path=" + tarFile.getAbsolutePath(),
+                            CollectException.FILE_NOT_FIND);
+                }
             }
         }
     }
 
+
     private void collectDaemon() throws ScmToolsException, IOException {
-        String daemonInstallPath = LogCollectConfig.getInstallPath() + File.separator
+        String daemonInstallPath = CollectConfig.getInstallPath() + File.separator
                 + Services.Daemon.getServiceInstallPath();
         boolean isInstall = checkServiceInstall(daemonInstallPath);
         if (!isInstall) {
             return;
         }
         List<String> logFiles = ssh.lsCopyLogFile(Services.Daemon.getServiceName(), daemonInstallPath,
-                LogCollectConfig.getMaxLogCount());
+                CollectConfig.getMaxLogCount());
         if (logFiles.size() < 1) {
             return;
         }

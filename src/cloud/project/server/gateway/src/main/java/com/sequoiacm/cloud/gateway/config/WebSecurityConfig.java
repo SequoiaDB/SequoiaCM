@@ -51,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**/api/**/reload-bizconf/**", "/**/api/**/conf-properties/**",
                         "/**/internal/v1/monitor_collector/**", "/**/internal/v1/config-props",
                         "/**/internal/v1/health", "/**/internal/v1/env", "/**/internal/v1/metrics",
-                        "/**/internal/v1/connectivity-check",
+                        "/**/internal/v1/connectivity-check","/**/internal/v1/instances",
                         "/**/internal/v1/notify/**", "/**/api/**/salt/**")
                 .permitAll().antMatchers("/**/internal/**").denyAll().antMatchers("/**/api/**")
                 .authenticated().anyRequest().permitAll();

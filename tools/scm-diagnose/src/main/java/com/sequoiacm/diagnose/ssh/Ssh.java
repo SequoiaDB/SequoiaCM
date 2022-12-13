@@ -10,7 +10,7 @@ import com.jcraft.jsch.SftpException;
 import com.sequoiacm.diagnose.common.ExecRes;
 import com.sequoiacm.diagnose.common.Services;
 import com.sequoiacm.diagnose.config.SshCommonConfig;
-import com.sequoiacm.diagnose.execption.LogCollectException;
+import com.sequoiacm.diagnose.execption.CollectException;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +41,13 @@ public class Ssh {
         this.password = password;
         try {
             initSession();
-            logger.info("ssh connect successfully host=" + host + ", user='" + user
-                    + ", password= ****** " + ", port=" + port);
+            logger.info("ssh connect successfully host=" + host + ",user='" + user
+                    + ",password= ****** " + ",port=" + port);
         }
         catch (JSchException e) {
             disconnect();
             throw new ScmToolsException("Failed to ssh connect to " + host + ":" + port,
-                    LogCollectException.SSH_CONNECT_FAILED, e);
+                    CollectException.SSH_CONNECT_FAILED, e);
         }
     }
 
@@ -95,11 +95,11 @@ public class Ssh {
         }
         catch (JSchException e) {
             throw new ScmToolsException("channelSftp openChannel failed",
-                    LogCollectException.SSH_CONNECT_FAILED, e);
+                    CollectException.SSH_CONNECT_FAILED, e);
         }
         catch (SftpException e) {
             throw new ScmToolsException("remote host " + host + " not this dir:" + path,
-                    LogCollectException.FILE_NOT_FIND, e);
+                    CollectException.FILE_NOT_FIND, e);
         }
         finally {
             if (channelSftp != null && !channelSftp.isClosed()) {
@@ -108,7 +108,7 @@ public class Ssh {
         }
     }
 
-    private ExecRes sshExecuteCommand(String command) throws ScmToolsException {
+    public ExecRes sshExecuteCommand(String command) throws ScmToolsException {
         Channel channel = null;
         try {
             channel = session.openChannel("exec");
@@ -117,8 +117,8 @@ public class Ssh {
         }
         catch (Exception e) {
             throw new ScmToolsException(
-                    "failed to exec cmd:remoteHost=" + host + ":" + port + ", command=" + command,
-                    LogCollectException.SHELL_EXEC_ERROR, e);
+                    "failed to exec cmd,remoteHost=" + host + ":" + port + ", command=" + command,
+                    CollectException.SHELL_EXEC_ERROR, e);
         }
         finally {
             if (channel != null) {
@@ -126,6 +126,7 @@ public class Ssh {
             }
         }
     }
+
 
     private ExecRes runCommand(Channel channel, String command, List<Integer> expectExitCode)
             throws JSchException, IOException {
@@ -195,11 +196,11 @@ public class Ssh {
         }
         catch (JSchException e) {
             throw new ScmToolsException("channelSftp openChannel failed",
-                    LogCollectException.SSH_CONNECT_FAILED, e);
+                    CollectException.SSH_CONNECT_FAILED, e);
         }
         catch (SftpException e) {
             throw new ScmToolsException("ssh ls " + path + " failed",
-                    LogCollectException.FILE_NOT_FIND, e);
+                    CollectException.FILE_NOT_FIND, e);
         }
         finally {
             if (channelSftp != null) {
@@ -214,7 +215,7 @@ public class Ssh {
         });
         Services service = Services.getServices(serviceName);
         int logCount = 0;
-        ArrayList<String> logList = new ArrayList<>();
+        List<String> logList = new ArrayList<>();
         for (int i = 0; i < vector.size(); i++) {
             String[] lsMsg = vector.get(i).toString().split(" ");
             String logFileName = lsMsg[lsMsg.length - 1];
@@ -245,7 +246,7 @@ public class Ssh {
         String command = "mkdir -p " + path;
         ExecRes execRes = sshExecuteCommand(command);
         if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), LogCollectException.SHELL_EXEC_ERROR);
+            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
         }
     }
 
@@ -255,11 +256,12 @@ public class Ssh {
         for (String logName : logFile) {
             builder.append(" " + logName);
         }
-        String command = "tar zcvf " + tarName + " -C " + tarPath + builder;
+        String command = "tar --warning=no-file-changed -zcvf " + tarName + " -C " + tarPath
+                + builder;
         logger.info("remote hosts " + host + " zip file, command=" + command);
         ExecRes execRes = sshExecuteCommand(command);
         if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), LogCollectException.SHELL_EXEC_ERROR);
+            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
         }
     }
 
@@ -274,18 +276,18 @@ public class Ssh {
         catch (JSchException e) {
             System.out.println("channelSftp openChannel failed");
             throw new ScmToolsException("channelSftp openChannel failed",
-                    LogCollectException.SSH_CONNECT_FAILED, e);
+                    CollectException.SSH_CONNECT_FAILED, e);
         }
         catch (SftpException e) {
             throw new ScmToolsException("ssh ls " + path + " failed",
-                    LogCollectException.FILE_NOT_FIND, e);
+                    CollectException.FILE_NOT_FIND, e);
         }
         finally {
             if (channelSftp != null) {
                 channelSftp.disconnect();
             }
         }
-        ArrayList<String> lsFile = new ArrayList<>();
+        List<String> lsFile = new ArrayList<>();
         for (int i = 0; i < vector.size(); i++) {
             String[] lsMsg = vector.get(i).toString().split(" ");
             String fileName = lsMsg[lsMsg.length - 1];
@@ -306,11 +308,11 @@ public class Ssh {
         }
         catch (JSchException e) {
             throw new ScmToolsException("channelSftp openChannel failed",
-                    LogCollectException.SSH_CONNECT_FAILED, e);
+                    CollectException.SSH_CONNECT_FAILED, e);
         }
         catch (SftpException e) {
             throw new ScmToolsException("copy " + src + " from " + host + " to local failed",
-                    LogCollectException.COPY_FILE_FAILED, e);
+                    CollectException.COPY_FILE_FAILED, e);
         }
         finally {
             if (channelSftp != null) {
@@ -324,7 +326,7 @@ public class Ssh {
         String command = "rm -rf " + path;
         ExecRes execRes = sshExecuteCommand(command);
         if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), LogCollectException.SHELL_EXEC_ERROR);
+            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
         }
     }
 }

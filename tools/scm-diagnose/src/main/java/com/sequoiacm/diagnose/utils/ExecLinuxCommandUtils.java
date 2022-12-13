@@ -1,8 +1,9 @@
 package com.sequoiacm.diagnose.utils;
 
 import com.sequoiacm.diagnose.common.ExecRes;
-import com.sequoiacm.diagnose.execption.LogCollectException;
+import com.sequoiacm.diagnose.execption.CollectException;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,30 +12,50 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
 
 public class ExecLinuxCommandUtils {
     private static final Logger logger = LoggerFactory.getLogger(ExecLinuxCommandUtils.class);
 
-    public static ExecRes execCommand(String command) throws IOException {
+    public static ExecRes localExecuteCommand(String command) throws ScmToolsException {
+        try {
+            return execCommand(command, Arrays.asList(0));
+        }
+        catch (Exception e) {
+            throw new ScmToolsException("local failed to exec shell command," + e.getMessage(),
+                    CollectException.SHELL_EXEC_ERROR, e);
+        }
+    }
+
+    private static ExecRes execCommand(String command, List<Integer> expectExitCode)
+            throws IOException {
         int exitCode;
         String stdOut, stdErr;
         Runtime runtime = Runtime.getRuntime();
         Process process = null;
+        String[] cmd = new String[3];
+        cmd[0] = "/bin/sh";
+        cmd[1] = "-c";
+        cmd[2] = command;
         try {
-            logger.debug("Executing command locally, command:{}", command);
-            process = runtime.exec(command);
+            logger.debug("Executing command locally,command:{}", command);
+            process = runtime.exec(cmd);
             stdOut = readStringFromStream(process.getInputStream());
             stdErr = readStringFromStream(process.getErrorStream());
             exitCode = process.waitFor();
         }
         catch (IOException | InterruptedException e) {
-            throw new IOException("Failed to execute command locally, command=" + command, e);
+            throw new IOException("Failed to execute command locally,command=" + command, e);
         }
         finally {
             if (process != null) {
                 process.destroy();
             }
+        }
+        if (!expectExitCode.contains(exitCode)) {
+            throw new IOException("command:" + command + ",stderror:" + stdErr + ",stdout:" + stdOut
+                    + ",exitCode:" + exitCode + ",expectExitCode:" + expectExitCode);
         }
         return new ExecRes(exitCode, stdOut, stdErr);
     }
@@ -62,8 +83,7 @@ public class ExecLinuxCommandUtils {
         return sb.toString();
     }
 
-    public static boolean unzip(String tarName, String outputPath)
-            throws ScmToolsException, IOException {
+    public static boolean unzip(String tarName, String outputPath) throws ScmToolsException {
         File tarFile = new File(tarName);
         if (!tarFile.exists()) {
             return false;
@@ -73,15 +93,15 @@ public class ExecLinuxCommandUtils {
             return false;
         }
         String command = "tar -zxvf " + tarName + " -C " + outputPath;
-        ExecRes execRes = ExecLinuxCommandUtils.execCommand(command);
+        ExecRes execRes = ExecLinuxCommandUtils.localExecuteCommand(command);
         if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), LogCollectException.SHELL_EXEC_ERROR);
+            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
         }
         return true;
     }
 
     public static boolean zipFile(String tarName, String tarPath, List<String> logFile)
-            throws IOException, ScmToolsException {
+            throws ScmToolsException {
         if (logFile == null || logFile.isEmpty()) {
             return false;
         }
@@ -95,11 +115,16 @@ public class ExecLinuxCommandUtils {
         for (String logName : logFile) {
             builder.append(" " + logName);
         }
-        String command = "tar zcvf " + tarName + " -C " + tarPath + builder;
-        ExecRes execRes = ExecLinuxCommandUtils.execCommand(command);
-        if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), LogCollectException.SHELL_EXEC_ERROR);
-        }
+        String command = "tar --warning=no-file-changed -zcvf " + tarName + " -C " + tarPath
+                + builder;
+        ExecLinuxCommandUtils.localExecuteCommand(command);
         return true;
+    }
+
+    public static boolean localUnzipNodeTar(String tarName, String tarOutputPath)
+            throws ScmToolsException, IOException {
+        File outputFile = new File(tarOutputPath);
+        FileUtils.forceMkdir(outputFile);
+        return ExecLinuxCommandUtils.unzip(tarName, tarOutputPath);
     }
 }

@@ -7,17 +7,21 @@ import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DiagnoseEntry {
     private static final Logger logger = LoggerFactory.getLogger(DiagnoseEntry.class);
-    private static HashMap<String, SubCommand> commands = new HashMap<>();
-    private static String binPath = System.getProperty("binPath");
+    private static Map<String, SubCommand> commands = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
-        ScmHelper.configToolsLog("diagnoseLogback.xml");
+
+        String logbackPath = ScmHelper.getPwd() + File.separator + "conf" + File.separator
+                + "logback.xml";
+        ScmHelper.configToolsLog(new FileInputStream(logbackPath));
         initSubCommands();
 
         if (args.length <= 0) {
@@ -45,13 +49,14 @@ public class DiagnoseEntry {
             System.exit(0);
         }
         catch (IllegalArgumentException e) {
-            System.err.println("[ERROR] Execution failed, cause by:" + e.getMessage());
-            logger.error("Execution failed, cause by:{}", e.getMessage(), e);
+            System.err.println("[ERROR] Execution failed,cause by:" + e.getMessage());
+            logger.error("Execution failed,cause by:{}", e.getMessage(), e);
             System.exit(1);
         }
         catch (Exception e) {
             System.err.println(
-                    "[ERROR] Execution failed,detail:" + binPath + "/../log/scm-diagnose.log");
+                    "[ERROR] Execution failed,detail:" + ScmHelper.getPwd()
+                            + "/log/scm-diagnose.log");
             logger.error("Execution failed, detail:{}", e.getMessage(), e);
             System.exit(1);
         }

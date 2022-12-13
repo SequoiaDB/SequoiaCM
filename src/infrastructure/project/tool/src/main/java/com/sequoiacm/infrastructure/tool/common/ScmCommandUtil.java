@@ -89,6 +89,16 @@ public class ScmCommandUtil {
         }
     }
 
+    public static String getPidCommandByjarName(String jarNamePrefix) {
+        return "ps -eo pid,cmd | grep " + jarNamePrefix + " | grep -w -v grep | grep -w -v nohup";
+    }
+
+    public static int getPidFromPsResult(String psResult) {
+        String trim = psResult.trim();
+        String pidStr = trim.substring(0, trim.indexOf(" "));
+        return Integer.valueOf(pidStr);
+    }
+
     public static CommandLine parseArgs(String[] args, Options options) throws ScmToolsException {
         return parseArgs(args, options, false);
     }
