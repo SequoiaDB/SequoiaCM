@@ -1,18 +1,8 @@
 package com.sequoiacm.contentserver;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.sequoiacm.contentserver.bucket.BucketInfoManager;
-import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.contentmodule.ContentModuleExcludeMarker;
-import com.sequoiacm.contentserver.service.IDirService;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.audit.EnableAudit;
-import com.sequoiacm.infrastructure.config.client.EnableConfClient;
-import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
-import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
-import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
-import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
+import java.io.File;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +18,20 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
-import java.io.File;
-import java.util.HashMap;
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.config.PropertiesUtils;
+import com.sequoiacm.contentserver.contentmodule.ContentModuleExcludeMarker;
+import com.sequoiacm.contentserver.service.IDirService;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.audit.EnableAudit;
+import com.sequoiacm.infrastructure.config.client.EnableConfClient;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
+import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
+import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
+import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
+import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
 
 @EnableScmMonitorServer
 @EnableScmPrivClient
@@ -83,6 +85,10 @@ public class ScmApplication implements ApplicationRunner {
                     + "content-server" + File.separator + PropertiesUtils.getServerPort()
                     + File.separator + "application.properties";
             confClient.setConfFilePaht(confRelativePath);
+            confClient.registerConfigPropVerifier(new PreventingModificationVerifier(
+                    "eureka.instance.metadata-map.isContentServer",
+                    "eureka.instance.metadata-map.isRootSiteInstance",
+                    "eureka.instance.metadata-map.siteId"));
 
             ScmServer ss = ScmServer.getInstance();
             ss.init(privClient, confClient, siteName, bucketInfoManager, dirService);

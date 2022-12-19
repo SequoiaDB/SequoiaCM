@@ -1,6 +1,7 @@
 package com.sequoiacm.config.server.module;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,21 @@ public class ScmUpdateConfPropsResultSetGsonTypeAdapter
             out.endObject();
         }
         out.endArray();
+
+        out.name(ScmRestArgDefine.CONF_PROPS_REBOOT_CONF);
+        out.beginArray();
+        for (String conf : value.getRebootConf()) {
+            out.value(conf);
+        }
+        out.endArray();
+
+        out.name(ScmRestArgDefine.CONF_PROPS_ADJUST_CONF);
+        out.beginObject();
+        for (Map.Entry<String, String> entry : value.getAdjustConf().entrySet()) {
+            out.name(entry.getKey());
+            out.value(entry.getValue());
+        }
+        out.endObject();
 
         out.endObject();
     }

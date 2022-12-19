@@ -6,6 +6,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 
+import com.sequoiacm.infrastructure.config.client.EnableConfClient;
+
+@EnableConfClient
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableHystrix

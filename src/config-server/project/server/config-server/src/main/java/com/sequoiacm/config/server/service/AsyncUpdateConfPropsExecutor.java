@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.sequoiacm.config.server.module.ScmUpdateConfPropsResult;
 import com.sequoiacm.config.server.remote.ScmConfClient;
 import com.sequoiacm.config.server.remote.ScmConfClientFactory;
+import com.sequoiacm.infrastructure.config.core.common.ScmServiceUpdateConfigResult;
 
 @Component
 public class AsyncUpdateConfPropsExecutor {
@@ -36,9 +37,11 @@ public class AsyncUpdateConfPropsExecutor {
             String instanceUrl = instance.getHost() + ":" + instance.getPort();
             try {
                 ScmConfClient feignClient = feignClientFactory.getClient(instanceUrl);
-                feignClient.updateConfigProps(gson.toJson(updateProps), gson.toJson(deleteProps),
+                ScmServiceUpdateConfigResult res = feignClient.updateConfigProps(
+                        gson.toJson(updateProps), gson.toJson(deleteProps),
                         acceptUnknownProps);
-                resList.add(new ScmUpdateConfPropsResult(instance.getServiceId(), instanceUrl));
+                resList.add(new ScmUpdateConfPropsResult(instance.getServiceId(), instanceUrl,
+                        res.getRebootConf(), res.getAdjustedConf()));
             }
             catch (Exception e) {
                 logger.warn(

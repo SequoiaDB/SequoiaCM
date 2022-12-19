@@ -1,5 +1,10 @@
 package com.sequoiacm.config.tools.command;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
@@ -8,14 +13,11 @@ import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.element.ScmUpdateConfResult;
 import com.sequoiacm.client.element.ScmUpdateConfResultSet;
+import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.config.tools.common.ConfigType;
 import com.sequoiacm.config.tools.common.ScmConfigCommandUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class ScmDeleteConfigImpl extends AbstractScmRefreshConfig {
 
@@ -32,7 +34,8 @@ public class ScmDeleteConfigImpl extends AbstractScmRefreshConfig {
             ss = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
                     new ScmConfigOption(ScmConfigCommandUtil.parseListUrls(gatewayUrl), username,
                             password));
-            ScmUpdateConfResultSet resultSet = deleteConfigProp(ss, type, name, config);
+            ScmUpdateConfResultSet resultSet = deleteConfigProp(ss, type, name, config,
+                    acceptUnknownConfig);
             List<ScmUpdateConfResult> failures = resultSet.getFailures();
             List<ScmUpdateConfResult> successes = resultSet.getSuccesses();
             if (failures.size() > 0) {
@@ -54,6 +57,12 @@ public class ScmDeleteConfigImpl extends AbstractScmRefreshConfig {
                             result.getServiceName(), result.getInstance(), config);
                 }
             }
+            if (!resultSet.getRebootConf().isEmpty()) {
+                System.out.println("config '" + Strings.join(resultSet.getRebootConf(), ",")
+                        + "' require restart to take effect.");
+                logger.info("config '" + Strings.join(resultSet.getRebootConf(), ",")
+                        + "' require restart to take effect.");
+            }
         }
         catch (Exception e) {
             logger.error("delete config failed: name={},config={}", name, config, e);
@@ -67,14 +76,16 @@ public class ScmDeleteConfigImpl extends AbstractScmRefreshConfig {
     }
 
     private ScmUpdateConfResultSet deleteConfigProp(ScmSession ss, Integer type, String name,
-            String key) throws Exception {
+            String key, boolean acceptUnknownConfig) throws Exception {
         String[] nameArr = name.split(",");
         ScmConfigProperties conf = null;
         if (ConfigType.BY_SERVICE.getType().equals(type)) {
-            conf = ScmConfigProperties.builder().service(nameArr).deleteProperty(key).build();
+            conf = ScmConfigProperties.builder().service(nameArr).deleteProperty(key)
+                    .acceptUnknownProperties(acceptUnknownConfig).build();
         }
         if (ConfigType.BY_NODE.getType().equals(type)) {
-            conf = ScmConfigProperties.builder().instance(nameArr).deleteProperty(key).build();
+            conf = ScmConfigProperties.builder().instance(nameArr).deleteProperty(key)
+                    .acceptUnknownProperties(acceptUnknownConfig).build();
         }
         return ScmSystem.Configuration.setConfigProperties(ss, conf);
     }
@@ -82,5 +93,10 @@ public class ScmDeleteConfigImpl extends AbstractScmRefreshConfig {
     @Override
     public void printHelp(boolean isFullHelp) throws ScmToolsException {
         hp.printHelp(isFullHelp);
+    }
+
+    @Override
+    protected String configOptionExample() {
+        return "--" + OPT_LONG_CONFIG + " configName";
     }
 }

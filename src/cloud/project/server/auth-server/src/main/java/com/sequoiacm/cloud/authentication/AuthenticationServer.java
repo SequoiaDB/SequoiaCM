@@ -24,7 +24,6 @@ import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
@@ -55,9 +54,7 @@ public class AuthenticationServer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // first register have higher priority.
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
 
         initDefaultUserRole();
     }

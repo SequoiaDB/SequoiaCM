@@ -1,13 +1,15 @@
 package com.sequoiacm.contentserver.config;
 
-import com.sequoiacm.contentserver.job.ScmBackgroundJob;
-import com.sequoiacm.contentserver.job.ScmJobManagerRefresher;
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 
-import javax.annotation.PostConstruct;
+import com.sequoiacm.contentserver.job.ScmBackgroundJob;
+import com.sequoiacm.contentserver.job.ScmJobManagerRefresher;
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
 
 @ConfigurationProperties(prefix = "scm.jobManager.threadpool")
 @RefreshScope
@@ -18,8 +20,11 @@ public class ScmJobManagerConfig {
     /**
      * shortTimeThreadPool
      */
+    @ScmRefreshableConfigMarker
     private int coreSize = 8;
+    @ScmRefreshableConfigMarker
     private int maxSize = 10;
+
     private int queueSize = 5000;
 
     /**

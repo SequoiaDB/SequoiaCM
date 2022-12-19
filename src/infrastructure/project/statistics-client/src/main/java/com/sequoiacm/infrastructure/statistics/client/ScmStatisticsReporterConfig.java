@@ -5,11 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
+
 @RefreshScope
 @ConfigurationProperties(prefix = "scm.statistics")
 public class ScmStatisticsReporterConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmStatisticsReporterConfig.class);
+
+    @ScmRefreshableConfigMarker
     private int rawDataCacheSize = 5000;
+    @ScmRefreshableConfigMarker
     private int rawDataReportPeriod = 10000;
 
     public int getRawDataCacheSize() {

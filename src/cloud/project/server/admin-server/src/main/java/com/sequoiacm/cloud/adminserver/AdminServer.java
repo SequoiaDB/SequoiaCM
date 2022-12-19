@@ -1,8 +1,5 @@
 package com.sequoiacm.cloud.adminserver;
 
-import com.sequoiacm.cloud.adminserver.core.job.BreakpointFileCleanJobManager;
-import com.sequoiacm.cloud.adminserver.dao.BreakpointFileStatisticsDao;
-import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +14,15 @@ import org.springframework.context.annotation.ComponentScan;
 
 import com.sequoiacm.cloud.adminserver.common.StatisticsDefine;
 import com.sequoiacm.cloud.adminserver.core.StatisticsServer;
+import com.sequoiacm.cloud.adminserver.core.job.BreakpointFileCleanJobManager;
 import com.sequoiacm.cloud.adminserver.core.job.StatisticsJobManager;
+import com.sequoiacm.cloud.adminserver.dao.BreakpointFileStatisticsDao;
 import com.sequoiacm.cloud.adminserver.dao.ContentServerDao;
 import com.sequoiacm.cloud.adminserver.dao.StatisticsDao;
 import com.sequoiacm.cloud.adminserver.dao.WorkspaceDao;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
+import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 
 import de.codecentric.boot.admin.config.EnableAdminServer;
@@ -78,8 +77,6 @@ public class AdminServer implements ApplicationRunner {
             throw new Exception(StatisticsDefine.APPLICATION_PROPERTIES_LOCATION + " or "
                     + StatisticsDefine.LOGGING_CONFIG + " must be specified");
         }
-
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm.", "scm.statistics"));
 
         initSystem(config);
     }

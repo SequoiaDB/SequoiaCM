@@ -1,7 +1,17 @@
 package com.sequoiacm.infrastructure.slowlog.config;
 
-import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppender;
-import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppenderFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +20,9 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.AntPathMatcher;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.*;
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
+import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppender;
+import com.sequoiacm.infrastructure.slowlog.appender.SlowLogAppenderFactory;
 
 @ConfigurationProperties(prefix = "scm.slowlog")
 @RefreshScope
@@ -22,18 +32,24 @@ public class SlowLogConfig {
     private static final Logger logger = LoggerFactory.getLogger(SlowLogConfig.class);
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
+    @ScmRefreshableConfigMarker
     private boolean enabled = false;
 
+    @ScmRefreshableConfigMarker
     private Long allRequest = -1L;
 
+    @ScmRefreshableConfigMarker
     private Long allOperation = -1L;
 
+    @ScmRefreshableConfigMarker
     private Map<String, Long> request = new HashMap<>();
 
+    @ScmRefreshableConfigMarker
     private Map<String, Long> operation = new HashMap<>();
 
     private List<SlowLogRequest> parsedRequestList = Collections.emptyList();
 
+    @ScmRefreshableConfigMarker
     private String appender;
 
     private List<SlowLogAppender> appenderList = new ArrayList<>();
@@ -174,12 +190,15 @@ public class SlowLogConfig {
     private List<SlowLogRequest> parseRequest() {
         if (request != null && request.size() > 0) {
             List<SlowLogRequest> list = new ArrayList<>(request.size());
-            for (Map.Entry<String, Long> reqEntry : request.entrySet()) {
+            Iterator<Map.Entry<String, Long>> it = request.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Long> reqEntry = it.next();
                 String methodAndPattern = reqEntry.getKey();
                 int i = methodAndPattern.indexOf("/");
                 if (i == -1 || reqEntry.getValue() == null) {
                     logger.warn("unrecognized slowlog request config: key={}, value={}",
                             reqEntry.getKey(), reqEntry.getValue());
+                    it.remove();
                     continue;
                 }
                 String method = methodAndPattern.substring(0, i);

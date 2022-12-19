@@ -1,7 +1,18 @@
 package com.sequoiacm.contentserver.contentmodule;
 
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.contentserver.ScmServer;
-import com.sequoiacm.contentserver.bizconfig.*;
+import com.sequoiacm.contentserver.bizconfig.BucketConfSubscriber;
+import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
+import com.sequoiacm.contentserver.bizconfig.MetaDataConfSubscriber;
+import com.sequoiacm.contentserver.bizconfig.NodeConfSubscriber;
+import com.sequoiacm.contentserver.bizconfig.SiteConfSubscriber;
+import com.sequoiacm.contentserver.bizconfig.WorkspaceConfSubscriber;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
@@ -14,14 +25,8 @@ import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class ContentModuleInitializer {
     private static final Logger logger = LoggerFactory.getLogger(ContentModuleInitializer.class);
@@ -58,11 +63,7 @@ public class ContentModuleInitializer {
 
         ScmLockManager.getInstance().init(PropertiesUtils.getScmLockConfig());
 
-        // first register have higher priority.
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
-        confClient.registerConfigPropVerifier(new ScmJobManagerConfigVerifier());
-        confClient.registerConfigPropVerifier(
-                new PreventingModificationVerifier("scm.", "scm.slowlog"));
 
         ContenserverConfClient contentserverConfClient = ContenserverConfClient.getInstance()
                 .init(confClient, bucketInfoMgr);

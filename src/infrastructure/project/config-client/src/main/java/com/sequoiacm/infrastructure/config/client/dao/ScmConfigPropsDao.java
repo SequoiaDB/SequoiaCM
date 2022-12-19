@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -73,7 +74,7 @@ public class ScmConfigPropsDao {
         }
         catch (Exception e) {
             // rollback
-            rollback();
+            rollbackSilence();
             throw e;
         }
     }
@@ -138,7 +139,16 @@ public class ScmConfigPropsDao {
         }
     }
 
-    public void rollback() {
+    public void rollbackSilence() {
+        try {
+            rollback();
+        }
+        catch (Exception e) {
+            logger.error("failed to rollback", e);
+        }
+    }
+
+    public void rollback() throws ScmConfigException {
 
         removeFile(configFileParentPath + File.separator + newAppRropsTmpFileName);
 
@@ -153,8 +163,8 @@ public class ScmConfigPropsDao {
                 renameFile(currentOptionBackFile, new File(configFilePath));
             }
             catch (ScmConfigException e) {
-                logger.error("failed to rollback, rename {} to {} failed", currentOptionBackFile,
-                        configFilePath, e);
+                throw new ScmConfigException(e.getError(), "failed to rollback, rename "
+                        + currentOptionBackFile + " to " + configFilePath + " failed", e);
             }
 
             isNeedRollback = false;
@@ -172,6 +182,8 @@ public class ScmConfigPropsDao {
 
     private boolean createNewAppPropsTmpFile(Map<String, String> updateProps,
             List<String> deleteProps) throws ScmConfigException {
+        updateProps = new HashMap<>(updateProps);
+
         boolean isDifferentFromOld = false;
         BufferedWriter newTmpAppProps = null;
         BufferedReader appProps = null;

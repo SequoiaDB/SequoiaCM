@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmServiceUpdateConfigResult;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
 @RequestMapping("/internal/v1")
@@ -21,10 +22,11 @@ public interface ScmConfClient {
                     throws ScmConfigException;
 
     @PutMapping("/config-props")
-    public void updateConfigProps(
+    public ScmServiceUpdateConfigResult updateConfigProps(
             @RequestParam(ScmRestArgDefine.CONF_PROPS_UPDATE_PROPERTIES) String updatePropsStr,
             @RequestParam(ScmRestArgDefine.CONF_PROPS_DELETE_PROPERTIES) String deletePropsStr,
             @RequestParam(ScmRestArgDefine.CONF_PROPS_ACCEPT_UNKNOWN_PROPS) boolean acceptUnknownProps)
                     throws ScmConfigException;
 
 }
+

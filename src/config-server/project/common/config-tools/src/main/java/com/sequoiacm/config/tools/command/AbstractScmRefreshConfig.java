@@ -1,5 +1,8 @@
 package com.sequoiacm.config.tools.command;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+
 import com.sequoiacm.config.tools.common.ConfigType;
 import com.sequoiacm.config.tools.exception.ScmExitCode;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
@@ -7,8 +10,6 @@ import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
 
 public abstract class AbstractScmRefreshConfig extends ScmTool {
     protected final String OPT_LONG_SERVICE = "service";
@@ -19,6 +20,7 @@ public abstract class AbstractScmRefreshConfig extends ScmTool {
     protected final String OPT_LONG_ADMIN_USER = "user";
     protected final String OPT_LONG_ADMIN_PASSWD = "password";
     protected final String OPT_LONG_ADMIN_PASSWD_FILE = "password-file";
+    protected final String OPT_LONG_ACCEPT_UNKNOWN_CONF = "accept-unknown-conf";
 
     protected String name;
     protected Integer type;
@@ -29,6 +31,7 @@ public abstract class AbstractScmRefreshConfig extends ScmTool {
 
     protected Options ops;
     protected ScmHelpGenerator hp;
+    protected boolean acceptUnknownConfig;
 
     public AbstractScmRefreshConfig(String tooName) throws ScmToolsException {
         super(tooName);
@@ -36,7 +39,10 @@ public abstract class AbstractScmRefreshConfig extends ScmTool {
         hp = new ScmHelpGenerator();
         ops.addOption(hp.createOpt(null, OPT_LONG_SERVICE, "service name.", false, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_NODE, "node name.", false, true, false));
-        ops.addOption(hp.createOpt(null, OPT_LONG_CONFIG, "config item.", true, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_CONFIG,
+                "config item, exam: " + configOptionExample(), true, true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_ACCEPT_UNKNOWN_CONF,
+                "accept unknown configuration.", false, false, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_URL,
                 "gateway url. exam: host1:8080,host2:8080,host3:8080", true, true, false));
         ops.addOption(hp.createOpt(null, OPT_LONG_ADMIN_USER, "login admin username.", true, true,
@@ -77,9 +83,12 @@ public abstract class AbstractScmRefreshConfig extends ScmTool {
                 OPT_LONG_ADMIN_PASSWD, OPT_LONG_ADMIN_PASSWD_FILE);
         this.username = adminUser.getUsername();
         this.password = adminUser.getPassword();
+        this.acceptUnknownConfig = cl.hasOption(OPT_LONG_ACCEPT_UNKNOWN_CONF);
     }
 
     public abstract void operation() throws ScmToolsException;
+
+    protected abstract String configOptionExample();
 
     @Override
     public void process(String[] args) throws ScmToolsException {

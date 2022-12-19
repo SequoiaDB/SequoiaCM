@@ -1,25 +1,23 @@
 package com.sequoiacm.cloud.servicetrace;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.Banner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 
-import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import zipkin.server.EnableZipkinServer;
-
-import java.util.List;
 
 @EnableDiscoveryClient
 @EnableZipkinServer
@@ -43,7 +41,6 @@ public class ServiceTrace implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
         checkServiceNumLimit();
     }
 

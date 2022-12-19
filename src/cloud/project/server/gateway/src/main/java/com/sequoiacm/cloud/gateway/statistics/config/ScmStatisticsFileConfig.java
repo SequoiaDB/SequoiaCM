@@ -3,8 +3,12 @@ package com.sequoiacm.cloud.gateway.statistics.config;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
+
 class ScmStatisticsFileConfig {
+    @ScmRefreshableConfigMarker
     private List<String> workspaces;
+    @ScmRefreshableConfigMarker
     private String workspaceRegex;
 
     public List<String> getWorkspaces() {

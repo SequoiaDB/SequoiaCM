@@ -60,6 +60,24 @@
         },
         {
             "key": "eureka.client.fetch-registry"
+        },
+        {
+            "key": "info.app.name"
+        },
+        {
+            "key": "info.app.version"
+        },
+        {
+            "key": "info.app.description"
+        },
+        {
+            "key": "eureka.instance.metadata-map.version"
+        },
+        {
+            "key": "eureka.instance.metadata-map.actuatorSecurityEnabled"
+        },
+        {
+            "key": "eureka.instance.health-check-url-path"
         }
     ]
 }

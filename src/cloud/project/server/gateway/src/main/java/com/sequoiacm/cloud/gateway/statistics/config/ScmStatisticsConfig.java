@@ -1,20 +1,23 @@
 package com.sequoiacm.cloud.gateway.statistics.config;
 
-import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Arrays;
-import java.util.List;
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
+import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
 
 @RefreshScope
 @Configuration
 @ConfigurationProperties(prefix = "scm.statistics")
 public class ScmStatisticsConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmStatisticsConfig.class);
+
+    @ScmRefreshableConfigMarker
     private List<String> types;
 
     public List<String> getTypes() {

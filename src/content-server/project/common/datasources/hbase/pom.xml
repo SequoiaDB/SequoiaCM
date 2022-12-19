@@ -46,7 +46,7 @@
                             <rules>
                                 <rule>
                                     <pattern>com.google.common.**</pattern>
-                                    <result>com.sequoiacm.google.common.@1</result>
+                                    <result>google.com.sequoiacm.common.@1</result>
                                 </rule>
                             </rules>
                             <overwrite>true</overwrite>

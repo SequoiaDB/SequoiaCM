@@ -6,4 +6,10 @@ public interface ScmConfigPropVerifier {
 
     // judge whether the property is valid for delete.
     VerifyResult verifyDeletion(String key);
+
+    // 从小到大排序，越小优先级越高
+    default int order() {
+        return 0;
+    }
+
 }

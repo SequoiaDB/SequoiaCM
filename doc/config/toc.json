@@ -1108,6 +1108,12 @@
                 "en": "Overview"
             },
             {
+                "id": 1534831515,
+                "file": "config_means",
+                "cn": "配置方式",
+                "en": "Config Means"
+            },
+            {
                 "id": 1534820715,
                 "file": "cloud",
                 "cn": "Cloud 节点",
@@ -1161,6 +1167,12 @@
                 "cn": "可靠性配置",
                 "en": "Reliability Config"
             }]
+        },
+        {
+            "id": 1631933775,
+            "file": "biz_config",
+            "cn": "业务配置",
+            "en": "Business Config"
         },
         {
             "id": 1551231248,

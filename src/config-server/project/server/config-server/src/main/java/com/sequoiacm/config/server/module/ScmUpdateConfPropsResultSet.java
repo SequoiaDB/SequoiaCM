@@ -1,10 +1,11 @@
 package com.sequoiacm.config.server.module;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
+import java.util.Map;
+import java.util.Set;
 
 public class ScmUpdateConfPropsResultSet {
     // @JsonProperty(ScmRestArgDefine.CONF_PROPS_RES_SET_SUCCESS)
@@ -13,12 +14,17 @@ public class ScmUpdateConfPropsResultSet {
     // @JsonProperty(ScmRestArgDefine.CONF_PROPS_RES_SET_FAILES)
     private List<ScmUpdateConfPropsResult> failes = new ArrayList<>();
 
+    private Set<String> rebootConf = new HashSet<>();
+    private Map<String, String> adjustConf = new HashMap<>();
+
     public void addResult(ScmUpdateConfPropsResult result) {
         if (!result.isSuccess()) {
             failes.add(result);
         }
         else {
             successes.add(result);
+            rebootConf.addAll(result.getRebootConf());
+            adjustConf.putAll(result.getAdjustConf());
         }
     }
 
@@ -44,9 +50,17 @@ public class ScmUpdateConfPropsResultSet {
         this.failes = failes;
     }
 
+    public Set<String> getRebootConf() {
+        return rebootConf;
+    }
+
+    public Map<String, String> getAdjustConf() {
+        return adjustConf;
+    }
+
     @Override
     public String toString() {
         return "ScmUpdateConfPropsResultSet{" + "successes=" + successes + ", failes=" + failes
-                + '}';
+                + ", rebootConf=" + rebootConf + ", adjustConf=" + adjustConf + '}';
     }
 }

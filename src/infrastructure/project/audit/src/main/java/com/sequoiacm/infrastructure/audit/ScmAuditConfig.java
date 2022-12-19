@@ -14,6 +14,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
 
 
 @Component
@@ -22,13 +23,17 @@ import org.springframework.util.StringUtils;
 public class ScmAuditConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmAuditConfig.class);
 
+    @ScmRefreshableConfigMarker
     private String mask = "";
 
+    @ScmRefreshableConfigMarker
     private String userMask = "";
 
+    @ScmRefreshableConfigMarker
     // key is username and value is audit type
     private Map<String, String> user = new HashMap<String, String>();
 
+    @ScmRefreshableConfigMarker
     // key is user type and value is audit type
     private Map<String, String> userType = new HashMap<String, String>();
     

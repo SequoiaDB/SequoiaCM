@@ -3,17 +3,6 @@ package com.sequoiacm.s3;
 import java.io.File;
 import java.util.Arrays;
 
-import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.contentserver.contentmodule.EnableContentModule;
-import com.sequoiacm.contentserver.service.MetaSourceService;
-import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.lock.EnableScmLock;
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.s3.common.S3CommonDefine;
-import com.sequoiacm.s3.dao.IDGeneratorDao;
-import com.sequoiacm.s3.dao.PartDao;
-import com.sequoiacm.s3.dao.UploadDao;
-import com.sequoiadb.infrastructure.map.client.EnableMapClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +14,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+
+import com.sequoiacm.contentserver.contentmodule.EnableContentModule;
+import com.sequoiacm.contentserver.service.MetaSourceService;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
+import com.sequoiacm.infrastructure.lock.EnableScmLock;
+import com.sequoiacm.metasource.MetaAccessor;
+import com.sequoiacm.s3.common.S3CommonDefine;
+import com.sequoiacm.s3.dao.IDGeneratorDao;
+import com.sequoiacm.s3.dao.PartDao;
+import com.sequoiacm.s3.dao.UploadDao;
+import com.sequoiadb.infrastructure.map.client.EnableMapClient;
 
 @EnableScmLock
 @EnableDiscoveryClient
@@ -76,5 +77,8 @@ public class SequoiacmS3Application implements ApplicationRunner {
         String confRelativePath = ".." + File.separator + "conf" + File.separator + "s3-server"
                 + File.separator + serverPort + File.separator + "application.properties";
         confClient.setConfFilePaht(confRelativePath);
+        confClient.registerConfigPropVerifier(
+                new PreventingModificationVerifier("eureka.instance.metadata-map.isS3Server",
+                        "eureka.instance.metadata-map.bindingSite", "scm.content-module.site"));
     }
 }

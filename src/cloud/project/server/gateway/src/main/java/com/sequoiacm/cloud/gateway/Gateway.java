@@ -1,9 +1,6 @@
 package com.sequoiacm.cloud.gateway;
 
-import com.sequoiacm.infrastructure.statistics.client.EnableScmStatisticsClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -18,8 +15,8 @@ import org.springframework.context.annotation.FilterType;
 import com.sequoiacm.cloud.gateway.config.ApacheHttpClientConfiguration;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
+import com.sequoiacm.infrastructure.statistics.client.EnableScmStatisticsClient;
 
 @EnableZuulProxy
 @SpringBootApplication
@@ -30,7 +27,7 @@ import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 @ComponentScan(excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, value = ApacheHttpClientConfiguration.class))
 @RibbonClients(defaultConfiguration = ApacheHttpClientConfiguration.class)
 @EnableScmStatisticsClient
-public class Gateway implements ApplicationRunner {
+public class Gateway {
     @Autowired
     private ScmConfClient confClient;
 
@@ -38,12 +35,5 @@ public class Gateway implements ApplicationRunner {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
         System.setProperty("org.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH", "true");
         new SpringApplicationBuilder(Gateway.class).bannerMode(Banner.Mode.OFF).web(true).run(args);
-    }
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        confClient.registerConfigPropVerifier(
-                new PreventingModificationVerifier("scm.", "scm.statistics.", "scm.slowlog.",
-                        "scm.trace."));
     }
 }

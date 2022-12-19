@@ -1,28 +1,7 @@
 package com.sequoiacm.schedule;
 
-import com.sequoiacm.infrastructure.audit.EnableAudit;
-import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
-import com.sequoiacm.infrastructure.common.ScmIdGenerator;
-import com.sequoiacm.infrastructure.config.client.EnableConfClient;
-import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
-import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
-import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
-import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
-import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
-import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
-import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
-import com.sequoiacm.schedule.bizconf.ScmNodeConfSubscriber;
-import com.sequoiacm.schedule.bizconf.ScmSiteConfSubscriber;
-import com.sequoiacm.schedule.bizconf.ScmWorkspaceConfSubscriber;
-import com.sequoiacm.schedule.common.ScheduleCommonTools;
-import com.sequoiacm.schedule.common.ScheduleDefine;
-import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
-import com.sequoiacm.schedule.core.ScheduleServer;
-import com.sequoiacm.schedule.core.elect.ScheduleElector;
-import com.sequoiacm.schedule.dao.*;
-import com.sequoiacm.schedule.privilege.ScmSchedulePriv;
-import com.sequoiacm.schedule.remote.ScheduleClientFactory;
+import java.util.List;
+
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +17,33 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
-import java.util.List;
+import com.sequoiacm.infrastructure.audit.EnableAudit;
+import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
+import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.config.client.EnableConfClient;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
+import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
+import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
+import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
+import com.sequoiacm.schedule.bizconf.ScmNodeConfSubscriber;
+import com.sequoiacm.schedule.bizconf.ScmSiteConfSubscriber;
+import com.sequoiacm.schedule.bizconf.ScmWorkspaceConfSubscriber;
+import com.sequoiacm.schedule.common.ScheduleCommonTools;
+import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
+import com.sequoiacm.schedule.core.ScheduleServer;
+import com.sequoiacm.schedule.core.elect.ScheduleElector;
+import com.sequoiacm.schedule.dao.FileServerDao;
+import com.sequoiacm.schedule.dao.ScheduleDao;
+import com.sequoiacm.schedule.dao.SiteDao;
+import com.sequoiacm.schedule.dao.StrategyDao;
+import com.sequoiacm.schedule.dao.TaskDao;
+import com.sequoiacm.schedule.dao.WorkspaceDao;
+import com.sequoiacm.schedule.privilege.ScmSchedulePriv;
+import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 
 @SpringBootApplication
 @EnableScmPrivClient
@@ -148,8 +153,6 @@ public class ScheduleApplication implements ApplicationRunner {
         logger.info("ScmPrivClient={}", privClient);
         ScmSchedulePriv.getInstance().init(privClient, config.getPriHBInterval());
 
-        // first register have higher priority.
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
     }
 }

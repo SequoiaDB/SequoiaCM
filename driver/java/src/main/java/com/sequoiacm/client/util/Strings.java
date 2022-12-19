@@ -1,6 +1,6 @@
 package com.sequoiacm.client.util;
 
-import java.util.List;
+import java.util.Collection;
 
 public final class Strings {
     private Strings() {
@@ -28,7 +28,7 @@ public final class Strings {
         return false;
     }
 
-    public static String join(List<String> list, String delimiter) {
+    public static String join(Collection<String> list, String delimiter) {
         if (list == null || list.isEmpty()) {
             return "";
         }

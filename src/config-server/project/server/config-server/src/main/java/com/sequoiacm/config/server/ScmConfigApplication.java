@@ -1,9 +1,5 @@
 package com.sequoiacm.config.server;
 
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceHistoryTableDao;
-import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaSerivce;
-import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +15,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.sequoiacm.config.framework.lock.LockConfig;
 import com.sequoiacm.config.framework.lock.ScmLockManager;
+import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceHistoryTableDao;
+import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaSerivce;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
-
-import java.util.Arrays;
 
 @EnableDiscoveryClient
 @EnableScmMonitorServer
@@ -60,8 +55,6 @@ public class ScmConfigApplication implements ApplicationRunner {
 
         LockConfig lockConfig = appConfig.getLockConfig();
         ScmLockManager.getInstance().init(lockConfig);
-
-        confClient.registerConfigPropVerifier(new PreventingModificationVerifier("scm."));
 
         // TODO: use IP + port for contentserverId
         ScmIdGenerator.FileId.init(0, 102);

@@ -1,14 +1,17 @@
 package com.sequoiacm.infrastructure.trace;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.HashSet;
-import java.util.Set;
+import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
 
 @ConfigurationProperties(prefix = "scm.trace")
 @RefreshScope
@@ -16,10 +19,13 @@ public class ScmTraceConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(ScmTraceConfig.class);
 
+    @ScmRefreshableConfigMarker
     private boolean enabled;
 
+    @ScmRefreshableConfigMarker
     private int samplePercentage = 10;
 
+    @ScmRefreshableConfigMarker
     private String sampleServices;
 
     private Set<String> parsedSampleServices;

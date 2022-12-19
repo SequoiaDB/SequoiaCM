@@ -71,6 +71,8 @@ public class ScmRestArgDefine {
     public static final String CONF_PROPS_RES_SERVICE = "service";
     public static final String CONF_PROPS_RES_INSTANCE = "instance";
     public static final String CONF_PROPS_RES_MESSAGE = "message";
+    public static final String CONF_PROPS_REBOOT_CONF = "reboot_conf";
+    public static final String CONF_PROPS_ADJUST_CONF = "adjust_conf";
 
     public static final String BUCKET_CONF_VERSION = "bucket_version";
     public static final String BUCKET_CONF_GLOBAL_VERSION = "bucket_global_version";

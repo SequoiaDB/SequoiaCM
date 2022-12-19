@@ -1,5 +1,11 @@
 package com.sequoiacm.config.tools.command;
 
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
@@ -8,15 +14,12 @@ import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.element.ScmUpdateConfResult;
 import com.sequoiacm.client.element.ScmUpdateConfResultSet;
+import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.config.tools.common.ConfigType;
 import com.sequoiacm.config.tools.common.ScmConfigCommandUtil;
 import com.sequoiacm.config.tools.exception.ScmExitCode;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class ScmUpdateConfigImpl extends AbstractScmRefreshConfig {
 
@@ -33,7 +36,8 @@ public class ScmUpdateConfigImpl extends AbstractScmRefreshConfig {
             ss = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
                     new ScmConfigOption(ScmConfigCommandUtil.parseListUrls(gatewayUrl), username,
                             password));
-            ScmUpdateConfResultSet resultSet = updateConfigProp(ss, type, name, config);
+            ScmUpdateConfResultSet resultSet = updateConfigProp(ss, type, name, config,
+                    acceptUnknownConfig);
             List<ScmUpdateConfResult> failures = resultSet.getFailures();
             List<ScmUpdateConfResult> successes = resultSet.getSuccesses();
             if (failures.size() > 0) {
@@ -55,6 +59,20 @@ public class ScmUpdateConfigImpl extends AbstractScmRefreshConfig {
                             result.getServiceName(), result.getInstance(), config);
                 }
             }
+
+            for (Map.Entry<String, String> entry : resultSet.getAdjustConf().entrySet()) {
+                System.out.println(
+                        "config '" + entry.getKey() + "' has been adjusted to " + entry.getValue());
+                logger.info(
+                        "config '" + entry.getKey() + "' has been adjusted to " + entry.getValue());
+            }
+
+            if (!resultSet.getRebootConf().isEmpty()) {
+                System.out.println("config '" + Strings.join(resultSet.getRebootConf(), ",")
+                        + "' require restart to take effect.");
+                logger.info("config '" + Strings.join(resultSet.getRebootConf(), ",")
+                        + "' require restart to take effect.");
+            }
         }
         catch (Exception e) {
             logger.error("update config failed: name={},config={}", name, config, e);
@@ -67,8 +85,13 @@ public class ScmUpdateConfigImpl extends AbstractScmRefreshConfig {
         }
     }
 
+    @Override
+    protected String configOptionExample() {
+        return "--" + OPT_LONG_CONFIG + " configName=configValue";
+    }
+
     private ScmUpdateConfResultSet updateConfigProp(ScmSession ss, Integer type, String name,
-            String config) throws Exception {
+            String config, boolean acceptUnknownConfig) throws Exception {
         String[] nameArr = name.split(",");
         String key = "";
         String value = "";
@@ -86,10 +109,12 @@ public class ScmUpdateConfigImpl extends AbstractScmRefreshConfig {
         ScmConfigProperties conf = null;
         if (type.equals(ConfigType.BY_SERVICE.getType())) {
             conf = ScmConfigProperties.builder().service(nameArr).updateProperty(key, value)
+                    .acceptUnknownProperties(acceptUnknownConfig)
                     .build();
         }
         if (type.equals(ConfigType.BY_NODE.getType())) {
             conf = ScmConfigProperties.builder().instance(nameArr).updateProperty(key, value)
+                    .acceptUnknownProperties(acceptUnknownConfig)
                     .build();
         }
         return ScmSystem.Configuration.setConfigProperties(ss, conf);
