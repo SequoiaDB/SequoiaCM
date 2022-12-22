@@ -25,6 +25,7 @@ import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
 
 import org.apache.commons.codec.binary.Hex;
+
 import java.security.MessageDigest;
 import java.io.*;
 import java.util.*;
@@ -753,5 +754,52 @@ public class S3Utils extends TestScmBase {
         }
 
         return fileList;
+    }
+
+    /**
+     * @descreption 设置桶标签
+     * @param s3
+     * @param bucketName
+     * @param tagSet
+     */
+    public static void setBucketTag( AmazonS3 s3, String bucketName,
+            TagSet tagSet ) {
+        List< TagSet > tagSetList = new ArrayList<>();
+        tagSetList.add( tagSet );
+        BucketTaggingConfiguration bucketTaggingConfiguration = new BucketTaggingConfiguration();
+        bucketTaggingConfiguration.setTagSets( tagSetList );
+        SetBucketTaggingConfigurationRequest setBucketTaggingConfigurationRequest = new SetBucketTaggingConfigurationRequest(
+                bucketName, bucketTaggingConfiguration );
+        s3.setBucketTaggingConfiguration(
+                setBucketTaggingConfigurationRequest );
+    }
+
+    public static SetObjectTaggingResult setObjectTag( AmazonS3 s3,
+            String bucketName, String key, List< Tag > tagSet ) {
+        ObjectTagging objectTagging = new ObjectTagging( tagSet );
+        SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(
+                bucketName, key, objectTagging );
+        return s3.setObjectTagging( setObjectTaggingRequest );
+    }
+
+    public static SetObjectTaggingResult setObjectTag( AmazonS3 s3,
+            String bucketName, String key, String version,
+            List< Tag > tagSet ) {
+        ObjectTagging objectTagging = new ObjectTagging( tagSet );
+        SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(
+                bucketName, key, objectTagging );
+        setObjectTaggingRequest.setVersionId( version );
+        return s3.setObjectTagging( setObjectTaggingRequest );
+    }
+
+    public static void compareTagSet( List< Tag > actTagSet,
+            List< Tag > expTagSet ) {
+        for ( int i = 0; i < actTagSet.size(); i++ ) {
+            Assert.assertEquals( actTagSet.get( i ).getKey(),
+                    expTagSet.get( i ).getKey() );
+            Assert.assertEquals( actTagSet.get( i ).getValue(),
+                    expTagSet.get( i ).getValue() );
+        }
+
     }
 }
