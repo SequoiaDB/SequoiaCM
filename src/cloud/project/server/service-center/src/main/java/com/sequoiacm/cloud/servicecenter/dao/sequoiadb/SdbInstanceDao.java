@@ -156,8 +156,9 @@ public class SdbInstanceDao implements InstanceDao {
             sdb = new Sequoiadb(configuration.getUrls().get(0),
                     configuration.getUsername(), authInfo.getPassword());
             cursor = sdb.getCollectionSpace(CS_SCMSYSTEM).getCollection(CL_EUREKA_INSTANCE)
-                    .queryAndUpdate(matcher, null, null, null, modifier, 0, -1,
-                            DBQuery.FLG_QUERY_WITH_RETURNDATA, false);
+                    .queryAndUpdate(matcher, null, null, null,
+                            new BasicBSONObject(ScmModifierDefine.SEQUOIADB_MODIFIER_SET, modifier),
+                            0, -1, DBQuery.FLG_QUERY_WITH_RETURNDATA, false);
             long updateCount = 0;
             while (cursor.hasNext()) {
                 cursor.getNext();
