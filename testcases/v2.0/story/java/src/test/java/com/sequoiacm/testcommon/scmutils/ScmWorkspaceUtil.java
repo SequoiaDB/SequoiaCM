@@ -51,6 +51,27 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
+     * 创建工作区禁用目录
+     * 
+     * @param session
+     * @param wsName
+     * @param siteNum
+     * @return
+     * @throws ScmException
+     * @throws InterruptedException
+     */
+    public static ScmWorkspace createDisEnableDirectoryWS( ScmSession session,
+            String wsName, int siteNum )
+            throws ScmException, InterruptedException {
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        conf.setDataLocations( getDataLocationList( siteNum ) );
+        conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+        conf.setName( wsName );
+        conf.setEnableDirectory( false );
+        return createWS( session, conf );
+    }
+
+    /**
      * 指定分区方式创建工作区
      *
      * @param session
@@ -206,6 +227,81 @@ public class ScmWorkspaceUtil extends TestScmBase {
             }
         }
         return scmDataLocationList;
+    }
+
+    public static List< ScmDataLocation > prepareWsDataLocation(
+            List< SiteWrapper > siteList, ScmShardingType ScmShardingType )
+            throws ScmInvalidArgumentException {
+        if ( siteList.size() < 1 ) {
+            throw new IllegalArgumentException(
+                    "error, site num can't less than 1 ！" );
+        }
+        List< ScmDataLocation > scmDataLocationList = new ArrayList<>();
+        for ( SiteWrapper site : siteList ) {
+            String dataType = site.getDataType().toString();
+            String siteName = site.getSiteName();
+            switch ( dataType ) {
+            case "sequoiadb":
+                String domainName = TestSdbTools
+                        .getDomainNames( site.getDataDsUrl() ).get( 0 );
+                ScmSdbDataLocation scmSdbDataLocation = new ScmSdbDataLocation(
+                        siteName, domainName );
+                scmSdbDataLocation.setCsShardingType( ScmShardingType );
+                if ( ScmShardingType != ScmShardingType.NONE ) {
+                    scmSdbDataLocation.setClShardingType( ScmShardingType );
+                }
+                scmDataLocationList.add( scmSdbDataLocation );
+                break;
+            case "hbase":
+                ScmHbaseDataLocation scmHbaseDataLocation = new ScmHbaseDataLocation(
+                        siteName );
+                scmHbaseDataLocation.setShardingType( ScmShardingType );
+                scmDataLocationList.add( scmHbaseDataLocation );
+                break;
+            case "hdfs":
+                ScmHdfsDataLocation scmHdfsDataLocation = new ScmHdfsDataLocation(
+                        siteName );
+                scmHdfsDataLocation.setShardingType( ScmShardingType );
+                scmDataLocationList.add( scmHdfsDataLocation );
+                break;
+            case "ceph_s3":
+                ScmCephS3DataLocation scmCephS3DataLocation = new ScmCephS3DataLocation(
+                        siteName );
+                scmCephS3DataLocation.setShardingType( ScmShardingType );
+                scmDataLocationList.add( scmCephS3DataLocation );
+                break;
+            case "ceph_swift":
+                ScmCephSwiftDataLocation scmCephSwiftDataLocation = new ScmCephSwiftDataLocation(
+                        siteName );
+                scmCephSwiftDataLocation.setShardingType( ScmShardingType );
+                scmDataLocationList.add( scmCephSwiftDataLocation );
+                break;
+            case "sftp":
+                ScmSftpDataLocation scmSftpDataLocation = new ScmSftpDataLocation(
+                        siteName );
+                scmSftpDataLocation.setShardingType( ScmShardingType );
+                scmDataLocationList.add( scmSftpDataLocation );
+                break;
+            default:
+                Assert.fail( "dataSourceType not match: " + dataType );
+            }
+        }
+        return scmDataLocationList;
+    }
+
+    public static void checkWsUpdate( ScmSession session, String wsName,
+            List< ScmDataLocation > expDataLocations ) throws ScmException {
+        ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
+                session );
+        List< ScmDataLocation > actDataLocations = workspace.getDataLocations();
+        for ( ScmDataLocation actDataLocation : actDataLocations ) {
+            for ( ScmDataLocation expDataLocation : expDataLocations ) {
+                if ( actDataLocation.getSiteName()
+                        .equals( expDataLocation.getSiteName() ) ) {
+                    Assert.assertEquals( actDataLocation, expDataLocation );
+                }
+            }
+        }
     }
 
     public static void wsSetPriority( ScmSession session, String wsName )

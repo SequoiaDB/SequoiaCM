@@ -1,0 +1,166 @@
+package com.sequoiacm.workspace.serial;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.bizconf.ScmDataLocation;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
+import com.sequoiadb.threadexecutor.ThreadExecutor;
+import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+
+/**
+ * @descreption SCM-5480:不同工作区下修改数据源分区规则和文件操作并发
+ * @author ZhangYanan
+ * @date 2022/11/29
+ * @updateUser
+ * @updateDate
+ * @updateRemark
+ * @version 1.0
+ */
+public class WorkSpaces5480 extends TestScmBase {
+    private ScmSession session = null;
+    private SiteWrapper site = null;
+    private String wsNameA = "ws5480a";
+    private String wsNameB = "ws5480b";
+    private String fileName = "file5480b";
+    private ArrayList< SiteWrapper > siteList = new ArrayList<>();
+    private int fileSize = 1024 * 1024;
+    private String filePath = null;
+    private String fileUpdatePath = null;
+    private File localPath = null;
+    private ScmId scmId = null;
+    private boolean runSuccess = false;
+    private ScmWorkspace ws;
+
+    @BeforeClass
+    private void setUp() throws Exception {
+        localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        filePath = localPath + File.separator + "localFile_" + fileSize
+                + ".txt";
+        fileUpdatePath = localPath + File.separator + "localFileUpdate_"
+                + fileSize + ".txt";
+
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.createFile( fileUpdatePath, fileSize );
+
+        site = ScmInfo.getRootSite();
+        session = TestScmTools.createSession( site );
+        siteList.add( site );
+        ScmWorkspaceUtil.deleteWs( wsNameA, session );
+        ScmWorkspaceUtil.deleteWs( wsNameB, session );
+
+        ScmWorkspaceUtil.createWS( session, wsNameA, ScmInfo.getSiteNum() );
+        ScmWorkspaceUtil.createWS( session, wsNameB, ScmInfo.getSiteNum() );
+        ScmWorkspaceUtil.wsSetPriority( session, wsNameA );
+        ScmWorkspaceUtil.wsSetPriority( session, wsNameB );
+
+        ws = ScmFactory.Workspace.getWorkspace( wsNameB, session );
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setContent( filePath );
+        file.setFileName( fileName );
+        file.setAuthor( fileName );
+        scmId = file.save();
+    }
+
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    public void test() throws Exception {
+        ThreadExecutor t = new ThreadExecutor();
+        t.addWorker( new UpdateWsShardingTypeThread( ScmShardingType.YEAR, site,
+                siteList, wsNameA ) );
+        t.addWorker( new UpdateFileThread( site, wsNameB ) );
+        t.run();
+
+        SiteWrapper[] expSites = { site };
+        ScmFileUtils.checkMetaAndData( wsNameB, scmId, expSites, localPath,
+                fileUpdatePath );
+        runSuccess = true;
+    }
+
+    @AfterClass
+    private void tearDown() throws Exception {
+        try {
+            if ( runSuccess || TestScmBase.forceClear ) {
+                ScmWorkspaceUtil.deleteWs( wsNameA, session );
+                ScmWorkspaceUtil.deleteWs( wsNameB, session );
+                TestTools.LocalFile.removeFile( localPath );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
+            }
+        }
+    }
+
+    private class UpdateWsShardingTypeThread {
+        private ScmShardingType wsShardingType;
+        private SiteWrapper site;
+        private ArrayList< SiteWrapper > siteList;
+        private String wsName;
+
+        public UpdateWsShardingTypeThread( ScmShardingType wsShardingType,
+                SiteWrapper site, ArrayList< SiteWrapper > siteList,
+                String wsName ) {
+            this.wsShardingType = wsShardingType;
+            this.site = site;
+            this.siteList = siteList;
+            this.wsName = wsName;
+        }
+
+        @ExecuteOrder(step = 1)
+        private void run() throws Exception {
+            ScmSession session = TestScmTools
+                    .createSession( WorkSpaces5480.this.site );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            try {
+                List< ScmDataLocation > dataLocation = ScmWorkspaceUtil
+                        .prepareWsDataLocation( siteList, wsShardingType );
+                ws.updateDataLocation( dataLocation );
+                ScmWorkspaceUtil.checkWsUpdate( session, wsName, dataLocation );
+            } finally {
+                session.close();
+            }
+        }
+    }
+
+    private class UpdateFileThread {
+        private SiteWrapper site;
+        private String wsName;
+
+        public UpdateFileThread( SiteWrapper site, String wsName ) {
+            this.site = site;
+            this.wsName = wsName;
+        }
+
+        @ExecuteOrder(step = 1)
+        private void run() throws Exception {
+            ScmSession session = TestScmTools.createSession( site );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            try {
+                ScmFile file = ScmFactory.File.getInstance( ws, scmId );
+                file.updateContent( fileUpdatePath );
+            } finally {
+                session.close();
+            }
+        }
+    }
+}
