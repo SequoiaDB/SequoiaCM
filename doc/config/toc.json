@@ -329,6 +329,12 @@
             "en": "File Multi Version"
         },
         {
+            "id": 1640326132,
+            "file": "node_group",
+            "cn": "节点组",
+            "en": "Node Group"
+        },
+        {
             "id": 1535329943,
             "file": "cross_site_read_file",
             "cn": "跨站点读文件",

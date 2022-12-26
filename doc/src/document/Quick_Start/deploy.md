@@ -359,3 +359,4 @@
 [install_requirement]:Quick_Start/install_requirement.md
 [driver_operation]:Development/overview.md
 [primary_standby_cephs3]:Architecture/data_storage.md
+[node_group]:Architecture/node_group.md

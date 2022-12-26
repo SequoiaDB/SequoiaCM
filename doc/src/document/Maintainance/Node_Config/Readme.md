@@ -59,6 +59,8 @@ SequoiaCM 服务包括 Spring Cloud 服务和内容管理核心服务，各个�
 |management.port|num|配置节点的管理端口，用于系统状态监控。不配置时，默认为 server.port + 1，除 s3-server 外的其它服务均支持将 management.port 设为与 server.port 一致。|重启生效|
 |management.security.enabled|boolean|是否开启 Actuator 端点的权限控制，默认 false 。详情请见：[Actuator 安全性配置][actuator]|重启生效|
 |scm.ribbon.localPreferred|boolean|服务调用时是否优先选择同一台机器上的节点，默认值：true 。|重启生效|
+|eureka.instance.metadata-map.nodeGroup|str|节点组名|重启生效|
+|eureka.instance.metadata-map.groupAccessMode|str|[节点组][node_group]对应的访问模式，取值如下：<br>along：严格访问模式<br>across：亲和访问模式|重启生效|
 
 ##公共配置举例##
 
@@ -109,3 +111,4 @@ eureka.client.fetch-registry=true
 
 [actuator]:Maintainance/Security/Security_Config/actuator.md
 [config_means]:Maintainance/Node_Config/config_means.md
+[node_group]:Architecture/node_group.md
