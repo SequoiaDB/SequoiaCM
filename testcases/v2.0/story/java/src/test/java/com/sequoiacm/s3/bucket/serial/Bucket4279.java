@@ -28,7 +28,8 @@ import java.util.List;
 public class Bucket4279 extends TestScmBase {
     private final String bucketName = "bucket4279no";
     private final String wsName = "ws4279";
-    private List< String > envBuckets;
+    private List< String > envAdminBuckets;
+    private List< String > envNewUsersBuckets;
     private ScmSession session;
     private ScmSession newUserSession;
     private final String username = "user4279";
@@ -43,7 +44,8 @@ public class Bucket4279 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        envBuckets = S3Utils.getEnvBuckets();
+        envAdminBuckets = S3Utils.getEnvBuckets( TestScmBase.scmUserName );
+        envNewUsersBuckets = S3Utils.getEnvBuckets();
         session = TestScmTools.createSession( ScmInfo.getRootSite() );
 
         // 创建新ws、新用户并赋权
@@ -65,6 +67,8 @@ public class Bucket4279 extends TestScmBase {
         // 清理并创建bucket
         for ( int i = 0; i < bucketNum; i++ ) {
             S3Utils.clearBucket( newS3Client, bucketName + i );
+            envAdminBuckets.remove( bucketName + i );
+            envNewUsersBuckets.remove( bucketName + i );
             newS3Client.createBucket( bucketName + i, wsName );
             allBucketNames.add( bucketName + i );
         }
@@ -82,7 +86,9 @@ public class Bucket4279 extends TestScmBase {
         for ( Bucket bucket : buckets ) {
             actBucketNames.add( bucket.getName() );
         }
-        Assert.assertEquals( actBucketNames.size() - envBuckets.size(), 0,
+        // 排除公共桶干扰
+        actBucketNames.removeAll( envAdminBuckets );
+        Assert.assertEquals( actBucketNames.size(), 0,
                 actBucketNames.toString() );
 
         // scm api列取桶
@@ -93,7 +99,7 @@ public class Bucket4279 extends TestScmBase {
             actBucketNames.add( cursor.getNext().getName() );
         }
         // 排除公共桶干扰
-        actBucketNames.removeAll( envBuckets );
+        actBucketNames.removeAll( envNewUsersBuckets );
         // scm api可列取所有用户的桶
         Assert.assertEqualsNoOrder( actBucketNames.toArray(),
                 allBucketNames.toArray() );

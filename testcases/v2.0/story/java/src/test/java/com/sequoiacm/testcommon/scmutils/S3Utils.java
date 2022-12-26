@@ -690,11 +690,32 @@ public class S3Utils extends TestScmBase {
                 "---file downLoadPath = " + downloadPath );
     }
 
+    /**
+     * @descreption 列取所有桶
+     * @return
+     * @throws Exception
+     */
     public static List< String > getEnvBuckets() throws Exception {
+        return getEnvBuckets( null );
+    }
+
+    /**
+     * @descreption 指定用户列取桶
+     * @param bucketOwner
+     * @return
+     * @throws Exception
+     */
+    public static List< String > getEnvBuckets( String bucketOwner )
+            throws Exception {
         List< String > envBuckets = new ArrayList<>();
         ScmSession session = TestScmTools.createSession();
+        BSONObject cond = null;
+        if ( bucketOwner != null ) {
+            cond = ScmQueryBuilder.start( ScmAttributeName.Bucket.CREATE_USER )
+                    .is( bucketOwner ).get();
+        }
         ScmCursor< ScmBucket > cursor = ScmFactory.Bucket.listBucket( session,
-                null, null, 0, -1 );
+                cond, null, 0, -1 );
         try {
             while ( cursor.hasNext() ) {
                 envBuckets.add( cursor.getNext().getName() );

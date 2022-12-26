@@ -26,7 +26,8 @@ public class Bucket4259 extends TestScmBase {
     private final String bucketNameBase = "bucket4259no";
     private List< String > adminUserBuckets = new ArrayList<>();
     private List< String > newUserBuckets = new ArrayList<>();
-    private List< String > envBuckets;
+    private List< String > envAdminBuckets;
+    private List< String > envNewUsersBuckets;
     private ScmSession adminSession;
     private ScmSession newUserSession;
     private final int bucketNum = 30;
@@ -38,7 +39,8 @@ public class Bucket4259 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        envBuckets = S3Utils.getEnvBuckets();
+        envAdminBuckets = S3Utils.getEnvBuckets( TestScmBase.scmUserName );
+        envNewUsersBuckets = S3Utils.getEnvBuckets( username );
         adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
         // 新建用户赋予默认s3工作区权限
         ScmAuthUtils.createAdminUserGrant( adminSession, s3WorkSpaces, username,
@@ -71,17 +73,17 @@ public class Bucket4259 extends TestScmBase {
                 .listBucket( newUserSession, s3WorkSpaces,
                         TestScmBase.scmUserName );
         S3Utils.checkBucketList( newWsBucketScmCursor, adminUserBuckets, false,
-                envBuckets );
+                envAdminBuckets );
         Assert.assertEquals(
                 ScmFactory.Bucket.countBucket( newUserSession, s3WorkSpaces,
-                        TestScmBase.scmUserName ) - envBuckets.size(),
+                        TestScmBase.scmUserName ) - envAdminBuckets.size(),
                 bucketNum / 2 );
 
         // 列取、统计新建user下的桶
         ScmCursor< ScmBucket > s3WsBucketScmCursor = ScmFactory.Bucket
                 .listBucket( newUserSession, s3WorkSpaces, username );
         S3Utils.checkBucketList( s3WsBucketScmCursor, newUserBuckets, false,
-                envBuckets );
+                envNewUsersBuckets );
         Assert.assertEquals( ScmFactory.Bucket.countBucket( newUserSession,
                 s3WorkSpaces, username ), bucketNum / 2 );
         runSuccess = true;
