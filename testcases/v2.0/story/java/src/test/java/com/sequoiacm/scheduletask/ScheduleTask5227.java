@@ -73,8 +73,7 @@ public class ScheduleTask5227 extends TestScmBase {
         fileId = ScmFileUtils.create( rootSiteWs, filename, filePath );
     }
 
-    // 问题单SEQUOIACM-1160影响，改用例暂时屏蔽
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         ThreadCreateMoveSchedule threadMoveSchedule1 = new ThreadCreateMoveSchedule(
