@@ -116,11 +116,17 @@ public class ScmConfigOption {
      */
     public ScmConfigOption(ScmUrlConfig urlConfig, String region, String zone, String user,
             String passwd, ScmRequestConfig requestConfig) throws ScmException {
-        this(urlConfig.getUrl(), region, zone, user, passwd, requestConfig);
-
         if (null == urlConfig) {
             throw new ScmInvalidArgumentException("urlConfig is null");
         }
+
+        this.urlConfig = urlConfig;
+        this.region = region;
+        this.zone = zone;
+
+        this.user = user;
+        this.passwd = passwd;
+        this.requestConfig = requestConfig;
     }
 
     /**
