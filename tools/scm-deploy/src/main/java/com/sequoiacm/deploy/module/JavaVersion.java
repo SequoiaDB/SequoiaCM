@@ -7,7 +7,9 @@ public class JavaVersion {
     public JavaVersion(String versionStr) {
         String[] majorAndMinorVersionArr = versionStr.split("\\.");
         this.majorVersion = Integer.valueOf(majorAndMinorVersionArr[0]);
-        this.minorVersion = Integer.valueOf(majorAndMinorVersionArr[1]);
+        if (majorAndMinorVersionArr.length >= 2) {
+            this.minorVersion = Integer.valueOf(majorAndMinorVersionArr[1]);
+        }
     }
 
     public int getMajorVersion() {

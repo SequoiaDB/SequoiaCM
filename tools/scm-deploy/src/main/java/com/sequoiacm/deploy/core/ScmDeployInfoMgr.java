@@ -193,7 +193,10 @@ public class ScmDeployInfoMgr {
             String versionStr = versionRes.getStdErr().substring(
                     versionRes.getStdErr().indexOf("\"") + 1,
                     versionRes.getStdErr().lastIndexOf("\""));
-            String majorAndMinorVersion = versionStr.substring(0, versionStr.lastIndexOf("."));
+            String majorAndMinorVersion = versionStr;
+            if (versionStr.contains(".")) {
+                majorAndMinorVersion = versionStr.substring(0, versionStr.indexOf(".") + 2);
+            }
             JavaVersion javaVersion = new JavaVersion(majorAndMinorVersion);
             if (!javaVersion.isGte(commonConf.getRequireJavaVersion())) {
                 throw new IllegalArgumentException(
