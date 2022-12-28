@@ -1,5 +1,6 @@
 package com.sequoiacm.deploy.deployer;
 
+import com.sequoiacm.deploy.common.CommonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -76,7 +77,7 @@ public class S3ServerDeployer extends ServiceDeployerBase {
     @Override
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
-        return serviceInstallPath + "/bin/s3ctl.sh start --timeout " + getWaitServiceReadyTimeout()
+        return serviceInstallPath + "/bin/s3ctl.sh start --timeout " + CommonUtils.getWaitServiceReadyTimeout()
                 + "  -p " + node.getPort();
     }
 }

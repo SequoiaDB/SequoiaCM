@@ -1,14 +1,13 @@
 package com.sequoiacm.deploy.config;
 
 import java.io.File;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.sequoiacm.deploy.common.BsonUtils;
-import com.sequoiacm.deploy.common.CommonUtils;
-import com.sequoiacm.deploy.module.JavaVersion;
-import com.sequoiacm.deploy.module.SiteInfo;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+
+import com.sequoiacm.deploy.command.SubOption;
+import com.sequoiacm.deploy.module.JavaVersion;
 
 public class CommonConfig {
     private String basePath = SystemApplicationProperty.getInstance().getString("common.basePath",
@@ -19,6 +18,13 @@ public class CommonConfig {
 
     private String deployConfigFilePath = basePath + "sequoiacm-deploy" + File.separator + "conf"
             + File.separator + "deploy.cfg";
+
+    private String upgradeConfigFilePath = basePath + "sequoiacm-deploy" + File.separator + "conf"
+            + File.separator + "upgrade.cfg";
+
+    private String upgradeStatusDirPath = basePath + "sequoiacm-deploy" + File.separator
+            + "upgrade-status";
+    private String upgradeStatusFilePath;
 
     private String workspaceConfigFilePath = basePath + "sequoiacm-deploy" + File.separator + "conf"
             + File.separator + "workspaces.json";
@@ -44,6 +50,12 @@ public class CommonConfig {
     private String regionName = "DefaultRegion";
     private JavaVersion requireJavaVersion = new JavaVersion("1.8");
     private BSONObject hystrixConf;
+    private String localUpgradeScript = basePath + "scmupgrade.py";
+    private String timestamp;
+
+    private Map<SubOption, String> subOptionMap = new HashMap<>();
+
+    private String remoteInstallPackPath = "install";
 
     private static volatile CommonConfig instance;
 
@@ -152,8 +164,24 @@ public class CommonConfig {
         return deployConfigFilePath;
     }
 
+    public String getUpgradeConfigFilePath() {
+        return upgradeConfigFilePath;
+    }
+
+    public String getUpgradeStatusFilePath() {
+        return upgradeStatusFilePath;
+    }
+
     public void setDeployConfigFilePath(String deployConfigFilePath) {
         this.deployConfigFilePath = deployConfigFilePath;
+    }
+
+    public void setUpgradeConfigFilePath(String upgradeConfigFilePath) {
+        this.upgradeConfigFilePath = upgradeConfigFilePath;
+    }
+
+    public void setUpgradeStatusFilePath(String upgradeStatusFilePath) {
+        this.upgradeStatusFilePath = upgradeStatusFilePath;
     }
 
     public String getInstallPackPath() {
@@ -184,5 +212,43 @@ public class CommonConfig {
 
     public void setHystrixConfigPath(String hystrixConfigPath) {
         this.hystrixConfigPath = hystrixConfigPath;
+    }
+
+    public void setSubOptionValue(SubOption subOption, String value) {
+        if (subOptionMap.get(subOption) == null) {
+            subOptionMap.put(subOption, value);
+        }
+    }
+
+    public String getSubOptionValue(SubOption subOption) {
+        return subOptionMap.get(subOption);
+    }
+
+    public String getLocalUpgradeScript() {
+        return localUpgradeScript;
+    }
+
+    public void setLocalUpgradeScript(String localUpgradeScript) {
+        this.localUpgradeScript = localUpgradeScript;
+    }
+
+    public String getUpgradeStatusDirPath() {
+        return upgradeStatusDirPath;
+    }
+
+    public void setUpgradeStatusDirPath(String upgradeStatusDirPath) {
+        this.upgradeStatusDirPath = upgradeStatusDirPath;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getRemoteInstallPackPath() {
+        return remoteInstallPackPath;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

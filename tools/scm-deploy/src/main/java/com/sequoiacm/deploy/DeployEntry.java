@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.sequoiacm.deploy.exception.RollbackException;
+import com.sequoiacm.deploy.exception.UpgradeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +64,11 @@ public class DeployEntry {
             logger.error("Please check the above exceptions, and then:" + e.getHelp());
             System.exit(1);
         }
-        catch (Exception e) {
+        catch (UpgradeException | RollbackException e) {
+            logger.error("Execution failed, error: {}", e.getMessage(), e);
+            logger.error("Execution detail:{}", CommonUtils.getLogFilePath());
+            System.exit(1);
+        } catch (Exception e) {
             logger.error("Execution failed, detail:{}", CommonUtils.getLogFilePath(), e);
             System.exit(1);
         }

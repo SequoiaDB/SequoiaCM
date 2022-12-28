@@ -10,7 +10,6 @@ import com.sequoiacm.deploy.cleaner.ServiceCleanerMgr;
 import com.sequoiacm.deploy.common.SequoiadbTableInitializer;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.InstallPackType;
-import com.sequoiacm.deploy.module.NodeInfo;
 import com.sequoiacm.deploy.module.ServiceType;
 
 public class ScmCleaner {
@@ -31,15 +30,10 @@ public class ScmCleaner {
         List<CleanUnit> cleanUnits = new ArrayList<>();
         List<ServiceType> serviceTypes = ServiceType.getAllTyepSortByPriority();
         for (int i = serviceTypes.size() - 1; i >= 0; i--) {
-            List<NodeInfo> nodes = deployInfoMgr.getNodesByServiceType(serviceTypes.get(i));
-            if (nodes == null) {
-                continue;
-            }
-            for (NodeInfo node : nodes) {
-                CleanUnit c = new CleanUnit(node.getServiceType().getInstllPack(),
-                        node.getHostName());
-                if (!cleanUnits.contains(c)) {
-                    cleanUnits.add(c);
+            for (HostInfo host : deployInfoMgr.getHosts()) {
+                CleanUnit cleanUnit = new CleanUnit(serviceTypes.get(i).getInstllPack(), host.getHostName());
+                if (!cleanUnits.contains(cleanUnit)){
+                    cleanUnits.add(cleanUnit);
                 }
             }
         }

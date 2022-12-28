@@ -13,6 +13,7 @@
             <includes>
                 <include>deploy.cfg</include>
                 <include>workspaces.json</include>
+                <include>upgrade.cfg</include>
             </includes>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
@@ -31,6 +32,7 @@
                 <exclude>deploy.cfg</exclude>
                 <exclude>workspaces.json</exclude>
                 <exclude>deploy_zk.py</exclude>
+                <exclude>upgrade.cfg</exclude>
             </excludes>
             <outputDirectory>bindata</outputDirectory>
         </fileSet>

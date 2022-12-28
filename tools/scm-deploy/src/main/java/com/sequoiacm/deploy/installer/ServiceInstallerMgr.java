@@ -5,12 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.sequoiacm.deploy.common.RefUtil;
-import com.sequoiacm.deploy.core.ScmDeployInfoMgr;
-import com.sequoiacm.deploy.deployer.Deployer;
-import com.sequoiacm.deploy.deployer.ServiceDeployer;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.InstallPackType;
-import com.sequoiacm.deploy.ssh.SshMgr;
 
 public class ServiceInstallerMgr {
     private Map<HostInfo, Map<InstallPackType, String>> installHistory = new HashMap<>();
@@ -59,7 +55,9 @@ public class ServiceInstallerMgr {
             throw new IllegalArgumentException("no such installer:" + installPackType);
         }
         String installPath = installer.install(host);
-        historyOnHost.put(installPackType, installPath);
+        if (installPath != null) {
+            historyOnHost.put(installPackType, installPath);
+        }
     }
 
     public String getInstallPath(HostInfo host, InstallPackType type) {

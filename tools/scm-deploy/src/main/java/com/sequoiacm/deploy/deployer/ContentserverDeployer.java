@@ -3,6 +3,7 @@ package com.sequoiacm.deploy.deployer;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
+import com.sequoiacm.deploy.common.CommonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -108,7 +109,7 @@ public class ContentserverDeployer extends ServiceDeployerBase {
     @Override
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
-        return serviceInstallPath + "/bin/scmctl.sh start --timeout " + getWaitServiceReadyTimeout()
+        return serviceInstallPath + "/bin/scmctl.sh start --timeout " + CommonUtils.getWaitServiceReadyTimeout()
                 + "  -p " + node.getPort();
     }
 

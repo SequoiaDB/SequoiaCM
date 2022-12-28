@@ -1,6 +1,7 @@
 package com.sequoiacm.deploy.deployer;
 
 import com.sequoiacm.deploy.common.BsonUtils;
+import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.DeployJsonDefine;
 import com.sequoiacm.deploy.module.NodeInfo;
 import com.sequoiacm.deploy.module.ServiceType;
@@ -19,7 +20,7 @@ public class ServiceTraceDeployer extends ServiceDeployerBase {
     protected String getStartCmd(NodeInfo node, String serviceRemoteInstallPath,
             String deployJsonFileRemotePath) {
         return serviceRemoteInstallPath + "/bin/scmcloudctl.sh start --timeout "
-                + getWaitServiceReadyTimeout() + "  -p " + node.getPort();
+                + CommonUtils.getWaitServiceReadyTimeout() + "  -p " + node.getPort();
     }
 
     @Override

@@ -2,10 +2,12 @@ package com.sequoiacm.deploy.installer;
 
 import java.io.File;
 
-import com.sequoiacm.deploy.core.ScmDeployInfoMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.deploy.common.CommonUtils;
+import com.sequoiacm.deploy.config.CommonConfig;
+import com.sequoiacm.deploy.core.ScmDeployInfoMgr;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.InstallConfig;
 import com.sequoiacm.deploy.module.InstallPackType;
@@ -41,9 +43,9 @@ public class ServiceInstallerBase implements ServiceInstaller {
                         + host.getHostName() + ", dir=" + untarPath);
             }
 
-            ssh.scp(installPack.getAbsolutePath(), ssh.getScpTmpPath());
-            ssh.sudoExec("tar -xf '" + ssh.getScpTmpPath() + installPack.getName() + "' -C "
-                    + installPath, 0);
+            ssh.sudoExec("tar -xf '" + ssh.getScpTmpPath()
+                    + CommonConfig.getInstance().getRemoteInstallPackPath() + "/package/"
+                    + installPack.getName() + "' -C " + installPath);
             ssh.changeOwner(untarPath, installConfig.getInstallUser(),
                     installConfig.getInstallUserGroup());
 

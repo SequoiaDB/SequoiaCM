@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -165,7 +164,7 @@ public class Ssh implements Closeable {
         }
     }
 
-    public int sudoSuExec(String suToUser, String command, Map<String, String> env,
+    public SshExecRes sudoSuExecRes(String suToUser, String command, Map<String, String> env,
             Integer... expectExitCode) throws IOException {
         StringBuilder envCmdBuilder = new StringBuilder();
         if (env != null) {
@@ -175,7 +174,16 @@ public class Ssh implements Closeable {
             }
         }
         String cmd = "su " + suToUser + " -c '" + envCmdBuilder.toString() + command + "'";
-        return internalSudoExec(cmd, true, expectExitCode).getExitCode();
+        return internalSudoExec(cmd, true, expectExitCode);
+    }
+
+    public int sudoSuExec(String suToUser, String command, Map<String, String> env,
+            Integer... expectExitCode) throws IOException {
+        return sudoSuExecRes(suToUser, command, env, expectExitCode).getExitCode();
+    }
+
+    public SshExecRes sudoExecRes(String command, Integer... expectExitCode) throws IOException {
+        return internalSudoExec(command, false, expectExitCode);
     }
 
     public int sudoExec(String command, Integer... expectExitCode) throws IOException {

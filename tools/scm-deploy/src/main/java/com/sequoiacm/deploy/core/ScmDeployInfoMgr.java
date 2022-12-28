@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import com.sequoiacm.deploy.module.DaemonInfo;
 import com.sequoiacm.deploy.module.DataSourceInfo;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.InstallConfig;
-import com.sequoiacm.deploy.module.InstallPackType;
 import com.sequoiacm.deploy.module.JavaVersion;
 import com.sequoiacm.deploy.module.MetaSourceInfo;
 import com.sequoiacm.deploy.module.NodeInfo;
@@ -37,10 +35,11 @@ import com.sequoiacm.deploy.module.SiteNodeInfo;
 import com.sequoiacm.deploy.module.SiteStrategyInfo;
 import com.sequoiacm.deploy.module.ZkNodeInfo;
 import com.sequoiacm.deploy.module.ZoneInfo;
-import com.sequoiacm.deploy.parser.ScmDeployConfParser;
+import com.sequoiacm.deploy.parser.ScmConfParser;
 import com.sequoiacm.deploy.ssh.Ssh;
 import com.sequoiacm.deploy.ssh.SshExecRes;
 import com.sequoiacm.deploy.ssh.SshMgr;
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import com.sequoiadb.base.Sequoiadb;
 
 public class ScmDeployInfoMgr {
@@ -49,8 +48,6 @@ public class ScmDeployInfoMgr {
     private SshMgr sshMgr;
 
     private Map<ServiceType, List<NodeInfo>> serviceToNodes = new HashMap<>();
-
-    private Map<HostInfo, List<InstallPackType>> hostToInstallPack = new HashMap<>();
 
     private Map<String, List<String>> zonesToServiceCenterUrl = new HashMap<>();
 
@@ -112,8 +109,8 @@ public class ScmDeployInfoMgr {
     }
 
     private synchronized void init() throws Exception {
-        logger.info("Parsing the configuration...");
-        ScmDeployConfParser parser = new ScmDeployConfParser(commonConf.getDeployConfigFilePath());
+        logger.info("Parsing the deploy configuration...");
+        ScmConfParser parser = new ScmConfParser(commonConf.getDeployConfigFilePath());
         initHostInfo(parser);
         initDatasouceInfo(parser);
         initMetasourceInfo(parser);
@@ -124,7 +121,7 @@ public class ScmDeployInfoMgr {
         initNodeInfo(parser);
         initInstallConfig(parser);
         initHystrixConfig();
-        logger.info("Parse the configuration success");
+        logger.info("Parse the deploy configuration success");
     }
 
     private void initHystrixConfig() throws Exception {
@@ -283,7 +280,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initZones(ScmDeployConfParser parser) {
+    private void initZones(ScmConfParser parser) {
         List<ZoneInfo> zones = parser.getSeactionWithCheck(ConfFileDefine.SEACTION_ZONE,
                 ZoneInfo.CONVERTER);
         zoneNames = new ArrayList<>();
@@ -292,7 +289,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initNodeInfo(ScmDeployConfParser parser) {
+    private void initNodeInfo(ScmConfParser parser) {
         Map<String, List<Integer>> portsOnHost = new HashMap<>();
 
         List<NodeInfo> serviceNodes = parser
@@ -335,15 +332,6 @@ public class ScmDeployInfoMgr {
                 throw new IllegalArgumentException("invalid node info, unregnized hostName:"
                         + node.getHostName() + ", node=" + node);
             }
-            List<InstallPackType> services = hostToInstallPack.get(host);
-            if (services == null) {
-                services = new ArrayList<>();
-                hostToInstallPack.put(host, services);
-            }
-
-            if (!services.contains(serviceType.getInstllPack())) {
-                services.add(serviceType.getInstllPack());
-            }
 
             if (node.getServiceType() == ServiceType.SERVICE_CENTER) {
                 List<String> serviceCenterUrl = zonesToServiceCenterUrl.get(node.getZone());
@@ -358,9 +346,7 @@ public class ScmDeployInfoMgr {
 
         if (isEnableDaemon) {
             List<NodeInfo> list = new ArrayList<>();
-            for (Map.Entry<HostInfo, List<InstallPackType>> entry : hostToInstallPack.entrySet()) {
-                entry.getValue().add(InstallPackType.DAEMON);
-                HostInfo host = entry.getKey();
+            for (HostInfo host : hosts) {
                 list.add(new NodeInfo(host.getHostName(), ServiceType.DAEMON));
             }
             serviceToNodes.put(ServiceType.DAEMON, list);
@@ -512,7 +498,7 @@ public class ScmDeployInfoMgr {
     }
 
     private void checkPortConflict(Map<String, List<Integer>> portsOnHost, String hostName,
-            Integer port) {
+                                   Integer port) {
         List<Integer> ports = portsOnHost.get(hostName);
         if (ports == null) {
             ports = new ArrayList<>();
@@ -528,7 +514,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initAuditsourceInfo(ScmDeployConfParser parser) {
+    private void initAuditsourceInfo(ScmConfParser parser) {
         List<AuditSourceInfo> auditSources = parser.getSeaction(ConfFileDefine.SEACTION_AUDITSOURCE,
                 AuditSourceInfo.CONVERTER);
         if (auditSources == null || auditSources.size() == 0) {
@@ -550,7 +536,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initDaemonInfo(ScmDeployConfParser parser) {
+    private void initDaemonInfo(ScmConfParser parser) {
         List<DaemonInfo> daemonInfos = parser.getSeaction(ConfFileDefine.SEACTION_DAEMON,
                 DaemonInfo.CONVERTER);
         if (daemonInfos == null || daemonInfos.size() == 0) {
@@ -563,7 +549,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initInstallConfig(ScmDeployConfParser parser) {
+    private void initInstallConfig(ScmConfParser parser) {
         List<InstallConfig> installConfigs = parser.getSeactionWithCheck(
                 ConfFileDefine.SEACTION_INSTALLCONFIG, InstallConfig.CONVERTER);
         CommonUtils.assertTrue(installConfigs.size() == 1,
@@ -571,7 +557,7 @@ public class ScmDeployInfoMgr {
         this.installConfig = installConfigs.get(0);
     }
 
-    private void initMetasourceInfo(ScmDeployConfParser parser) {
+    private void initMetasourceInfo(ScmConfParser parser) {
         List<MetaSourceInfo> metasources = parser
                 .getSeactionWithCheck(ConfFileDefine.SEACTION_METASOURCE, MetaSourceInfo.CONVERTER);
         CommonUtils.assertTrue(metasources.size() == 1, "only need one metasource:" + metasources);
@@ -599,7 +585,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initDatasouceInfo(ScmDeployConfParser parser) {
+    private void initDatasouceInfo(ScmConfParser parser) {
         List<DataSourceInfo> datasources = parser
                 .getSeactionWithCheck(ConfFileDefine.SEACTION_DATASOURCE, DataSourceInfo.CONVERTER);
         for (DataSourceInfo datasource : datasources) {
@@ -644,7 +630,7 @@ public class ScmDeployInfoMgr {
         }
     }
 
-    private void initSiteInfo(ScmDeployConfParser parser) {
+    private void initSiteInfo(ScmConfParser parser) {
         this.siteInfos = parser.getSeactionWithCheck(ConfFileDefine.SEACTION_SITES,
                 SiteInfo.CONVERTER);
         Map<String, String> siteNameMap = new HashMap<>();
@@ -692,7 +678,7 @@ public class ScmDeployInfoMgr {
         siteStrategy = siteStrategyList.get(0);
     }
 
-    private void initHostInfo(ScmDeployConfParser parser) {
+    private void initHostInfo(ScmConfParser parser) {
         this.hosts = parser.getSeactionWithCheck(ConfFileDefine.SEACTION_HOST, HostInfo.CONVERTER);
         for (HostInfo host : hosts) {
             hostInfoMap.put(host.getHostName(), host);
@@ -713,10 +699,6 @@ public class ScmDeployInfoMgr {
 
     public List<HostInfo> getHosts() {
         return hosts;
-    }
-
-    public Map<HostInfo, List<InstallPackType>> getServiceOnHost() {
-        return hostToInstallPack;
     }
 
     public List<NodeInfo> getNodesByServiceType(ServiceType type) {

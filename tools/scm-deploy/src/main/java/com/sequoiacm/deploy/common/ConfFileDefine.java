@@ -68,4 +68,18 @@ public class ConfFileDefine {
 
     public static final String SEACTION_DAEMON = "daemon";
     public static final String DAEMON_ENABLE = "EnableDaemon";
+
+    public static final String SEACTION_CONFIG = "config";
+    public static final String CONFIG_SERVICES = "service";
+    public static final String CONFIG_UPGRADE_PACK_PATH = "upgradePackPath";
+    public static final String CONFIG_BACKUP_PATH = "backupPath";
+    public static final String CONFIG_TIMESTAMP = "timestamp";
+
+    public static final String SEACTION_STATUS = "status";
+    public static final String STATUS_HOSTNAME = "HostName";
+    public static final String STATUS_SERVICE = "Service";
+    public static final String STATUS_BACKUP = "Backup";
+    public static final String STATUS_NODE_STATUS = "NodeStatus";
+    public static final String STATUS_OLD_VERSION = "OldVersion";
+    public static final String STATUS_NEW_VERSION = "NewVersion";
 }

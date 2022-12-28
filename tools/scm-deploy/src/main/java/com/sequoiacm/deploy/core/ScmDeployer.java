@@ -1,16 +1,19 @@
 package com.sequoiacm.deploy.core;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.common.SequoiadbTableInitializer;
+import com.sequoiacm.deploy.config.CommonConfig;
 import com.sequoiacm.deploy.deployer.ServiceDeployer;
 import com.sequoiacm.deploy.deployer.ServiceDeployerMgr;
 import com.sequoiacm.deploy.installer.ServiceInstallerMgr;
+import com.sequoiacm.deploy.installer.ServicesInstallPackManager;
 import com.sequoiacm.deploy.module.HostInfo;
 import com.sequoiacm.deploy.module.InstallPackType;
 import com.sequoiacm.deploy.module.NodeInfo;
@@ -23,23 +26,29 @@ public class ScmDeployer {
     private ScmDeployInfoMgr deployConfMgr = ScmDeployInfoMgr.getInstance();
     private SshMgr sshFactory = SshMgr.getInstance();
     private SequoiadbTableInitializer dbInitializer = SequoiadbTableInitializer.getInstance();
+    private final ServicesInstallPackManager packManager = ServicesInstallPackManager.getInstance();
 
     public void deploy(boolean dryrun) throws Exception {
         ServiceInstallerMgr serviceInstallerMgr = ServiceInstallerMgr.getInstance();
         ServiceDeployerMgr deployerMgr = ServiceDeployerMgr.getInstance();
 
-        int progress = 0;
-        Map<HostInfo, List<InstallPackType>> hostToServices = deployConfMgr.getServiceOnHost();
-        for (Entry<HostInfo, List<InstallPackType>> entry : hostToServices.entrySet()) {
-            List<InstallPackType> services = entry.getValue();
-            progress += services.size();
+        // 初始化需要安装的目录
+        String packPath = null;
+        if (!dryrun) {
+            packPath = prepareInstallPackage();
         }
+
+        int progress = 0;
+        progress += (InstallPackType.values().length) * deployConfMgr.getHosts().size();
         for (ServiceType serviceType : ServiceType.values()) {
             List<NodeInfo> nodes = deployConfMgr.getNodesByServiceType(serviceType);
             if (nodes != null) {
                 progress += nodes.size();
             }
         }
+        // Sending install Package
+        progress += deployConfMgr.getHosts().size();
+
         // Initializing Sdb
         progress++;
 
@@ -51,19 +60,20 @@ public class ScmDeployer {
                 currentProgress++, progress);
         dbInitializer.doInitialize(dryrun);
 
-        for (Entry<HostInfo, List<InstallPackType>> entry : hostToServices.entrySet()) {
-            HostInfo host = entry.getKey();
+        for (HostInfo host : deployConfMgr.getHosts()) {
+            logger.info("Deploying service: sending install package to {} ({}/{})",
+                    host.getHostName(), currentProgress++, progress);
             if (!dryrun) {
                 createInstallUserAndPath(host);
+                sendInstallPack(host, packPath);
             }
-            List<InstallPackType> services = entry.getValue();
-            for (InstallPackType service : services) {
-                logger.info("Deploying service: installing {} on {} ({}/{})", service,
+            for (InstallPackType installPack : InstallPackType.values()) {
+                logger.info("Deploying service: installing {} on {} ({}/{})", installPack,
                         host.getHostName(), currentProgress++, progress);
                 if (dryrun) {
                     continue;
                 }
-                serviceInstallerMgr.install(host, service);
+                serviceInstallerMgr.install(host, installPack);
             }
         }
 
@@ -134,4 +144,37 @@ public class ScmDeployer {
         }
     }
 
+    private void sendInstallPack(HostInfo host, String packPath) throws Exception {
+        Ssh ssh = sshFactory.getSsh(host);
+        try {
+            String targetPath = ssh.getScpTmpPath()
+                    + CommonConfig.getInstance().getRemoteInstallPackPath();
+            ssh.sudoExec("rm -rf " + targetPath);
+            ssh.sudoExec("mkdir -p " + targetPath);
+            ssh.scp(packPath, targetPath);
+            ssh.sudoExec("tar -xf '" + targetPath + "/" + new File(packPath).getName() + "' -C "
+                    + targetPath);
+        }
+        finally {
+            CommonUtils.closeResource(ssh);
+        }
+    }
+
+    private String prepareInstallPackage() {
+        List<String> installFileList = new ArrayList<>();
+        for (InstallPackType installPackType : InstallPackType.values()) {
+            if (InstallPackType.NON_SERVICE == installPackType) {
+                List<File> nonServiceFiles = packManager.getNonServiceFiles();
+                for (File nonServiceFile : nonServiceFiles) {
+                    installFileList.add(nonServiceFile.getName());
+                }
+            }
+            else {
+                File servicePack = packManager.getServicePack(installPackType);
+                installFileList.add("package/" + servicePack.getName());
+            }
+        }
+        return CommonUtils.packDirs(CommonConfig.getInstance().getBasePath(), "install.tar.gz",
+                installFileList).getAbsolutePath();
+    }
 }

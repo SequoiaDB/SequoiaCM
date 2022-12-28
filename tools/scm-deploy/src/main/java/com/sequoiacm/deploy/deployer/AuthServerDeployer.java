@@ -1,5 +1,6 @@
 package com.sequoiacm.deploy.deployer;
 
+import com.sequoiacm.deploy.common.CommonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -63,6 +64,6 @@ public class AuthServerDeployer extends ServiceDeployerBase {
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
         return serviceInstallPath + "/bin/scmcloudctl.sh start --timeout "
-                + getWaitServiceReadyTimeout() + "  -p " + node.getPort();
+                + CommonUtils.getWaitServiceReadyTimeout() + "  -p " + node.getPort();
     }
 }

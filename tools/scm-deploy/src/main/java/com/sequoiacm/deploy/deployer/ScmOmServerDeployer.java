@@ -56,7 +56,7 @@ public class ScmOmServerDeployer extends ServiceDeployerBase {
     @Override
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
-        return serviceInstallPath + "/bin/omctl.sh start --timeout " + getWaitServiceReadyTimeout()
+        return serviceInstallPath + "/bin/omctl.sh start --timeout " + CommonUtils.getWaitServiceReadyTimeout()
                 + " -p " + node.getPort();
     }
 }

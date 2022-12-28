@@ -227,13 +227,4 @@ public abstract class ServiceDeployerBase implements ServiceDeployer {
     public CommonConfig getCommonConfig() {
         return commonConfig;
     }
-
-    protected int getWaitServiceReadyTimeout() {
-        int timeoutMs = commonConfig.getWaitServiceReadyTimeout();
-        if (timeoutMs > 5000) {
-            return timeoutMs / 1000;
-        }
-
-        return 120;
-    }
 }

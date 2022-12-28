@@ -1,5 +1,6 @@
 package com.sequoiacm.deploy.deployer;
 
+import com.sequoiacm.deploy.common.CommonUtils;
 import com.sequoiacm.deploy.core.ScmPasswordFileSender;
 import com.sequoiacm.deploy.module.HostInfo;
 import org.bson.BSONObject;
@@ -62,6 +63,6 @@ public class ServiceCenterDeployer extends ServiceDeployerBase {
     protected String getStartCmd(NodeInfo node, String serviceInstallPath,
             String deployJsonFileRemotePath) {
         return serviceInstallPath + "/bin/scmcloudctl.sh start --timeout "
-                + getWaitServiceReadyTimeout() + "  -p " + node.getPort();
+                + CommonUtils.getWaitServiceReadyTimeout() + "  -p " + node.getPort();
     }
 }

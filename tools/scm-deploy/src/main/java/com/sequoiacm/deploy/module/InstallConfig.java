@@ -26,8 +26,10 @@ public class InstallConfig {
     };
 
     public InstallConfig(BSONObject bson) {
-        installPath = BsonUtils.getStringChecked(bson, ConfFileDefine.INSTALLCONFIG_PATH)
-                + "/sequoiacm";
+        installPath = BsonUtils.getStringChecked(bson, ConfFileDefine.INSTALLCONFIG_PATH);
+        if(!installPath.endsWith("/sequoiacm")){
+            installPath += "/sequoiacm";
+        }
         installUser = BsonUtils.getString(bson, ConfFileDefine.INSTALLCONFIG_USER);
         if (installUser == null || installUser.length() <= 0) {
             installUser = "scmadmin";
