@@ -52,7 +52,8 @@ public class Object4236 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
-    @Test
+    // SEQUOIACM-1007
+    @Test(enabled = false)
     public void test() throws Exception {
         // 创建桶
         s3Client.createBucket( bucketName );
