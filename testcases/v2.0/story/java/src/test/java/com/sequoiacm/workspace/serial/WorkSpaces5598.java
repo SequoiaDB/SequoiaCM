@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.client.element.bizconf.ScmHdfsDataLocation;
-import com.sequoiacm.common.ScmShardingType;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -19,7 +17,7 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmContentLocation;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmSftpDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmHdfsDataLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.exception.ScmError;
@@ -72,7 +70,8 @@ public class WorkSpaces5598 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
     }
 
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
+    //SEQUOIACM-1196
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base },enabled = false)
     public void test() throws Exception {
         List< ScmDataLocation > dataLocation = prepareExpWsDataLocation();
         ws.updateDataLocation( dataLocation, true );
