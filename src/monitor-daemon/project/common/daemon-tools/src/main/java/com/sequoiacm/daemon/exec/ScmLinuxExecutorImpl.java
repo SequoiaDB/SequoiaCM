@@ -144,7 +144,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
             if (rc != 0) {
                 String errMsg = result.getStdStr();
                 throw new ScmToolsException("Failed to exec cmd:" + cmd + ",error:" + errMsg,
-                        ScmExitCode.SHELL_EXEC_ERROR);
+                        ScmExitCode.SHELL_EXEC_ERROR, result);
             }
 
             return result;

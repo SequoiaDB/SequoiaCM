@@ -8,6 +8,7 @@ import com.sequoiacm.daemon.exec.ScmExecutor;
 import com.sequoiacm.infrastructure.tool.common.PropertiesUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 import java.io.File;
@@ -90,8 +91,20 @@ public class ScmNodeOperator implements NodeOperator {
 
         String cmd = servicePath + File.separator + "bin" + File.separator + shellName
                 + " list -m local -l";
-        ScmCmdResult result = executor.execCmd(cmd);
-        return stdInToNodeList(result.getStdIn());
+        try {
+            ScmCmdResult result = executor.execCmd(cmd);
+            return stdInToNodeList(result.getStdIn());
+        }
+        catch (ScmToolsException e) {
+            // 服务下没有节点时，列取节点命令返回码是1，此时需要忽略该异常
+            Object extra = e.getExtra();
+            if (extra instanceof ScmCmdResult) {
+                if (((ScmCmdResult) extra).getRc() == ScmBaseExitCode.EMPTY_OUT) {
+                    return null;
+                }
+            }
+            throw e;
+        }
     }
 
     private List<ScmNodeInfo> stdInToNodeList(List<String> stdInputList) throws ScmToolsException {
