@@ -28,57 +28,61 @@ class ScmUserPriv {
 
         // allWorkspaceResource just check allWorkspaceResource checker
         if (ScmWsAllResource.TYPE.equals(resource.getType())) {
-            checker = resourceCheckerMap.get(ScmWsAllResource.TYPE);
-            if (null != checker) {
-                return checker.checkResourcePriv(resource, op);
-            }
-            return false;
+            return checkPriv(resource, op, ScmWsAllResource.TYPE);
         }
 
         // workspaceResource:
         // 1. check workspaceResource checker
         // 2. check allWorkspaceResource checker
         if (ScmWorkspaceResource.RESOURCE_TYPE.equals(resource.getType())) {
-            checker = resourceCheckerMap.get(ScmWorkspaceResource.RESOURCE_TYPE);
-            if (null != checker) {
-                if (checker.checkResourcePriv(resource, op)) {
-                    return true;
-                }
-            }
-
-            checker = resourceCheckerMap.get(ScmWsAllResource.TYPE);
-            if (null != checker) {
-                return checker.checkResourcePriv(resource, op);
-            }
-
-            return false;
+            return checkPriv(resource, op, ScmWorkspaceResource.RESOURCE_TYPE,
+                    ScmWsAllResource.TYPE);
         }
 
         // other resource (like directory resource):
         // 1. check workspaceResource checker
         // 2. check allWorkspaceResource checker
         // 3. check the resource checker
+        return checkPriv(resource, op, ScmWorkspaceResource.RESOURCE_TYPE, ScmWsAllResource.TYPE,
+                resource.getType());
+    }
 
-        checker = resourceCheckerMap.get(ScmWorkspaceResource.RESOURCE_TYPE);
-        if (null != checker) {
-            if (checker.checkResourcePriv(resource, op)) {
-                return true;
-            }
+    private boolean checkPriv(IResource resource, int op, String... resourceTypesForCheck) {
+        if (op == 0) {
+            return true;
         }
 
-        checker = resourceCheckerMap.get(ScmWsAllResource.TYPE);
-        if (null != checker) {
-            if (checker.checkResourcePriv(resource, op)) {
+        int noPrivBit = op;
+        for (String resourceType : resourceTypesForCheck) {
+            IResourcePrivChecker checker = resourceCheckerMap.get(resourceType);
+            noPrivBit = checkPriv(checker, resource, noPrivBit);
+            if (noPrivBit == 0) {
                 return true;
             }
-        }
-
-        checker = resourceCheckerMap.get(resource.getType());
-        if (null != checker) {
-            return checker.checkResourcePriv(resource, op);
         }
 
         return false;
+    }
+
+    // 返回没有的权限，如输入 op = CREATE | DELETE：
+    // 若用户没有这两个权限则返回 CREATE | DELETE
+    // 若用户含有 CREATE 权限则返回 DELETE
+    // 若用户含有 DELETE 权限则返回 CREATE
+    // 若用户同时用拥有两个权限则返回 0
+    private int checkPriv(IResourcePrivChecker checker, IResource resource, int op) {
+        if (null == checker) {
+            return op;
+        }
+
+        int v = checker.getResourcePriv(resource);
+
+        // op & v = 用户在 op 上拥有的权限
+        // （op & v） ^ op = 用户在 op 上没有的权限
+
+        // 如 ： op = 1001，v = 1100
+        // op(1001) & v(1100) = 1000 (用户对于 op 操作只有第一位权限)
+        // 1000 ^ op(1001) = 0001 (用户对于 op 操作缺少最后一位权限)
+        return op & v ^ op;
     }
 
     public boolean addResource(IResource resource, int priv, IResourceBuilder builder) {

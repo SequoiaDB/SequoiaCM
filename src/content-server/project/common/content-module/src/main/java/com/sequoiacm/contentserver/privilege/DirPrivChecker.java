@@ -27,18 +27,6 @@ class DirPrivChecker implements IResourcePrivChecker {
     }
 
     @Override
-    public boolean checkResourcePriv(IResource resource, int op) {
-        DirResource dirResource = (DirResource) resource;
-
-        DirPriv dirPriv = wsDirPrivMap.get(dirResource.getWorkspace());
-        if (null != dirPriv) {
-            return dirPriv.checkResourcePriv(dirResource.getDirectory(), op);
-        }
-
-        return false;
-    }
-
-    @Override
     public String getType() {
         return DirResource.RESOURCE_TYPE;
     }

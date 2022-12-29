@@ -510,10 +510,9 @@ public class DirServiceImpl implements IDirService {
             FileUploadConf conf) throws ScmServerException {
         if (conf.getExistStrategy() == FileExistStrategy.OVERWRITE) {
             ScmFileServicePriv.getInstance().checkDirPriorityById(user, ws, parentDirId,
-                    ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag(),
+                    ScmPrivilegeDefine.CREATE.getFlag() | ScmPrivilegeDefine.DELETE.getFlag()
+                            | ScmPrivilegeDefine.UPDATE.getFlag(),
                     "overwrite file for delete and create");
-            ScmFileServicePriv.getInstance().checkWsPriority(user, ws, ScmPrivilegeDefine.UPDATE,
-                    "overwrite file for detach batch");
         }
         else {
             ScmFileServicePriv.getInstance().checkDirPriorityById(user, ws, parentDirId,

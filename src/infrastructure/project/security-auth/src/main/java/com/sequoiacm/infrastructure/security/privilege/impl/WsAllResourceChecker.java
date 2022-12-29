@@ -22,11 +22,6 @@ public class WsAllResourceChecker implements IResourcePrivChecker {
     }
 
     @Override
-    public boolean checkResourcePriv(IResource resource, int op) {
-        return (op & priv) == op;
-    }
-
-    @Override
     public String getType() {
         return ScmResourceTypeDefine.TYPE_WS_ALL;
     }

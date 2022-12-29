@@ -7,8 +7,6 @@ public interface IResourcePrivChecker {
 
     public boolean addResourcePriv(IResource resource, int priv);
 
-    public boolean checkResourcePriv(IResource resource, int op);
-
     public String getType();
 
     public int getResourcePriv(IResource resource);

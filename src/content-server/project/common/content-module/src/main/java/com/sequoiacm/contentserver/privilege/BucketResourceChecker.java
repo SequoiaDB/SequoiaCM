@@ -27,18 +27,6 @@ public class BucketResourceChecker implements IResourcePrivChecker {
     }
 
     @Override
-    public boolean checkResourcePriv(IResource resource, int op) {
-        BucketResource bucketResource = (BucketResource) resource;
-
-        BucketPrivilege bucketPrivilege = wsBucketPrivMap.get(bucketResource.getWorkspace());
-        if (null != bucketPrivilege) {
-            return bucketPrivilege.checkResourcePriv(bucketResource.getBucketName(), op);
-        }
-
-        return false;
-    }
-
-    @Override
     public String getType() {
         return BucketResource.TYPE;
     }
