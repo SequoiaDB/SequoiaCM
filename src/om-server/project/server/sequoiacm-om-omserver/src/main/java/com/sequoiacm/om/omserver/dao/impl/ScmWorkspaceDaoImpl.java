@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.element.privilege.*;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.om.omserver.module.*;
@@ -54,7 +55,8 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
         return workspaceList;
     }
 
-    public Set<String> getUserAccessibleWorkspaces(String username) throws ScmInternalException {
+    public Set<String> getUserAccessibleWorkspaces(String username,
+            ScmPrivilegeType expectPrivilegeType) throws ScmInternalException {
         Set<String> workspaces = new HashSet<>();
         ScmSession scmSession = session.getConnection();
         try {
@@ -65,7 +67,15 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
                 try {
                     privilegeCur = ScmFactory.Privilege.listPrivileges(scmSession, role);
                     while (privilegeCur.hasNext()) {
-                        ScmResource resource = privilegeCur.getNext().getResource();
+                        ScmPrivilege privilege = privilegeCur.getNext();
+                        if (expectPrivilegeType != null) {
+                            if (!privilege.getPrivilegeTypes().contains(expectPrivilegeType)
+                                    && !privilege.getPrivilegeTypes()
+                                            .contains(ScmPrivilegeType.ALL)) {
+                                continue;
+                            }
+                        }
+                        ScmResource resource = privilege.getResource();
                         if (resource instanceof ScmAllWorkspaceResource) {
                             // return all
                             workspaces.clear();
@@ -111,6 +121,26 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
             if (siteCacheStrategy != null) {
                 ws.updateSiteCacheStrategy(ScmSiteCacheStrategy.getStrategy(siteCacheStrategy));
             }
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void createWorkspace(ScmWorkspaceConf conf) throws ScmInternalException {
+        try {
+            ScmFactory.Workspace.createWorkspace(session.getConnection(), conf);
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteWorkspace(String wsName, boolean isForce) throws ScmInternalException {
+        try {
+            ScmFactory.Workspace.deleteWorkspace(session.getConnection(), wsName, isForce);
         }
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(), e.getMessage(), e);

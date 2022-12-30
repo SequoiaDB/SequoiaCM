@@ -8,14 +8,14 @@
         <el-form ref="form" :rules="rules" :model="role" size="small" label-width="110px">
             <el-form-item label="角色名" prop="name">
               <el-input id="input_role_name" v-model="role.name" placeholder="请输入角色名"></el-input>
-            </el-form-item> 
+            </el-form-item>
             <el-form-item label="角色描述" prop="description">
               <el-input id="input_role_description" v-model="role.description" placeholder="请输入角色描述信息"></el-input>
             </el-form-item>
           </el-form>
-        <span slot="footer" class="dialog-footer" style="border:1px soild red">
-          <el-button id="btn_create_role" @click="submit" type="primary" size="mini">保 存</el-button>
+        <span slot="footer" class="dialog-footer">
           <el-button id="btn_create_close" @click="close" size="mini">关 闭</el-button>
+          <el-button id="btn_create_role" @click="submit" type="primary" size="mini">保 存</el-button>
         </span>
     </el-dialog>
   </div>
@@ -32,23 +32,23 @@ export default {
         description: undefined
       },
       rules: {
-        name: [ 
+        name: [
           { required: true, message: "角色名不能为空", trigger: "blur" }
         ]
       },
     }
   },
   methods: {
-    submit() { 
+    submit() {
       this.$refs["form"].validate(
         valid => { if (valid) {
           createRole(this.role.name, this.role.description).then(response => {
             this.$message.success("角色 " + this.role.name + " 创建成功")
             this.close()
             this.$emit('onRoleCreated')
-          }); 
+          });
         } }
-      ); 
+      );
     },
     show() {
       this.detailDialogVisible = true

@@ -8,6 +8,8 @@ import com.sequoiacm.metasource.MetaCursor;
 public interface ISiteService {
     BSONObject getSite(String  siteName) throws ScmServerException;
 
-    /*void getSiteList(PrintWriter writer, BSONObject condition) throws ScmServerException;*/
-    MetaCursor getSiteList(BSONObject condition) throws ScmServerException;
+
+    MetaCursor getSiteList(BSONObject condition, long skip, long limit) throws ScmServerException;
+
+    long countSite(BSONObject condition) throws ScmServerException;
 }

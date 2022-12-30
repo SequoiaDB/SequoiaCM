@@ -38,7 +38,9 @@ public class ScmConfigPropsDaoImpl implements ScmConfigPropsDao {
                 throw new IllegalArgumentException("unknown target type:" + targetType);
             }
             ScmConfigProperties configProperties = builder
-                    .updateProperties(config.getUpdateProperties()).build();
+                    .updateProperties(config.getUpdateProperties())
+                    .deleteProperties(config.getDeleteProperties())
+                    .build();
             return ScmSystem.Configuration.setConfigProperties(con, configProperties);
         }
         catch (ScmException e) {

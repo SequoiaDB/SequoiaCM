@@ -61,3 +61,89 @@ export function queryWorkspaceDetail(workspaceName) {
   })
 }
 
+/**
+ * 获取工作区上传下载请求流量数据
+ * @param {string} workspaceName 
+ * @param {number} beginTime 
+ * @param {number} endTime 
+ * @returns 
+ */
+ export function queryWorkspaceTraffic(workspaceName, beginTime, endTime) {
+  return request({
+    url: BASE_API + '/workspaces/' + workspaceName + "?action=getTraffic",
+    method: 'get',
+    params: {
+      workspace: workspaceName,
+      begin_time: beginTime,
+      end_time: endTime
+    }
+  })
+}
+
+/**
+ * 获取工作区文件增量数据
+ * @param {string} workspaceName 
+ * @param {number} beginTime 
+ * @param {number} endTime 
+ * @returns 
+ */
+ export function queryWorkspaceFileDelta(workspaceName, beginTime, endTime) {
+  return request({
+    url: BASE_API + '/workspaces/' + workspaceName + "?action=getFileDelta",
+    method: 'get',
+    params: {
+      workspace: workspaceName,
+      begin_time: beginTime,
+      end_time: endTime
+    }
+  })
+}
+
+/**
+ * 获取用户拥有CREATE权限的工作区列表
+ * @returns 
+ */
+ export function queryCreatePrivilegeWsList() {
+  return request({
+    url: BASE_API + '/workspaces'+ "?action=getCreatePrivilegeWs",
+    method: 'get'
+  })
+}
+
+
+/**
+ * 删除工作区
+ * @param {array} workspaceNames 
+ * @returns 
+ */
+ export function deleteWorkspaces(workspaceNames, isForce) {
+  return request({
+    url: BASE_API + '/workspaces',
+    method: 'delete',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
+    params: {
+      is_force: isForce
+    },
+    data: workspaceNames
+  })
+}
+
+/**
+ * 创建工作区
+ * @param {object} data 
+ * @returns 
+ */
+ export function createWorkspace(data) {
+  return request({
+    url: BASE_API + '/workspaces',
+    method: 'post',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
+    data: data
+  })
+}
+
+

@@ -81,3 +81,9 @@ div:focus {
 .el-tooltip__popper {
   max-width: 800px;
 }
+
+.required-label:before {
+  content: '*';
+  color: #F56C6C;
+  margin-right: 4px;
+}

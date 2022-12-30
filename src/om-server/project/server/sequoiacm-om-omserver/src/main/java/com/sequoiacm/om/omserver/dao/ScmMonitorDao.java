@@ -13,9 +13,11 @@ public interface ScmMonitorDao {
 
     String getRootSiteServiceName() throws ScmInternalException, ScmOmServerException;
 
-    OmFileTrafficStatistics getFileTraffic(String workspaceName) throws ScmInternalException;
+    OmFileTrafficStatistics getFileTraffic(String workspaceName, Long beginTime, Long endTime)
+            throws ScmInternalException;
 
-    OmFileDeltaStatistics getFileDelta(String workspaceName) throws ScmInternalException;
+    OmFileDeltaStatistics getFileDelta(String workspaceName, Long beginTime, Long endTime)
+            throws ScmInternalException;
 
     List<OmServiceInstanceInfo> getServiceInstance(String serviceName) throws ScmInternalException;
 

@@ -62,13 +62,17 @@ service.interceptors.response.use(
     }else {
       error.message = "Cannot connect to server"
     }
-    console.log('error' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      showClose: true,
-      duration: 0
-    })
+    console.log('error', error) // for debug
+    // 请求被取消产生的异常，不需要弹出提示框
+    if ( !error.__CANCEL__) {
+      Message({
+        message: error.message,
+        type: 'error',
+        showClose: true,
+        duration: 0
+      })
+    }
+
     if(code == 401 && path != '/login') {
       store.dispatch('user/resetToken').then(() => {
         location.reload()

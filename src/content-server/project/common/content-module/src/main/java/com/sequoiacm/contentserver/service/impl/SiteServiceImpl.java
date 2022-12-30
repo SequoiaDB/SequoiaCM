@@ -30,13 +30,29 @@ public class SiteServiceImpl implements ISiteService {
     }
 
     @Override
-    public MetaCursor getSiteList(BSONObject condition) throws ScmServerException {
-        MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource().getSiteAccessor();
+    public MetaCursor getSiteList(BSONObject condition, long skip, long limit)
+            throws ScmServerException {
+        MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
+                .getSiteAccessor();
         try {
-            return accessor.query(condition, null, null);
-        } catch (ScmMetasourceException e) {
+            return accessor.query(condition, null, null, skip, limit);
+        }
+        catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
                     "Failed to get site list, condition=" + condition, e);
+        }
+    }
+
+    @Override
+    public long countSite(BSONObject condition) throws ScmServerException {
+        try {
+            MetaAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
+                    .getSiteAccessor();
+            return accessor.count(condition);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "Failed to get site count, condition=" + condition, e);
         }
     }
 }

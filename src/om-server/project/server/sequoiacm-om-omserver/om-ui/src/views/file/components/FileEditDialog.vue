@@ -42,9 +42,9 @@
             <el-checkbox id="cb_update_need_md5" v-model="form.isNeedMd5Checked" label="计算MD5"></el-checkbox>
           </el-form-item>
         </el-form>
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
-        <el-button id="btn_update_file_content" type="primary" @click="submitForm" size="mini" :disabled="updateForbidden">更新文件内容</el-button>
+      <span slot="footer" class="dialog-footer">
         <el-button id="btn_update_close" @click="close" size="mini">关 闭</el-button>
+        <el-button id="btn_update_file_content" type="primary" @click="submitForm" size="mini" :disabled="updateForbidden">更新文件内容</el-button>
       </span>
     </el-dialog>
   </div>

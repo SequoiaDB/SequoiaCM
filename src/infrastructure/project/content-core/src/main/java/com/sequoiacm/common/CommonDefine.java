@@ -427,6 +427,10 @@ public class CommonDefine {
         public static final String BUCKET_CUSTOM_TAG = "custom_tag";
         public static final String NULL_MARKER_ONLY = "null_marker_only";
 
+        public static final String SITE_FILTER = "filter";
+        public static final String SITE_SKIP = "skip";
+        public static final String SITE_LIMIT = "limit";
+
     }
 
     public static class Directory {

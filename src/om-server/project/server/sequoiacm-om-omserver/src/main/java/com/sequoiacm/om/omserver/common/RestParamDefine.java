@@ -22,9 +22,12 @@ public class RestParamDefine {
     public static final String FILE = "file";
     public static final String FILTER = "filter";
     public static final String ORDERBY = "orderby";
+    public static final String STRICT_MODE = "strict_mode";
 
     // workspace
-    public static final String STRICT_MODE = "strict_mode";
+    public static final String BEGIN_TIME = "begin_time";
+    public static final String END_TIME = "end_time";
+    public static final String IS_FORCE = "is_force";
 
     // bucket
     public static final String BUCKET = "bucket";

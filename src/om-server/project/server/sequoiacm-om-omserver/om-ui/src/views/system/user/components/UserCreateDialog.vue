@@ -16,9 +16,9 @@
               <el-input id="input_user_confirm_password" v-model="user.confirmPassword" placeholder="请再次输入密码" type="password" show-password/>
             </el-form-item>
         </el-form>
-        <span slot="footer" class="dialog-footer" style="border:1px soild red">
-          <el-button id="btn_create_user" @click="submit" type="primary" size="mini">保 存</el-button>
+        <span slot="footer" class="dialog-footer">
           <el-button id="btn_create_close" @click="close" size="mini">关 闭</el-button>
+          <el-button id="btn_create_user" @click="submit" type="primary" size="mini">保 存</el-button>
         </span>
     </el-dialog>
   </div>
@@ -28,47 +28,47 @@
 import { createUser } from "@/api/user"
 export default {
   data() {
-    const equalToPassword = (rule, value, callback) => { 
-      if (this.user.password !== value) { 
-        callback(new Error("两次输入的密码不一致")); 
-      } 
-      else { 
-        callback(); 
-      } 
+    const equalToPassword = (rule, value, callback) => {
+      if (this.user.password !== value) {
+        callback(new Error("两次输入的密码不一致"));
+      }
+      else {
+        callback();
+      }
     }
     return{
       detailDialogVisible: false,
-      user: { 
-        password: undefined, 
-        confirmPassword: undefined 
-      }, 
-      // 表单校验 
-      rules: { 
-        name: [ 
+      user: {
+        password: undefined,
+        confirmPassword: undefined
+      },
+      // 表单校验
+      rules: {
+        name: [
           { required: true, message: "用户名不能为空", trigger: "blur" },
-        ], 
-        password: [ 
+        ],
+        password: [
           { required: true, message: "密码不能为空", trigger: "blur" },
-        ], 
-        confirmPassword: [ 
+        ],
+        confirmPassword: [
           { required: true, message: "确认密码不能为空", trigger: "blur" },
-          { required: true, validator: equalToPassword, trigger: "blur" } 
-        ] 
+          { required: true, validator: equalToPassword, trigger: "blur" }
+        ]
       }
     }
   },
   methods: {
-    submit() { 
+    submit() {
       this.$refs["form"].validate(
         valid => { if (valid) {
           createUser(this.user.name, this.user.password).then(response => {
             this.$message.success("用户 " + this.user.name + " 创建成功")
             this.close()
             this.$emit('onUserCreated')
-          }) 
+          })
         } }
       );
-    }, 
+    },
     show() {
       this.detailDialogVisible = true
     },

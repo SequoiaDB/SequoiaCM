@@ -8,6 +8,7 @@ import com.sequoiacm.client.core.ScmPrivilege;
 import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmUser;
+import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.privilege.ScmAllWorkspaceResource;
 import com.sequoiacm.client.element.privilege.ScmBucketResource;
@@ -112,6 +113,68 @@ public class ScmBucketDaoImpl implements ScmBucketDao {
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(),
                     "failed to create file in bucket, " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ScmBucket createBucket(ScmWorkspace workspace, String bucketName)
+            throws ScmInternalException {
+        try {
+            return ScmFactory.Bucket.createBucket(workspace, bucketName);
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), "failed to create bucket, bucketName="
+                    + bucketName + ", detail=" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteBucket(String bucketName) throws ScmInternalException {
+        try {
+            ScmFactory.Bucket.deleteBucket(session.getConnection(), bucketName);
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), "failed to delete bucket, bucketName="
+                    + bucketName + ", detail=" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void enableVersionControl(String bucketName) throws ScmInternalException {
+        try {
+            ScmBucket bucket = ScmFactory.Bucket.getBucket(session.getConnection(), bucketName);
+            bucket.enableVersionControl();
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(),
+                    "failed to enable bucket version control, bucketName=" + bucketName
+                            + ", detail=" + e.getMessage(),
+                    e);
+        }
+    }
+
+    @Override
+    public void suspendVersionControl(String bucketName) throws ScmInternalException {
+        try {
+            ScmBucket bucket = ScmFactory.Bucket.getBucket(session.getConnection(), bucketName);
+            bucket.suspendVersionControl();
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(),
+                    "failed to suspend bucket version control, bucketName=" + bucketName
+                            + ", detail=" + e.getMessage(),
+                    e);
+        }
+    }
+
+    @Override
+    public long countBucket(BSONObject filter) throws ScmInternalException {
+        try {
+            return ScmFactory.Bucket.countBucket(session.getConnection(), filter);
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(),
+                    "failed to get bucket count, " + e.getMessage(), e);
         }
     }
 

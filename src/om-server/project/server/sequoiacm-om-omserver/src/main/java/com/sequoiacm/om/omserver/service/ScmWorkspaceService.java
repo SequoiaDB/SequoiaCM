@@ -4,7 +4,11 @@ import java.util.List;
 
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
+import com.sequoiacm.om.omserver.module.OmBatchOpResult;
+import com.sequoiacm.om.omserver.module.OmFileDeltaStatistics;
+import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
 import com.sequoiacm.om.omserver.module.OmWorkspaceBasicInfo;
+import com.sequoiacm.om.omserver.module.OmWorkspaceCreateInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceDetail;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfoWithStatistics;
@@ -29,4 +33,19 @@ public interface ScmWorkspaceService {
 
     void updateWorkspace(ScmOmSession session, String wsName, OmWorkspaceInfo wsInfo)
             throws ScmOmServerException, ScmInternalException;
+
+    OmFileTrafficStatistics getWorkspaceTraffic(ScmOmSession session, String workspaceName,
+            Long beginTime, Long endTime) throws ScmInternalException, ScmOmServerException;
+
+    OmFileDeltaStatistics getWorkspaceFileDelta(ScmOmSession session, String workspaceName,
+            Long beginTime, Long endTime) throws ScmOmServerException, ScmInternalException;
+
+    List<OmWorkspaceBasicInfo> getCreatePrivilegeWsList(ScmOmSession session)
+            throws ScmInternalException, ScmOmServerException;
+
+    List<OmBatchOpResult> createWorkspaces(ScmOmSession session,
+            OmWorkspaceCreateInfo workspacesInfo) throws ScmOmServerException, ScmInternalException;
+
+    List<OmBatchOpResult> deleteWorkspaces(ScmOmSession session, List<String> wsNames,
+            boolean isForce) throws ScmOmServerException, ScmInternalException;
 }

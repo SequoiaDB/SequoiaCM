@@ -182,9 +182,9 @@
         </el-row>
       </div>
 
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
-        <el-button id="btn_export_metadata" type="primary" @click="handleExportMetadata" size="mini" icon="el-icon-printer">导出元数据</el-button>
+      <span slot="footer" class="dialog-footer">
         <el-button id="btn_file_detail_close" @click="close()" size="mini">关 闭</el-button>
+        <el-button id="btn_export_metadata" type="primary" @click="handleExportMetadata" size="mini" icon="el-icon-printer">导出元数据</el-button>
       </span>
     </el-dialog>
   </div>

@@ -5,6 +5,8 @@ import java.util.Set;
 
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
+import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
@@ -20,8 +22,13 @@ public interface ScmWorkspaceDao {
 
     long getWorkspaceCount(BSONObject condition) throws ScmOmServerException, ScmInternalException;
 
-    public Set<String> getUserAccessibleWorkspaces(String username) throws ScmInternalException;
+    public Set<String> getUserAccessibleWorkspaces(String username,
+            ScmPrivilegeType expectPrivilegeType) throws ScmInternalException;
 
     void updateWorkspace(ScmOmSession session, String wsName, OmWorkspaceInfo wsInfo)
             throws ScmInternalException;
+
+    void createWorkspace(ScmWorkspaceConf conf) throws ScmInternalException;
+
+    void deleteWorkspace(String wsName, boolean isForce) throws ScmInternalException;
 }

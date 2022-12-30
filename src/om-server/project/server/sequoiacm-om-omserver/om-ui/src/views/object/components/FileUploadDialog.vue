@@ -8,12 +8,12 @@
       width="650px">
         <el-form ref="form" :rules="rules" :model="form" size="small" label-width="110px" :disabled="uploadForbidden">
           <el-form-item label="存储桶" prop="bucket">
-            <el-select 
+            <el-select
               id="select_upload_bucket"
-              v-model="form.bucket" 
-              size="small" 
-              placeholder="请选择存储桶"  
-              clearable filterable 
+              v-model="form.bucket"
+              size="small"
+              placeholder="请选择存储桶"
+              clearable filterable
               style="width:100%"
               @change="onBucketChange" >
                 <el-option
@@ -25,13 +25,13 @@
             </el-select>
           </el-form-item>
           <el-form-item label="存储站点" prop="site">
-            <el-select 
+            <el-select
               id="select_upload_object_site"
-              v-model="form.site" 
+              v-model="form.site"
               :no-data-text="form.bucket ? '无数据' : '请先选择存储桶'"
-              size="small" 
-              placeholder="请选择存储站点" 
-              clearable filterable 
+              size="small"
+              placeholder="请选择存储站点"
+              clearable filterable
               style="width:100%">
                 <el-option
                   v-for="item in workspaceSiteList"
@@ -43,7 +43,7 @@
           </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input id="input_file_title" v-model="form.title" placeholder="请输入文件标题"></el-input>
-          </el-form-item> 
+          </el-form-item>
           <el-form-item label="作者" prop="author">
             <el-input id="input_file_author" v-model="form.author" placeholder="请输入作者"></el-input>
           </el-form-item>
@@ -72,11 +72,11 @@
             <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 添加标签</el-button>
           </el-form-item>
           <el-form-item label="自定义元数据" v-if="workspaceClassList.length > 0" prop="classId">
-            <el-select 
+            <el-select
               id="select_metadatas_class"
               v-model="form.classId"
               size="small"
-              placeholder="请选择元数据模型" 
+              placeholder="请选择元数据模型"
               clearable filterable
               style="width:100%"
               @change="onClassChange" >
@@ -93,11 +93,11 @@
                 :label="attr.name"
                 :key="attr.name"
                 class="scm-attribute" >
-                  <el-select 
+                  <el-select
                     id="select_attr_boolean_val"
                     v-if="attr.type==='BOOLEAN'"
-                    v-model="attr.value" 
-                    size="medium" 
+                    v-model="attr.value"
+                    size="medium"
                     style="width: 200px;">
                     <el-option
                       v-for="item in booleanType"
@@ -117,7 +117,7 @@
                     :picker-options="pickerOptions"
                     style="width: 200px;">
                   </el-date-picker>
-                  <el-input id="input_attr_val" v-else style="width: 200px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>        
+                  <el-input id="input_attr_val" v-else style="width: 200px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>
                   <el-button id="btn_delete_attr_option" v-if="!attr.required" size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C;margin-left: 5px" @click="removeAttributes(attr)">删除</el-button>
               </el-form-item>
               <template v-if="form.residualAttributes.length > 0">
@@ -133,7 +133,7 @@
             </div>
           </el-form-item>
           <el-form-item label="文件内容" prop="fileContentList">
-            <el-upload 
+            <el-upload
               ref="elUpload"
               id="select_upload_file_content"
               :auto-upload="false"
@@ -146,7 +146,7 @@
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             </el-upload>
-          </el-form-item>  
+          </el-form-item>
           <el-form-item label="文件名" prop="name">
             <el-input id="input_file_name" v-model="form.name" placeholder="请输入文件名"></el-input>
           </el-form-item>
@@ -171,9 +171,9 @@
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomTag">添加自由标签</el-button>
           </el-form-item>
         </el-form>
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
-        <el-button id="btn_upload_file" type="primary" @click="submitForm" size="mini" :disabled="uploadForbidden">保 存</el-button>
+      <span slot="footer" class="dialog-footer">
         <el-button id="btn_upload_close" @click="close" size="mini">关 闭</el-button>
+        <el-button id="btn_upload_file" type="primary" @click="submitForm" size="mini" :disabled="uploadForbidden">保 存</el-button>
       </span>
     </el-dialog>
   </div>
@@ -221,7 +221,7 @@ export default {
           }
         }]
       },
-      booleanType: [ 
+      booleanType: [
         { value: 'true' },
         { value: 'false' }
       ],
@@ -243,7 +243,7 @@ export default {
         author: '',
         classId: '',
         selectAttributes: [],
-        residualAttributes: [],  
+        residualAttributes: [],
         attributeName: '',
         fileContentList: [],
         customMetadata: [],
@@ -301,11 +301,11 @@ export default {
       let bucketName = this.form.bucket
       let site = this.form.site
       let uploadConf = {
-        // 桶内上传文件必须计算 MD5 
+        // 桶内上传文件必须计算 MD5
         is_overwrite: false,
         is_need_md5: true
       }
-      
+
       let attributeValid = true
       let classProperties = new Map()
       this.form.selectAttributes.forEach((item) =>{

@@ -2569,11 +2569,32 @@ public class ScmFactory {
          * @since 2.2
          */
         public static ScmCursor<ScmSiteInfo> listSite(ScmSession ss) throws ScmException {
+            return listSite(ss, null, 0, -1);
+        }
+
+        /**
+         * Acquires ScmSiteInfo instance list.
+         *
+         * @param ss
+         *            session object.
+         * @param condition
+         *            The condition of query site.
+         * @param skip
+         *            skip to the first number record.
+         * @param limit
+         *            return the total records of query, when value is -1, return all
+         *            records.
+         * @return A cursor to traverse
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.2.2
+         */
+        public static ScmCursor<ScmSiteInfo> listSite(ScmSession ss, BSONObject condition,
+                long skip, long limit) throws ScmException {
             if (null == ss) {
                 throw new ScmInvalidArgumentException("session is null");
             }
-
-            BsonReader reader = ss.getDispatcher().getSiteList(new BasicBSONObject());
+            BsonReader reader = ss.getDispatcher().getSiteList(condition, skip, limit);
             ScmCursor<ScmSiteInfo> cusor = new ScmBsonCursor<ScmSiteInfo>(reader,
                     new BsonConverter<ScmSiteInfo>() {
                         @Override
@@ -2582,6 +2603,25 @@ public class ScmFactory {
                         }
                     });
             return cusor;
+        }
+
+        /**
+         * Acquires site count which matches the query condition.
+         *
+         * @param ss
+         *            session.
+         * @param condition
+         *            The condition of query site.
+         * @return site count.
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.2.2
+         */
+        public static long count(ScmSession ss, BSONObject condition) throws ScmException {
+            if (null == ss) {
+                throw new ScmInvalidArgumentException("session is null");
+            }
+            return ss.getDispatcher().countSite(condition);
         }
 
         /**

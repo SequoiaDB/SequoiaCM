@@ -7,8 +7,9 @@
             <i v-if="service.totalCount == service.upCount" class="el-icon-success success"></i>
             <i v-if="service.upCount > 0 && service.upCount < service.totalCount" class="el-icon-warning warning"></i>
             <i v-if="service.upCount == 0" class="el-icon-error error"></i>
-            <span class="name">{{name}}</span>
-            <i v-if="service.isContentServer" class="el-icon-edit" @click.stop="handleClickChangeConfig(service, name)"></i>
+            <span v-if="name==='admin-server' || name=='service-trace'" @click.stop="toHomePage(service)" class="name clickable">{{name}}</span>
+            <span v-else class="name">{{name}}</span>
+            <i v-if="service.isContentServer || service.isS3Server || name === 'gateway'" class="el-icon-edit" @click.stop="handleClickChangeConfig(service)"></i>
           </div>
           <div class="status">
             <el-tooltip content="健康节点" placement="top-start" >
@@ -44,7 +45,7 @@
         </el-col>
       </el-row>
     </el-collapse-item>
-    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :name="selectService" :configProps="configProps"></update-prop-dialog>
+    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :service="selectService" :configProps="configProps" :allConfig="allConfig" :isServiceTraceExist="isServiceTraceExist"></update-prop-dialog>
   </el-collapse>
 </template>
 
@@ -67,31 +68,48 @@ export default {
         STOPPED: 'info'
       },
       updatePropType: 'service',
-      selectService: '',
+      selectService: {},
+      allConfig: {},
       configProps: []
     }
   },
   methods: {
-    handleClickChangeConfig(service, name) {
+    handleClickChangeConfig(service) {
       // 查找站点下第一个节点的配置, 不存在则补全默认值
       if (service.instances.length > 0) {
         getConfigInfo(service.instances[0].instance_id).then(res => {
           let configInfo = res.data
+          this.allConfig = configInfo
           this.configProps = JSON.parse(JSON.stringify(JOB_CONFIG_PROPS))
           this.configProps.forEach((item)=>{
             if (configInfo[item.key]) {
               item.value = Number(configInfo[item.key])
             }
           })
+          this.selectService = service
+          this.$nextTick(()=>{
+            this.$refs['updatePropDialog'].show()
+          })
+          
         })
       }
-      this.selectService = name
-      this.$refs['updatePropDialog'].show()
+      
+    },
+    // 跳转到指定服务下的第一个节点
+    toHomePage(service) {
+      let url = 'http://' + service.instances[0].ip_addr + ':' + service.instances[0].port
+      window.open(url)
     }
   },
   computed: {
     INSTANCE_STATUS(){
       return INSTANCE_STATUS
+    },
+    isServiceTraceExist() {
+      if (!this.services) {
+        return false
+      }
+      return this.services['service-trace'] && true
     }
   },
 }
@@ -150,5 +168,9 @@ export default {
 }
 .instance .order {
   font-weight: 700;
+}
+.clickable {
+  color:rgba(0, 0, 255, 0.733); 
+  text-decoration:underline;
 }
 </style>

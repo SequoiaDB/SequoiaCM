@@ -14,8 +14,13 @@ import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmSiteInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScmSiteDaoImpl implements ScmSiteDao {
+
+    private static final Logger logger = LoggerFactory.getLogger(ScmSiteDaoImpl.class);
     private ScmOmSession session;
 
     public ScmSiteDaoImpl(ScmOmSession session) {
@@ -23,12 +28,13 @@ public class ScmSiteDaoImpl implements ScmSiteDao {
     }
 
     @Override
-    public List<OmSiteInfo> listSite() throws ScmOmServerException, ScmInternalException {
+    public List<OmSiteInfo> listSite(BSONObject filter, long skip, long limit)
+            throws ScmOmServerException, ScmInternalException {
         ScmSession con = session.getConnection();
         List<OmSiteInfo> sites = new ArrayList<>();
         ScmCursor<ScmSiteInfo> cursor = null;
         try {
-            cursor = ScmFactory.Site.listSite(con);
+            cursor = ScmFactory.Site.listSite(con, filter, skip, limit);
             while (cursor.hasNext()) {
                 ScmSiteInfo scmSite = cursor.getNext();
                 sites.add(transformToOmSite(scmSite));
@@ -44,6 +50,18 @@ public class ScmSiteDaoImpl implements ScmSiteDao {
             }
         }
         return sites;
+    }
+
+    @Override
+    public long getSiteCount(BSONObject filter) throws  ScmInternalException {
+        try {
+            return ScmFactory.Site.count(session.getConnection(), filter);
+        }
+        catch (ScmException e) {
+            logger.debug("failed to count site, filter={}", filter, e);
+            throw new ScmInternalException(e.getError(),
+                    "failed to get site count, " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -65,7 +83,17 @@ public class ScmSiteDaoImpl implements ScmSiteDao {
         omSite.setId(scmSite.getId());
         omSite.setName(scmSite.getName());
         omSite.setRootSite(scmSite.isRootSite());
-        omSite.setDataUrl(scmSite.getDataUrl());
+        omSite.setDatasourceUrl(scmSite.getDataUrl());
+        omSite.setDatasourceType(scmSite.getDataTypeStr());
+        omSite.setDatasourceUser(scmSite.getDataUser());
+        omSite.setDatasourcePwd(scmSite.getDataPasswd());
+        omSite.setMetasourceUrl(scmSite.getMetaUrl());
+        omSite.setMetasourceUser(scmSite.getMetaUser());
+        omSite.setMetasourcePwd(scmSite.getMetaPasswd());
+        if (scmSite.getDataConf() != null && scmSite.getDataConf().size() > 0) {
+            omSite.setDatasourceConf(scmSite.getDataConf());
+        }
+        omSite.setDatasourceTypeEnum(scmSite.getDataType());
         return omSite;
     }
 

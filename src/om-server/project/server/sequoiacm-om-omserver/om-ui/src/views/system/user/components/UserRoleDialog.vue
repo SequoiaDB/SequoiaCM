@@ -15,7 +15,7 @@
           @change="handleChange"
           style="margin-left: 50px;">
         </el-transfer>
-        <span slot="footer" class="dialog-footer" style="border:1px soild red">
+        <span slot="footer" class="dialog-footer">
           <el-button id="btn_create_close" @click="close" size="mini">关 闭</el-button>
         </span>
     </el-dialog>
@@ -35,7 +35,7 @@ export default {
       type: Array,
       default: () => []
     }
-  }, 
+  },
   data() {
     return{
       detailDialogVisible: false,

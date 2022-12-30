@@ -59,6 +59,7 @@
     </div>
     <!-- 表格部分 -->
     <el-button id="btn_file_batch_deletion" type="danger" size="small" icon="el-icon-delete" @click="handleDeleteBtnClick(null)" :disabled="fileIdList.length==0" style="margin-bottom:10px">批量删除</el-button>
+    <el-button id="btn_file_batch_download"  size="small" icon="el-icon-download" @click="handleDownloadBatchBtnClick" :disabled="fileIdList.length==0" style="margin-bottom:10px">批量下载</el-button>
     <el-button id="btn_file_showCreateDialog" type="primary" size="small" icon="el-icon-upload2"  @click="handleUploadBtnClick" style="margin-bottom:10px" :disabled="currentWorkspace===''">上传文件</el-button>
     <el-table
         border
@@ -155,6 +156,7 @@
 </template>
 <script>
 import {queryWorkspaceList, queryWorkspaceBasic} from '@/api/workspace'
+import {queryFileDetail,getDownloadUrl} from '@/api/file'
 import {queryFileList, deleteFiles} from '@/api/file'
 import {FILE_SCOPE_VAL_CURRENT, FILE_SCOPE_VAL_ALL, X_RECORD_COUNT} from '@/utils/common-define'
 import FileDetailDialog from './components/FileDetailDialog.vue'
@@ -163,6 +165,7 @@ import FileEditDialog from './components/FileEditDialog.vue'
 import FileDownloadDialog from './components/FileDownloadDialog.vue'
 import FilePropertiesDialog from './components/FilePropertiesDialog.vue'
 import {Loading } from 'element-ui';
+import {getToken} from '@/utils/auth'
 export default {
   components: {
     FileDetailDialog,
@@ -202,6 +205,7 @@ export default {
       tableLoading: false,
       tableData: [],
       workspaceList: [],
+      selectedFiles:[],
       currentWorkspace: '',
       currentWorkspaceDetail: {},
       currentFileId: '',
@@ -212,8 +216,8 @@ export default {
       fileIdList: [],
       multiVofCurFile: [],
       orderParam: { //记录排序参数
-              prop: 'id',
-              order: -1
+              prop: 'create_time',
+              order: 'descending'
       },
     }
   },
@@ -248,6 +252,7 @@ export default {
     },
     // 文件列表选择项发生变化
     selectionChange(fileIdList) {
+      this.selectedFiles = fileIdList
       this.fileIdList=[];
       fileIdList.forEach(item => {
         this.fileIdList.push(item.id);
@@ -276,6 +281,34 @@ export default {
         this.multiVofCurFile = res.data;
         this.$refs['fileDownloadDialog'].show()
       })
+    },
+    // 批量下载文件
+    handleDownloadBatchBtnClick() {
+      if (this.selectedFiles.length <= 0) {
+        return
+      }
+      this.$confirm(`即将下载${this.selectedFiles.length}个文件【${this.selectedFiles.map(item=>item.name).join(", ")}】，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.selectedFiles.forEach(item => {
+          queryFileDetail(this.currentWorkspace, item.id, item.major_version, item.minor_version).then(res => {
+            let fileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
+            let downloadURL = '/api/v1/files/id/' + fileDetail.id;
+            downloadURL += '?workspace=' + this.currentWorkspace;
+            downloadURL += '&site_name=' + fileDetail.sites[0].site_name;
+            downloadURL += '&major_version=' + fileDetail.major_version;
+            downloadURL += '&minor_version=' + fileDetail.minor_version;
+            downloadURL += '&x-auth-token=' + getToken();
+            const iframe = document.createElement("iframe")
+            iframe.style.display = "none"
+            iframe.src = downloadURL
+            document.body.appendChild(iframe)
+          })
+        })
+      }).catch(() => {
+      });
     },
     // 按版本号排序文件列表
     sortByVersion(data) {
@@ -330,8 +363,8 @@ export default {
       }).catch(() => {
       });
     },
-    // 查询文件列表（默认按id降序排序）
-    queryTableData(prop = 'id', order = 'descending') {
+    // 查询文件列表（默认按create_time降序排序）
+    queryTableData(prop = 'create_time', order = 'descending') {
       if (!this.currentWorkspace) {
         return
       }
@@ -399,7 +432,7 @@ export default {
       this.filter = {}
       this.pagination.current = 1
       this.queryTableData()
-      this.orderParam = {prop: 'id',order: -1}
+      this.orderParam = {prop: 'create_time',order: 'descending'}
     },
     // 当前页变化时
     handleCurrentChange(currentPage) {

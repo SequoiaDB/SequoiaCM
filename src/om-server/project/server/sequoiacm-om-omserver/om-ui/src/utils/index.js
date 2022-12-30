@@ -1,3 +1,4 @@
+import { message } from '@/utils/scm-message'
 
 /**
  * Parse the time to string
@@ -244,4 +245,84 @@ export function escapeStr(str) {
     }
   }
   return newStr
+}
+
+/**
+ *显示批量操作结果
+ * @param {array} str
+ */
+export function showBatchOpMessage(opType, resList) {
+  let successList = resList.filter(item => item.success).map(item => item.name)
+  let failedList = resList.filter(item => !item.success).map(item => item.name)
+  let msg = ""
+  if(successList.length > 0) {
+    msg = opType + "【" + successList.join(",") + "】成功"
+    if (failedList.length > 0) {
+      msg += ",【" + failedList.join(",") + "】失败"
+    }
+  } else {
+    msg = opType + "【" + failedList.join(",") + "】失败"
+  }
+  let hasMessage = false
+  for (const r of resList) {
+    if (r.message) {
+      hasMessage = true
+      msg += `<br><br><strong>${r.name}</strong>:${r.message}`
+    }
+  }
+  if (failedList.length == 0) {
+    message.success({
+      dangerouslyUseHTMLString: true,
+      message: msg,
+      showClose: hasMessage
+    })
+  } else if (successList.length == 0) {
+    message.error({
+      dangerouslyUseHTMLString: true,
+      message: msg,
+      showClose: hasMessage
+    })
+  } else {
+    message.warning({
+      dangerouslyUseHTMLString: true,
+      message: msg,
+      showClose: hasMessage
+    })
+  }
+}
+
+/**
+ * 获取分区字符串
+ * @param {string} shardingType 
+ * @param {string} sep 
+ * @returns 
+ */
+export function getShardingStr(shardingType, sep = '') {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+
+  if (shardingType === 'year') {
+    return sep + year
+  } else if (shardingType === 'month') {
+    return sep + year + month.toString().padStart(2, '0')
+  } else if (shardingType === 'day') {
+    return sep + year + month.toString().padStart(2, '0') + day.toString().padStart(2, '0')
+  } else if (shardingType === 'quarter') {
+    const quarter = Math.floor((month - 1) / 3) + 1
+    return sep + year + 'Q' + quarter
+  }
+  return ''
+}
+
+/**
+ * 获取指定时间戳当天的最大时间
+ * @param {number} timestamp 
+ * @returns 
+ */
+export function getMaxTimestampForDay(timestamp) {
+  const date = new Date(timestamp)
+  date.setHours(23, 59, 59, 999)
+  return date.getTime()
 }

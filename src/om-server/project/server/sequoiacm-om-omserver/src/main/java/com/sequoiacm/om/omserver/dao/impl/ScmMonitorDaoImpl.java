@@ -61,26 +61,39 @@ public class ScmMonitorDaoImpl implements ScmMonitorDao {
     }
 
     @Override
-    public OmFileTrafficStatistics getFileTraffic(String workspaceName)
+    public OmFileTrafficStatistics getFileTraffic(String workspaceName, Long beginTime,
+            Long endTime)
             throws ScmInternalException {
         OmFileTrafficStatistics trafficsInfo = new OmFileTrafficStatistics();
         List<OmStatisticsInfo> uploadTrafficList = new ArrayList<>();
         List<OmStatisticsInfo> downloadTrafficList = new ArrayList<>();
+        int maxRecordCount = 30;
+        if (beginTime != null || endTime != null) {
+            maxRecordCount = Integer.MAX_VALUE;
+        }
         ScmCursor<ScmStatisticsTraffic> trafficCursor = null;
         try {
-            trafficCursor = ScmSystem.Statistics.listTraffic(connection, ScmQueryBuilder
-                    .start(ScmAttributeName.Traffic.WORKSPACE_NAME).is(workspaceName).get());
+            ScmQueryBuilder queryBuilder = ScmQueryBuilder
+                    .start(ScmAttributeName.Traffic.WORKSPACE_NAME).is(workspaceName);
+            if (beginTime != null) {
+                queryBuilder.and(ScmAttributeName.Traffic.RECORD_TIME).greaterThanEquals(beginTime);
+            }
+            if (endTime != null) {
+                queryBuilder.and(ScmAttributeName.Traffic.RECORD_TIME).lessThanEquals(endTime);
+            }
+            trafficCursor = ScmSystem.Statistics.listTraffic(connection, queryBuilder.get());
             while (trafficCursor.hasNext()
-                    && (uploadTrafficList.size() < 30 || downloadTrafficList.size() < 30)) {
+                    && (uploadTrafficList.size() <= maxRecordCount
+                            || downloadTrafficList.size() <= maxRecordCount)) {
                 ScmStatisticsTraffic traffic = trafficCursor.getNext();
                 OmStatisticsInfo statisticsInfo = new OmStatisticsInfo(traffic.getTraffic(),
                         traffic.getRecordTime());
                 if (traffic.getType() == TrafficType.FILE_DOWNLOAD
-                        && downloadTrafficList.size() < 30) {
+                        && downloadTrafficList.size() <= maxRecordCount) {
                     downloadTrafficList.add(statisticsInfo);
                 }
                 else if (traffic.getType() == TrafficType.FILE_UPLOAD
-                        && uploadTrafficList.size() < 30) {
+                        && uploadTrafficList.size() <= maxRecordCount) {
                     uploadTrafficList.add(statisticsInfo);
                 }
             }
@@ -100,16 +113,28 @@ public class ScmMonitorDaoImpl implements ScmMonitorDao {
     }
 
     @Override
-    public OmFileDeltaStatistics getFileDelta(String workspaceName) throws ScmInternalException {
+    public OmFileDeltaStatistics getFileDelta(String workspaceName, Long beginTime, Long endTime)
+            throws ScmInternalException {
         OmFileDeltaStatistics deltaInfo = new OmFileDeltaStatistics();
         List<OmStatisticsInfo> sizeDeltaList = new ArrayList<>();
         List<OmStatisticsInfo> countDeltaList = new ArrayList<>();
         ScmCursor<ScmStatisticsFileDelta> deltaCursor = null;
+        int maxRecordCount = 30;
+        if (beginTime != null || endTime != null) {
+            maxRecordCount = Integer.MAX_VALUE;
+        }
         try {
-            deltaCursor = ScmSystem.Statistics.listFileDelta(connection, ScmQueryBuilder
-                    .start(ScmAttributeName.FileDelta.WORKSPACE_NAME).is(workspaceName).get());
+            ScmQueryBuilder queryBuilder = ScmQueryBuilder
+                    .start(ScmAttributeName.Traffic.WORKSPACE_NAME).is(workspaceName);
+            if (beginTime != null) {
+                queryBuilder.and(ScmAttributeName.Traffic.RECORD_TIME).greaterThanEquals(beginTime);
+            }
+            if (endTime != null) {
+                queryBuilder.and(ScmAttributeName.Traffic.RECORD_TIME).lessThanEquals(endTime);
+            }
+            deltaCursor = ScmSystem.Statistics.listFileDelta(connection, queryBuilder.get());
             while (deltaCursor.hasNext()) {
-                if (sizeDeltaList.size() > 30) {
+                if (sizeDeltaList.size() > maxRecordCount) {
                     break;
                 }
                 ScmStatisticsFileDelta fileDelta = deltaCursor.getNext();

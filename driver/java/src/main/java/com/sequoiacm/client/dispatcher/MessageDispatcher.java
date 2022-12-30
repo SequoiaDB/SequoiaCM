@@ -80,7 +80,10 @@ public interface MessageDispatcher extends Closeable {
     BsonReader getFileList(String workspaceName, int scope, BSONObject condition,
             BSONObject orderby, long skip, long limit, BSONObject selector) throws ScmException;
 
-    BsonReader getSiteList(BSONObject condition) throws ScmException;
+
+    BsonReader getSiteList(BSONObject condition, long skip, long limit) throws ScmException;
+
+    long countSite(BSONObject condition) throws ScmException;
 
     BSONObject getFileInfo(String workspace_name, String fileId, String path, int majorVersion,
             int minorVersion) throws ScmException;

@@ -10,7 +10,7 @@ const BASE_API = '/api/v1'
   * @param {object} orderby 
   * @returns 
   */
- export function queryBucketList(page, size, filter, orderby) {
+ export function queryBucketList(page, size, filter, orderby, isStrictMode=false) {
   return request({
     url: BASE_API+'/buckets',
     method: 'get',
@@ -18,7 +18,8 @@ const BASE_API = '/api/v1'
       skip: (page-1)*size,
       limit: size,
       filter: filter,
-      orderby: orderby
+      orderby: orderby,
+      strict_mode: isStrictMode
     }
   })
 }
@@ -96,5 +97,54 @@ const BASE_API = '/api/v1'
       param.onProgress(param.file)
     },
     timeout: -1,
+  })
+}
+
+
+/**
+ * 创建桶
+ * @param {object} data 
+ * @returns 
+ */
+ export function createBucket(data) {
+  return request({
+    url: BASE_API + '/buckets',
+    method: 'post',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
+    data: data
+  })
+}
+
+/**
+ * 更新桶
+ * @param {object} data 
+ * @returns 
+ */
+ export function updateBucket(bucketName, data) {
+  return request({
+    url: BASE_API + '/buckets/' + bucketName,
+    method: 'put',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
+    data: data
+  })
+}
+
+/**
+ * 删除桶
+ * @param {array} bucketNames 
+ * @returns 
+ */
+ export function deleteBucket(bucketNames) {
+  return request({
+    url: BASE_API + '/buckets',
+    method: 'delete',
+    headers: {
+      "Content-Type" : "application/json;charset=UTF-8",
+    },
+    data: bucketNames
   })
 }

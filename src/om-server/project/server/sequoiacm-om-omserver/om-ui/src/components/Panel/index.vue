@@ -7,8 +7,8 @@
       <p class="card-header-title">
         <span v-text="title" />
       </p>
-      <div class="card-header-icon" v-if="$slots['actions']">
-        <slot name="actions" />
+      <div v-if="$slots['title-right']">
+        <slot name="title-right" />
       </div>
     </header>
     <div v-if="$slots['default']" class="card-content">

@@ -784,11 +784,23 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BsonReader getSiteList(BSONObject condition) throws ScmException {
+    public BsonReader getSiteList(BSONObject condition, long skip, long limit) throws ScmException {
         String s = encodeCondition(condition);
         String uri = URL_PREFIX + url + API_VERSION + SITE + "?filter=" + s;
+        uri = uri + "&skip=" + skip;
+        uri = uri + "&limit=" + limit;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public long countSite(BSONObject condition) throws ScmException {
+        String s = encodeCondition(condition);
+        String uri = URL_PREFIX + url + API_VERSION + SITE + "?filter=" + s;
+        HttpHead request = new HttpHead(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
     }
 
     /**

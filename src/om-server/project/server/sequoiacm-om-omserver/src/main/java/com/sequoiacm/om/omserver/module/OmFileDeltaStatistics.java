@@ -1,11 +1,17 @@
 package com.sequoiacm.om.omserver.module;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class OmFileDeltaStatistics {
+
+    @JsonProperty("file_count_delta")
     private List<OmStatisticsInfo> countDelta;
+
+    @JsonProperty("file_size_delta")
     private List<OmStatisticsInfo> sizeDelta;
 
     public List<OmStatisticsInfo> getCountDelta() {

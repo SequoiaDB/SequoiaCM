@@ -6,25 +6,40 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
+import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
+import com.sequoiacm.client.element.bizconf.ScmCephSwiftDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmHbaseDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmHdfsDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
+import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
+import com.sequoiacm.client.element.bizconf.ScmSftpDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
 import com.sequoiacm.om.omserver.dao.ScmMonitorDao;
 import com.sequoiacm.om.omserver.dao.ScmWorkspaceDao;
+import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import com.sequoiacm.om.omserver.factory.*;
 import com.sequoiacm.om.omserver.module.*;
 import com.sequoiacm.om.omserver.service.ScmSiteService;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +49,12 @@ import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.service.ScmWorkspaceService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+import org.springframework.util.StringUtils;
 
 @Service
 public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ScmWorkspaceServiceImpl.class);
 
     private Map<String, OmCacheWrapper<OmWorkspaceDetail>> workspacesCache = new ConcurrentHashMap<>();
     private Map<String, OmCacheWrapper<Set<String>>> userAccessibleWsCache = new ConcurrentHashMap<>();
@@ -68,7 +86,6 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     public OmWorkspaceInfoWithStatistics getWorksapceDetailWithStatistics(ScmOmSession session,
             String workspaceName) throws ScmInternalException, ScmOmServerException {
         OmWorkspaceDetail wsDetail = getWorkspaceDetail(session, workspaceName);
-        ScmMonitorDao monitorDao = monitorDaoFactory.createMonitorDao(session);
 
         OmWorkspaceInfoWithStatistics wsDetailWithStatistics = new OmWorkspaceInfoWithStatistics();
         wsDetailWithStatistics.setCreateTime(wsDetail.getCreateTime());
@@ -80,15 +97,6 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         wsDetailWithStatistics.setUpdateTime(wsDetail.getUpdateTime());
         wsDetailWithStatistics.setUpdateUser(wsDetail.getUpdateUser());
         wsDetailWithStatistics.setSiteCacheStrategy(wsDetail.getSiteCacheStrategy());
-
-        OmFileDeltaStatistics fileDelta = monitorDao.getFileDelta(workspaceName);
-        wsDetailWithStatistics.setFileSizeDelta(fileDelta.getSizeDelta());
-        wsDetailWithStatistics.setFileCountDelta(fileDelta.getCountDelta());
-
-        OmFileTrafficStatistics fileTraffic = monitorDao.getFileTraffic(workspaceName);
-        wsDetailWithStatistics.setFileDownloadTraffic(fileTraffic.getDownloadTraffics());
-        wsDetailWithStatistics.setFileUploadTraffic(fileTraffic.getUploadTraffics());
-
         String prefreSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         try {
             session.resetServiceEndpoint(prefreSite);
@@ -177,7 +185,7 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
             }
             else {
                 userAccessibleWs = workSpaceDaoFactory.createWorkspaceDao(session)
-                        .getUserAccessibleWorkspaces(username);
+                        .getUserAccessibleWorkspaces(username, null);
                 userAccessibleWsCache.put(session.getUser(),
                         new OmCacheWrapper<>(userAccessibleWs));
             }
@@ -188,6 +196,173 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(), e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<OmWorkspaceBasicInfo> getCreatePrivilegeWsList(ScmOmSession session)
+            throws ScmInternalException, ScmOmServerException {
+        String preferSite = siteChooser.chooseFromAllSite();
+        ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
+        try {
+            session.resetServiceEndpoint(preferSite);
+            Set<String> wsList = workspaceDao.getUserAccessibleWorkspaces(session.getUser(),
+                    ScmPrivilegeType.CREATE);
+            BSONObject condition = ScmQueryBuilder.start(FieldName.FIELD_CLWORKSPACE_NAME)
+                    .in(wsList).get();
+            List<ScmWorkspaceInfo> workspaceList = workspaceDao.getWorkspaceList(condition, null, 0,
+                    -1);
+            return transformToOmWsList(session, workspaceList);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+        catch (ScmException e) {
+            ScmInternalException scmInternalException = new ScmInternalException(e.getError(),
+                    e.getMessage(), e);
+            siteChooser.onException(scmInternalException);
+            throw scmInternalException;
+        }
+    }
+
+    @Override
+    public List<OmBatchOpResult> createWorkspaces(ScmOmSession session,
+            OmWorkspaceCreateInfo workspacesInfo)
+            throws ScmOmServerException, ScmInternalException {
+        List<String> wsNameList = workspacesInfo.getWsNameList();
+        if (wsNameList == null || wsNameList.size() == 0) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                    "workspaceNames is empty");
+        }
+        String preferSite = siteChooser.getRootSite();
+        List<OmBatchOpResult> resultList = new ArrayList<>(workspacesInfo.getWsNameList().size());
+        ScmWorkspaceConf conf = new ScmWorkspaceConf();
+        try {
+            session.resetServiceEndpoint(preferSite);
+            Map<String, OmSiteInfo> sitesMap = siteService.getSitesAsMap(session);
+            setSiteCacheStrategy(conf, workspacesInfo.getCacheStrategy());
+            if (!StringUtils.isEmpty(workspacesInfo.getPreferred())) {
+                conf.setPreferred(workspacesInfo.getPreferred());
+            }
+            if (workspacesInfo.getDescription() != null) {
+                conf.setDescription(workspacesInfo.getDescription());
+            }
+            conf.setEnableDirectory(workspacesInfo.isDirectoryEnabled());
+            conf.setMetaLocation(new ScmSdbMetaLocation(workspacesInfo.getMetaLocation()));
+            for (BSONObject location : workspacesInfo.getDataLocations()) {
+                conf.addDataLocation(createDataLocation(location, sitesMap));
+            }
+        }
+        catch (ScmInvalidArgumentException e) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT, e.getMessage(), e);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+
+        ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
+        for (String wsName : wsNameList) {
+            try {
+                conf.setName(wsName);
+                workspaceDao.createWorkspace(conf);
+                resultList.add(new OmBatchOpResult(wsName, true, null));
+            }
+            catch (Exception e) {
+                if (e instanceof ScmInternalException) {
+                    siteChooser.onException((ScmInternalException) e);
+                }
+                logger.error("failed to create workspace: wsName={}", wsName, e);
+                resultList.add(new OmBatchOpResult(wsName, false, e.getMessage()));
+            }
+        }
+        userAccessibleWsCache.clear();
+        return resultList;
+    }
+
+    private void setSiteCacheStrategy(ScmWorkspaceConf conf, String cacheStrategy)
+            throws ScmOmServerException {
+        if (cacheStrategy == null || cacheStrategy.isEmpty()) {
+            return;
+        }
+        ScmSiteCacheStrategy strategy = ScmSiteCacheStrategy.getStrategy(cacheStrategy);
+        if (strategy == ScmSiteCacheStrategy.UNKNOWN) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                    "site cache strategy is unknown:" + cacheStrategy);
+        }
+        else {
+            try {
+                conf.setSiteCacheStrategy(strategy);
+            }
+            catch (ScmInvalidArgumentException e) {
+                throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT, e.getMessage(),
+                        e);
+            }
+        }
+
+    }
+
+    private ScmDataLocation createDataLocation(BSONObject dataLocationBSON,
+            Map<String, OmSiteInfo> sitesMap) throws ScmOmServerException {
+        String siteName = (String) dataLocationBSON
+                .get(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+        OmSiteInfo site = sitesMap.get(siteName);
+        if (site == null) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                    "site is not exits: siteName=" + siteName);
+        }
+        ScmType.DatasourceType dataType = site.getDatasourceTypeEnum();
+        try {
+            switch (dataType) {
+                case SEQUOIADB:
+                    return new ScmSdbDataLocation(dataLocationBSON);
+                case HDFS:
+                    return new ScmHdfsDataLocation(dataLocationBSON);
+                case HBASE:
+                    return new ScmHbaseDataLocation(dataLocationBSON);
+                case CEPH_S3:
+                    return new ScmCephS3DataLocation(dataLocationBSON);
+                case CEPH_SWIFT:
+                    return new ScmCephSwiftDataLocation(dataLocationBSON);
+                case SFTP:
+                    return new ScmSftpDataLocation(dataLocationBSON);
+                default:
+                    throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                            "unknown siteType:siteName=" + siteName + ",type=" + dataType);
+            }
+        }
+        catch (ScmInvalidArgumentException e) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT, e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<OmBatchOpResult> deleteWorkspaces(ScmOmSession session, List<String> wsNames,
+            boolean isForce) throws ScmOmServerException, ScmInternalException {
+        if (wsNames == null || wsNames.isEmpty()) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                    "workspaceNames is empty");
+        }
+        String preferSite = siteChooser.getRootSite();
+        ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
+        session.resetServiceEndpoint(preferSite);
+        List<OmBatchOpResult> res = new ArrayList<>(wsNames.size());
+        for (String wsName : wsNames) {
+            try {
+                workspaceDao.deleteWorkspace(wsName, isForce);
+                res.add(new OmBatchOpResult(wsName, true));
+                workspacesCache.remove(wsName);
+            }
+            catch (Exception e) {
+                if (e instanceof ScmInternalException) {
+                    siteChooser.onException((ScmInternalException) e);
+                }
+                logger.warn("failed to delete workspace: wsName={}", wsName, e);
+                res.add(new OmBatchOpResult(wsName, false, e.getMessage()));
+            }
+        }
+        userAccessibleWsCache.clear();
+        return res;
     }
 
     @Override
@@ -220,6 +395,37 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
             session.resetServiceEndpoint(preferSite);
             workspaceDao.updateWorkspace(session, workspaceName, wsInfo);
             workspacesCache.remove(workspaceName);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public OmFileTrafficStatistics getWorkspaceTraffic(ScmOmSession session, String workspaceName,
+            Long beginTime, Long endTime) throws ScmInternalException, ScmOmServerException {
+        String preferSite = siteChooser.chooseFromAllSite();
+        try {
+            session.resetServiceEndpoint(preferSite);
+            ScmMonitorDao monitorDao = monitorDaoFactory.createMonitorDao(session);
+            return monitorDao.getFileTraffic(workspaceName, beginTime, endTime);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+
+    }
+
+    @Override
+    public OmFileDeltaStatistics getWorkspaceFileDelta(ScmOmSession session, String workspaceName,
+            Long beginTime, Long endTime) throws ScmOmServerException, ScmInternalException {
+        String preferSite = siteChooser.chooseFromAllSite();
+        try {
+            session.resetServiceEndpoint(preferSite);
+            ScmMonitorDao monitorDao = monitorDaoFactory.createMonitorDao(session);
+            return monitorDao.getFileDelta(workspaceName, beginTime, endTime);
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -281,10 +487,10 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     private BSONObject generateMetaOption(ScmOmSession session, ScmMetaLocation metaLocation)
             throws ScmOmServerException, ScmInternalException {
         BSONObject metaBson = metaLocation.getBSONObject();
-        List<OmSiteInfo> siteList = siteService.getSiteList(session);
+        List<OmSiteInfo> siteList = siteService.getSiteList(session, null, 0, -1);
         for (OmSiteInfo omSiteInfo : siteList) {
             if (omSiteInfo.getName().equals(metaLocation.getSiteName())) {
-                metaBson.put(RestParamDefine.DATA_URL, omSiteInfo.getDataUrl());
+                metaBson.put(RestParamDefine.DATA_URL, omSiteInfo.getDatasourceUrl());
                 break;
             }
         }

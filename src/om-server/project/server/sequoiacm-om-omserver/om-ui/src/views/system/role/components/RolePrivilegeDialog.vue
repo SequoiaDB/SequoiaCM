@@ -5,10 +5,10 @@
       title="角色赋权"
       :visible.sync="rolePrivilegeDialogVisible"
       width="750px">
-        <el-select 
+        <el-select
             id="select_resource_type"
             size="small"
-            placeholder="请选择资源类型" 
+            placeholder="请选择资源类型"
             filterable
             v-model="currentResourceType"
             style="width:150px"
@@ -20,14 +20,14 @@
               :value="item.value">
             </el-option>
         </el-select>
-        <el-select 
+        <el-select
           id="select_resource"
           size="small"
-          placeholder="请选择资源" 
+          placeholder="请选择资源"
           filterable
           v-model="currentResource"
           v-if="currentResourceType !== '' && currentResourceType !== 'workspace_all'"
-          style="width:350px; margin-left:10px">  
+          style="width:350px; margin-left:10px">
           <el-option
             v-for="item in resourceList"
             :key="item.name"
@@ -35,13 +35,13 @@
             :value="item.name">
           </el-option>
         </el-select>
-        <el-select 
+        <el-select
           id="select_privilege_type"
           size="small"
-          placeholder="权限类型" 
+          placeholder="权限类型"
           filterable
           v-model="privilegeType"
-          style="width:100px; margin-left:10px">  
+          style="width:100px; margin-left:10px">
           <el-option
             v-for="item in privilegeTypes"
             :key="item.value"
@@ -82,7 +82,7 @@
               </template>
             </el-table-column>
         </el-table>
-        <span slot="footer" class="dialog-footer" style="border:1px soild red">
+        <span slot="footer" class="dialog-footer">
           <el-button id="btn_create_close" @click="close" size="mini">关 闭</el-button>
         </span>
     </el-dialog>
@@ -94,14 +94,14 @@ import { queryBucketList } from '@/api/bucket'
 import { queryWorkspaceList } from '@/api/workspace'
 export default {
   props: {
-    role: { 
-      type: Object 
+    role: {
+      type: Object
     },
     privilegeList: {
       type: Array,
       default: () => []
     }
-  }, 
+  },
   data() {
     return{
       rolePrivilegeDialogVisible: false,
@@ -144,7 +144,7 @@ export default {
       if (this.currentResourceType === 'bucket') {
         let currentBucket = this.resourceList.find(item=>{
           return item.name === this.currentResource
-        })  
+        })
         resource = currentBucket.workspace + ":" + resource
       }
       grantPrivilege(this.role.role_name, this.currentResourceType, resource, this.privilegeType).then(res => {

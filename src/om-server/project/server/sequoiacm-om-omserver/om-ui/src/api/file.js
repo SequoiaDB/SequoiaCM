@@ -57,7 +57,7 @@ const BASE_API = '/api/v1'
  * @param {object} param 
  * @returns 
  */
-export function uploadFile(ws, site, fileInfo, uploadConf, param) {
+export function uploadFile(ws, site, fileInfo, uploadConf, param, cancelToken) {
   return request({
     url: BASE_API+'/files',
     method: 'post',
@@ -75,6 +75,7 @@ export function uploadFile(ws, site, fileInfo, uploadConf, param) {
       param.file.percent = event.loaded/event.total*100
       param.onProgress(param.file)
     },
+    cancelToken: cancelToken,
     timeout: -1,
   })
 }

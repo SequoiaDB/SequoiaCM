@@ -7,7 +7,10 @@ import com.sequoiacm.om.omserver.common.RestParamDefine;
 import com.sequoiacm.om.omserver.common.ScmOmInputStream;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
+import com.sequoiacm.om.omserver.module.OmBatchOpResult;
+import com.sequoiacm.om.omserver.module.OmBucketCreateInfo;
 import com.sequoiacm.om.omserver.module.OmBucketDetail;
+import com.sequoiacm.om.omserver.module.OmBucketUpdateInfo;
 import com.sequoiacm.om.omserver.module.OmFileBasic;
 import com.sequoiacm.om.omserver.module.OmFileInfo;
 import com.sequoiacm.om.omserver.service.ScmBucketService;
@@ -15,9 +18,12 @@ import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,14 +52,43 @@ public class ScmBucketController {
         return bucketService.getUserAccessibleBuckets(session);
     }
 
+    @PostMapping(value = "/buckets")
+    public List<OmBatchOpResult> createBucket(ScmOmSession session,
+            @RequestBody OmBucketCreateInfo bucketCreateInfo)
+            throws ScmInternalException, ScmOmServerException {
+        return bucketService.createBucket(session, bucketCreateInfo);
+    }
+
+    @DeleteMapping(value = "/buckets")
+    public List<OmBatchOpResult> deleteBuckets(ScmOmSession session,
+            @RequestBody List<String> bucketNames)
+            throws ScmInternalException, ScmOmServerException {
+        return bucketService.deleteBuckets(session, bucketNames);
+    }
+
+    @PutMapping(value = "/buckets/{bucket_name:.+}")
+    public void updateBucket(ScmOmSession session, @PathVariable("bucket_name") String bucketName,
+            @RequestBody OmBucketUpdateInfo bucketUpdateInfo)
+            throws ScmInternalException, ScmOmServerException {
+        bucketService.updateBucket(session, bucketName, bucketUpdateInfo);
+    }
+
     @GetMapping(value = "/buckets")
     public List<OmBucketDetail> listBucket(ScmOmSession session,
             @RequestParam(value = RestParamDefine.SKIP, required = false, defaultValue = "0") long skip,
             @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
             @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
-            @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy)
+            @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy,
+            @RequestParam(value = RestParamDefine.STRICT_MODE, required = false, defaultValue = "false") Boolean isStrictMode,
+            HttpServletResponse response)
             throws ScmInternalException, ScmOmServerException {
-        return bucketService.listBucket(session, filter, orderBy, skip, limit);
+
+        long count = bucketService.countBucket(session, filter, isStrictMode);
+        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(count));
+        if (count <= 0) {
+            return Collections.emptyList();
+        }
+        return bucketService.listBucket(session, filter, orderBy, skip, limit, isStrictMode);
     }
 
     @RequestMapping(value = "/buckets/{bucket_name:.+}", method = RequestMethod.HEAD)

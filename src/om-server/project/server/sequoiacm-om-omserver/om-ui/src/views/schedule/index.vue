@@ -360,7 +360,7 @@
           </el-input>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
+      <span slot="footer" class="dialog-footer">
         <el-button id="btn_schedule_cancel" @click="scheduleDialogVisible = false" size="mini">取 消</el-button>
         <el-button id="btn_schedule_save" type="primary" :loading="saveButtonLoading" @click="submitForm" size="mini">保 存</el-button>
       </span>

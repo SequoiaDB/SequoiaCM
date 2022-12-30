@@ -23,12 +23,19 @@
       </el-row>
     </div>
     <!-- 表格部分 -->
+    <el-button type="danger" size="small" icon="el-icon-delete" style="margin-bottom:10px" @click="handleDeleteBtnClick(null)" :disabled="this.selectedWorkspaces.length === 0">批量删除</el-button>
+    <el-button type="primary" size="small" icon="el-icon-plus" style="margin-bottom:10px" @click="$refs['createWorkspaceDialog'].show()">创建工作区</el-button>
     <el-table
         v-loading="tableLoading"
         :data="tableData"
         border
         row-key="oid"
+        @selection-change="(list) => {this.selectedWorkspaces = list}"
         style="width: 100%">
+        <el-table-column
+          type="selection"
+          width="50">
+        </el-table-column>
         <el-table-column
           type="index"
           :index="getIndex"
@@ -68,11 +75,12 @@
           >
         </el-table-column>
         <el-table-column
-          width="100"
+          width="150"
           label="操作">
           <template slot-scope="scope">
             <el-button-group>
-              <el-button id="btn_workspace_showDetail" type="primary"  @click="handleShowDetail(scope.row.name)" size="mini">查看详情</el-button>
+              <el-button id="btn_workspace_showDetail" type="primary"  @click="handleShowDetail(scope.row.name)" size="mini">查看</el-button>
+              <el-button id="btn_workspace_delete" type="danger" @click="handleDeleteBtnClick(scope.row)" size="mini">删除</el-button>
             </el-button-group>
           </template>
         </el-table-column>
@@ -87,17 +95,51 @@
       :total="pagination.total">
     </el-pagination>
 
+    <!-- 删除工作区弹框 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteWsDialogVisible"
+      width="500px">
+      <div class="tip-title"><i class="el-icon-warning warning-status"></i> {{confirmMsg}}</div>
+      <el-row :gutter="10" style="margin-top:10px">
+        <el-col :span="5">
+          <span class="text-force-delete">强制删除</span>
+          <el-tooltip effect="dark" placement="bottom" content="工作区内文件不为空时，也删除该工作区">
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="10">
+          <el-radio-group v-model="isForceDelete" size="mini">
+          <el-radio :label="true" border>是</el-radio>
+          <el-radio :label="false" border>否</el-radio>
+        </el-radio-group>
+        </el-col>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteWsDialogVisible = false" size="mini">取 消</el-button>
+        <el-button type="primary" @click="deleteWs" size="mini">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <create-workspace-dialog ref="createWorkspaceDialog" @onWorkspaceCreated="queryTableData"></create-workspace-dialog>
+
   </div>
 </template>
 <script>
-import {queryWorkspaceList} from '@/api/workspace'
+import {queryWorkspaceList, deleteWorkspaces} from '@/api/workspace'
 import {X_RECORD_COUNT} from '@/utils/common-define'
+import CreateWorkspaceDialog from './components/CreateWorkspaceDialog.vue'
 export default {
+  components:{
+    CreateWorkspaceDialog
+  },
   data(){
     return{
       input: "",
       expression: "",
+      isForceDelete: false,
       showCron: false,
+      deleteWsDialogVisible: false,
       pagination:{ 
         current: 1, //当前页
         size: 10, //每页大小
@@ -107,8 +149,11 @@ export default {
       searchParams: {
         workspaceName: ''
       },
+      selectedWorkspaces:[],
       tableLoading: false,
       tableData:[],
+      confirmMsg: '',
+      deletedWsNames: []
     }
   },
   computed:{
@@ -162,6 +207,27 @@ export default {
     getIndex(index) {
       return (this.pagination.current-1) * this.pagination.size + index + 1
     },
+    // 点击了删除工作区按钮
+    handleDeleteBtnClick(row) {
+      this.deleteWsDialogVisible = true;
+      if (row == null) {
+        // 批量删除
+        this.deletedWsNames = this.selectedWorkspaces.map(item => item.name)
+        this.confirmMsg = `您确认删除工作区【${this.selectedWorkspaces.map(item => item.name).join(",")}】吗?`
+      } else {
+        // 删除单个工作区
+        this.deletedWsNames = [row.name]
+        this.confirmMsg = `您确认删除工作区【${row.name}】吗?`
+      }
+    },
+    // 执行删除工作区操作
+    deleteWs() {
+      deleteWorkspaces(this.deletedWsNames, this.isForceDelete).then(res => {
+        this.$util.showBatchOpMessage("删除工作区", res.data)
+        this.deleteWsDialogVisible = false
+        this.queryTableData()
+      })
+    }
   
   },
   created(){
@@ -177,5 +243,17 @@ export default {
   width: 40%;
   float: right;
   margin-bottom: 10px;
+}
+.text-force-delete {
+  font-weight:700; 
+  line-height:28px; 
+  text-align:center;
+}
+.tip-title {
+  line-height: 24px;
+}
+.warning-status {
+  color: #E6A23C;
+  font-size: 24px;
 }
 </style>

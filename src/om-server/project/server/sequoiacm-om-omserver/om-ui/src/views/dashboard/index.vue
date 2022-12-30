@@ -92,6 +92,8 @@ export default {
         if (!result[serviceName]) {
           result[serviceName] = {
             isContentServer: item.metadata.isContentServer,
+            isS3Server: item.metadata.isS3Server,
+            name: serviceName,
             upCount: 0,
             downCount: 0,
             stoppedCount: 0,

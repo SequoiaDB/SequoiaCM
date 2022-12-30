@@ -25,7 +25,7 @@
         </el-row>
         <el-row>
           <el-col :span="5"><span class="key" style="line-height:35px;">存储站点</span></el-col>
-          <el-col :span="19">        
+          <el-col :span="19">
             <el-tooltip placement="top"
               v-for="siteItem of curVersionFileDetail.sites"
               :key="siteItem.site_name">
@@ -42,12 +42,12 @@
         <el-row>
           <el-col :span="5"><span class="key" style="line-height:30px;">版本</span></el-col>
           <el-col :span="19">
-            <el-select 
+            <el-select
               id="select_download_version"
-              v-model="curVersion" 
-              value-key="Id" 
-              filterable 
-              size="small" 
+              v-model="curVersion"
+              value-key="Id"
+              filterable
+              size="small"
               style="width:100%"
               @change="handleVersionChange">
                 <el-option
@@ -61,10 +61,10 @@
         </el-row>
       </div>
 
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
+      <span slot="footer" class="dialog-footer">
         <el-divider></el-divider>
-        <el-button id="btn_file_download" type="primary" @click="handleDownloadFile()" size="mini" icon="el-icon-download">下 载</el-button>
         <el-button id="btn_file_download_close" @click="close()" size="mini">关 闭</el-button>
+        <el-button id="btn_file_download" type="primary" @click="handleDownloadFile()" size="mini" icon="el-icon-download">下 载</el-button>
       </span>
     </el-dialog>
   </div>

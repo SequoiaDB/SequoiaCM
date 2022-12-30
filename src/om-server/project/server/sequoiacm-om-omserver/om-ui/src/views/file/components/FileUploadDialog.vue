@@ -4,16 +4,18 @@
     <el-dialog
       class="upload-dialog"
       title="上传文件"
+      :before-close="beforeDialogClose"
+      top="10px"
       :visible.sync="uploadDialogVisible"
-      width="650px">
+      width="750px">
         <el-form ref="form" :rules="rules" :model="form" size="small" label-width="110px" :disabled="uploadForbidden">
           <el-form-item label="工作区" prop="workspace">
-            <el-select 
+            <el-select
               id="select_upload_workspace"
-              v-model="form.workspace" 
-              size="small" 
-              placeholder="请选择工作区"  
-              clearable filterable 
+              v-model="form.workspace"
+              size="small"
+              placeholder="请选择工作区"
+              clearable filterable
               style="width:100%"
               @change="onWorkspaceChange" >
                 <el-option
@@ -25,13 +27,13 @@
             </el-select>
           </el-form-item>
           <el-form-item label="存储站点" prop="site">
-            <el-select 
+            <el-select
               id="select_upload_site"
-              v-model="form.site" 
+              v-model="form.site"
               :no-data-text="form.workspace ? '无数据' : '请先选择工作区'"
-              size="small" 
-              placeholder="请选择存储站点" 
-              clearable filterable 
+              size="small"
+              placeholder="请选择存储站点"
+              clearable filterable
               style="width:100%">
                 <el-option
                   v-for="item in workspaceSiteList"
@@ -42,19 +44,19 @@
             </el-select>
           </el-form-item>
           <el-form-item label="目录" v-if="workspaceDetail.enable_directory" prop="currentDirPath">
-            <el-select 
+            <el-select
               id="select_upload_directory"
               size="small"
               v-model="form.currentDirPath"
-              placeholder="请选择目录" 
+              placeholder="请选择目录"
               ref="dirSelect"
               clearable
               @clear="handleDirClear"
               style="width:100%">
                 <el-option :value="form.currentDirPath" :label="form.currentDirPath" class="directory-option">
-                  <directory-tree ref="directoryTree" 
-                    :isDirTreeShow="isDirTreeShow" 
-                    :currentWorkspace="form.workspace" 
+                  <directory-tree ref="directoryTree"
+                    :isDirTreeShow="isDirTreeShow"
+                    :currentWorkspace="form.workspace"
                     @changeSelectDir="changeSelectDir"
                     @closeDirSelectionBox="closeDirSelectionBox">
                   </directory-tree>
@@ -63,7 +65,7 @@
           </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input id="input_file_title" v-model="form.title" placeholder="请输入文件标题"></el-input>
-          </el-form-item> 
+          </el-form-item>
           <el-form-item label="作者" prop="author">
             <el-input id="input_file_author" v-model="form.author" placeholder="请输入作者"></el-input>
           </el-form-item>
@@ -90,18 +92,18 @@
             >
             </el-input>
             <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 添加标签</el-button>
-          </el-form-item> 
+          </el-form-item>
           <el-form-item label="上传配置项" prop="upload_conf">
             <el-checkbox id="cb_upload_overwrite" label="覆盖旧文件" v-model="form.isOverwriteChecked"></el-checkbox>
             <el-checkbox id="cb_upload_need_md5" label="计算MD5" v-model="form.isNeedMd5Checked"></el-checkbox>
           </el-form-item>
           <el-form-item label="自定义元数据" v-if="workspaceClassList.length > 0" prop="classId">
-            <el-select 
+            <el-select
               id="select_metadatas_class"
               v-model="form.classId"
               :no-data-text="form.workspace ? '无数据' : '请先选择工作区'"
               size="small"
-              placeholder="请选择元数据模型" 
+              placeholder="请选择元数据模型"
               clearable filterable
               style="width:100%"
               @change="onClassChange" >
@@ -118,11 +120,11 @@
                 :label="attr.name"
                 :key="attr.name"
                 class="scm-attribute" >
-                  <el-select 
+                  <el-select
                     id="select_attr_boolean_val"
                     v-if="attr.type==='BOOLEAN'"
-                    v-model="attr.value" 
-                    size="medium" 
+                    v-model="attr.value"
+                    size="medium"
                     style="width: 200px;">
                     <el-option
                       v-for="item in booleanType"
@@ -142,7 +144,7 @@
                     :picker-options="pickerOptions"
                     style="width: 200px;">
                   </el-date-picker>
-                  <el-input id="input_attr_val" v-else style="width: 200px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>        
+                  <el-input id="input_attr_val" v-else style="width: 200px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>
                   <el-button id="btn_delete_attr_option" v-if="!attr.required" size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C;margin-left: 5px" @click="removeAttributes(attr)">删除</el-button>
               </el-form-item>
               <template v-if="form.residualAttributes.length > 0">
@@ -157,24 +159,6 @@
               </template>
             </div>
           </el-form-item>
-          <el-form-item label="文件内容" prop="fileContentList">
-            <el-upload 
-              ref="elUpload"
-              id="select_upload_file_content"
-              :auto-upload="false"
-              :file-list="form.fileContentList"
-              :on-change="handleFileContentChange"
-              :on-remove="handleFileRemove"
-              :http-request="_uploadFile"
-              action=""
-              drag>
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            </el-upload>
-          </el-form-item>  
-          <el-form-item label="文件名" prop="name">
-            <el-input id="input_file_name" v-model="form.name" placeholder="请输入文件名"></el-input>
-          </el-form-item>
           <el-form-item label="自由元数据" prop="customMetadata">
             <div v-if="this.form.customMetadata.length > 0">
               <div v-for="(item, index) in this.form.customMetadata" :key="index" style="margin-top: 5px">
@@ -184,7 +168,7 @@
               </div>
             </div>
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomMeta">添加自由元数据</el-button>
-          </el-form-item> 
+          </el-form-item>
           <el-form-item label="自由标签" prop="customTag">
             <div v-if="this.form.customTag.length > 0">
               <div v-for="(item, index) in this.form.customTag" :key="index" style="margin-top: 5px">
@@ -195,16 +179,68 @@
             </div>
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomTag">添加自由标签</el-button>
           </el-form-item>
+          <el-form-item label="文件内容" prop="fileContentList">
+            <el-upload
+              ref="elUpload"
+              id="select_upload_file_content"
+              :auto-upload="false"
+              :show-file-list="false"
+              multiple
+              :file-list="form.fileContentList"
+              :on-change="handleFileContentChange"
+              :http-request="_uploadFile"
+              action=""
+              drag>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="文件列表" prop="fileTable">
+            <el-table :data="this.form.fileContentList" size="mini" border>
+              <el-table-column type="index" label="序号" ></el-table-column>
+              <el-table-column label="文件" prop="name">
+              </el-table-column>
+              <el-table-column width="200px" label="文件名">
+                <template slot-scope="scope">
+                  <el-input v-model="fileUidNameMapping[scope.row.uid]" placeholder="请输入文件名"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="大小" >
+                <template slot-scope="scope">
+                  {{scope.row.size|convertFileSize}}
+                </template>
+              </el-table-column>
+              <el-table-column label="上传进度" >
+                <template slot-scope="scope">
+                  <template v-if="!scope.row.errorMsg">
+                    {{parseInt(scope.row.percentage, 10)}}%
+                  </template>
+                  <template v-else>
+                    <el-tooltip :content="scope.row.errorMsg" placement="top">
+                      <span class="upload-error-text">上传失败</span>
+                    </el-tooltip>
+                  </template>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" >
+                <template slot-scope="scope">
+                  <el-button type="danger" @click="removeFile(scope.$index)">移除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-form-item>
+
         </el-form>
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
-        <el-button id="btn_upload_file" type="primary" @click="submitForm" size="mini" :disabled="uploadForbidden">保 存</el-button>
+      <span slot="footer" class="dialog-footer">
         <el-button id="btn_upload_close" @click="close" size="mini">关 闭</el-button>
+        <el-button id="btn_upload_file" type="primary" @click="submitForm" size="mini" :disabled="uploadForbidden">保 存</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 import {queryWorkspaceBasic} from '@/api/workspace'
 import {queryClassList, queryClassDetail} from '@/api/metadata'
 import {uploadFile} from '@/api/file'
@@ -231,6 +267,18 @@ export default {
         callback()
       }
     }
+    let fileTableValidation = (rule, value, callback) => {
+      let success = true
+      for (const file of this.form.fileContentList) {
+        if (!this.fileUidNameMapping[file.uid]) {
+          success = false
+          callback(new Error('文件名不能为空'));
+        }
+      }
+      if (success) {
+        callback()
+      }
+    }
     return{
       pickerOptions: {
         shortcuts: [{
@@ -254,10 +302,14 @@ export default {
           }
         }]
       },
-      booleanType: [ 
+      booleanType: [
         { value: 'true' },
         { value: 'false' }
       ],
+      uploading: false,
+      uploaded: false,
+      uploadQueue: [],
+      uploadSuccessCount: 0,
       uploadDialogVisible: false,
       uploadForbidden: false,
       workspaceDetail: {},
@@ -268,6 +320,8 @@ export default {
       tagInputVisible: false,
       tagInputValue: '',
       uploadRequest: {},
+      fileUidNameMapping: {},
+      cancelTokenSource: '',
       form: {
         workspace: '',
         site: '',
@@ -278,13 +332,12 @@ export default {
         isNeedMd5Checked: false,
         classId: '',
         selectAttributes: [],
-        residualAttributes: [],  
+        residualAttributes: [],
         attributeName: '',
         fileContentList: [],
         customMetadata: [],
         customTag: [],
         tags: [],
-        name: '',
       },
       rules: {
         workspace: [
@@ -299,9 +352,9 @@ export default {
         fileContentList: [
           { required: true, validator: fileContentValidation }
         ],
-        name: [
-          { required: true, message: '请输入文件名', trigger: 'change' },
-        ],
+        fileTable:  [
+          { validator: fileTableValidation }
+        ]
       },
     }
   },
@@ -310,13 +363,39 @@ export default {
       this.uploadDialogVisible = true
     },
     close() {
-      this.uploadDialogVisible = false
+      this.beforeDialogClose(()=>{this.uploadDialogVisible = false})
+    },
+    beforeDialogClose(done){
+      if (this.uploading) {
+        this.$confirm("当前有文件正在上传中，关闭弹框后将取消上传，请确认", '提示', {
+          confirmButtonText: '取消上传',
+          cancelButtonText: '继续上传',
+          type: 'warning'
+        }).then(() => {
+          if (this.cancelTokenSource) {
+            this.cancelTokenSource.cancel()
+            this.cancelTokenSource = ''
+          }
+          this.clear()
+          done()
+        }).catch(() => {})
+      } else {
+        if (this.uploaded) {
+          this.clear()
+        }
+        done()
+      }
     },
     clear() {
+      this.uploading = false
+      this.uploaded = false
+      this.uploadQueue = []
       setTimeout(()=>{
         // 重置表单
         this.clearForm()
         this.isDirTreeShow = false
+        this.uploadForbidden = false
+        this.fileUidNameMapping = {}
         this.workspaceSiteList = []
         this.workspaceClassList = []
       }, 500)
@@ -337,26 +416,37 @@ export default {
     handleFileContentChange(file, fileList) {
       // 清除校验 场景：提交表单校验未选择文件内容，重新添加时清除校验信息
       this.$refs['form'].clearValidate(['fileContentList'])
-      // 限制文件上传个数、自动填充文件名
+      // 自动填充文件名
       if (file.status !== 'fail') {
-        if (fileList.length > 1) {
-          fileList.splice(0, 1)
-        }
         this.form.fileContentList = fileList
-        this.form.name = file.name
+        for (const i of fileList) {
+          if (!this.fileUidNameMapping[i.uid]) {
+            this.$set(this.fileUidNameMapping, i.uid, i.name )
+          }
+        }
       }
     },
-    handleFileRemove() {
-      this.form.fileContentList = []
+    removeFile(index) {
+      delete this.fileUidNameMapping[this.form.fileContentList[index].uid]
+      this.form.fileContentList.splice(index, 1)
     },
     _uploadFile(data) {
+      // 逐个上传文件
+      if (this.uploading) {
+        this.uploadQueue.push(data)
+      } else {
+        this.uploading = true
+        this.uploadFile(data)
+      }
+    },
+    uploadFile(data) {
       let ws = this.form.workspace
       let site = this.form.site
       let uploadConf = {
         is_overwrite: this.form.isOverwriteChecked,
         is_need_md5: this.form.isNeedMd5Checked
       }
-      
+
       let attributeValid = true
       let classProperties = new Map()
       this.form.selectAttributes.forEach((item) =>{
@@ -381,7 +471,7 @@ export default {
         custom_tag[item.key] = item.value
       }
       let fileInfo = {
-        name: this.form.name,
+        name: this.fileUidNameMapping[data.file.uid],
         title: this.form.title,
         author: this.form.author,
         directory_id: this.form.currentSelectDir,
@@ -394,15 +484,29 @@ export default {
       let desc=encodeURIComponent(this.$util.toPrettyJson(fileInfo))
 
       this.uploadForbidden = true
-      this.uploadRequest = uploadFile(ws, site, desc, uploadConf, data).then(res=>{
-        this.$message.success("文件【" + this.form.name + "】上传成功")
-        this.clear()
-        this.close()
-        this.$emit('refreshTable')
+      this.uploaded = true
+      this.cancelTokenSource = axios.CancelToken.source()
+      this.uploadRequest = uploadFile(ws, site, desc, uploadConf, data, this.cancelTokenSource.token).then(res=>{
+        this.$message.success("文件【" + this.fileUidNameMapping[data.file.uid] + "】上传成功")
+        this.uploadSuccessCount++
+        // 文件全部上传成功后自动关闭弹框
+        if (this.uploadSuccessCount === this.form.fileContentList.length) {
+          this.clear()
+          this.close()
+          this.$emit('refreshTable')
+        }
+      },(err)=>{
+        for (const file of this.form.fileContentList) {
+          if (file.uid === data.file.uid) {
+            this.$set(file, 'errorMsg', err.message)
+          }
+        }
       }).finally(() => {
-        this.uploadForbidden = false
-        if (this.form.fileContentList.length > 0) {
-          this.form.fileContentList[0].status = 'ready'
+        let data = this.uploadQueue.shift()
+        if (data) {
+          this.uploadFile(data)
+        } else  {
+          this.uploading = false
         }
       })
     },
@@ -410,6 +514,9 @@ export default {
     submitForm() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.uploadSuccessCount = 0
+          this.uploading = false
+          this.uploadQueue = []
           this.$refs['elUpload'].submit()
         }
       })
@@ -634,13 +741,16 @@ export default {
 }
 .directory-option {
   padding: 0px 0px;
-  height: auto; 
-  width: 480px; 
+  height: auto;
+  width: 480px;
   overflow: auto;
 }
 .scm-attribute >>> .el-form-item__label {
   color: rgb(97, 161, 161);
   font-size: 10px;
   width: 130px !important;
+}
+.upload-error-text {
+  color: red;
 }
 </style>

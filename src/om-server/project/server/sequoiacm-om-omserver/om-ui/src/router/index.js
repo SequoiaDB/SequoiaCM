@@ -75,6 +75,21 @@ export const constantRoutes = [
   },
 
   {
+    path: '/site',
+    component: Layout,
+    meta: { title: '站点管理', icon: 'el-icon-s-help' },
+    redirect: '/site/table',
+    children: [
+      {
+        path: 'table',
+        name: 'SiteTable',
+        component: () => import('@/views/site/index'),
+        meta: { title: '站点管理', icon: 'el-icon-s-help', keepAlive:true }
+      }
+    ]
+  },
+
+  {
     path: '/workspace',
     component: Layout,
     name: 'Workspace',
@@ -83,7 +98,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'table',
-        name: 'Table',
+        name: 'WorkspaceTable',
         component: () => import('@/views/workspace/index'),
         meta: { title: '工作区管理', icon: 'el-icon-collection', keepAlive:true }
       },
@@ -105,7 +120,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'table',
-        name: 'Table',
+        name: 'ScheduleTable',
         component: () => import('@/views/schedule/index'),
         meta: { title: '调度任务管理', icon: 'el-icon-time', keepAlive:true }
       },
@@ -127,7 +142,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'table',
-        name: 'Table',
+        name: 'FileTable',
         component: () => import('@/views/file/index'),
         meta: { title: '文件管理', icon: 'el-icon-document', keepAlive:true }
       }
@@ -135,16 +150,22 @@ export const constantRoutes = [
   },
 
   {
-    path: '/object',
+    path: '/bucket',
     component: Layout,
-    meta: { title: '对象', icon: 'el-icon-takeaway-box' },
-    redirect: '/object/table',
+    meta: { title: '桶管理', icon: 'el-icon-takeaway-box'},
+    redirect: '/bucket/table',
     children: [
       {
         path: 'table',
-        name: 'Table',
+        name: 'BucketTable',
+        component: () => import('@/views/bucket/index'),
+        meta: { title: '桶列表', icon: 'el-icon-s-grid',  keepAlive:true }
+      },
+      {
+        path: 'object',
+        name: 'Object',
         component: () => import('@/views/object/index'),
-        meta: { title: '桶对象管理', icon: 'el-icon-takeaway-box', keepAlive:true }
+        meta: { title: '桶对象管理', icon: 'el-icon-s-help', keepAlive:true }
       }
     ]
   },
@@ -175,7 +196,7 @@ export const constantRoutes = [
         name: 'User',
         component: () => import('@/views/system/user/index'),
         meta: { title: '用户管理', icon: 'el-icon-user',  keepAlive:true }      // icon: 'el-icon-setting',
-      }, 
+      },
       {
           path: 'role',
           name: 'Role',
