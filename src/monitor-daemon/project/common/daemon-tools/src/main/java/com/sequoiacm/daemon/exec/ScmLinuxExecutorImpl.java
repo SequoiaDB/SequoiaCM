@@ -149,6 +149,9 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
 
             return result;
         }
+        catch (ScmToolsException e) {
+            throw e;
+        }
         catch (IOException e) {
             throw new ScmToolsException("Failed to get cmd output,cmd:/bin/sh -c \"" + cmd + "\"",
                     ScmExitCode.SYSTEM_ERROR, e);
