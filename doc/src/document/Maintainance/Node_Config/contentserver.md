@@ -37,6 +37,7 @@ SequoiaCM 配置
 |scm.sdb.keepAliveTime          |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|重启生效|
 |scm.sdb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：30000，单位：毫秒|重启生效|
 |scm.sdb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|重启生效|
+| scm.sdb.connectStrategy                   | str     | 内容服务节点的sdb连接池连接策略，可选值(SERIAL, RANDOM, LOCAL, BALANCE) 默认值：SERIAL | 重启生效
 |scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|重启生效|
 |scm.zookeeper.cleanJobPeriod                |num|内容服务节点全量清理zookeeper无效节点的周期，默认值：1800000 (30分钟)，单位：毫秒                           |重启生效|
 |scm.zookeeper.maxBuffer                     |num|内容服务节点全量清理zookeeper无效节点时所使用的最大buffer大小，默认使用 JVM 最大堆内存的 1/5，单位：字节       |重启生效|

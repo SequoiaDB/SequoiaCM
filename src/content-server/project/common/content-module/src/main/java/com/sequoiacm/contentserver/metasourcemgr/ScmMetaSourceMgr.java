@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.metasourcemgr;
 
 import java.util.List;
 
+import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.ScmMetasourceException;
@@ -24,6 +25,7 @@ public class ScmMetaSourceMgr {
             throws ScmServerException {
         ConfigOptions connConf = new ConfigOptions();
         DatasourceOptions datasourceConf = new DatasourceOptions();
+        datasourceConf.setConnectStrategy(PropertiesUtils.getConnectStrategy());
         datasourceConf.setMaxIdleCount(1);
         try {
             return new SdbMetaSource(urlList, user, passwd, connConf, datasourceConf);

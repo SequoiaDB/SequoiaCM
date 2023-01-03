@@ -1,5 +1,6 @@
 package com.sequoiacm.common;
 
+import com.sequoiadb.datasource.ConnectStrategy;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.net.ConfigOptions;
 
@@ -36,6 +37,7 @@ public class CommonDefine {
         public static final int SDB_DELTA_INC_COUNT = dsConf.getDeltaIncCount();
         public static final int SDB_MAX_IDLE_NUM = dsConf.getMaxIdleCount();
         public static final int SDB_RECHECK_CYCL_PERIOD = 30 * 1000;
+        public static final ConnectStrategy SDB_CONNECT_STRATEGY = dsConf.getConnectStrategy();
 
         // *********************** SERVER ******************************
         public static final int PORT = 0;

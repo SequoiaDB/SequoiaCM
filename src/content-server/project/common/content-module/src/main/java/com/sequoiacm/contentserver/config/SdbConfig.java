@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.config;
 
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiadb.datasource.ConnectStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,8 @@ public class SdbConfig {
     private int deltaIncCount = CommonDefine.DefaultValue.SDB_DELTA_INC_COUNT;
     private int maxIdleNum = CommonDefine.DefaultValue.SDB_MAX_IDLE_NUM;
     private int recheckCyclePeriod = CommonDefine.DefaultValue.SDB_RECHECK_CYCL_PERIOD;
+
+    private String connectStrategy = CommonDefine.DefaultValue.SDB_CONNECT_STRATEGY.toString();
 
     public int getConnectTimeout() {
         return connectTimeout;
@@ -105,5 +108,13 @@ public class SdbConfig {
 
     public void setRecheckCyclePeriod(int recheckCyclePeriod) {
         this.recheckCyclePeriod = recheckCyclePeriod;
+    }
+
+    public ConnectStrategy getConnectStrategy() {
+        return ConnectStrategy.valueOf(connectStrategy);
+    }
+
+    public void setConnectStrategy(ConnectStrategy connectStrategy) {
+        this.connectStrategy = connectStrategy.toString();
     }
 }

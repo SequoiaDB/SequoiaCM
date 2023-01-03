@@ -15,6 +15,7 @@ import java.util.Set;
 
 import com.sequoiacm.infrastructure.common.ZkAcl;
 import com.sequoiacm.infrastructure.lock.ScmLockConfig;
+import com.sequoiadb.datasource.ConnectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,6 +140,7 @@ public class PropertiesUtils {
         appProperties.add(PropertiesDefine.PROPERTY_SDB_DELTAINCCOUNT);
         appProperties.add(PropertiesDefine.PROPERTY_SDB_MAXIDLENUM);
         appProperties.add(PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY);
 
         // server
         appProperties.add(PropertiesDefine.PROPERTY_SERVER_PORT);
@@ -194,6 +196,8 @@ public class PropertiesUtils {
                 return String.valueOf(getMaxIdleNum());
             case PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD:
                 return String.valueOf(getRecheckCyclePeriod());
+            case PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY:
+                return String.valueOf(getConnectStrategy());
 
             // server
             case PropertiesDefine.PROPERTY_SERVER_PORT:
@@ -295,6 +299,10 @@ public class PropertiesUtils {
 
     public static int getRecheckCyclePeriod() {
         return sdbConfig.getRecheckCyclePeriod();
+    }
+
+    public static ConnectStrategy getConnectStrategy(){
+        return sdbConfig.getConnectStrategy();
     }
 
     // *********************** SERVER ******************************

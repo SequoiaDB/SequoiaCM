@@ -106,6 +106,7 @@ public class ScmSite {
         connConf.setSocketKeepAlive(true);
 
         DatasourceOptions datasourceConf = new DatasourceOptions();
+        datasourceConf.setConnectStrategy(PropertiesUtils.getConnectStrategy());
         datasourceConf.setMaxCount(PropertiesUtils.getMaxConnectionNum());
         datasourceConf.setDeltaIncCount(PropertiesUtils.getDeltaIncCount());
         datasourceConf.setMaxIdleCount(PropertiesUtils.getMaxIdleNum());

@@ -21,6 +21,7 @@ public class PropertiesDefine {
     public static final String PROPERTY_SDB_DELTAINCCOUNT = "scm.sdb.deltaIncCount";
     public static final String PROPERTY_SDB_MAXIDLENUM = "scm.sdb.maxIdleNum";
     public static final String PROPERTY_SDB_RECHECKPERIOD = "scm.sdb.recheckCyclePeriod";
+    public static final String PROPERTY_SDB_CONNECTSTRATEGY = "scm.sdb.connectStrategy";
 
     // *********************** SERVER ******************************
     public static final String PROPERTY_SERVER_PORT = "server.port";
