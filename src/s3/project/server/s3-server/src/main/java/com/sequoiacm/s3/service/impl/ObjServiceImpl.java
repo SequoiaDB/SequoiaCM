@@ -50,6 +50,7 @@ import com.sequoiacm.s3.model.ListObjectsResultV1;
 import com.sequoiacm.s3.model.ListVersionsResult;
 import com.sequoiacm.s3.model.ObjectDeleted;
 import com.sequoiacm.s3.model.ObjectMatcher;
+import com.sequoiacm.s3.model.ObjectTagResult;
 import com.sequoiacm.s3.model.ObjectToDel;
 import com.sequoiacm.s3.model.PutObjectResult;
 import com.sequoiacm.s3.scan.BasicS3ScanCommonPrefixParser;
@@ -885,7 +886,7 @@ public class ObjServiceImpl implements ObjectService {
     }
 
     @Override
-    public void setObjectTag(ScmSession session, String bucketName, String objectName,
+    public String setObjectTag(ScmSession session, String bucketName, String objectName,
             Map<String, String> customTag, String versionId) throws S3ServerException {
         try {
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
@@ -893,15 +894,23 @@ public class ObjServiceImpl implements ObjectService {
             String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectName);
             BSONObject newProperties = new BasicBSONObject();
             newProperties.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
+            FileMeta fileMeta = null;
             if (versionId == null) {
-                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
-                        newProperties, -1, -1);
+                fileMeta = fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(),
+                        fileId, newProperties, -1, -1);
             }
             else {
                 ScmVersion version = VersionUtil.parseVersion(versionId);
-                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
-                        newProperties, version.getMajorVersion(), version.getMinorVersion());
+                fileMeta = fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(),
+                        fileId, newProperties, version.getMajorVersion(),
+                        version.getMinorVersion());
             }
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
+                    fileMeta.toBSONObject());
+            if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
+                return s3ObjMeta.getVersionId();
+            }
+            return null;
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.FILE_NOT_FOUND) {
@@ -921,11 +930,21 @@ public class ObjServiceImpl implements ObjectService {
     }
 
     @Override
-    public Map<String, String> getObjectTag(ScmSession session, String bucketName,
+    public ObjectTagResult getObjectTag(ScmSession session, String bucketName,
             String objectName, String versionId) throws S3ServerException {
         try {
+            Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             BSONObject fileInfo = getFileInfo(session, bucketName, objectName, versionId);
-            return BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG).toMap();
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, fileInfo);
+            ObjectTagResult ret = new ObjectTagResult();
+            if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
+                ret.setVersionId(s3ObjMeta.getVersionId());
+            }
+            BSONObject customTag = BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+            if (customTag != null) {
+                ret.setTagging(customTag.toMap());
+            }
+            return ret;
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.FILE_NOT_FOUND) {
@@ -939,22 +958,30 @@ public class ObjServiceImpl implements ObjectService {
     }
 
     @Override
-    public void deleteObjectTag(ScmSession session, String bucketName, String objectName,
+    public String deleteObjectTag(ScmSession session, String bucketName, String objectName,
             String versionId) throws S3ServerException {
         try {
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectName);
             BSONObject newProperties = new BasicBSONObject();
             newProperties.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject());
+            FileMeta fileMeta = null;
             if (versionId == null) {
-                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
-                        newProperties, -1, -1);
+                fileMeta = fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(),
+                        fileId, newProperties, -1, -1);
             }
             else {
                 ScmVersion version = VersionUtil.parseVersion(versionId);
-                fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(), fileId,
-                        newProperties, version.getMajorVersion(), version.getMinorVersion());
+                fileMeta = fileService.updateFileInfo(session.getUser(), s3Bucket.getRegion(),
+                        fileId, newProperties, version.getMajorVersion(),
+                        version.getMinorVersion());
             }
+            S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
+                    fileMeta.toBSONObject());
+            if (!s3Bucket.getVersionStatus().equals(ScmBucketVersionStatus.Disabled.name())) {
+                return s3ObjMeta.getVersionId();
+            }
+            return null;
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.FILE_NOT_FOUND) {

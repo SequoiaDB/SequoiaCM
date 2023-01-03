@@ -24,6 +24,7 @@ import com.sequoiacm.s3.model.DeleteObjectResult;
 import com.sequoiacm.s3.model.DeleteObjects;
 import com.sequoiacm.s3.model.DeleteObjectsResult;
 import com.sequoiacm.s3.model.ObjectDeleted;
+import com.sequoiacm.s3.model.ObjectTagResult;
 import com.sequoiacm.s3.model.ObjectToDel;
 import com.sequoiacm.s3.model.Tag;
 import com.sequoiacm.s3.model.TagSet;
@@ -503,18 +504,20 @@ public class ObjectController {
         try {
             String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
             Tagging tagging = getTagging(request);
+            String resVersionId = null;
             if (tagging.getTagList() == null || tagging.getTagList().size() == 0) {
                 Map<String, String> customTag = new HashMap<>();
-                objectService.setObjectTag(session, bucketName, objectName, customTag, versionId);
+                resVersionId = objectService.setObjectTag(session, bucketName, objectName,
+                        customTag, versionId);
             }
             else {
                 checkObjectTagKey(tagging);
-                objectService.setObjectTag(session, bucketName, objectName, tagging.toMap(),
-                        versionId);
+                resVersionId = objectService.setObjectTag(session, bucketName, objectName,
+                        tagging.toMap(), versionId);
             }
             HttpHeaders headers = new HttpHeaders();
-            if (versionId != null) {
-                headers.add(RestParamDefine.ObjectTagResultHeader.VERSION_ID, versionId);
+            if (resVersionId != null) {
+                headers.add(RestParamDefine.DeleteObjectResultHeader.VERSION_ID, resVersionId);
             }
             return ResponseEntity.ok().headers(headers).build();
         }
@@ -532,13 +535,14 @@ public class ObjectController {
             HttpServletRequest request, ScmSession session) throws S3ServerException {
         try {
             String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
-            Map<String, String> customTag = objectService.getObjectTag(session, bucketName,
+            ObjectTagResult result = objectService.getObjectTag(session, bucketName,
                     objectName, versionId);
             HttpHeaders headers = new HttpHeaders();
-            if (versionId != null) {
-                headers.add(RestParamDefine.ObjectTagResultHeader.VERSION_ID, versionId);
+            if (result != null && result.getVersionId() != null) {
+                headers.add(RestParamDefine.DeleteObjectResultHeader.VERSION_ID,
+                        result.getVersionId());
             }
-            Tagging tagging = new Tagging(customTag);
+            Tagging tagging = new Tagging(result.getTagging());
             return ResponseEntity.ok().headers(headers).body(tagging);
         }
         catch (Exception e) {
@@ -550,11 +554,17 @@ public class ObjectController {
     }
 
     @DeleteMapping(value = "/{bucketname:.+}/**", params = RestParamDefine.TAGGING, produces = MediaType.APPLICATION_XML_VALUE)
-    public void deleteObjectTag(@PathVariable("bucketname") String bucketName,
+    public ResponseEntity<?> deleteObjectTag(@PathVariable("bucketname") String bucketName,
             HttpServletRequest request, ScmSession session) throws S3ServerException {
         try {
             String objectName = restUtils.getObjectNameByURI(request.getRequestURI());
-            objectService.deleteObjectTag(session, bucketName, objectName, null);
+            String resVersionId = objectService.deleteObjectTag(session, bucketName, objectName,
+                    null);
+            HttpHeaders headers = new HttpHeaders();
+            if (resVersionId != null) {
+                headers.add(RestParamDefine.DeleteObjectResultHeader.VERSION_ID, resVersionId);
+            }
+            return ResponseEntity.ok().headers(headers).build();
         }
         catch (Exception e) {
             logger.error("delete object tag failed. bucketName={}, bucketName/objectName={}",

@@ -15,6 +15,7 @@ import com.sequoiacm.s3.model.ListObjectsResult;
 import com.sequoiacm.s3.model.ListObjectsResultV1;
 import com.sequoiacm.s3.model.ListVersionsResult;
 import com.sequoiacm.s3.model.ObjectMatcher;
+import com.sequoiacm.s3.model.ObjectTagResult;
 import com.sequoiacm.s3.model.PutObjectResult;
 
 import java.util.Map;
@@ -51,12 +52,13 @@ public interface ObjectService {
             String delimiter, String startAfter, int maxKeys, String continueToken,
             String encodingType, boolean fetchOwner) throws S3ServerException;
 
-    void setObjectTag(ScmSession session, String bucketName, String objectName,
+    String setObjectTag(ScmSession session, String bucketName, String objectName,
             Map<String, String> customTag, String versionId) throws S3ServerException;
 
-    Map<String, String> getObjectTag(ScmSession session, String bucketName, String objectName,
+    ObjectTagResult getObjectTag(ScmSession session, String bucketName, String objectName,
             String versionId) throws S3ServerException;
 
-    void deleteObjectTag(ScmSession session, String bucketName, String objectName, String versionId)
+    String deleteObjectTag(ScmSession session, String bucketName, String objectName,
+            String versionId)
             throws S3ServerException;
 }
