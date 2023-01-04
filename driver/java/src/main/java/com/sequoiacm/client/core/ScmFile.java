@@ -41,8 +41,9 @@ public abstract class ScmFile {
     public abstract ScmId getFileId();
 
     /**
-     * Sets the value of the fileId property.
-     *
+     * Sets the value of the fileId property. No need to set createTime, as it
+     * contains by fileId
+     * 
      * @param fileId
      *            fileId
      * @throws ScmException
