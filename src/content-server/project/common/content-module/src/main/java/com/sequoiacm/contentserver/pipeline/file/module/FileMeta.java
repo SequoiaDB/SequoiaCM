@@ -23,7 +23,7 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -379,7 +379,7 @@ public class FileMeta implements Cloneable {
 
         BSONObject customTag = BsonUtils.getBSON(userFileObject, FieldName.FIELD_CLFILE_CUSTOM_TAG);
         customTag = BsonUtils.deepCopyRecordBSON(customTag);
-        Map<String, String> newCustomTag = new HashMap<>();
+        Map<String, String> newCustomTag = new TreeMap<>();
         if (customTag != null) {
             newCustomTag.putAll(customTag.toMap());
         }
