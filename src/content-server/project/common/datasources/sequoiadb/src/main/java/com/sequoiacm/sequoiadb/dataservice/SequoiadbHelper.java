@@ -209,6 +209,7 @@ public class SequoiadbHelper {
             options.put("ShardingKey", key);
             options.put("ReplSize", -1);
             options.put("AutoSplit", true);
+            options.put("AutoIndexId", false);
 
             BSONObject tmp = sdbLocation.getDataCLOptions();
             options.putAll(tmp);
