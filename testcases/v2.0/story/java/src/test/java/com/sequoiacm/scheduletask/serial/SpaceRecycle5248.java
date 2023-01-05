@@ -113,16 +113,17 @@ public class SpaceRecycle5248 extends TestScmBase {
     }
 
     // 构造空的cs
-    private void prepare() throws ScmException {
-        long year = 365L * 24L * 60L * 60L * 1000L;
+    private void prepare() throws ScmException, InterruptedException {
+        Calendar instance = Calendar.getInstance();
+        ScmScheduleUtils.checkMonthChange( instance );
         for ( int i = 0; i < recycleCSNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
-            Date date = new Date( now - year * i );
-            file.setCreateTime( date );
+            file.setCreateTime( instance.getTime() );
             file.setAuthor( fileAuthor );
             file.setContent( filePath );
             file.setFileName( fileName + i );
             file.save();
+            instance.add( Calendar.YEAR, -1 );
         }
         ScmFileUtils.cleanFile( wsName, queryCond );
     }
