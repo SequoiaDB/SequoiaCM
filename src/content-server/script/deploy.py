@@ -157,8 +157,11 @@ def create_site(site_conf, gateway_conf):
     # gateway
     gateway = gateway_conf['url']
     user = gateway_conf['user']
-    passwd = gateway_conf['password']
-    cmd += ' --gateway ' +gateway +' --user '+ user +' --passwd ' + passwd
+    cmd += ' --gateway ' +gateway +' --user '+ user
+    if 'password' in gateway_conf:
+        cmd += ' --passwd ' + gateway_conf['password']
+    if 'passwordFile' in gateway_conf:
+        cmd += ' --passwd-file ' + gateway_conf['passwordFile']
     scm_admin(cmd)
 
 
@@ -200,9 +203,11 @@ def create_node(conf, audit_conf, gateway_conf):
     # gateway
     gateway = gateway_conf['url']
     user = gateway_conf['user']
-    passwd = gateway_conf['password']
-    cmd += ' --gateway ' +gateway +' --user '+ user +' --passwd ' + passwd
-    
+    cmd += ' --gateway ' +gateway +' --user '+ user
+    if 'password' in gateway_conf:
+        cmd += ' --passwd ' + gateway_conf['password']
+    if 'passwordFile' in gateway_conf:
+        cmd += ' --passwd-file ' + gateway_conf['passwordFile']
     scm_admin(cmd)
 
 def start_node(port=0):

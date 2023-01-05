@@ -44,6 +44,6 @@
     "gateway": {
             "url":"localhost:8080",
             "user":"admin",
-            "password":"admin"
+            "passwordFile":"/opt/sequoiacm/secret/admin.pwd"
    }
 }

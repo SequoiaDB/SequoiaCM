@@ -106,6 +106,8 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
 > 
 >  * audit 字段描述节点的审计日志配置，其中 auditurl 表示审计日志的入库地址（SequoiaDB），audituser 表示用户名，auditpassword 表示密码文件（密码文件通过 [encrypt 命令][encrypt_tool]生成）
 > 
+>  * gateway 字段描述网关节点的连接信息，url 表示网网关节点的地址，user 表示管理员的用户名，password 表示管理员的明文密码（也可使用 passwordFile 字段指定[密码文件][encrypt_password]）
+> 
 >  * deploy.py 目前只支持部署本机站点，所以 deploy.py 将会跳过 hostname 为非本机的节点配置。用户可以规划好配置文件后，拷贝到各个需要部署节点的机器上，分别执行 deploy.py --createnode。
 
 执行以下命令创建配置的站点，创建并启动配置中的本机节点：
@@ -157,7 +159,7 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
 
 >  **Note:**
 > 
->  * 整个配置文件是一个 JSON 对象，url 字段描述一个已存在的站点地址（gatewayHost:gatewayPort/sitename），注意站点名小写，userName 字段描述管理员用户名，password 字段描述管理员密码，workspace 字段描述一组新建工作区的配置，其中各个字段与 [createws 命令][createws]参数对应。
+>  * 整个配置文件是一个 JSON 对象，url 字段描述一个已存在的站点地址（gatewayHost:gatewayPort/sitename），注意站点名小写，userName 字段描述管理员用户名，password 字段描述管理员密码（也可使用 passwordFile 字段指定[密码文件][encrypt_password]），workspace 字段描述一组新建工作区的配置，其中各个字段与 [createws 命令][createws]参数对应。
 
 
 
@@ -223,3 +225,4 @@ ContentServer 安装包下的 deploy.py 提供 ContentServer 服务的部署功�
 [contentserver_config]:Maintainance/Node_Config/contentserver.md
 [encrypt_tool]:Maintainance/Tools/Scmadmin/encrypt.md
 [createws]:Maintainance/Tools/Scmadmin/createws.md
+[encrypt_password]:Maintainance/Tools/Scmadmin/encrypt.md

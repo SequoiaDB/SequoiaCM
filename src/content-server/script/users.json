@@ -1,7 +1,7 @@
 {
     "url": "localhost:8080/branchsite1",
     "adminUser": "admin",
-    "adminPassword": "admin",
+    "adminPasswordFile": "/opt/sequoiacm/secret/admin.pwd",
     "roles": [
         {
             "name": "ROLE_ws_default",
@@ -44,7 +44,7 @@
     "oldUsers": [
         {
             "name": "admin",
-            "password": "admin",
+            "passwordFile": "/opt/sequoiacm/secret/oldUser.pwd",
             "roles": ["ROLE_ws_default", "ROLE_ws_month", "ROLE_ws_none"]
         }
     ]

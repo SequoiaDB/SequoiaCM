@@ -323,7 +323,8 @@
 | ------ | ---- | ------ |
 | url | 网关地址，格式为 `<scmserver>:<port>/<sitename>` | 是 |
 | userName | SequoiaCM 管理员用户名，默认为 admin | 是 |
-| password | SequoiaCM 管理员用户密码，默认为 admin | 是 |
+| password | SequoiaCM 管理员用户密码，默认为 admin，与 passwordFile 字段二选一 | 否 |
+| passwordFile | SequoiaCM 管理员用户[密码文件][encrypt_password]路径，与 password 字段二选一 | 否 |
 | workspace.name | 工作区名 | 是 |
 | workspace.description | 工作区描述 | 否 |
 | workspace.batch_sharding_type | 指定批次分区类型，默认值为 none，取值如下：<br>month：按月分区<br>quarter：按季分区<br>year：按年分区<br>none：不分区 | 否 |
@@ -343,7 +344,8 @@
 | ------ | ---- | -------- |
 | url | 网关地址，格式为 `<scmServer>:<port>/<sitename>` | 是 |
 | adminUser | SequoiaCM 管理员用户名，默认为 admin | 是 |
-| adminPassword | SequoiaCM 管理员用户密码，默认为 admin | 是 |
+| adminPassword | SequoiaCM 管理员用户密码，默认为 admin，与 adminPasswordFile 字段二选一| 否 |
+| adminPasswordFile | SequoiaCM 管理员用户[密码文件][encrypt_password]路径，与 adminPassword 字段二选一 | 否 |
 | roles.name | 角色名 | 是 |
 | roles.resources.resourceType | 角色关联的资源类型，取值如下：<br>workspace：工作区<br>directory：目录 | 是 | 
 | roles.resources.resource | 资源名，用户需根据资源类型，指定工作区名或目录名 | 是 |
@@ -360,3 +362,4 @@
 [driver_operation]:Development/overview.md
 [primary_standby_cephs3]:Architecture/data_storage.md
 [node_group]:Architecture/node_group.md
+[encrypt_password]:Maintainance/Tools/Scmadmin/encrypt.md

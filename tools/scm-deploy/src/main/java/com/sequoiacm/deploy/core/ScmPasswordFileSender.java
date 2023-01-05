@@ -26,6 +26,7 @@ public class ScmPasswordFileSender {
     // host to passwordFiles
     private List<HostInfo> alredySendMetasourcePassword = new ArrayList<>();
     private List<HostInfo> alredySendAuditsourcePassword = new ArrayList<>();
+    private List<HostInfo> alredySendAdminPassword = new ArrayList<>();
     private Map<HostInfo, List<DataSourceInfo>> alreadySendDatasourcePassword = new HashMap<>();
 
     private ScmDeployInfoMgr deployInfoMgr = ScmDeployInfoMgr.getInstance();
@@ -59,6 +60,12 @@ public class ScmPasswordFileSender {
         return deployInfoMgr.getInstallConfig().getInstallPath() + "/" + SECRET_DIR_NAME
                 + "/auditsource.pwd";
     }
+
+    public String getAdminPasswdFilePath() {
+        return deployInfoMgr.getInstallConfig().getInstallPath() + "/" + SECRET_DIR_NAME
+                + "/admin.pwd";
+    }
+
 
     public String sendDsPasswdFile(HostInfo host, DataSourceInfo datasouce) throws Exception {
         String remoteDirPath = deployInfoMgr.getInstallConfig().getInstallPath() + "/"
@@ -95,6 +102,23 @@ public class ScmPasswordFileSender {
                 deployInfoMgr.getInstallConfig().getInstallPath() + "/" + SECRET_DIR_NAME + "/",
                 "metasource.pwd");
         alredySendMetasourcePassword.add(host);
+        return remotePasswdFilePath;
+    }
+
+    public String sendAdminPasswdFile(HostInfo host,String adminUsername, String adminPassword)
+            throws Exception {
+        String remotePasswdFilePath = deployInfoMgr.getInstallConfig().getInstallPath() + "/"
+                + SECRET_DIR_NAME + "/admin.pwd";
+        if (alredySendAdminPassword.contains(host)) {
+            logger.debug("admin password file has been send:host=" + host.getHostName()
+                    + ", file=" + remotePasswdFilePath);
+            return remotePasswdFilePath;
+        }
+
+        sendPwdFile(host, adminUsername, adminPassword, null,
+                deployInfoMgr.getInstallConfig().getInstallPath() + "/" + SECRET_DIR_NAME + "/",
+                "admin.pwd");
+        alredySendAdminPassword.add(host);
         return remotePasswdFilePath;
     }
 

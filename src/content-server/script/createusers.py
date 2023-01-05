@@ -29,24 +29,32 @@ def command(cmd):
 def scm_admin(cmd):
     command("%s%s%s %s" % (BIN_PATH, os.sep, SCM_ADMIN, cmd))
 
-def create_user(url, adminUser, adminPasswd, newUser):
+def determine_password_arg(password, passwordFile):
+    arg = ''
+    if password is not None:
+        arg += ' --password ' + password
+    if passwordFile is not None:
+        arg += ' --password-file ' + passwordFile
+    return arg
+
+def create_user(url, adminUser, adminPasswd, adminPasswdFile, newUser):
     cmd = 'createuser --new-user ' + newUser['name'] + ' --new-password ' + newUser['password']
-    cmd += ' --url "' + url + '" --user ' + adminUser + ' --password ' + adminPasswd
+    cmd += ' --url "' + url + '" --user ' + adminUser + determine_password_arg(adminPasswd, adminPasswdFile)
     scm_admin(cmd)
 
-def create_role(url, adminUser, adminPasswd, newRole):
+def create_role(url, adminUser, adminPasswd, adminPasswdFile, newRole):
     cmd = 'createrole --role ' + newRole['name']
-    cmd += ' --url "' + url + '" --user ' + adminUser + ' --password ' + adminPasswd
+    cmd += ' --url "' + url + '" --user ' + adminUser + determine_password_arg(adminPasswd, adminPasswdFile)
     scm_admin(cmd)
-    
-def grant_role(url, adminUser, adminPasswd, roleName, resource):
+
+def grant_role(url, adminUser, adminPasswd, adminPasswdFile, roleName, resource):
     cmd = 'grantrole --role ' + roleName + ' --type ' + resource['resourceType'] + ' --resource ' + resource['resource'] + ' --privilege ' + resource['privilege']
-    cmd += ' --url "' + url + '" --user ' + adminUser + ' --password ' + adminPasswd
+    cmd += ' --url "' + url + '" --user ' + adminUser + determine_password_arg(adminPasswd, adminPasswdFile)
     scm_admin(cmd)
-    
-def attach_role(url, adminUser, adminPasswd, userName, roleName):
+
+def attach_role(url, adminUser, adminPasswd, adminPasswdFile, userName, roleName):
     cmd = 'attachrole --attached-user ' + userName + ' --role ' + roleName
-    cmd += ' --url "' + url + '" --user ' + adminUser + ' --password ' + adminPasswd
+    cmd += ' --url "' + url + '" --user ' + adminUser + determine_password_arg(adminPasswd, adminPasswdFile)
     scm_admin(cmd)
 
 def load_config(conf_file):
@@ -61,21 +69,25 @@ def load_config(conf_file):
 def create_all_users(conf):
     url = conf['url']
     adminUser = conf['adminUser']
-    adminPasswd = conf['adminPassword']
-    
+    adminPasswd = None
+    adminPasswdFile = None
+    if 'adminPassword' in conf:
+        adminPasswd = conf['adminPassword']
+    if 'adminPasswordFile' in conf:
+        adminPasswdFile = conf['adminPasswordFile']
     for oneRole in conf['roles']:
-        create_role(url, adminUser, adminPasswd, oneRole)
+        create_role(url, adminUser, adminPasswd, adminPasswdFile, oneRole)
         for oneResource in oneRole['resources']:
-            grant_role(url, adminUser, adminPasswd, oneRole['name'], oneResource)
+            grant_role(url, adminUser, adminPasswd, adminPasswdFile, oneRole['name'], oneResource)
     
     for oneUser in conf['newUsers']:
-        create_user(url, adminUser, adminPasswd, oneUser)
+        create_user(url, adminUser, adminPasswd, adminPasswdFile, oneUser)
         for roleName in oneUser['roles']:
-            attach_role(url, adminUser, adminPasswd, oneUser['name'], roleName)
+            attach_role(url, adminUser, adminPasswd, adminPasswdFile, oneUser['name'], roleName)
     
     for oneUser in conf['oldUsers']:
         for roleName in oneUser['roles']:
-            attach_role(url, adminUser, adminPasswd, oneUser['name'], roleName)
+            attach_role(url, adminUser, adminPasswd, adminPasswdFile, oneUser['name'], roleName)
 
 def main(argv):
     global BIN_PATH

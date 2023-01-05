@@ -7,6 +7,7 @@ import java.util.Map;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class WorkspaceOperater {
 
         String gatewayUrl = BsonUtils.getStringChecked(bson, "url");
         String user = BsonUtils.getStringChecked(bson, "userName");
-        String password = BsonUtils.getStringChecked(bson, "password");
+        String password = getPassword(bson);
 
         if (dryrun) {
             for (Object wsBSON : wsBsons) {
@@ -72,6 +73,14 @@ public class WorkspaceOperater {
 
     }
 
+    private String getPassword(BSONObject bson) {
+        String password = BsonUtils.getString(bson, "password");
+        if (password == null) {
+            password = ScmFilePasswordParser.parserFile(BsonUtils.getStringChecked(bson, "passwordFile")).getPassword();
+        }
+        return password;
+    }
+
     public void createWorkspace(boolean dryrun) throws Exception {
         logger.info("Creating workspace{}...", dryrun ? "(Dry Run Mode)" : "");
         BSONObject bson = CommonUtils.parseJsonFile(commonConfig.getWorkspaceConfigFilePath());
@@ -87,7 +96,7 @@ public class WorkspaceOperater {
 
         String gatewayUrl = BsonUtils.getStringChecked(bson, "url");
         String user = BsonUtils.getStringChecked(bson, "userName");
-        String password = BsonUtils.getStringChecked(bson, "password");
+        String password = getPassword(bson);
 
         waitDependentServicesReady(gatewayUrl);
 
@@ -239,8 +248,7 @@ public class WorkspaceOperater {
             BSONObject bson = CommonUtils.parseJsonFile(commonConfig.getWorkspaceConfigFilePath());
             String gatewayUrl = BsonUtils.getStringChecked(bson, "url");
             String user = BsonUtils.getStringChecked(bson, "userName");
-            String password = BsonUtils.getStringChecked(bson, "password");
-
+            String password = getPassword(bson);
             if (!dryrun) {
                 ss = ScmFactory.Session.createSession(SessionType.AUTH_SESSION,
                         new ScmConfigOption(gatewayUrl, user, password));

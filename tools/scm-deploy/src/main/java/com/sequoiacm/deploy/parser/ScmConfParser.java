@@ -52,14 +52,6 @@ public class ScmConfParser {
             }
         }
 
-        if (logger.isDebugEnabled()) {
-            for (Entry<String, List<BSONObject>> entry : tableSeactionBsonRecords.entrySet()) {
-                logger.debug("seaction parse result:{}", entry.getKey());
-                for (BSONObject r : entry.getValue()) {
-                    logger.debug(r.toString());
-                }
-            }
-        }
     }
 
     private List<BSONObject> parseTableSeaction(Reader seactionReader) throws IOException {

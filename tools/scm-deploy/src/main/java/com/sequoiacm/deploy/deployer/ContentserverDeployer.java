@@ -24,6 +24,9 @@ public class ContentserverDeployer extends ServiceDeployerBase {
 
     private SiteBuilder siteBuilder = SiteBuilder.getInstance();
 
+    private static final String DEFAULT_ADMIN_USERNAME = "admin";
+    private static final String DEFAULT_ADMIN_PASSWORD = "admin";
+
     public ContentserverDeployer() {
         super(ServiceType.CONTENT_SERVER,
                 CommonConfig.getInstance().getContentServerBaseDeployFilePath());
@@ -35,6 +38,7 @@ public class ContentserverDeployer extends ServiceDeployerBase {
         HostInfo hostInfo = super.getDeployInfoMgr().getHostInfoWithCheck(node.getHostName());
         pwdFileSender.sendMetasourcePasswdFile(hostInfo, getDeployInfoMgr().getMetasourceInfo());
         pwdFileSender.sendAuditSourcePasswdFile(hostInfo, getDeployInfoMgr().getAuditsourceInfo());
+        pwdFileSender.sendAdminPasswdFile(hostInfo, DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD);
         String siteName = ((SiteNodeInfo) node).getSiteName();
         SiteInfo siteInfo = super.getDeployInfoMgr().getSiteInfo(siteName);
         DataSourceInfo dataSourceInfo = super.getDeployInfoMgr()
@@ -88,8 +92,8 @@ public class ContentserverDeployer extends ServiceDeployerBase {
         BSONObject gatewayBson = BsonUtils.getBSONObjectChecked(templateBson, "gateway");
         String gatewayUrl = super.getDeployInfoMgr().getFirstGatewayUrl();
         gatewayBson.put("url", gatewayUrl);
-        gatewayBson.put("user", "admin");
-        gatewayBson.put("password", "admin");
+        gatewayBson.put("user", DEFAULT_ADMIN_USERNAME);
+        gatewayBson.put("passwordFile", pwdFileSender.getAdminPasswdFilePath());
 
         return templateBson;
     }

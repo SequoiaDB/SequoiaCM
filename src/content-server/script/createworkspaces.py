@@ -42,7 +42,7 @@ def load_config(conf_file):
     finally:
         f.close()
 
-def create_workspace(ws_conf, url, user, password):
+def create_workspace(ws_conf, url, user, password, passwordFile):
     name = ws_conf['name']
     cmd = "createws --name " + name
     if 'meta' in ws_conf:
@@ -79,20 +79,28 @@ def create_workspace(ws_conf, url, user, password):
         cmd += " --site-cache-strategy " + site_cache_strategy
     
     cmd += ' --user ' + user
-    cmd += ' --password ' + password
+    if password is not None:
+        cmd += ' --password ' + password
+    if passwordFile is not None:
+        cmd += ' --password-file ' + passwordFile
     cmd += ' --url ' + url
     scm_admin(cmd)
 
-def create_workspaces(wss_conf, url='localhost:8080/rootsite', user='admin', password='admin'):
+def create_workspaces(wss_conf, url='localhost:8080/rootsite', user='admin', password='admin', passwordFile=None):
     for ws_conf in wss_conf:
-        create_workspace(ws_conf, url, user, password)
+        create_workspace(ws_conf, url, user, password, passwordFile)
 
 def deploy(config):
     url = config['url']
     userName = config['userName']
-    password = config ['password']
+    password = None
+    passwordFile = None
+    if 'password' in config:
+        password = config['password']
+    if 'passwordFile' in config:
+        passwordFile = config['passwordFile']
     if 'workspaces' in config:
-        create_workspaces(config['workspaces'], url, userName, password)
+        create_workspaces(config['workspaces'], url, userName, password, passwordFile)
         
 def print_help(name):
     print('usage: %s [option]...' % name)

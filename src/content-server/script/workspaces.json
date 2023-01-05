@@ -1,7 +1,7 @@
 {
     "url": "localhost:8080/rootsite",
     "userName": "admin",
-    "password": "admin",    
+    "passwordFile": "/opt/sequoiacm/secret/admin.pwd",
     "workspaces": [
         {
             "name": "ws_default",
