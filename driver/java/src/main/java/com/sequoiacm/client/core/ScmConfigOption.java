@@ -13,8 +13,8 @@ import com.sequoiacm.client.exception.ScmInvalidArgumentException;
  * @since 2.1
  */
 public class ScmConfigOption {
-    static final String DEFAULT_REGION = "DEFAULT_REGION";
-    static final String DEFAULT_ZONE = "DEFAULT_ZONE";
+    static final String DEFAULT_REGION = "DefaultRegion";
+    static final String DEFAULT_ZONE = "zone1";
 
     private String region = DEFAULT_REGION;
     private String zone = DEFAULT_ZONE;
