@@ -74,6 +74,13 @@ public class FileContentLocaltions4134 extends TestScmBase {
         es.addWorker( new ThreadGetContentLocations() );
         es.addWorker( new ThreadUpdateFile() );
         es.run();
+
+        ScmFile file = ScmFactory.File.getInstance( ws, fileId );
+        List< ScmContentLocation > fileContentLocationsInfo = file
+                .getContentLocations();
+        ScmFileUtils.checkContentLocation( fileContentLocationsInfo, site,
+                file.getDataId(), ws );
+
         runSuccess = true;
     }
 
@@ -102,13 +109,8 @@ public class FileContentLocaltions4134 extends TestScmBase {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 List< ScmContentLocation > fileContentLocationsInfo1 = file
                         .getContentLocations();
-                if ( isDeletefilethreadSuccess ) {
-                    fileContentLocationsInfo1 = file.getContentLocations();
-                    fileId = file.getDataId();
-                }
-                ScmFileUtils.checkContentLocation( fileContentLocationsInfo1, site,
-                        fileId, ws );
-            }finally {
+
+            } finally {
                 session.close();
             }
         }
