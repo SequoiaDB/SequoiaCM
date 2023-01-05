@@ -156,11 +156,4 @@ public class CommonUtils {
         int idx = r.nextInt(list.size());
         return list.get(idx);
     }
-    
-    public static void main(String[] args) throws StatisticsException {
-        System.out.println(getYesterday(getToday()));
-        System.out.println(getTomorrow(getToday()));
-        System.out.println(getDateRangeStr("20180801", "20180802"));
-        System.out.println(getDateRange("20180801", "20180802"));
-    }
 }

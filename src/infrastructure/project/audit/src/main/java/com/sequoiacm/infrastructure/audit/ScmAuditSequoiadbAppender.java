@@ -400,25 +400,4 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
         this.recheckCyclePeriod = recheckCyclePeriod;
     }
 
-    public static void main(String[] args) {
-        Date date = new Date();
-        String currentYearMonth = DateCommonHelper.getCurrentYearMonth(date);
-        String nextYearMonth = DateCommonHelper.getNextYearMonth(date);
-
-        String collectionName = ScmAuditDefine.CL_AUDIT + "_" + currentYearMonth;
-        String subClFullName = ScmAuditDefine.CS_AUDIT + "." + collectionName;
-
-        System.out.println(currentYearMonth);
-        System.out.println(nextYearMonth);
-
-        System.out.println(collectionName);
-        System.out.println(subClFullName);
-
-        //
-        BSONTimestamp lowb = new BSONTimestamp(DateCommonHelper.getDate(currentYearMonth));
-        BSONTimestamp upperb = new BSONTimestamp(DateCommonHelper.getDate(nextYearMonth));
-
-        System.out.println(lowb.toString());
-        System.out.println(upperb.toString());
-    }
 }

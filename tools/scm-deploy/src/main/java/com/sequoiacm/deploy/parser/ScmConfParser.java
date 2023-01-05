@@ -51,11 +51,6 @@ public class ScmConfParser {
                 seactionReader.close();
             }
         }
-        // seactionBsonRecords = new HashMap<>();
-        // for (String seactionName : seactionNames) {
-        // relapceRef(seactionName, new RefParseContext(seactionRecords,
-        // seactionBsonRecords));
-        // }
 
         if (logger.isDebugEnabled()) {
             for (Entry<String, List<BSONObject>> entry : tableSeactionBsonRecords.entrySet()) {
@@ -65,56 +60,6 @@ public class ScmConfParser {
                 }
             }
         }
-    }
-
-    private void relapceRef(String seactionName, RefParseContext context) {
-        if (context.getProcessedSeactionRecords().containsKey(seactionName)) {
-            return;
-        }
-
-        if (!context.getSrcSeactionRecords().containsKey(seactionName)) {
-            throw new IllegalArgumentException("unknown reference seaction name:" + seactionName);
-        }
-
-        if (context.isCircularReference(seactionName)) {
-            throw new IllegalArgumentException(
-                    "circular reference:refrenceSeactionPath=" + context.getReferencePath());
-        }
-
-        context.addReferenceToPath(seactionName);
-
-        List<BSONObject> bsonRecords = new ArrayList<>();
-        for (Map<String, String> record : context.getSrcSeactionRecords().get(seactionName)) {
-            BasicBSONObject bsonRecord = new BasicBSONObject();
-            for (String key : record.keySet()) {
-                String value = record.get(key);
-                boolean isRef = Pattern.matches("^\\[[a-zA-Z0-9]+\\]\\[[0-9]+\\]$", value);
-                if (isRef) {
-                    BSONObject refBson = parseRef(value, context);
-                    bsonRecord.put(key, refBson);
-                    continue;
-                }
-                bsonRecord.put(key, value);
-            }
-            bsonRecords.add(bsonRecord);
-        }
-        context.getProcessedSeactionRecords().put(seactionName, bsonRecords);
-        context.removeReferenceFromPath(seactionName);
-    }
-
-    private BSONObject parseRef(String ref, RefParseContext context) {
-        String[] seactionNameAndNum = ref.split("\\]\\[");
-        String seactionName = seactionNameAndNum[0].substring(1);
-        int num = Integer
-                .valueOf(seactionNameAndNum[1].substring(0, seactionNameAndNum[1].length() - 1));
-        relapceRef(seactionName, context);
-        List<BSONObject> seactionRecords = context.getProcessedSeactionRecords().get(seactionName);
-        if (seactionRecords.size() <= num || num < 0) {
-            throw new IllegalArgumentException("index out of boud:seaction=" + seactionName
-                    + ",index=" + num + ", maxIndex=" + (seactionRecords.size() - 1));
-        }
-        return seactionRecords.get(num);
-
     }
 
     private List<BSONObject> parseTableSeaction(Reader seactionReader) throws IOException {

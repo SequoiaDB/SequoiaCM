@@ -18,12 +18,6 @@ import com.sequoiacm.infrastructure.common.IOUtils;
 
 @Component
 public class DocxParser extends TextualParser {
-    public static void main(String[] args)
-            throws FileNotFoundException, IOException, FullTextException {
-        DocxParser x = new DocxParser();
-        String ext = x.parse(new FileInputStream("D:\\data\\text_test_data\\docx.docx"));
-        System.out.println(ext);
-    }
 
     @Override
     public String parse(InputStream src) throws FullTextException {

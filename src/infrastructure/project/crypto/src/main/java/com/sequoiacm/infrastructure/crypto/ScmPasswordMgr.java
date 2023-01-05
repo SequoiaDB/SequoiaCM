@@ -92,12 +92,4 @@ public class ScmPasswordMgr {
 
         return b;
     }
-
-    public static void main(String[] args) throws Exception {
-        ScmPasswordMgr spm = ScmPasswordMgr.getInstance();
-        String original = "sdbadmin";
-        String encrypted = spm.encrypt(1, original);
-        System.out.println(encrypted);
-        System.out.println(spm.decrypt(1, encrypted));
-    }
 }

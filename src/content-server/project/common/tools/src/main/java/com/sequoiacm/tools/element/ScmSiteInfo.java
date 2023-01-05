@@ -207,15 +207,6 @@ public class ScmSiteInfo {
 
     }
 
-    public static void main(String[] args) {
-        BSONObject retBSON = new BasicBSONObject();
-        List<String> list = new ArrayList<>();
-        list.add("asdas");
-        list.add("asda");
-        retBSON.put("list", list);
-        System.out.println(retBSON.toString());
-    }
-
     @Override
     public String toString() {
         return "ScmSiteInfo [id=" + id + ", name=" + name + ", isRootSite=" + isRootSite

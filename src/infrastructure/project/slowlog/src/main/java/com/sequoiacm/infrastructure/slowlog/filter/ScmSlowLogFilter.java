@@ -284,22 +284,4 @@ public class ScmSlowLogFilter extends OncePerRequestFilter {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        SlowLogContext slowLogContext = new SlowLogContextImpl();
-        slowLogContext.setStart(new Date());
-        slowLogContext.beginOperation("test");
-        Thread.sleep(100);
-        slowLogContext.beginOperation("a");
-        Thread.sleep(100);
-        slowLogContext.endOperation();
-        slowLogContext.endOperation();
-
-        slowLogContext.setSessionId(UUID.randomUUID().toString());
-        slowLogContext.setEnd(new Date());
-        slowLogContext.addExtra("fileId", UUID.randomUUID().toString());
-        SlowResult slowResult = new SlowResult();
-        slowResult.addSlowOperation("test.a");
-        new ScmSlowLogFilter().logResult(slowResult, slowLogContext);
-    }
-
 }

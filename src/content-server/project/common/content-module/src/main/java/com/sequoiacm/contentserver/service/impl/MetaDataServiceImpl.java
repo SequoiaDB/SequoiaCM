@@ -360,18 +360,4 @@ public class MetaDataServiceImpl implements IMetaDataService {
         return attrInfo;
     }
 
-    private ScmLock lock(ScmLockPath lockPath) throws Exception {
-        return ScmLockManager.getInstance().acquiresLock(lockPath);
-    }
-
-    private void unlock(ScmLock lock, ScmLockPath lockPath) {
-        try {
-            if (lock != null) {
-                lock.unlock();
-            }
-        }
-        catch (Exception e) {
-            logger.error("failed to unlock:path=" + lockPath);
-        }
-    }
 }

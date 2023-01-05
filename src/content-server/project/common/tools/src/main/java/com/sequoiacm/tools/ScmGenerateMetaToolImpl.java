@@ -108,10 +108,4 @@ public class ScmGenerateMetaToolImpl extends ScmTool {
         hp.printHelp(isFullHelp);
     }
 
-    //
-    // public static void main(String[] args) throws ParseException {
-    // SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    // Date d = sdf.parse("2017-07-13 08:45:59");
-    // System.out.println(sdf.format(d));
-    // }
 }

@@ -17,19 +17,6 @@ import java.net.URLDecoder;
 public class ScheduleEntityTranslator {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleEntityTranslator.class);
 
-    public static void main(String[] args) {
-        // BSONObject content = new BasicBSONObject();
-        // content.put("job_type", "fulltext_index");
-        // content.put("worker", "fulltext-server");
-        // content.put("job_data", "full text file matcher");
-        //
-        // ScheduleFullEntity info = new ScheduleFullEntity("id", "name", "desc",
-        // "schType", "ws1",
-        // content, "", true, "", System.currentTimeMillis());
-        // BSONObject b = FullInfo.toBSONObject(info);
-        // System.out.println(b);
-    }
-
     public static class Status {
         public static InternalSchStatus fromBSON(BSONObject bson) {
             InternalSchStatus ret = new InternalSchStatus();

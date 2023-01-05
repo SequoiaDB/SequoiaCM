@@ -40,19 +40,4 @@ public class ScmUserJsonSerializer extends StdSerializer<ScmUser> {
         gen.writeEndObject();
     }
 
-    // public static void main(String[] args) throws JsonProcessingException {
-    // ScmUserJsonSerializer s = new ScmUserJsonSerializer();
-    // ScmUser v = ScmUser.withUsername("name").userId("uid")
-    // .passwordType(ScmUserPasswordType.TOKEN)
-    // .roles(ScmRole.withRoleName("ROLE_rname").roleId("rid").build()).build();
-    //
-    // ObjectMapper mapper;
-    // SimpleModule module = new SimpleModule();
-    // module.addSerializer(ScmUser.class, new ScmUserGsonTypeAdapter());
-    // module.addSerializer(ScmRole.class, new ScmRoleGsonTypeAdapter());
-    // mapper = new ObjectMapper();
-    // mapper.registerModule(module);
-    //
-    // System.out.println(mapper.writeValueAsString(v));
-    // }
 }

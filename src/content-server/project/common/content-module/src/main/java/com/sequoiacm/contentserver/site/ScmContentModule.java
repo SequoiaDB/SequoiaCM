@@ -503,9 +503,6 @@ public class ScmContentModule {
         return wsInfo;
     }
 
-    public String generateSessionID() {
-        return ObjectId.get().toString();
-    }
     //
     // public List<ScmContentServerInfo> getOtherContentServers() {
     // return bizConf.getOtherContentServers();

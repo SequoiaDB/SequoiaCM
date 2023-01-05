@@ -381,10 +381,4 @@ public class ScmMetaGenerator {
         return count;
     }
 
-    public static void main(String[] args) {
-        Date d = new Date(1501832954000L);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println(sdf.format(d));
-    }
-
 }

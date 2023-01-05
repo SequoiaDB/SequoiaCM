@@ -100,19 +100,4 @@ public class SignUtil {
             throw new RuntimeException("failed to calc md5 string:" + content, e);
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println(SignUtil.toHex(hash("PUT\n" + "/s3/bucket1/ExampleObject.txt\n" + "\n"
-                + "content-length:857\n" + "host:192.168.10.95:8080\n"
-                + "x-amz-content-sha256:8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887\n"
-                + "x-amz-date:20200407T023705Z\n" + "x-amz-storage-class:REDUCED_REDUNDANCY\n"
-                + "\n" + "content-length;host;x-amz-content-sha256;x-amz-date;x-amz-storage-class\n"
-                + "8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887")));
-        System.out.println(SignUtil.toHex(hash("PUT\n" + "/s3/bucket1/ExampleObject.txt\n" + "\n"
-                + "content-length:857\n" + "host:192.168.10.95\n"
-                + "x-amz-content-sha256:8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887\n"
-                + "x-amz-date:20200407T023705Z\n" + "x-amz-storage-class:REDUCED_REDUNDANCY\n"
-                + "\n" + "content-length;host;x-amz-content-sha256;x-amz-date;x-amz-storage-class\n"
-                + "8a816cbbd9f0a0ebf8c5196c255b64c7cddec8ea12a46c60abeb3b2eda193887")));
-    }
 }

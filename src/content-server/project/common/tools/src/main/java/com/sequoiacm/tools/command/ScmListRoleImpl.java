@@ -105,14 +105,4 @@ public class ScmListRoleImpl extends ScmTool {
         hp.printHelp(isFullHelp);
     }
 
-    public static void main(String[] args) {
-        ScmListRoleImpl listRole;
-        try {
-            listRole = new ScmListRoleImpl();
-            listRole.process(new String[] { "--url", "192.168.20.92:8080/branchsite1" });
-        }
-        catch (ScmToolsException e) {
-        }
-
-    }
 }

@@ -53,7 +53,4 @@ public class DirResource implements IResource {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        DirResource.formatDir("//");
-    }
 }

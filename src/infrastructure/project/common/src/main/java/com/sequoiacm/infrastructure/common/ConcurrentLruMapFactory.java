@@ -16,17 +16,6 @@ public class ConcurrentLruMapFactory {
         return new EmptyConcurrentLruMapImpl<K, V>();
     }
 
-    public static void main(String[] args) {
-        ConcurrentLruMap<String, String> map = create(3);
-        map.put("1","1");
-        map.put("2","2");
-        map.put("3","3");
-        Pair<String> pair = map.putWithReturnPair("1", "1");
-System.out.println(pair);
-    pair = map.putWithReturnPair("4", "4");
-        System.out.println(pair);
-
-    }
 }
 
 

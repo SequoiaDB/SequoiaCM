@@ -57,20 +57,4 @@ public class MetadataAttrGsonTypeAdapter extends ScmGsonTypeAdapter<String, Meta
     public MetadataAttr read(JsonReader in) throws IOException {
         throw new IOException("do not supported read yet");
     }
-
-    public static void main(String[] args) throws IOException {
-        MetadataAttr v = new MetadataAttr();
-        BSONObject o = new BasicBSONObject();
-        o.put("k1", "v");
-        o.put("$sadf", 12);
-        v.setCheckRule(o);
-        v.setType(AttributeType.BOOLEAN);
-        MetadataAttrGsonTypeAdapter m = new MetadataAttrGsonTypeAdapter();
-
-        StringWriter writer = new StringWriter();
-        JsonWriter out = new JsonWriter(writer);
-        m.write(out, v);
-
-        System.out.println(writer.toString());
-    }
 }

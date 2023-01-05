@@ -16,17 +16,7 @@ public class BsonTranslator {
             return cs;
         }
     }
-    
-    public static final class Site {
-        public static SiteInfo fromBSONObject(BSONObject obj) {
-            SiteInfo site = new SiteInfo();
-            site.setId((int) obj.get(FieldName.Site.FIELD_ID));
-            site.setName((String) obj.get(FieldName.Site.FIELD_NAME));
-            site.setRoot((boolean) obj.get(FieldName.Site.FIELD_ROOT_FLAG));
-            return site;
-        }
-    }
-    
+
     public static final class Traffic {
         public static TrafficInfo fromBSONObject(BSONObject obj) {
             TrafficInfo traffic = new TrafficInfo();

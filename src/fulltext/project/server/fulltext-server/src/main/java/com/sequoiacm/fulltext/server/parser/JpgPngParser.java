@@ -29,11 +29,6 @@ public class JpgPngParser extends TextualParser {
     private static final Logger logger = LoggerFactory.getLogger(JpgPngParser.class);
     private PicParserConfig conf;
 
-    public static void main(String[] args) throws Exception {
-        JpgPngParser p = new JpgPngParser(new PicParserConfig());
-        System.out.println(p.parse(new FileInputStream("./10.JPG")));
-    }
-
     @Autowired
     public JpgPngParser(PicParserConfig conf) {
         this.conf = conf;
@@ -109,10 +104,6 @@ public class JpgPngParser extends TextualParser {
         return Arrays.asList(MimeType.PNG, MimeType.JPEG);
     }
 
-    //    public static void main(String[] args) {
-    //        System.out.println("hi 你好 哈哈 啊 1 hello my friend"
-    //                .replaceAll("([\\u4e00-\\u9fa5])( )([\\u4e00-\\u9fa5])", "$1$3"));
-    //    }
 }
 
 @Configuration

@@ -20,10 +20,6 @@ public class ScmListSiteToolImpl extends ScmTool {
     private Options options;
     private ScmHelpGenerator hp;
 
-    public static void main(String[] args) throws ScmToolsException {
-        String[] arg = { "--mdsurl", "192.168.31.32:11810" };
-        new ScmListSiteToolImpl().process(arg);
-    }
 
     public ScmListSiteToolImpl() throws ScmToolsException {
         super("listsite");

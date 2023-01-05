@@ -58,12 +58,4 @@ public class ScmFilePasswordParser {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        // 5CC511588BA9F4551F4F 123
-        AuthInfo info = ScmFilePasswordParser.parserFile(new File((String) null));
-        System.out.println(info);
-
-        info = ScmFilePasswordParser.parserFile(new File("d:\\afa.txt"));
-        System.out.println(info);
-    }
 }

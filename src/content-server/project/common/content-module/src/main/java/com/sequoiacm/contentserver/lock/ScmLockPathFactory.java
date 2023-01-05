@@ -38,21 +38,4 @@ public class ScmLockPathFactory {
                 ScmLockPathDefine.GLOBAL_DIRECTORIES_MUTEX };
         return new ScmLockPath(lockPath);
     }
-
-    public static ScmLockPath createWorkspaceConfOpLockPath() {
-        String[] lockPath = { ScmLockPathDefine.WORKSPACES_CONF_OP_MUTEX};
-        return new ScmLockPath(lockPath);
-    }
-    
-    public static ScmLockPath createGlobalMetadataLockPath(String wsName) {
-        String[] lockPath = { ScmLockPathDefine.WORKSPACES, wsName,
-                ScmLockPathDefine.GLOBAL_METADATA_MUTEX };
-        return new ScmLockPath(lockPath);
-    }
-
-    public static ScmLockPath createDataTableLockPath(String siteName, String tableName) {
-        String[] lockPath = { ScmLockPathDefine.DATASOURCE, siteName, ScmLockPathDefine.DATA_TABLE,
-                tableName };
-        return new ScmLockPath(lockPath);
-    }
 }

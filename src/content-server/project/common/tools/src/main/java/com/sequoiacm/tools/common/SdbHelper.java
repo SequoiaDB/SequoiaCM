@@ -519,10 +519,4 @@ public class SdbHelper {
         }
     }
 
-    public static void main(String[] args) {
-        SimpleDateFormat f = new SimpleDateFormat("yyyyMMdd");
-        System.out.println(f.format(1483200000000L));
-
-    }
-
 }

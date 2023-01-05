@@ -30,10 +30,6 @@ public class TextualParserMgr {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(TextualParserMgr.class.getName());
-    }
-
     public TextualParser getParser(MimeType type) throws FullTextException {
         TextualParser p = parsers.get(type);
         if (p == null) {

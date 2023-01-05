@@ -350,27 +350,4 @@ public class ScmIdGenerator {
             throw new RuntimeException("real serial=" + serial);
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        int clusterId = 1;
-        int serverId = 1;
-        ScmIdGenerator.FileId.init(clusterId, serverId);
-        int serial = 1;
-
-        long seconds = 0x0FFFFFFFF5L;
-        for (int i = 0; i < 10; i++) {
-            seconds++;
-            Date d = new Date(seconds * 1000);
-            checkId(d, clusterId, serverId, serial++);
-        }
-
-        ScmParesedId id = FileId.parseString("5b236fd10000030000310006");
-        System.out.println(id);
-        Date d = new Date(id.getSeconds() * 1000);
-        System.out.println(d);
-
-        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd-HH:mm:ss.SSS");
-        d = formater.parse("99980101-00:00:00.000");
-        System.out.println(d + ",seconds=" + d.getTime() / 1000);
-    }
 }

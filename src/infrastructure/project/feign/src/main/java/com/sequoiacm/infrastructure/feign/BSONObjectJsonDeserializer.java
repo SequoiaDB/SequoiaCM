@@ -28,14 +28,4 @@ public class BSONObjectJsonDeserializer<T extends BSONObject> extends StdDeseria
         return obj;
     }
 
-    public static void main(String[] args) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(BSONObject.class, new BSONObjectJsonDeserializer<>());
-        mapper.registerModule(module);
-
-        String json = "{\"a\":{\"$decimal\":\"12345678901234567890.123456789\"}}";
-        BSONObject bson = mapper.readValue(json, BSONObject.class);
-        System.out.println(bson.toString());
-    }
 }

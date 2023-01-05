@@ -409,40 +409,7 @@ public class ScmSystemUtils {
 
     }
 
-    public static void main(String[] args) throws ScmServerException {
-        System.out.println(ScmSystemUtils.getDate(0));
-        ScmSystemUtils.logJVM();
 
-        assert "/".equals(ScmSystemUtils.dirname("/"));
-        assert "/".equals(ScmSystemUtils.dirname("//"));
-        assert "/abc/a".equals(ScmSystemUtils.dirname("/abc/a/s////"));
-        assert "/abc/a".equals(ScmSystemUtils.dirname("/abc/a/s"));
-
-        boolean hasException = false;
-        try {
-            ScmSystemUtils.dirname("abc");
-        }
-        catch (Exception e) {
-            hasException = true;
-        }
-
-        assert hasException;
-
-        assert "/a".equals(ScmSystemUtils.generatePath("/", "a"));
-        assert "/a".equals(ScmSystemUtils.generatePath("///", "a"));
-        assert "///abc/a".equals(ScmSystemUtils.generatePath("///abc", "a"));
-        assert "/abc/a".equals(ScmSystemUtils.generatePath("/abc/", "a"));
-        assert "/abc/a".equals(ScmSystemUtils.generatePath("/abc//", "a"));
-
-        assert "/abc/a".equals(ScmSystemUtils.generatePath("/abc//", "///a"));
-        assert "/abc".equals(ScmSystemUtils.generatePath("/abc/", "///"));
-
-        Object v = ScmSystemUtils.toLongValue(11111111111L);
-        if (v instanceof Long) {
-            System.out.println("long");
-        }
-
-    }
 
     public static MessageDigest createMd5Calc() throws ScmSystemException {
         try {

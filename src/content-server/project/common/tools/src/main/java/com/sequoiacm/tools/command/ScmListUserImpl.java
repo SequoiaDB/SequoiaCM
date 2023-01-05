@@ -119,8 +119,4 @@ public class ScmListUserImpl extends ScmTool {
         hp.printHelp(isFullHelp);
     }
 
-    public static void main(String[] args) throws ScmToolsException {
-        ScmListUserImpl listUser = new ScmListUserImpl();
-        listUser.process(new String[] { "--url", "192.168.20.92:8080/branchsite1" });
-    }
 }

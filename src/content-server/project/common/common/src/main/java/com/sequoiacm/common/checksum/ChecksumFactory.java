@@ -42,11 +42,4 @@ public final class ChecksumFactory {
                 throw new ChecksumException("Invalid checksum type: " + type.name());
         }
     }
-
-    public static void main(String[] args) throws ChecksumException {
-        CRC32 crc32 = new ScmCRC32();
-        System.out.println(crc32.getValue());
-        CRC32 crc321 = new ScmCRC32(10L);
-        System.out.println(crc321.getValue());
-    }
 }

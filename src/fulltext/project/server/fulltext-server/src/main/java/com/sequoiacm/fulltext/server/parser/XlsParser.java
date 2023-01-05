@@ -18,12 +18,6 @@ import com.sequoiacm.infrastructure.common.IOUtils;
 
 @Component
 public class XlsParser extends TextualParser {
-    public static void main(String[] args)
-            throws FileNotFoundException, IOException, FullTextException {
-        XlsParser x = new XlsParser();
-        String ext = x.parse(new FileInputStream("D:\\data\\text_test_data\\xlsx.xlsx"));
-        System.out.println(ext);
-    }
 
     @Override
     public String parse(InputStream src) throws FullTextException {

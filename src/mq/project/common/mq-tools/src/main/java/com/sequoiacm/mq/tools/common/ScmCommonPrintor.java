@@ -84,19 +84,4 @@ public class ScmCommonPrintor {
 
         System.out.println("Total:" + t.size());
     }
-
-    public static void main(String[] args) {
-        ListTable t = new ListTable();
-        ListLine l = new ListLine();
-        l.addItem("aaaaaa");
-        l.addItem("aaaaaabbbbbbbbbbbbb");
-        l.addItem("ccc");
-        t.addLine(l);
-        List<String> headerList = new ArrayList<String>();
-        headerList.add("head1");
-        headerList.add("head2");
-        headerList.add("head3");
-
-        print(headerList, t);
-    }
 }

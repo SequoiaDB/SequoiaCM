@@ -227,37 +227,6 @@ class EsClientImpl implements EsClient {
         return createIndexRequest;
     }
 
-    public static void main(String[] args)
-            throws FullTextException, InterruptedException, IOException {
-        EsClientConfig config = new EsClientConfig();
-        EsClientImpl esClient = new EsClientImpl(config);
-        String idxName = "test-index-1";
-        esClient.dropIndex(idxName);
-        esClient.createIndexIfNotExist(idxName);
-
-        EsDocument doc = new EsDocument();
-        doc.setFileId("f1");
-        doc.setFileVersion("1.2");
-        doc.setContent("content hahaha");
-        String res = esClient.index(idxName, doc, true);
-
-        System.out.println(esClient.isIndexExist(idxName));
-        esClient.refreshIndexSilence(idxName);
-        EsDoumentCursor c = esClient.search(idxName, new BasicBSONObject());
-        System.out.println(c.getNextBatch());
-        c.close();
-
-        esClient.deleteAsyncByDocId(idxName, res);
-        logger.info("hahah");
-        c = esClient.search(idxName, new BasicBSONObject());
-        System.out.println(c.getNextBatch());
-        c.close();
-
-        esClient.dropIndexAsync(idxName);
-
-        esClient.destory();
-    }
-
     private boolean isIndexExist(String idx) {
         GetIndexRequest req = new GetIndexRequest();
         req.indices(idx);

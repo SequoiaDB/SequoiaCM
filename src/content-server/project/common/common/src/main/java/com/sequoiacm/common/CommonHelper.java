@@ -437,45 +437,4 @@ public class CommonHelper {
         }
         return ret;
     }
-
-    public static void main(String[] args) throws ParseException {
-        // System.out.println(CommonHelper.isNumber("1234"));
-        // System.out.println(CommonHelper.isNumber("1"));
-        // System.out.println(CommonHelper.isNumber("1e10"));
-        // System.out.println(CommonHelper.isNumber("123ac"));
-        // System.out.println(CommonHelper.isNumber("ad123"));
-        // System.out.println(CommonHelper.isNumber("-ad123"));
-        // System.out.println(CommonHelper.isNumber("-1234"));
-        // System.out.println(CommonHelper.isNumber("-1"));
-
-        Date d = ymFullDateFormat.parse("20991230245959");
-        Date d2 = ymFullDateFormat.parse("40991230245959");
-        Date d3 = new Date(d.getTime() + 2000L * 1000 * 3600 * 24 * 365);
-        System.out.println(d.getTime() / 1000 + "s," + d);
-        System.out.println(d2.getTime() / 1000 + "s," + d2);
-        System.out.println(d3.getTime() / 1000 + "s," + d3);
-
-        // Date d = new Date();
-        // d = ymFullDateFormat.parse("20991230245959");
-        // System.out.println(d.getTime() / 1000);
-        // System.out.println(Integer.MAX_VALUE);
-        //
-        // Date d2 = new Date(2000L * Integer.MAX_VALUE);
-        // System.out.println(ymFullDateFormat.format(d2));
-        //
-        // System.out.println(CommonHelper.getCurrentYear(d));
-        // System.out.println(CommonHelper.getCurrentYearMonth(d));
-        //
-        // int maxInt = Integer.MAX_VALUE;
-        // int maxInt1 = maxInt + 1;
-        // int maxInt2 = maxInt + 2;
-        // System.out.println(maxInt);
-        // System.out.println(getUnsignedValue(maxInt));
-        //
-        // System.out.println(maxInt1);
-        // System.out.println(getUnsignedValue(maxInt1));
-        //
-        // System.out.println(maxInt2);
-        // System.out.println(getUnsignedValue(maxInt2));
-    }
 }
