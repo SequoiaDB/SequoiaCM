@@ -105,8 +105,7 @@ public class BucketTag5515 extends TestScmBase {
 
         // scm api删除标签
         bucket.deleteCustomTag();
-        Assert.assertEquals( bucket.getCustomTag(),
-                new HashMap< String, String >() );
+        Assert.assertNull( bucket.getCustomTag() );
     }
 
     private void testS3API() throws ScmException {

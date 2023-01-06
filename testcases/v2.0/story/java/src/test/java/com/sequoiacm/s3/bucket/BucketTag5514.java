@@ -96,9 +96,8 @@ public class BucketTag5514 extends TestScmBase {
                 throw e;
             }
         }
-
-        Map< String, String > customTag = bucket.getCustomTag();
-        Assert.assertEquals( customTag, new HashMap< String, String >() );
+        
+        Assert.assertNull( bucket.getCustomTag() );
 
         try {
             bucket.deleteCustomTag();

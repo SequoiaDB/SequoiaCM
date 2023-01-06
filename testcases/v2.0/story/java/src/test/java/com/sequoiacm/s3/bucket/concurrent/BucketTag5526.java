@@ -1,7 +1,5 @@
 package com.sequoiacm.s3.bucket.concurrent;
 
-import java.util.HashMap;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -60,8 +58,7 @@ public class BucketTag5526 extends TestScmBase {
 
         // 获取结果校验
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
-        Assert.assertEquals( bucket.getCustomTag(),
-                new HashMap< String, String >() );
+        Assert.assertNull( bucket.getCustomTag() );
         runSuccess = true;
     }
 
