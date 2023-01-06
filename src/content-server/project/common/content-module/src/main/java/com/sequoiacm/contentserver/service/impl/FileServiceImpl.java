@@ -292,9 +292,6 @@ public class FileServiceImpl implements IFileService {
     @Override
     public FileReaderDao downloadFile(String sessionId, String userDetail, ScmUser user,
             String workspaceName, BSONObject fileInfo, int readFlag) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName,
-                (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID), ScmPrivilegeDefine.READ,
-                "read file");
         ScmFileServicePriv.getInstance().checkFilePriority(user, workspaceName, fileInfo,
                 ScmPrivilegeDefine.READ, "read file");
         FileReaderDao dao = downloadFile(sessionId, userDetail, workspaceName, fileInfo, readFlag);
@@ -709,9 +706,8 @@ public class FileServiceImpl implements IFileService {
     @Override
     public BasicBSONList getFileContentLocations(ScmUser user, BSONObject fileInfo,
             String workspaceName) throws ScmServerException {
-        ScmFileServicePriv.getInstance().checkDirPriorityById(user, workspaceName,
-                (String) fileInfo.get(FieldName.FIELD_CLFILE_DIRECTORY_ID), ScmPrivilegeDefine.READ,
-                "get file content locations");
+        ScmFileServicePriv.getInstance().checkFilePriority(user, workspaceName, fileInfo,
+                ScmPrivilegeDefine.READ, "get file content locations");
         BasicBSONList result = new BasicBSONList();
         ScmContentModule contentServer = ScmContentModule.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoCheckLocalSite(workspaceName);

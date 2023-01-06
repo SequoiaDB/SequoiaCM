@@ -193,6 +193,13 @@ public class ScmFileServicePriv {
 
     public void checkDirPriorityById(ScmUser user, String wsName,
             String dirId, int opFlag, String opDesc) throws ScmServerException {
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
+        if (!wsInfo.isEnableDirectory()) {
+            throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
+                    "failed to check priority of directory, directory feature is disable:ws="
+                            + wsInfo.getName() + ", dirId=" + dirId);
+        }
+
         // check workspace priority first
         if (hasWsPriority(user.getUsername(), wsName, opFlag, opDesc)) {
             return;
