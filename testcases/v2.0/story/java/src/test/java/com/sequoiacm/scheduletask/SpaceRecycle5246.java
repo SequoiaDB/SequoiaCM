@@ -66,9 +66,7 @@ public class SpaceRecycle5246 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, queryCond );
         createFile();
     }
-
-    // SEQUOIACM-1164影响，用例暂时屏蔽
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         // 创建空间回收任务
         ScmSpaceRecycleScope scmSpaceRecycleScope = ScmSpaceRecycleScope
