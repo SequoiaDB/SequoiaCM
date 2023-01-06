@@ -1,11 +1,15 @@
 package com.sequoiacm.client.util;
 
 import java.io.Closeable;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.sequoiacm.client.dispatcher.MessageDispatcher;
 import com.sequoiacm.client.dispatcher.RestDispatcher;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,5 +72,16 @@ public class ScmHelper {
             }
         }
         return isHealth;
+    }
+
+    public static Map<String, String> parseCustomTag(BSONObject customTagObj) {
+        Map<String, String> customTag = new TreeMap<String, String>();
+        if (null != customTagObj && !customTagObj.isEmpty()) {
+            BasicBSONObject obj = (BasicBSONObject) customTagObj;
+            for (Map.Entry<String, Object> entry : obj.entrySet()) {
+                customTag.put(entry.getKey(), (String) entry.getValue());
+            }
+        }
+        return customTag;
     }
 }

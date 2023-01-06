@@ -5,14 +5,17 @@ import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.client.util.BsonUtils;
+import com.sequoiacm.client.util.ScmHelper;
 import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.TreeMap;
 import java.util.Map;
 
 class ScmBucketImpl implements ScmBucket {
@@ -50,7 +53,8 @@ class ScmBucketImpl implements ScmBucket {
         this.updateTime = new Date(timeLong);
         updateUser = BsonUtils.getStringChecked(obj, FieldName.Bucket.UPDATE_USER);
         this.ws = ws;
-        this.customTag = BsonUtils.getBSONObjectChecked(obj, FieldName.Bucket.CUSTOM_TAG).toMap();
+        BSONObject customTagObj = BsonUtils.getBSONObject(obj, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+        this.customTag = ScmHelper.parseCustomTag(customTagObj);
         String versionStatusStr = BsonUtils.getStringChecked(obj, FieldName.Bucket.VERSION_STATUS);
         this.versionStatus = ScmBucketVersionStatus.parse(versionStatusStr);
         if (versionStatus == null) {
@@ -202,12 +206,16 @@ class ScmBucketImpl implements ScmBucket {
             throw new ScmException(ScmError.BUCKET_INVALID_CUSTOMTAG, "the customTag key is null");
         }
         session.getDispatcher().setBucketTag(name, customTag);
-        this.customTag = customTag;
+        this.customTag = new TreeMap<String, String>(customTag);
     }
 
     @Override
     public Map<String, String> getCustomTag() {
-        return this.customTag;
+        // 参照标准 s3，桶未设置标签，返回 null
+        if (customTag == null || customTag.isEmpty()) {
+            return null;
+        }
+        return Collections.unmodifiableMap(customTag);
     }
 
     @Override

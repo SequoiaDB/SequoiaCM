@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Set;
 
 import java.net.HttpURLConnection;
+import java.util.TreeMap;
+
 /**
  * The implement of ScmFile.
  */
@@ -1198,12 +1200,7 @@ class ScmFileImpl extends ScmFile {
 
         BSONObject customTagObj = BsonUtils.getBSONObject(fileBSON,
                 FieldName.FIELD_CLFILE_CUSTOM_TAG);
-        if (null != customTagObj) {
-            this.customTag = new HashMap<String, String>();
-            for (String key : customTagObj.keySet()) {
-                customTag.put(key, (String) customTagObj.get(key));
-            }
-        }
+        this.customTag = ScmHelper.parseCustomTag(customTagObj);
     }
 
     @Override
@@ -1349,11 +1346,12 @@ class ScmFileImpl extends ScmFile {
             fileInfo.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, customTag);
             updateFileInfo(fileInfo);
         }
-        this.customTag = customTag;
+        this.customTag = new TreeMap<String, String>(customTag);
     }
 
     @Override
     public Map<String, String> getCustomTag() {
+        // 参照标准 s3，对象未设置标签，返回空 map
         return Collections.unmodifiableMap(customTag);
     }
 

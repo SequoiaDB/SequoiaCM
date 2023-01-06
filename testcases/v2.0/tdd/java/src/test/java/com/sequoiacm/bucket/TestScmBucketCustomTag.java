@@ -65,7 +65,7 @@ public class TestScmBucketCustomTag extends ScmTestMultiCenterBase {
         // set customTag empty
         Map<String, String> emptyMap = new HashMap<>();
         bucket.setCustomTag(emptyMap);
-        Assert.assertEquals(bucket.getCustomTag().size(), emptyMap.size());
+        Assert.assertNull(bucket.getCustomTag());
         
         // set customTag key is null
         Map<String, String> nullKeyMap = new HashMap<>();
@@ -103,7 +103,7 @@ public class TestScmBucketCustomTag extends ScmTestMultiCenterBase {
         
         // delete customTag 
         bucket.deleteCustomTag();
-        Assert.assertEquals(bucket.getCustomTag().size(), 0);
+        Assert.assertNull(bucket.getCustomTag());
     }
 
     @AfterClass
