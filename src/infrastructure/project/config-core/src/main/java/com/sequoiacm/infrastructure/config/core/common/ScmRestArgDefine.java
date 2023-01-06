@@ -16,6 +16,7 @@ public class ScmRestArgDefine {
     public static final String WORKSPACE_CONF_DESCRIPTION = "description";
     public static final String WORKSPACE_CONF_PREFERRED = "preferred";
     public static final String WORKSPACE_CONF_SITE_CACHE_STRATEGY = "site_cache_strategy";
+    public static final String WORKSPACE_UPDATOR_ENABLE_DIRECTORY = "enable_directory";
     public static final String WORKSPACE_CONF_METALOCATION = "meta_location";
     public static final String WORKSPACE_CONF_DATALOCATION = "data_location";
     public static final String WORKSPACE_CONF_CREATE_USER = "create_user";

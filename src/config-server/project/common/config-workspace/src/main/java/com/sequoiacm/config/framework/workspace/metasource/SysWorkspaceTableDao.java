@@ -1,14 +1,11 @@
 package com.sequoiacm.config.framework.workspace.metasource;
 
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import org.bson.BSONCallback;
 import org.bson.BSONObject;
 
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import org.bson.types.BasicBSONList;
-
-import java.util.List;
 
 public interface SysWorkspaceTableDao extends TableDao {
     // update and return newSysWorkspaceTableDao
@@ -31,5 +28,8 @@ public interface SysWorkspaceTableDao extends TableDao {
             BSONObject versionSet) throws ScmConfigException;
 
     BSONObject updatePreferred(BSONObject matcher, String newPreferred, BSONObject versionSet)
+            throws ScmConfigException;
+
+    BSONObject updateDirectory(BSONObject matcher, Boolean isEnableDirectory, BSONObject versionSet)
             throws ScmConfigException;
 }

@@ -43,6 +43,9 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         if (toolName.equals("update-preferred")) {
             instance = new ScmUpdatePreferredWsToolImpl();
         }
+        if (toolName.equals("disable-directory")) {
+            instance = new ScmDisableDirectoryWsToolImpl();
+        }
         return instance;
     }
 
@@ -56,5 +59,7 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         new ScmUpdateSiteToWsToolImpl().printHelp(isFullHelp);
         System.out.println("update-preferred");
         new ScmUpdatePreferredWsToolImpl().printHelp(isFullHelp);
+        System.out.println("disable-directory");
+        new ScmDisableDirectoryWsToolImpl().printHelp(isFullHelp);
     }
 }

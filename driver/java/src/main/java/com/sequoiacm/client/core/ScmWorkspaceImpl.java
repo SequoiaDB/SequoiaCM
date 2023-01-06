@@ -280,6 +280,12 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     public boolean isEnableDirectory() {
         return enableDirectory;
     }
+    @Override
+    public void disableDirectory() throws ScmException {
+        BasicBSONObject updater = new BasicBSONObject(
+                CommonDefine.RestArg.WORKSPACE_UPDATOR_ENABLE_DIRECTORY, false);
+        _update(updater);
+    }
 
     @Override
     public String getPreferred() {

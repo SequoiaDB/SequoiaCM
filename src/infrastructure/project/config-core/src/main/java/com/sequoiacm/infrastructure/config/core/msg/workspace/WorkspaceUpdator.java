@@ -21,6 +21,8 @@ public class WorkspaceUpdator implements ConfigUpdator {
     private String preferred;
     private String newSiteCacheStrategy;
 
+    private Boolean enableDirectory;
+
     public WorkspaceUpdator(String wsName) {
         this.wsName = wsName;
     }
@@ -65,7 +67,9 @@ public class WorkspaceUpdator implements ConfigUpdator {
         if (preferred != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_PREFERRED, preferred);
         }
-
+        if (enableDirectory != null){
+            updator.put(ScmRestArgDefine.WORKSPACE_UPDATOR_ENABLE_DIRECTORY, enableDirectory);
+        }
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_MATCHER, matcher);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_OLD_WS, matcher);
@@ -141,5 +145,13 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     public Boolean isMerge() {
         return updateMerge;
+    }
+
+    public Boolean isEnableDirectory() {
+        return enableDirectory;
+    }
+
+    public void setEnableDirectory(Boolean enableDirectory) {
+        this.enableDirectory = enableDirectory;
     }
 }

@@ -142,6 +142,12 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
     }
 
     @Override
+    public void disableDirectory() throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.disableDirectory();
+    }
+
+    @Override
     ScmSession getSession() {
         return session;
     }

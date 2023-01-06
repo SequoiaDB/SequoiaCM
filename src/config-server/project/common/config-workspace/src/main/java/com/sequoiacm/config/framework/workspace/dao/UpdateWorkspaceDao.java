@@ -6,17 +6,13 @@ import com.sequoiacm.config.framework.workspace.checker.DataLocationConfigChecke
 import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceHistoryTableDao;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbHelper;
-import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +33,6 @@ import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceNotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +123,30 @@ public class UpdateWorkspaceDao {
             else if (updator.getExternalData() != null) {
                 newWsRecord = table.updateExternalData(matcher, updator.getExternalData(),
                         versionSet);
+            }
+            else if (updator.isEnableDirectory() != null) {
+                Boolean isEnableDirectory = updator.isEnableDirectory();
+                if (BsonUtils.getBoolean(bakWsRecord,
+                        FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY)) {
+                    if (isEnableDirectory) {
+                        throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
+                                "Workspace directory feature already is enabled, workspace ="
+                                        + updator.getWsName());
+
+                    }
+                    newWsRecord = table.updateDirectory(matcher, false, versionSet);
+                }
+                else {
+                    if (isEnableDirectory) {
+                        throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
+                                "Workspace directory feature cannot be enabled, workspace ="
+                                        + updator.getWsName());
+                    }
+                    throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
+                            "Workspace directory feature already is disabled, workspace ="
+                                    + updator.getWsName());
+                }
+
             }
             else {
                 throw new ScmConfigException(ScmConfError.INVALID_ARG, "update nothing:" + updator);

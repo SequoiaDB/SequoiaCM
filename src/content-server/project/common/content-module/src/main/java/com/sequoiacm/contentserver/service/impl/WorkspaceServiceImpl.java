@@ -426,6 +426,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
             confUpdator.setPreferred(updator.getPreferred());
         }
+        if (updator.getEnableDirectory() != null) {
+            confUpdator.setEnableDirectory(updator.getEnableDirectory());
+        }
         return confUpdator;
     }
 

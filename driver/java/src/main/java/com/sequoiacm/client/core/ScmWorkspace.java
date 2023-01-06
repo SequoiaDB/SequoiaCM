@@ -164,6 +164,12 @@ public abstract class ScmWorkspace {
      * @return return true if the workspace enable directory feature.
      */
     public abstract boolean isEnableDirectory();
+    
+    /**
+     * Disable the workspace directory.
+     * 
+     */
+    public abstract void disableDirectory() throws ScmException;
 
     /**
      * Return the strategy to choose site.

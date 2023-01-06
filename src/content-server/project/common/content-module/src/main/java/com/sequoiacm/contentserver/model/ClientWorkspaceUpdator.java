@@ -19,6 +19,8 @@ public class ClientWorkspaceUpdator {
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
     private Boolean updateMerge = true;
+    
+    private Boolean enableDirectory;
 
     public ClientWorkspaceUpdator() {
     }
@@ -79,13 +81,21 @@ public class ClientWorkspaceUpdator {
         return updateMerge;
     }
 
+    public Boolean getEnableDirectory() {
+        return enableDirectory;
+    }
+
+    public void setEnableDirectory(Boolean enableDirectory) {
+        this.enableDirectory = enableDirectory;
+    }
+
     @Override
     public String toString() {
         return "ClientWorkspaceUpdator{" + "description='" + description + '\''
                 + ", removeDataLocation='" + removeDataLocation + '\'' + ", addDataLocation="
-                + addDataLocation + ", updateDataLocation="
-                + updateDataLocation + ", preferred='" + preferred + '\'' + ", siteCacheStrategy="
-                + siteCacheStrategy + '}';
+                + addDataLocation + ", updateDataLocation=" + updateDataLocation + ", preferred='"
+                + preferred + '\'' + ", siteCacheStrategy=" + siteCacheStrategy + '\''
+                + ", enableDirectory=" + enableDirectory + '}';
     }
 
     public static ClientWorkspaceUpdator fromBSONObject(BSONObject obj)
@@ -137,7 +147,11 @@ public class ClientWorkspaceUpdator {
         String preferred = (String) objCopy
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_PREFERRED);
         updator.setPreferred(preferred);
-
+        Object enableDirectory = objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_ENABLE_DIRECTORY);
+        if (enableDirectory != null) {
+            updator.setEnableDirectory((Boolean) enableDirectory);
+        }
         if (!objCopy.isEmpty()) {
             throw new ScmInvalidArgumentException(
                     "failed to update workspace, updator contain invalid key:" + objCopy.keySet());
