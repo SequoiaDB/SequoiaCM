@@ -1,32 +1,31 @@
 package com.sequoiacm.cephs3.dataservice;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+
 public class CephS3BreakpointFileContext {
     private static final String FIELD_UPLOAD_ID = "upload_id";
-    private String uploadId;
+    private BSONObject bsonContext;
 
-    public CephS3BreakpointFileContext(String uploadId) {
-        this.uploadId = uploadId;
+    public CephS3BreakpointFileContext() {
+        this.bsonContext = new BasicBSONObject();
     }
 
     public CephS3BreakpointFileContext(BSONObject context) {
-        if (context != null) {
-            this.uploadId = BsonUtils.getString(context, FIELD_UPLOAD_ID);
-        }
+        this.bsonContext = context;
     }
 
     public String getUploadId() {
-        return uploadId;
+        return BsonUtils.getString(bsonContext, FIELD_UPLOAD_ID);
     }
 
     public void setUploadId(String uploadId) {
-        this.uploadId = uploadId;
+        bsonContext.put(FIELD_UPLOAD_ID, uploadId);
     }
 
-    public BSONObject toBSON() {
-        return new BasicBSONObject(FIELD_UPLOAD_ID, uploadId);
+    public BSONObject getBSON() {
+        return bsonContext;
     }
 }

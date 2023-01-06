@@ -6,10 +6,20 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.contentserver.common.AsyncUtils;
+import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
-import com.sequoiacm.contentserver.config.PropertiesUtils;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
+import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
@@ -17,39 +27,28 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.BreakpointFile;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
 import com.sequoiacm.contentserver.pipeline.file.module.CreateFileMetaResult;
 import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaExistException;
-import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
 import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.pipeline.file.module.OverwriteFileMetaResult;
-import com.sequoiacm.datasource.dataoperation.ENDataType;
-import com.sequoiacm.infrastructure.common.ScmIdGenerator;
-import com.sequoiacm.infrastructure.common.ScmIdParser;
-import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
-import com.sequoiacm.metasource.ScmMetasourceException;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.common.CommonHelper;
-import com.sequoiacm.contentserver.common.Const;
-import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
+import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import com.sequoiacm.infrastructure.lock.ScmLock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class FileCreatorDao {
@@ -283,7 +282,8 @@ public class FileCreatorDao {
 
             fileMeta.resetDataInfo(breakpointFile.getDataId(), breakpointFile.getCreateTime(),
                     ENDataType.Normal.getValue(), breakpointFile.getUploadSize(),
-                    breakpointFile.getMd5(), contentModule.getLocalSite(), breakpointFile.getWsVersion());
+                    breakpointFile.getMd5(), contentModule.getLocalSite(),
+                    breakpointFile.getWsVersion(), breakpointFile.getTableName());
             res = createMeta(uploadConf, wsInfo, fileMeta, (context) -> {
                 ScmContentModule.getInstance().getMetaService()
                         .deleteBreakpointFile(wsInfo.getName(), breakpointFileName, context);
@@ -341,45 +341,46 @@ public class FileCreatorDao {
         fileMeta.resetFileIdAndFileTime(idInfo.fileId, idInfo.fileCreateDate);
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(ws);
-        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), idInfo.dataId,
+        ScmDataInfo dataInfo = ScmDataInfo.forCreateNewData(ENDataType.Normal.getValue(),
+                idInfo.dataId,
                 idInfo.fileCreateDate, wsInfo.getVersion());
 
         boolean hasCreateData = false;
 
         ScmDataWriter fileWriter;
+        ScmDataWriterContext context = new ScmDataWriterContext();
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), contentModule.getDataService(), dataInfo);
+                    wsInfo.getDataLocation(), contentModule.getDataService(), dataInfo, context);
         }
         catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "failed to create data writer", e);
         }
-
+        String md5 = null;
         try {
             if (!conf.isNeedMd5()) {
                 writeData(dataInfo, fileWriter, is);
-                fileMeta.resetDataInfo(dataInfo.getId(), dataInfo.getCreateTime().getTime(),
-                        dataInfo.getType(), fileWriter.getSize(), null,
-                        contentModule.getLocalSite(), dataInfo.getWsVersion());
             }
             else {
                 InputStreamWithCalcMd5 md5Is = new InputStreamWithCalcMd5(is, false);
                 try {
                     writeData(dataInfo, fileWriter, md5Is);
-                    String md5 = md5Is.calcMd5();
-                    fileMeta.resetDataInfo(dataInfo.getId(), dataInfo.getCreateTime().getTime(),
-                            dataInfo.getType(), fileWriter.getSize(), md5,
-                            ScmContentModule.getInstance().getLocalSite(), dataInfo.getWsVersion());
+                    md5 = md5Is.calcMd5();
                 }
                 finally {
                     ScmSystemUtils.closeResource(md5Is);
                 }
             }
             commitWriter(fileWriter, ws);
+            String tableName = context.getTableName();
+            dataInfo.setTableName(context.getTableName());
+            fileMeta.resetDataInfo(dataInfo.getId(), dataInfo.getCreateTime().getTime(),
+                    dataInfo.getType(), fileWriter.getSize(), md5,
+                    ScmContentModule.getInstance().getLocalSite(), dataInfo.getWsVersion(),
+                    tableName);
             hasCreateData = true;
-
             return createMeta(conf, wsInfo, fileMeta, null, true);
         }
         catch (Exception e) {

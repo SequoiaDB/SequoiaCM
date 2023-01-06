@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.pipeline.file.module;
 
+import com.google.common.base.Strings;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.MimeType;
@@ -13,7 +14,6 @@ import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
@@ -294,10 +294,6 @@ public class FileMeta implements Cloneable {
         this.createMonth = ScmSystemUtils.getCurrentYearMonth(idGenDate);
     }
 
-    public ScmDataInfo getDataInfo() {
-        return new ScmDataInfo(dataType, dataId, new Date(dataCreateTime), 0);
-    }
-
     public static FileMeta deleteMarkerMeta(String ws, String fileName, String user, long bucketId)
             throws ScmServerException {
         BSONObject obj = new BasicBSONObject(FieldName.FIELD_CLFILE_NAME, fileName);
@@ -430,7 +426,7 @@ public class FileMeta implements Cloneable {
     }
 
     public void resetDataInfo(String dataId, long dataCreateTime, int dataType, long dataSize,
-            String md5, int dataSite, int wsVersion) {
+            String md5, int dataSite, int wsVersion, String tableName) {
         this.dataId = dataId;
         this.dataCreateTime = dataCreateTime;
         this.dataType = dataType;
@@ -442,6 +438,9 @@ public class FileMeta implements Cloneable {
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, dataCreateTime);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, dataCreateTime);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION, wsVersion);
+        if (!Strings.isNullOrEmpty(tableName)){
+            oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME, tableName);
+        }
         BasicBSONList sites = new BasicBSONList();
         sites.add(oneSite);
         this.siteList = sites;

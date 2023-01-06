@@ -30,7 +30,8 @@ public class ScmInnerRemoteDataDeletor {
             ContentServerClient c = ContentServerClientFactory
                     .getFeignClientByServiceName(remoteSiteInfo.getName());
             c.deleteData(wsInfo.getName(), dataInfo.getId(), dataInfo.getType(),
-                    dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion());
+                    dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion(),
+                    dataInfo.getTableName());
         }
         catch (Exception e) {
             logger.error("delete remote data failed:remote=" + remoteSiteInfo.getName() + ",ws="

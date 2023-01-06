@@ -88,7 +88,8 @@ public interface ContentServerClient {
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME) String tableName)
             throws ScmServerException;
 
     @DeleteMapping(value = "/internal/v1/datasource/{dataId}?action=delete_data_in_site_list")
@@ -107,7 +108,8 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
             @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME) String tableName)
             throws ScmServerException;
 
     @GetMapping(value = "/internal/v1/datasource/{dataId}")
@@ -117,7 +119,8 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
             @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME) String tableName)
             throws ScmServerException;
 
     @RequestMapping(value = "/internal/v1/datasource/{dataId}", method = RequestMethod.HEAD)
@@ -127,7 +130,8 @@ public interface ContentServerClient {
             @PathVariable("dataId") String dataId,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int dataType,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long dataCreateTime,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) int wsVersion)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) int wsVersion,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME) String tableName)
             throws ScmServerException;
 
     @DeleteMapping(value = "/internal/v1/datasource/tables")

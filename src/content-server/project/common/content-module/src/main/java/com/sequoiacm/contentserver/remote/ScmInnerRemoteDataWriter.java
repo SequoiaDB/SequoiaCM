@@ -10,25 +10,28 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sequoiacm.contentserver.common.ScmRestClientUtils;
-import com.sequoiacm.infrastructure.common.annotation.SlowLog;
-import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
-import com.sequoiacm.infrastructure.dispatcher.ScmURLConfig;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.ServiceInstance;
 
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.common.ScmRestClientUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
-import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.contentserver.controller.RestExceptionHandler;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
-import org.springframework.cloud.client.ServiceInstance;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
+import com.sequoiacm.infrastructure.dispatcher.ScmURLConfig;
 
 public class ScmInnerRemoteDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(ScmInnerRemoteDataWriter.class);
@@ -37,13 +40,16 @@ public class ScmInnerRemoteDataWriter {
     private String remoteSiteName;
     private HttpURLConnection conn;
     private OutputStream os;
+    private ScmDataWriterContext context;
 
     @SlowLog(operation = "openWriter", extras = {
             @SlowLogExtra(name = "writeFileId", data = "dataInfo.getId()"),
             @SlowLogExtra(name = "writeRemoteSiteName", data = "remoteSiteName") })
-    public ScmInnerRemoteDataWriter(int remoteSiteId, final ScmWorkspaceInfo wsInfo, final ScmDataInfo dataInfo)
+    public ScmInnerRemoteDataWriter(int remoteSiteId, final ScmWorkspaceInfo wsInfo,
+            final ScmDataInfo dataInfo, ScmDataWriterContext dataWriterContext)
             throws ScmServerException {
         this.dataInfo = dataInfo;
+        this.context = dataWriterContext;
         ScmContentModule contentModule = ScmContentModule.getInstance();
         remoteSiteName = contentModule.getSiteInfo(remoteSiteId).getName();
         ServiceInstance instance = LoadBalancedUtil.chooseInstance(remoteSiteName);
@@ -117,6 +123,11 @@ public class ScmInnerRemoteDataWriter {
                 throw new ScmSystemException("write data to remote failed:remote=" + remoteSiteName
                         + ",dataInfo=" + dataInfo + ",repstatus=" + respStatus);
             }
+            else {
+                String resField = conn
+                        .getHeaderField(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME);
+                context.recordTableName(resField);
+            }
         }
         catch (ScmServerException e) {
             throw e;
@@ -161,7 +172,9 @@ public class ScmInnerRemoteDataWriter {
             BSONObject bodyBSON = (BSONObject) JSON.parse(errorBody);
             int status = (int) bodyBSON.get("status");
             String message = (String) bodyBSON.get("message");
-            return new ScmServerException(ScmError.getScmError(status), message);
+            String headerField = conn.getHeaderField(RestExceptionHandler.EXTRA_INFO_HEADER);
+            BSONObject extraInfo =  (BSONObject) JSON.parse(headerField);
+            return new ScmServerException(ScmError.getScmError(status), message, extraInfo);
         }
         catch (Exception e) {
             logger.error("failed to decode error response:body=" + errorBody, e);

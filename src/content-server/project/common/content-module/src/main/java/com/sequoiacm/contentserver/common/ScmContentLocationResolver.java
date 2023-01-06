@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Strings;
 import com.sequoiacm.datasource.metadata.sftp.SftpDataLocation;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
@@ -33,7 +34,8 @@ public class ScmContentLocationResolver {
         resolverMap.put(ScmDataSourceType.SEQUOIADB, new Resolver() {
             @Override
             public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
-                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version) throws ScmServerException {
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version,
+                    String tableName) throws ScmServerException {
                 BasicBSONObject contentLocation = new BasicBSONObject();
                 ScmLocation scmLocation = wsInfo.getSiteDataLocation(siteId, ws_version);
                 contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
@@ -55,9 +57,11 @@ public class ScmContentLocationResolver {
 
         // ceph s3
         resolverMap.put(ScmDataSourceType.CEPH_S3, new Resolver() {
+
             @Override
             public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
-                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version) throws ScmServerException {
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version,
+                    String tableName) throws ScmServerException {
                 BasicBSONObject contentLocation = new BasicBSONObject();
                 contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
@@ -67,7 +71,10 @@ public class ScmContentLocationResolver {
                 CephS3DataLocation cephS3DataLocation = (CephS3DataLocation) scmLocation;
                 String objectId = cephS3DataLocation.getObjectId(dataId, wsInfo.getName(),
                         createTime);
-                String bucketName = cephS3DataLocation.getBucketName(wsInfo.getName(), createTime);
+                String bucketName = tableName;
+                if (Strings.isNullOrEmpty(tableName)) {
+                    bucketName = cephS3DataLocation.getBucketName(wsInfo.getName(), createTime);
+                }
                 contentLocation.put(FieldName.ContentLocation.FIELD_OBJECT_ID, objectId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_BUCKET, bucketName);
                 contentLocation.put(FieldName.ContentLocation.FIELD_URLS,
@@ -80,7 +87,8 @@ public class ScmContentLocationResolver {
         resolverMap.put(ScmDataSourceType.CEPH_SWIFT, new Resolver() {
             @Override
             public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
-                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version) throws ScmServerException {
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version,
+                    String tableName) throws ScmServerException {
                 BasicBSONObject contentLocation = new BasicBSONObject();
                 contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
@@ -102,7 +110,8 @@ public class ScmContentLocationResolver {
         resolverMap.put(ScmDataSourceType.HBASE, new Resolver() {
             @Override
             public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
-                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version) throws ScmServerException {
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version,
+                    String tableName) throws ScmServerException {
                 BasicBSONObject contentLocation = new BasicBSONObject();
                 contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
@@ -110,8 +119,9 @@ public class ScmContentLocationResolver {
 
                 ScmLocation scmLocation = wsInfo.getSiteDataLocation(siteId, ws_version);
                 HbaseDataLocation hbaseDataLocation = (HbaseDataLocation) scmLocation;
-                String tableName = hbaseDataLocation.getTableName(wsInfo.getName(), createTime);
-                contentLocation.put(FieldName.ContentLocation.FIELD_TABLE_NAME, tableName);
+                String hbaseTableName = hbaseDataLocation.getTableName(wsInfo.getName(),
+                        createTime);
+                contentLocation.put(FieldName.ContentLocation.FIELD_TABLE_NAME, hbaseTableName);
                 contentLocation.put(FieldName.ContentLocation.FIELD_FILE_NAME, dataId);
                 HadoopSiteUrl siteUrl = (HadoopSiteUrl) allSite.get(siteId).getDataUrl();
                 String urls = siteUrl.getDataConf().get("hbase.zookeeper.quorum");
@@ -124,7 +134,8 @@ public class ScmContentLocationResolver {
         resolverMap.put(ScmDataSourceType.HDFS, new Resolver() {
             @Override
             public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
-                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version) throws ScmServerException {
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version,
+                    String tableName) throws ScmServerException {
                 BasicBSONObject contentLocation = new BasicBSONObject();
                 contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
@@ -146,7 +157,8 @@ public class ScmContentLocationResolver {
         resolverMap.put(ScmDataSourceType.SFTP, new Resolver() {
             @Override
             public BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo,
-                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version) throws ScmServerException {
+                    Map<Integer, ScmSite> allSite, Date createTime, String dataId, int ws_version,
+                    String tableName) throws ScmServerException {
                 BasicBSONObject contentLocation = new BasicBSONObject();
                 contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_TYPE,
@@ -191,7 +203,8 @@ public class ScmContentLocationResolver {
 
     public interface Resolver {
         BSONObject resolve(int siteId, ScmWorkspaceInfo wsInfo, Map<Integer, ScmSite> allSite,
-                Date createTime, String dataId, int ws_version) throws ScmServerException;
+                Date createTime, String dataId, int ws_version, String tableName)
+                throws ScmServerException;
     }
 
 }

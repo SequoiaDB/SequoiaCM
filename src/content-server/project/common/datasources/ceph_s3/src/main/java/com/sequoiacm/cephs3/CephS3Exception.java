@@ -14,7 +14,8 @@ public class CephS3Exception extends ScmDatasourceException {
     public static final String ERR_CODE_OPERATION_UNSUPPORTED = "OperationUnsupported";
     public static final String ERR_CODE_BUCKET_EXIST = "BucketAlreadyOwnedByYou";
     public static final String ERR_CODE_NO_SUCH_UPLOAD = "NoSuchUpload";
-
+    public static final String ERR_CODE_QUOTA_EXCEEDED = "QuotaExceeded";
+    public static final String ERR_CODE_SIGNATURE_DOES_NOT_MATCH = "SignatureDoesNotMatch";
     private static final long serialVersionUID = -2886008261335449132L;
 
     private int status = 0;

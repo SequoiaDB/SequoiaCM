@@ -3,33 +3,34 @@ package com.sequoiacm.contentserver.dao;
 import java.security.MessageDigest;
 import java.util.Date;
 
-import com.sequoiacm.contentserver.common.Const;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
-import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
-import com.sequoiacm.infrastructure.strategy.element.StrategyType;
+import javax.xml.bind.DatatypeConverter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.remote.DataInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
+import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;
 import com.sequoiacm.contentserver.site.ScmContentModule;
+import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
-
-import javax.xml.bind.DatatypeConverter;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 
 public class FileCommonOperator {
     private static final Logger logger = LoggerFactory.getLogger(FileCommonOperator.class);
@@ -68,7 +69,8 @@ public class FileCommonOperator {
             client = ContentServerClientFactory.getFeignClientByServiceName(remoteSiteName);
         }
         DataInfo headDataInfo = client.headDataInfo(remoteSiteName, wsName, dataInfo.getId(),
-                dataInfo.getType(), dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion());
+                dataInfo.getType(), dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion(),
+                dataInfo.getTableName());
         return headDataInfo.getSize();
     }
 
@@ -202,12 +204,14 @@ public class FileCommonOperator {
     }
 
     public static void addSiteInfoToList(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, int addedSiteId, int wsVersion) throws ScmServerException {
+            int minorVersion, int addedSiteId, int wsVersion, ScmDataWriterContext context)
+            throws ScmServerException {
         logger.info("add site to site list:wsName=" + wsInfo.getName() + ",fileId=" + fileId
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + addedSiteId);
         ScmContentModule.getInstance().getMetaService().addSiteInfoToFile(wsInfo, fileId,
-                majorVersion, minorVersion, addedSiteId, new Date(), wsVersion);
+                majorVersion, minorVersion, addedSiteId, new Date(), wsVersion,
+                context.getTableName());
 
     }
 

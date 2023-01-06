@@ -1,7 +1,8 @@
 package com.sequoiacm.datasource.dataoperation;
 
-import com.sequoiacm.datasource.ScmDatasourceException;
 import org.bson.BSONObject;
+
+import com.sequoiacm.datasource.ScmDatasourceException;
 
 public interface ScmBreakpointDataWriter {
     void write(byte[] data, int offset, int length) throws ScmDatasourceException;
@@ -19,7 +20,7 @@ public interface ScmBreakpointDataWriter {
     // 删除断点文件数据
     void abort() throws ScmDatasourceException;
 
-    BSONObject getContext();
+    BSONObject getBreakpointContext();
 
     String getCreatedTableName();
 }

@@ -1,32 +1,33 @@
 package com.sequoiacm.cephs3.dataoperation;
 
-import com.sequoiacm.cephs3.CephS3Exception;
-import com.sequoiacm.cephs3.dataservice.CephS3ConnWrapper;
-import com.sequoiacm.cephs3.dataservice.CephS3DataService;
-import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
-import com.sequoiacm.datasource.dataservice.ScmService;
-import com.sequoiacm.infrastructure.common.annotation.SlowLog;
-import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
+import com.sequoiacm.cephs3.CephS3Exception;
+import com.sequoiacm.cephs3.dataservice.CephS3DataService;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
+import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataservice.ScmService;
+import com.sequoiacm.datasource.metadata.cephs3.CephS3DataLocation;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 
 public class CephS3DataWriterImpl extends ScmDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataWriterImpl.class);
     private final CephS3UploaderWrapper uploader;
     private final String key;
-    private final String bucket;
+    private final BucketNameOption bucketNameOption;
 
     @SlowLog(operation = "createWriter", extras = {
-            @SlowLogExtra(name = "writeCephS3BucketName", data = "bucketName"),
+            @SlowLogExtra(name = "writeCephS3BucketName", data = "bucketNameOption"),
             @SlowLogExtra(name = "writeCephS3ObjectKey", data = "key") })
-    public CephS3DataWriterImpl(String bucketName, String key, ScmService service,
-            boolean createBucketIfNotExist) throws CephS3Exception {
+    public CephS3DataWriterImpl(BucketNameOption bucketNameOption, String key, ScmService service,
+            String wsName, CephS3DataLocation location, int siteId, ScmDataWriterContext context)
+            throws CephS3Exception {
         this.key = key;
-        this.bucket = bucketName;
-        uploader = new CephS3UploaderWrapper((CephS3DataService) service, bucketName, key,
-                createBucketIfNotExist);
+        this.bucketNameOption = bucketNameOption;
+        uploader = new CephS3UploaderWrapper((CephS3DataService) service, bucketNameOption, key,
+                wsName, location, siteId, context);
     }
 
 
@@ -55,12 +56,9 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
     @Override
     @SlowLog(operation = "closeWriter")
     public void close() throws CephS3Exception {
-        try {
-            uploader.complete();
-        }
-        finally {
-            closeUploaderSilence();
-        }
+        uploader.complete();
+        // complete 失败，不能释放资源，外面需要调用 cancel，cancel 做完后再负责释放资源
+        closeUploaderSilence();
     }
 
     @Override
@@ -79,7 +77,7 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
             uploader.close();
         }
         catch (Exception e) {
-            logger.warn("failed to close uploader: bucket={}, key={}", bucket, key,
+            logger.warn("failed to close uploader: bucket={}, key={}", bucketNameOption, key,
                     e);
         }
     }

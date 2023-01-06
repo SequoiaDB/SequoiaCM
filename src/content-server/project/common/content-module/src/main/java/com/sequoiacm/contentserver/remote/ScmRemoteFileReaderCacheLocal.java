@@ -1,15 +1,16 @@
 package com.sequoiacm.contentserver.remote;
 
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.exception.ScmServerException;
 
 /*
  * read file from remote site and cache file locally
@@ -29,9 +30,12 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
     private ScmRemoteFileReader remoteReader;
     private int remoteSiteId;
 
-    public ScmRemoteFileReaderCacheLocal(String sessionId, String userDetail, int localSiteId, int remoteSiteId,
-            ScmWorkspaceInfo wsInfo, String fileId, int majorVersion, int minorVersion,
-            ScmDataWriter fileWriter, int flag, ScmDataInfo fileWriterDataInfo) throws ScmServerException {
+    private ScmDataWriterContext context;
+
+    public ScmRemoteFileReaderCacheLocal(String sessionId, String userDetail, int localSiteId,
+            int remoteSiteId, ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
+            int minorVersion, ScmDataWriter fileWriter, int flag, ScmDataInfo fileWriterDataInfo,
+            ScmDataWriterContext context) throws ScmServerException {
         this.localSiteId = localSiteId;
         this.remoteSiteId = remoteSiteId;
         this.fileId = fileId;
@@ -39,7 +43,7 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
         this.minorVersion = minorVersion;
         this.wsInfo = wsInfo;
         this.workspaceName = wsInfo.getName();
-
+        this.context = context;
         this.fileWriter = fileWriter;
         this.fileWriterDataInfo = fileWriterDataInfo;
         this.remoteReader = new ScmRemoteFileReader(sessionId, userDetail, remoteSiteId, wsInfo, fileId, majorVersion, minorVersion, flag);
@@ -50,12 +54,13 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
     private void finishLocalLob() {
         try {
             FileCommonOperator.closeWriter(fileWriter);
-            FileCommonOperator.addSiteInfoToList(wsInfo,
-                    fileId, majorVersion, minorVersion, localSiteId, fileWriterDataInfo.getWsVersion());
+            FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
+                    localSiteId, fileWriterDataInfo.getWsVersion(), context);
         }
         catch (Exception e) {
             // we ignore this exception because our purpose is read file, not
             // write file
+            FileCommonOperator.cancelWriter(fileWriter);
             logger.warn("finish file failed:fileId=" + fileId + ",site=" + localSiteId, e);
         }
 

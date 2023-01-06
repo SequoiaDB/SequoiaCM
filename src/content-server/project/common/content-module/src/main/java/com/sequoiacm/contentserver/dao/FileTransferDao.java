@@ -1,32 +1,31 @@
 package com.sequoiacm.contentserver.dao;
 
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import com.sequoiacm.common.CommonDefine;
+import javax.xml.bind.DatatypeConverter;
+
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
-
-import javax.xml.bind.DatatypeConverter;
+import com.sequoiacm.exception.ScmServerException;
 
 public class FileTransferDao {
     private static final Logger logger = LoggerFactory.getLogger(FileTransferDao.class);
@@ -72,42 +71,52 @@ public class FileTransferDao {
 
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
-
-        if (fileLocationMap.get(localSiteId) == null) {
+        ScmFileLocation localFileLocation = fileLocationMap.get(localSiteId);
+        if (localFileLocation == null) {
             throw new ScmServerException(ScmError.DATA_NOT_EXIST,
                     "file is not exist in source site:fileId=" + fileId + ",source=" + localSiteId
                             + ",version="
                             + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
 
-        ScmDataInfo localDataInfo = new ScmDataInfo(file,
-                fileLocationMap.get(localSiteId).getWsVersion());
-
+        ScmDataInfo localDataInfo = ScmDataInfo.forOpenExistData(file,
+                localFileLocation.getWsVersion(),
+                localFileLocation.getTableName());
         if (fileLocationMap.get(remoteSiteId) != null) {
             logger.warn("file is already exist in target site:fileId={},target={},version={}",
                     fileId, remoteSiteId, ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
             // target site is already exist
-            ScmDataInfo targetDataInfo = new ScmDataInfo(file, fileLocationMap.get(remoteSiteId).getWsVersion());
+            ScmDataInfo targetDataInfo = ScmDataInfo.forOpenExistData(file,
+                    fileLocationMap.get(remoteSiteId).getWsVersion(),
+                    fileLocationMap.get(remoteSiteId).getTableName());
             return checkDataIsSame(localDataInfo, targetDataInfo, size, majorVersion, minorVersion)
                     ? FileTransferResult.SUCCESS
                     : FileTransferResult.DATA_INCORRECT;
         }
 
 
-        ScmDataInfo remoteDataInfo = new ScmDataInfo(file, wsInfo.getVersion());
-
+        ScmDataInfo remoteDataInfo = ScmDataInfo.forCreateNewData(file, wsInfo.getVersion());
+        ScmDataWriterContext remoteWriterContext = new ScmDataWriterContext();
         try {
             // interrupt,return false
-            if (!readLocalWriteRomete(localDataInfo, remoteDataInfo, majorVersion, minorVersion)) {
+            if (!readLocalWriteRomete(localDataInfo, remoteDataInfo, majorVersion, minorVersion,
+                    remoteWriterContext)) {
                 return FileTransferResult.INTERRUPT;
             }
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.DATA_EXIST) {
+                String tableName = null;
+                if (e.getExtraInfo() != null) {
+                    tableName = (String) e.getExtraInfo()
+                            .get(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME);
+                }
+                remoteDataInfo.setTableName(tableName);
+                remoteWriterContext.recordTableName(tableName);
                 if (checkDataIsSame(localDataInfo, remoteDataInfo, size, majorVersion, minorVersion)) {
                     // if data is valid and update meta success,just return
                     FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                            remoteSiteId, remoteDataInfo.getWsVersion());
+                            remoteSiteId, remoteDataInfo.getWsVersion(), remoteWriterContext);
                     return FileTransferResult.SUCCESS;
                 }
                 else {
@@ -120,7 +129,8 @@ public class FileTransferDao {
                     }
                     // interrupt,return false
                     try {
-                        if (!readLocalWriteRomete(localDataInfo, remoteDataInfo, majorVersion, minorVersion)) {
+                        if (!readLocalWriteRomete(localDataInfo, remoteDataInfo, majorVersion,
+                                minorVersion, remoteWriterContext)) {
                             return FileTransferResult.INTERRUPT;
                         }
                     }
@@ -142,13 +152,14 @@ public class FileTransferDao {
             }
         }
 
+        remoteDataInfo.setTableName(remoteWriterContext.getTableName());
         if (!checkDataIsSame(localDataInfo, remoteDataInfo, size, majorVersion, minorVersion)) {
             FileCommonOperator.deleteRemoteResidulFile(wsInfo, remoteSiteId, remoteDataInfo);
             return FileTransferResult.DATA_INCORRECT;
         }
         // update meta data info
         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                remoteSiteId, remoteDataInfo.getWsVersion());
+                remoteSiteId, remoteDataInfo.getWsVersion(), remoteWriterContext);
         return FileTransferResult.SUCCESS;
     }
 
@@ -184,7 +195,8 @@ public class FileTransferDao {
         }
     }
 
-    private boolean readLocalWriteRomete(ScmDataInfo localDataInfo, ScmDataInfo remoteDataInfo, int majorVersion, int minorVersion)
+    private boolean readLocalWriteRomete(ScmDataInfo localDataInfo, ScmDataInfo remoteDataInfo,
+            int majorVersion, int minorVersion, ScmDataWriterContext remoteWriterContext)
             throws ScmServerException {
         ScmInnerRemoteDataWriter writer = null;
         ScmDataReader reader = null;
@@ -194,7 +206,8 @@ public class FileTransferDao {
             this.localDataMd5 = null;
         }
         try {
-            writer = new ScmInnerRemoteDataWriter(remoteSiteId, wsInfo, remoteDataInfo);
+            writer = new ScmInnerRemoteDataWriter(remoteSiteId, wsInfo, remoteDataInfo,
+                    remoteWriterContext);
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(localDataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),

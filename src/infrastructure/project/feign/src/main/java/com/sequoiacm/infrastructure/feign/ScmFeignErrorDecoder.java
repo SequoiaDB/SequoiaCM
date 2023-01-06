@@ -4,14 +4,15 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
-import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixIgnoreException;
-import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixInvocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixIgnoreException;
+import com.sequoiacm.infrastructure.feign.hystrix.ScmHystrixInvocationHandler;
 
 import feign.Response;
 import feign.Util;
@@ -79,6 +80,9 @@ public class ScmFeignErrorDecoder implements ErrorDecoder {
                 return new DecodeException(message, e);
             }
         }
+
+        Map<String, Collection<String>> headers = response.headers();
+        scmFeignException.setHeaders(headers);
 
         if (exceptionConverter != null) {
             if (isHystrixEnabled) {

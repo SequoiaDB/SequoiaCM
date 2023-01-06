@@ -1,5 +1,14 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.security.MessageDigest;
+import java.util.Date;
+import java.util.zip.Checksum;
+
+import javax.xml.bind.DatatypeConverter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.common.checksum.ChecksumFactory;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.BreakpointFile;
@@ -11,13 +20,6 @@ import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
-import java.security.MessageDigest;
-import java.util.Date;
-import java.util.zip.Checksum;
 
 // 这个对象用于修正断点文件的元数据，当断点文件同时满足如下条件时，可以调用本对象来进行尝试修正：
 // 1. 断点文件元数据显示断点文件尚未传输完毕
@@ -43,9 +45,11 @@ public class BreakpointFileMetaCorrector {
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
-                    file.getWorkspaceName(), ws.getDataLocation(file.getWsVersion()), contentModule.getDataService(),
-                    new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                            new Date(file.getCreateTime()), file.getWsVersion()));
+                    file.getWorkspaceName(), ws.getDataLocation(file.getWsVersion()),
+                    contentModule.getDataService(),
+                    ScmDataInfo.forOpenExistData(ENDataType.Normal.getValue(), file.getDataId(),
+                            new Date(file.getCreateTime()), file.getWsVersion(),
+                            file.getTableName()));
             if (reader.getSize() < file.getUploadSize()) {
                 logger.warn("breakpoint file data is corrupted: file={}", file);
                 return false;
@@ -69,9 +73,11 @@ public class BreakpointFileMetaCorrector {
         ScmDataReader reader = null;
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(file.getSiteId(),
-                    file.getWorkspaceName(), ws.getDataLocation(file.getWsVersion()), contentModule.getDataService(),
-                    new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                            new Date(file.getCreateTime()), file.getWsVersion()));
+                    file.getWorkspaceName(), ws.getDataLocation(file.getWsVersion()),
+                    contentModule.getDataService(),
+                    ScmDataInfo.forOpenExistData(ENDataType.Normal.getValue(), file.getDataId(),
+                            new Date(file.getCreateTime()), file.getWsVersion(),
+                            file.getTableName()));
             if (reader.getSize() < file.getUploadSize()) {
                 throw new ScmServerException(ScmError.DATA_CORRUPTED,
                         "breakpoint file data is corrupted: file=" + file);

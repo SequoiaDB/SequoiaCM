@@ -146,7 +146,8 @@ public class ObjServiceImpl implements ObjectService {
             fileMeta.resetDataInfo(dataDetail.getDataInfo().getId(),
                     dataDetail.getDataInfo().getCreateTime().getTime(),
                     dataDetail.getDataInfo().getType(), dataDetail.getSize(), dataDetail.getMd5(),
-                    dataDetail.getSiteId(), dataDetail.getDataInfo().getWsVersion());
+                    dataDetail.getSiteId(), dataDetail.getDataInfo().getWsVersion(),
+                    dataDetail.getDataInfo().getTableName());
 
             FileMeta createdFile = scmBucketService.createFile(session.getUser(),
                     s3Bucket.getBucketName(), fileMeta, (TransactionCallback) null, false);

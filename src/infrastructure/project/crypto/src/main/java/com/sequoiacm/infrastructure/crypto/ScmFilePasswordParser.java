@@ -40,6 +40,7 @@ public class ScmFilePasswordParser {
             AuthInfo auth = new AuthInfo();
             auth.setUserName(userName);
             auth.setPassword(password);
+            auth.setEncryptedPassword(encryptedPassword);
             return auth;
         }
         catch (Exception e) {

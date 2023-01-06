@@ -35,6 +35,7 @@ public class ScmFileLocationGsonTypeAdapter extends ScmGsonTypeAdapter<String, S
         out.name(FieldName.ScmFileLocation.DATE).value(value.getDate().getTime());
         out.name(FieldName.ScmFileLocation.CREATE_DATE).value(value.getCreateDate().getTime());
         out.name(FieldName.ScmFileLocation.WS_VERSION).value(value.getWsVersion());
+        out.name(FieldName.ScmFileLocation.TABLE_NAME).value(value.getTableName());
         out.endObject();
     }
 
@@ -44,6 +45,7 @@ public class ScmFileLocationGsonTypeAdapter extends ScmGsonTypeAdapter<String, S
         int wsVersion = 0;
         long date = 0;
         long createDate = 0;
+        String tableName = null;
 
         in.beginObject();
         while (in.hasNext()) {
@@ -61,6 +63,9 @@ public class ScmFileLocationGsonTypeAdapter extends ScmGsonTypeAdapter<String, S
                 case FieldName.ScmFileLocation.WS_VERSION:
                     wsVersion = in.nextInt();
                     break;
+                case FieldName.ScmFileLocation.TABLE_NAME:
+                    tableName = in.nextString();
+                    break;
                 default:
                     in.skipValue();
                     break;
@@ -68,6 +73,6 @@ public class ScmFileLocationGsonTypeAdapter extends ScmGsonTypeAdapter<String, S
         }
         in.endObject();
 
-        return new ScmFileLocation(siteId, date, createDate, wsVersion);
+        return new ScmFileLocation(siteId, date, createDate, wsVersion, tableName);
     }
 }

@@ -1,5 +1,15 @@
 package com.sequoiacm.contentserver.service.impl;
 
+import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.BreakpointFileDeleter;
@@ -19,6 +29,7 @@ import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IBreakpointFileService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
@@ -30,15 +41,6 @@ import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class BreakpointFileServiceImpl implements IBreakpointFileService {
@@ -93,8 +95,9 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                                     .getDataLocation(file.getWsVersion()),
                             ScmContentModule.getInstance().getDataService(),
                             file.getWorkspaceName(), file.getFileName(), file.getDataId(),
-                            new Date(file.getCreateTime()), false, file.getUploadSize(),
-                            file.getExtraContext());
+                            new Date(file.getCreateTime()), false,
+                            file.getUploadSize(), file.getExtraContext(),
+                            new ScmDataWriterContext());
             writer.close();
             return true;
         }
@@ -321,8 +324,9 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
                 return file.getMd5();
             }
 
-            ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                    new Date(file.getCreateTime()), file.getWsVersion());
+            ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(ENDataType.Normal.getValue(),
+                    file.getDataId(),
+                    new Date(file.getCreateTime()), file.getWsVersion(), file.getTableName());
             String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
             file.setMd5(md5);
             file.setNeedMd5(true);

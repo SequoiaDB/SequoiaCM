@@ -1,5 +1,12 @@
 package com.sequoiacm.contentserver.job;
 
+import java.util.Map;
+
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
@@ -19,13 +26,6 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
-import org.bson.BSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 public class ScmFileMoveSubTask extends ScmFileSubTask {
 
@@ -48,7 +48,8 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
         BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         Map<Integer, ScmFileLocation> fileDataSiteList = CommonHelper.getFileLocationList(siteList);
-        if (fileDataSiteList.get(localSiteId) == null) {
+        ScmFileLocation localFileLocation = fileDataSiteList.get(localSiteId);
+        if (localFileLocation == null) {
             logger.warn(
                     "skip, file data not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
@@ -91,7 +92,9 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                     new TaskTransfileInterrupter(getTask()), getTask().getDataCheckLevel());
             FileTransferDao.FileTransferResult transferResult = fileTransferDao.doTransfer(file);
             if (transferResult == FileTransferDao.FileTransferResult.SUCCESS) {
-                ScmDataInfo dataInfo = new ScmDataInfo(fileInfo, fileDataSiteList.get(localSiteId).getWsVersion());
+                ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(fileInfo,
+                        localFileLocation.getWsVersion(),
+                        localFileLocation.getTableName());
                 cleanFile(ws, fileId, majorVersion, minorVersion, dataInfo);
                 taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
                 return;

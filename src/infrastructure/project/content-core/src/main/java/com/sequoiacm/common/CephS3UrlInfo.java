@@ -1,14 +1,10 @@
 package com.sequoiacm.common;
 
-import com.sequoiacm.infrastructure.crypto.AuthInfo;
-import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
-
 import java.util.Objects;
 
 public class CephS3UrlInfo {
     private final String url;
-    private String accesskey;
-    private String secretkey;
+    private CephS3UserInfo userInfo;
 
     public CephS3UrlInfo(String url) {
         String[] elements = url.split("@");
@@ -29,10 +25,10 @@ public class CephS3UrlInfo {
             throw new IllegalArgumentException("cephs3 data url syntax is invalid: " + url
                     + ", expected: accesskey:secretkeyFilePath@http://cephs3");
         }
-        accesskey = accesskeyAndSecretkeyFilePath[0];
+
+        String accesskey = accesskeyAndSecretkeyFilePath[0];
         String secretkeyFilePath = accesskeyAndSecretkeyFilePath[1];
-        AuthInfo auth = ScmFilePasswordParser.parserFile(secretkeyFilePath);
-        secretkey = auth.getPassword();
+        userInfo = new CephS3UserInfo(accesskey, secretkeyFilePath);
     }
 
     public String getUrl() {
@@ -40,23 +36,15 @@ public class CephS3UrlInfo {
     }
 
     public boolean hasAccesskeyAndSecretkey() {
-        return accesskey != null && secretkey != null;
+        return userInfo != null;
     }
 
-    public String getAccesskey() {
-        return accesskey;
+    public CephS3UserInfo getUserInfo() {
+        return userInfo;
     }
 
-    public String getSecretkey() {
-        return secretkey;
-    }
-
-    public void setAccesskey(String accesskey) {
-        this.accesskey = accesskey;
-    }
-
-    public void setSecretkey(String secretkey) {
-        this.secretkey = secretkey;
+    public void setUserInfo(CephS3UserInfo userInfo) {
+        this.userInfo = userInfo;
     }
 
     @Override
@@ -66,17 +54,16 @@ public class CephS3UrlInfo {
         if (o == null || getClass() != o.getClass())
             return false;
         CephS3UrlInfo that = (CephS3UrlInfo) o;
-        return Objects.equals(url, that.url) && Objects.equals(accesskey, that.accesskey)
-                && Objects.equals(secretkey, that.secretkey);
+        return Objects.equals(url, that.url) && Objects.equals(userInfo, that.userInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, accesskey, secretkey);
+        return Objects.hash(url, userInfo);
     }
 
     @Override
     public String toString() {
-        return "CephS3UrlInfo{" + "url='" + url + '\'' + ", accesskey='" + accesskey + '\'' + '}';
+        return "CephS3UrlInfo{" + "url='" + url + '\'' + ", userInfo='" + userInfo + '\'' + '}';
     }
 }

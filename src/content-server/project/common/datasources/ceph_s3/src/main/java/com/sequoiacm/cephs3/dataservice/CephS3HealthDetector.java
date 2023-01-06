@@ -1,16 +1,17 @@
 package com.sequoiacm.cephs3.dataservice;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.cephs3.CephS3Exception;
 import com.sequoiacm.common.CephS3UrlInfo;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 interface RestoreCallback {
     void onRestore() throws Exception;
@@ -66,8 +67,8 @@ public class CephS3HealthDetector {
 
     private boolean isRestore(CephS3UrlInfo key) {
         try {
-            new CephS3Conn(-1, key.getAccesskey(), key.getSecretkey(), key.getUrl(), detectConnConf)
-                    .shutdown();
+            new CephS3Conn(-1, key.getUserInfo().getAccessKey(), key.getUserInfo().getSecretKey(),
+                    key.getUrl(), detectConnConf).shutdownSilence();
             logger.info("detect cephs3 success: url={}", key.getUrl());
             return true;
         }

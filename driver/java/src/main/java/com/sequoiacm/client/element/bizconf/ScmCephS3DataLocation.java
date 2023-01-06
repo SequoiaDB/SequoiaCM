@@ -1,6 +1,7 @@
 package com.sequoiacm.client.element.bizconf;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
@@ -16,6 +17,10 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
 
     private ScmShardingType objectShardingType;
     private String bucketName;
+
+    private ScmCephS3UserConfig primaryConfig;
+
+    private ScmCephS3UserConfig standbyConfig;
 
     /**
      * Create ceph s3 data location with specified args.
@@ -35,6 +40,62 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
         checkValueNotNull(dataShardingType, "dataShardingType");
         checkValueNotNull(prefixBucketName, "prefixBucketName");
         this.shardingType = dataShardingType;
+        setPrefixBucketName(prefixBucketName);
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param dataShardingType
+     *            data sharding type.
+     * @param prefixBucketName
+     *            a short prefix to the bucket name.
+     * @param primaryConfig
+     *            data location primary config
+     * @throws ScmInvalidArgumentException
+     *             if arguments is invalid.
+     */
+    public ScmCephS3DataLocation(String siteName, ScmShardingType dataShardingType,
+            String prefixBucketName, ScmCephS3UserConfig primaryConfig)
+            throws ScmInvalidArgumentException {
+        super(siteName);
+        checkValueNotNull(dataShardingType, "dataShardingType");
+        checkValueNotNull(prefixBucketName, "prefixBucketName");
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        this.shardingType = dataShardingType;
+        this.primaryConfig = primaryConfig;
+        setPrefixBucketName(prefixBucketName);
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param dataShardingType
+     *            data sharding type.
+     * @param prefixBucketName
+     *            a short prefix to the bucket name.
+     * @param primaryConfig
+     *            data location primary config
+     * @param standbyConfig
+     *            data location standby config
+     * @throws ScmInvalidArgumentException
+     *             if arguments is invalid.
+     */
+    public ScmCephS3DataLocation(String siteName, ScmShardingType dataShardingType,
+            String prefixBucketName, ScmCephS3UserConfig primaryConfig,
+            ScmCephS3UserConfig standbyConfig) throws ScmInvalidArgumentException {
+        super(siteName);
+        checkValueNotNull(dataShardingType, "dataShardingType");
+        checkValueNotNull(prefixBucketName, "prefixBucketName");
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        checkValueNotNull(standbyConfig, "standbyConfig");
+        this.shardingType = dataShardingType;
+        this.primaryConfig = primaryConfig;
+        this.standbyConfig = standbyConfig;
         setPrefixBucketName(prefixBucketName);
     }
 
@@ -64,6 +125,62 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
      *
      * @param siteName
      *            site name.
+     * @param bucketName
+     *            bucket name(A certain bucket that already exists).
+     * @param objectShardingType
+     *            object sharding type.
+     * @param primaryConfig
+     *            data location primary config
+     * @throws ScmInvalidArgumentException
+     *             if arguments is invalid.
+     */
+    public ScmCephS3DataLocation(String siteName, String bucketName,
+            ScmShardingType objectShardingType, ScmCephS3UserConfig primaryConfig)
+            throws ScmInvalidArgumentException {
+        super(siteName);
+        checkValueNotNull(bucketName, "bucketName");
+        checkValueNotNull(objectShardingType, "objectShardingType");
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        this.objectShardingType = objectShardingType;
+        this.bucketName = bucketName;
+        this.primaryConfig = primaryConfig;
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param bucketName
+     *            bucket name(A certain bucket that already exists).
+     * @param objectShardingType
+     *            object sharding type.
+     * @param primaryConfig
+     *            data location primary config
+     * @param standbyConfig
+     *            data location standby config
+     * @throws ScmInvalidArgumentException
+     *             if arguments is invalid.
+     */
+    public ScmCephS3DataLocation(String siteName, String bucketName,
+            ScmShardingType objectShardingType, ScmCephS3UserConfig primaryConfig,
+            ScmCephS3UserConfig standbyConfig) throws ScmInvalidArgumentException {
+        super(siteName);
+        checkValueNotNull(bucketName, "bucketName");
+        checkValueNotNull(objectShardingType, "objectShardingType");
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        checkValueNotNull(standbyConfig, "standbyConfig");
+        this.objectShardingType = objectShardingType;
+        this.bucketName = bucketName;
+        this.primaryConfig = primaryConfig;
+        this.standbyConfig = standbyConfig;
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
      * @param dataShardingType
      *            data sharding type.
      * @param prefixBucketName
@@ -86,11 +203,98 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
      *
      * @param siteName
      *            site name.
+     * @param dataShardingType
+     *            data sharding type.
+     * @param prefixBucketName
+     *            a short prefix to the bucket name.
+     * @param objectShardingType
+     *            object sharding type.
+     * @param primaryConfig
+     *            data location primary config
+     * @throws ScmInvalidArgumentException
+     *             if arguments is invalid.
+     */
+    public ScmCephS3DataLocation(String siteName, ScmShardingType dataShardingType,
+            String prefixBucketName, ScmShardingType objectShardingType,
+            ScmCephS3UserConfig primaryConfig) throws ScmInvalidArgumentException {
+        this(siteName, dataShardingType, prefixBucketName, primaryConfig);
+        checkValueNotNull(objectShardingType, "objectShardingType");
+        this.objectShardingType = objectShardingType;
+    }
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param dataShardingType
+     *            data sharding type.
+     * @param prefixBucketName
+     *            a short prefix to the bucket name.
+     * @param objectShardingType
+     *            object sharding type.
+     * @param primaryConfig
+     *            data location primary config
+     * @param standbyConfig
+     *            data location standby config
+     * @throws ScmInvalidArgumentException
+     *             if arguments is invalid.
+     */
+    public ScmCephS3DataLocation(String siteName, ScmShardingType dataShardingType,
+                                 String prefixBucketName, ScmShardingType objectShardingType,
+                                 ScmCephS3UserConfig primaryConfig, ScmCephS3UserConfig standbyConfig) throws ScmInvalidArgumentException {
+        this(siteName, dataShardingType, prefixBucketName, primaryConfig, standbyConfig);
+        checkValueNotNull(objectShardingType, "objectShardingType");
+        this.objectShardingType = objectShardingType;
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
      * @throws ScmInvalidArgumentException
      *             if error happens.
      */
     public ScmCephS3DataLocation(String siteName) throws ScmInvalidArgumentException {
         super(siteName);
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param primaryConfig
+     *            data location primary config
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmCephS3DataLocation(String siteName, ScmCephS3UserConfig primaryConfig)
+            throws ScmInvalidArgumentException {
+        super(siteName);
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        this.primaryConfig = primaryConfig;
+    }
+
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param primaryConfig
+     *            data location primary config
+     * @param standbyConfig
+     *            data location standby config
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmCephS3DataLocation(String siteName, ScmCephS3UserConfig primaryConfig,
+            ScmCephS3UserConfig standbyConfig) throws ScmInvalidArgumentException {
+        super(siteName);
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        checkValueNotNull(standbyConfig, "standbyConfig");
+        this.primaryConfig = primaryConfig;
+        this.standbyConfig = standbyConfig;
     }
 
     /**
@@ -131,6 +335,31 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
         if (bucketName != null) {
             setBucketName(bucketName);
         }
+
+        BSONObject userInfo = (BSONObject) obj
+                .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO);
+        if (userInfo != null) {
+            BSONObject primary = (BSONObject) userInfo
+                    .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_PRIMARY);
+            if (primary != null) {
+                String primaryUser = (String) primary
+                        .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER);
+                String primaryPassword = (String) primary
+                        .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD);
+                setPrimaryConfig(new ScmCephS3UserConfig(primaryUser, primaryPassword));
+            }
+
+            BSONObject standby = (BSONObject) userInfo
+                    .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_STANDBY);
+            if (standby != null) {
+                String standbyUser = (String) standby
+                        .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER);
+                String standbyPassword = (String) standby
+                        .get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD);
+                setStandbyConfig(new ScmCephS3UserConfig(standbyUser, standbyPassword));
+            }
+        }
+
     }
 
     /**
@@ -170,6 +399,26 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
         }
         if (bucketName != null) {
             bson.put(FieldName.FIELD_CLWORKSPACE_BUCKET_NAME, bucketName);
+        }
+        if (primaryConfig != null || standbyConfig != null) {
+            BSONObject info = new BasicBSONObject();
+            if (primaryConfig != null) {
+                BSONObject primaryInfo = new BasicBSONObject();
+                primaryInfo.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER,
+                        primaryConfig.getUser());
+                primaryInfo.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD,
+                        primaryConfig.getPasswordFile());
+                info.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_PRIMARY, primaryInfo);
+            }
+            if (standbyConfig != null) {
+                BSONObject standbyInfo = new BasicBSONObject();
+                standbyInfo.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER,
+                        standbyConfig.getUser());
+                standbyInfo.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD,
+                        standbyConfig.getPasswordFile());
+                info.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_STANDBY, standbyInfo);
+            }
+            bson.put(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO, info);
         }
         return bson;
 
@@ -245,5 +494,51 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
     public void setBucketName(String bucketName) throws ScmInvalidArgumentException {
         checkValueNotNull(bucketName, "bucketName");
         this.bucketName = bucketName;
+    }
+
+    /**
+     * Gets the primary config.
+     *
+     * @return primary config.
+     */
+    public ScmCephS3UserConfig getPrimaryConfig() {
+        return primaryConfig;
+    }
+
+    /**
+     * Sets the primary config.
+     *
+     * @param primaryConfig
+     *            primary config.
+     * @throws ScmInvalidArgumentException
+     *             if bucket name is invalid.
+     */
+    public void setPrimaryConfig(ScmCephS3UserConfig primaryConfig)
+            throws ScmInvalidArgumentException {
+        checkValueNotNull(primaryConfig, "primaryConfig");
+        this.primaryConfig = primaryConfig;
+    }
+
+    /**
+     * Gets the standby config.
+     *
+     * @return standby config.
+     */
+    public ScmCephS3UserConfig getStandbyConfig() {
+        return standbyConfig;
+    }
+
+    /**
+     * Sets the standby config.
+     *
+     * @param standbyConfig
+     *            bucket name.
+     * @throws ScmInvalidArgumentException
+     *             if bucket name is invalid.
+     */
+    public void setStandbyConfig(ScmCephS3UserConfig standbyConfig)
+            throws ScmInvalidArgumentException {
+        checkValueNotNull(standbyConfig, "standbyConfig");
+        this.standbyConfig = standbyConfig;
     }
 }

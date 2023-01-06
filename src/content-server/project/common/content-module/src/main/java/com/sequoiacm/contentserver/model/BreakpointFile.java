@@ -1,7 +1,9 @@
 package com.sequoiacm.contentserver.model;
 
-import com.sequoiacm.common.checksum.ChecksumType;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+
+import com.sequoiacm.common.checksum.ChecksumType;
 
 public class BreakpointFile {
     private String workspaceName;
@@ -19,8 +21,10 @@ public class BreakpointFile {
     private long uploadTime;
     private boolean isNeedMd5;
     private String md5;
-    private BSONObject extraContext;
+    private BSONObject extraContext = new BasicBSONObject();
     private int wsVersion;
+
+    private String tableName;
 
     public BreakpointFile setMd5(String md5) {
         this.md5 = md5;
@@ -162,6 +166,9 @@ public class BreakpointFile {
     }
 
     public BreakpointFile setExtraContext(BSONObject extraContext) {
+        if (extraContext == null) {
+            extraContext = new BasicBSONObject();
+        }
         this.extraContext = extraContext;
         return this;
     }
@@ -175,6 +182,15 @@ public class BreakpointFile {
         return wsVersion;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
+    public BreakpointFile setTableName(String tableName) {
+        this.tableName = tableName;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "BreakpointFile: " + "workspaceName='" + workspaceName + '\'' + ", fileName='"
@@ -185,6 +201,7 @@ public class BreakpointFile {
                 + ", uploadUser='" + uploadUser + '\'' + ", uploadTime=" + uploadTime
                 + ", isNeedMd5=" + isNeedMd5 + ", md5='" + md5 + '\'' + ", extraContext="
                 // 替换掉双引号，避免这个字符串拼接到JSON中时，出现解析不了的情况
-                + (extraContext != null ? extraContext.toString().replace("\"", "'") : null);
+                + (extraContext != null ? extraContext.toString().replace("\"", "'")
+                        : null + ", wsVersion=" + wsVersion + ", tableName=" + tableName);
     }
 }

@@ -1,15 +1,17 @@
 package com.sequoiacm.contentserver.dao;
 
-import com.sequoiacm.common.CommonHelper;
-import com.sequoiacm.common.ScmFileLocation;
-import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 
 public class ScmFileDataDeleterWrapper {
     private static final Logger logger = LoggerFactory.getLogger(ScmFileDataDeleterWrapper.class);
@@ -29,18 +31,16 @@ public class ScmFileDataDeleterWrapper {
             BasicBSONList sites = fileMeta.getSiteList();
             List<ScmFileLocation> siteList = new ArrayList<>();
             CommonHelper.getFileLocationList(sites, siteList);
-            List<Integer> siteIdList = new ArrayList<>();
-            for (ScmFileLocation fileLocation : siteList) {
-                siteIdList.add(fileLocation.getSiteId());
-            }
             ScmFileDataDeleter dataDeleter = new ScmFileDataDeleter(siteList, wsInfo,
-                    fileMeta.getDataInfo());
+                    fileMeta.getDataId(), fileMeta.getDataType(),
+                    new Date(fileMeta.getDataCreateTime()));
             dataDeleter.deleteData();
         }
         catch (Exception e) {
-            logger.warn("remove file data failed:fileId={},version={}.{},dataInfo={}",
+            logger.warn(
+                    "remove file data failed:fileId={},version={}.{},dataId={},dataCreateTime={}",
                     fileMeta.getId(), fileMeta.getMajorVersion(), fileMeta.getMinorVersion(),
-                    fileMeta.getDataInfo(), e);
+                    fileMeta.getDataId(), fileMeta.getDataCreateTime(), e);
         }
     }
 }

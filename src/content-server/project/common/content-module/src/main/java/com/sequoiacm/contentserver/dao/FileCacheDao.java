@@ -1,7 +1,5 @@
 package com.sequoiacm.contentserver.dao;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.bson.BSONObject;
@@ -15,14 +13,15 @@ import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 
 public class FileCacheDao {
     private static final Logger logger = LoggerFactory.getLogger(FileCacheDao.class);
@@ -57,35 +56,41 @@ public class FileCacheDao {
                     ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
             return;
         }
-
-        if (fileLocationMap.get(remoteSiteId) == null) {
+        ScmFileLocation remoteLocation = fileLocationMap.get(remoteSiteId);
+        if (remoteLocation == null) {
             throw new ScmServerException(ScmError.DATA_NOT_EXIST,
                     "file is not exist in remote site:wsName=" + wsInfo.getName() + ",fileId="
                             + fileId + ",siteId=" + remoteSiteId + ",version="
                             + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
 
-        ScmDataInfo localDataInfo = new ScmDataInfo(file, wsInfo.getVersion());
-        ScmDataInfo remoteDataInfo = new ScmDataInfo(file, fileLocationMap.get(remoteSiteId).getWsVersion());
+        ScmDataInfo localDataInfo = ScmDataInfo.forCreateNewData(file, wsInfo.getVersion());
+        ScmDataInfo remoteDataInfo = ScmDataInfo.forOpenExistData(file,
+                remoteLocation.getWsVersion(),
+                remoteLocation.getTableName());
 
         ScmDataWriter writer = null;
         ScmInnerRemoteDataReader reader = null;
+        ScmDataWriterContext localDataWriterContext = new ScmDataWriterContext();
         try {
             try {
-                writer = createLocalWriter(localDataInfo);
+                writer = createLocalWriter(localDataInfo, localDataWriterContext);
             }
             catch (ScmServerException e) {
                 if (e.getError() == ScmError.DATA_EXIST) {
+                    localDataInfo.setTableName(localDataWriterContext.getTableName());
                     if (FileCommonOperator.isDataExist(wsInfo, localDataInfo, size)) {
                         // update meta data info and return
                         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion,
-                                minorVersion, localSiteId, localDataInfo.getWsVersion());
+                                minorVersion, localSiteId, localDataInfo.getWsVersion(),
+                                localDataWriterContext);
                         return;
                     }
                     if (!FileCommonOperator.deleteLocalResidulFile(wsInfo, localSiteId, localDataInfo)) {
                         throw e;
                     }
-                    writer = createLocalWriter(localDataInfo);
+
+                    writer = createLocalWriter(localDataInfo, localDataWriterContext);
                 }
                 else {
                     throw e;
@@ -102,7 +107,6 @@ public class FileCacheDao {
                             "failed to write data", e);
                 }
             }
-
             reader.close();
             reader = null;
             FileCommonOperator.closeWriter(writer);
@@ -125,19 +129,20 @@ public class FileCacheDao {
 
         // update meta data info
         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                localSiteId, localDataInfo.getWsVersion());
+                localSiteId, localDataInfo.getWsVersion(), localDataWriterContext);
         logger.info("add site info success:wsName={},fileId={},addedSiteId={},version={}",
                 wsInfo.getName(), fileId, localSiteId,
                 ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
 
     }
 
-    private ScmDataWriter createLocalWriter(ScmDataInfo dataInfo) throws ScmServerException {
+    private ScmDataWriter createLocalWriter(ScmDataInfo dataInfo, ScmDataWriterContext context)
+            throws ScmServerException {
         ScmDataWriter writer = null;
         try {
             writer = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId, wsInfo.getName(),
                     wsInfo.getDataLocation(dataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
-                    dataInfo);
+                    dataInfo, context);
         }
         catch (ScmDatasourceException e) {
             logger.error("create data writer fail:id={},type={},createTime={}", dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime());

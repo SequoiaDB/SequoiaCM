@@ -133,19 +133,21 @@ public class ScmMetaService {
     }
 
     public void addSiteInfoToFile(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, int siteId, Date date, int wsVersion) throws ScmServerException {
+            int minorVersion, int siteId, Date date, int wsVersion, String tableName)
+            throws ScmServerException {
         try {
             MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
                     wsInfo.getName(), null);
             boolean isSuccess = fileAccessor.addToSiteList(fileId, majorVersion, minorVersion,
-                    siteId, date, wsVersion);
+                    siteId, date, wsVersion, tableName);
             if (isSuccess) {
                 return;
             }
 
             MetaFileHistoryAccessor historyAccessor = metasource
                     .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
-            historyAccessor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date, wsVersion);
+            historyAccessor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date,
+                    wsVersion, tableName);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(
@@ -1382,7 +1384,7 @@ public class ScmMetaService {
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_IS_NEED_MD5, file.isNeedMd5());
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_MD5, file.getMd5());
         updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_EXTRA_CONTEXT, file.getExtraContext());
-
+        updateObj.put(BreakpointFileBsonConverter.BSON_FIELD_TABLE_NAME, file.getTableName());
         BSONObject updater = new BasicBSONObject("$set", updateObj);
         try {
             accessor.update(matcher, updater);

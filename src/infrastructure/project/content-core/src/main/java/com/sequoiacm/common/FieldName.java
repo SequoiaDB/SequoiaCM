@@ -47,7 +47,12 @@ public class FieldName {
                                                                                   // }
     public static final String FIELD_CLWORKSPACE_DATA_LOCATION = "data_location"; // array,
                                                                                   // [{"site_id":1,
-                                                                                  // "domain":"domain2"}]
+                                                                                  // "domain":"domain2"}
+    public static final String FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO = "user_info";
+    public static final String FIELD_CLWORKSPACE_DATA_CEPHS3_PRIMARY = "primary";
+    public static final String FIELD_CLWORKSPACE_DATA_CEPHS3_STANDBY = "standby";
+    public static final String FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER = "user";
+    public static final String FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD = "password";
     public static final String FIELD_CLWORKSPACE_LOCATION_DOMAIN = "domain";
     public static final String FIELD_CLWORKSPACE_LOCATION_SITE_ID = "site_id";
     public static final String FIELD_CLWORKSPACE_ID = "id"; // int, 1
@@ -173,6 +178,8 @@ public class FieldName {
     // the workspace version when writing the site
     public static final String FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION = "ws_version";// int
 
+    public static final String FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME = "table_name";// string
+
     public static final String FIELD_CLFILE_FILE_TITLE = "title"; // string,
                                                                   // mytitle1
     public static final String FIELD_CLFILE_FILE_AUTHOR = "author"; // string,
@@ -270,7 +277,10 @@ public class FieldName {
     public static final String FIELD_CLRECYCLE_LOG_INFO = "log_info";
     public static final String FIELD_CLRECYCLE_TIME = "time";
 
-
+    //CL_DATA_BUCKET_NAME_ACTIVE
+    public static final String FIELD_CL_WORKSPACE_NAME = "workspace_name";
+    public static final String FIELD_CL_BUCKET_RULE_NAME = "bucket_rule_name";
+    public static final String FIELD_CL_BUCKET_ACTIVE_NAME = "bucket_active_name";
     public static class Task {
         public static final String FIELD_ID = "id";
         public static final String FIELD_TYPE = "type";
@@ -561,5 +571,6 @@ public class FieldName {
         public static final String DATE = "date";
         public static final String CREATE_DATE = "createDate";
         public static final String WS_VERSION = "wsVersion";
+        public static final String TABLE_NAME = "tableName";
     }
 }

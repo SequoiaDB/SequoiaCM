@@ -1,10 +1,37 @@
 package com.sequoiacm.contentserver.service.impl;
 
-import com.sequoiacm.common.*;
-import com.sequoiacm.contentserver.common.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.InvalidArgumentException;
+import com.sequoiacm.common.ScmArgChecker;
+import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.common.ScmContentLocationResolver;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
-import com.sequoiacm.contentserver.dao.*;
+import com.sequoiacm.contentserver.dao.FileContentUpdateDao;
+import com.sequoiacm.contentserver.dao.FileCreatorDao;
+import com.sequoiacm.contentserver.dao.FileDeletorDao;
+import com.sequoiacm.contentserver.dao.FileInfoUpdaterDao;
+import com.sequoiacm.contentserver.dao.FileReaderDao;
+import com.sequoiacm.contentserver.dao.FileVersionDeleteDao;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -17,9 +44,9 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
 import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
-import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
@@ -46,20 +73,6 @@ import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.TransactionContext;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 @Service
 public class FileServiceImpl implements IFileService {
@@ -578,9 +591,12 @@ public class FileServiceImpl implements IFileService {
         ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         String md5 = null;
-        if (fileLocationMap.get(contentModule.getLocalSite()) != null) {
+        ScmFileLocation localFileLocation = fileLocationMap.get(contentModule.getLocalSite());
+        if (localFileLocation != null) {
             // 在本地读取数据计算MD5
-            ScmDataInfo dataInfo = new ScmDataInfo(fileInfo, fileLocationMap.get(contentModule.getLocalSite()).getWsVersion());
+            ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(fileInfo,
+                    localFileLocation.getWsVersion(),
+                    localFileLocation.getTableName());
             md5 = ScmSystemUtils.calcMd5(ws, dataInfo);
             updateFileMd5(user.getUsername(), ws, fileId, majorVersion, minorVersion,
                     dataInfo.getId(), md5);
@@ -711,7 +727,8 @@ public class FileServiceImpl implements IFileService {
                     fileLocation.getWsVersion());
             BSONObject contentLocation = ScmContentLocationResolver
                     .getResolver(scmLocation.getType()).resolve(fileLocation.getSiteId(), ws,
-                            contentServer.getAllSiteInfo(), createTime, dataId, fileLocation.getWsVersion());
+                            contentServer.getAllSiteInfo(), createTime, dataId,
+                            fileLocation.getWsVersion(), fileLocation.getTableName());
             result.add(contentLocation);
         }
         audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,

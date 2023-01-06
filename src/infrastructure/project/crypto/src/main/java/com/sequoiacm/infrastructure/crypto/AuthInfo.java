@@ -3,6 +3,7 @@ package com.sequoiacm.infrastructure.crypto;
 public class AuthInfo {
     private String userName = "";
     private String password = "";
+    private String encryptedPassword = "";
 
     public AuthInfo() {
     }
@@ -23,6 +24,13 @@ public class AuthInfo {
         this.password = password;
     }
 
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    public void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
+    }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

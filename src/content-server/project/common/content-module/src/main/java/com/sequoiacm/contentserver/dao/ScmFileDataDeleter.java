@@ -1,5 +1,12 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -12,23 +19,22 @@ import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ScmFileDataDeleter {
     private static final Logger logger = LoggerFactory.getLogger(ScmFileDataDeleter.class);
+    private final Date dataCreateTime;
+    private final String dataId;
+    private final int dataType;
     private List<ScmFileLocation> siteList;
     private ScmWorkspaceInfo ws;
-    private ScmDataInfo dataInfo;
 
     public ScmFileDataDeleter(List<ScmFileLocation> siteList, ScmWorkspaceInfo ws,
-            ScmDataInfo dataInfo) {
+            String dataId, int dataType, Date dataCreateTime) {
         this.siteList = siteList;
         this.ws = ws;
-        this.dataInfo = dataInfo;
+        this.dataId = dataId;
+        this.dataType = dataType;
+        this.dataCreateTime = dataCreateTime;
     }
 
     public void deleteData() throws ScmServerException {
@@ -44,15 +50,15 @@ public class ScmFileDataDeleter {
 
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(ScmContentModule.getInstance().getMainSiteName());
-            client.deleteDataInSiteList(ws.getName(), dataInfo.getId(), dataInfo.getType(),
-                    dataInfo.getCreateTime().getTime(), siteIdList, siteList);
+            client.deleteDataInSiteList(ws.getName(), dataId, dataType, dataCreateTime.getTime(),
+                    siteIdList, siteList);
             return;
         }
 
         List<Integer> deleteFailedList = new ArrayList<>();
         for (ScmFileLocation site : siteList) {
-            ScmDataInfo scmDataInfo = new ScmDataInfo(dataInfo.getType(), dataInfo.getId(),
-                    dataInfo.getCreateTime(), site.getWsVersion());
+            ScmDataInfo scmDataInfo = ScmDataInfo.forOpenExistData(dataType, dataId, dataCreateTime,
+                    site.getWsVersion(), site.getTableName());
             try {
                 if (site.getSiteId() == localSite) {
                     deleteDataLocal(scmDataInfo);

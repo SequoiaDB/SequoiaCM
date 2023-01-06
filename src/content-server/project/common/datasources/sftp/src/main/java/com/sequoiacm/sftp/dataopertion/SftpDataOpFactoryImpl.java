@@ -1,17 +1,26 @@
 package com.sequoiacm.sftp.dataopertion;
 
-import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.*;
-import com.sequoiacm.datasource.dataservice.ScmService;
-import com.sequoiacm.datasource.metadata.ScmLocation;
-import com.sequoiacm.datasource.metadata.sftp.SftpDataLocation;
-import com.sequoiacm.sftp.SftpDataException;
+import java.util.Date;
+import java.util.List;
+
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.List;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
+import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
+import com.sequoiacm.datasource.dataoperation.ScmDataReader;
+import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
+import com.sequoiacm.datasource.dataservice.ScmService;
+import com.sequoiacm.datasource.metadata.ScmLocation;
+import com.sequoiacm.datasource.metadata.sftp.SftpDataLocation;
+import com.sequoiacm.sftp.SftpDataException;
 
 public class SftpDataOpFactoryImpl implements ScmDataOpFactory {
     private static final Logger logger = LoggerFactory.getLogger(SftpDataOpFactoryImpl.class);
@@ -83,14 +92,15 @@ public class SftpDataOpFactoryImpl implements ScmDataOpFactory {
     @Override
     public ScmBreakpointDataWriter createBreakpointWriter(ScmLocation location, ScmService service,
             String wsName, String fileName, String dataId, Date createTime, boolean createData,
-            long writeOffset, BSONObject extraContext) throws SftpDataException {
+            long writeOffset, BSONObject extraContext, ScmDataWriterContext writerContext)
+            throws ScmDatasourceException {
         throw new SftpDataException(SftpDataException.SFTP_ERROR_OPERATION_UNSUPPORTED,
                 "do not support breakpoint upload");
     }
 
     @Override
     public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
-            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            String wsName, String fileName, ScmDataInfo dataInfo, boolean createData,
             long writeOffset, BSONObject extraContext) throws ScmDatasourceException {
         throw new SftpDataException(SftpDataException.SFTP_ERROR_OPERATION_UNSUPPORTED,
                 "do not support seekable upload");

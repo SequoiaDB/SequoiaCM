@@ -1,11 +1,14 @@
 package com.sequoiacm.contentserver.controller;
 
-import com.sequoiacm.contentserver.contentmodule.ContentModuleExcludeMarker;
+import java.util.Collections;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
+import com.sequoiacm.contentserver.contentmodule.ContentModuleExcludeMarker;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.exception_handler.ExceptionBody;
+import com.sequoiacm.infrastructure.exception_handler.ExceptionInfo;
 import com.sequoiacm.infrastructure.exception_handler.RestExceptionHandlerBase;
 import com.sequoiadb.infrastructure.map.ScmMapServerException;
 import com.sequoiadb.infrastructure.map.server.controller.RestMapExceptionHandler;
@@ -13,16 +16,20 @@ import com.sequoiadb.infrastructure.map.server.controller.RestMapExceptionHandle
 @ContentModuleExcludeMarker
 @ControllerAdvice
 public class RestExceptionHandler extends RestExceptionHandlerBase {
+    public static String EXTRA_INFO_HEADER = "X-SCM-EXTRA-ERROR-INFO";
 
     @Override
-    protected ExceptionBody convertToExceptionBody(Exception srcException) {
+    protected ExceptionInfo covertToExceptionInfo(Exception srcException) {
+        ExceptionInfo ret = new ExceptionInfo();
+
         ScmServerException e;
         if (!(srcException instanceof ScmServerException)) {
             if (!(srcException instanceof ScmMapServerException)) {
-                return null;
+                return ret;
             }
             ScmMapServerException mapException = (ScmMapServerException) srcException;
-            return RestMapExceptionHandler.convertToExceptionBody(mapException);
+            ret.setExceptionBody(RestMapExceptionHandler.convertToExceptionBody(mapException));
+            return ret;
         }
         else {
             e = (ScmServerException) srcException;
@@ -50,7 +57,12 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
             default:
                 status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
-        return new ExceptionBody(status, e.getError().getErrorCode(),
-                e.getError().getErrorDescription(), e.getMessage());
+        ret.setExceptionBody(new ExceptionBody(status, e.getError().getErrorCode(),
+                e.getError().getErrorDescription(), e.getMessage()));
+        if (e.getExtraInfo() != null) {
+            ret.setExtraExceptionHeader(
+                    Collections.singletonMap(EXTRA_INFO_HEADER, e.getExtraInfo().toString()));
+        }
+        return ret;
     }
 }

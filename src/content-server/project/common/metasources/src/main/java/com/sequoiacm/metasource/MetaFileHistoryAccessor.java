@@ -2,7 +2,6 @@
 package com.sequoiacm.metasource;
 
 import java.util.Date;
-import java.util.List;
 
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import org.bson.BSONObject;
@@ -14,7 +13,7 @@ public interface MetaFileHistoryAccessor {
     public void delete(String fileId) throws ScmMetasourceException;
 
     public boolean addToSiteList(String fileId, int majorVersion, int minorVersion, int siteId,
-            Date date, int wsVersion) throws ScmMetasourceException;
+            Date date, int wsVersion, String tableName) throws ScmMetasourceException;
 
     public boolean deleteNullFromSiteList(String fileId, int majorVersion, int minorVersion)
             throws ScmMetasourceException;

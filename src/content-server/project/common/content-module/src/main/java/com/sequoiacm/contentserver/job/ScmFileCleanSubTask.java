@@ -1,5 +1,13 @@
 package com.sequoiacm.contentserver.job;
 
+import java.util.List;
+import java.util.Map;
+
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
@@ -19,13 +27,6 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
-import org.bson.BSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 public class ScmFileCleanSubTask extends ScmFileSubTask {
 
@@ -137,8 +138,9 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
         BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         List<Integer> fileDataSiteIdList = CommonHelper.getFileLocationIdList(sites);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
-
-        if (fileLocationMap.get(localSiteId) == null) {
+        ScmFileLocation localFileLocation = fileLocationMap.get(localSiteId);
+        ScmFileLocation otherFileLocation = fileLocationMap.get(dataInOtherSiteId);
+        if (localFileLocation == null) {
             logger.warn(
                     "skip, file data is not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
@@ -147,7 +149,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             return;
         }
 
-        if (fileLocationMap.get(dataInOtherSiteId) == null) {
+        if (otherFileLocation == null) {
             // 锁外检查，文件在本站点和一个远端站点（dataInOtherSiteId），锁住本站点和远端站点后，发现文件已不存在于远端站点，安全起见放弃本站点的文件清理
             logger.warn(
                     "skip, file data is not in locking remote site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}, lockingRemoteSite={}",
@@ -157,8 +159,12 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             return;
         }
         ScmWorkspaceInfo ws = getWorkspaceInfo();
-        ScmDataInfo localDataInfo = new ScmDataInfo(file, fileLocationMap.get(localSiteId).getWsVersion());
-        ScmDataInfo remoteDataInfo = new ScmDataInfo(file, fileLocationMap.get(dataInOtherSiteId).getWsVersion());
+        ScmDataInfo localDataInfo = ScmDataInfo.forOpenExistData(file,
+                localFileLocation.getWsVersion(),
+                localFileLocation.getTableName());
+        ScmDataInfo remoteDataInfo = ScmDataInfo.forOpenExistData(file,
+                otherFileLocation.getWsVersion(),
+                otherFileLocation.getTableName());
         // 确认对端站点数据确实可用(规避极端情况下，数据损坏等问题)，再删除本地站点数据
         if (checkRemoteDataIsSame(fileId, dataInOtherSiteId, ws, localDataInfo, remoteDataInfo, size)) {
             FileCommonOperator.deleteSiteFromFile(ws, fileId, majorVersion, minorVersion,

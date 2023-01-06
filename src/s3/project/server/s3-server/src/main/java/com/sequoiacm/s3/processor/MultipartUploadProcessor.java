@@ -24,7 +24,7 @@ public interface MultipartUploadProcessor {
             throws S3ServerException, ScmServerException, ScmMetasourceException;
 
     Part uploadPart(String wsName, long uploadId, int partNumber, String contentMD5,
-            InputStream inputStream, long contentLength, int wsVersion)
+            InputStream inputStream, long contentLength, int wsVersion, String tableName)
             throws S3ServerException, ScmMetasourceException, ScmLockException, ScmServerException,
             ScmDatasourceException, IOException, NoSuchAlgorithmException;
 

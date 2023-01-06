@@ -1,7 +1,5 @@
 package com.sequoiacm.cephs3.dataoperation;
 
-import com.sequoiacm.infrastructure.common.annotation.SlowLog;
-import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,22 +7,32 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.sequoiacm.cephs3.CephS3Exception;
 import com.sequoiacm.cephs3.dataservice.CephS3ConnWrapper;
 import com.sequoiacm.cephs3.dataservice.CephS3DataService;
+import com.sequoiacm.common.CephS3UserInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataservice.ScmService;
+import com.sequoiacm.datasource.metadata.cephs3.CephS3DataLocation;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 
 public class CephS3DataDeletorImpl implements ScmDataDeletor {
 
     private String key;
     private String bucketName;
     private CephS3DataService dataService;
+
+    private CephS3UserInfo primaryUserInfo;
+
+    private CephS3UserInfo standbyUserInfo;
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataDeletorImpl.class);
 
-    public CephS3DataDeletorImpl(String bucketName, String key, ScmService service)
+    public CephS3DataDeletorImpl(String bucketName, String key, ScmService service, CephS3DataLocation cephS3DataLocation)
             throws CephS3Exception {
         try {
             this.bucketName = bucketName;
             this.key = key;
             this.dataService = (CephS3DataService) service;
+            this.primaryUserInfo = cephS3DataLocation.getPrimaryUserInfo();
+            this.standbyUserInfo = cephS3DataLocation.getStandbyUserInfo();
         }
         catch (Exception e) {
             logger.error("construct CephS3DataDeletorImpl failed:bucketName=" + bucketName + ",key="
@@ -39,7 +47,7 @@ public class CephS3DataDeletorImpl implements ScmDataDeletor {
     @SlowLog(operation = "deleteData", extras = @SlowLogExtra(name = "deleteObjectKey", data = "key"))
     public void delete() throws CephS3Exception {
         DeleteObjectRequest req = new DeleteObjectRequest(bucketName, key);
-        CephS3ConnWrapper conn = dataService.getConn();
+        CephS3ConnWrapper conn = dataService.getConn(primaryUserInfo, standbyUserInfo);
         if (conn == null) {
             throw new CephS3Exception(
                     "delete data failed, cephs3 is down:bucketName=" + bucketName + ",key=" + key);
@@ -48,7 +56,7 @@ public class CephS3DataDeletorImpl implements ScmDataDeletor {
             conn.deleteObject(req);
         }
         catch (Exception e) {
-            conn = dataService.releaseAndTryGetAnotherConn(conn);
+            conn = dataService.releaseAndTryGetAnotherConn(conn, primaryUserInfo, standbyUserInfo);
             if (conn == null) {
                 throw e;
             }

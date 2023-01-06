@@ -1,5 +1,15 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
@@ -18,6 +28,7 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
@@ -30,15 +41,6 @@ import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.MetaBreakpointFileAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
 
 @Component
 public class FileContentUpdateDao {
@@ -86,9 +88,9 @@ public class FileContentUpdateDao {
 
 
             return updateMeta(wsInfo, user, fileId, breakpointFile.getCreateTime(),
-                    breakpointFile.getDataId(),
-                    breakpointFile.getUploadSize(), breakpointFile.getSiteId(), breakpointFileName,
-                    breakpointFile.getMd5(), breakpointFile.getWsVersion());
+                    breakpointFile.getDataId(), breakpointFile.getUploadSize(),
+                    breakpointFile.getSiteId(), breakpointFileName, breakpointFile.getMd5(),
+                    breakpointFile.getWsVersion(), breakpointFile.getTableName());
         }
         finally {
             unlock(breakpointFileXLock);
@@ -113,13 +115,16 @@ public class FileContentUpdateDao {
         // write data
         Date createDate = new Date();
         String dataId = ScmIdGenerator.FileId.get(createDate);
-        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId, createDate,
+        ScmDataInfo dataInfo = ScmDataInfo.forCreateNewData(ENDataType.Normal.getValue(), dataId,
+                createDate,
                 ws.getVersion());
         ScmDataWriter dataWriter = null;
+        ScmDataWriterContext context = new ScmDataWriterContext();
         try {
             dataWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
-                    contentModule.getLocalSite(), ws.getName(), ws.getDataLocation(dataInfo.getWsVersion()),
-                    contentModule.getDataService(), dataInfo);
+                    contentModule.getLocalSite(), ws.getName(),
+                    ws.getDataLocation(dataInfo.getWsVersion()), contentModule.getDataService(),
+                    dataInfo, context);
         }
         catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
@@ -141,10 +146,11 @@ public class FileContentUpdateDao {
             }
         }
 
+        dataInfo.setTableName(context.getTableName());
         // write meta
         try {
-            return updateMeta(ws, user, fileId, createDate.getTime(), dataId,
-                    dataWriter.getSize(), contentModule.getLocalSite(), null, md5, dataInfo.getWsVersion());
+            return updateMeta(ws, user, fileId, createDate.getTime(), dataId, dataWriter.getSize(),
+                    contentModule.getLocalSite(), null, md5, dataInfo.getWsVersion(), context.getTableName());
         }
         catch (ScmServerException e) {
             if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
@@ -218,8 +224,8 @@ public class FileContentUpdateDao {
     // insert historyRec, update currentFileRec, delete breakFileRec, return
     // updated info
     private FileMeta updateMeta(ScmWorkspaceInfo ws, String user, String fileId, long createTime,
-            String dataId, long dataSize, int siteId, final String breakFileName, String md5, int wsVersion)
-            throws ScmServerException {
+            String dataId, long dataSize, int siteId, final String breakFileName, String md5,
+            int wsVersion, String tableName) throws ScmServerException {
         FileInfoAndOpCompleteCallback ret = null;
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(ws.getName(), fileId);
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
@@ -232,8 +238,7 @@ public class FileContentUpdateDao {
             }
 
             FileMeta newVersion = createNewVersionMeta(ws.getName(), user, latestFileVersionInLock,
-                    dataId, siteId,
-                    dataSize, createTime, md5, wsVersion);
+                    dataId, siteId, dataSize, createTime, md5, wsVersion, tableName);
 
             TransactionCallback transactionCallback = null;
             if (breakFileName != null) {
@@ -263,11 +268,12 @@ public class FileContentUpdateDao {
     }
 
     private FileMeta createNewVersionMeta(String ws, String user, BSONObject currentLatestVersion,
-            String dataId, int siteId, long size, long createTime, String md5, int wsVersion)
-            throws ScmServerException {
+            String dataId, int siteId, long size, long createTime, String md5, int wsVersion,
+            String tableName) throws ScmServerException {
         // currentLatestVersion 来自表中存在的文件元数据，无需检查 classProperties （同时有可能该文件的元数据模型已被删除，若检查可能会不通过）
         FileMeta fileMeta = FileMeta.fromUser(ws, currentLatestVersion, user, false);
-        fileMeta.resetDataInfo(dataId, createTime, ENDataType.Normal.getValue(), size, md5, siteId, wsVersion);
+        fileMeta.resetDataInfo(dataId, createTime, ENDataType.Normal.getValue(), size, md5, siteId,
+                wsVersion, tableName);
         return fileMeta;
     }
 

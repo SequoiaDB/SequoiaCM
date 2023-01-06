@@ -1,7 +1,25 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.bson.BSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.*;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
+import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
+import com.sequoiacm.datasource.dataoperation.ScmDataReader;
+import com.sequoiacm.datasource.dataoperation.ScmDataRemovingSpaceRecycler;
+import com.sequoiacm.datasource.dataoperation.ScmDataSpaceRecycler;
+import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
@@ -9,13 +27,6 @@ import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.metasource.MetaSource;
 import com.sequoiacm.sequoiadb.SequoiadbException;
 import com.sequoiacm.sequoiadb.dataservice.SdbDataService;
-import org.bson.BSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
     private static final Logger logger = LoggerFactory.getLogger(SdbDataOpFactoryImpl.class);
@@ -96,7 +107,8 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
     @Override
     public ScmBreakpointDataWriter createBreakpointWriter(ScmLocation location, ScmService service,
             String wsName, String fileName, String dataId, Date createTime, boolean createData,
-            long writeOffset, BSONObject extraContext) throws SequoiadbException {
+            long writeOffset, BSONObject extraContext, ScmDataWriterContext writerContext)
+            throws SequoiadbException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
             String csName = sdbLocation.getDataCsName(wsName, createTime);
@@ -120,14 +132,14 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
 
     @Override
     public ScmSeekableDataWriter createSeekableDataWriter(ScmLocation location, ScmService service,
-            String wsName, String fileName, String dataId, Date createTime, boolean createData,
+            String wsName, String fileName, ScmDataInfo dataInfo, boolean createData,
             long writeOffset, BSONObject extraContext) throws ScmDatasourceException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
-            String csName = sdbLocation.getDataCsName(wsName, createTime);
-            String clName = sdbLocation.getDataClName(createTime);
+            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime());
+            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime());
             return new SdbSeekableDataWriter(sdbLocation, (SdbDataService) service, metaSource,
-                    csName, clName, wsName, dataId, createData, writeOffset, lockManager);
+                    csName, clName, wsName, dataInfo.getId(), createData, writeOffset, lockManager);
         }
         catch (SequoiadbException e) {
             logger.error("build sdb seekable writer failed:siteId={}, wsName={}, fileName={}",

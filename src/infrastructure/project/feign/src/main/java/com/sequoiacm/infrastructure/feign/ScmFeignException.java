@@ -1,6 +1,11 @@
 package com.sequoiacm.infrastructure.feign;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ScmFeignException extends Exception {
     private long timestamp;
@@ -9,6 +14,9 @@ public class ScmFeignException extends Exception {
     private String exception;
     private String message;
     private String path;
+
+    @JsonIgnore
+    private Map<String, Collection<String>> headers;
 
     public ScmFeignException() {
     }
@@ -77,5 +85,13 @@ public class ScmFeignException extends Exception {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public void setHeaders(Map<String, Collection<String>> headers) {
+        this.headers = headers;
+    }
+
+    public Map<String, Collection<String>> getHeaders() {
+        return headers;
     }
 }

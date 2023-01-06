@@ -1,5 +1,10 @@
 package com.sequoiacm.cephs3.dataservice;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
@@ -9,14 +14,15 @@ import com.amazonaws.retry.RetryPolicy;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.sequoiacm.cephs3.CephS3Exception;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CephS3Conn {
     private static final Logger logger = LoggerFactory.getLogger(CephS3Conn.class);
     private final int siteId;
     private final String url;
     private AmazonS3Client conn = null;
+    private AtomicInteger usingCount = new AtomicInteger();
+    private long lastAccessTime = System.currentTimeMillis();
+    private volatile boolean shouldBeDiscard = false;
 
     public CephS3Conn(int siteId, String accessKey, String secretKey, String url,
             CephS3ConnectionConf confProp) throws CephS3Exception {
@@ -51,8 +57,7 @@ public class CephS3Conn {
             if (conn != null) {
                 conn.shutdown();
             }
-            throw new CephS3Exception("failed to init cephs3 connection:site=" + siteId + ", url="
-                    + url + ", accesskey:" + accessKey, e);
+            throw e;
         }
     }
 
@@ -68,12 +73,37 @@ public class CephS3Conn {
         return conn;
     }
 
-    public void shutdown() {
+    public void shutdownSilence() {
         try {
             conn.shutdown();
         }
         catch (Exception e) {
             logger.warn("failed to shutdown connection:{}", url, e);
         }
+    }
+
+    public int getUsingCount() {
+        return usingCount.get();
+    }
+
+    public long getLastAccessTime() {
+        return lastAccessTime;
+    }
+
+    public void incUsingCount() {
+        usingCount.incrementAndGet();
+        lastAccessTime = System.currentTimeMillis();
+    }
+
+    public void decUsingCount() {
+        usingCount.decrementAndGet();
+    }
+
+    boolean isShouldBeDiscard() {
+        return this.shouldBeDiscard;
+    }
+
+    public void setShouldBeDiscard(boolean shouldBeDiscard) {
+        this.shouldBeDiscard = shouldBeDiscard;
     }
 }

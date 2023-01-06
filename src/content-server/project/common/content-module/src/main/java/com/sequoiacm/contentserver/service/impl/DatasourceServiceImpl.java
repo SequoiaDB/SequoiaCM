@@ -1,7 +1,20 @@
 package com.sequoiacm.contentserver.service.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.InputStreamWithCalcMd5;
@@ -17,22 +30,19 @@ import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataDeletor;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.*;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
+import com.sequoiacm.datasource.dataoperation.ENDataType;
+import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfoFetcher;
+import com.sequoiacm.datasource.dataoperation.ScmDataReader;
+import com.sequoiacm.datasource.dataoperation.ScmDataTableDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
+import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class DatasourceServiceImpl implements IDatasourceService {
@@ -77,9 +87,10 @@ public class DatasourceServiceImpl implements IDatasourceService {
 
     @Override
     public DatasourceReaderDao readData(String workspaceName, String dataId, int dataType,
-            long createTime, int readflag, OutputStream os, int wsVersion)
+            long createTime, int readflag, OutputStream os, int wsVersion, String tableName)
             throws ScmServerException {
-        ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime), wsVersion);
+        ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(dataType, dataId, new Date(createTime),
+                wsVersion, tableName);
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
@@ -112,12 +123,14 @@ public class DatasourceServiceImpl implements IDatasourceService {
     }
 
     @Override
-    public void createDataInLocal(String wsName, ScmDataInfo dataInfo) throws ScmServerException {
-        createDataInLocal(wsName, dataInfo, null);
+    public void createDataInLocal(String wsName, ScmDataInfo dataInfo, ScmDataWriterContext context)
+            throws ScmServerException {
+        createDataInLocal(wsName, dataInfo, null, context);
     }
 
     @Override
-    public void createDataInLocal(String wsName, ScmDataInfo dataInfo, InputStream is)
+    public void createDataInLocal(String wsName, ScmDataInfo dataInfo, InputStream is,
+            ScmDataWriterContext context)
             throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
@@ -130,11 +143,13 @@ public class DatasourceServiceImpl implements IDatasourceService {
             writer = ScmDataOpFactoryAssit.getFactory().createWriter(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(dataInfo.getWsVersion()), contentModule.getDataService(),
-                    dataInfo);
+                    dataInfo, context);
         }
         catch (ScmDatasourceException e) {
+            BSONObject extraInfo = new BasicBSONObject();
+            extraInfo.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME, context.getTableName());
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
-                    "Failed to create data writer", e);
+                    "Failed to create data writer", e, extraInfo);
         }
         try {
             if (is != null) {
@@ -153,8 +168,10 @@ public class DatasourceServiceImpl implements IDatasourceService {
         }
         catch (ScmDatasourceException e) {
             writer.cancel();
+            BSONObject extraInfo = new BasicBSONObject();
+            extraInfo.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME, context.getTableName());
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
-                    "Failed to write data", e);
+                    "Failed to write data", e, extraInfo);
         }
         catch (IOException e) {
             writer.cancel();
@@ -180,13 +197,15 @@ public class DatasourceServiceImpl implements IDatasourceService {
         Date createTime = new Date(createTimeMill);
         String dataId = ScmIdGenerator.FileId.get(createTime);
 
-        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), dataId, createTime,
+        ScmDataInfo dataInfo = ScmDataInfo.forCreateNewData(ENDataType.Normal.getValue(), dataId,
+                createTime,
                 wsInfo.getVersion());
         ScmDataInfoDetail scmDataInfoDetail = new ScmDataInfoDetail(dataInfo);
 
         InputStreamWithCalcMd5 inputStreamWithCalcMd5 = new InputStreamWithCalcMd5(data, false);
+        ScmDataWriterContext context = new ScmDataWriterContext();
         try {
-            createDataInLocal(wsName, dataInfo, inputStreamWithCalcMd5);
+            createDataInLocal(wsName, dataInfo, inputStreamWithCalcMd5, context);
             scmDataInfoDetail.setMd5(inputStreamWithCalcMd5.calcMd5());
             scmDataInfoDetail.setSize(inputStreamWithCalcMd5.getSize());
         }
@@ -194,6 +213,7 @@ public class DatasourceServiceImpl implements IDatasourceService {
             ScmSystemUtils.closeResource(inputStreamWithCalcMd5);
         }
         scmDataInfoDetail.setSiteId(ScmContentModule.getInstance().getLocalSite());
+        dataInfo.setTableName(context.getTableName());
         return scmDataInfoDetail;
     }
 
@@ -214,10 +234,11 @@ public class DatasourceServiceImpl implements IDatasourceService {
 
     @Override
     public ScmDataReader getScmDataReader(String wsName, String dataId, int dataType,
-            long createTime, int wsVersion) throws ScmServerException, ScmDatasourceException {
+            long createTime, int wsVersion, String tableName) throws ScmServerException, ScmDatasourceException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
-        ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new Date(createTime), wsVersion);
+        ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(dataType, dataId, new Date(createTime),
+                wsVersion, tableName);
 
         ScmDataReader dataReader = null;
         try {
@@ -234,15 +255,17 @@ public class DatasourceServiceImpl implements IDatasourceService {
 
     @Override
     public ScmSeekableDataWriter getScmSeekableDataWriter(String wsName, String dataId,
-            int dataType, long createTime, int wsVersion) throws ScmServerException {
+            int dataType, long createTime, int wsVersion, String tableName) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
 
         ScmSeekableDataWriter writer = null;
+        ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(ENDataType.Normal.getValue(), dataId,
+                new Date(createTime), wsVersion, tableName);
         try {
             writer = ScmDataOpFactoryAssit.getFactory().createSeekableDataWriter(
-                    wsInfo.getDataLocation(wsVersion), contentModule.getDataService(), wsName, null, dataId,
-                    new Date(createTime), false, 0, null);
+                    wsInfo.getDataLocation(wsVersion), contentModule.getDataService(), wsName, null,
+                    dataInfo, false, 0, null);
             return writer;
         }
         catch (ScmDatasourceException e) {
@@ -255,8 +278,8 @@ public class DatasourceServiceImpl implements IDatasourceService {
     public void deleteDataInSiteList(String wsName, String dataId, int type, long createTime,
             List<ScmFileLocation> siteList) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
-        ScmDataInfo dataInfo = new ScmDataInfo(type, dataId, new Date(createTime), 1);
-        ScmFileDataDeleter fileDataDeleter = new ScmFileDataDeleter(siteList, wsInfo, dataInfo);
+        ScmFileDataDeleter fileDataDeleter = new ScmFileDataDeleter(siteList, wsInfo, dataId, type,
+                new Date(createTime));
         fileDataDeleter.deleteData();
     }
 }

@@ -8,27 +8,63 @@ import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 
 public class ScmDataInfo {
-    //no used yet!
+    // no used yet!
     private int type;
     private String id;
     private Date createTime;
     private int wsVersion = 1;
+    private String tableName;
 
-    public ScmDataInfo(BSONObject fileInfo, Integer wsVersion) {
-        this.type = (int)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_TYPE);
-        this.id = (String)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
-        this.createTime = CommonHelper.getDate(
-                (long)fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME));
-        if (wsVersion != null){
-            this.wsVersion = wsVersion;
+    // forCreateNewData: 创建的 dataInfo 传递给底层数据源，用于创建新的数据
+    public static ScmDataInfo forCreateNewData(BSONObject fileInfo, Integer wsVersion) {
+        ScmDataInfo ret = new ScmDataInfo();
+        ret.type = (int) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_TYPE);
+        ret.id = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        ret.createTime = CommonHelper
+                .getDate((long) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME));
+        if (wsVersion != null) {
+            ret.wsVersion = wsVersion;
         }
+        return ret;
     }
 
-    public ScmDataInfo(int dataType, String dataId, Date dataCreateTime, int wsVersion) {
-        this.type = dataType;
-        this.id = dataId;
-        this.createTime = dataCreateTime;
-        this.wsVersion = wsVersion;
+    public static ScmDataInfo forCreateNewData(int dataType, String dataId, Date dataCreateTime,
+            int wsVersion) {
+        ScmDataInfo ret = new ScmDataInfo();
+        ret.type = dataType;
+        ret.id = dataId;
+        ret.createTime = dataCreateTime;
+        ret.wsVersion = wsVersion;
+        return ret;
+    }
+
+    // forOpenExistData: 创建的 dataInfo 传递给底层数据源，用于打开已存在的数据
+    public static ScmDataInfo forOpenExistData(BSONObject fileInfo, Integer wsVersion,
+            String tableName) {
+        ScmDataInfo ret = new ScmDataInfo();
+        ret.type = (int) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_TYPE);
+        ret.id = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        ret.createTime = CommonHelper
+                .getDate((long) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME));
+        if (wsVersion != null) {
+            ret.wsVersion = wsVersion;
+        }
+        ret.tableName = tableName;
+        return ret;
+    }
+
+    public static ScmDataInfo forOpenExistData(int dataType, String dataId, Date dataCreateTime,
+            int wsVersion, String tableName) {
+        ScmDataInfo ret = new ScmDataInfo();
+        ret.type = dataType;
+        ret.id = dataId;
+        ret.createTime = dataCreateTime;
+        ret.wsVersion = wsVersion;
+        ret.tableName = tableName;
+        return ret;
+    }
+
+    private ScmDataInfo() {
     }
 
     public int getType() {
@@ -51,6 +87,14 @@ public class ScmDataInfo {
         return wsVersion;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -62,6 +106,8 @@ public class ScmDataInfo {
         sb.append(createTime);
         sb.append(",wsVersion=");
         sb.append(wsVersion);
+        sb.append(",tableName=");
+        sb.append(tableName);
 
         return sb.toString();
     }

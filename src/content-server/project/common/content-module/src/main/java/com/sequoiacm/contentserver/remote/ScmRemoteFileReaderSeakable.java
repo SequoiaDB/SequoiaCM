@@ -6,16 +6,17 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.dao.FileCommonOperator;
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 
 public class ScmRemoteFileReaderSeakable extends ScmFileReader {
@@ -41,15 +42,17 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
 
             // if data exist in local, 'createLocalFileWriter' will assign
             // innerReader as localFileReader
-            ScmDataInfo localDataInfo = new ScmDataInfo(dataInfo.getType(), dataInfo.getId(), dataInfo.getCreateTime(), wsInfo.getVersion());
+            ScmDataInfo localDataInfo = ScmDataInfo.forCreateNewData(dataInfo.getType(),
+                    dataInfo.getId(), dataInfo.getCreateTime(), wsInfo.getVersion());
+            ScmDataWriterContext context = new ScmDataWriterContext();
             fileWriter = createLocalFileWriter(localSiteId, wsInfo, fileId, majorVersion,
-                    minorVersion, size, localDataInfo);
+                    minorVersion, size, localDataInfo, context);
 
             if (fileWriter != null) {
                 logger.debug("read file from remote and cache local:ws={},fileId={},version={}.{}",
                         wsInfo.getName(), fileId, majorVersion, minorVersion);
                 cacheLocal(sessionId, userDetail, localSiteId, remoteSiteId, wsInfo, fileId,
-                        majorVersion, minorVersion, flag, fileWriter, localDataInfo);
+                        majorVersion, minorVersion, flag, fileWriter, localDataInfo, context);
 
                 // cache local finish, just release fileContentLock and
                 // fileReadLock
@@ -58,7 +61,8 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
                 fileReadLock.unlock();
                 fileReadLock = null;
 
-                innerReader = new ScmLocalFileReader(localSiteId, wsInfo, dataInfo);
+                localDataInfo.setTableName(context.getTableName());
+                innerReader = new ScmLocalFileReader(localSiteId, wsInfo, localDataInfo);
                 return;
             }
 
@@ -97,10 +101,11 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
 
     private void cacheLocal(String sessionId, String userDetail, int localSiteId, int remoteSiteId,
             ScmWorkspaceInfo wsInfo, String fileId, int majorVersion, int minorVersion, int flag,
-            ScmDataWriter fileWriter, ScmDataInfo fileWriterDataInfo) throws ScmServerException {
+            ScmDataWriter fileWriter, ScmDataInfo fileWriterDataInfo, ScmDataWriterContext context)
+            throws ScmServerException {
         ScmRemoteFileReaderCacheLocal preLoadReader = new ScmRemoteFileReaderCacheLocal(sessionId,
                 userDetail, localSiteId, remoteSiteId, wsInfo, fileId, majorVersion, minorVersion,
-                fileWriter, flag, fileWriterDataInfo);
+                fileWriter, flag, fileWriterDataInfo, context);
         byte[] garbageBuffer = new byte[Const.TRANSMISSION_LEN];
         try {
             while (preLoadReader.read(garbageBuffer, 0, Const.TRANSMISSION_LEN) != -1) {
@@ -112,32 +117,34 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
     }
 
     private ScmDataWriter createLocalFileWriter(int localSiteId, ScmWorkspaceInfo wsInfo,
-            String fileId, int majorVersion, int minorVersion, long size, ScmDataInfo dataInfo)
+            String fileId, int majorVersion, int minorVersion, long size, ScmDataInfo dataInfo,
+            ScmDataWriterContext context)
             throws ScmServerException {
         ScmDataWriter fileWriter = null;
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
                     wsInfo.getName(), wsInfo.getDataLocation(dataInfo.getWsVersion()),
-                    ScmContentModule.getInstance().getDataService(), dataInfo);
+                    ScmContentModule.getInstance().getDataService(), dataInfo, context);
         }
         catch (ScmDatasourceException e) {
             ScmError errorCode = e.getScmError(ScmError.DATA_WRITE_ERROR);
             // DATA_IS_IN_USE : Read and write modes open lob file at the same time in SDB
             if (errorCode == ScmError.DATA_EXIST || errorCode == ScmError.DATA_IS_IN_USE) {
+                dataInfo.setTableName(context.getTableName());
                 if (FileCommonOperator.isDataExist(wsInfo, dataInfo, size)) {
                     // data exist, there are two situations:
                     // 1. local site already in the site list
                     // 2. residue data
                     // we have fileContentLock, just add it again.
                     FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                            localSiteId, dataInfo.getWsVersion());
+                            localSiteId, dataInfo.getWsVersion(), context);
                     innerReader = new ScmLocalFileReader(localSiteId, wsInfo, dataInfo);
                 }
                 else {
                     if (!FileCommonOperator.deleteLocalResidulFile(wsInfo, localSiteId, dataInfo)) {
                         return null;
                     }
-                    fileWriter = createLocalWriter(localSiteId, wsInfo, dataInfo);
+                    fileWriter = createLocalWriter(localSiteId, wsInfo, dataInfo, context);
                 }
             }
             else {
@@ -153,12 +160,12 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
     }
 
     private ScmDataWriter createLocalWriter(int localSiteId, ScmWorkspaceInfo wsInfo,
-            ScmDataInfo dataInfo) {
+            ScmDataInfo dataInfo, ScmDataWriterContext context) {
         ScmDataWriter fileWriter = null;
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
                     wsInfo.getName(), wsInfo.getDataLocation(),
-                    ScmContentModule.getInstance().getDataService(), dataInfo);
+                    ScmContentModule.getInstance().getDataService(), dataInfo, context);
         }
         catch (Exception e) {
             logger.warn("create lob in local site failed:siteId={},wsName={},lobId={}",

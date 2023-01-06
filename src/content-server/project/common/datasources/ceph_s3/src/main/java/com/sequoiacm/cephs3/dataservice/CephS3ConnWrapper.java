@@ -1,46 +1,92 @@
 package com.sequoiacm.cephs3.dataservice;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.s3.model.*;
-import com.sequoiacm.cephs3.CephS3Exception;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadResult;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ListPartsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PartListing;
+import com.amazonaws.services.s3.model.PartSummary;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.UploadPartRequest;
+import com.amazonaws.services.s3.model.UploadPartResult;
+import com.sequoiacm.cephs3.CephS3Exception;
+import com.sequoiacm.common.CephS3UserInfo;
 
 public class CephS3ConnWrapper {
     private static final Logger logger = LoggerFactory.getLogger(CephS3ConnWrapper.class);
-    private final int id;
 
     private CephS3Conn conn;
-    private boolean hasFatalError;
 
-    public CephS3ConnWrapper(int id, CephS3Conn conn) {
+    private CephS3UserInfo userInfo;
+    private CephS3ConnType connType;
+
+    private boolean hasFatalError;
+    private boolean hasSignatureError;
+
+    public CephS3ConnWrapper(CephS3Conn conn, CephS3ConnType connType, CephS3UserInfo userInfo) {
         this.conn = conn;
-        this.id = id;
+        this.connType = connType;
+        this.userInfo = userInfo;
     }
 
     public String getUrl() {
         return conn.getUrl();
     }
 
-    public int getId() {
-        return id;
-    }
-
     public boolean hasFatalError() {
         return hasFatalError;
     }
 
-    private void checkFatalError(Exception e) {
+    public boolean hasSignatureError() {
+        return hasSignatureError;
+    }
+
+    public CephS3UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(CephS3UserInfo userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public CephS3ConnType getConnType() {
+        return connType;
+    }
+
+    public void setConnType(CephS3ConnType connType) {
+        this.connType = connType;
+    }
+
+    private void checkError(Exception e) {
         // 1. service could not be contacted for a response,
         // 2. client is unable to parse the response from service.
         if (e.getClass().equals(SdkClientException.class)) {
             hasFatalError = true;
+        }
+        if (e instanceof AmazonS3Exception){
+            AmazonS3Exception ex = (AmazonS3Exception) e;
+            if(Objects.equals(ex.getErrorCode(), CephS3Exception.ERR_CODE_SIGNATURE_DOES_NOT_MATCH)){
+                hasSignatureError = true;
+            }
         }
     }
 
@@ -57,13 +103,13 @@ public class CephS3ConnWrapper {
             conn.getAmzClient().createBucket(bucketName);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "create bucket failed:siteId=" + conn.getSiteId() + ",bucketName=" + bucketName,
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(
                     "create bucket failed:siteId=" + conn.getSiteId() + ",bucketName=" + bucketName,
                     e);
@@ -76,7 +122,7 @@ public class CephS3ConnWrapper {
             return conn.getAmzClient().initiateMultipartUpload(req);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             if (e.getStatusCode() == CephS3Exception.STATUS_NOT_FOUND
                     && (e.getErrorCode().equals(CephS3Exception.ERR_CODE_NO_SUCH_BUCKET)
                             // nautilus ceph s3 会抛出这个异常表示 bucket 不存在
@@ -93,7 +139,7 @@ public class CephS3ConnWrapper {
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("initiate multipart upload failed:siteId=" + conn.getSiteId()
                     + ", bucket=" + req.getBucketName() + ", key=" + req.getKey(), e);
         }
@@ -104,14 +150,14 @@ public class CephS3ConnWrapper {
             return conn.getAmzClient().uploadPart(req);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "upload part failed:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey(),
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("upload part failed:siteId=" + conn.getSiteId() + ", bucket="
                     + req.getBucketName() + ", key=" + req.getKey(), e);
         }
@@ -123,14 +169,14 @@ public class CephS3ConnWrapper {
             return conn.getAmzClient().completeMultipartUpload(req);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "complete multipart upload failed:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey(),
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("complete multipart upload failed:siteId=" + conn.getSiteId()
                     + ", bucket=" + req.getBucketName() + ", key=" + req.getKey(), e);
         }
@@ -142,14 +188,14 @@ public class CephS3ConnWrapper {
             obj = conn.getAmzClient().getObject(req);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "get object failed:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey(),
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("get object failed:siteId=" + conn.getSiteId() + ", bucket="
                     + req.getBucketName() + ", key=" + req.getKey(), e);
         }
@@ -162,14 +208,14 @@ public class CephS3ConnWrapper {
             return conn.getAmzClient().getObjectMetadata(bucket, key);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "get object meta failed:siteId=" + conn.getSiteId() + ", bucket=" + bucket
                             + ", key=" + key,
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("get object meta failed:siteId=" + conn.getSiteId()
                     + ", bucket=" + bucket + ", key=" + key, e);
         }
@@ -181,14 +227,14 @@ public class CephS3ConnWrapper {
             conn.getAmzClient().abortMultipartUpload(req);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "abort multipart upload failed:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey(),
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("abort multipart upload failed:siteId=" + conn.getSiteId()
                     + ", bucket=" + req.getBucketName() + ", key=" + req.getKey(), e);
         }
@@ -199,25 +245,16 @@ public class CephS3ConnWrapper {
             conn.getAmzClient().deleteObject(req);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "delete object failed:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey(),
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("delete object failed:siteId=" + conn.getSiteId()
                     + ", bucket=" + req.getBucketName() + ", key=" + req.getKey(), e);
-        }
-    }
-
-    public void shutdown() {
-        try {
-            conn.shutdown();
-        }
-        catch (Exception e) {
-            logger.warn("failed to shutdown connection", e);
         }
     }
 
@@ -227,7 +264,7 @@ public class CephS3ConnWrapper {
                 obj.close();
             }
             catch (IOException e) {
-                checkFatalError(e);
+                checkError(e);
                 logger.warn("failed to close obj:bucket={}, key={}", obj.getBucketName(),
                         obj.getKey(), e);
             }
@@ -247,7 +284,7 @@ public class CephS3ConnWrapper {
             while (c.isTruncated());
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "failed to get part list:siteId=" + conn.getSiteId() + ", bucket="
                             + req.getBucketName() + ", key=" + req.getKey() + ", uploadId="
@@ -255,7 +292,7 @@ public class CephS3ConnWrapper {
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("failed to get part list:siteId=" + conn.getSiteId()
                     + ", bucket=" + req.getBucketName() + ", key=" + req.getKey() + ", uploadId="
                     + req.getUploadId(), e);
@@ -271,16 +308,43 @@ public class CephS3ConnWrapper {
             conn.getAmzClient().putObject(bucketName, key, data, objMeta);
         }
         catch (AmazonServiceException e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
                     "failed to put object:siteId=" + conn.getSiteId() + ", bucket=" + bucketName
                             + ", key=" + key + ", dataLen=" + dataLen,
                     e);
         }
         catch (Exception e) {
-            checkFatalError(e);
+            checkError(e);
             throw new CephS3Exception("failed to put object:siteId=" + conn.getSiteId()
                     + ", bucket=" + bucketName + ", key=" + key + ", dataLen=" + dataLen, e);
         }
     }
+
+    public boolean isObjectsUpToSpecifiedCount(String bucketName, int count) {
+        ListObjectsRequest listObjReq = new ListObjectsRequest();
+        listObjReq.setBucketName(bucketName);
+        listObjReq.setMaxKeys(count);
+
+        int objectCount = 0;
+        ObjectListing listing;
+        do {
+            listing = conn.getAmzClient().listObjects(listObjReq);
+            objectCount += listing.getObjectSummaries().size();
+            if (objectCount >= count) {
+                return true;
+            }
+        }
+        while (listing.isTruncated());
+        logger.info("the bucket object count is {}, not up to {}", objectCount, count);
+        return false;
+    }
+
+    CephS3Conn getConn() {
+        return conn;
+    }
+}
+enum CephS3ConnType{
+    primary,
+    standby;
 }

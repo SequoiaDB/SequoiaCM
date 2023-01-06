@@ -1,11 +1,9 @@
 package com.sequoiacm.metasource.sequoiadb.accessor;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.common.LruMap;
-import com.sequoiacm.metasource.MetaAccessor;
-import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.MetaFileAccessor;
-import com.sequoiadb.base.Sequoiadb;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -13,6 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.LruMap;
+import com.sequoiacm.metasource.MetaCursor;
+import com.sequoiacm.metasource.MetaFileAccessor;
 import com.sequoiacm.metasource.MetaFileHistoryAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
@@ -20,11 +22,8 @@ import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
+import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.SDBError;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     private static final Logger logger = LoggerFactory.getLogger(SdbFileHistoryAccessor.class);
@@ -67,8 +66,9 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
 
     @Override
     public boolean addToSiteList(String fileId, int majorVersion, int minorVersion, int siteId,
-            Date date, int wsVersion) throws ScmMetasourceException {
-        return baseAccesor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date, wsVersion);
+            Date date, int wsVersion, String tableName) throws ScmMetasourceException {
+        return baseAccesor.addToSiteList(fileId, majorVersion, minorVersion, siteId, date,
+                wsVersion, tableName);
     }
 
     @Override

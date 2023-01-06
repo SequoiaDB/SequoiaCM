@@ -31,7 +31,7 @@ public class UploadMeta {
     public static final String META_LIST = "meta_list";
     public static final String TAGGING = "tagging";
     public static final String META_WS_VERSION = "ws_version";
-
+    public static final String META_TABLE_NAME = "table_name";
     private String key;
     private long bucketId;
     private String dataId;
@@ -51,6 +51,8 @@ public class UploadMeta {
     private int metaListLength = 0;
     private String wsName;
     private int wsVersion;
+    private String tableName;
+
 
     public UploadMeta() {
     }
@@ -102,6 +104,9 @@ public class UploadMeta {
         }
         else {
             this.wsVersion = 1;
+        }
+        if (record.get(UploadMeta.META_TABLE_NAME) != null) {
+            this.tableName = record.get(UploadMeta.META_TABLE_NAME).toString();
         }
     }
 
@@ -253,6 +258,14 @@ public class UploadMeta {
         return wsVersion;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
     public UploadMeta(HttpServletRequest req) throws S3ServerException {
         Enumeration<String> names = req.getHeaderNames();
         while (names.hasMoreElements()) {
@@ -290,6 +303,6 @@ public class UploadMeta {
                 + ", contentDisposition='" + contentDisposition + '\'' + ", expires='" + expires
                 + '\'' + ", contentLanguage='" + contentLanguage + '\'' + ", metaList=" + metaList
                 + ", tagging=" + tagging + ", metaListLength=" + metaListLength + ", wsName='"
-                + wsName + '\'' + ", wsVersion=" + wsVersion + '}';
+                + wsName + '\'' + ", wsVersion=" + wsVersion + ", tableName=" + tableName + '}';
     }
 }

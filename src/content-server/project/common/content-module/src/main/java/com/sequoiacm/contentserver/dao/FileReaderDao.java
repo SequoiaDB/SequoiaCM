@@ -1,5 +1,17 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
@@ -8,27 +20,19 @@ import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.remote.*;
+import com.sequoiacm.contentserver.remote.ScmFileReader;
+import com.sequoiacm.contentserver.remote.ScmLocalFileReader;
+import com.sequoiacm.contentserver.remote.ScmRemoteFileReader;
+import com.sequoiacm.contentserver.remote.ScmRemoteFileReaderSeakable;
+import com.sequoiacm.contentserver.remote.ScmRemoteFileReaderWrapper;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.strategy.common.StrategyDefine;
 import com.sequoiacm.infrastructure.strategy.element.SiteInfo;
-import org.bson.BSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class FileReaderDao {
     private static final Logger logger = LoggerFactory.getLogger(FileReaderDao.class);
@@ -69,8 +73,8 @@ public class FileReaderDao {
                         "Data is not exist in the site. siteId:" + localSiteId + ", wsName:"
                                 + wsName + ", fileId:" + fileId);
             }
-            ScmDataInfo localDataInfo = new ScmDataInfo(fileRecord,
-                    localFileLocation.getWsVersion());
+            ScmDataInfo localDataInfo = ScmDataInfo.forOpenExistData(fileRecord,
+                    localFileLocation.getWsVersion(), localFileLocation.getTableName());
             fileReader = new ScmLocalFileReader(localSiteId, wsInfo, localDataInfo);
             return;
         }
@@ -84,11 +88,12 @@ public class FileReaderDao {
         List<Integer> siteIdList = CommonHelper.getFileLocationIdList(siteList);
         boolean dontCacheLocal = false;
         // read from local
-        if (fileLocationMap.get(localSiteId) != null) {
+        ScmFileLocation localFileLocation = fileLocationMap.get(localSiteId);
+        if (localFileLocation != null) {
             // create local reader
             try {
-                ScmDataInfo localDataInfo = new ScmDataInfo(fileRecord,
-                        fileLocationMap.get(localSiteId).getWsVersion());
+                ScmDataInfo localDataInfo = ScmDataInfo.forOpenExistData(fileRecord,
+                        localFileLocation.getWsVersion(), localFileLocation.getTableName());
                 fileReader = createLocalReader(localDataInfo, size);
                 return;
             }
@@ -118,7 +123,8 @@ public class FileReaderDao {
                     "unsupported create seekable remote reader, if dont cache local");
         }
 
-        ScmDataInfo writeLocalDataInfo = new ScmDataInfo(fileRecord, wsInfo.getVersion());
+        ScmDataInfo writeLocalDataInfo = ScmDataInfo.forCreateNewData(fileRecord,
+                wsInfo.getVersion());
         while (siteIdList.size() != 0) {
             SiteInfo siteInfo = ScmStrategyMgr.getInstance().getNearestSite(wsInfo, siteIdList,
                     localSiteId, fileId);

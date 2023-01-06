@@ -1,19 +1,21 @@
 package com.sequoiacm.contentserver.dao;
 
+import java.util.Date;
+
+import org.springframework.util.StringUtils;
+
 import com.sequoiacm.contentserver.datasourcemgr.ScmDataOpFactoryAssit;
 import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import org.springframework.util.StringUtils;
-
-import java.util.Date;
 
 public class BreakpointFileDeleter {
 
@@ -60,10 +62,10 @@ public class BreakpointFileDeleter {
 
     private void abortBreakpointFile() throws ScmServerException, ScmDatasourceException {
         ScmBreakpointDataWriter writer = ScmDataOpFactoryAssit.getFactory().createBreakpointWriter(
-                workspaceInfo.getDataLocation(file.getWsVersion()), ScmContentModule.getInstance().getDataService(),
-                workspaceInfo.getName(), file.getFileName(), file.getDataId(),
-                new Date(file.getCreateTime()), false, file.getUploadSize(),
-                file.getExtraContext());
+                workspaceInfo.getDataLocation(file.getWsVersion()),
+                ScmContentModule.getInstance().getDataService(), workspaceInfo.getName(),
+                file.getFileName(), file.getDataId(), new Date(file.getCreateTime()), false,
+                file.getUploadSize(), file.getExtraContext(), new ScmDataWriterContext());
         try {
             writer.abort();
         }
@@ -74,8 +76,9 @@ public class BreakpointFileDeleter {
     }
 
     private void deleteCompleteFile() throws ScmServerException {
-        ScmDataInfo dataInfo = new ScmDataInfo(ENDataType.Normal.getValue(), file.getDataId(),
-                new Date(file.getCreateTime()), file.getWsVersion());
+        ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(ENDataType.Normal.getValue(),
+                file.getDataId(),
+                new Date(file.getCreateTime()), file.getWsVersion(), file.getTableName());
 
         ScmDataDeletor dataDeleter;
         try {

@@ -1,9 +1,9 @@
 package com.sequoiacm.cephs3.dataservice;
 
+import java.util.Map;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.retry.PredefinedRetryPolicies;
-
-import java.util.Map;
 
 public class CephS3ConnectionConf {
     static final String DEFAULT_SIGNER_OVERRIDE = "S3SignerType";
@@ -15,6 +15,9 @@ public class CephS3ConnectionConf {
     static final String CONF_KEY_MAX_ERROR_RETRY = "maxErrorRetry";
     static final String CONF_KEY_USE_EXPECT_CONTINUE = "useExpectContinue";
 
+    static final String CONF_KEY_IDLE_CLIENT_CLEAN_INTERVAL = "idleClientCleanInterval";
+    static final String CONF_KEY_IDLE_CLIENT_TIMEOUT = "idleClientTimeout";
+
     private String s3SignerOverride = DEFAULT_SIGNER_OVERRIDE;
     private int socketTimeout = ClientConfiguration.DEFAULT_SOCKET_TIMEOUT;
     private int maxConnection = ClientConfiguration.DEFAULT_MAX_CONNECTIONS;
@@ -22,6 +25,9 @@ public class CephS3ConnectionConf {
     private int connectionTimeout = ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT;
     private int maxErrorRetry = PredefinedRetryPolicies.DEFAULT_MAX_ERROR_RETRY;
     private boolean useExpectContinue = false;
+
+    private int idleClientCleanInterval = 10 * 60 * 1000;
+    private int idleClientTimeout = 20 * 60 * 1000;
 
     public CephS3ConnectionConf(Map<String, String> confProp, String prefix) {
         if (confProp.containsKey(prefix + CONF_KEY_SIGNER_OVERRIDE)) {
@@ -66,6 +72,26 @@ public class CephS3ConnectionConf {
             useExpectContinue = Boolean
                     .parseBoolean(confProp.get(prefix + CONF_KEY_USE_EXPECT_CONTINUE));
         }
+
+        if (confProp.containsKey(prefix + CONF_KEY_IDLE_CLIENT_CLEAN_INTERVAL)) {
+            idleClientCleanInterval = Integer
+                    .parseInt(confProp.get(prefix + CONF_KEY_IDLE_CLIENT_CLEAN_INTERVAL));
+            if (idleClientCleanInterval < 0) {
+                throw new IllegalArgumentException(
+                        "ceph s3 " + prefix + CONF_KEY_IDLE_CLIENT_CLEAN_INTERVAL
+                                + " must be greater than 0: " + idleClientCleanInterval);
+            }
+        }
+
+        if (confProp.containsKey(prefix + CONF_KEY_IDLE_CLIENT_TIMEOUT)) {
+            idleClientTimeout = Integer
+                    .parseInt(confProp.get(prefix + CONF_KEY_IDLE_CLIENT_TIMEOUT));
+            if (idleClientTimeout < 0) {
+                throw new IllegalArgumentException(
+                        "ceph s3 " + prefix + CONF_KEY_IDLE_CLIENT_TIMEOUT
+                                + " must be greater than 0: " + idleClientTimeout);
+            }
+        }
     }
 
     public int getMaxErrorRetry() {
@@ -100,12 +126,21 @@ public class CephS3ConnectionConf {
         return useExpectContinue;
     }
 
+    public int getIdleClientCleanInterval() {
+        return idleClientCleanInterval;
+    }
+
+    public int getIdleClientTimeout() {
+        return idleClientTimeout;
+    }
+
     @Override
     public String toString() {
         return "CephS3ConnectionConf{" + "s3SignerOverride='" + s3SignerOverride + '\''
                 + ", socketTimeout=" + socketTimeout + ", maxConnection=" + maxConnection
                 + ", connectionTTL=" + connectionTTL + ", connectionTimeout=" + connectionTimeout
                 + ", maxErrorRetry=" + maxErrorRetry + ", useExpectContinue=" + useExpectContinue
-                + '}';
+                + ", idleClientCleanInterval=" + idleClientCleanInterval + ", idleClientTimeout="
+                + idleClientTimeout + '}';
     }
 }

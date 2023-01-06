@@ -1,20 +1,20 @@
 package com.sequoiacm.sequoiadb.dataopertion;
 
-import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.infrastructure.common.annotation.SlowLog;
-import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
-import com.sequoiacm.infrastructure.lock.ScmLockManager;
-import com.sequoiacm.metasource.MetaSource;
-import com.sequoiacm.sequoiadb.metaoperation.MetaDataOperator;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.dataoperation.ScmBreakpointDataWriter;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
+import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.metasource.MetaSource;
 import com.sequoiacm.sequoiadb.SequoiadbException;
 import com.sequoiacm.sequoiadb.dataservice.SdbDataService;
 import com.sequoiacm.sequoiadb.dataservice.SequoiadbHelper;
+import com.sequoiacm.sequoiadb.metaoperation.MetaDataOperator;
 import com.sequoiadb.base.DBLob;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.exception.BaseException;
@@ -213,7 +213,7 @@ public class SdbBreakpointDataWriter implements ScmBreakpointDataWriter {
     }
 
     @Override
-    public BSONObject getContext() {
+    public BSONObject getBreakpointContext() {
         return null;
     }
 

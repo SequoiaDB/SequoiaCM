@@ -6,7 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.CommonHelper;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockPathDefine;
@@ -14,12 +23,18 @@ import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.DataInfo;
 import com.sequoiacm.contentserver.remote.RemoteCommonUtil;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
+import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataOpFactory;
 import com.sequoiacm.datasource.dataservice.ScmService;
 import com.sequoiacm.datasource.metadata.ScmLocation;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionConverter;
+import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.lock.ScmLockPath;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
@@ -28,24 +43,10 @@ import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.SequoiadbDatasource;
+
 import feign.Response;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.CommonHelper;
-import com.sequoiacm.common.FieldName;
-import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.dataoperation.ScmDataDeletor;
-import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.lock.ScmLock;
 
 enum DoFileRes {
     SUCCESS,
@@ -129,7 +130,8 @@ public class TaskCleanFile implements Runnable {
         ContentServerClient client = remoteClientMgr.getClient(url);
         try {
             DataInfo a = client.headDataInfo(siteInfoMgr.getSiteNameById(dataInOtherSiteId), ws,
-                    dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion());
+                    dataInfo.getId(), dataInfo.getType(), dataInfo.getCreateTime().getTime(),
+                    dataInfo.getWsVersion(), dataInfo.getTableName());
 
             if (size == a.getSize()) {
                 return true;
@@ -195,11 +197,15 @@ public class TaskCleanFile implements Runnable {
             return DoFileRes.SKIP;
         }
         // 确认对端站点数据确实可用(规避极端情况下，数据损坏等问题)，再删除本地站点数据
-        ScmDataInfo remoteDataInfo = new ScmDataInfo(file, fileLocationMap.get(dataInOtherSiteId).getWsVersion());
+        ScmFileLocation location = fileLocationMap.get(dataInOtherSiteId);
+        ScmDataInfo remoteDataInfo = ScmDataInfo.forOpenExistData(file, location.getWsVersion(),
+                location.getTableName());
         if (isRemoteDataExist(dataInOtherSiteId, remoteDataInfo, size)) {
             deleteSiteFromFile(fileId, majorVersion, minorVersion);
             try {
-                ScmDataInfo cleanDataInfo = new ScmDataInfo(file, fileLocationMap.get(cleanSiteId).getWsVersion());
+                ScmDataInfo cleanDataInfo = ScmDataInfo.forOpenExistData(file,
+                        fileLocationMap.get(cleanSiteId).getWsVersion(),
+                        fileLocationMap.get(cleanSiteId).getTableName());
                 ScmDataDeletor deleter = scmDataOpFactory.createDeletor(cleanSiteId, ws,
                         cleanSiteDataLocation, cleanSiteDataService, cleanDataInfo);
                 deleter.delete();

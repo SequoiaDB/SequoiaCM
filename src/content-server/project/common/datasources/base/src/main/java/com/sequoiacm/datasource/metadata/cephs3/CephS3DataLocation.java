@@ -6,11 +6,13 @@ import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sequoiacm.common.CephS3UserInfo;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 
 public class CephS3DataLocation extends ScmLocation {
     private static final Logger logger = LoggerFactory.getLogger(CephS3DataLocation.class);
@@ -18,6 +20,26 @@ public class CephS3DataLocation extends ScmLocation {
     private String prefixBucketName;
     private String bucketName;
     private ScmShardingType objectShardingType;
+
+    private CephS3UserInfo primaryUserInfo;
+
+    private CephS3UserInfo standbyUserInfo;
+
+    public CephS3UserInfo getPrimaryUserInfo() {
+        return primaryUserInfo;
+    }
+
+    public void setPrimaryUserInfo(CephS3UserInfo primaryUserInfo) {
+        this.primaryUserInfo = primaryUserInfo;
+    }
+
+    public CephS3UserInfo getStandbyUserInfo() {
+        return standbyUserInfo;
+    }
+
+    public void setStandbyUserInfo(CephS3UserInfo standbyUserInfo) {
+        this.standbyUserInfo = standbyUserInfo;
+    }
 
     public CephS3DataLocation(BSONObject record, String siteName) throws ScmDatasourceException {
         super(record, siteName);
@@ -32,6 +54,27 @@ public class CephS3DataLocation extends ScmLocation {
             }
             prefixBucketName = (String) record.get(FieldName.FIELD_CLWORKSPACE_CONTAINER_PREFIX);
             bucketName = (String) record.get(FieldName.FIELD_CLWORKSPACE_BUCKET_NAME);
+            BSONObject info = (BSONObject) record.get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO);
+            if (info != null){
+                BSONObject primary = (BSONObject) info.get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_PRIMARY);
+                if (primary != null) {
+                    String primaryUser = BsonUtils.getStringChecked(primary,
+                            FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER);
+                    String primaryPassword = BsonUtils.getStringChecked(primary,
+                            FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD);
+                    CephS3UserInfo primaryInfo = new CephS3UserInfo(primaryUser, primaryPassword);
+                    setPrimaryUserInfo(primaryInfo);
+                }
+                BSONObject standby = (BSONObject) info.get(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_STANDBY);
+                if (standby != null){
+                    String standbyUser = BsonUtils.getStringChecked(standby,
+                            FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER);
+                    String standbyPassword = BsonUtils.getStringChecked(standby,
+                            FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD);
+                    CephS3UserInfo standbyInfo = new CephS3UserInfo(standbyUser, standbyPassword);
+                    setStandbyUserInfo(standbyInfo);
+                }
+            }
         }
         catch (Exception e) {
             logger.error("parse data location failed:location=" + record.toString());

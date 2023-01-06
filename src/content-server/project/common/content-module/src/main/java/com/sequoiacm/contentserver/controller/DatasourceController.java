@@ -1,6 +1,33 @@
 package com.sequoiacm.contentserver.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
@@ -12,25 +39,11 @@ import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
+import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/internal/v1")
@@ -49,9 +62,11 @@ public class DatasourceController {
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
-            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION, required = false, defaultValue = "1") Integer wsVersion)
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION, required = false, defaultValue = "1") Integer wsVersion,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME, required = false) String tableName)
             throws ScmServerException {
-        datasourceService.deleteDataLocal(wsName, new ScmDataInfo(type, dataId, new Date(createTime), wsVersion));
+        datasourceService.deleteDataLocal(wsName, ScmDataInfo.forOpenExistData(type, dataId,
+                new Date(createTime), wsVersion, tableName));
     }
 
     @DeleteMapping(path = "/datasource/{data_id}", params = "action=delete_data_in_site_list")
@@ -70,7 +85,7 @@ public class DatasourceController {
             for (Integer siteId : siteList){
                 // 在当前 delete 流程中， ScmFileLocation 的生命周期里没有使用到 lastAccessTime 的地方
                 // 由于接口中没有传递 lastAccessTime，构造 ScmFileLocation 使用的是 crateTime 填充 lastAccessTime,
-                siteLocations.add(new ScmFileLocation(siteId, createTime, createTime, 1));
+                siteLocations.add(new ScmFileLocation(siteId, createTime, createTime, 1, null));
             }
         }
         datasourceService.deleteDataInSiteList(wsName, dataId, type, createTime, siteLocations);
@@ -84,14 +99,15 @@ public class DatasourceController {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
             @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag,
             @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION, required = false, defaultValue = "1") Integer wsVersion,
-            HttpServletResponse response) throws ScmServerException {
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME, required = false) String tableName,
+                         HttpServletResponse response) throws ScmServerException {
         response.setHeader("Content-Disposition", "attachment; filename=" + dataId);
 
         ServletOutputStream os = RestUtils.getOutputStream(response);
         if (targetSiteName == null || targetSiteName
                 .equals(ScmContentModule.getInstance().getLocalSiteInfo().getName())) {
             DatasourceReaderDao dao = datasourceService.readData(wsName, dataId, type, createTime,
-                    readFlag, os, wsVersion);
+                    readFlag, os, wsVersion, tableName);
             try {
                 response.setHeader(CommonDefine.RestArg.DATA_LENGTH, dao.getSize() + "");
                 dao.read(os);
@@ -118,7 +134,9 @@ public class DatasourceController {
             try {
                 innerRemoteDataReader = new ScmInnerRemoteDataReader(targetSiteInfo.getId(),
                         contentModule.getWorkspaceInfoCheckExist(wsName),
-                        new ScmDataInfo(type, dataId, new Date(createTime), wsVersion), readFlag);
+                        ScmDataInfo.forOpenExistData(type, dataId, new Date(createTime), wsVersion,
+                                tableName),
+                        readFlag);
                 response.setHeader(CommonDefine.RestArg.DATA_LENGTH,
                         String.valueOf(innerRemoteDataReader.getExpectDataLen()));
                 byte[] buf = new byte[Const.TRANSMISSION_LEN];
@@ -153,6 +171,7 @@ public class DatasourceController {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
             @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION, required = false, defaultValue = "1") Integer wsVersion,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME, required = false) String tableName,
             HttpServletResponse response) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         int localSiteId = contentModule.getLocalSite();
@@ -167,11 +186,13 @@ public class DatasourceController {
         }
         if (localSiteId == dataLocationSiteId) {
 
-            BSONObject dataInfo = datasourceService.getDataInfo(wsName, new ScmDataInfo(type, dataId, new Date(createTime), wsVersion));
+            BSONObject dataInfo = datasourceService.getDataInfo(wsName, ScmDataInfo
+                    .forOpenExistData(type, dataId, new Date(createTime), wsVersion, tableName));
             response.setHeader(CommonDefine.RestArg.DATASOURCE_DATA_HEADER, dataInfo.toString());
         }
         else {
-            ScmDataInfo scmDataInfo = new ScmDataInfo(type, dataId, new Date(createTime), wsVersion);
+            ScmDataInfo scmDataInfo = ScmDataInfo.forOpenExistData(type, dataId,
+                    new Date(createTime), wsVersion, tableName);
             long size = FileCommonOperator.getSize(siteName, wsName, scmDataInfo);
             BSONObject retInfo = new BasicBSONObject();
             retInfo.put(CommonDefine.RestArg.DATASOURCE_DATA_SIZE, size);
@@ -181,19 +202,29 @@ public class DatasourceController {
     }
 
     @PostMapping(value = "/datasource/{data_id}")
-    public void createData(@PathVariable("data_id") String dataId,
+    public ResponseEntity<String> createData(@PathVariable("data_id") String dataId,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) int wsVersion,
             HttpServletRequest request) throws ScmServerException, IOException {
         InputStream is = request.getInputStream();
+        ScmDataWriterContext writerContext = new ScmDataWriterContext();
         try {
-            datasourceService.createDataInLocal(wsName, new ScmDataInfo(type, dataId, new Date(createTime), wsVersion), is);
+            datasourceService.createDataInLocal(wsName,
+                    ScmDataInfo.forCreateNewData(type, dataId, new Date(createTime), wsVersion), is,
+                    writerContext);
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(is);
         }
+        ResponseEntity.BodyBuilder ret = ResponseEntity.ok();
+        String tableName = writerContext.getTableName();
+        if (tableName != null) {
+            ret.header(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME, tableName);
+        }
+        ret.body("");
+        return ret.build();
     }
 
     @DeleteMapping(value = "/datasource/tables")

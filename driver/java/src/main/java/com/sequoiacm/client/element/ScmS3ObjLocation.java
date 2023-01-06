@@ -1,11 +1,12 @@
 package com.sequoiacm.client.element;
 
+import java.util.Map;
+
+import org.bson.BSONObject;
+
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.common.FieldName;
-import org.bson.BSONObject;
-
-import java.util.Map;
 
 public class ScmS3ObjLocation extends ScmContentLocation {
 
@@ -43,5 +44,11 @@ public class ScmS3ObjLocation extends ScmContentLocation {
      */
     public String getObjectId() {
         return objectId;
+    }
+
+    @Override
+    public String toString() {
+        return "ScmS3ObjLocation{" + "bucket='" + bucket + '\'' + ", objectId='" + objectId + '\''
+                + '}';
     }
 }

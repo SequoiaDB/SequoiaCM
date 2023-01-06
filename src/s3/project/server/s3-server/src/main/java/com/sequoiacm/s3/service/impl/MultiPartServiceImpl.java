@@ -135,7 +135,7 @@ public class MultiPartServiceImpl implements MultiPartService {
                                 + uploadMeta.getSiteId());
             }
             return processor.uploadPart(bucket.getWorkspace(), uploadId, partNumber, contentMD5,
-                    inputStream, contentLength, uploadMeta.getWsVersion());
+                    inputStream, contentLength, uploadMeta.getWsVersion(), uploadMeta.getTableName());
         }
         catch (ScmLockTimeoutException e) {
             throw new S3ServerException(S3Error.PART_UPLOAD_CONFLICT, "The uploadId is busy", e);

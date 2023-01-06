@@ -325,6 +325,8 @@ public class CommonDefine {
         public static final String DATASOURCE_SITE_LIST = "site_list";
         public static final String DATASOURCE_SITE_LIST_WS_VERSION = "ws_version";
 
+        public static final String DATASOURCE_SITE_LIST_TABLE_NAME = "table_name";
+
         public static final String FILE_ID = "id";
         public static final String FILE_READ_FLAG = "read_flag";
         public static final String FILE_MAJOR_VERSION = "major_version";

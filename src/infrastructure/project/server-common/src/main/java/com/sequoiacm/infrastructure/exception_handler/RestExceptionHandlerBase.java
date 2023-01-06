@@ -2,12 +2,15 @@ package com.sequoiacm.infrastructure.exception_handler;
 
 import java.net.URLEncoder;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,7 +32,8 @@ public abstract class RestExceptionHandlerBase {
                 request.getLocalName() + ":" + request.getLocalPort());
         String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
 
-        ExceptionBody exceptionBody = convertToExceptionBody(e);
+        ExceptionInfo exceptionInfo = covertToExceptionInfo(e);
+        ExceptionBody exceptionBody = exceptionInfo.getExceptionBody();
         if (exceptionBody == null) {
             // unexpected exception
             String log = String.format("sessionId=%s, request=%s", sessionId,
@@ -44,9 +48,19 @@ public abstract class RestExceptionHandlerBase {
         exceptionBody.setException(e.getClass().getName());
         exceptionBody.setPath(request.getRequestURI());
 
-        String log = String.format("sessionId=%s, request=%s, errcode=%d, errcodeDesc=%s", sessionId,
-                request.getRequestURI(), exceptionBody.getStatus(), exceptionBody.getError());
+        String log = String.format("sessionId=%s, request=%s, errcode=%d, errcodeDesc=%s",
+                sessionId, request.getRequestURI(), exceptionBody.getStatus(),
+                exceptionBody.getError());
         logger.error(log, e);
+
+        HttpHeaders exceptionInfoHeader = new HttpHeaders();
+        if (exceptionInfo.getExtraExceptionHeader() != null) {
+            for (Map.Entry<String, String> entry : exceptionInfo.getExtraExceptionHeader()
+                    .entrySet()) {
+                exceptionInfoHeader.add(entry.getKey(), entry.getValue());
+            }
+        }
+
         if ("HEAD".equalsIgnoreCase(request.getMethod())) {
             String exceptionMsg = exceptionBody.toJson();
             String charsetStr = request.getHeader(ERROR_ATTRIBUTE_CHARSET);
@@ -61,13 +75,25 @@ public abstract class RestExceptionHandlerBase {
                 response.setHeader(ERROR_ATTRIBUTE_CHARSET, charsetStr);
             }
             response.setHeader(ERROR_ATTRIBUTE, exceptionMsg);
-            return ResponseEntity.status(exceptionBody.getHttpStatus()).build();
+            return ResponseEntity.status(exceptionBody.getHttpStatus()).headers(exceptionInfoHeader)
+                    .build();
         }
         else {
-            return ResponseEntity.status(exceptionBody.getHttpStatus()).body(exceptionBody);
+            return ResponseEntity.status(exceptionBody.getHttpStatus()).headers(exceptionInfoHeader)
+                    .body(exceptionBody);
         }
     }
 
-    // return null if the type of srcException is not recognized
-    protected abstract ExceptionBody convertToExceptionBody(Exception srcException);
+    // 只有 body 信息的异常转码，重写这个函数即可
+    // return null 表示交由父类来编码这个异常
+    protected ExceptionBody convertToExceptionBody(Exception srcException) {
+        return null;
+    }
+
+    // 需要将异常信息同时放到 body、header的转码，重写这个函数
+    // 若返回值 ExceptionInfo 中的 body 为 null，则表示交由父类来编码这个异常到 body 中
+    protected ExceptionInfo covertToExceptionInfo(Exception srcException) {
+        return new ExceptionInfo(convertToExceptionBody(srcException),
+                Collections.<String, String> emptyMap());
+    }
 }

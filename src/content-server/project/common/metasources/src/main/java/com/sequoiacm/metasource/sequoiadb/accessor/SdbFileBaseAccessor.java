@@ -2,7 +2,6 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 
 import java.util.Date;
 
-import com.sequoiacm.common.IndexName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.IndexName;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
@@ -218,7 +218,7 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
     }
 
     public boolean addToSiteList(String fileId, int majorVersion, int minorVersion, int siteId,
-            Date date, int wsVersion) throws SdbMetasourceException {
+            Date date, int wsVersion, String tableName) throws SdbMetasourceException {
         try {
             BSONObject matcher = SequoiadbHelper.dollarSiteNotInList(siteId);
             // matcher.put(FieldName.FIELD_CLFILE_ID, fileId);
@@ -226,7 +226,8 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
             matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
 
-            BSONObject updator = SequoiadbHelper.pushOneSiteToList(siteId, date.getTime(), wsVersion);
+            BSONObject updator = SequoiadbHelper.pushOneSiteToList(siteId, date.getTime(),
+                    wsVersion, tableName);
             return updateAndCheck(matcher, updator);
         }
         catch (SdbMetasourceException e) {
