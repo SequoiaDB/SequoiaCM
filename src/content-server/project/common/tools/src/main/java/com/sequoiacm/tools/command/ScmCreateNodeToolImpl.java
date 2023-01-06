@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.HashSet;
 import java.util.Properties;
 
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
@@ -293,9 +294,11 @@ public class ScmCreateNodeToolImpl extends ScmTool {
 
         // sysconf.properties
         modifier.put(PropertiesDefine.PROPERTY_SERVER_PORT, port + "");
-        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_URL, mainSite.getSdbUrl());
-        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_USER, mainSite.getSdbUser());
-        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD, mainSite.getSdbPasswdFile());
+        //content-server new and old sdb params might all need to modify
+        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW, mainSite.getSdbUrl());
+        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW, mainSite.getSdbUser());
+        modifier.put(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW, mainSite.getSdbPasswdFile());
+
         modifier.put(PropertiesDefine.PROPERTY_SCM_SPRING_APP_NAME, mySiteInfo.getName());
         modifier.put(PropertiesDefine.PROPERTY_SCM_EUREKA_METADATA_IS_ROOTSITE,
                 mySiteInfo.isRootSite() + "");
@@ -389,6 +392,7 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             }
         }
     }
+
 
     private void modifyForLogConf(Map<String, String> modifier, BufferedReader br,
             BufferedWriter bw) throws IOException {

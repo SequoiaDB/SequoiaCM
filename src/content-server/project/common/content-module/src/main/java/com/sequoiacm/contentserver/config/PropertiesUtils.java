@@ -128,6 +128,11 @@ public class PropertiesUtils {
         appProperties.add(PropertiesDefine.PROPERTY_ROOTSITE_USER);
         appProperties.add(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD);
 
+        // rootSite new
+        appProperties.add(PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW);
+
         // sdb
         appProperties.add(PropertiesDefine.PROPERTY_SDB_CONNECTTIMEOUT);
         appProperties.add(PropertiesDefine.PROPERTY_SDB_SOCKETTIMEOUT);
@@ -141,6 +146,20 @@ public class PropertiesUtils {
         appProperties.add(PropertiesDefine.PROPERTY_SDB_MAXIDLENUM);
         appProperties.add(PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD);
         appProperties.add(PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY);
+
+        // sdb new
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_CONNECTTIMEOUT_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_SOCKETTIMEOUT_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_MAXCONNECTRETRYTIME_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_USENAGLE_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_USESSL_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_KEEPALIVETIME_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_MAXCONNECTIONNUM_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_VALIDATECONNECTION_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_DELTAINCCOUNT_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_MAXIDLENUM_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD_NEW);
+        appProperties.add(PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY_NEW);
 
         // server
         appProperties.add(PropertiesDefine.PROPERTY_SERVER_PORT);
@@ -168,37 +187,51 @@ public class PropertiesUtils {
     private static String getAppProperty(String key) {
         switch (key) {
             case PropertiesDefine.PROPERTY_ROOTSITE_URL:
+            case PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW:
                 return getRootSiteUrl();
             case PropertiesDefine.PROPERTY_ROOTSITE_USER:
+            case PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW:
                 return getRootSiteUser();
             case PropertiesDefine.PROPERTY_ROOTSITE_PASSWD:
+            case PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW:
                 return getRootSitePassword();
             // sdb
             case PropertiesDefine.PROPERTY_SDB_CONNECTTIMEOUT:
+            case PropertiesDefine.PROPERTY_SDB_CONNECTTIMEOUT_NEW:
                 return String.valueOf(getConnectTimeout());
             case PropertiesDefine.PROPERTY_SDB_SOCKETTIMEOUT:
+            case PropertiesDefine.PROPERTY_SDB_SOCKETTIMEOUT_NEW:
                 return String.valueOf(getSocketTimeout());
             case PropertiesDefine.PROPERTY_SDB_MAXCONNECTRETRYTIME:
+            case PropertiesDefine.PROPERTY_SDB_MAXCONNECTRETRYTIME_NEW:
                 return String.valueOf(getMaxConnectionNum());
             case PropertiesDefine.PROPERTY_SDB_USENAGLE:
+            case PropertiesDefine.PROPERTY_SDB_USENAGLE_NEW:
                 return String.valueOf(getUseNagleFlag());
             case PropertiesDefine.PROPERTY_SDB_USESSL:
+            case PropertiesDefine.PROPERTY_SDB_USESSL_NEW:
                 return String.valueOf(getUseSSLFlag());
             case PropertiesDefine.PROPERTY_SDB_KEEPALIVETIME:
+            case PropertiesDefine.PROPERTY_SDB_KEEPALIVETIME_NEW:
                 return String.valueOf(getSdbKeepAliveTime());
             case PropertiesDefine.PROPERTY_SDB_MAXCONNECTIONNUM:
+            case PropertiesDefine.PROPERTY_SDB_MAXCONNECTIONNUM_NEW:
                 return String.valueOf(getMaxConnectionNum());
             case PropertiesDefine.PROPERTY_SDB_VALIDATECONNECTION:
+            case PropertiesDefine.PROPERTY_SDB_VALIDATECONNECTION_NEW:
                 return String.valueOf(getValidateConnection());
             case PropertiesDefine.PROPERTY_SDB_DELTAINCCOUNT:
+            case PropertiesDefine.PROPERTY_SDB_DELTAINCCOUNT_NEW:
                 return String.valueOf(getDeltaIncCount());
             case PropertiesDefine.PROPERTY_SDB_MAXIDLENUM:
+            case PropertiesDefine.PROPERTY_SDB_MAXIDLENUM_NEW:
                 return String.valueOf(getMaxIdleNum());
             case PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD:
+            case PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD_NEW:
                 return String.valueOf(getRecheckCyclePeriod());
             case PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY:
+            case PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY_NEW:
                 return String.valueOf(getConnectStrategy());
-
             // server
             case PropertiesDefine.PROPERTY_SERVER_PORT:
                 return String.valueOf(getServerPort());

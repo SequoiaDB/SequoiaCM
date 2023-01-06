@@ -23,19 +23,19 @@ SequoiaCM 配置
 |scm.conf.version.nodeHeartbeat|num|内容服务节点请求查询配置服务node版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.workspaceHeartbeat|num|内容服务节点请求查询配置服务workspace版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.metaDataHeartbeat|num|内容服务节点请求查询配置服务metaData版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
-|scm.rootsite.meta.url          |str    |内容服务节点的元数据服务地址（sequoiadb的协调节点地址列表：ip1:port2,ip2:port2）|重启生效|
-|scm.rootsite.meta.user         |str    |内容服务节点的元数据服务用户名（sequoiadb的用户名），默认用户名为空|重启生效|
-|scm.rootsite.meta.password     |str    |内容服务节点的元数据服务密码文件路径（sequoiadb的密码），默认密码为空|重启生效|
-|scm.sdb.connectTimeout     |num    |内容服务节点与sdb建立连接的超时时长，默认值：10000，单位：毫秒|重启生效|
-|scm.sdb.maxAutoConnectRetryTime|num    |内容服务节点与sdb建立连接的重试时长，默认值：15000，单位：毫秒|重启生效|
-|scm.sdb.socketTimeout            |num    |内容服务节点与sdb的socket连接超时时长，默认值：0（不设置超时），单位：毫秒|重启生效|
-|scm.sdb.useNagle                |boolean|内容服务节点与sdb的连接是否使用nagle，默认值：false            |重启生效|
-|scm.sdb.useSSL                    |boolean|内容服务节点与sdb的连接是否使用ssl，默认值：false                |重启生效|
-|scm.sdb.maxConnectionNum       |num    |内容服务节点的sdb连接池的最大连接数，默认值：500|重启生效|
-|scm.sdb.deltaIncCount          |num    |内容服务节点的sdb连接池的每次增长的连接数，默认值：10|重启生效|
-|scm.sdb.maxIdleNum             |num    |内容服务节点的sdb连接池的最大空闲连接数，默认值：10|重启生效|
-|scm.sdb.keepAliveTime          |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|重启生效|
-|scm.sdb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：30000，单位：毫秒|重启生效|
+|scm.store.sequoiadb.urls          |str    |内容服务节点的元数据服务地址（sequoiadb的协调节点地址列表：ip1:port2,ip2:port2）|重启生效|
+|scm.store.sequoiadb.username        |str    |内容服务节点的元数据服务用户名（sequoiadb的用户名），默认用户名为空|重启生效|
+|scm.store.sequoiadb.password     |str    |内容服务节点的元数据服务密码文件路径（sequoiadb的密码），默认密码为空|重启生效|
+|scm.store.sequoiadb.connectTimeout     |num    |内容服务节点与sdb建立连接的超时时长，默认值：10000，单位：毫秒|重启生效|
+|scm.store.sequoiadb.maxAutoConnectRetryTime|num    |内容服务节点与sdb建立连接的重试时长，默认值：15000，单位：毫秒|重启生效|
+|scm.store.sequoiadb.socketTimeout             |num    |内容服务节点与sdb的socket连接超时时长，默认值：0（不设置超时），单位：毫秒|重启生效|
+|scm.store.sequoiadb.useNagle                 |boolean|内容服务节点与sdb的连接是否使用nagle，默认值：false            |重启生效|
+|scm.store.sequoiadb.useSSL                    |boolean|内容服务节点与sdb的连接是否使用ssl，默认值：false                |重启生效|
+|scm.store.sequoiadb.maxConnectionNum     |num    |内容服务节点的sdb连接池的最大连接数，默认值：500|重启生效|
+|scm.store.sequoiadb.deltaIncCount          |num    |内容服务节点的sdb连接池的每次增长的连接数，默认值：10|重启生效|
+|scm.store.sequoiadb.maxIdleNum              |num    |内容服务节点的sdb连接池的最大空闲连接数，默认值：10|重启生效|
+|scm.store.sequoiadb.keepAliveTime         |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|重启生效|
+|scm.store.sequoiadb.validateConnection    |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：30000，单位：毫秒|重启生效|
 |scm.sdb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|重启生效|
 | scm.sdb.connectStrategy                   | str     | 内容服务节点的sdb连接池连接策略，可选值(SERIAL, RANDOM, LOCAL, BALANCE) 默认值：SERIAL | 重启生效
 |scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|重启生效|

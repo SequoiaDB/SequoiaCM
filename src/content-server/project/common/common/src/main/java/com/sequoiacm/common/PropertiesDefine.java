@@ -9,6 +9,11 @@ public class PropertiesDefine {
     public static final String PROPERTY_ROOTSITE_USER = "scm.rootsite.meta.user";
     public static final String PROPERTY_ROOTSITE_PASSWD = "scm.rootsite.meta.password";
 
+    // *********************** ROOT SITE NEW ******************************
+    public static final String PROPERTY_ROOTSITE_URL_NEW = "scm.store.sequoiadb.urls";
+    public static final String PROPERTY_ROOTSITE_USER_NEW = "scm.store.sequoiadb.username";
+    public static final String PROPERTY_ROOTSITE_PASSWD_NEW = "scm.store.sequoiadb.password";
+
     // *********************** SEQUOIADB ******************************
     public static final String PROPERTY_SDB_CONNECTTIMEOUT = "scm.sdb.connectTimeout";
     public static final String PROPERTY_SDB_SOCKETTIMEOUT = "scm.sdb.socketTimeout";
@@ -22,6 +27,20 @@ public class PropertiesDefine {
     public static final String PROPERTY_SDB_MAXIDLENUM = "scm.sdb.maxIdleNum";
     public static final String PROPERTY_SDB_RECHECKPERIOD = "scm.sdb.recheckCyclePeriod";
     public static final String PROPERTY_SDB_CONNECTSTRATEGY = "scm.sdb.connectStrategy";
+
+    // *********************** SEQUOIADB NEW******************************
+    public static final String PROPERTY_SDB_CONNECTTIMEOUT_NEW = "scm.store.sequoiadb.connectTimeout";
+    public static final String PROPERTY_SDB_SOCKETTIMEOUT_NEW = "scm.store.sequoiadb.socketTimeout";
+    public static final String PROPERTY_SDB_MAXCONNECTRETRYTIME_NEW = "scm.store.sequoiadb.maxAutoConnectRetryTime";
+    public static final String PROPERTY_SDB_USENAGLE_NEW = "scm.store.sequoiadb.useNagle";
+    public static final String PROPERTY_SDB_USESSL_NEW = "scm.store.sequoiadb.useSSL";
+    public static final String PROPERTY_SDB_KEEPALIVETIME_NEW = "scm.store.sequoiadb.keepAliveTime";
+    public static final String PROPERTY_SDB_MAXCONNECTIONNUM_NEW = "scm.store.sequoiadb.maxConnectionNum";
+    public static final String PROPERTY_SDB_VALIDATECONNECTION_NEW = "scm.store.sequoiadb.validateConnection";
+    public static final String PROPERTY_SDB_DELTAINCCOUNT_NEW = "scm.store.sequoiadb.deltaIncCount";
+    public static final String PROPERTY_SDB_MAXIDLENUM_NEW = "scm.store.sequoiadb.maxIdleNum";
+    public static final String PROPERTY_SDB_RECHECKPERIOD_NEW = "scm.store.sequoiadb.recheckCyclePeriod";
+    public static final String PROPERTY_SDB_CONNECTSTRATEGY_NEW = "scm.store.sequoiadb.connectStrategy";
 
     // *********************** SERVER ******************************
     public static final String PROPERTY_SERVER_PORT = "server.port";

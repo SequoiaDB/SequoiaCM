@@ -21,6 +21,7 @@ import com.sequoiacm.tools.element.ScmNodeStatus;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ServerInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
+import org.springframework.util.StringUtils;
 
 public class ScmExecutorWrapper {
     private ScmExecutor executor;
@@ -88,7 +89,11 @@ public class ScmExecutorWrapper {
             try {
                 Properties prop = PropertiesUtil
                         .loadProperties(conf + ScmContentCommon.APPLICATION_PROPERTIES);
-                String sdb = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_URL);
+                String sdb = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW);
+                if (StringUtils.isEmpty(sdb)){
+                    sdb = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_URL);
+                }
+
                 if (sdb != null && sdb.length() != 0) {
                     String sdbUser = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_USER, "");
                     String passwdFile = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD,

@@ -19,7 +19,7 @@ public class S3Admin {
 
         HashMap<String, ScmNodeRequiredParamGroup> nodeProperties = new HashMap<>();
         ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = ScmNodeRequiredParamGroup.newBuilder()
-                .addCloudParam().addServerPortParam(8002).addMetaDataParam().addZkParam()
+                .addCloudParam().addServerPortParam(8002).addSdbParam().addZkParam()
                 .addParam(ScmNodeRequiredParam.keyParamInstance("scm.content-module.site",
                         "-Dscm.content-module.site=rootsite"))
                 .addParam(ScmNodeRequiredParam.keyParamInstance("spring.application.name",

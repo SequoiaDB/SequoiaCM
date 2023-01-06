@@ -18,7 +18,7 @@ createnode 子命令提供创建 S3 服务节点的功能。
 创建 s3 服务节点
 
    ```lang-javascript
-   $ s3admin.sh createnode --type s3-server -Dserver.port=16100 -Deureka.client.region=DefaultRegion -Dscm.content-module.site=rootsite -Dspring.application.name=rootsite-s3 -Deureka.client.service-url.zone1=http://service-center-host:8801/eureka/ -Deureka.instance.metadata-map.zone=zone1  -Deureka.client.availability-zones.DefaultRegion=zone1 -Dscm.zookeeper.urls=zookeeper:2981 -Dscm.rootsite.meta.url=metasource-sdb:11810 -Dscm.rootsite.meta.user=sdbadmin -Dscm.rootsite.meta.password=/opt/scm4/sequoiacm/secret/metasource.pwd  --adurl audit-sdb:11810 --aduser sdbadmin --adpasswd /opt/scm4/sequoiacm/secret/auditsource.pwd
+   $ s3admin.sh createnode --type s3-server -Dserver.port=16100 -Deureka.client.region=DefaultRegion -Dscm.content-module.site=rootsite -Dspring.application.name=rootsite-s3 -Deureka.client.service-url.zone1=http://service-center-host:8801/eureka/ -Deureka.instance.metadata-map.zone=zone1  -Deureka.client.availability-zones.DefaultRegion=zone1 -Dscm.zookeeper.urls=zookeeper:2981 -Dscm.store.sequoiadb.urls=metasource-sdb:11810 -Dscm.store.sequoiadb.username=sdbadmin -Dscm.store.sequoiadb.password=/opt/scm4/sequoiacm/secret/metasource.pwd  --adurl audit-sdb:11810 --aduser sdbadmin --adpasswd /opt/scm4/sequoiacm/secret/auditsource.pwd
    ```
 
 [s3_config]:Maintainance/Node_Config/s3.md

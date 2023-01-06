@@ -1,25 +1,48 @@
 package com.sequoiacm.contentserver.config;
 
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.PropertiesDefine;
+import org.springframework.beans.factory.annotation.Value;
 import com.sequoiadb.datasource.ConnectStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "scm.sdb")
+@ConfigurationProperties(prefix = "scm.store.sequoiadb")
 public class SdbConfig {
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_CONNECTTIMEOUT + ":10000}")
     private int connectTimeout = CommonDefine.DefaultValue.SDB_CONNECT_TIMEOUT;
-    private int socketTimeout = CommonDefine.DefaultValue.SDB_SOCKET_TIMEOUT;
-    private long maxAutoConnectRetryTime = CommonDefine.DefaultValue.SDB_MAX_CONN_RETRY_TIME;
-    private boolean useNagle = CommonDefine.DefaultValue.SDB_USE_NAGLE;
-    private boolean useSSL = CommonDefine.DefaultValue.SDB_USE_SSL;
-    private int keepAliveTime = CommonDefine.DefaultValue.SDB_KEEP_ALIVE_TIME;
-    private int maxConnectionNum = CommonDefine.DefaultValue.SDB_MAX_CONN_NUM;
-    private boolean validateConnection = CommonDefine.DefaultValue.SDB_VALIDATE_CONN;
-    private int deltaIncCount = CommonDefine.DefaultValue.SDB_DELTA_INC_COUNT;
-    private int maxIdleNum = CommonDefine.DefaultValue.SDB_MAX_IDLE_NUM;
-    private int recheckCyclePeriod = CommonDefine.DefaultValue.SDB_RECHECK_CYCL_PERIOD;
 
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_SOCKETTIMEOUT + ":0}")
+    private int socketTimeout = CommonDefine.DefaultValue.SDB_SOCKET_TIMEOUT;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_MAXCONNECTRETRYTIME + ":15000}")
+    private long maxAutoConnectRetryTime = CommonDefine.DefaultValue.SDB_MAX_CONN_RETRY_TIME;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_USENAGLE + ":false}")
+    private boolean useNagle = CommonDefine.DefaultValue.SDB_USE_NAGLE;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_USESSL + ":false}")
+    private boolean useSSL = CommonDefine.DefaultValue.SDB_USE_SSL;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_KEEPALIVETIME + ":60000}")
+    private int keepAliveTime = CommonDefine.DefaultValue.SDB_KEEP_ALIVE_TIME;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_MAXCONNECTIONNUM + ":500}")
+    private int maxConnectionNum = CommonDefine.DefaultValue.SDB_MAX_CONN_NUM;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_VALIDATECONNECTION + ":true}")
+    private boolean validateConnection = CommonDefine.DefaultValue.SDB_VALIDATE_CONN;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_DELTAINCCOUNT + ":10}")
+    private int deltaIncCount = CommonDefine.DefaultValue.SDB_DELTA_INC_COUNT;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_MAXIDLENUM + ":10}")
+    private int maxIdleNum = CommonDefine.DefaultValue.SDB_MAX_IDLE_NUM;
+
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_RECHECKPERIOD + ":30000}")
+    private int recheckCyclePeriod = CommonDefine.DefaultValue.SDB_RECHECK_CYCL_PERIOD;
+    @Value("${" + PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY + ":SERIAL}")
     private String connectStrategy = CommonDefine.DefaultValue.SDB_CONNECT_STRATEGY.toString();
 
     public int getConnectTimeout() {

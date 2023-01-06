@@ -53,7 +53,7 @@
                         "scm.zookeeper.urls": "localhost:2181",
                         "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
                         "scm.audit.userClass.TOKEN":"ALL",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.store.sequoiadb.maxAutoConnectRetryTime":"1000"
                      }
                 }
             ]
@@ -75,7 +75,7 @@
                         "scm.zookeeper.urls": "localhost:2181",
                         "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
                         "scm.audit.userType.TOKEN":"ALL",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.store.sequoiadb.maxAutoConnectRetryTime":"1000"
 
                      }
                 }
@@ -98,7 +98,7 @@
                         "scm.zookeeper.urls": "localhost:2181",
                         "scm.jvm.options": "'-Xmx1024M -Xms1024M -Xmn256M'",
                         "scm.audit.userClass.TOKEN":"ALL",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.store.sequoiadb.maxAutoConnectRetryTime":"1000"
                      }
                 }
             ]

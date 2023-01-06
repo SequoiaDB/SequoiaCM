@@ -93,7 +93,8 @@ public class ScmBizConf {
             }
         }
 
-        throw new ScmSystemException(PropertiesDefine.PROPERTY_ROOTSITE_URL + " is not exist in "
+        throw new ScmSystemException(PropertiesDefine.PROPERTY_ROOTSITE_URL + " or "
+                + PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW + " is not exist in "
                 + ServiceDefine.CsName.CS_SCMSYSTEM + "." + ServiceDefine.SystemClName.CL_SITE
                 + ",url=" + url);
     }

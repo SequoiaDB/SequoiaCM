@@ -30,8 +30,8 @@ public class DeployJsonDefine {
     public static final String STORE_SDB_PASSWORD = "scm.store.sequoiadb.password";
     public static final String ZOOKEEPER_URL = "scm.zookeeper.urls";
     public static final String CONTENT_MODULE_SITE = "scm.content-module.site";
-    public static final String ROOT_SITE_META_URL ="scm.rootsite.meta.url";
-    public static final String ROOT_SITE_META_USER = "scm.rootsite.meta.user";
-    public static final String ROOT_SITE_META_PWD  = "scm.rootsite.meta.password";
+    public static final String ROOT_SITE_META_URL ="scm.store.sequoiadb.urls";
+    public static final String ROOT_SITE_META_USER = "scm.store.sequoiadb.username";
+    public static final String ROOT_SITE_META_PWD  = "scm.store.sequoiadb.password";
     public static final String SPRING_APP_NAME  = "spring.application.name";
 }

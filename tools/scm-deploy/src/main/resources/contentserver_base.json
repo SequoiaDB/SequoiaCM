@@ -30,7 +30,7 @@
                         "scm.zookeeper.urls": "localhost:2181",
                         "scm.jvm.options": "''",
                         "scm.audit.userClass.TOKEN":"ALL",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.store.sequoiadb.maxAutoConnectRetryTime":"1000"
                      }
                 }
             ]

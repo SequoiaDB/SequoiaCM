@@ -97,7 +97,7 @@ $ vi /opt/sequoiacm/sequoiacm-content/deploy.json
 						"scm.zookeeper.urls":"zookeeperServer:2181",
 						"scm.jvm.options":"''",
 						"scm.audit.userType.TOKEN":"ALL",
-                        "scm.sdb.maxAutoConnectRetryTime":"1000"
+                        "scm.store.sequoiadb.maxAutoConnectRetryTime":"1000"
 					}
 				}
 			]

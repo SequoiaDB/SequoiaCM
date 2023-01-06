@@ -1,15 +1,21 @@
 package com.sequoiacm.contentserver.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.sequoiacm.common.PropertiesDefine;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.common.CommonDefine;
 
 @Component
-@ConfigurationProperties(prefix = "scm.rootsite.meta")
 public class RootSiteMetaConfig {
+    @Value("${" + PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW + ":" + "${"
+            + PropertiesDefine.PROPERTY_ROOTSITE_URL + ":}" + "}")
     private String url = CommonDefine.DefaultValue.ROOT_SITE_URL;
+    @Value("${" + PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW + ":" + "${"
+            + PropertiesDefine.PROPERTY_ROOTSITE_USER + ":}" + "}")
     private String user = CommonDefine.DefaultValue.ROOT_SITE_USER;
+    @Value("${" + PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW + ":" + "${"
+            + PropertiesDefine.PROPERTY_ROOTSITE_PASSWD + ":}" + "}")
     private String password = CommonDefine.DefaultValue.ROOT_SITE_PASSWORD;
 
     public String getUrl() {

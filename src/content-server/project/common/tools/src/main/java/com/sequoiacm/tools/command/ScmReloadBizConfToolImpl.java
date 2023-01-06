@@ -24,6 +24,7 @@ import com.sequoiacm.tools.common.ScmContentCommon;
 import com.sequoiacm.tools.common.ScmMetaMgr;
 import com.sequoiacm.tools.element.ReloadResInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
+import org.springframework.util.StringUtils;
 
 public class ScmReloadBizConfToolImpl extends ScmTool {
     private final String OPT_LONG_RUNNING_NODE = "running-node";
@@ -137,6 +138,9 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
 
     private void loadRootSiteUrl() throws Exception {
         List<String> keys = new ArrayList<>();
+        keys.add(PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW);
+        keys.add(PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW);
+        keys.add(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW);
         keys.add(PropertiesDefine.PROPERTY_ROOTSITE_URL);
         keys.add(PropertiesDefine.PROPERTY_ROOTSITE_USER);
         keys.add(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD);
@@ -152,19 +156,29 @@ public class ScmReloadBizConfToolImpl extends ScmTool {
                     ScmExitCode.SYSTEM_ERROR);
         }
 
-        mainSiteUrl = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_URL);
+        mainSiteUrl = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW);
+        if (StringUtils.isEmpty(mainSiteUrl)) {
+            mainSiteUrl = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_URL);
+        }
         if (mainSiteUrl == null) {
             throw new ScmToolsException(
                     "Get conf properties missing value of:"
-                            + PropertiesDefine.PROPERTY_ROOTSITE_URL,
+                            + PropertiesDefine.PROPERTY_ROOTSITE_URL + " or "
+                            + PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW,
                     ScmExitCode.SYSTEM_ERROR);
         }
-        mainSiteUser = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_USER);
+        mainSiteUser = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW);
+        if (StringUtils.isEmpty(mainSiteUser)) {
+            mainSiteUser = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_USER);
+        }
         if (mainSiteUser == null) {
             mainSiteUser = "";
         }
 
-        String passwdFile = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD);
+        String passwdFile = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW);
+        if (StringUtils.isEmpty(passwdFile)) {
+            passwdFile = (String) keyValue.get(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD);
+        }
         if (passwdFile == null) {
             passwdFile = "";
         }
