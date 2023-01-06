@@ -106,14 +106,15 @@ public class CommonUtils {
     }
 
     public static boolean confirmExecute(String operate) {
+        logger.info("Whether to " + operate + "? ");
         while (true) {
-            logger.info("Whether to " + operate + "? Please enter (y/N) confirm");
+            System.out.print("Please enter (y/n) confirm: ");
             Scanner s = new Scanner(System.in);
             String answer = s.nextLine().toLowerCase();
             if ("y".equals(answer) || "yes".equals(answer)) {
                 return true;
             }
-            else if ("".equals(answer) || "n".equals(answer) || "no".equals(answer)) {
+            else if ("n".equals(answer) || "no".equals(answer)) {
                 return false;
             }
         }
