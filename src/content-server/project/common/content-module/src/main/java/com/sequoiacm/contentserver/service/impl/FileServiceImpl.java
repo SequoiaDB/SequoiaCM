@@ -342,7 +342,8 @@ public class FileServiceImpl implements IFileService {
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
-            return contentModule.getMetaService().getCurrentFileCount(wsInfo, condition);
+            return contentModule.getMetaService().getCurrentFileCountIgnoreDeleteMarker(wsInfo,
+                    condition);
         }
 
         try {

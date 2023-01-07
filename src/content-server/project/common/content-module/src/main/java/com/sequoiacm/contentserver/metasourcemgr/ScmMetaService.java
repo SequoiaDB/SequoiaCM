@@ -720,6 +720,17 @@ public class ScmMetaService {
         }
     }
 
+    public long getCurrentFileCountIgnoreDeleteMarker(ScmWorkspaceInfo ws, BSONObject matcher)
+            throws ScmServerException {
+        BSONObject notDeleteMarker = ScmMetaSourceHelper.notDeleteMarkerMatcher();
+
+        BasicBSONList andArr = new BasicBSONList();
+        andArr.add(matcher);
+        andArr.add(notDeleteMarker);
+        matcher = new BasicBSONObject("$and", andArr);
+        return getCurrentFileCount(ws, matcher);
+    }
+
     public long getCurrentFileCount(ScmWorkspaceInfo ws, BSONObject matcher)
             throws ScmServerException {
         try {
