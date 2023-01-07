@@ -19,7 +19,7 @@ public class CollectConfig {
     private static String outputPath;
     private static List<String> serviceList = new ArrayList<>();
     private static String resultDir = "scm-collect-logs";
-    private static int maxLogCount = -1;
+    private static int maxLogCount = 1;
     private static int threadSize = 1;
     private static boolean needZip = true;
 
