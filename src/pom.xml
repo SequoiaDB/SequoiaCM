@@ -51,6 +51,7 @@
         <module>../tools/scm-transfer-file</module>
         <module>../tools/transfer-clean-script</module>
         <module>../tools/scm-diagnose</module>
+        <module>../tools/scm-system-tools</module>
         <module>./monitor-daemon/project</module>
     </modules>
 

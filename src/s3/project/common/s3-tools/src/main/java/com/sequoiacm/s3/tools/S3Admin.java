@@ -1,14 +1,23 @@
 package com.sequoiacm.s3.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
-import com.sequoiacm.infrastructure.tool.element.*;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParam;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 import com.sequoiacm.s3.tools.command.RefreshAccesskeyToolImpl;
 import com.sequoiacm.s3.tools.command.ScmCreateNodeToolImplS3;
 import com.sequoiacm.s3.tools.command.SetDefaultRegionToolImpl;
 import com.sequoiacm.s3.tools.command.ShowDefaultRegionToolImpl;
+import com.sequoiacm.infrastructure.tool.operator.ScmS3NodeOperator;
 
 public class S3Admin {
     public static void main(String[] args) {
@@ -28,7 +37,9 @@ public class S3Admin {
 
         nodeProperties.put(ScmNodeTypeEnum.S3SERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
-            cmd.addTool(new ScmCreateNodeToolImplS3(nodeProperties, nodeTypes));
+            List<ScmServiceNodeOperator> opList = Collections
+                    .<ScmServiceNodeOperator> singletonList(new ScmS3NodeOperator());
+            cmd.addTool(new ScmCreateNodeToolImplS3(nodeProperties, opList));
             cmd.addTool(new SetDefaultRegionToolImpl());
             cmd.addTool(new ShowDefaultRegionToolImpl());
             cmd.addTool(new RefreshAccesskeyToolImpl());

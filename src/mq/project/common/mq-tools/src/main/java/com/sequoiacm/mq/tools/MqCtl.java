@@ -1,36 +1,26 @@
 package com.sequoiacm.mq.tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
-import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmListToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmStartToolImpl;
 import com.sequoiacm.infrastructure.tool.command.ScmStopToolImpl;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.mq.tools.command.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.mq.tools.exception.ScmExitCode;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmMqNodeOperator;
 
 public class MqCtl {
     public static void main(String[] args) {
         CommandManager cmd = new CommandManager("mqctl");
-        // 初始化节点类型信息
-        ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.MQSERVER, ScmServerScriptEnum.MQSERVER));
 
         try {
-            cmd.addTool(new ScmStartToolImpl(nodeTypes));
-            cmd.addTool(new ScmStopToolImpl(nodeTypes));
-            cmd.addTool(new ScmListToolImpl(nodeTypes));
+            List<ScmServiceNodeOperator> opList = Collections
+                    .<ScmServiceNodeOperator> singletonList(new ScmMqNodeOperator());
+            cmd.addTool(new ScmStartToolImpl(opList));
+            cmd.addTool(new ScmStopToolImpl(opList));
+            cmd.addTool(new ScmListToolImpl(opList));
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

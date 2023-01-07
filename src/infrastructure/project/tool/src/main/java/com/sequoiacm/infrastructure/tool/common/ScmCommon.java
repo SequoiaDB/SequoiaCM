@@ -293,35 +293,6 @@ public class ScmCommon {
         }
     }
 
-    public static void checkSysUser(ScmNodeType type) throws ScmToolsException {
-        UserPrincipal owner = getContentServerOwner(type);
-        if (!owner.getName().equals(System.getProperty("user.name"))) {
-            logger.error("Current system user is not the owner of contenserver,please switch to "
-                    + owner.getName());
-            throw new ScmToolsException(
-                    "Current system user is not the owner of contentserver,please switch to "
-                            + owner.getName(),
-                    ScmBaseExitCode.PERMISSION_ERROR);
-        }
-    }
-
-    private static UserPrincipal getContentServerOwner(ScmNodeType type) throws ScmToolsException {
-        UserPrincipal owner;
-        try {
-            owner = Files.getOwner(Paths.get(ScmHelper.getJarNameByType(type)),
-                    LinkOption.NOFOLLOW_LINKS);
-        }
-        catch (IOException e) {
-            logger.error("Failed to get owner of " + ScmCommon.getContenserverAbsolutePath()
-                    + ScmHelper.getJarNameByType(type), e);
-            throw new ScmToolsException(
-                    "Failed to get owner of " + ScmCommon.getContenserverAbsolutePath()
-                            + ScmHelper.getJarNameByType(type) + ",errorMsg:" + e.getMessage(),
-                    ScmBaseExitCode.SYSTEM_ERROR);
-        }
-        return owner;
-    }
-
     public static boolean isFileCanWirte(String filePath) {
         File f = new File(filePath);
         if (!f.exists()) {

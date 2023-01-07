@@ -1,17 +1,25 @@
 package com.sequoiacm.config.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sequoiacm.config.tools.command.ScmDeleteConfigImpl;
 import com.sequoiacm.config.tools.command.ScmListSubscribersImpl;
 import com.sequoiacm.config.tools.command.ScmUnsubscribeImpl;
 import com.sequoiacm.config.tools.command.ScmUpdateConfigImpl;
+import com.sequoiacm.infrastructure.tool.operator.ScmConfNodeOperator;
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.element.*;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 
 public class ConfAdmin {
     public static void main(String[] args) throws ScmToolsException {
@@ -26,7 +34,9 @@ public class ConfAdmin {
 
         nodeProperties.put(ScmNodeTypeEnum.CONFIGSERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
-            cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, nodeTypes));
+            List<ScmServiceNodeOperator> opList = Collections
+                    .<ScmServiceNodeOperator> singletonList(new ScmConfNodeOperator());
+            cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, opList));
             cmd.addTool(new ScmUnsubscribeImpl());
             cmd.addTool(new ScmListSubscribersImpl());
             cmd.addTool(new ScmUnsubscribeImpl());

@@ -351,6 +351,13 @@ public class ScmDeployInfoMgr {
             }
             serviceToNodes.put(ServiceType.DAEMON, list);
         }
+        {
+            List<NodeInfo> list = new ArrayList<>();
+            for (HostInfo host : hosts) {
+                list.add(new NodeInfo(host.getHostName(), ServiceType.SCMSYSTOOLS));
+            }
+            serviceToNodes.put(ServiceType.SCMSYSTOOLS, list);
+        }
 
         for (ServiceType service : ServiceType.values()) {
             if (service.isRequire()) {

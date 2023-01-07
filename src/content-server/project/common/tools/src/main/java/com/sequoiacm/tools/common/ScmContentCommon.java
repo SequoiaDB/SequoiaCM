@@ -1,19 +1,23 @@
 package com.sequoiacm.tools.common;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.GroupPrincipal;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.UserPrincipal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +26,19 @@ import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
+import com.sequoiacm.client.element.bizconf.ScmCephSwiftDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmHbaseDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmHdfsDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmSftpDataLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmCtl;
 import com.sequoiacm.tools.exception.ScmExitCode;
@@ -36,11 +48,6 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 
 public class ScmContentCommon {
-    public static final String LOG_FILE_CREATESITE = "logback_createsite.xml";
-    public static final String LOG_FILE_CREATEWS = "logback_createws.xml";
-    public static final String LOG_FILE_ADMIN = "logback_admin.xml";
-    public static final String LOG_FILE_STARTNODE = "logback_start.xml";
-    public static final String LOG_FILE_STOPNODE = "logback_stop.xml";
     public static final String LOG_FILE_GENERATE_META = "logback_generatemeta.xml";
     public static final String LOG_FILE_INSPECT = "logback_inspect.xml";
 
@@ -48,20 +55,11 @@ public class ScmContentCommon {
     public static final String APPLICATION_PROPERTIES = "application.properties";
 
     public static final String LOGCONF_NAME = "logback.xml";
-    public static final String START_LOG_PATH = ".." + File.separator + "log" + File.separator
-            + "start" + File.separator + "start.log";
     public static final String GENERATE_META_LOG_PATH = ".." + File.separator + "log" + "createmeta"
             + File.separator + File.separator + "createmeta.log";
     public static final String INSPECT_LOG_PATH = ".." + File.separator + "log" + File.separator
             + "inspect" + File.separator + "inspect.log";
-    public static final String STOP_LOG_PATH = ".." + File.separator + "log" + File.separator
-            + "stop" + File.separator + "stop.log";
-    public static final String CREATE_SITE_LOG_PATH = ".." + File.separator + "log" + File.separator
-            + "createsite" + File.separator + "createsite.log";
-    public static final String CREATE_WS_LOG_PATH = ".." + File.separator + "log" + File.separator
-            + "createws" + File.separator + "createws.log";
-    public static final String SCM_ADMIN_LOG_PATH = ".." + File.separator + "log" + File.separator
-            + "admin" + File.separator + "admin.log";
+
     public static final String ERROR_LOG_FILE_NAME = "error.out";
     public static final String DEFAULT_CONTENSERVER_HOST = "localhost";
     public static final String SCM_CONF_DIR_NAME = "content-server";
@@ -70,17 +68,9 @@ public class ScmContentCommon {
             + "resources" + File.separator + "log4j.properties";
     public static final int DEDAULT_CONTENSERVER_PORT = 15000;
 
-    public static final String SDBADMIN_USER_NAME = "sdbadmin";
     public static final String SCM_SAMPLE_SYS_CONF_NAME = "scm.application.properties";
     public static final String SCM_SAMPLE_LOG_CONF_NAME = "scm.logback.xml";
 
-    public static final String DAEMON_DIR_PATH = "." + File.separator + ".." + File.separator + ".."
-            + File.separator + "daemon";
-    public static final String DAEMON_CONF_FILE_PATH = "." + File.separator + ".."
-            + File.separator + "conf" + File.separator + ".scmd.properties";
-    public static final String DAEMON_LOCATION = "daemonHomePath";
-    public static final String BIN = "bin";
-    public static final String DAEMON_SCRIPT = "scmd.sh";
     public static final String IGNORE_DAEMON_ENV = "IGNORE_DAEMON";
 
     private static final Logger logger = LoggerFactory.getLogger(ScmContentCommon.class);
@@ -119,23 +109,19 @@ public class ScmContentCommon {
                 + File.separator;
     }
 
+    public static String getScmConfAbsolutePath(String installPath) {
+        return installPath + File.separator + ScmServerScriptEnum.CONTENTSERVER.getDirName()
+                + File.separator + "conf" + File.separator + SCM_CONF_DIR_NAME + File.separator;
+    }
+
     public static String getScmLibAbsolutePath() {
         File f = new File("..");
         return f.getAbsolutePath() + File.separator + "lib" + File.separator;
     }
 
-    public static String getContenserverAbsolutePath() {
-        File f = new File("..");
-        return f.getAbsolutePath() + File.separator;
-    }
-
-    public static String getClassPath() throws ScmToolsException {
-        return "." + File.separator + getContentServerJarName() + ":." + File.separator + "lib"
-                + File.separator + "*";
-        // + ":." + File.separator + "lib" + File.separator + "hbase"
-        // + File.separator + "*" + ":." + File.separator + "lib" +
-        // File.separator + "aws_s3"
-        // + File.separator + "*";
+    public static String getContenserverAbsolutePath(String installPath) {
+        return installPath + File.separator + ScmServerScriptEnum.CONTENTSERVER.getDirName()
+                + File.separator;
     }
 
     public static int convertStrToInt(String str) throws ScmToolsException {
@@ -230,33 +216,6 @@ public class ScmContentCommon {
         }
     }
 
-    public static String getScmOwner() {
-        String userName = null;
-        try {
-            userName = getContentServerOwner().getName();
-        }
-        catch (ScmToolsException e) {
-            // ignore it
-        }
-        return userName;
-    }
-
-    private static UserPrincipal getContentServerOwner() throws ScmToolsException {
-        UserPrincipal owner;
-        try {
-            owner = Files.getOwner(Paths.get(getContentServerJarName()), LinkOption.NOFOLLOW_LINKS);
-        }
-        catch (IOException e) {
-            logger.error("Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
-                    + getContentServerJarName(), e);
-            throw new ScmToolsException(
-                    "Failed to get owner of " + ScmContentCommon.getContenserverAbsolutePath()
-                            + getContentServerJarName() + ",errorMsg:" + e.getMessage(),
-                    ScmExitCode.SYSTEM_ERROR);
-        }
-        return owner;
-    }
-
     public static boolean isFileCanWirte(String filePath) {
         File f = new File(filePath);
         if (!f.exists()) {
@@ -268,49 +227,6 @@ public class ScmContentCommon {
         else {
             return false;
         }
-    }
-
-    public static void setFileOwnerAndGroup(String filePath) throws ScmToolsException {
-        UserPrincipal owner = null;
-        owner = getContentServerOwner();
-        Path path = Paths.get(filePath);
-        try {
-            Files.setOwner(path, owner);
-        }
-        catch (IOException e) {
-            logger.error("Failed to set file's owner to " + owner.getName() + ",file:" + filePath,
-                    e);
-            throw new ScmToolsException(
-                    "Failed to set file's owner to " + owner.getName() + ",file:" + filePath,
-                    ScmExitCode.SYSTEM_ERROR);
-        }
-
-        GroupPrincipal contentServerGroup = null;
-        try {
-            contentServerGroup = (GroupPrincipal) Files.getAttribute(
-                    Paths.get(ScmContentCommon.getContenserverAbsolutePath()), "posix:group",
-                    LinkOption.NOFOLLOW_LINKS);
-        }
-        catch (IOException e) {
-            logger.error("Failed to get group name of "
-                    + ScmContentCommon.getContenserverAbsolutePath() + getContentServerJarName(),
-                    e);
-            throw new ScmToolsException(
-                    "Failed to get group name of " + ScmContentCommon.getContenserverAbsolutePath()
-                            + getContentServerJarName() + ",errorMsg" + e.getMessage(),
-                    ScmExitCode.SYSTEM_ERROR);
-        }
-        try {
-            Files.getFileAttributeView(path, PosixFileAttributeView.class)
-                    .setGroup(contentServerGroup);
-        }
-        catch (IOException e) {
-            logger.error("Failed to set file's group to " + contentServerGroup.getName() + ",file:"
-                    + filePath, e);
-            throw new ScmToolsException("Failed to set file's group to "
-                    + contentServerGroup.getName() + ",file:" + filePath, ScmExitCode.SYSTEM_ERROR);
-        }
-
     }
 
     public static void createDir(String dirPath) throws ScmToolsException {
@@ -512,8 +428,17 @@ public class ScmContentCommon {
         }
     }
 
-    public static String getContentServerJarName() throws ScmToolsException {
-        File libDir = new File(".");
+    public static String getContentServerJarPath(String installPath) throws ScmToolsException {
+        String libPath = installPath + File.separator
+                + ScmServerScriptEnum.CONTENTSERVER.getDirName()
+                + File.separator + "lib";
+        String jarName = getContentServerJarName(libPath);
+
+        return libPath + File.separator + jarName;
+    }
+
+    public static String getContentServerJarName(String libPath) throws ScmToolsException {
+        File libDir = new File(libPath);
         final String matchCondition = "^" + CONTENTSERVER_NAME + "-(.*)\\.jar$";
         FilenameFilter jarNameFilter = new FilenameFilter() {
             @Override

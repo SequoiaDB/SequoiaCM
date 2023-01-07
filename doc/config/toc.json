@@ -441,6 +441,36 @@
                 "cn": "概述",
                 "en": "Overview"
             },
+			{
+                "id": 1672291608,
+                "dir": "Scmsysctl",
+                "cn": "全局节点管理工具",
+                "en": "Scmsysctl",
+                "contents": [{
+                    "id": 1672291680,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                },
+                {
+                    "id": 1672291682,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                },
+                {
+                    "id": 1672291684,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1672291688,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            },
             {
                 "id": 1535328019,
                 "dir": "Scmcloudadmin",

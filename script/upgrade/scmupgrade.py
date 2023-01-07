@@ -38,6 +38,7 @@ DICT_SVC = {
     "om-server"         : { "dir" : "sequoiacm-om",         "backup_dir":"sequoiacm-om",                                    "jars_lib" : "jars/*",                                                                       "script" : "omctl.sh",         "script_opt" : " -t all" },
     "s3-server"         : { "dir" : "sequoiacm-s3",         "backup_dir":"sequoiacm-s3",                                    "jars_lib" : "jars/*",                                                                       "script" : "s3ctl.sh",         "script_opt" : " -t all" },
     "daemon"            : { "dir" : "daemon",               "backup_dir":"daemon",                                          "jars_lib" : "jars/*",                                                                       "script" : "scmd.sh",          "script_opt" : ""        },
+    "scmsystools"       : { "dir" : "sequoiacm-sys-tools",  "backup_dir":"sequoiacm-sys-tools",                             "jars_lib" : "jars/*",                                                                       "script" : "",                 "script_opt" : ""        },
     "non-service"       : { "dir" : "sequoiacm",            "backup_dir":"non-service",                                     "jars_lib" : "",                                                                             "script" : "",                 "script_opt" : ""        },
 }
 def print_help():

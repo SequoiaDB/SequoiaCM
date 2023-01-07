@@ -1,21 +1,22 @@
 package com.sequoiacm.s3.tools.command;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.sequoiacm.infrastructure.common.CheckRuleUtils;
-import com.sequoiacm.s3.tools.exception.ScmExitCode;
 import org.apache.commons.cli.CommandLine;
 
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmNodeCreator;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
+import com.sequoiacm.s3.tools.exception.ScmExitCode;
 
 public class ScmCreateNodeToolImplS3 extends ScmCreateNodeToolImpl {
     private final String OPT_LONG_AUDIT_URL = "adurl";
@@ -23,8 +24,8 @@ public class ScmCreateNodeToolImplS3 extends ScmCreateNodeToolImpl {
     private final String OPT_LONG_AUDIT_PASSED = "adpasswd";
 
     public ScmCreateNodeToolImplS3(HashMap<String, ScmNodeRequiredParamGroup> nodeProperties,
-                                   ScmNodeTypeList nodeTypes) throws ScmToolsException {
-        super(nodeProperties, nodeTypes);
+            List<ScmServiceNodeOperator> nodeOperatorList) throws ScmToolsException {
+        super(nodeProperties, nodeOperatorList);
         ops.addOption(
                 hp.createOpt(null, OPT_LONG_AUDIT_URL, "audit to sdb url.", true, true, false));
         ops.addOption(
@@ -38,7 +39,7 @@ public class ScmCreateNodeToolImplS3 extends ScmCreateNodeToolImpl {
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String nodeType = cl.getOptionValue(ScmCommandUtil.OPT_SHORT_NODE_TYPE);
 
-        ScmNodeType typEnum = this.nodeTypes.getNodeTypeByStr(nodeType);
+        ScmNodeType typEnum = super.nodeOeprators.getSupportTypes().getNodeTypeByStr(nodeType);
 
         Properties nodeConf;
         if (cl.hasOption(OPT_SHORT_CUSTOM_PROP)) {
@@ -70,7 +71,8 @@ public class ScmCreateNodeToolImplS3 extends ScmCreateNodeToolImpl {
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_URL, adurl);
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_USER, aduser);
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_PASSWD, adpasswd);
-        ScmNodeCreator creator = new ScmNodeCreator(typEnum, nodeConf, nodeTypes, otherLog, true);
+        ScmNodeCreator creator = new ScmNodeCreator(typEnum, nodeConf, super.nodeOeprators,
+                otherLog, true);
         creator.create();
     }
 }

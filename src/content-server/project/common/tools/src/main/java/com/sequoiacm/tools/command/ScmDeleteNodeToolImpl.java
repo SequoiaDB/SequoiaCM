@@ -3,6 +3,7 @@ package com.sequoiacm.tools.command;
 import java.io.File;
 import java.net.InetAddress;
 
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -102,7 +103,10 @@ public class ScmDeleteNodeToolImpl extends ScmTool {
     }
 
     private void stopNode(int port) throws ScmToolsException {
-        ScmExecutorWrapper executor = new ScmExecutorWrapper();
+        // 当前执行目录为 installpath/sequoiacm-content/lib，向上两级获取 installpath
+        String installPath = ScmHelper.getAbsolutePathFromTool(
+                ScmHelper.getPwd() + File.separator + ".." + File.separator + "..");
+        ScmExecutorWrapper executor = new ScmExecutorWrapper(installPath);
         executor.stopNode(port, true);
     }
 

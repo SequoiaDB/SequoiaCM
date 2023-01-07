@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.PropertiesDefine;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
@@ -25,19 +25,18 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     private final String contentServerIdentify = ScmContentCommon.CONTENTSERVER_NAME;
 
     @Override
-    public void startNode(String springConfigLocation, String loggingConfig, String errorLogPath,
-            String options) throws ScmToolsException {
-        if(ScmCommon.isNeedBackup(errorLogPath)){
+    public void startNode(String jarPath, String springConfigLocation, String loggingConfig,
+            String errorLogPath, String options, String workingDir) throws ScmToolsException {
+        if (ScmCommon.isNeedBackup(errorLogPath)) {
             ScmCommon.backupErrorOut(errorLogPath);
         }
         ScmCommon.printStartInfo(errorLogPath);
-        String cmd = " nohup java " + options + " -jar '"
-                + ScmContentCommon.getContentServerJarName() + "' --spring.config.location="
-                + springConfigLocation + " --logging.config=" + loggingConfig + " >> " + errorLogPath
-                + " 2>&1 &";
+        String cmd = " nohup java " + options + " -jar '" + jarPath + "' --spring.config.location="
+                + springConfigLocation + " --logging.config=" + loggingConfig + " >> "
+                + errorLogPath + " 2>&1 &";
         logger.info("starting scm by exec cmd(/bin/sh -c \" " + cmd + "\")");
         try {
-            execShell(cmd);
+            execShell(cmd, workingDir);
         }
         catch (ScmToolsException e) {
             logger.error("start node failed, error: " + e.getMessage(), e.getExitCode());
@@ -227,7 +226,11 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
 
     @Override
     public void execShell(String cmd) throws ScmToolsException {
-        Process ps = exec(cmd);
+        execShell(cmd, null);
+    }
+
+    public void execShell(String cmd, String workingDir) throws ScmToolsException {
+        Process ps = exec(cmd, workingDir);
 
         try {
             int rc = ps.waitFor();
@@ -240,10 +243,8 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
         }
         catch (InterruptedException e) {
             logger.error("wait cmd return occur error,cmd:/bin/sh -c \"" + cmd + "\"", e);
-            throw new ScmToolsException(
-                    "wait cmd return occur interrupted exception,cmd:" + cmd + ",error:"
-                            + e.getMessage(),
-                    ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException("wait cmd return occur interrupted exception,cmd:" + cmd
+                    + ",error:" + e.getMessage(), ScmExitCode.SYSTEM_ERROR);
         }
         catch (IOException e) {
             logger.error("get cmd ouptut failed,cmd:/bin/sh -c \"" + cmd + "\"", e);
@@ -317,13 +318,21 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     }
 
     private Process exec(String command) throws ScmToolsException {
+        return exec(command, null);
+    }
+
+    private Process exec(String command, String workingDir) throws ScmToolsException {
         Process ps;
         String[] cmd = new String[3];
         cmd[0] = "/bin/sh";
         cmd[1] = "-c";
         cmd[2] = command;
         try {
-            ps = Runtime.getRuntime().exec(cmd);
+            File dir = null;
+            if (workingDir != null) {
+                dir = new File(workingDir);
+            }
+            ps = Runtime.getRuntime().exec(cmd, null, dir);
             return ps;
         }
         catch (IOException e) {

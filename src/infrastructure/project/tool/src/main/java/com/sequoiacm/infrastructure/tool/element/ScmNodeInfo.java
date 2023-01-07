@@ -1,6 +1,5 @@
 package com.sequoiacm.infrastructure.tool.element;
 
-
 public class ScmNodeInfo {
     private String confPath;
     private ScmNodeType nodeType;

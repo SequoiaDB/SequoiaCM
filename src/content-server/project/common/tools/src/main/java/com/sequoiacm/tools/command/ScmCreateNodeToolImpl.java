@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import java.util.HashSet;
 import java.util.Properties;
 
-import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.bson.BSONObject;
@@ -29,12 +29,11 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.PropertiesDefine;
-import com.sequoiacm.infrastructure.crypto.AuthInfo;
-import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmUserInfo;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.ScmCtl;
@@ -160,10 +159,13 @@ public class ScmCreateNodeToolImpl extends ScmTool {
             throw new ScmToolsException("hostName is not this machine:hostName=" + host,
                     ScmExitCode.INVALID_ARG);
         }
-        ScmExecutorWrapper exe = new ScmExecutorWrapper();
+        // 当前执行目录为 installpath/sequoiacm-content/lib，向上两级获取 installpath
+        String installPath = ScmHelper.getAbsolutePathFromTool(
+                ScmHelper.getPwd() + File.separator + ".." + File.separator + "..");
+        ScmExecutorWrapper exe = new ScmExecutorWrapper(installPath);
         if (exe.getAllNode().containsKey(port)) {
             throw new ScmToolsException("The port is already occupied,port:" + port + ",conf path:"
-                    + exe.getNodeConfPath(port), ScmExitCode.SCM_ALREADY_EXIST_ERROR);
+                    + exe.getNodeConfPathCheck(port), ScmExitCode.SCM_ALREADY_EXIST_ERROR);
         }
 
         if (cl.hasOption(OPT_LONG_AUDIT_URL)) {

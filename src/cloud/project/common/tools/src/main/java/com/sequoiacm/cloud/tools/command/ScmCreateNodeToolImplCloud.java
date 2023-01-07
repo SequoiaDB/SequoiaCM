@@ -1,7 +1,21 @@
 package com.sequoiacm.cloud.tools.command;
 
-import com.sequoiacm.cloud.tools.common.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
+import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.sequoiacm.cloud.tools.common.ScmSysTableCreator;
+import com.sequoiacm.cloud.tools.common.ScmSysTableProcessorFactory;
 import com.sequoiacm.cloud.tools.exception.ScmExitCode;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
@@ -11,17 +25,8 @@ import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import org.apache.commons.cli.CommandLine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.*;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 
 public class ScmCreateNodeToolImplCloud extends ScmCreateNodeToolImpl {
 
@@ -31,8 +36,8 @@ public class ScmCreateNodeToolImplCloud extends ScmCreateNodeToolImpl {
     private final String OPT_LONG_AUDIT_PASSWD = "adpasswd";
 
     public ScmCreateNodeToolImplCloud(Map<String, ScmNodeRequiredParamGroup> nodeType2RequireParams,
-            ScmNodeTypeList nodeTypes) throws ScmToolsException {
-        super(nodeType2RequireParams, nodeTypes);
+            List<ScmServiceNodeOperator> operators) throws ScmToolsException {
+        super(nodeType2RequireParams, operators);
         ops.addOption(
                 hp.createOpt(null, OPT_LONG_AUDIT_URL, "audit to sdb url.", true, true, false));
         ops.addOption(
@@ -46,7 +51,7 @@ public class ScmCreateNodeToolImplCloud extends ScmCreateNodeToolImpl {
         CommandLine cl = ScmCommandUtil.parseArgs(args, ops);
         String nodeTypeStr = cl.getOptionValue(ScmCommandUtil.OPT_SHORT_NODE_TYPE);
 
-        ScmNodeType nodeType = this.nodeTypes.getNodeTypeByStr(nodeTypeStr);
+        ScmNodeType nodeType = super.nodeOeprators.getSupportTypes().getNodeTypeByStr(nodeTypeStr);
 
         Properties nodeConf;
         if (cl.hasOption(OPT_SHORT_CUSTOM_PROP)) {
@@ -83,7 +88,8 @@ public class ScmCreateNodeToolImplCloud extends ScmCreateNodeToolImpl {
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_URL, adurl);
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_USER, aduser);
         otherLog.put(ScmToolsDefine.PROPERTIES.LOG_AUDIT_SDB_PASSWD, adpasswd);
-        ScmNodeCreator creator = new ScmNodeCreator(nodeType, nodeConf, nodeTypes, otherLog, false);
+        ScmNodeCreator creator = new ScmNodeCreator(nodeType, nodeConf, super.nodeOeprators,
+                otherLog, false);
         creator.create();
     }
 

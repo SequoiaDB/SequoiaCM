@@ -1,67 +1,68 @@
 package com.sequoiacm.infrastructure.tool.command;
 
-import com.sequoiacm.infrastructure.tool.common.*;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-import java.util.Map.Entry;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmMonitorDaemonHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfoDetail;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperatorGroup;
 
 public class ScmStartToolImpl extends ScmTool {
     private final int TIME_WAIT_PROCESS_RUNNING = 10000; // 10s
+    private final ScmServiceNodeOperatorGroup nodeOperators;
+    private final String installPath;
     protected int waitProcessTimeout = 50000; // 50s
     protected int SLEEP_TIME = 200;
 
-    private final String OPT_SHORT_PORT = "p";
-    private final String OPT_LONG_PORT = "port";
     private final String OPT_SHORT_I = "I";
     private final String OPT_LONG_TIMEOUT = "timeout";
     // private final String OPT_LONG_OPTION = "option";
-    private ScmExecutorWrapper executor;
     private List<ScmNodeInfo> startSuccessList = new ArrayList<>();
     private static Logger logger = LoggerFactory.getLogger(ScmStartToolImpl.class);
     private ScmHelpGenerator hp;
     private Options options;
-    private ScmNodeTypeList nodeTypes;
-    private RestTemplate restTemplate;
-    private List<String> healthEndpoints;
 
-    public ScmStartToolImpl(ScmNodeTypeList nodeTypes, String... healthEndpoints)
+    public ScmStartToolImpl(List<ScmServiceNodeOperator> nodeOperatorList)
             throws ScmToolsException {
         super("start");
-        this.nodeTypes = nodeTypes;
+        this.nodeOperators = new ScmServiceNodeOperatorGroup(nodeOperatorList);
+        this.installPath = ScmHelper
+                .getAbsolutePathFromTool(ScmHelper.getPwd() + File.separator + "..");
+        nodeOperators.init(installPath);
+
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(
-                hp.createOpt(OPT_SHORT_PORT, OPT_LONG_PORT, "node port.", false, true, false));
+                hp.createOpt(ScmCommandUtil.OPT_SHORT_PORT, ScmCommandUtil.OPT_LONG_PORT,
+                        "node port.", false, true, false));
 
-        ScmCommandUtil.addTypeOptionForStartOrStop(nodeTypes, options, hp, false, true);
+        ScmCommandUtil.addTypeOptionForStartOrStop(nodeOperators.getSupportTypes(), options, hp,
+                false, true);
 
         options.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
         options.addOption(hp.createOpt(null, OPT_LONG_TIMEOUT,
                 "sets the starting timeout in seconds, default:50", false, true, false));
-
-        executor = new ScmExecutorWrapper(nodeTypes);
-
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5000);
-        factory.setReadTimeout(5000);
-        restTemplate = new RestTemplate(factory);
-        this.healthEndpoints = Arrays.asList(healthEndpoints);
-    }
-
-    public ScmStartToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
-        this(nodeTypes, "internal/v1/health", "/health");
     }
 
     @Override
@@ -70,14 +71,15 @@ public class ScmStartToolImpl extends ScmTool {
         ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.START_LOG_CONF);
 
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
-        if (commandLine.hasOption(OPT_SHORT_PORT)
+        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_PORT)
                 && commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)
-                || !commandLine.hasOption(OPT_SHORT_PORT)
+                || !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_PORT)
                         && !commandLine.hasOption(ScmCommandUtil.OPT_SHORT_NODE_TYPE)) {
             logger.error("Invalid arg:please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE + " or -"
-                    + OPT_SHORT_PORT);
+                    + ScmCommandUtil.OPT_SHORT_PORT);
             throw new ScmToolsException(
-                    "please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE + " or -" + OPT_SHORT_PORT,
+                    "please set -" + ScmCommandUtil.OPT_SHORT_NODE_TYPE + " or -"
+                            + ScmCommandUtil.OPT_SHORT_PORT,
                     ScmBaseExitCode.INVALID_ARG);
         }
 
@@ -85,13 +87,14 @@ public class ScmStartToolImpl extends ScmTool {
             waitProcessTimeout = ScmCommandUtil.getTimeout(commandLine, OPT_LONG_TIMEOUT);
         }
 
+
         Map<Integer, ScmNodeInfo> needStartMap = new HashMap<Integer, ScmNodeInfo>();
         // -p
-        if (commandLine.hasOption(OPT_SHORT_PORT)) {
-            String portString = commandLine.getOptionValue(OPT_SHORT_PORT);
+        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_PORT)) {
+            String portString = commandLine.getOptionValue(ScmCommandUtil.OPT_SHORT_PORT);
             try {
                 int port = ScmCommon.convertStrToInt(portString);
-                ScmNodeInfo node = executor.getNode(port);
+                ScmNodeInfo node = nodeOperators.getNodeInfo(port);
                 needStartMap.put(port, node);
             }
             catch (ScmToolsException e) {
@@ -107,12 +110,12 @@ public class ScmStartToolImpl extends ScmTool {
             String type = commandLine.getOptionValue(ScmCommandUtil.OPT_SHORT_NODE_TYPE).trim();
             if (type.equals(ScmToolsDefine.NODE_TYPE.ALL_NUM)
                     || type.equals(ScmToolsDefine.NODE_TYPE.ALL_STR)) {
-                needStartMap.putAll(executor.getAllNode());
+                needStartMap.putAll(nodeOperators.getAllNode());
                 type = ScmToolsDefine.NODE_TYPE.ALL_STR;
             }
             else {
-                ScmNodeType typeEnum = this.nodeTypes.getNodeTypeByStr(type);
-                Map<Integer, ScmNodeInfo> typeNodes = executor.getNodesByType(typeEnum);
+                ScmNodeType typeEnum = this.nodeOperators.getSupportTypes().getNodeTypeByStr(type);
+                Map<Integer, ScmNodeInfo> typeNodes = nodeOperators.getNodesByType(typeEnum);
                 if (typeNodes != null) {
                     needStartMap.putAll(typeNodes);
                 }
@@ -134,7 +137,7 @@ public class ScmStartToolImpl extends ScmTool {
         boolean startRes = isStartSuccess(checkList);
         String isIgnoreDaemon = System.getenv(ScmCommon.IGNORE_DAEMON_ENV);
         if (isIgnoreDaemon == null) {
-            executor.addMonitorNodeList(startSuccessList);
+            ScmMonitorDaemonHelper.addMonitorNodeList(startSuccessList, installPath);
         }
 
         logger.info("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
@@ -149,14 +152,14 @@ public class ScmStartToolImpl extends ScmTool {
     protected void startNodes(Map<Integer, ScmNodeInfo> needStartMap, List<ScmNodeInfo> checkList) {
         for (Integer key : needStartMap.keySet()) {
             try {
-                int pid = executor.getNodePid(key);
-                if (pid == -1) {
-                    executor.startNode(needStartMap.get(key));
+                int pid = nodeOperators.getNodePid(key);
+                if (pid == ScmNodeInfoDetail.NOT_RUNNING) {
+                    nodeOperators.startNode(needStartMap.get(key).getPort());
                     checkList.add(needStartMap.get(key));
                 }
                 else {
-                    String status = getNodeRunningStatus(key, restTemplate);
-                    if (status.equals("UP")) {
+                    String status = nodeOperators.getHealthDesc(key);
+                    if (status.equals(ScmServiceNodeOperator.HEALTH_STATUS_UP)) {
                         System.out.println(
                                 "Success:" + needStartMap.get(key).getNodeType().getUpperName()
                                         + "(" + needStartMap.get(key).getPort() + ")"
@@ -196,11 +199,11 @@ public class ScmStartToolImpl extends ScmTool {
             while (it.hasNext()) {
                 ScmNodeInfo node = it.next();
                 try {
-                    int pid = executor.getNodePid(node.getPort());
-                    if (pid != -1) {
+                    int pid = nodeOperators.getNodePid(node.getPort());
+                    if (pid != ScmNodeInfoDetail.NOT_RUNNING) {
                         isPidExist = true;
-                        String runningStatus = getNodeRunningStatus(node.getPort(), restTemplate);
-                        if (runningStatus.equals("UP")) {
+                        String runningStatus = nodeOperators.getHealthDesc(node.getPort());
+                        if (runningStatus.equals(ScmServiceNodeOperator.HEALTH_STATUS_UP)) {
                             System.out.println("Success:" + node.getNodeType().getUpperName() + "("
                                     + node.getPort() + ")" + " is successfully started (" + pid
                                     + ")");
@@ -249,26 +252,6 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         return false;
-    }
-
-    protected String getNodeRunningStatus(int port, RestTemplate restTemplate) {
-        // return "OK";
-        Map<String,String> exceptionMsgMap = null;
-        for (String healthEndpoint : healthEndpoints) {
-            try {
-                Map<?, ?> resp = restTemplate
-                        .getForObject("http://localhost:" + port + "/" + healthEndpoint, Map.class);
-                return resp.get("status").toString().trim();
-            }
-            catch (Exception e) {
-                if (exceptionMsgMap == null) {
-                    exceptionMsgMap = new HashMap<>();
-                }
-                String msg = e.getMessage() + " " + Arrays.toString(e.getStackTrace());
-                exceptionMsgMap.put(healthEndpoint, msg);
-            }
-        }
-        return exceptionMsgMap.toString();
     }
 
     @Override

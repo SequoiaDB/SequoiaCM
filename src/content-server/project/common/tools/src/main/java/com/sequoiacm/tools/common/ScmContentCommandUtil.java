@@ -1,9 +1,9 @@
 package com.sequoiacm.tools.common;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -19,6 +19,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.LocationMsg;
 import com.sequoiacm.tools.element.ScmSdbInfo;
@@ -149,7 +150,8 @@ public class ScmContentCommandUtil {
                         ScmExitCode.INVALID_ARG);
             }
 
-            ScmExecutorWrapper executor = new ScmExecutorWrapper();
+            ScmExecutorWrapper executor = new ScmExecutorWrapper(
+                    ".." + File.separator + ".." + File.separator);
             ScmSdbInfo localSdbInfo = executor.getMainSiteSdb();
             if (localSdbInfo == null) {
                 logger.error("Can't find data source url of root site in local conf,please set --"

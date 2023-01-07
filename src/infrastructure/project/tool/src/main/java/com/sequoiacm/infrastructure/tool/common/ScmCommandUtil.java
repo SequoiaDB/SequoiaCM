@@ -21,58 +21,91 @@ public class ScmCommandUtil {
 
     public final static String OPT_SHORT_NODE_TYPE = "t";
     public final static String OPT_LONG_NODE_TYPE = "type";
+    public final static String OPT_SHORT_PORT = "p";
+    public final static String OPT_LONG_PORT = "port";
+    public final static String OPT_SHORT_MODE = "m";
+    public final static String OPT_LONG_MODE = "mode";
+    public final static String OPT_SHORT_LONG = "l";
+    public final static String OPT_LONG_LONG = "long";
 
     public static final String OPT_SHORT_HELP = "h";
     public static final String OPT_LONG_HELP = "help";
     public static final String OPT_LONG_VER = "version";
     public static final String OPT_SHORT_VER = "v";
 
-    public static final String LOCALTION_SITE_NAME = "site";
-
-    public static void addTypeOptionForStartOrStop(List<ScmNodeType> nodeTyps, Options ops,
+    public static void addTypeOptionForStartOrStop(List<ScmNodeType> nodeTypes, Options ops,
             ScmHelpGenerator hp, boolean isRequire, boolean haveAllOpDesc)
             throws ScmToolsException {
-        addTypeOptionForCreate(null, nodeTyps, ops, hp, isRequire, haveAllOpDesc);
+        addTypeOptionForCreate(null, nodeTypes, ops, hp, isRequire, haveAllOpDesc, true);
     }
 
     public static void addTypeOptionForCreate(Map<String, ScmNodeRequiredParamGroup> nodeProperties,
-            List<ScmNodeType> nodeTyps, Options ops, ScmHelpGenerator hp, boolean isRequire,
-            boolean haveAllOpDesc) throws ScmToolsException {
+            List<ScmNodeType> nodeTypes, Options ops, ScmHelpGenerator hp, boolean isRequire,
+            boolean haveAllOpDesc, boolean withTypeNum) throws ScmToolsException {
         StringBuilder typeOptDesc = new StringBuilder();
+        typeOptDesc.append("specify node type, arg:");
+        // first 拼接 [ 1 | 2 | 3 | 21 | 20 ]
+        StringBuilder first = new StringBuilder();
+        // second 拼接 0:all, 1:service-center, 2:gateway, ...
         StringBuilder second = new StringBuilder();
-        typeOptDesc.append("specify node type, arg:[");
+
+        first.append("[");
         // all
         if (haveAllOpDesc) {
-            typeOptDesc.append(" 0 |");
-            second.append("0:all, ");
+            if (withTypeNum) {
+                first.append(" 0 |");
+                second.append("0:all,").append(System.lineSeparator());
+            }
+            else {
+                second.append("all, ").append(System.lineSeparator());
+            }
         }
         // 拼接 nodeType
-        for (ScmNodeType nodeType : nodeTyps) {
-            typeOptDesc.append(String.format(" %s |", nodeType.getType()));
-            second.append(String.format("%s:%s, ", nodeType.getType(), nodeType.getName()));
-            second.append("required properties: \r\n");
+        for (ScmNodeType nodeType : nodeTypes) {
+            first.append(String.format(" %s |", nodeType.getType()));
+            if (withTypeNum) {
+                second.append(String.format("%s:%s, ", nodeType.getType(), nodeType.getName()));
+            }
+            else {
+                second.append(String.format("%s, ", nodeType.getName()));
+            }
             if (nodeProperties != null && nodeProperties.size() > 0) {
+                second.append("required properties:").append(System.lineSeparator());
                 ScmNodeRequiredParamGroup scmNodeRequiredParamGroup = nodeProperties.get(nodeType.getType());
                 if (scmNodeRequiredParamGroup != null) {
                     for (String str : scmNodeRequiredParamGroup.getExample()) {
                         second.append("\t");
                         second.append(str);
-                        second.append(" \r\n");
+                        second.append(System.lineSeparator());
                     }
                 }
             }
+            else {
+                second.append(System.lineSeparator());
+            }
         }
+
         // 去掉末尾的 "|"
-        typeOptDesc.deleteCharAt(typeOptDesc.length() - 1);
-        typeOptDesc.append("],").append(System.lineSeparator());
-        // 去掉末尾的 " ,"
-        // second.delete(second.length() - 2, second.length());
+        first.deleteCharAt(first.length() - 1);
+        first.append("],").append(System.lineSeparator());
 
         // 合并
+        if (withTypeNum) {
+            typeOptDesc.append(first);
+        }
+        else {
+            typeOptDesc.append(System.lineSeparator());
+        }
         typeOptDesc.append(second);
         Option op = hp.createOpt(OPT_SHORT_NODE_TYPE, OPT_LONG_NODE_TYPE, typeOptDesc.toString(),
                 isRequire, true, false);
         ops.addOption(op);
+    }
+
+    // type without typeNum
+    public static void addTypeOptionForStartOrStopWithOutTypeNum(List<ScmNodeType> nodeTypes,
+            Options ops, ScmHelpGenerator hp) throws ScmToolsException {
+        addTypeOptionForCreate(null, nodeTypes, ops, hp, false, true, false);
     }
 
     public static CommandLine parseArgs(String[] args, Options options, boolean stopAtNonOption)

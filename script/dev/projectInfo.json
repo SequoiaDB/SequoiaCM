@@ -95,6 +95,10 @@
 			{
 				"type": "copy",
 				"src": "../../src/monitor-daemon/project/assembly/target/*-release.tar.gz"
+			},
+			{
+				"type": "copy",
+				"src": "../../tools/scm-system-tools/target/*-release.tar.gz"
 			}]
 		},
 		{

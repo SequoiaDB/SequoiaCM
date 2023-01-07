@@ -2,7 +2,6 @@ package com.sequoiacm.tools.command;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,25 +13,24 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.element.ScmProcessInfo;
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmMonitorDaemonHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfoDetail;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmContentCommon;
+import com.sequoiacm.tools.common.ScmContentServerNodeOperator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
 public class ScmStartToolImpl extends ScmTool {
     public final int TIME_WAIT_PROCESS_RUNNING = 10000; // 10s
+    private final String installPath;
+    private final ScmContentServerNodeOperator operator;
 
     public int TIME_WAIT_PROCESS_STATUS_NORMAL = 50000; // 50s
     private final String OPT_SHORT_ALL = "a";
@@ -43,15 +41,18 @@ public class ScmStartToolImpl extends ScmTool {
     private final String OPT_SHORT_TIME_OUT = "t";
     private final String OPT_LONG_TIME_OUT = "timeout";
     // private final String OPT_LONG_OPTION = "option";
-    private ScmExecutorWrapper executor;
     private List<Integer> startSuccessList = new ArrayList<>();
-    private Map<Integer, String> needAddMap = new HashMap<>();
     private static Logger logger = LoggerFactory.getLogger(ScmStartToolImpl.class);
     private ScmHelpGenerator hp;
     private Options options;
 
     public ScmStartToolImpl() throws ScmToolsException {
         super("start");
+        this.installPath = ScmHelper.getAbsolutePathFromTool(
+                ScmHelper.getPwd() + File.separator + ".." + File.separator + "..");
+        operator = new ScmContentServerNodeOperator();
+        operator.init(installPath);
+
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(
@@ -68,8 +69,6 @@ public class ScmStartToolImpl extends ScmTool {
         // "start scm with extra options(--" + OPT_LONG_OPTION
         // + " 'extra option string'),\nexec 'java -h' for more options help");
         options.addOption(hp.createOpt(OPT_SHORT_I, null, "use current user.", false, false, true));
-
-        executor = new ScmExecutorWrapper();
     }
 
     @Override
@@ -84,13 +83,14 @@ public class ScmStartToolImpl extends ScmTool {
             throw new ScmToolsException("please set -" + OPT_SHORT_ALL + " or -" + OPT_SHORT_PORT,
                     ScmExitCode.INVALID_ARG);
         }
-        String contentServerJarFile = ScmContentCommon.getContentServerJarName();
+        String contentServerJarFile = ScmContentCommon.getContentServerJarPath(installPath);
         File f = new File(contentServerJarFile);
         if (!f.exists()) {
-            logger.error("Can't find " + ScmContentCommon.getContenserverAbsolutePath()
+            logger.error("Can't find " + ScmContentCommon.getContenserverAbsolutePath(installPath)
                     + contentServerJarFile);
             throw new ScmToolsException("Can't find "
-                    + ScmContentCommon.getContenserverAbsolutePath() + contentServerJarFile,
+                    + ScmContentCommon.getContenserverAbsolutePath(installPath)
+                    + contentServerJarFile,
                     ScmExitCode.FILE_NOT_FIND);
         }
 
@@ -99,13 +99,19 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         Map<Integer, String> needStartMap = new HashMap<Integer, String>();
+        List<ScmNodeInfo> needStartNodeList = new ArrayList<>();
         // -p
         if (commandLine.hasOption(OPT_SHORT_PORT)) {
             String portString = commandLine.getOptionValue(OPT_SHORT_PORT);
             try {
                 int port = ScmContentCommon.convertStrToInt(portString);
-                String confPath = executor.getNodeConfPath(port);
-                needStartMap.put(port, confPath);
+                ScmNodeInfo node = operator.getNodeInfo(port);
+                if (node == null) {
+                    throw new ScmToolsException("Can't find conf path of " + port + " node",
+                            ScmExitCode.FILE_NOT_FIND);
+                }
+                needStartNodeList.add(node);
+                needStartMap.put(port, node.getConfPath());
             }
             catch (ScmToolsException e) {
                 e.printErrorMsg();
@@ -117,8 +123,9 @@ public class ScmStartToolImpl extends ScmTool {
 
         // -a
         else if (commandLine.hasOption(OPT_SHORT_ALL)) {
-            needStartMap.putAll(executor.getAllNode());
-            if (needStartMap.size() <= 0) {
+            needStartNodeList.addAll(operator.getAllNodeInfo());
+            needStartMap.putAll(operator.getAllNodeConf());
+            if (needStartNodeList.size() <= 0) {
                 System.out.println("Can't find any node in conf path");
                 System.out.println("Total:0;Success:0;Failed:0");
                 logger.info("Can't find any node in conf path,start all node success");
@@ -127,17 +134,18 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         List<Integer> checkList = new ArrayList<>();
-        startNodes(needStartMap, checkList);
+        startNodes(needStartNodeList, checkList);
 
         // check start res
         boolean startRes = isStartSuccess(checkList);
         String isIgnoreDaemon = System.getenv(ScmContentCommon.IGNORE_DAEMON_ENV);
         if (isIgnoreDaemon == null) {
+            List<ScmNodeInfo> addMonitorNode = new ArrayList<>();
             for (Integer port : startSuccessList) {
                 String confPath = needStartMap.get(port);
-                needAddMap.put(port, confPath);
+                addMonitorNode.add(new ScmNodeInfo(confPath, operator.getNodeType(), port));
             }
-            executor.addMonitorNodeList(needAddMap);
+            ScmMonitorDaemonHelper.addMonitorNodeList(addMonitorNode, installPath);
         }
 
         logger.info("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
@@ -162,25 +170,30 @@ public class ScmStartToolImpl extends ScmTool {
         TIME_WAIT_PROCESS_STATUS_NORMAL = TIME_WAIT_PROCESS_STATUS_NORMAL * 1000;
     }
 
-    private void startNodes(Map<Integer, String> needStartMap, List<Integer> checkList) {
-        for (Integer key : needStartMap.keySet()) {
+    private void startNodes(List<ScmNodeInfo> needStartNodeList, List<Integer> checkList) {
+        for (ScmNodeInfo node : needStartNodeList) {
             try {
-                int pid = executor.getNodePid(key);
-                if (pid == -1) {
-                    executor.startNode(key);
-                    checkList.add(key);
+                int pid = operator.getNodeInfoDetail(node.getPort()).getPid();
+                if (pid == ScmNodeInfoDetail.NOT_RUNNING) {
+                    operator.start(node.getPort());
+                    checkList.add(node.getPort());
                 }
                 else {
-                    String status = getNodeRunningStatus(key);
-                    if (status.equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
-                        System.out.println("Success:CONTENT-SERVER(" + key + ") is already started (" + pid + ")");
-                        logger.info("Success:CONTENT-SERVER(" + key + ") is already started (" + pid + ")");
-                        startSuccessList.add(key);
+                    String status = operator.getHealthDesc(node.getPort());
+                    if (status.equals(ScmServiceNodeOperator.HEALTH_STATUS_UP)) {
+                        System.out.println("Success:CONTENT-SERVER(" + node.getPort()
+                                + ") is already started (" + pid + ")");
+                        logger.info("Success:CONTENT-SERVER(" + node.getPort()
+                                + ") is already started (" + pid + ")");
+                        startSuccessList.add(node.getPort());
                     }
                     else {
-                        System.out.println("Failed:CONTENT-SERVER(" + key + ") is already started ("
+                        System.out.println(
+                                "Failed:CONTENT-SERVER(" + node.getPort() + ") is already started ("
                                 + pid + "),but node status is not normal");
-                        logger.info("Failed:CONTENT-SERVER(" + key + ") is already started (" + pid
+                        logger.info(
+                                "Failed:CONTENT-SERVER(" + node.getPort() + ") is already started ("
+                                        + pid
                                 + "),but node status is not normal:" + status);
                     }
                 }
@@ -202,12 +215,12 @@ public class ScmStartToolImpl extends ScmTool {
             while (it.hasNext()) {
                 int p = it.next();
                 try {
-                    int pid = executor.getNodePid(p);
-                    if (pid != -1) {
+                    int pid = operator.getNodeInfoDetail(p).getPid();
+                    if (pid != ScmNodeInfoDetail.NOT_RUNNING) {
                         isPidExist = true;
-                        String runningStatus = getNodeRunningStatus(p);
+                        String runningStatus = operator.getHealthDesc(p);
                         if (runningStatus
-                                .equals(CommonDefine.ScmProcessStatus.SCM_PROCESS_STATUS_RUNING)) {
+                                .equals(ScmServiceNodeOperator.HEALTH_STATUS_UP)) {
                             System.out.println("Success:CONTENT-SERVER(" + p + ") is successfully started (" + pid + ")");
                             logger.info("Success:CONTENT-SERVER(" + p + ") is successfully started (" + pid + ")");
                             startSuccessList.add(p);
@@ -254,32 +267,7 @@ public class ScmStartToolImpl extends ScmTool {
         return false;
     }
 
-    private String getNodeRunningStatus(int port) {
-        ScmSession ss = null;
-        try {
-            ss = ScmFactory.Session.createSession(SessionType.NOT_AUTH_SESSION,
-                    new ScmConfigOption("localhost:" + port));
-        }
-        catch (Exception e) {
-            return "failed to connect,error=" + e.toString() + ", stacktrace:"
-                    + Arrays.toString(e.getStackTrace());
-        }
 
-        try {
-            ScmProcessInfo processInfo = ScmSystem.ProcessInfo.getProcessInfo(ss);
-            if (processInfo.getRunningStatus() == null) {
-                return "runningStatus is null";
-            }
-            return processInfo.getRunningStatus();
-        }
-        catch (Exception e) {
-            return "failed to get node status,error=" + e.toString() + ", stacktrace:"
-                    + Arrays.toString(e.getStackTrace());
-        }
-        finally {
-            ss.close();
-        }
-    }
 
     @Override
     public void printHelp(boolean isFullHelp) {

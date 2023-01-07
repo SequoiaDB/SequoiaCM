@@ -34,10 +34,14 @@ public class CommandManager {
     }
 
     public void execute(String[] args) {
+        execute(args, true);
+    }
+
+    public void execute(String[] args, boolean withAdminLog) {
         if (args.length > 0) {
             ScmTool tool = null;
             try {
-                tool = getInstanceByToolName(args[0]);
+                tool = getInstanceByToolName(args[0], withAdminLog);
             }
             catch (Exception e) {
                 logger.error("create  " + args[0] + " subcommand instance failed", e);
@@ -122,7 +126,7 @@ public class CommandManager {
     }
 
     public void printHelp(String arg, boolean isFullHelp) throws ScmToolsException {
-        ScmTool tool = getInstanceByToolName(arg);
+        ScmTool tool = getInstanceByToolName(arg, false);
         if (tool != null) {
             tool.printHelp(isFullHelp);
             System.exit(ScmBaseExitCode.SUCCESS);
@@ -134,9 +138,12 @@ public class CommandManager {
         }
     }
 
-    private ScmTool getInstanceByToolName(String toolName) throws ScmToolsException {
+    private ScmTool getInstanceByToolName(String toolName, boolean withAdminLog)
+            throws ScmToolsException {
         ScmTool instance = null;
-        ScmCommon.configToolsLog(ScmCommon.LOG_FILE_ADMIN);
+        if (withAdminLog) {
+            ScmCommon.configToolsLog(ScmCommon.LOG_FILE_ADMIN);
+        }
         instance = this.tools.get(toolName);
         return instance;
     }
@@ -166,5 +173,9 @@ public class CommandManager {
         }
 
         return sb.toString();
+    }
+
+    protected Map<String, ScmTool> getTools() {
+        return tools;
     }
 }

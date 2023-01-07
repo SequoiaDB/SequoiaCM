@@ -11,23 +11,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class ScmExecutorWrapper {
+    private String servicePath;
     private ScmExecutor executor;
     private Map<Integer, ScmNodeInfo> node2Conf;
-    private Map<ScmNodeType, Map<Integer, ScmNodeInfo>> nodeType2Node;
     private static final Logger logger = LoggerFactory.getLogger(ScmExecutorWrapper.class);
-    private ScmNodeTypeList allNodeType;
+    private ScmNodeType nodeType;
 
-    public ScmExecutorWrapper(ScmNodeTypeList allNodeType) throws ScmToolsException {
-        this.allNodeType = allNodeType;
+    public ScmExecutorWrapper(ScmNodeType nodeType, String installPath) throws ScmToolsException {
+        this.nodeType = nodeType;
+        this.servicePath = installPath + File.separator + nodeType.getServiceDirName();
         if (ScmCommon.isLinux()) {
-            executor = new ScmLinuxExecutorImpl(allNodeType);
+            executor = new ScmLinuxExecutorImpl();
         }
         else {
-            // TODO:throw new ScmToolsException("Unsupport platform",
-            // ScmExitCode.UNSUPORT_PLATFORM);
+            throw new ScmToolsException("Unsupport platform", ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -38,19 +40,20 @@ public class ScmExecutorWrapper {
                     + ScmToolsDefine.FILE_NAME.APP_PROPS;
             String loggingConfig = nodeConfPath + File.separator + ScmToolsDefine.FILE_NAME.LOGBACK;
 
-            String jarName = ScmHelper.getJarNameByType(node.getNodeType());
-            String jarPath = ScmHelper.getPwd() + File.separator + ScmToolsDefine.FILE_NAME.JARS
-                    + File.separator + jarName;
-
-            String logPath = "." + File.separator + ScmToolsDefine.FILE_NAME.LOG + File.separator
-                    + node.getNodeType().getName() + File.separator + node.getPort();
+            String jarPath = ScmHelper.getJarPathByType(node.getNodeType(),
+                    servicePath);
+            String logPath = servicePath
+                    + File.separator + ScmToolsDefine.FILE_NAME.LOG
+                    + File.separator + node.getNodeType().getName() + File.separator
+                    + node.getPort();
             String errorLogPath = logPath + File.separator + ScmToolsDefine.FILE_NAME.ERROR_OUT;
             ScmHelper.createDir(logPath);
 
             Properties sysPro = PropertiesUtil.loadProperties(springConfigLocation);
             String options = sysPro.getProperty(ScmToolsDefine.SCM_JVM_OPTIONS, "");
 
-            executor.startNode(jarPath, springConfigLocation, loggingConfig, errorLogPath, options);
+            executor.startNode(jarPath, springConfigLocation, loggingConfig, errorLogPath, options,
+                    servicePath);
         }
         catch (ScmToolsException e) {
             throw new ScmToolsException(
@@ -74,10 +77,10 @@ public class ScmExecutorWrapper {
     }
 
     public int getNodePid(int port) throws ScmToolsException {
-        String confOfPort = getNode(port).getConfPath();
+        String confOfPort = getNodeCheck(port).getConfPath();
         Map<String, ScmNodeProcessInfo> confNodeProcess;
         try {
-            ScmNodeStatus psRes = executor.getNodeStatus();
+            ScmNodeStatus psRes = executor.getNodeStatus(nodeType);
             confNodeProcess = psRes.getStatusMap();
         }
         catch (ScmToolsException e) {
@@ -93,17 +96,22 @@ public class ScmExecutorWrapper {
     }
 
     public Map<String, ScmNodeProcessInfo> getNodeStatus() throws ScmToolsException {
-        ScmNodeStatus psRes = executor.getNodeStatus();
+        ScmNodeStatus psRes = executor.getNodeStatus(nodeType);
         return psRes.getStatusMap();
+    }
+
+    public ScmNodeInfo getNodeCheck(int port) throws ScmToolsException {
+        ScmNodeInfo node = getNode(port);
+        if (node == null) {
+            throw new ScmToolsException("Can't find conf path of " + port + " node",
+                    ScmBaseExitCode.FILE_NOT_FIND);
+        }
+        return node;
     }
 
     public ScmNodeInfo getNode(int port) throws ScmToolsException {
         scanConfDir();
         ScmNodeInfo node = node2Conf.get(port);
-        if (node == null) {
-            throw new ScmToolsException("Can't find conf path of " + port + " node",
-                    ScmBaseExitCode.FILE_NOT_FIND);
-        }
         return node;
     }
 
@@ -112,31 +120,26 @@ public class ScmExecutorWrapper {
         return node2Conf;
     }
 
-    public Map<Integer, ScmNodeInfo> getNodesByType(ScmNodeType type) {
-        scanConfDir();
-        return nodeType2Node.get(type);
-    }
-
     private void scanConfDir() {
+
         if (node2Conf != null) {
             return;
         }
         node2Conf = new HashMap<>();
-        nodeType2Node = new HashMap<ScmNodeType, Map<Integer, ScmNodeInfo>>();
-        String confPath = ScmHelper.getPwd() + File.separator + ScmToolsDefine.FILE_NAME.CONF;
 
-        for (ScmNodeType type : this.allNodeType) {
-            scanNode(type, confPath + File.separator + type.getName());
-        }
+        String confPath = servicePath + File.separator
+                + ScmToolsDefine.FILE_NAME.CONF + File.separator + nodeType.getName();
+        scanNode(confPath);
+
     }
 
-    private void scanNode(ScmNodeType nodeType, String confPath) {
+    private void scanNode(String confPath) {
         File confFile = new File(confPath);
         if (!confFile.isDirectory()) {
             return;
         }
+
         File[] files = confFile.listFiles();
-        Map<Integer, ScmNodeInfo> node2Conf = new HashMap<Integer, ScmNodeInfo>();
         for (File f : files) {
             if (f.isDirectory() && !f.getName().equals("samples")) {
                 String applicationProp = confPath + File.separator + f.getName() + File.separator
@@ -153,8 +156,7 @@ public class ScmExecutorWrapper {
                 if (confPort != null && !confPort.equals("")) {
                     try {
                         int port = Integer.valueOf(confPort);
-                        node2Conf.put(port, new ScmNodeInfo(confPath + File.separator + f.getName(),
-                                nodeType, port));
+
                         this.node2Conf.put(port, new ScmNodeInfo(
                                 confPath + File.separator + f.getName(), nodeType, port));
                     }
@@ -171,97 +173,5 @@ public class ScmExecutorWrapper {
                 }
             }
         }
-        nodeType2Node.put(nodeType, node2Conf);
-    }
-
-    public void addMonitorNodeList(List<ScmNodeInfo> needAddList) {
-        String daemonHomePath = null;
-        try {
-            // 如果找不到守护进程工具的路径，说明该节点目录与工具不在同一级目录下，且没有将该节点信息添加到监控表，那么就不需要监控
-            daemonHomePath = findDaemonHomePath();
-        }
-        catch (ScmToolsException e) {
-            logger.warn(e.getMessage(), e);
-            return;
-        }
-
-        String scmdScriptPath = daemonHomePath + File.separator + ScmCommon.BIN + File.separator
-                + ScmCommon.DAEMON_SCRIPT;
-        for (ScmNodeInfo node : needAddList) {
-            String propPath = node.getConfPath() + File.separator
-                    + ScmCommon.APPLICATION_PROPERTIES;
-            String shell = scmdScriptPath + " add -o -s on -t " + node.getNodeType().getUpperName()
-                    + " -c " + propPath;
-            try {
-                logger.info(
-                        "Adding node to monitor table by exec cmd (/bin/sh -c \" " + shell + "\")");
-                executor.execShell(shell);
-            }
-            catch (ScmToolsException e) {
-                logger.error("Failed to add node to monitor table,port:{},conf:{}", node.getPort(),
-                        propPath);
-                System.out.println("Failed to add node to monitor table,port:" + node.getPort()
-                        + ",conf:" + propPath);
-            }
-        }
-    }
-
-    public void changeMonitorStatus(Set<Integer> needChangeSet, String changeStatus)
-            throws ScmToolsException {
-        String daemonHomePath = null;
-        try {
-            daemonHomePath = findDaemonHomePath();
-        }
-        catch (ScmToolsException e) {
-            if(e.getExitCode() == ScmBaseExitCode.FILE_NOT_FIND) {
-                logger.warn(e.getMessage(), e);
-                return;
-            }
-            throw e;
-        }
-
-        String scmdScriptPath = daemonHomePath + File.separator + ScmCommon.BIN + File.separator
-                + ScmCommon.DAEMON_SCRIPT;
-        for (Integer port : needChangeSet) {
-            String shell = scmdScriptPath + " chstatus -p " + port + " -s " + changeStatus;
-            try {
-                logger.info("Changing node status by exec cmd (/bin/sh -c \" " + shell + "\")");
-                executor.execShell(shell);
-            }
-            catch (ScmToolsException e) {
-                throw new ScmToolsException("Failed to change node monitor status,port:" + port
-                        + ", status:" + changeStatus, e.getExitCode());
-            }
-        }
-    }
-
-    private String findDaemonHomePath() throws ScmToolsException {
-        String daemonHomePath = ScmCommon.DAEMON_DIR_PATH;
-        File file = new File(daemonHomePath);
-        if (!file.exists()) {
-            String daemonLocationFilePath = ScmCommon.DAEMON_CONF_FILE_PATH;
-            try {
-                Properties properties = PropertiesUtil.loadProperties(daemonLocationFilePath);
-                daemonHomePath = properties.getProperty(ScmCommon.DAEMON_LOCATION);
-            }
-            catch (ScmToolsException e) {
-                throw new ScmToolsException(
-                        "Failed to load properties,properties:" + daemonLocationFilePath,
-                        e.getExitCode(), e);
-            }
-            if (daemonHomePath == null || daemonHomePath.length() == 0) {
-                throw new ScmToolsException(
-                        "Invalid args:" + ScmCommon.DAEMON_LOCATION + " is null",
-                        ScmBaseExitCode.INVALID_ARG);
-            }
-            file = new File(daemonHomePath);
-            if (!file.exists()) {
-                throw new ScmToolsException(
-                        "Failed to find daemon home path, caused by daemon home dir not exist, dir:"
-                                + daemonHomePath,
-                        ScmBaseExitCode.FILE_NOT_FIND);
-            }
-        }
-        return daemonHomePath;
     }
 }

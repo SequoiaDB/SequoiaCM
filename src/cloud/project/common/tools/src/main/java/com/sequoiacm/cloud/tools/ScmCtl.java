@@ -1,36 +1,31 @@
 package com.sequoiacm.cloud.tools;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import com.sequoiacm.infrastructure.tool.CommandManager;
-import com.sequoiacm.infrastructure.tool.command.ScmListToolImpl;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 import com.sequoiacm.cloud.tools.command.ScmStartToolImplCloud;
 import com.sequoiacm.cloud.tools.command.ScmStopToolImplCloud;
+import com.sequoiacm.infrastructure.tool.CommandManager;
+import com.sequoiacm.infrastructure.tool.command.ScmListToolImpl;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmAdminNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmAuthNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmGatewayNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceCenterNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmTraceNodeOperator;
 
 public class ScmCtl {
     public static void main(String[] args) {
         CommandManager cmd = new CommandManager("scmcloudctl");
-        // 初始化节点类型信息
-        ScmNodeTypeList nodeTypes = new ScmNodeTypeList();
-        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.SERVICECENTER,
-                ScmServerScriptEnum.SERVICECENTER, false));
-        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.GATEWAY, ScmServerScriptEnum.GATEWAY));
-        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.AUTHSERVER, ScmServerScriptEnum.AUTHSERVER));
-        nodeTypes.add(new ScmNodeType(ScmNodeTypeEnum.SERVICETRACE,
-                ScmServerScriptEnum.SERVICETRACE, false));
-        nodeTypes
-                .add(new ScmNodeType(ScmNodeTypeEnum.ADMINSERVER, ScmServerScriptEnum.ADMINSERVER));
         try {
-            cmd.addTool(new ScmStartToolImplCloud(nodeTypes));
-            cmd.addTool(new ScmStopToolImplCloud(nodeTypes));
-            cmd.addTool(new ScmListToolImpl(nodeTypes));
+            List<ScmServiceNodeOperator> opList = Arrays.<ScmServiceNodeOperator> asList(
+                    new ScmServiceCenterNodeOperator(), new ScmGatewayNodeOperator(),
+                    new ScmAuthNodeOperator(), new ScmAdminNodeOperator(),
+                    new ScmTraceNodeOperator());
+            cmd.addTool(new ScmStartToolImplCloud(opList));
+            cmd.addTool(new ScmStopToolImplCloud(opList));
+            cmd.addTool(new ScmListToolImpl(opList));
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

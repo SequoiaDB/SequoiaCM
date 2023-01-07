@@ -37,7 +37,9 @@ public enum InstallPackType {
         public String toString() {
             return super.toString() + getDirs();
         }
-    };
+    },
+    SCMSYSTOOLS("^sequoiacm-sys-tools-(.*)-release\\.tar\\.gz$", "sequoiacm-sys-tools");
+
 
     private String packNameRegexp;
     private String untarDirName;

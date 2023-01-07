@@ -1,38 +1,50 @@
 package com.sequoiacm.infrastructure.tool.common;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperatorGroup;
 
 public class ScmNodeCreator {
     private final Logger logger = LoggerFactory.getLogger(ScmNodeCreator.class);
+    private final ScmServiceNodeOperatorGroup nodeOeprators;
     private ScmNodeType type;
     private Properties prop;
-    private ScmNodeTypeList nodeTypes;
     private Map<Object, Object> otherLog = null;
     private boolean loadDefaultPortAble = true;
 
     private BSONObject hystrixConfig = ScmCommon.parseBsonFromClassPathFile("hystrix.json");
 
-    public ScmNodeCreator(ScmNodeType type, Properties prop, ScmNodeTypeList nodeTypes) throws ScmToolsException {
-        this.nodeTypes = nodeTypes;
+    public ScmNodeCreator(ScmNodeType type, Properties prop,
+            ScmServiceNodeOperatorGroup nodeOeprators) throws ScmToolsException {
+        this.nodeOeprators = nodeOeprators;
         this.type = type;
         this.prop = prop;
     }
 
-    public ScmNodeCreator(ScmNodeType type, Properties prop, ScmNodeTypeList nodeTypes,
+    public ScmNodeCreator(ScmNodeType type, Properties prop,
+            ScmServiceNodeOperatorGroup nodeOeprators,
                           Map<Object, Object> otherLog, boolean loadDefaultPortAble) throws ScmToolsException {
-        this(type, prop, nodeTypes);
+        this(type, prop, nodeOeprators);
         this.otherLog = otherLog;
         this.loadDefaultPortAble = loadDefaultPortAble;
     }
@@ -52,11 +64,11 @@ public class ScmNodeCreator {
         if (port > 65535 || port < 0) {
             throw new ScmToolsException("port out of range:" + port, ScmBaseExitCode.INVALID_ARG);
         }
-
-        ScmExecutorWrapper exe = new ScmExecutorWrapper(this.nodeTypes);
-        if (exe.getAllNode().containsKey(port)) {
+        
+        if (nodeOeprators.getAllNode().containsKey(port)) {
             throw new ScmToolsException("The port is already occupied,port:" + port + ",conf path:"
-                    + exe.getNode(port).getConfPath(), ScmBaseExitCode.SCM_ALREADY_EXIST_ERROR);
+                    + nodeOeprators.getNodeInfo(port)
+                            .getConfPath(), ScmBaseExitCode.SCM_ALREADY_EXIST_ERROR);
         }
         createNodeByType(type, port);
         System.out.println("Create node success: " + type.getUpperName() + "(" + port + ")");

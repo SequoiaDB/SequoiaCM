@@ -1,6 +1,5 @@
 package com.sequoiacm.infrastructure.tool.common;
 
-import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
@@ -10,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.regex.Pattern;
@@ -27,13 +26,26 @@ public class ScmHelper {
         if (pwd == null) {
             File pwdFile = new File("");
             pwd = pwdFile.getAbsolutePath();
+
             return pwd;
         }
         return pwd;
     }
 
-    public static String getJarNameByType(final ScmNodeType type) throws ScmToolsException {
-        String jarsPath = getPwd() + File.separator + "jars";
+    public static String getAbsolutePathFromTool(String path) {
+        return Paths.get(path).normalize().toString();
+    }
+
+    public static String getJarPathByType(final ScmNodeType type, String servicePath)
+            throws ScmToolsException {
+        String jarPath = servicePath + File.separator + "jars";
+        String jarName = ScmHelper.getJarNameByType(type, jarPath);
+
+        return jarPath + File.separator + jarName;
+    }
+
+    public static String getJarNameByType(final ScmNodeType type, String jarsPath)
+            throws ScmToolsException {
         File jarsDir = new File(jarsPath);
         final String matchCondition = "^" + type.getJarNamePrefix() + "(.*)\\.jar$";
         FilenameFilter jarNameFilter = new FilenameFilter() {

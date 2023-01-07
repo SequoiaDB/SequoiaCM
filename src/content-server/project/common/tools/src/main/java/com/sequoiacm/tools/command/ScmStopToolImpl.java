@@ -1,5 +1,6 @@
 package com.sequoiacm.tools.command;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,12 +15,15 @@ import org.slf4j.LoggerFactory;
 import com.sequoiacm.infrastructure.tool.command.ScmTool;
 import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.common.ScmMonitorDaemonHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfoDetail;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.common.ScmContentCommandUtil;
 import com.sequoiacm.tools.common.ScmContentCommon;
+import com.sequoiacm.tools.common.ScmContentServerNodeOperator;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import com.sequoiacm.tools.exec.ScmExecutorWrapper;
 
 public class ScmStopToolImpl extends ScmTool {
     private final String OPT_SHORT_PORT = "p";
@@ -28,15 +32,21 @@ public class ScmStopToolImpl extends ScmTool {
     private final String OPT_LONG_ALL = "all";
     private final String OPT_LONG_FORCE = "force";
     private final String OPT_SHORT_FORCE = "f";
+    private final String installPath;
+    private final ScmContentServerNodeOperator operator;
 
     private Options options;
     private ScmHelpGenerator hp;
-    private ScmExecutorWrapper executor;
     private int success = 0;
     private static Logger logger = LoggerFactory.getLogger(ScmStopToolImpl.class);
 
     public ScmStopToolImpl() throws ScmToolsException {
         super("stop");
+        this.installPath = ScmHelper.getAbsolutePathFromTool(
+                ScmHelper.getPwd() + File.separator + ".." + File.separator + "..");
+        operator = new ScmContentServerNodeOperator();
+        operator.init(installPath);
+
         options = new Options();
         hp = new ScmHelpGenerator();
         options.addOption(
@@ -51,8 +61,6 @@ public class ScmStopToolImpl extends ScmTool {
     public void process(String[] args) throws ScmToolsException {
         ScmHelper.configToolsLog(ScmToolsDefine.FILE_NAME.STOP_LOG_CONF);
 
-        executor = new ScmExecutorWrapper();
-
         CommandLine commandLine = ScmContentCommandUtil.parseArgs(args, options);
         if (commandLine.hasOption(OPT_SHORT_PORT) && commandLine.hasOption(OPT_SHORT_ALL)
                 || !commandLine.hasOption(OPT_SHORT_PORT)
@@ -61,14 +69,18 @@ public class ScmStopToolImpl extends ScmTool {
             throw new ScmToolsException("please set -a or -p", ScmExitCode.INVALID_ARG);
         }
 
-        Map<Integer, String> needStopMap = new HashMap<Integer, String>();
+        Map<Integer, ScmNodeInfo> needStopNode = new HashMap<>();
         // -p node
         if (commandLine.hasOption(OPT_SHORT_PORT)) {
             try {
                 String portString = commandLine.getOptionValue(OPT_SHORT_PORT);
                 int port = ScmContentCommon.convertStrToInt(portString);
-                String nodeConf = executor.getNodeConfPath(port);
-                needStopMap.put(port, nodeConf);
+                ScmNodeInfo node = operator.getNodeInfo(port);
+                if (node == null) {
+                    throw new ScmToolsException("Can't find conf path of " + port + " node",
+                            ScmExitCode.FILE_NOT_FIND);
+                }
+                needStopNode.put(node.getPort(), node);
             }
             catch (ScmToolsException e) {
                 e.printErrorMsg();
@@ -82,36 +94,39 @@ public class ScmStopToolImpl extends ScmTool {
 
         // --all
         else if (commandLine.hasOption(OPT_SHORT_ALL)) {
-            needStopMap.putAll(executor.getAllNode());
-            if (needStopMap.size() <= 0) {
+            List<ScmNodeInfo> nodes = operator.getAllNodeInfo();
+            for (ScmNodeInfo nodeInfo : nodes) {
+                needStopNode.put(nodeInfo.getPort(), nodeInfo);
+            }
+            if (needStopNode.size() <= 0) {
                 System.out.println("Can't find any node in conf path");
                 logger.info("Can't find any node in conf path,stop success");
-                System.out.println("Total:" + needStopMap.size() + ";Success:0;Failed:0");
+                System.out.println("Total:" + needStopNode.size() + ";Success:0;Failed:0");
                 return;
             }
         }
 
-        executor.changeMonitorStatus(needStopMap.keySet(), "off");
+        ScmMonitorDaemonHelper.changeMonitorStatus(needStopNode.keySet(), "off", installPath);
 
         List<Integer> checkList = new ArrayList<>();
-        stopNodes(needStopMap, checkList);
+        stopNodes(needStopNode, checkList);
 
         // check stop resault and force option
         boolean stopRes = isStopSuccess(checkList, commandLine.hasOption(OPT_SHORT_FORCE));
-        System.out.println("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
-                + (needStopMap.size() - success));
-        logger.info("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
-                + (needStopMap.size() - success));
-        if (!stopRes || needStopMap.size() != success) {
+        System.out.println("Total:" + needStopNode.size() + ";Success:" + success + ";Failed:"
+                + (needStopNode.size() - success));
+        logger.info("Total:" + needStopNode.size() + ";Success:" + success + ";Failed:"
+                + (needStopNode.size() - success));
+        if (!stopRes || needStopNode.size() != success) {
             throw new ScmToolsException(ScmExitCode.SYSTEM_ERROR);
         }
     }
 
-    private void stopNodes(Map<Integer, String> needStopMap, List<Integer> checkList) {
+    private void stopNodes(Map<Integer, ScmNodeInfo> needStopMap, List<Integer> checkList) {
         for (Integer key : needStopMap.keySet()) {
             try {
-                if (executor.getNodePid(key) != -1) {
-                    executor.stopNode(key, false);
+                if (operator.getNodeInfoDetail(key).getPid() != ScmNodeInfoDetail.NOT_RUNNING) {
+                    operator.stop(key, false);
                     checkList.add(key);
                 }
                 else {
@@ -136,8 +151,8 @@ public class ScmStopToolImpl extends ScmTool {
             while (it.hasNext()) {
                 int port = it.next();
                 try {
-                    int pid = executor.getNodePid(port);
-                    if (pid == -1) {
+                    int pid = operator.getNodeInfoDetail(port).getPid();
+                    if (pid == ScmNodeInfoDetail.NOT_RUNNING) {
                         logger.info("Success:CONTENT-SERVER(" + port + ") is successfully stopped");
                         System.out.println(
                                 "Success:CONTENT-SERVER(" + port + ") is successfully stopped");
@@ -165,7 +180,7 @@ public class ScmStopToolImpl extends ScmTool {
             for (int port : checkList) {
                 try {
                     logger.info("force stop node:" + port);
-                    executor.stopNode(port, true);
+                    operator.stop(port, true);
                 }
                 catch (ScmToolsException e) {
                     logger.error("force stop node occur exception,port:" + port, e);
@@ -179,8 +194,8 @@ public class ScmStopToolImpl extends ScmTool {
             while (it.hasNext()) {
                 Integer port = it.next();
                 try {
-                    int pid = executor.getNodePid(port);
-                    if (pid == -1) {
+                    int pid = operator.getNodeInfoDetail(port).getPid();
+                    if (pid == ScmNodeInfoDetail.NOT_RUNNING) {
                         logger.info("Success:CONTENT-SERVER(" + port + ") is successfully stopped");
                         System.out.println(
                                 "Success:CONTENT-SERVER(" + port + ") is successfully stopped");

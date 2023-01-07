@@ -1,13 +1,22 @@
 package com.sequoiacm.om.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.element.*;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParam;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmOmNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 
 public class OmAdmin {
     public static void main(String[] args) throws ScmToolsException {
@@ -26,7 +35,9 @@ public class OmAdmin {
 
         nodeProperties.put(ScmNodeTypeEnum.OMSERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
-            cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, nodeTypes));
+            List<ScmServiceNodeOperator> opList = Collections
+                    .<ScmServiceNodeOperator> singletonList(new ScmOmNodeOperator());
+            cmd.addTool(new ScmCreateNodeToolImpl(nodeProperties, opList));
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

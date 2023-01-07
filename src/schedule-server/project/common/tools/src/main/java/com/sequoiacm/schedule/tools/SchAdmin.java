@@ -1,12 +1,20 @@
 package com.sequoiacm.schedule.tools;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import com.sequoiacm.infrastructure.tool.common.ScmToolsDefine;
-import com.sequoiacm.infrastructure.tool.element.*;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeRequiredParamGroup;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
+import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmSchNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 import com.sequoiacm.schedule.tools.command.ScmCreateNodeToolImplSchedule;
 
 public class SchAdmin {
@@ -23,7 +31,9 @@ public class SchAdmin {
 
         nodeProperties.put(ScmNodeTypeEnum.SCHEDULESERVER.getTypeNum(), scmNodeRequiredParamGroup);
         try {
-            cmd.addTool(new ScmCreateNodeToolImplSchedule(nodeProperties, nodeTypes));
+            List<ScmServiceNodeOperator> opList = Collections
+                    .<ScmServiceNodeOperator> singletonList(new ScmSchNodeOperator());
+            cmd.addTool(new ScmCreateNodeToolImplSchedule(nodeProperties, opList));
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

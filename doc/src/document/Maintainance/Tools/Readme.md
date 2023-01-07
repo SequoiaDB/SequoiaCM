@@ -1,5 +1,11 @@
 SequoiaCM 系统管理工具提供 SequoiaCM 业务部署，及节点管理等功能。可执行文件位于 SequoiaCM 安装路径的 bin 目录下。
 
+##全局节点管理工具##
+
+|工具    |脚本名 |功能   |
+|--------|-------|-------|
+|[全局节点管理工具][scmsysctl]|scmsysctl.sh|提供全局节点管理的功能|
+
 ##Spring Cloud 工具##
 
 |工具    |脚本名 |功能   |
@@ -116,3 +122,5 @@ SequoiaCM 系统管理工具提供 SequoiaCM 业务部署，及节点管理等�
 [s3ctl]:Maintainance/Tools/S3admin/Readme.md
 [s3admin]:Maintainance/Tools/S3admin/Readme.md
 [s3_deploy]:Maintainance/Tools/s3_deploy_script.md
+
+[scmsysctl]:Maintainance/Tools/Scmsysctl/Readme.md

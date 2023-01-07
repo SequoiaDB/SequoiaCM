@@ -20,6 +20,7 @@ public enum ServiceType {
     OM_SERVER("om-server", false, InstallPackType.OM_SERVER, "jars/sequoiacm-om-omserver-*.jar", 10, "omctl.sh"),
     FULLTEXT_SERVER("fulltext-server", false, InstallPackType.FULLTEXT_SERVER, "jars/sequoiacm-fulltext-server-*.jar", 10, "ftctl.sh"),
     S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, "jars/sequoiacm-s3-server-*.jar", 10, "s3ctl.sh"),
+    SCMSYSTOOLS("scmsystools", false, InstallPackType.SCMSYSTOOLS, "jars/sequoiacm-sys-tools-*.jar", 100, null),
     // Daemon need to start last and clean first
     DAEMON("daemon", false, InstallPackType.DAEMON, "jars/sequoiacm-daemon-tools-*.jar", 200, "scmd.sh"),
     NON_SERVICE("non-service", false, InstallPackType.NON_SERVICE, "sequoiacm-driver-*.tar.gz", 300, null) {

@@ -24,15 +24,10 @@ import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 public class ScmLinuxExecutorImpl implements ScmExecutor {
     private static final Logger logger = LoggerFactory.getLogger(ScmLinuxExecutorImpl.class);
-    private List<ScmNodeType> allNodeType;
-
-    public ScmLinuxExecutorImpl(List<ScmNodeType> allNodeType) {
-        this.allNodeType = allNodeType;
-    }
 
     @Override
     public void startNode(String jarPath, String springConfigLocation, String loggingConfig,
-            String errorLogPath, String options) throws ScmToolsException {
+            String errorLogPath, String options, String workingDir) throws ScmToolsException {
         if(ScmCommon.isNeedBackup(errorLogPath)){
             ScmCommon.backupErrorOut(errorLogPath);
         }
@@ -42,7 +37,7 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
                 + " 2>&1 &";
         logger.info("starting scm by exec cmd(/bin/sh -c \" " + cmd + "\")");
         try {
-            execShell(cmd);
+            execShell(cmd, workingDir);
         }
         catch (ScmToolsException e) {
             throw new ScmToolsException("start node failed, error:" + e.getMessage(),
@@ -147,18 +142,21 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     }
 
     @Override
-    public ScmNodeStatus getNodeStatus() throws ScmToolsException {
+    public ScmNodeStatus getNodeStatus(ScmNodeType nodeType) throws ScmToolsException {
         ScmNodeStatus psRes = new ScmNodeStatus();
-        for (ScmNodeType type : this.allNodeType) {
-            _getNodeStatus(type, psRes);
-        }
+
+        _getNodeStatus(nodeType, psRes);
 
         return psRes;
     }
 
     @Override
     public void execShell(String cmd) throws ScmToolsException {
-        Process ps = exec(cmd);
+        execShell(cmd, null);
+    }
+
+    private void execShell(String cmd, String workingDir) throws ScmToolsException {
+        Process ps = exec(cmd, workingDir);
 
         try {
             int rc = ps.waitFor();
@@ -320,13 +318,21 @@ public class ScmLinuxExecutorImpl implements ScmExecutor {
     }
 
     private Process exec(String command) throws ScmToolsException {
+        return exec(command, null);
+    }
+
+    private Process exec(String command, String workingDir) throws ScmToolsException {
         Process ps;
         String[] cmd = new String[3];
         cmd[0] = "/bin/sh";
         cmd[1] = "-c";
         cmd[2] = command;
         try {
-            ps = Runtime.getRuntime().exec(cmd);
+            File dir = null;
+            if (workingDir != null) {
+                dir = new File(workingDir);
+            }
+            ps = Runtime.getRuntime().exec(cmd, null, dir);
             return ps;
         }
         catch (IOException e) {

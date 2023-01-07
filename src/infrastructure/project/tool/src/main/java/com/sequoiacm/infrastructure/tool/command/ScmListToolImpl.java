@@ -1,56 +1,62 @@
 package com.sequoiacm.infrastructure.tool.command;
 
-import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
-import com.sequoiacm.infrastructure.tool.common.ScmCommon;
-import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeProcessInfo;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
-import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import com.sequoiacm.infrastructure.tool.common.ScmCommandUtil;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.common.ScmHelpGenerator;
+import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeInfoDetail;
+import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
+import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperatorGroup;
 
 public class ScmListToolImpl extends ScmTool {
+    private final ScmServiceNodeOperatorGroup nodeOperators;
+    private final String installPath;
     private Options options;
     private ScmHelpGenerator hp;
-    private ScmExecutorWrapper executor;
-    private ScmNodeTypeList nodeTypes;
 
-    public ScmListToolImpl(ScmNodeTypeList nodeTypes) throws ScmToolsException {
+    private final String OPT_VALUE_LOCAL = "local";
+    private final String OPT_VALUE_RUN = "run";
+
+    public ScmListToolImpl(List<ScmServiceNodeOperator> nodeOperatorList) throws ScmToolsException {
         super("list");
-        this.nodeTypes = nodeTypes;
+        this.nodeOperators = new ScmServiceNodeOperatorGroup(nodeOperatorList);
+        this.installPath = ScmHelper
+                .getAbsolutePathFromTool(ScmHelper.getPwd() + File.separator + "..");
+        nodeOperators.init(installPath);
+
         options = new Options();
         hp = new ScmHelpGenerator();
-        options.addOption(hp.createOpt("p", "port", "node port", false, true, false));
-        options.addOption(hp.createOpt("m", "mode", "list mode, 'run' or 'local', default:run.",
+        options.addOption(hp.createOpt(ScmCommandUtil.OPT_SHORT_PORT, ScmCommandUtil.OPT_LONG_PORT,
+                "node port", false, true, false));
+        options.addOption(hp.createOpt(ScmCommandUtil.OPT_SHORT_MODE, ScmCommandUtil.OPT_LONG_MODE,
+                "list mode, 'run' or 'local', default:run.",
                 false, true, false));
-        options.addOption(hp.createOpt("l", "long", "show long style", false, false, true));
-
-        executor = new ScmExecutorWrapper(this.nodeTypes);
+        options.addOption(hp.createOpt(ScmCommandUtil.OPT_SHORT_LONG, ScmCommandUtil.OPT_LONG_LONG,
+                "show long style", false, false, true));
     }
 
     @Override
     public void process(String[] args) throws ScmToolsException {
         // TODO 日志
         CommandLine commandLine = ScmCommandUtil.parseArgs(args, options);
-        Map<Integer, ScmNodeInfo> port2Node = executor.getAllNode();
-        Map<String, ScmNodeProcessInfo> runningNodes = executor.getNodeStatus();
         boolean printRunningOnly = true;
-        if (commandLine.hasOption("m")) {
-            if (commandLine.getOptionValue("m").equals("local")) {
+        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_MODE)) {
+            String modeValue = commandLine.getOptionValue(ScmCommandUtil.OPT_SHORT_MODE);
+            if (modeValue.equals(OPT_VALUE_LOCAL)) {
                 printRunningOnly = false;
             }
-            else if (!commandLine.getOptionValue("m").equals("run")) {
-                throw new ScmToolsException("Unknow mode:" + commandLine.getOptionValue("m"),
+            else if (!modeValue.equals(OPT_VALUE_RUN)) {
+                throw new ScmToolsException("Unknown mode:" + modeValue,
                         ScmBaseExitCode.INVALID_ARG);
             }
         }
@@ -58,40 +64,35 @@ public class ScmListToolImpl extends ScmTool {
         List<ScmNodeInfo> nodeList = new ArrayList<>();
         List<String> pidList = new ArrayList<>();
 
-        if (commandLine.hasOption("p")) {
-            String portStr = commandLine.getOptionValue("p");
+        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_PORT)) {
+            String portStr = commandLine.getOptionValue(ScmCommandUtil.OPT_SHORT_PORT);
             int port = ScmCommon.convertStrToInt(portStr);
-            ScmNodeInfo node = port2Node.get(port);
+            ScmNodeInfoDetail node = nodeOperators.getNodeDetail(port);
             if (node != null) {
-                String confPath = node.getConfPath();
-                ScmNodeProcessInfo runningNodeInfo = runningNodes.get(confPath);
-                if (runningNodeInfo != null) {
-                    nodeList.add(node);
-                    pidList.add(runningNodeInfo.getPid() + "");
+                if (node.getPid() != ScmNodeInfoDetail.NOT_RUNNING) {
+                    nodeList.add(node.getNodeInfo());
+                    pidList.add(node.getPid() + "");
                 }
                 else if (!printRunningOnly) {
-                    nodeList.add(node);
+                    nodeList.add(node.getNodeInfo());
                     pidList.add("-");
                 }
             }
         }
         else {
-            Iterator<Entry<Integer, ScmNodeInfo>> it = port2Node.entrySet().iterator();
-            while (it.hasNext()) {
-                Entry<Integer, ScmNodeInfo> entry = it.next();
-                ScmNodeProcessInfo runningNode = runningNodes.get(entry.getValue().getConfPath());
-                if (runningNode != null) {
-                    Integer pidInteger = runningNode.getPid();
-                    nodeList.add(entry.getValue());
-                    pidList.add(pidInteger.toString());
+            List<ScmNodeInfoDetail> allNodeDetail = nodeOperators.getAllNodeDetail();
+            for (ScmNodeInfoDetail nodeInfoDetail : allNodeDetail) {
+                if (nodeInfoDetail.getPid() != ScmNodeInfoDetail.NOT_RUNNING) {
+                    nodeList.add(nodeInfoDetail.getNodeInfo());
+                    pidList.add(nodeInfoDetail.getPid() + "");
                 }
                 else if (!printRunningOnly) {
-                    nodeList.add(entry.getValue());
+                    nodeList.add(nodeInfoDetail.getNodeInfo());
                     pidList.add("-");
                 }
             }
         }
-        if (commandLine.hasOption("l")) {
+        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_LONG)) {
             for (int i = 0; i < pidList.size(); i++) {
                 String propPath = nodeList.get(i).getConfPath() + File.separator + "application.properties";
                 System.out.println(nodeList.get(i).getNodeType().getUpperName() + "("
