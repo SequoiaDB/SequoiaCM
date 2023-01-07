@@ -237,128 +237,153 @@
               <el-input id="input_schedule_recycle_scope" v-model.number="form.recycleScope"  maxlength="12" type="number" placeholder="N 个月之前"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="任务超时时间" prop="timeout">
-              <el-input id="input_schedule_timeout" v-model.number="form.timeout"  maxlength="12"   placeholder="单位：ms"></el-input>
+          <el-col :span="8">
+            <el-form-item label="最大执行时间" prop="timeout">
+              <el-input id="input_schedule_timeout" v-model.number="form.timeout"  maxlength="11"   placeholder="请输入时间"></el-input>
             </el-form-item>
+          </el-col>
+          <el-col :span="4" prop="timeScale">
+            <el-select id="select_time_type" v-model="form.timeScale" size="small" style="width:100%"
+            @change="onTimeTypeChange">
+              <el-option
+                v-for="item in timeTypes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="快速启动" prop="quickStart" v-if="form.type && form.type !== 'recycle_space'">
-              <el-select
-                id="select_schedule_is_quick_start"
-                v-model="form.quickStart"
-                size="small"
-                style="width:100%">
-                <el-option
-                  v-for="item in booleanType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
+        <el-collapse>
+          <el-collapse-item name="otherConfig">
+            <template slot="title">
+              <el-form-item label="其他配置">
+              </el-form-item>
+            </template>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item prop="quickStart" v-if="form.type && form.type !== 'recycle_space'">
+                  <template slot="label">
+                    快速启动
+                    <el-tooltip effect="dark" content="快速启动，不计算任务的预估文件数" placement="bottom">
+                      <i class="el-icon-question"></i>
+                    </el-tooltip>
+                  </template>
+                  <el-select
+                    id="select_schedule_is_quick_start"
+                    v-model="form.quickStart"
+                    size="small"
+                    style="width:100%">
+                    <el-option
+                      v-for="item in booleanType"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="数据校验级别" prop="dataCheckLevel" v-if="form.type && form.type !== 'recycle_space'">
+                  <el-select
+                    id="select_schedule_data_check_level"
+                    v-model="form.dataCheckLevel"
+                    size="small"
+                    style="width:100%">
+                    <el-option
+                      v-for="item in checkLevels"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="是否回收空间" prop="isRecycleSpace" v-if="form.type && form.type !== 'recycle_space'  && form.type !== 'copy_file'">
+                  <el-select
+                    id="select_schedule_is_recycle_space"
+                    v-model="form.isRecycleSpace"
+                    size="small"
+                    style="width:100%">
+                    <el-option
+                      v-for="item in booleanType"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="优先region" prop="preferredRegion">
+                  <el-select
+                    id="select_schedule_region"
+                    v-model="form.preferredRegion"
+                    size="small"
+                    placeholder="请选择region"
+                    clearable filterable
+                    style="width:100%"
+                    @change="onRegionChange">
+                    <el-option
+                      v-for="item in regionList"
+                      :key="item"
+                      :label="item"
+                      :value="item">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="优先zone" prop="preferredZone">
+                  <el-select
+                    id="select_schedule_zone"
+                    v-model="form.preferredZone"
+                    size="small"
+                    :no-data-text="form.preferredRegion ? '无数据' : '请先选择region'"
+                    placeholder="请选择zone"
+                    clearable filterable
+                    style="width:100%">
+                    <el-option
+                      v-for="item in zoneList"
+                      :key="item"
+                      :label="item"
+                      :value="item">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-form-item label="查询条件" prop="condition" v-if="form.type && form.type !== 'recycle_space'">
+              <el-input
+                id="input_schedule_condition"
+                v-model="form.condition"
+                type="textarea"
+                :rows="4"
+                maxlength="1000"
+                show-word-limit
+                :placeholder="conditionPlaceholder"
+                >
+              </el-input>
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="数据校验级别" prop="dataCheckLevel" v-if="form.type && form.type !== 'recycle_space'">
-              <el-select
-                id="select_schedule_data_check_level"
-                v-model="form.dataCheckLevel"
-                size="small"
-                style="width:100%">
-                <el-option
-                  v-for="item in checkLevels"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
+            <el-form-item label="任务描述">
+              <el-input
+                id="input_schedule_description"
+                v-model="form.description"
+                type="textarea"
+                :rows="3"
+                maxlength="300"
+                show-word-limit
+                placeholder="请输入任务描述"
+                >
+              </el-input>
             </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="是否回收空间" prop="isRecycleSpace" v-if="form.type && form.type !== 'recycle_space'  && form.type !== 'copy_file'">
-              <el-select
-                id="select_schedule_is_recycle_space"
-                v-model="form.isRecycleSpace"
-                size="small"
-                style="width:100%">
-                <el-option
-                  v-for="item in booleanType"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="优先region" prop="preferredRegion">
-              <el-select
-                id="select_schedule_region"
-                v-model="form.preferredRegion"
-                size="small"
-                placeholder="请选择region"
-                clearable filterable
-                style="width:100%"
-                @change="onRegionChange">
-                <el-option
-                  v-for="item in regionList"
-                  :key="item"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="优先zone" prop="preferredZone">
-              <el-select
-                id="select_schedule_zone"
-                v-model="form.preferredZone"
-                size="small"
-                :no-data-text="form.preferredRegion ? '无数据' : '请先选择region'"
-                placeholder="请选择zone"
-                clearable filterable
-                style="width:100%">
-                <el-option
-                  v-for="item in zoneList"
-                  :key="item"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="查询条件" prop="condition" v-if="form.type && form.type !== 'recycle_space'">
-          <el-input
-            id="input_schedule_condition"
-            v-model="form.condition"
-            type="textarea"
-            :rows="4"
-            maxlength="1000"
-            show-word-limit
-            :placeholder="conditionPlaceholder"
-            >
-          </el-input>
-        </el-form-item>
-        <el-form-item label="任务描述">
-          <el-input
-            id="input_schedule_description"
-            v-model="form.description"
-            type="textarea"
-            :rows="3"
-            maxlength="300"
-            show-word-limit
-            placeholder="请输入任务描述"
-            >
-          </el-input>
-        </el-form-item>
+          </el-collapse-item>
+        </el-collapse>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button id="btn_schedule_cancel" @click="scheduleDialogVisible = false" size="mini">取 消</el-button>
@@ -377,7 +402,7 @@ import {queryScheduleList, createSchedule, updateSchedule, deleteSchedule, query
 import {querySiteList, querySiteStrategy} from '@/api/site'
 import {queryZoneList, queryRegionList} from '@/api/service'
 import {queryWorkspaceList, queryWorkspaceBasic} from '@/api/workspace'
-import {TASK_TYPES, FILE_SCOPE_TYPES, X_RECORD_COUNT} from '@/utils/common-define'
+import {TASK_TYPES, FILE_SCOPE_TYPES, X_RECORD_COUNT, TIME_TYPES} from '@/utils/common-define'
 export default {
   components: {
     CronPicker,
@@ -411,6 +436,7 @@ export default {
       scheduleDialogLoading: false,
       saveButtonLoading: false,
       tableLoading: false,
+      timeTypes: TIME_TYPES,
       filter: {},
       searchParams: {
         name: '',
@@ -424,15 +450,17 @@ export default {
         sourceSite: '',
         targetSite: '',
         maxStayTime: '',
-        quickStart: false,
+        quickStart: true,
         dataCheckLevel: 'week',
-        isRecycleSpace: false,
+        isRecycleSpace: true,
         recycle_scope: '',
         timeout: '',
+        max_exec_time: '',
         scope: '',
         preferredRegion: '',
         preferredZone: '',
-        description: ''
+        description: '',
+        timeScale:TIME_TYPES[0].value
       },
       taskDetail: {
         condition: ''
@@ -472,7 +500,7 @@ export default {
           { required: true, message: '请输入文件最大停留时间', trigger: 'change' },
         ],
         timeout: [
-          { required: true, message: '请输入任务超时时间', trigger: 'change' },
+          { required: true, message: '请输入任务最大执行时间', trigger: 'change' },
         ],
         scope: [
           { required: true, message: '请选择文件范围', trigger: 'change' },
@@ -603,17 +631,29 @@ export default {
           workspace: detail.workspace,
           preferredRegion: detail.preferred_region,
           preferredZone: detail.preferred_zone,
-          timeout: Number(detail.content.max_exec_time),
+          timeScale:TIME_TYPES[0].value,
+          timeout: '',
+          max_exec_time: Number(detail.content.max_exec_time),
           type: detail.type,
           scope: '',
           description: detail.description,
           sourceSite: detail.content.source_site,
           targetSite: detail.content.target_site,
-          quickStart: false,
+          quickStart: true,
           dataCheckLevel: 'week',
-          isRecycleSpace: false,
+          isRecycleSpace: true,
           recycleScope: ''
         }
+        if(detail.content.max_exec_time % this.timeTypes[0].value === 0){
+          this.form.timeScale = TIME_TYPES[0].value
+        }else if(detail.content.max_exec_time % this.timeTypes[1].value === 0){
+          this.form.timeScale = TIME_TYPES[1].value
+        }else if(detail.content.max_exec_time % this.timeTypes[2].value === 0){
+          this.form.timeScale = TIME_TYPES[2].value
+        }else{
+          this.form.timeScale = TIME_TYPES[3].value
+        }
+        this.form.timeout = Number(detail.content.max_exec_time / this.form.timeScale)
         if (this.form.type !== 'recycle_space') {
           this.form['condition'] = this.$util.toPrettyJson(detail.content.extra_condition),
           this.form['scope'] = detail.content.scope,
@@ -702,6 +742,13 @@ export default {
     onTaskTypeChange(value) {
       this.onWorkspaceChange(this.form.workspace, true)
     },
+    // 时间类型改变
+    onTimeTypeChange(value) {
+      this.form.timeScale = value
+      if(this.operation === 'update'){
+        this.form.timeout = this.form.max_exec_time / value
+      }
+    },
     // region改变
     onRegionChange(region, resetZone=true) {
       if (resetZone) {
@@ -769,7 +816,7 @@ export default {
         if (valid) {
           let form = this.form
           let content = {
-            max_exec_time: form.timeout,
+            max_exec_time: form.timeout * form.timeScale,
             source_site: form.sourceSite,
             target_site: form.targetSite,
           }
@@ -843,16 +890,18 @@ export default {
         cron: '',
         sourceSite: '',
         targetSite: '',
-        quickStart: false,
+        quickStart: true,
         dataCheckLevel: 'week',
-        isRecycleSpace: false,
+        isRecycleSpace: true,
         recycleScope: '',
         maxStayTime: '',
         timeout: '',
+        max_exec_time: '',
         preferredRegion: '',
         preferredZone: '',
         scope: '',
-        description: ''
+        description: '',
+        timeScale: TIME_TYPES[0].value
       }
       this.zoneList = []
     },

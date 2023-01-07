@@ -46,7 +46,13 @@
         </el-row>
         <el-row>
           <el-col  v-if="taskDetail.max_stay_time" :span="12"><span class="key">文件停留时间：</span> <span class="value">{{taskDetail.max_stay_time.slice(0, taskDetail.max_stay_time.length-1)}}天</span></el-col>
-          <el-col :span="12"><span class="key">任务超时时间：</span> <span class="value">{{taskDetail.content.max_exec_time}}ms</span></el-col>
+          <el-col :span="12">
+            <span class="key">最大执行时间：</span> 
+            <span class="value" v-if="taskDetail.content.max_exec_time % timeTypes[0].value === 0">{{taskDetail.content.max_exec_time/timeTypes[0].value}}{{timeTypes[0].label}}</span>
+            <span class="value" v-else-if="taskDetail.content.max_exec_time % timeTypes[1].value === 0">{{taskDetail.content.max_exec_time/timeTypes[1].value}}{{timeTypes[1].label}}</span>
+            <span class="value" v-else-if="taskDetail.content.max_exec_time % timeTypes[2].value === 0">{{taskDetail.content.max_exec_time/timeTypes[2].value}}{{timeTypes[2].label}}</span>
+            <span class="value" v-else>{{taskDetail.content.max_exec_time}}{{timeTypes[3].label}}</span>
+          </el-col>
         </el-row>
         <el-row v-if="taskDetail.type != 'recycle_space'">
           <el-col :span="24"><span class="key" style="width:20%">文件范围：</span> <span class="value">{{getFileScopeText(taskDetail.content.scope)}}</span></el-col>
@@ -71,7 +77,7 @@
   </div>
 </template>
 <script>
-import {TASK_TYPES, FILE_SCOPE_TYPES} from '@/utils/common-define'
+import {TASK_TYPES, FILE_SCOPE_TYPES, TIME_TYPES} from '@/utils/common-define'
 export default {
   setup() {
   },
@@ -86,6 +92,7 @@ export default {
       detailDialogVisible: false,
       fileScopeTypes: FILE_SCOPE_TYPES,
       taskTypes: TASK_TYPES,
+      timeTypes: TIME_TYPES,
     }
   },
   methods: {

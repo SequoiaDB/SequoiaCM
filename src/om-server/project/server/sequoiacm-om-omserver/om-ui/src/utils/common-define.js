@@ -17,6 +17,25 @@ export const TASK_TYPES = [
     label: '空间回收任务'
   }
 ]
+//  时间类型
+export const TIME_TYPES = [
+  {
+    label: '小时',
+    value: 3600000
+  },
+  {
+    label: '分钟',
+    value: 60000
+  },
+  {
+    label: '秒',
+    value: 1000
+  },
+  {
+    label: '毫秒',
+    value: 1
+  },
+]
 
 export const FILE_SCOPE_VAL_CURRENT = 1
 export const FILE_SCOPE_VAL_HISTORY = 2
