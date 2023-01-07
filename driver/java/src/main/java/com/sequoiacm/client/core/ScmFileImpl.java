@@ -1338,8 +1338,12 @@ class ScmFileImpl extends ScmFile {
     @Override
     public void setCustomTag(Map<String, String> customTag) throws ScmException {
         customTag = customTag == null ? Collections.<String, String> emptyMap() : customTag;
-        if (customTag.containsKey(null)) {
-            throw new ScmException(ScmError.FILE_INVALID_CUSTOMTAG, "the customTag key is null");
+        // 对于不能包含 null 键的 map 集合，使用 containsKey() 方法会报错空指针（如：TreeMap），因此这里通过遍历的方式来判断
+        for (Map.Entry<String, String> entry : customTag.entrySet()) {
+            if (entry.getKey() == null) {
+                throw new ScmException(ScmError.FILE_INVALID_CUSTOMTAG,
+                        "the customTag key is null");
+            }
         }
         if (isExist()) {
             BSONObject fileInfo = new BasicBSONObject();
