@@ -141,7 +141,7 @@ public class ObjectTag5517 extends TestScmBase {
         Assert.assertEquals( objectTagging.getTagSet(), tagSet );
 
         // deleteMarker
-        s3Client.deleteObject( bucketName, keyName );
+        // s3Client.deleteObject( bucketName, keyName );
         // TODO:SEQUOIACM-1173
         // result = S3Utils.setObjectTag( s3Client, bucketName, keyName, tagSet
         // );
