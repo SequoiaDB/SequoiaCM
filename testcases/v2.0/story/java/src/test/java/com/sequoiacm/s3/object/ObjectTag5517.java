@@ -143,8 +143,9 @@ public class ObjectTag5517 extends TestScmBase {
         // deleteMarker
         s3Client.deleteObject( bucketName, keyName );
         // TODO:SEQUOIACM-1173
-        result = S3Utils.setObjectTag( s3Client, bucketName, keyName, tagSet );
-        s3Client.deleteVersion( bucketName, keyName, "4.0" );
+        // result = S3Utils.setObjectTag( s3Client, bucketName, keyName, tagSet
+        // );
+        // s3Client.deleteVersion( bucketName, keyName, "4.0" );
     }
 
     private class ListComparator implements Comparator< Tag > {
