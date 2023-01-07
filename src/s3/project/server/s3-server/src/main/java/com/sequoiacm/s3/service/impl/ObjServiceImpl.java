@@ -890,6 +890,7 @@ public class ObjServiceImpl implements ObjectService {
     public String setObjectTag(ScmSession session, String bucketName, String objectName,
             Map<String, String> customTag, String versionId) throws S3ServerException {
         try {
+            checkDeleteMarker(session, bucketName, objectName, versionId);
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             ScmArgChecker.File.checkFileTag(customTag);
             String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectName);
@@ -934,6 +935,7 @@ public class ObjServiceImpl implements ObjectService {
     public ObjectTagResult getObjectTag(ScmSession session, String bucketName,
             String objectName, String versionId) throws S3ServerException {
         try {
+            checkDeleteMarker(session, bucketName, objectName, versionId);
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             BSONObject fileInfo = getFileInfo(session, bucketName, objectName, versionId);
             S3ObjectMeta s3ObjMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, fileInfo);
@@ -962,6 +964,7 @@ public class ObjServiceImpl implements ObjectService {
     public String deleteObjectTag(ScmSession session, String bucketName, String objectName,
             String versionId) throws S3ServerException {
         try {
+            checkDeleteMarker(session, bucketName, objectName, versionId);
             Bucket s3Bucket = bucketService.getBucket(session, bucketName);
             String fileId = scmBucketService.getFileId(session.getUser(), bucketName, objectName);
             BSONObject newProperties = new BasicBSONObject();
@@ -993,6 +996,16 @@ public class ObjServiceImpl implements ObjectService {
                     "failed to delete object tagging: bucket=" + bucketName + ", object="
                             + objectName,
                     e);
+        }
+    }
+
+    private void checkDeleteMarker(ScmSession session, String bucketName, String objectName,
+            String versionId) throws ScmServerException, S3ServerException {
+        BSONObject fileInfo = getFileInfo(session, bucketName, objectName, versionId);
+        S3ObjectMeta s3ObjectMeta = FileMappingUtil.buildS3ObjectMeta(bucketName, fileInfo);
+        if (s3ObjectMeta.isDeleteMarker()) {
+            throw new S3ServerException(S3Error.METHOD_NOT_ALLOWED,
+                    "the object is a deleteMarker bucket=" + bucketName + ", object=" + objectName);
         }
     }
 }
