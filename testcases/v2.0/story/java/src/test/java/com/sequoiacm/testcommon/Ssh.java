@@ -6,12 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import com.jcraft.jsch.*;
 
 /**
  * @author huangqiaohui
@@ -240,7 +235,7 @@ public class Ssh {
                                 + " stdout=" + str );
             }
             String confFile = str.substring( "--logging.config=".length() );
-            dir = confFile.substring( 0, confFile.indexOf( "lib" ) );
+            dir = confFile.substring( 0, confFile.indexOf( "conf" ) );
 
         } finally {
             ssh.disconnect();
