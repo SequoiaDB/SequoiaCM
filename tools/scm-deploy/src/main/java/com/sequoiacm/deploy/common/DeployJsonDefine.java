@@ -29,6 +29,10 @@ public class DeployJsonDefine {
     public static final String STORE_SDB_USER = "scm.store.sequoiadb.username";
     public static final String STORE_SDB_PASSWORD = "scm.store.sequoiadb.password";
     public static final String ZOOKEEPER_URL = "scm.zookeeper.urls";
+    public static final String FULL_TEXT_ES_URL = "scm.fulltext.es.urls";
+    public static final String FULL_TEXT_ES_USER = "scm.fulltext.es.user";
+    public static final String FULL_TEXT_ES_PASSWORD = "scm.fulltext.es.password";
+    public static final String FULL_TEXT_ES_CERT_PATH = "scm.fulltext.es.certPath";
     public static final String CONTENT_MODULE_SITE = "scm.content-module.site";
     public static final String ROOT_SITE_META_URL ="scm.store.sequoiadb.urls";
     public static final String ROOT_SITE_META_USER = "scm.store.sequoiadb.username";

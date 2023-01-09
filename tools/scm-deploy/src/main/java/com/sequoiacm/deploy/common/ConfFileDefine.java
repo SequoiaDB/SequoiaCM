@@ -82,4 +82,11 @@ public class ConfFileDefine {
     public static final String STATUS_NODE_STATUS = "NodeStatus";
     public static final String STATUS_OLD_VERSION = "OldVersion";
     public static final String STATUS_NEW_VERSION = "NewVersion";
+
+    public static final String SECTION_ES = "elasticsearch";
+    public static final String ES_URL = "Url";
+    public static final String ES_USER = "User";
+    public static final String ES_PASSWORD = "Password";
+    public static final String ES_CERT_PATH = "CertPath";
+
 }

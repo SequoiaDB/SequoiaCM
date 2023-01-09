@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.content.client.ContentserverClientMgr;
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
-import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.fileidx.FileIdxDaoFactory;
 import com.sequoiacm.fulltext.server.lock.LockManager;
 import com.sequoiacm.fulltext.server.lock.LockPathFactory;

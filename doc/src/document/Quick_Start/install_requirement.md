@@ -17,7 +17,7 @@
 | JDK            | 1.8以上版本                            |
 | SequoiaDB      | 3.0.0以上版本                          |
 | python         | 2.7.x版本                              |
-| Elasticsearch  | 6.3.2版本                              |
+| Elasticsearch  | 6.3.2版本或8.2.0版本                   |
 
 ##系统要求##
 

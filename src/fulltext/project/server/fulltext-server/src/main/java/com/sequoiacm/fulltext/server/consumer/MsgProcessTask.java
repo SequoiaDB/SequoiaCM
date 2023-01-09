@@ -2,11 +2,17 @@ package com.sequoiacm.fulltext.server.consumer;
 
 import java.util.List;
 
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.fulltext.server.fileidx.FileIdxDao;
 import com.sequoiacm.fulltext.server.fileidx.FileIdxDaoFactory;
+import com.sequoiacm.content.client.ContentserverClient;
+import com.sequoiacm.content.client.ContentserverClientMgr;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.fulltext.server.exception.FullTextException;
+import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOpFeedback;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOperation;

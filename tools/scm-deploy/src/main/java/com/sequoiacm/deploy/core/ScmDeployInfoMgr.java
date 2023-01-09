@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sequoiacm.deploy.module.ElasticsearchInfo;
+import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -83,6 +85,7 @@ public class ScmDeployInfoMgr {
     private SiteStrategyInfo siteStrategy;
 
     private static volatile ScmDeployInfoMgr instance;
+    private ElasticsearchInfo esInfo;
 
     public static ScmDeployInfoMgr getInstance() {
         if (instance != null) {
@@ -119,9 +122,25 @@ public class ScmDeployInfoMgr {
         initZones(parser);
         initDaemonInfo(parser);
         initNodeInfo(parser);
+        initEsInfo(parser);
         initInstallConfig(parser);
         initHystrixConfig();
         logger.info("Parse the deploy configuration success");
+    }
+
+    private void initEsInfo(ScmConfParser parser) {
+        List<NodeInfo> fulltextServiceNode = serviceToNodes.get(ServiceType.FULLTEXT_SERVER);
+        if (fulltextServiceNode != null && fulltextServiceNode.size() > 0) {
+            List<ElasticsearchInfo> esInfoList = parser.getSeaction(ConfFileDefine.SECTION_ES,
+                    ElasticsearchInfo.CONVERTER);
+            if (esInfoList == null || esInfoList.size() <= 0) {
+                throw new IllegalArgumentException(
+                        "deploy fulltext server must define section [elasticsearch] in deploy config file");
+            }
+            CommonUtils.assertTrue(esInfoList.size() == 1,
+                    "only need one elasticsearch:" + esInfoList);
+            this.esInfo = esInfoList.get(0);
+        }
     }
 
     private void initHystrixConfig() throws Exception {
@@ -780,6 +799,9 @@ public class ScmDeployInfoMgr {
         return h;
     }
 
+    public ElasticsearchInfo getEsInfo() {
+        return esInfo;
+    }
     public BSONObject getHystrixConfig() {
         return hystrixConfig;
     }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.sequoiacm.content.client.ContentserverClientMgr;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.fulltext.server.es.EsClient;
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;

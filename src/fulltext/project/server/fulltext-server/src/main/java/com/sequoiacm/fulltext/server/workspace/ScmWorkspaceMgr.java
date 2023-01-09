@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
 import com.sequoiacm.fulltext.server.config.ConfVersionConfig;
-import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;

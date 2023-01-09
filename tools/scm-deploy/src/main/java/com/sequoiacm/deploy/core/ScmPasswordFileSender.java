@@ -29,6 +29,9 @@ public class ScmPasswordFileSender {
     private List<HostInfo> alredySendAdminPassword = new ArrayList<>();
     private Map<HostInfo, List<DataSourceInfo>> alreadySendDatasourcePassword = new HashMap<>();
 
+    // key 主机名， value 已经发送的文件列表 （元数据服务、数据服务的密码文件不在这个数据结构维护，它们被单独维护在前面几个变量上）
+    private Map<HostInfo, List<String>> commonAlreadySendFile = new HashMap<>();
+
     private ScmDeployInfoMgr deployInfoMgr = ScmDeployInfoMgr.getInstance();
 
     private static volatile ScmPasswordFileSender instance;
@@ -66,6 +69,45 @@ public class ScmPasswordFileSender {
                 + "/admin.pwd";
     }
 
+
+    private List<String> commonAlreadySendFiles(HostInfo host) {
+        List<String> sendFiles = commonAlreadySendFile.get(host);
+        if (sendFiles == null) {
+            sendFiles = new ArrayList<>();
+            commonAlreadySendFile.put(host, sendFiles);
+        }
+        return sendFiles;
+    }
+
+    public String sendPlaintextAsPasswordFile(HostInfo host, String userName,
+            String plainTextPassword, String remoteFileName) throws Exception {
+        String remoteDirPath = deployInfoMgr.getInstallConfig().getInstallPath() + "/"
+                + SECRET_DIR_NAME + "/" + remoteFileName;
+        List<String> sendFiles = commonAlreadySendFiles(host);
+        if (sendFiles.contains(remoteDirPath)) {
+            return remoteDirPath;
+        }
+        sendPwdFile(host, userName, plainTextPassword, null,
+                deployInfoMgr.getInstallConfig().getInstallPath() + "/" + SECRET_DIR_NAME + "/",
+                remoteFileName);
+        sendFiles.add(remoteDirPath);
+        return remoteDirPath;
+    }
+
+    public String sendFile(HostInfo host, String localFilePath, String remoteFileName)
+            throws Exception {
+        String remoteDirPath = deployInfoMgr.getInstallConfig().getInstallPath() + "/"
+                + SECRET_DIR_NAME + "/" + remoteFileName;
+        List<String> sendFiles = commonAlreadySendFiles(host);
+        if (sendFiles.contains(remoteDirPath)) {
+            return remoteDirPath;
+        }
+        sendPwdFile(host, null, null, localFilePath,
+                deployInfoMgr.getInstallConfig().getInstallPath() + "/" + SECRET_DIR_NAME + "/",
+                remoteFileName);
+        sendFiles.add(remoteDirPath);
+        return remoteDirPath;
+    }
 
     public String sendDsPasswdFile(HostInfo host, DataSourceInfo datasouce) throws Exception {
         String remoteDirPath = deployInfoMgr.getInstallConfig().getInstallPath() + "/"
@@ -122,11 +164,24 @@ public class ScmPasswordFileSender {
         return remotePasswdFilePath;
     }
 
+    private boolean isFileExist(Ssh ssh, String filePath) throws IOException {
+        int isExists = ssh.sudoExec("ls " + filePath, 0, 2);
+        if (isExists == 0) {
+            return true;
+        }
+        return false;
+    }
+
     private void sendPwdFile(HostInfo host, String userName, String plainText,
             String localPasswordFile, String remoteDirPath, String fileName)
             throws IOException, Exception {
         Ssh ssh = sshFactory.getSsh(host);
         try {
+            if (isFileExist(ssh, remoteDirPath + fileName)) {
+                throw new Exception("failed to send file to remote host, file already exist: host="
+                        + host.getHostName() + ", file=" + remoteDirPath + fileName);
+            }
+
             ssh.sudoSuExec(deployInfoMgr.getInstallConfig().getInstallUser(),
                     "mkdir -p " + remoteDirPath, null);
             if (plainText != null) {

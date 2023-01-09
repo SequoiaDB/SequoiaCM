@@ -20,7 +20,11 @@
     </parent>
 
     <modules>
+        <module>./common/fulltext-common</module>
         <module>./common/fulltext-tools</module>
+        <module>./common/fulltext-es-client/base</module>
+        <module>./common/fulltext-es-client/6.3</module>
+        <module>./common/fulltext-es-client/8.2</module>
         <module>./server/fulltext-server</module>
         <module>./assembly</module>
     </modules>
@@ -54,6 +58,13 @@
                 <artifactId>sequoiacm-infrastructure-content-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-content-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
@@ -154,6 +165,18 @@
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-tool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-fulltext-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-fulltext-es-client-base</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

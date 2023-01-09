@@ -19,6 +19,10 @@ SequoiaCM 配置
 |scm.zookeeper.maxCleanThreads|num|配置服务节点清理残留的zookeeper节点所使用的最大线程数，默认值：6|重启生效|
 |scm.zookeeper.cleanQueueSize|num|配置服务节点清理残留的zookeeper节点所使用的异步缓存队列的大小，默认值：10000|重启生效|
 |scm.fulltext.es.urls|str|elasticsearch 服务地址（http://ip1:port1,http://ip2:port2）|重启生效|
+|scm.fulltext.es.user|str|elasticsearch 服务用户名）|重启生效|
+|scm.fulltext.es.password|str|elasticsearch 服务密码文件路径（由 SequoiaCM 加密工具加密产生）|重启生效|
+|scm.fulltext.es.certPath|str|elasticsearch 服务 https 证书文件路径，如：/sequoiacm/secret/es/http_ca.crt|重启生效|
+|scm.fulltext.es.adapterPath|str|全文检索服务所使用的 elasticsearch 适配器路径，默认使用全文检索服务安装路径下的 jars/es-client-8.2 ，表示对接 8.2 版本的 elasticsearch 服务端，可以修改为 ./jars/es-client-6.3 表示对接 6.3 版本的 elasticsearch 服务端|重启生效|
 |scm.fulltext.es.searchScrollTimeout|num|在elasticsearch 通过游标查询（scroll search）时，游标在 elasticsearch 服务端的超时时间，默认值：180000（3min），单位：ms|重启生效|
 |scm.fulltext.es.searchScrollSize|num|在elasticsearch 通过游标查询（scroll search）时，每次获取的最大记录数，默认值：1000|重启生效|
 |scm.fulltext.es.indexShards|num|在elasticsearch 建立索引时，索引的分片数，默认值：5|重启生效|

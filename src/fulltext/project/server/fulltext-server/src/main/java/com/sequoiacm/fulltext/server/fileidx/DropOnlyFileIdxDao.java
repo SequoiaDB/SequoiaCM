@@ -1,6 +1,6 @@
 package com.sequoiacm.fulltext.server.fileidx;
 
-import com.sequoiacm.fulltext.server.es.EsClient;
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 
 

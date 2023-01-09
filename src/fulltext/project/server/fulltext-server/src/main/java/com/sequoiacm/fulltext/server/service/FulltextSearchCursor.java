@@ -7,6 +7,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.sequoiacm.fulltext.es.client.base.EsClient;
+import com.sequoiacm.fulltext.es.client.base.EsDocumentCursor;
+import com.sequoiacm.fulltext.es.client.base.EsSearchRes;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -16,11 +19,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.content.client.ContentserverClient;
 import com.sequoiacm.content.client.ScmEleCursor;
 import com.sequoiacm.content.client.model.ScmFileInfo;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.fulltext.server.es.EsClient;
-import com.sequoiacm.fulltext.server.es.EsDoumentCursor;
-import com.sequoiacm.fulltext.server.es.EsSearchRes;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.fulltext.common.ScmFileFulltextExtData;
@@ -28,7 +27,7 @@ import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 
 public class FulltextSearchCursor implements FulltextCursor {
-    private EsDoumentCursor esCursor;
+    private EsDocumentCursor esCursor;
     private ContentserverClient csClient;
     private String wsName;
     private int scop;

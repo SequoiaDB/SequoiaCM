@@ -1,5 +1,6 @@
 package com.sequoiacm.fulltext.server.service;
 
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,6 @@ import com.sequoiacm.content.client.ContentserverClientMgr;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
-import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.lock.LockManager;
 import com.sequoiacm.fulltext.server.lock.LockPathFactory;

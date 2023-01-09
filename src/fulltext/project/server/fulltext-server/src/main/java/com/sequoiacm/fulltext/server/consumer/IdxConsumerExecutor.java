@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
 import com.sequoiacm.fulltext.server.fileidx.FileIdxDaoFactory;
+import com.sequoiacm.fulltext.server.exception.FullTextException;
+import com.sequoiacm.fulltext.server.parser.TextualParserMgr;
 import com.sequoiacm.fulltext.server.sch.IdxTaskContext;
 import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceMgr;
 import com.sequoiacm.infrastructure.fulltext.common.FileFulltextOpFeedback;

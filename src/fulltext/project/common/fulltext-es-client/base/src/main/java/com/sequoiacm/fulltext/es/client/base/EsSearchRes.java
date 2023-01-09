@@ -1,4 +1,4 @@
-package com.sequoiacm.fulltext.server.es;
+package com.sequoiacm.fulltext.es.client.base;
 
 import java.util.List;
 

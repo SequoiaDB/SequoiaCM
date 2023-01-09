@@ -1,22 +1,26 @@
-package com.sequoiacm.fulltext.server.es.es_6_3_2;
+package com.sequoiacm.fulltext.es.client_6_3;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PreDestroy;
-
+import com.sequoiacm.fulltext.es.client.base.EsClient;
+import com.sequoiacm.fulltext.es.client.base.EsClientConfig;
+import com.sequoiacm.fulltext.es.client.base.EsDocument;
+import com.sequoiacm.fulltext.es.client.base.EsDocumentCursor;
+import com.sequoiacm.fulltext.es.client.base.SyncRefreshPolicy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.Version;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -28,6 +32,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseListener;
 import org.elasticsearch.client.RestClient;
@@ -38,18 +43,11 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.fulltext.server.es.EsClient;
-import com.sequoiacm.fulltext.server.es.EsClientConfig;
-import com.sequoiacm.fulltext.server.es.EsDocument;
-import com.sequoiacm.fulltext.server.es.EsDoumentCursor;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.infrastructure.fulltext.common.FulltextDocDefine;
 
-@Component
 class EsClientImpl implements EsClient {
     private static final Logger logger = LoggerFactory.getLogger(EsClientImpl.class);
 
@@ -57,26 +55,48 @@ class EsClientImpl implements EsClient {
 
     private EsClientConfig esConfig;
 
-    @Autowired
-    public EsClientImpl(EsClientConfig esConfig) throws MalformedURLException {
-        this.esConfig = esConfig;
-        List<HttpHost> httpHosts = new ArrayList<>();
-        for (String url : esConfig.getUrls()) {
-            URL u = new URL(url);
-            httpHosts.add(new HttpHost(u.getHost(), u.getPort(), u.getProtocol()));
+    public EsClientImpl(EsClientConfig esConfig) throws IOException {
+        try {
+            this.esConfig = esConfig;
+            List<HttpHost> httpHosts = new ArrayList<>();
+            for (String url : esConfig.getUrls()) {
+                URL u = new URL(url);
+                httpHosts.add(new HttpHost(u.getHost(), u.getPort(), u.getProtocol()));
+            }
+            restClient = new RestHighLevelClient(
+                    RestClient.builder(httpHosts.toArray(new HttpHost[0])));
+            Version version = restClient.info().getVersion();
+            if (version.major != 6 || version.minor != 3) {
+                logger.warn(
+                        "elasticsearch server version mismatch sequoiacm elasticsearch adapter: expect 6.3.x but {}",
+                        version);
+            }
+            else {
+                logger.info("elasticsearch server version {}", version);
+            }
         }
-        restClient = new RestHighLevelClient(
-                RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()])));
-    }
-
-    @PreDestroy
-    public void destory() throws IOException {
-        restClient.close();
+        catch (Exception e) {
+            destroy();
+            throw e;
+        }
     }
 
     @Override
-    public EsDoumentCursor search(String index, BSONObject queryBody) throws FullTextException {
-        return new EsDoumentCursorImpl(restClient, index, queryBody, esConfig);
+    public void destroy() {
+        if (restClient == null) {
+            return;
+        }
+        try {
+            restClient.close();
+        }
+        catch (Exception e) {
+            logger.warn("failed to close rest client", e);
+        }
+    }
+
+    @Override
+    public EsDocumentCursor search(String index, BSONObject queryBody) throws FullTextException {
+        return new EsDocumentCursorImpl(restClient, index, queryBody, esConfig);
     }
 
     @Override
@@ -121,7 +141,11 @@ class EsClientImpl implements EsClient {
             throws FullTextException {
         IndexRequest req = new IndexRequest(index, "_doc");
         if (syncIndex) {
-            req.setRefreshPolicy(esConfig.getSyncRefreshPolicy());
+            WriteRequest.RefreshPolicy policy = esConfig
+                    .getSyncRefreshPolicy() == SyncRefreshPolicy.WAIT_UNTIL
+                            ? WriteRequest.RefreshPolicy.WAIT_UNTIL
+                            : WriteRequest.RefreshPolicy.IMMEDIATE;
+            req.setRefreshPolicy(policy);
         }
         try {
             XContentBuilder builder = XContentFactory.jsonBuilder();

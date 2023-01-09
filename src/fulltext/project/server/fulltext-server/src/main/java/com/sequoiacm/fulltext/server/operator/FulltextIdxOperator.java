@@ -2,18 +2,17 @@ package com.sequoiacm.fulltext.server.operator;
 
 import java.util.UUID;
 
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.config.FulltextMqConfig;
 import com.sequoiacm.mq.core.exception.MqError;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
 import com.sequoiacm.fulltext.server.WsFulltextExtDataModifier;
-import com.sequoiacm.fulltext.server.es.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobData;
 import com.sequoiacm.fulltext.server.sch.FulltextIdxSchJobType;

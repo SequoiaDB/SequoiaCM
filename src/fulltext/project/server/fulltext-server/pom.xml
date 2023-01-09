@@ -13,10 +13,13 @@
     <name>SequoiaCM Full Text Server</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.elasticsearch.version>6.3.2</org.elasticsearch.version>
+
         <org.apache.poi.version>3.11</org.apache.poi.version>
         <org.testng.version>6.14.3</org.testng.version>
-        <org.bytedeco.version>4.0.0-1.4.4</org.bytedeco.version>
+        <org.bytedeco.version>4.1.1-1.5.6</org.bytedeco.version>
+        <httpclient.version>4.5.10</httpclient.version>
+        <httpcore.version>4.4.12</httpcore.version>
+        <guava.version>20.0</guava.version>
     </properties>
     <dependencies>
         <dependency>
@@ -92,6 +95,7 @@
             <artifactId>sequoiacm-infrastructure-mq-client</artifactId>
         </dependency>
 
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-sleuth</artifactId>
@@ -102,17 +106,6 @@
             <artifactId>spring-cloud-sleuth-zipkin</artifactId>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-            <version>${org.elasticsearch.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>${org.elasticsearch.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -135,7 +128,7 @@
             <version>${org.apache.poi.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <groupId>org.bytedeco</groupId>
             <artifactId>tesseract-platform</artifactId>
             <version>${org.bytedeco.version}</version>
         </dependency>
@@ -149,6 +142,33 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-fulltext-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-fulltext-es-client-base</artifactId>
+        </dependency>
+
+        <!--如下两个依赖在 spring 传递依赖中，版本号比较旧，会导致 es8 驱动无法运行，这里显式指定下新的依赖版本-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${httpcore.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -17,6 +17,22 @@
             <outputDirectory>bin</outputDirectory>
         </fileSet>
 
+
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/fulltext-es-client/6.3/target/sequoiacm-fulltext-es-client-6.3-${project.version}-release/6.3
+            </directory>
+            <outputDirectory>jars/es-client-6.3</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>
+                ${project.basedir}/../common/fulltext-es-client/8.2/target/sequoiacm-fulltext-es-client-8.2-${project.version}-release/8.2
+            </directory>
+            <outputDirectory>jars/es-client-8.2</outputDirectory>
+        </fileSet>
+
+
         <fileSet>
             <directory>${project.basedir}/../../script/</directory>
             <includes>
@@ -25,7 +41,7 @@
             </includes>
             <outputDirectory>.</outputDirectory>
         </fileSet>
-        
+
     </fileSets>
     
     <dependencySets>

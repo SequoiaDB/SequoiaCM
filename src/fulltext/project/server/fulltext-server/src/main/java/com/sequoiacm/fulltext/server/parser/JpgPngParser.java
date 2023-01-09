@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.util.IOUtils;
 import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.lept;
-import org.bytedeco.javacpp.lept.PIX;
-import org.bytedeco.javacpp.tesseract.TessBaseAPI;
+import org.bytedeco.leptonica.PIX;
+import org.bytedeco.leptonica.global.lept;
+import org.bytedeco.tesseract.TessBaseAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

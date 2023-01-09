@@ -281,6 +281,21 @@
 | ManagementPort |管理端口号，用于监控节点状态 | 否 |
 | CustomNodeConf | 自定义配置，例如配置 JVM 参数、限制堆内存大小等 | 否 |
 
+**elasticsearch**
+
+该配置段用于配置 Elasticsearch 连接信息，如果不需要全文检索服务，这段配置可以填空。参数说明如下：
+
+| 参数名 | 说明 | 是否必填 |
+| ------ | ---- | -------- |
+| Url    | elasticsearch 服务地址，如 'https://192.168.31.20:9200,https://192.168.31.21:9200' | 是 |
+| User   | elasticsearch 服务用户名，若 elasticsearch 未设置用户名密码则填空| 否 |
+| Password   | elasticsearch 服务密码，若 elasticsearch 未设置用户名密码则填空| 否 |
+| CertPath   | elasticsearch 服务 https 证书在当前部署工具所在机器上的路径，该证书文件在 elasticsearch 安装目录的 config/certs/http_ca.crt，当不使用 https 访问时，可以不填写该字段 | 否 |
+
+>**Note:**
+>
+> 若配置的 elasticsearch 为 6.3 版本而非 8.2，需要在全文检索服务节点配置手动指定配置项 scm.fulltext.es.adapterPath 为 ./jars/es-client-6.3
+
 **servicenode**
 
 该配置段用于配置基础服务节点，用户需根据部署规划进行配置。参数说明如下：

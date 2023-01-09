@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sequoiacm.fulltext.es.client.base.EsClientAutoConfig

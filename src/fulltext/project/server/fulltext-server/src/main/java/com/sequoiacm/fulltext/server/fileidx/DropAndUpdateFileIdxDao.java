@@ -11,7 +11,7 @@ import com.sequoiacm.content.client.ContentserverClientMgr;
 import com.sequoiacm.content.client.ScmEleCursor;
 import com.sequoiacm.content.client.model.ScmFileInfo;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.fulltext.server.es.EsClient;
+import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.fulltext.server.sch.ScmFileUtil;
 import com.sequoiacm.fulltext.server.site.ScmSiteInfoMgr;
