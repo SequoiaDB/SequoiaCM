@@ -6,7 +6,8 @@ alterws 子命令提供修改工作区的功能。
 |----------|-----------------|
 |addsite   |向工作区添加站点 |
 |updatesite|修改工作区中的站点属性 |
-|update-preferred   |更新工作区 preferred 属性|
+|update-preferred  |更新工作区 preferred 属性|
+|disable-directory |设置工作区目录为禁用状态 |
 
 ##子命令介绍##
 
