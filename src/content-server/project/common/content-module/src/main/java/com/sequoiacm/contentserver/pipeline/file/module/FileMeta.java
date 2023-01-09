@@ -495,7 +495,9 @@ public class FileMeta implements Cloneable {
         bson.put(FieldName.FIELD_CLFILE_DELETE_MARKER, deleteMarker);
         bson.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, status);
         bson.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, transId);
-        bson.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
+        if (customTag != null) {
+            bson.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
+        }
         return bson;
     }
 

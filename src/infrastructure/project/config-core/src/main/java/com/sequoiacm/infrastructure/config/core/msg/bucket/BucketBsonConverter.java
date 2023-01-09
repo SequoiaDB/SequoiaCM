@@ -33,7 +33,10 @@ public class BucketBsonConverter implements BsonConverter {
         bucketConfig.setWorkspace(BsonUtils.getStringChecked(config, FieldName.Bucket.WORKSPACE));
         bucketConfig.setFileTable(BsonUtils.getString(config, FieldName.Bucket.FILE_TABLE));
         bucketConfig.setVersionStatus(BsonUtils.getString(config, FieldName.Bucket.VERSION_STATUS));
-        bucketConfig.setCustomTag(BsonUtils.getBSON(config, FieldName.Bucket.CUSTOM_TAG).toMap());
+        BSONObject customTag = BsonUtils.getBSON(config, FieldName.Bucket.CUSTOM_TAG);
+        if (customTag != null) {
+            bucketConfig.setCustomTag(customTag.toMap());
+        }
         return bucketConfig;
     }
 
