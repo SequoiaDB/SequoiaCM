@@ -56,6 +56,33 @@ export const FILE_SCOPE_TYPES = [
   }
 ]
 
+export const FILE_SCOPE_STR_TYPES = [
+  {
+    value: 'CURRENT',
+    label: 'CURRENT'
+  },
+  {
+    value: 'HISTORY',
+    label: 'HISTORY'
+  },
+  {
+    value: 'ALL',
+    label: 'ALL'
+  }
+]
+
+// 条件筛选类型
+export const TRIGGER_MODES = [
+  {
+    value: 'ALL',
+    label: '所有'
+  },
+  {
+    value: 'ANY',
+    label: '任一'
+  }
+]
+
 // 任务状态
 export const TASK_STATUS = [
   {
@@ -118,6 +145,9 @@ export const SYSTEM_ROLES = [
   'ROLE_AUTH_ADMIN',
   'ROLE_AUTH_MONITOR'
 ]
+
+// 系统内置阶段标签，无法删除
+export const SYSTEM_STAGE_TAGS = [ 'Hot', 'Warm', 'Cold' ]
 
 // 列表查询时在响应头里的数据总条数标识
 export const X_RECORD_COUNT = "x-record-count"

@@ -62,6 +62,7 @@ public class RestParamDefine {
     public static final String SCHEDULE_NAME = "name";
     public static final String SCHEDULE_TYPE = "type";
     public static final String SCHEDULE_WORKSPACE = "workspace";
+    public static final String SCHEDULE_TRANSITION = "transition";
     public static final String SCHEDULE_SOURCE_SITE = "source_site";
     public static final String SCHEDULE_TARGET_SITE = "target_site";
     public static final String SCHEDULE_MAX_STAY_TIME = "max_stay_time";
@@ -76,6 +77,14 @@ public class RestParamDefine {
     public static final String SCHEDULE_DESCRIPTION = "description";
     public static final String SCHEDULE_PREFERRED_REGION = "preferred_region";
     public static final String SCHEDULE_PREFERRED_ZONE = "preferred_zone";
+
+    // lifecycle config
+    public static final String STAGE_TAG = "stage_tag";
+    public static final String STAGE_TAG_NAME = "name";
+    public static final String STAGE_TAG_DESCRIPTION = "description";
+    public static final String OLD_TRANSITION = "old_transition";
+    public static final String TRANSITION = "transition";
+    public static final String TRANSITION_ENABLED = "is_enabled";
 
     // service center
     public static final String SERVICE_REGION = "region";

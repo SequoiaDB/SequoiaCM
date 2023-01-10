@@ -113,29 +113,42 @@ export const constantRoutes = [
   },
 
   {
-    path: '/schedule',
+    path: '/lifecycle',
     component: Layout,
-    meta: { title: '调度任务', icon: 'el-icon-time' },
-    redirect: '/schedule/table',
+    meta: { title: '生命周期管理', icon: 'el-icon-time' },
+    redirect: '/lifecycle/stage_tag',
     children: [
       {
-        path: 'table',
-        name: 'ScheduleTable',
-        component: () => import('@/views/schedule/index'),
-        meta: { title: '调度任务管理', icon: 'el-icon-time', keepAlive:true }
+        path: 'stage_tag',
+        name: 'StageTag',
+        component: () => import('@/views/lifecycle/stage_tag/index'),
+        meta: { title: '阶段标签', icon: 'el-icon-collection-tag',  keepAlive:true }
       },
       {
-        path: 'tasks/:id',
-        name: 'tasks',
-        hidden: true,
-        component: () => import('@/views/schedule/taskList'),
-        meta: { title: '任务运行记录', icon: 'tree' }
+          path: 'transition',
+          name: 'Transition',
+          component: () => import('@/views/lifecycle/transition/index'),
+          meta: { title: '数据流管理', icon: 'el-icon-s-data', keepAlive:true }
+      },
+      {
+          path: 'schedule',
+          name: 'Schedule',
+          component: () => import('@/views/lifecycle/schedule/index'),
+          meta: { title: '调度任务管理', icon: 'el-icon-timer', keepAlive:true }
+      },
+      {
+          path: 'schedule-tasks/:id',
+          name: 'tasks',
+          hidden: true,
+          component: () => import('@/views/lifecycle/schedule/taskList'),
+          meta: { title: '任务运行记录', icon: 'tree' }
       }
     ]
   },
 
   {
     path: '/file',
+    name: 'File',
     component: Layout,
     meta: { title: '文件', icon: 'el-icon-document' },
     redirect: '/file/table',

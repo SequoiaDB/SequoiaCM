@@ -17,6 +17,9 @@ public class OmSiteInfo {
     @JsonProperty("is_root_site")
     private boolean isRootSite;
 
+    @JsonProperty("stage_tag")
+    private String stageTag;
+
     @JsonProperty("datasource_type")
     private String datasourceType;
 
@@ -80,6 +83,13 @@ public class OmSiteInfo {
         this.datasourceUser = datasourceUser;
     }
 
+    public String getStageTag() {
+        return stageTag;
+    }
+
+    public void setStageTag(String stageTag) {
+        this.stageTag = stageTag;
+    }
 
     public String getDatasourcePwd() {
         return datasourcePwd;
@@ -88,8 +98,6 @@ public class OmSiteInfo {
     public void setDatasourcePwd(String datasourcePwd) {
         this.datasourcePwd = datasourcePwd;
     }
-
-
 
     public String getMetasourceUser() {
         return metasourceUser;

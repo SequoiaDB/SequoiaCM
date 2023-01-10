@@ -236,7 +236,13 @@ export default {
             this.workspaceList.push(ws.name)
           }
           this.currentWorkspace = this.workspaceList[0]
-          this.onWorkspaceChange()
+          if (this.$route.query.target  === 'checkJson') {
+            this.currentFileSearchTypeStr = 'search_by_json'
+            this.searchParam = this.$route.query.jsonStr
+            this.doSearch()
+          } else {
+            this.onWorkspaceChange()
+          }
         }
       })
     },

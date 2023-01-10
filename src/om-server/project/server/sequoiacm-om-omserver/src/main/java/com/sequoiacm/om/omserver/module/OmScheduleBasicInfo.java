@@ -18,6 +18,9 @@ public class OmScheduleBasicInfo {
     @JsonProperty("workspace")
     private String workspace;
 
+    @JsonProperty("transition")
+    private String transition;
+
     @JsonProperty("description")
     private String description;
 
@@ -72,6 +75,14 @@ public class OmScheduleBasicInfo {
 
     public void setWorkspace(String workspace) {
         this.workspace = workspace;
+    }
+
+    public String getTransition() {
+        return transition;
+    }
+
+    public void setTransition(String transition) {
+        this.transition = transition;
     }
 
     public String getDescription() {

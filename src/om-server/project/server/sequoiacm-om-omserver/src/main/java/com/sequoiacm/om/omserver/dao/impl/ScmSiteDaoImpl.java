@@ -83,6 +83,7 @@ public class ScmSiteDaoImpl implements ScmSiteDao {
         omSite.setId(scmSite.getId());
         omSite.setName(scmSite.getName());
         omSite.setRootSite(scmSite.isRootSite());
+        omSite.setStageTag(scmSite.getStageTag());
         omSite.setDatasourceUrl(scmSite.getDataUrl());
         omSite.setDatasourceType(scmSite.getDataTypeStr());
         omSite.setDatasourceUser(scmSite.getDataUser());

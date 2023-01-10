@@ -71,6 +71,13 @@
           label="所属工作区">
         </el-table-column>
         <el-table-column
+          show-overflow-tooltip
+          label="所属数据流">
+          <template slot-scope="scope">
+            {{scope.row.transition?scope.row.transition:'无'}}
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="description"
           show-overflow-tooltip
           label="任务描述">
@@ -97,9 +104,11 @@
           <template slot-scope="scope">
             <el-button-group>
               <el-button id="btn_schedule_showDetailDialog" size="mini" @click="handleShowBtnClick(scope.row)">查看</el-button>
-              <el-button id="btn_schedule_showEditdeleteDialog" size="mini" @click="handleEditBtnClick(scope.row)">编辑</el-button>
-              <el-button id="btn_schedule_showTasks" size="mini" @click="handleShowTasksBtnClick(scope.row)">运行记录</el-button>
-              <el-button id="btn_schedule_showDeleteDialog" size="mini" type="danger" @click="handleDeleteBtnClick(scope.row)">删除任务</el-button>
+              <el-button id="btn_schedule_showEditdeleteDialog" size="mini" @click="handleEditBtnClick(scope.row)">编辑</el-button></span>
+              <el-button id="btn_schedule_showTasks" size="mini" @click="handleShowTasksBtnClick(scope.row)">运行记录</el-button>             
+              <el-tooltip content="该调度任务为工作区应用数据流生成，无法删除" :disabled="!(scope.row.transition && true)" placement="top">
+                <span><el-button id="btn_schedule_showDeleteDialog" size="mini" type="danger" :disabled="scope.row.transition && true" @click="handleDeleteBtnClick(scope.row)">删除任务</el-button></span>
+              </el-tooltip>
             </el-button-group>
           </template>
         </el-table-column>
@@ -476,7 +485,7 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入任务名称', trigger: 'change' },
-          { min: 2, max: 30, message: '长度在 2 到 30 个字符', trigger: 'change' }
+          { min: 2, max: 100, message: '长度在 2 到 100 个字符', trigger: 'change' }
         ],
         type: [
           { required: true, message: '请选择任务类型', trigger: 'change' },
@@ -529,9 +538,14 @@ export default {
   },
   methods:{
     // 初始化
-    init(){
-      this.queryTableData()
-      this.queryWorkspaces()
+    async init(){
+      await this.queryTableData()
+      await this.queryWorkspaces()
+      if (this.$route.query.target  === 'checkSchedule') {
+        this.searchParams.workspace = this.$route.query.workspace
+        this.searchParams.name = this.$route.query.schedule
+        this.doSearch()
+      }
     },
     // 初始化任务添加、编辑对话框数据
     initScheduleDialogData() {
@@ -642,7 +656,8 @@ export default {
           quickStart: true,
           dataCheckLevel: 'week',
           isRecycleSpace: true,
-          recycleScope: ''
+          recycleScope: '',
+          maxStayTime: ''
         }
         if(detail.content.max_exec_time % this.timeTypes[0].value === 0){
           this.form.timeScale = TIME_TYPES[0].value
@@ -684,12 +699,13 @@ export default {
       this.taskDetail = {}
       queryScheduleDetail(row.schedule_id).then(res => {
         this.taskDetail = res.data
+        console.log(res.data)
       })
       this.$refs['detailDialog'].show()
     },
     // 点击查看运行记录按钮
     handleShowTasksBtnClick(row) {
-      this.$router.push("/schedule/tasks/"+row.schedule_id)
+      this.$router.push("/lifecycle/schedule-tasks/"+row.schedule_id)
     },
     // 点击删除按钮
     handleDeleteBtnClick(row) {

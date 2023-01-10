@@ -17,6 +17,9 @@
         <el-row>
           <el-col :span="24"><span class="key" style="width:20%">任务名称：</span> <span class="value">{{taskDetail.name}}</span></el-col>
         </el-row>
+        <el-row v-if="taskDetail.transition">
+          <el-col :span="24"><span class="key" style="width:20%">所属数据流：</span> <span class="value">{{taskDetail.transition}}</span></el-col>
+        </el-row>
         <el-row v-if="taskDetail.type == 'copy_file' || taskDetail.type == 'move_file'">
           <el-col :span="12"><span class="key">源站点：</span> <span class="value">{{taskDetail.content.source_site}}</span></el-col>
           <el-col :span="12"><span class="key">目的站点：</span> <span class="value">{{taskDetail.content.target_site}}</span></el-col>

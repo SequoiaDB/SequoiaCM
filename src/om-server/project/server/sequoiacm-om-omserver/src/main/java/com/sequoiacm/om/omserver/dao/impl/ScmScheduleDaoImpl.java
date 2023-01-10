@@ -218,6 +218,7 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
         omScheduleInfo.setCron(scmSchedule.getCron());
         omScheduleInfo.setName(scmSchedule.getName());
         omScheduleInfo.setWorkspace(scmSchedule.getWorkspace());
+        omScheduleInfo.setTransition(scmSchedule.getTransitionName());
         omScheduleInfo.setDescription(scmSchedule.getDesc());
         omScheduleInfo.setCreateTime(scmSchedule.getCreateDate());
         omScheduleInfo.setCreateUser(scmSchedule.getCreaateUser());
@@ -233,6 +234,7 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
         OmScheduleBasicInfo omScheduleBasicInfo = new OmScheduleBasicInfo();
         omScheduleBasicInfo.setScheduleId(scmScheduleBasicInfo.getId().get());
         omScheduleBasicInfo.setWorkspace(scmScheduleBasicInfo.getWorkspace());
+        omScheduleBasicInfo.setTransition(scmScheduleBasicInfo.getTransition());
         omScheduleBasicInfo.setDescription(scmScheduleBasicInfo.getDesc());
         omScheduleBasicInfo.setEnable(scmScheduleBasicInfo.isEnable());
         omScheduleBasicInfo.setName(scmScheduleBasicInfo.getName());

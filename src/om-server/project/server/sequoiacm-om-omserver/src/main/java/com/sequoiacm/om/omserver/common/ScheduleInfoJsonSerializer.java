@@ -25,6 +25,7 @@ public class ScheduleInfoJsonSerializer extends StdSerializer<OmScheduleInfo> {
         gen.writeStringField(SCHEDULE_NAME, value.getName());
         gen.writeStringField(SCHEDULE_TYPE, value.getType());
         gen.writeStringField(SCHEDULE_WORKSPACE, value.getWorkspace());
+        gen.writeStringField(SCHEDULE_TRANSITION, value.getTransition());
         gen.writeBooleanField(SCHEDULE_ENABLE, value.getEnable());
         gen.writeStringField(SCHEDULE_CRON, value.getCron());
         gen.writeStringField(SCHEDULE_PREFERRED_REGION, value.getPreferredRegion());

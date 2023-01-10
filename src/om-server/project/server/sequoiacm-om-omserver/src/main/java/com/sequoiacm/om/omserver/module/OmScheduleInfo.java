@@ -32,6 +32,9 @@ public class OmScheduleInfo {
     @JsonProperty("workspace")
     private String workspace;
 
+    @JsonProperty("transition")
+    private String transition;
+
     @NotNull(message = "cron is required", groups = CREATE.class)
     @JsonProperty("cron")
     private String cron;
@@ -112,6 +115,14 @@ public class OmScheduleInfo {
 
     public void setWorkspace(String workspace) {
         this.workspace = workspace;
+    }
+
+    public String getTransition() {
+        return transition;
+    }
+
+    public void setTransition(String transition) {
+        this.transition = transition;
     }
 
     public String getCron() {
