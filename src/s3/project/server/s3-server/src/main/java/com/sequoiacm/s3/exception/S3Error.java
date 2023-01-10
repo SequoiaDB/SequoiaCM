@@ -74,6 +74,7 @@ public enum S3Error {
     BUCKET_INVALID_LOCATION(-507, "InvalidLocation", "The location is invalid."),
     BUCKET_TAGGING_TOO_LARGE(-508, "BadRequest", "Bucket tag count cannot be greater than 50"),
     BUCKET_INVALID_TAGGING(-509, "InvalidTag", "The TagKey you have provided is invalid"),
+    BUCKET_TAGGING_NOT_EXIST(-510, "NoSuchTagSet", "The TagSet does not exist"),
 
     // AWS error code -- object error
     OBJECT_INVALID_KEY(-520, "InvalidKey", "Invalid Key."),

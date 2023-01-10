@@ -62,7 +62,7 @@ public class TestBucketTagging extends ScmTestMultiCenterBase {
         List<TagSet> numberList = new ArrayList<>();
         TagSet numberTagSet = new TagSet();
         for (int i = 0; i < 51; i++) {
-            tagSet.setTag("a" + i, "b" + i);
+            numberTagSet.setTag("a" + i, "b" + i);
         }
         numberList.add(numberTagSet);
         BucketTaggingConfiguration numberConfig = new BucketTaggingConfiguration();
@@ -82,15 +82,15 @@ public class TestBucketTagging extends ScmTestMultiCenterBase {
         // check res
         BucketTaggingConfiguration emptyConfigRes = s3Client
                 .getBucketTaggingConfiguration(bucketName);
-        Assert.assertEquals(emptyConfigRes.getAllTagSets().size(), 1);
+        Assert.assertNull(emptyConfigRes);
 
         // set bucket tagging key is null
         List<TagSet> nullKeyList = new ArrayList<>();
         TagSet nullKeyTagSet = new TagSet();
         nullKeyTagSet.setTag(null, "b1");
-        numberList.add(nullKeyTagSet);
+        nullKeyList.add(nullKeyTagSet);
         BucketTaggingConfiguration nullKeyConfig = new BucketTaggingConfiguration();
-        emptyConfig.setTagSets(nullKeyList);
+        nullKeyConfig.setTagSets(nullKeyList);
         try {
             s3Client.setBucketTaggingConfiguration(bucketName, nullKeyConfig);
         }
@@ -102,9 +102,9 @@ public class TestBucketTagging extends ScmTestMultiCenterBase {
         List<TagSet> emptyKeyList = new ArrayList<>();
         TagSet emptyKeyTagSet = new TagSet();
         emptyKeyTagSet.setTag("", "b2");
-        numberList.add(emptyKeyTagSet);
+        emptyKeyList.add(emptyKeyTagSet);
         BucketTaggingConfiguration emptyKeyConfig = new BucketTaggingConfiguration();
-        emptyConfig.setTagSets(emptyKeyList);
+        emptyKeyConfig.setTagSets(emptyKeyList);
         try {
             s3Client.setBucketTaggingConfiguration(bucketName, emptyKeyConfig);
         }
@@ -116,9 +116,9 @@ public class TestBucketTagging extends ScmTestMultiCenterBase {
         List<TagSet> nullValueList = new ArrayList<>();
         TagSet nullValueTagSet = new TagSet();
         nullValueTagSet.setTag("a1", null);
-        numberList.add(nullValueTagSet);
+        nullValueList.add(nullValueTagSet);
         BucketTaggingConfiguration nullValueConfig = new BucketTaggingConfiguration();
-        emptyConfig.setTagSets(nullValueList);
+        nullValueConfig.setTagSets(nullValueList);
         s3Client.setBucketTaggingConfiguration(bucketName, nullValueConfig);
         // check res
         BucketTaggingConfiguration nullValueRes = s3Client
@@ -129,9 +129,9 @@ public class TestBucketTagging extends ScmTestMultiCenterBase {
         List<TagSet> emptyValueList = new ArrayList<>();
         TagSet emptyValueTagSet = new TagSet();
         emptyValueTagSet.setTag("a1", "");
-        numberList.add(emptyValueTagSet);
+        emptyValueList.add(emptyValueTagSet);
         BucketTaggingConfiguration emptyValueConfig = new BucketTaggingConfiguration();
-        emptyConfig.setTagSets(emptyValueList);
+        emptyValueConfig.setTagSets(emptyValueList);
         s3Client.setBucketTaggingConfiguration(bucketName, emptyValueConfig);
         // check res
         BucketTaggingConfiguration emptyValueRes = s3Client
@@ -143,7 +143,7 @@ public class TestBucketTagging extends ScmTestMultiCenterBase {
         // check res
         BucketTaggingConfiguration deleteConfig = s3Client
                 .getBucketTaggingConfiguration(bucketName);
-        Assert.assertEquals(deleteConfig.getAllTagSets().size(), 1);
+        Assert.assertNull(deleteConfig);
     }
 
     private List<TagSet> sortList(List<TagSet> list) {

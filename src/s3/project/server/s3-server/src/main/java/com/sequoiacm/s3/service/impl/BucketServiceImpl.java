@@ -286,6 +286,10 @@ public class BucketServiceImpl implements BucketService {
                 throw new S3ServerException(S3Error.ACCESS_DENIED,
                         "You can not access the specified bucket. bucket name = " + bucketName, e);
             }
+            if (e.getError() == ScmError.BUCKET_CUSTOMTAG_NOT_EXIST) {
+                throw new S3ServerException(S3Error.BUCKET_TAGGING_NOT_EXIST,
+                        "The bucket tagging does not exist. bucket name = " + bucketName, e);
+            }
             throw new S3ServerException(S3Error.BUCKET_TAGGING_GET_FAILED,
                     "get bucket tagging failed. bucketname=" + bucketName, e);
         }

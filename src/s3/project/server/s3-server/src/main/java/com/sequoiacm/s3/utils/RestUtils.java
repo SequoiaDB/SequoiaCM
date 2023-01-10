@@ -181,6 +181,7 @@ public class RestUtils {
             case OBJECT_NO_SUCH_VERSION:
             case REGION_NO_SUCH_REGION:
             case PART_NO_SUCH_UPLOAD:
+            case BUCKET_TAGGING_NOT_EXIST:
                 status = HttpStatus.NOT_FOUND;
                 break;
             case METHOD_NOT_ALLOWED:

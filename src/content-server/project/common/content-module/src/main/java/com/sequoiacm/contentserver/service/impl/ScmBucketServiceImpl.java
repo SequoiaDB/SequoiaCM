@@ -690,7 +690,12 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmBucket bucket = getBucket(bucketName);
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.READ, "get bucket tag");
-        return bucket.getCustomTag();
+        Map<String, String> customTag = bucket.getCustomTag();
+        if (customTag == null || customTag.isEmpty()) {
+            throw new ScmServerException(ScmError.BUCKET_CUSTOMTAG_NOT_EXIST,
+                    "bucket tag does not exist : bucketName=" + bucketName);
+        }
+        return customTag;
     }
 
     @Override
