@@ -116,7 +116,7 @@ public class BucketTag5512 extends TestScmBase {
         Assert.assertEquals( bucket.getCustomTag(), newMap );
 
         // 删除桶标签
-        //TODO: SEQUOIACM-1175
+        // TODO: SEQUOIACM-1175
         bucket.deleteCustomTag();
 
         // 获取校验
@@ -146,8 +146,7 @@ public class BucketTag5512 extends TestScmBase {
 
         // 获取校验
         configuration = s3Client.getBucketTaggingConfiguration( bucketName );
-        Assert.assertEquals( configuration.getTagSet().toString(),
-                new TagSet().toString() );
+        Assert.assertNull( configuration );
     }
 
     private void initTag() {

@@ -9,6 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.TagSet;
 import com.sequoiacm.client.core.ScmBucket;
 import com.sequoiacm.client.core.ScmFactory;
@@ -126,10 +127,9 @@ public class BucketTag5515 extends TestScmBase {
 
         // s3 api删除表
         s3Client.deleteBucketTaggingConfiguration( bucketName );
-        actTagSet = s3Client.getBucketTaggingConfiguration( bucketName )
-                .getTagSet();
-        Assert.assertEquals( actTagSet.getAllTags(),
-                new TagSet().getAllTags() );
+        BucketTaggingConfiguration configuration = s3Client
+                .getBucketTaggingConfiguration( bucketName );
+        Assert.assertNull( configuration );
 
     }
 }

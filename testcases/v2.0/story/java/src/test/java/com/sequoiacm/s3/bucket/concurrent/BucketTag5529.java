@@ -1,7 +1,5 @@
 package com.sequoiacm.s3.bucket.concurrent;
 
-import java.util.HashMap;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -82,12 +80,9 @@ public class BucketTag5529 extends TestScmBase {
         private void run() {
             BucketTaggingConfiguration configuration = s3Client
                     .getBucketTaggingConfiguration( bucketName );
-            TagSet tag = configuration.getTagSet();
-            if ( tag.getTag( tagKey ) != null ) {
+            if ( configuration != null ) {
+                TagSet tag = configuration.getTagSet();
                 Assert.assertEquals( tag.getTag( tagKey ), tagValue );
-            } else {
-                Assert.assertEquals( tag.getAllTags(),
-                        new HashMap< String, String >() );
             }
         }
     }
