@@ -6,7 +6,9 @@ import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.site.ScmContentModule;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.metasource.MetaFileAccessor;
@@ -174,13 +176,36 @@ public class ScmFileVersionHelper {
         return oldFileVersion;
     }
 
-    public static void insertVersionToHistory(ScmWorkspaceInfo ws, BSONObject latestFileVersion,
+    public static void insertVersionToHistory(ScmWorkspaceInfo ws, FileMeta latestFileVersion,
             TransactionContext transactionContext)
             throws ScmMetasourceException, ScmServerException {
-        MetaFileHistoryAccessor accessor = ScmContentModule.getInstance().getMetaService()
-                .getMetaSource()
-                .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
-        accessor.insert(latestFileVersion);
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        try {
+            MetaFileHistoryAccessor accessor = contentModule.getMetaService()
+                    .getMetaSource()
+                    .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
+            accessor.insert(latestFileVersion.toBSONObject());
+        }
+        catch (ScmMetasourceException e) {
+            // 捕获下写历史表产生子表不存在的异常，然后执行下子表创建及挂载
+            if (e.getScmError() == ScmError.FILE_TABLE_NOT_FOUND) {
+
+                try {
+                    contentModule.getMetaService().getMetaSource()
+                            .getFileAccessor(ws.getMetaLocation(), ws.getName(), null)
+                            .createFileTable(latestFileVersion.toBSONObject());
+                }
+                catch (Exception ex) {
+                    throw new ScmServerException(ScmError.METASOURCE_ERROR,
+                            "insert file failed, create file table failed:ws=" + ws.getName()
+                                    + ", file=" + latestFileVersion.getId(),
+                            ex);
+                }
+                insertVersionToHistory(ws, latestFileVersion, transactionContext);
+                return;
+            }
+            throw e;
+        }
     }
 
     public static boolean isLatestVersion(ScmVersion version, ScmVersion latestVersion) {

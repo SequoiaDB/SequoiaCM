@@ -2,6 +2,7 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 
 import java.util.Date;
 
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -30,6 +31,19 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
             String csName, String clName, TransactionContext context) {
         super(metasource, csName, clName, context);
         this.location = location;
+    }
+
+    @Override
+    public void insert(BSONObject insertor) throws ScmMetasourceException {
+        try {
+            super.insert(insertor);
+        }
+        catch (SdbMetasourceException e) {
+            if (e.getErrcode() == SDBError.SDB_CAT_NO_MATCH_CATALOG.getErrorCode()) {
+                e.setScmError(ScmError.FILE_TABLE_NOT_FOUND);
+            }
+            throw e;
+        }
     }
 
     @Override

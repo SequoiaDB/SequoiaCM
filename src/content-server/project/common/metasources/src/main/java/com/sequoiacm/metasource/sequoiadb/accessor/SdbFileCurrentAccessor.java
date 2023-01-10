@@ -27,16 +27,7 @@ public class SdbFileCurrentAccessor extends SdbFileBaseAccessor implements MetaF
 
     @Override
     public void insert(BSONObject insertor) throws ScmMetasourceException {
-        try {
-            super.insert(insertor);
-        }
-        catch (SdbMetasourceException e) {
-            if (e.getErrcode() ==
-                    SDBError.SDB_CAT_NO_MATCH_CATALOG.getErrorCode()) {
-                e.setScmError(ScmError.FILE_TABLE_NOT_FOUND);
-            }
-            throw e;
-        }
+        super.insert(insertor);
     }
 
     @Override

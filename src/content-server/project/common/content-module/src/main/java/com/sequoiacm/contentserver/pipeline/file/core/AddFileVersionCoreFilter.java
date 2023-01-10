@@ -36,8 +36,7 @@ public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
                     return PipelineResult.success();
                 }
 
-                ScmFileVersionHelper.insertVersionToHistory(ws,
-                        context.getCurrentLatestVersion().toBSONObject(),
+                ScmFileVersionHelper.insertVersionToHistory(ws, context.getCurrentLatestVersion(),
                         context.getTransactionContext());
                 updateLatestFile(context, ws);
                 BSONObject deletedVersion = ScmFileVersionHelper.deleteVersionInHistory(ws,
@@ -50,8 +49,7 @@ public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
                 return PipelineResult.success();
             }
 
-            ScmFileVersionHelper.insertVersionToHistory(ws,
-                    context.getCurrentLatestVersion().toBSONObject(),
+            ScmFileVersionHelper.insertVersionToHistory(ws, context.getCurrentLatestVersion(),
                     context.getTransactionContext());
             updateLatestFile(context, ws);
             return PipelineResult.success();
