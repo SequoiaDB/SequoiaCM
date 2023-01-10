@@ -111,6 +111,7 @@ public class CollectConfig {
             case SERVICES:
                 serviceList = new ArrayList<>();
                 for (String service : value.split(",")) {
+                    service = service.trim();
                     if (CollectConfig.getServerMap().get(service) != null) {
                         serviceList.add(service);
                     }
@@ -185,6 +186,7 @@ public class CollectConfig {
             serviceList = new ArrayList<>();
             String services = commandLine.getOptionValue(SERVICES);
             for (String service : services.split(",")) {
+                service = service.trim();
                 if (StringUtils.isEmpty(CollectConfig.getServerMap().get(service))) {
                     throw new IllegalArgumentException(
                             "services is invalid arg " + service + " is not exist in scm services");

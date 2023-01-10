@@ -10,6 +10,7 @@ public enum Services {
     AuthServer("auth-server", "sequoiacm-cloud/log/auth-server", ".*authserver.*"),
     Gateway("gateway", "sequoiacm-cloud/log/gateway", ".*gateway.*"),
     ServiceCenter("service-center", "sequoiacm-cloud/log/service-center", ".*servicecenter.*"),
+    ServiceTrace("service-trace", "sequoiacm-cloud/log/service-trace", ".*servicetrace.*"),
     ScheduleServer("schedule-server", "sequoiacm-schedule/log/schedule-server", ".*scheduleserver.*"),
     ConfigServer("config-server", "sequoiacm-config/log/config-server", ".*configserver.*"),
     ContentServer("content-server", "sequoiacm-content/log/content-server", ".*contentserver.*"),
