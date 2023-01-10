@@ -92,7 +92,7 @@ public class ScmTrace5456 extends TestScmBase {
 
     private ScmTrace GetScmTrace() throws ScmException {
         List< ScmTrace > scmTraces = ScmSystem.ServiceTrace.listTrace( session,
-                20 );
+                1000 );
         for ( ScmTrace trace : scmTraces ) {
             if ( trace.getSpanCount() > 2 && trace.isComplete() ) {
                 return trace;
