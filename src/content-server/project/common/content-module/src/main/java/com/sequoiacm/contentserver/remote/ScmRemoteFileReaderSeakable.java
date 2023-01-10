@@ -164,8 +164,8 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
         ScmDataWriter fileWriter = null;
         try {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(localSiteId,
-                    wsInfo.getName(), wsInfo.getDataLocation(),
-                    ScmContentModule.getInstance().getDataService(), dataInfo, context);
+                    wsInfo.getName(), wsInfo.getDataLocation(dataInfo.getWsVersion()),
+                    ScmContentModule.getInstance().getDataService(), dataInfo);
         }
         catch (Exception e) {
             logger.warn("create lob in local site failed:siteId={},wsName={},lobId={}",

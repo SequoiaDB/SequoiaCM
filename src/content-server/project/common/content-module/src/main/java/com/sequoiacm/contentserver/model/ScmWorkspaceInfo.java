@@ -63,10 +63,6 @@ public class ScmWorkspaceInfo {
         return currentWorkspace.getMetaLocation();
     }
 
-    public ScmLocation getDataLocation() {
-        return currentWorkspace.getDataLocation();
-    }
-
     public ScmLocation getDataLocation(int versionId) throws ScmServerException {
         ScmWorkspaceItem workspaceItem = getWorkspaceVersion(versionId);
         return workspaceItem.getDataLocation();

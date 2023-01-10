@@ -150,7 +150,8 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
         try {
             ScmDataDeletor deleter = ScmDataOpFactoryAssit.getFactory().createDeletor(
                     ScmContentModule.getInstance().getLocalSite(), ws.getName(),
-                    ws.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                    ws.getDataLocation(dataInfo.getWsVersion()),
+                    ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             deleter.delete();
         }

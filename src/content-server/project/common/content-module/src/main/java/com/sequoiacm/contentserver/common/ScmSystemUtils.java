@@ -428,7 +428,8 @@ public class ScmSystemUtils {
         try {
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
-                    wsInfo.getDataLocation(), ScmContentModule.getInstance().getDataService(),
+                    wsInfo.getDataLocation(dataInfo.getWsVersion()),
+                    ScmContentModule.getInstance().getDataService(),
                     dataInfo);
             while (true) {
                 int readLen = reader.read(buf, 0, buf.length);
