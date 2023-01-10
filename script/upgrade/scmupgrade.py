@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import commands
 import getopt
 import os
 import glob
@@ -260,7 +259,7 @@ def parse_command():
     global service, service_install_path, backup_dir, is_rollback, need_start_node, need_verify_path, dry_run
     try:
         options, args = getopt.getopt(sys.argv[1:], "h", ["help", "service=", "install-path=","backup-path=", "nocheck", "rollback", "start", "dryrun"])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         print ("[ERROR] ", e)
         sys.exit(2)
 
