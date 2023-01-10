@@ -151,6 +151,8 @@ public class ScmContextRefresher extends ContextRefresher {
     private PropertiesPropertySource merge(PropertiesPropertySource newProps,
             PropertiesPropertySource oldProps) {
         Properties mergeProps = new Properties();
+
+        // 遍历新加载的配置文件，符合条件的刷入内存中
         for (Map.Entry<String, Object> entry : newProps.getSource().entrySet()) {
             if (scmConfPropsScanner.isRefreshableConfProp(entry.getKey())) {
                 // 支持在线刷新的配置，需要将新配置刷入内存
@@ -161,13 +163,31 @@ public class ScmContextRefresher extends ContextRefresher {
                 mergeProps.put(entry.getKey(), entry.getValue());
             }
             else {
-                // SCM 不支持在线刷新的配置，继续沿用内存中旧的配置
+                // SCM 不支持在线刷新的配置，继续沿用旧的配置
                 Object oldValue = oldProps.getProperty(entry.getKey());
                 if (oldValue != null) {
                     mergeProps.put(entry.getKey(), oldValue);
                 }
             }
         }
+
+        // 遍历旧的配置文件，检查在新配置文件被删除的配置项
+        for (Map.Entry<String, Object> entry : oldProps.getSource().entrySet()) {
+            // 这个配置项在新配置文件被删除了
+            if (!mergeProps.contains(entry.getKey())) {
+                // 删除的配置项是在线生效的，内存中也删除
+                if (scmConfPropsScanner.isRefreshableConfProp(entry.getKey())) {
+                    continue;
+                }
+                // 删除的配置项不是scm配置，内存中也删除
+                if (!scmConfPropsScanner.isScmConfProp(entry.getKey())) {
+                    continue;
+                }
+                // 删除的配置项是 SCM 不支持在线刷新的配置，内存中不删除
+                mergeProps.put(entry.getKey(), entry.getValue());
+            }
+        }
+
         return new PropertiesPropertySource(newProps.getName(), mergeProps);
     }
 
