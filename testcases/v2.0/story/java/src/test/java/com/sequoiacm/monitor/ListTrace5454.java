@@ -42,7 +42,7 @@ public class ListTrace5454 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         now = System.currentTimeMillis();
-        hour = 60 * 60 * 1000L;
+        hour = 60 * 60 * 1000L * 1000L;
         session = TestScmTools.createSession();
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -175,8 +175,8 @@ public class ListTrace5454 extends TestScmBase {
 
         // test a： minDuration匹配不到
         List< ScmTrace > scmTraces = ScmSystem.ServiceTrace.listTrace( session,
-                hour, 1000 );
-        Assert.assertEquals( scmTraces.size(), 0 );
+                hour, 5 );
+        Assert.assertEquals( scmTraces.size(), 0, scmTraces.toString() );
 
         // test a： minDuration匹配到
         scmTraces = ScmSystem.ServiceTrace.listTrace( session, 1L, 1000 );
