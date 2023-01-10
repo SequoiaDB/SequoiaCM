@@ -86,6 +86,17 @@ public class SiteMgr {
         }
     }
 
+    public SiteInfo getSite(String siteName){
+        Lock rLock = siteReadWriterLock.readLock();
+        rLock.lock();
+        try {
+            return siteMapByName.get(siteName);
+        }
+        finally {
+            rLock.unlock();
+        }
+    }
+
     public SiteInfo getMainSite() {
         return this.rootSite;
     }

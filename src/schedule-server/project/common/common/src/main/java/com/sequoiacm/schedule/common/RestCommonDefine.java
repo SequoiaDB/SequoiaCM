@@ -41,6 +41,15 @@ public class RestCommonDefine {
         public static final String INTERNAL_ERROR = "internal_error";
         public static final String BAD_REQUEST = "bad_request";
         public static final String WORKER_SHOULD_STOP = "worker_should_stop";
+
+        public static final String LIFE_CYCLE_CONFIG_USED = "life_cycle_config_already_Used";
+        public static final String LIFE_CYCLE_CONFIG_NOT_EXIST = "life_cycle_config_not_exist";
+        public static final String REPEAT_STAGE_TAG_NAME = "stage_tag_name_repeat";
+        public static final String STAGE_TAG_NOT_EXIST = "stage_tag_not_exist";
+        public static final String REPEAT_TRIGGER_ID = "trigger_id_repeat";
+        public static final String TRANSITION_EXIST = "transition_already_exist";
+        public static final String TRANSITION_NOT_EXIST = "transition_not_exist";
+        public static final String TRANSITION_USED_WS = "transition_used_by_workspace";
     }
 
     /**

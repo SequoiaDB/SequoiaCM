@@ -1,11 +1,22 @@
 package com.sequoiacm.client.core;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
+import com.sequoiacm.client.element.lifecycle.ScmWorkspaceLifeCycleConfig;
+import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.IOUtils;
+import com.sequoiacm.infrastructure.common.XMLUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -244,6 +255,129 @@ class ScmWorkspaceImpl extends ScmWorkspace {
                 dataLocationList);
         updator.put(CommonDefine.RestArg.WORKSPACE_UPDATOR_MERGE, mergeTo);
         _update(updator);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName) throws ScmException {
+        return applyTransition(transitionName, null);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName,
+            ScmLifeCycleTransition transition) throws ScmException {
+        return applyTransition(transitionName, transition, session.getPreferredRegion(),
+                session.getPreferredZone());
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName, String preferredRegion,
+            String preferredZone) throws ScmException {
+        return applyTransition(transitionName, null, preferredRegion, preferredZone);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName,
+            ScmLifeCycleTransition transition, String preferredRegion, String preferredZone)
+            throws ScmException {
+        if (transitionName == null) {
+            throw new ScmInvalidArgumentException("transition name is null");
+        }
+        if (preferredRegion == null) {
+            throw new ScmInvalidArgumentException("preferred region is null");
+        }
+        if (preferredZone == null) {
+            throw new ScmInvalidArgumentException("preferred zone is null");
+        }
+        BSONObject transitionSchedule = session.getDispatcher().applyTransition(name, transitionName,
+                transition, preferredRegion, preferredZone);
+        return new ScmTransitionScheduleImpl(session, transitionSchedule);
+    }
+
+    @Override
+    public void setTransitionConfig(String xmlPath) throws ScmException {
+        InputStream in = null;
+        try {
+            in = new FileInputStream(xmlPath);
+            setTransitionConfig(in);
+        }
+        catch (IOException e) {
+            throw new ScmException(ScmError.FILE_IO,
+                    "failed to read the xml file,xmlPath=" + xmlPath, e);
+        }
+        finally {
+            IOUtils.close(in);
+        }
+    }
+
+    @Override
+    public void setTransitionConfig(InputStream xmlInputStream) throws ScmException {
+        ScmWorkspaceLifeCycleConfig workspaceLifeCycleConfig = null;
+        BSONObject obj = null;
+        try {
+            obj = XMLUtils.xmlToBSONObj(xmlInputStream);
+        }
+        catch (Exception e) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT,
+                    "unable to parse xml life cycle config content", e);
+        }
+        if (obj != null) {
+            workspaceLifeCycleConfig = new ScmWorkspaceLifeCycleConfig(obj);
+            for (ScmLifeCycleTransition transition : workspaceLifeCycleConfig
+                    .getTransitionConfig()) {
+                String transitionName = transition.getName();
+                applyTransition(transitionName, transition, session.getPreferredRegion(),
+                        session.getPreferredZone());
+            }
+        }
+    }
+
+    @Override
+    public void removeTransition(String transitionName) throws ScmException {
+        if (transitionName == null) {
+            throw new ScmInvalidArgumentException("transition name is null");
+        }
+        session.getDispatcher().removeWsTransition(name, transitionName);
+    }
+
+    @Override
+    public ScmTransitionSchedule updateTransition(String transitionName,
+            ScmLifeCycleTransition transition) throws ScmException {
+        return updateTransition(transitionName, transition, null, null);
+    }
+
+    @Override
+    public ScmTransitionSchedule updateTransition(String transitionName,
+            ScmLifeCycleTransition transition, String preferredRegion, String preferredZone)
+            throws ScmException {
+        if (transitionName == null) {
+            throw new ScmInvalidArgumentException("transition name is null");
+        }
+        if (transition == null) {
+            throw new ScmInvalidArgumentException("new transition is null");
+        }
+        BSONObject transitionSchedule = session.getDispatcher().updateWsTransition(name,
+                transitionName, transition.toBSONObject(), preferredRegion, preferredZone);
+        return new ScmTransitionScheduleImpl(session, transitionSchedule);
+    }
+
+    @Override
+    public ScmTransitionSchedule getTransition(String transitionName) throws ScmException {
+        if (transitionName == null) {
+            throw new ScmInvalidArgumentException("transition name is null");
+        }
+        BSONObject transitionSchedule = session.getDispatcher().getWsTransition(name,
+                transitionName);
+        return new ScmTransitionScheduleImpl(session, transitionSchedule);
+    }
+
+    @Override
+    public List<ScmTransitionSchedule> listTransition() throws ScmException {
+        BasicBSONList list = (BasicBSONList) session.getDispatcher().listWsTransition(name);
+        List<ScmTransitionSchedule> transitionScheduleList = new ArrayList<ScmTransitionSchedule>();
+        for (Object o : list) {
+            transitionScheduleList.add(new ScmTransitionScheduleImpl(session, (BSONObject) o));
+        }
+        return transitionScheduleList;
     }
 
     private void _update(BSONObject updator) throws ScmException {

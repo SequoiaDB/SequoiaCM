@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.elect;
 
+import com.sequoiacm.schedule.core.ScmCheckCorrectionTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.backoff.BackOff;
@@ -37,10 +38,14 @@ public class ScheduleLeaderAction implements ScmLeaderAction {
     public synchronized void run() {
         long leaderActionTime = System.currentTimeMillis();
         try {
-            logger.info("################leader#######################");
+            logger.info("################leader init#######################");
             ScheduleMgrWrapper.getInstance().start();
+            // todo 放start后
+
+            ScmCheckCorrectionTools.getInstance().checkAndCorrection();
             lastFailedTime = 0;
             backOffExecution = backOff.start();
+
         }
         catch (Exception e) {
             if(lastFailedTime > 0 && leaderActionTime - lastFailedTime > threshold) {

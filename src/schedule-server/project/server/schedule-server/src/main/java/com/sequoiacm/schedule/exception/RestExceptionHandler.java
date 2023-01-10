@@ -30,6 +30,9 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
             case RestCommonDefine.ErrorCode.MISSING_ARGUMENT:
             case RestCommonDefine.ErrorCode.INVALID_ARGUMENT:
             case RestCommonDefine.ErrorCode.SCHEDULE_EXISTS:
+            case RestCommonDefine.ErrorCode.LIFE_CYCLE_CONFIG_USED:
+            case RestCommonDefine.ErrorCode.REPEAT_STAGE_TAG_NAME:
+            case RestCommonDefine.ErrorCode.REPEAT_TRIGGER_ID:
                 status = HttpStatus.BAD_REQUEST;
                 break;
             case RestCommonDefine.ErrorCode.WORKSPACE_NOT_EXISTS:

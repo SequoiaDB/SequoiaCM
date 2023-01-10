@@ -49,6 +49,7 @@ public class PropertiesUtils {
     private static DirCacheConfig dirCacheConfig;
     private static CephS3DatasourceConfig cephS3Config;
     private static SftpDatasourceConfig sftpDatasourceConfig;
+    private static AutoConfig autoConfig;
 
     @Autowired
     public void setRootSiteMetaConfig(RootSiteMetaConfig rootSiteMetaConfig) {
@@ -98,6 +99,11 @@ public class PropertiesUtils {
     @Autowired
     public void setSftpDatasourceConfig(SftpDatasourceConfig conf) {
         PropertiesUtils.sftpDatasourceConfig = conf;
+    }
+
+    @Autowired
+    public void setAutoConfig(AutoConfig conf) {
+        PropertiesUtils.autoConfig = conf;
     }
 
 
@@ -485,6 +491,14 @@ public class PropertiesUtils {
 
     public static SftpDatasourceConfig getSftpDatasourceConfig() {
         return sftpDatasourceConfig;
+    }
+
+    public static int getAutoDays() {
+        return autoConfig.getDays();
+    }
+
+    public static int getAutoAccessCount() {
+        return autoConfig.getAccessCount();
     }
 
 }

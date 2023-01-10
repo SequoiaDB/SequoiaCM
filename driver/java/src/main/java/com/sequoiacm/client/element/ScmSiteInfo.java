@@ -21,6 +21,7 @@ public class ScmSiteInfo {
     private int id;
     private String name;
     private boolean isRootSite;
+    private String stageTag;
 
     private List<String> dataUrl;
     private String dataUser;
@@ -49,6 +50,7 @@ public class ScmSiteInfo {
             this.id = siteObj.getId();
             this.name = siteObj.getName();
             this.isRootSite = siteObj.isRootSite();
+            this.stageTag = siteObj.getStageTag();
 
             this.dataUrl = siteObj.getDataUrlList();
             this.dataTypeStr = siteObj.getDataType();
@@ -197,6 +199,10 @@ public class ScmSiteInfo {
 
     public String getMetaTypeStr() {
         return metaTypeStr;
+    }
+
+    public String getStageTag() {
+        return stageTag;
     }
 
     @Override

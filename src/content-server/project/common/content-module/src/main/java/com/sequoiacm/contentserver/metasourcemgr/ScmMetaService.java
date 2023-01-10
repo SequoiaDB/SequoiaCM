@@ -210,6 +210,35 @@ public class ScmMetaService {
         }
     }
 
+    public void updateAccessHistoryInFile(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
+            int minorVersion, int siteId, BasicBSONList newAccessTimeList)
+            throws ScmServerException {
+        try {
+            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
+                    wsInfo.getName(), null);
+            if (fileAccessor.updateAccessHistory(fileId, majorVersion, minorVersion, siteId,
+                    newAccessTimeList)) {
+                return;
+            }
+            MetaFileHistoryAccessor historyAccessor = metasource
+                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null);
+            historyAccessor.updateAccessHistory(fileId, majorVersion, minorVersion, siteId,
+                    newAccessTimeList);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update access history failed:fileId=" + fileId + ",majorVersion="
+                            + majorVersion + ",minorVersion=" + minorVersion + ",siteId=" + siteId,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException(
+                    "update access history failed:fileId=" + fileId + ",majorVersion="
+                            + majorVersion + ",minorVersion=" + minorVersion + ",siteId=" + siteId,
+                    e);
+        }
+    }
+
     public void deleteSiteFromFile(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
             int minorVersion, int siteId) throws ScmServerException {
         try {

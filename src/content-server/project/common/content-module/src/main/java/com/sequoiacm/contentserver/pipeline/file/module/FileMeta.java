@@ -61,6 +61,8 @@ public class FileMeta implements Cloneable {
     private int status;
     private String transId;
     private Map<String, String> customTag;
+    private BasicBSONList accessHistory;
+
     // 新增字段需要调整如下函数：
     // FileMeta(FileMeta fileMeta) 深拷贝构造
     // toBSONObject()
@@ -102,6 +104,9 @@ public class FileMeta implements Cloneable {
         this.status = fileMeta.status;
         this.transId = fileMeta.transId;
         this.customTag = fileMeta.customTag;
+        this.accessHistory = BsonUtils.deepCopyBasicBSONList(fileMeta.accessHistory);
+
+        // 如果是赋值 BSON 类型，使用 BsonUtils.deepCopy
     }
 
     private FileMeta() {
@@ -278,6 +283,9 @@ public class FileMeta implements Cloneable {
     public void setCustomTag(Map<String, String> customTag) {
         this.customTag = customTag;
     }
+    public BasicBSONList getAccessHistory() {
+        return accessHistory;
+    }
 
     public boolean isNullVersion() {
         if (majorVersion == CommonDefine.File.NULL_VERSION_MAJOR
@@ -421,6 +429,8 @@ public class FileMeta implements Cloneable {
         fileMeta.dirId = null;
         fileMeta.batchId = "";
 
+        fileMeta.accessHistory = new BasicBSONList();
+
         return fileMeta;
 
     }
@@ -444,6 +454,15 @@ public class FileMeta implements Cloneable {
         BasicBSONList sites = new BasicBSONList();
         sites.add(oneSite);
         this.siteList = sites;
+
+        BSONObject access = new BasicBSONObject();
+        access.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID,dataSite);
+        BasicBSONList lastAccessTimeHis = new BasicBSONList();
+        lastAccessTimeHis.add(dataCreateTime);
+        access.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS,lastAccessTimeHis);
+        BasicBSONList accessRecord = new BasicBSONList();
+        accessRecord.add(access);
+        this.accessHistory = accessRecord;
     }
 
     public boolean isFirstVersion() {
@@ -497,6 +516,9 @@ public class FileMeta implements Cloneable {
         bson.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, transId);
         if (customTag != null) {
             bson.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
+        }
+        if (accessHistory != null) {
+            bson.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY, accessHistory);
         }
         return bson;
     }
@@ -578,6 +600,10 @@ public class FileMeta implements Cloneable {
         BSONObject customTagBson = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_CUSTOM_TAG);
         if (customTagBson != null) {
             fileMeta.customTag = BsonUtils.deepCopyMap(customTagBson.toMap());
+        }
+        fileMeta.accessHistory = BsonUtils.getArray(bson,FieldName.FIELD_CLFILE_ACCESS_HISTORY);
+        if (fileMeta.accessHistory != null){
+            fileMeta.accessHistory = (BasicBSONList) BsonUtils.deepCopyRecordBSON(fileMeta.accessHistory);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job;
 
+import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import org.bson.BSONObject;
 
 import com.sequoiacm.schedule.bizconf.ScmArgChecker;
@@ -60,29 +61,7 @@ public class ScheduleJobInfo {
     }
 
     int parseMaxStayTime(String maxStayTime) throws ScheduleException {
-        if (maxStayTime.isEmpty()) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
-                    "maxStayTime can't be empty:maxStayTime=" + maxStayTime);
-        }
-
-        if (!maxStayTime.endsWith("d")) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
-                    "maxStayTime only supports day period(d):maxStayTime=" + maxStayTime);
-        }
-
-        String num = maxStayTime.substring(0, maxStayTime.length() - 1);
-        if (num.isEmpty()) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
-                    "maxStayTime is invalid:maxStayTime=" + maxStayTime);
-        }
-
-        try {
-            return Integer.parseInt(num);
-        }
-        catch (Exception e) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
-                    "maxStayTime is invalid:maxStayTime=" + maxStayTime);
-        }
+        return ScheduleCommonTools.checkAndParseTime("maxStayTime", maxStayTime);
     }
 
     void checkCondition(int scope, BSONObject condition) throws ScheduleException {

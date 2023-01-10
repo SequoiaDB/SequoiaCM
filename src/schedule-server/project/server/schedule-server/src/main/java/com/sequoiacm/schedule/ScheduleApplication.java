@@ -2,6 +2,11 @@ package com.sequoiacm.schedule;
 
 import java.util.List;
 
+import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.infrastructure.lock.ScmLockPath;
+import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
+import com.sequoiacm.schedule.core.ScmCheckCorrectionTools;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +29,7 @@ import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
@@ -31,8 +37,11 @@ import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
 import com.sequoiacm.schedule.bizconf.ScmNodeConfSubscriber;
 import com.sequoiacm.schedule.bizconf.ScmSiteConfSubscriber;
 import com.sequoiacm.schedule.bizconf.ScmWorkspaceConfSubscriber;
+import com.sequoiacm.schedule.common.FieldName;
+import com.sequoiacm.schedule.common.LifeCycleConfigDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
+import com.sequoiacm.schedule.common.model.LifeCycleConfigFullEntity;
 import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
@@ -44,6 +53,14 @@ import com.sequoiacm.schedule.dao.TaskDao;
 import com.sequoiacm.schedule.dao.WorkspaceDao;
 import com.sequoiacm.schedule.privilege.ScmSchedulePriv;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
+import com.sequoiacm.schedule.dao.*;
+import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
+
+import java.util.Date;
 
 @SpringBootApplication
 @EnableScmPrivClient
@@ -55,6 +72,7 @@ import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
         "com.sequoiacm.schedule" })
 @EnableHystrix
+@EnableScmLock
 public class ScheduleApplication implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(ScheduleApplication.class);
 
@@ -94,6 +112,18 @@ public class ScheduleApplication implements ApplicationRunner {
     @Autowired
     private ScmServiceDiscoveryClient discoveryClient;
 
+    @Autowired
+    private LifeCycleConfigDao lifeCycleConfigDao;
+
+    @Autowired
+    private LifeCycleScheduleDao lifeCycleScheduleDao;
+
+    @Autowired
+    private TransactionFactory transactionFactory;
+
+    @Autowired
+    private ScmLockManager scmLockManager;
+
     @Value("${server.port}")
     private int serverPort;
 
@@ -118,6 +148,8 @@ public class ScheduleApplication implements ApplicationRunner {
 //        }
 
         initSystem(config);
+        
+        initLifeCycleConfig();
         logger.info("zookeeper={},server.port:{}", config.getZookeeperUrl(),
                 config.getServerPort());
     }
@@ -136,13 +168,15 @@ public class ScheduleApplication implements ApplicationRunner {
 
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
                 strategyDao, discoveryClient);
-        ScheduleMgrWrapper.getInstance().init(scheduleDao, clientFactory, config, discoveryClient);
+        ScheduleMgrWrapper.getInstance().init(scheduleDao, clientFactory, config, discoveryClient,
+                lifeCycleConfigDao, lifeCycleScheduleDao, transactionFactory, scmLockManager);
+        ScmCheckCorrectionTools.getInstance().init(lifeCycleConfigDao, lifeCycleScheduleDao,
+                scheduleDao, scmLockManager);
         ScheduleElector.getInstance().init(config.getZookeeperUrl(), config.getZookeeperAcl(),
                 ScheduleDefine.SCHEDULE_ELETOR_PATH,
                 ScheduleCommonTools.getHostName() + ":" + config.getServerPort(),
                 config.getRevoteInitialInterval(), config.getRevoteMaxInterval(),
                 config.getRevoteIntervalMultiplier());
-
         // ScheduleLockFactory.getInstance().init(config.getZookeeperUrl(), 4);
 
         // init strategy
@@ -154,5 +188,80 @@ public class ScheduleApplication implements ApplicationRunner {
         ScmSchedulePriv.getInstance().init(privClient, config.getPriHBInterval());
 
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
+    }
+
+    private void initLifeCycleConfig() throws Exception {
+        ScmLock lock = null;
+        ScmBSONObjectCursor query = null;
+        try {
+            lock = lockGlobal();
+            query = lifeCycleConfigDao.query(null);
+            if (query.hasNext()) {
+                return;
+            }
+
+            BasicBSONList innerStageTag = innerStageTag();
+            LifeCycleConfigFullEntity fullEntity = new LifeCycleConfigFullEntity();
+            Date date = new Date();
+            fullEntity.setStageTagConfig(innerStageTag);
+            fullEntity.setCreateUser("admin");
+            fullEntity.setUpdateUser("admin");
+            fullEntity.setTransitionConfig(new BasicBSONList());
+            fullEntity.setCreateTime(date.getTime());
+            fullEntity.setUpdateTime(date.getTime());
+
+            initDefaultConfig(fullEntity);
+        }
+        finally {
+            if (null != lock){
+                lock.unlock();
+            }
+            if (query != null) {
+                query.close();
+            }
+        }
+    }
+
+    private BasicBSONList innerStageTag() {
+        BSONObject hot = new BasicBSONObject();
+        hot.put(FieldName.LifeCycleConfig.FIELD_STAGE_NAME,
+                LifeCycleConfigDefine.ScmSystemStageTagType.HOT);
+        hot.put(FieldName.LifeCycleConfig.FIELD_STAGE_DESC,
+                LifeCycleConfigDefine.ScmSystemStageTagType.HOT);
+
+        BSONObject warm = new BasicBSONObject();
+        warm.put(FieldName.LifeCycleConfig.FIELD_STAGE_NAME,
+                LifeCycleConfigDefine.ScmSystemStageTagType.WARM);
+        warm.put(FieldName.LifeCycleConfig.FIELD_STAGE_DESC,
+                LifeCycleConfigDefine.ScmSystemStageTagType.WARM);
+
+        BSONObject cold = new BasicBSONObject();
+        cold.put(FieldName.LifeCycleConfig.FIELD_STAGE_NAME,
+                LifeCycleConfigDefine.ScmSystemStageTagType.COLD);
+        cold.put(FieldName.LifeCycleConfig.FIELD_STAGE_DESC,
+                LifeCycleConfigDefine.ScmSystemStageTagType.COLD);
+
+        BasicBSONList innerStageTag = new BasicBSONList();
+        innerStageTag.add(hot);
+        innerStageTag.add(warm);
+        innerStageTag.add(cold);
+
+        return innerStageTag;
+    }
+
+    private void initDefaultConfig(LifeCycleConfigFullEntity info) throws Exception {
+        try {
+            lifeCycleConfigDao.insert(info);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() != SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {
+                throw e;
+            }
+        }
+    }
+
+    private ScmLock lockGlobal() throws ScmLockException {
+        String[] lockPath = { "global_life_cycle" };
+        return scmLockManager.acquiresLock(new ScmLockPath(lockPath));
     }
 }

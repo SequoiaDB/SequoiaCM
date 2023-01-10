@@ -85,4 +85,8 @@ public class PropertiesDefine {
     // *************************directory cache*******************
     public static final String PROPERTY_DIR_CACHE_ENABLE = "scm.dir.cache.enable";
     public static final String PROPERTY_DIR_CACHE_MAXSIZE = "scm.dir.cache.maxSize";
+
+    // *************************AUTO config*******************
+    public static final String AUTO_MAX_DAYS = "scm.auto.maxDays";
+    public static final String AUTO_MIN_TIMES = "scm.auto.minTimes";
 }

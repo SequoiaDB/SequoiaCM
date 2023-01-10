@@ -84,6 +84,13 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     }
 
     @Override
+    public boolean updateAccessHistory(String fileId, int majorVersion, int minorVersion,
+            int siteId, BasicBSONList newAccessTimeList)
+            throws ScmMetasourceException {
+        return baseAccesor.updateAccessHistory(fileId, majorVersion, minorVersion, siteId, newAccessTimeList);
+    }
+
+    @Override
     public boolean updateMd5(String fileId, int majorVersion, int minorVersion, String md5)
             throws ScmMetasourceException {
         try {

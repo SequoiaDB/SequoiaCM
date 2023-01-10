@@ -1,9 +1,14 @@
 package com.sequoiacm.schedule.common;
 
 import java.net.InetAddress;
+import java.util.Date;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import org.apache.commons.lang.StringUtils;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,5 +162,169 @@ public class ScheduleCommonTools {
 
     public static String joinUrlElems(String[] urlElems) throws Exception {
         return _joinUrlElems(urlElems, "api");
+    }
+
+    public static BSONObject jointTriggerCondition(String scheduleType, BSONObject triggers,
+            int sourceSiteId, int destSiteId, Date date) throws ScheduleException {
+        BasicBSONList array = new BasicBSONList();
+        BasicBSONList triggerList = BsonUtils.getArrayChecked(triggers,
+                ScheduleDefine.TRIGGER_LIST);
+        for (Object o : triggerList) {
+            BSONObject trigger = (BSONObject) o;
+            BSONObject condition = ScheduleCommonTools.transformTrigger(trigger, scheduleType,
+                    sourceSiteId, destSiteId, date);
+            array.add(condition);
+        }
+        String mode = BsonUtils.getStringChecked(triggers, ScheduleDefine.MODE);
+        return new BasicBSONObject(ScheduleCommonTools.transformMode(mode), array);
+    }
+
+    public static BSONObject transformTrigger(BSONObject trigger, String type, int sourceSiteId,
+            int destSiteId, Date date) throws ScheduleException {
+        String mode = (String) trigger.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_MODE);
+        if (type.equals(ScheduleDefine.ScheduleType.MOVE_FILE)
+                || type.equals(ScheduleDefine.ScheduleType.COPY_FILE)) {
+            // create_time
+            BSONObject createTimeLtTimes = getCreateTimeCondition(trigger, date);
+
+            // last_access_time
+            BSONObject lastAccessTimeSiteCondition = getLastAccessTimeSiteCondition(date, trigger,
+                    sourceSiteId);
+
+            // build_access_time
+            BSONObject buildTimeSiteCondition = getBuildTimeSiteCondition(date, trigger,
+                    sourceSiteId);
+
+            BasicBSONList array = new BasicBSONList();
+            array.add(createTimeLtTimes);
+            array.add(lastAccessTimeSiteCondition);
+            array.add(buildTimeSiteCondition);
+
+            return new BasicBSONObject(transformMode(mode), array);
+        }
+        else if (type.equals(ScheduleDefine.ScheduleType.CLEAN_FILE)) {
+            // transitionTime
+            BSONObject transitionTimeSiteCondition = getTransitionTimeSiteCondition(date, trigger,
+                    destSiteId);
+
+            BSONObject lastAccessTimeSiteCondition = getLastAccessTimeSiteCondition(date, trigger,
+                    sourceSiteId);
+
+            BasicBSONList array = new BasicBSONList();
+            array.add(transitionTimeSiteCondition);
+            array.add(lastAccessTimeSiteCondition);
+
+            return new BasicBSONObject(transformMode(mode), array);
+        }
+        else {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    "invalid schedule type" + type);
+        }
+    }
+
+    private static BSONObject getTransitionTimeSiteCondition(Date date, BSONObject trigger,
+            int destSiteId) throws ScheduleException {
+        return buildSiteCondition(date, FieldName.File.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME,
+                (String) trigger
+                        .get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_TRANSITION_TIME),
+                destSiteId);
+    }
+
+    private static BSONObject getBuildTimeSiteCondition(Date date, BSONObject trigger,
+            int sourceSiteId) throws ScheduleException {
+        return buildSiteCondition(date, FieldName.File.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME,
+                (String) trigger.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_BUILD_TIME),
+                sourceSiteId);
+    }
+
+    private static BSONObject getLastAccessTimeSiteCondition(Date date, BSONObject trigger,
+            int sourceSiteId) throws ScheduleException {
+        return buildSiteCondition(date,
+                FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_LAST_ACCESS_TIME,
+                (String) trigger
+                        .get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_LAST_ACCESS_TIME),
+                sourceSiteId);
+    }
+
+    private static BSONObject getCreateTimeCondition(BSONObject trigger, Date date)
+            throws ScheduleException {
+        int fileCreateTime = parseTime(
+                FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_CREATE_TIME, (String) trigger
+                        .get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_CREATE_TIME));
+        BSONObject fileCreateTimeLtTimes = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_LT,
+                date.getTime() - fileCreateTime * 24L * 3600L * 1000L);
+        return new BasicBSONObject(FieldName.File.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME,
+                fileCreateTimeLtTimes);
+    }
+
+    private static int parseTime(String timeName, String time) throws ScheduleException {
+        String num = time.substring(0, time.length() - 1);
+        if (num.isEmpty()) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    timeName + " is invalid:" + timeName + "=" + time);
+        }
+
+        try {
+            return Integer.parseInt(num);
+        }
+        catch (Exception e) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    timeName + " is invalid:" + timeName + "=" + time);
+        }
+    }
+
+    private static BSONObject buildSiteCondition(Date date, String timeName, String time,
+            int siteId) throws ScheduleException {
+        int days = parseTime(timeName, time);
+        BSONObject lt = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_LT,
+                date.getTime() - days * 24L * 3600L * 1000L);
+        BSONObject ltTimes = new BasicBSONObject(timeName, lt);
+        ltTimes.put(FieldName.File.FIELD_CLFILE_FILE_SITE_LIST_ID, siteId);
+
+        BSONObject elemMatch = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_ELEMMATCH,
+                ltTimes);
+        BSONObject siteCondition = new BasicBSONObject(FieldName.File.FIELD_CLFILE_FILE_SITE_LIST,
+                elemMatch);
+
+        return siteCondition;
+    }
+
+    public static String transformMode(String mode) throws ScheduleException {
+        if (mode.equals(ScheduleDefine.ModeType.ALL)) {
+            return ScmQueryDefine.SEQUOIADB_MATCHER_AND;
+        }
+        else if (mode.equals(ScheduleDefine.ModeType.ANY)) {
+            return ScmQueryDefine.SEQUOIADB_MATCHER_OR;
+        }
+        else {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.BAD_REQUEST,
+                    "transition mode may choose all or any,mode=" + mode);
+        }
+    }
+
+    public static int checkAndParseTime(String timeName, String time) throws ScheduleException {
+        if (time.isEmpty()) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    timeName + " can't be empty:" + timeName + "=" + time);
+        }
+
+        if (!time.endsWith("d")) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    timeName + " only supports day period(d):" + timeName + "=" + time);
+        }
+
+        String num = time.substring(0, time.length() - 1);
+        if (num.isEmpty()) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    timeName + " is invalid:" + timeName + "=" + time);
+        }
+
+        try {
+            return Integer.parseInt(num);
+        }
+        catch (Exception e) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    timeName + " is invalid:" + timeName + "=" + time, e);
+        }
     }
 }

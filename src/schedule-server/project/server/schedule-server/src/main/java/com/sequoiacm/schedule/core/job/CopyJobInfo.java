@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -28,6 +29,8 @@ public class CopyJobInfo extends ScheduleJobInfo {
 
     private boolean quickStart;
     private String dataCheckLevel;
+
+    private BSONObject transitionTriggers;
 
     public CopyJobInfo(String id, String type, String workspace, BSONObject content, String cron,
             String preferredRegion, String preferredZone) throws ScheduleException {
@@ -151,6 +154,12 @@ public class CopyJobInfo extends ScheduleJobInfo {
         else {
             dataCheckLevel = ScheduleDefine.DataCheckLevel.WEEK;
         }
+
+        transitionTriggers = ScheduleCommonTools.getBSONObjectValue(content,
+                FieldName.LifeCycleConfig.FIELD_TRANSITION_TRANSITION_TRIGGERS);
+        if (null == transitionTriggers){
+            transitionTriggers = new BasicBSONObject();
+        }
     }
 
     public int getScope() {
@@ -159,6 +168,10 @@ public class CopyJobInfo extends ScheduleJobInfo {
 
     public void setScope(int scope) {
         this.scope = scope;
+    }
+
+    public BSONObject getTransitionTriggers() {
+        return transitionTriggers;
     }
 
     @Override

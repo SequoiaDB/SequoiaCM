@@ -330,6 +330,110 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         }
     }
 
+    public boolean updateAccessHistory(String fileId, int majorVersion, int minorVersion,
+            int siteId, BasicBSONList newAccessTimeList) throws SdbMetasourceException {
+        return accessHistoryExist(fileId, majorVersion, minorVersion, siteId, newAccessTimeList)
+                || accessHistoryNotExist(fileId, majorVersion, minorVersion, siteId,
+                        newAccessTimeList);
+    }
+
+    private boolean accessHistoryExist(String fileId, int majorVersion, int minorVersion,
+            int siteId, BasicBSONList newAccessTimeList) throws SdbMetasourceException {
+        // "access_history": [
+        // {
+        // site_id: 1,
+        // last_access_time_his:[xxx,xxx]
+        // }
+        // ]
+        try {
+            BSONObject condition1 = new BasicBSONObject();
+            condition1.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY + "."
+                    + SequoiadbHelper.SEQUOIADB_MATCHER_DOLLAR0 + "."
+                    + FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID, siteId);
+
+            // {id:xx, majorVersion:1, minorVersion:0}
+            BSONObject condition2 = new BasicBSONObject();
+            // condition2.put(FieldName.FIELD_CLFILE_ID, fileId);
+            SequoiadbHelper.addFileIdAndCreateMonth(condition2, fileId);
+            condition2.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
+            condition2.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
+
+            // [condition1, condition2]
+            BasicBSONList bsonList = new BasicBSONList();
+            bsonList.add(condition1);
+            bsonList.add(condition2);
+
+            // {$and:[condition1, condition2]}
+            BSONObject matcher = new BasicBSONObject();
+            matcher.put(SequoiadbHelper.SEQUOIADB_MATCHER_AND, bsonList);
+            // 匹配条件：
+            // {$and: [
+            // {"access_history.$0.id": siteId},
+            // {"id": fileid,"create_month": 202212,"major_version": 1,"minor_version: 0}
+            // ]
+            // }
+            BSONObject lasstAccessTime = new BasicBSONObject();
+            lasstAccessTime.put(
+                    FieldName.FIELD_CLFILE_ACCESS_HISTORY + "."
+                            + SequoiadbHelper.SEQUOIADB_MATCHER_DOLLAR0 + "."
+                            + FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS,
+                    newAccessTimeList);
+            BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET,
+                    lasstAccessTime);
+            // 更新内容 {$set: {"access_history.$0.last_access_time_his: newAccessTimeList} }
+            return updateAndCheck(matcher, updator);
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("updateAccessHistory failed:table=" + getCsName() + "." + getClName()
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "updateAccessHistory failed:table=" + getCsName() + "." + getClName()
+                            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion,
+                    e);
+        }
+    }
+
+    private boolean accessHistoryNotExist(String fileId, int majorVersion, int minorVersion,
+            int siteId, BasicBSONList newAccessTimeList) throws SdbMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject();
+            SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
+            matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
+            matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
+            // 匹配条件 {"id": fileid,"create_month": 202212,"major_version": 1,"minor_version:
+            // 0}
+
+            BSONObject accessRecord = new BasicBSONObject();
+            accessRecord.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID, siteId);
+            accessRecord.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS,
+                    newAccessTimeList);
+            BSONObject push = new BasicBSONObject(FieldName.FIELD_CLFILE_ACCESS_HISTORY,
+                    accessRecord);
+            BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_PUSH, push);
+            // 更新内容 {$push: {"access_history": {"site_id": siteId,last_access_time_his:
+            // newAccessTimeList} } }
+            return updateAndCheck(matcher, updator);
+        }
+        catch (SdbMetasourceException e) {
+            logger.error("updateAccessHistory failed:table=" + getCsName() + "." + getClName()
+                    + ",fileId=" + fileId + ",majorVersion=" + majorVersion + ",minorVersion="
+                    + minorVersion);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "updateAccessHistory failed:table=" + getCsName() + "." + getClName()
+                            + ",fileId=" + fileId + ",majorVersion=" + majorVersion
+                            + ",minorVersion=" + minorVersion,
+                    e);
+        }
+    }
+
     public boolean deleteFromSiteList(String fileId, int majorVersion, int minorVersion, int siteId)
             throws SdbMetasourceException {
         try {

@@ -9,11 +9,17 @@ public class SiteInfo {
     private int id;
     private String name;
     private boolean isRoot;
+    private String stageTag;
 
-    public SiteInfo(int id, String name, boolean isRoot) {
+    public SiteInfo(int id, String name, boolean isRoot,String stageTag) {
         this.id = id;
         this.name = name;
         this.isRoot = isRoot;
+        this.stageTag = stageTag;
+    }
+
+    public String getStageTag(){
+        return stageTag;
     }
 
     public int getId() {

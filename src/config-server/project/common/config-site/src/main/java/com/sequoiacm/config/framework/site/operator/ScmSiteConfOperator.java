@@ -2,6 +2,8 @@ package com.sequoiacm.config.framework.site.operator;
 
 import java.util.List;
 
+import com.sequoiacm.config.framework.site.dao.UpdateSiteDao;
+import com.sequoiacm.infrastructure.config.core.msg.site.SiteUpdator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +39,9 @@ public class ScmSiteConfOperator implements ScmConfOperator {
     private DefaultVersionDao versionDao;
 
     @Autowired
+    private UpdateSiteDao siteUpdator;
+
+    @Autowired
     public ScmSiteConfOperator(AmendSiteVersionDao siteAmender) throws ScmConfigException {
         // for compatibility, check and insert SITE version.
         siteAmender.amend();
@@ -65,8 +70,7 @@ public class ScmSiteConfOperator implements ScmConfOperator {
 
     @Override
     public ScmConfOperateResult updateConf(ConfigUpdator updator) throws ScmConfigException {
-        throw new ScmConfigException(ScmConfError.UNSUPPORTED_OPTION,
-                "unsupport to update site info");
+        return siteUpdator.update((SiteUpdator) updator);
     }
 
 }

@@ -20,6 +20,7 @@ public class ScmSiteObj {
     private String name;
     private int id;
     private boolean isRootSite;
+    private String stageTag;
 
     // data
     private String dataType;
@@ -42,6 +43,7 @@ public class ScmSiteObj {
             name = (String) getValueCheckNotNull(record, FieldName.FIELD_CLSITE_NAME);
             id = (Integer) getValueCheckNotNull(record, FieldName.FIELD_CLSITE_ID);
             isRootSite = (Boolean) getValueCheckNotNull(record, FieldName.FIELD_CLSITE_MAINFLAG);
+            stageTag = (String) getValueWithDefault(record,FieldName.FIELD_CLSITE_STAGE_TAG,"");
 
             Object tmp = record.get(FieldName.FIELD_CLSITE_DATA);
             if (null != tmp) {
@@ -221,5 +223,9 @@ public class ScmSiteObj {
 
     public String getMetaType() {
         return metaType;
+    }
+
+    public String getStageTag() {
+        return stageTag;
     }
 }

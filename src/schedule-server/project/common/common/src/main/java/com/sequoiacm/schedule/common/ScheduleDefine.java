@@ -40,4 +40,12 @@ public class ScheduleDefine {
         public static final String STRICT = "strict";
         public static final String WEEK = "week";
     }
+
+    public static class ModeType {
+        public static final String ALL = "ALL";
+        public static final String ANY = "ANY";
+    }
+
+    public static String TRIGGER_LIST = "trigger_list";
+    public static String MODE = "mode";
 }

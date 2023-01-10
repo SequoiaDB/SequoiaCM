@@ -4,6 +4,7 @@ public class SiteEntity {
     private int id;
     private String name;
     private boolean isRoot;
+    private String stageTag;
 
     public int getId() {
         return id;
@@ -27,5 +28,13 @@ public class SiteEntity {
 
     public void setRoot(boolean isRoot) {
         this.isRoot = isRoot;
+    }
+
+    public String getStageTag() {
+        return stageTag;
+    }
+
+    public void setStageTag(String stageTag) {
+        this.stageTag = stageTag;
     }
 }

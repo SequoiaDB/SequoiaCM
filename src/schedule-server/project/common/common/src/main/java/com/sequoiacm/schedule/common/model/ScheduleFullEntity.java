@@ -14,8 +14,9 @@ public class ScheduleFullEntity extends ScheduleUserEntity {
 
     public ScheduleFullEntity(String scheduleId, String name, String desc, String type,
             String workspace, BSONObject content, String cron, boolean enable, String createUser,
-            long createTime, String preferredRegion, String preferredZone) {
-        super(name, desc, type, workspace, content, cron, enable, preferredRegion, preferredZone);
+            long createTime, String preferredRegion, String preferredZone, String transition) {
+        super(name, desc, type, workspace, content, cron, enable, preferredRegion, preferredZone,
+                transition);
         this.id = scheduleId;
         this.create_user = createUser;
         this.create_time = createTime;
@@ -81,6 +82,7 @@ public class ScheduleFullEntity extends ScheduleUserEntity {
         newInfo.setEnable(this.isEnable());
         newInfo.setPreferredRegion(this.preferredRegion);
         newInfo.setPreferredZone(this.preferredZone);
+        newInfo.setTransitionId(this.getTransitionId());
         return newInfo;
 
     }

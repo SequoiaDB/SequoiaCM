@@ -34,6 +34,8 @@ public class ScmRestArgDefine {
 
     public static final String SITE_CONF_SITENAME = "name";
     public static final String SITE_CONF_SITEVERSION = "site_version";
+    public static final String SITE_CONF_UPDATOR = "updator";
+    public static final String SITE_CONF_STAGETAG = "stage_tag";
 
     public static final String NODE_CONF_NODENAME = "name";
     public static final String NODE_CONF_NODEHOSTNAME = "host_name";

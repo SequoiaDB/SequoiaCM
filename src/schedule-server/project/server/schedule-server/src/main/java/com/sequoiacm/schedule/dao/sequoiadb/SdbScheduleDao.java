@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.model.ScheduleException;
+import com.sequoiacm.schedule.dao.SequoiadbTemplate;
+import com.sequoiacm.schedule.dao.Transaction;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
@@ -30,9 +32,12 @@ public class SdbScheduleDao implements ScheduleDao {
     private String csName = "SCMSYSTEM";
     private String clName = "SCHEDULE";
 
+    private SequoiadbTemplate template;
+
     @Autowired
-    public SdbScheduleDao(SdbDataSourceWrapper datasource) throws Exception {
+    public SdbScheduleDao(SdbDataSourceWrapper datasource) {
         this.datasource = datasource;
+        this.template = new SequoiadbTemplate(datasource);
     }
 
     @Override
@@ -158,6 +163,11 @@ public class SdbScheduleDao implements ScheduleDao {
         finally {
             datasource.releaseConnection(sdb);
         }
+    }
+
+    @Override
+    public void delete(BSONObject matcher, Transaction t) throws Exception {
+        template.collection(csName, clName).delete(matcher, (TransactionImpl) t);
     }
 
     @Override

@@ -22,6 +22,7 @@ public class ScmSiteInfo {
     private int id;
     private String name;
     private boolean isRootSite;
+    private String stageTag;
 
     private List<String> dataUrl;
     private String dataUser;
@@ -175,6 +176,14 @@ public class ScmSiteInfo {
 
     public String getMetaDecryptPasswd() throws ScmToolsException {
         return ScmFilePasswordParser.parserFile(metaPasswd).getPassword();
+    }
+
+    public String getStageTag() {
+        return stageTag;
+    }
+
+    public void setStageTag(String stageTag) {
+        this.stageTag = stageTag;
     }
 
     public BSONObject toBSON() throws ScmToolsException {

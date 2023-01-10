@@ -46,6 +46,12 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
 
         int localSiteId = ScmContentModule.getInstance().getLocalSite();
 
+        int checkSiteId = 0;
+        if (getTask().getTaskInfo().containsField(FieldName.Task.FIELD_TARGET_SITE)) {
+            // 清理任务不是由生命周期数据流创建的，checkSiteId 值为 0，为 0 代表清理时不检查指定对端站点
+            checkSiteId = (int) getTask().getTaskInfo().get(FieldName.Task.FIELD_TARGET_SITE);
+        }
+
         BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_SITE_LIST);
         List<Integer> fileDataSiteIdList = CommonHelper.getFileLocationIdList(siteList);
@@ -67,9 +73,15 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             return;
         }
 
-        int localSiteIdx = fileDataSiteIdList.indexOf(localSiteId);
-        int otherSiteId = localSiteIdx == fileDataSiteIdList.size() - 1 ? fileDataSiteIdList.get(0)
-                : fileDataSiteIdList.get(localSiteIdx + 1);
+        int otherSiteId;
+        if (checkSiteId == 0) {
+            int localSiteIdx = fileDataSiteIdList.indexOf(localSiteId);
+            otherSiteId = localSiteIdx == fileDataSiteIdList.size() - 1 ? fileDataSiteIdList.get(0)
+                    : fileDataSiteIdList.get(localSiteIdx + 1);
+        }
+        else {
+            otherSiteId = checkSiteId;
+        }
 
         ScmLock localFileContentLock = null;
         ScmLock otherSiteFileContentLock = null;

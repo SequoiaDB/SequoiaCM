@@ -16,8 +16,11 @@ import java.util.Set;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleConfig;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.infrastructure.common.ExceptionChecksUtils;
+import com.sequoiacm.infrastructure.common.RestCommonDefine;
 import com.sequoiacm.infrastructure.common.SignatureUtils;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import org.apache.http.Consts;
@@ -94,6 +97,9 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String METADATA_ATTRS = "metadatas/attrs/";
     private static final String DIRECTORIES = "directories/";
     private static final String SCHEDULE = "schedules/";
+    private static final String LIFE_CYCLE_CONFIG = "lifeCycleConfig/";
+    private static final String STAGE_TAG = "stageTag/";
+    private static final String TRANSITION = "transition/";
     private static final String BREAKPOINT_FILES = "breakpointfiles/";
     private static final String SCHEDULE_SERVER = "/schedule-server";
     private static final String AUTH = "/auth";
@@ -2647,6 +2653,261 @@ public class RestDispatcher implements MessageDispatcher {
                 request);
         return resp;
     }
+
+    @Override
+    public void setGlobalLifeCycleConfig(BSONObject lifeCycleConfigBSON) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG;
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_LIFE_CYCLE_CONFIG,
+                lifeCycleConfigBSON.toString()));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void deleteGlobalLifeCycleConfig() throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getGlobalLifeCycleConfig() throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void addGlobalStageTag(String name, String desc) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + STAGE_TAG;
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_STAGE_TAG_NAME, name));
+        params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_STAGE_TAG_DESC, desc));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void removeGlobalStageTag(String name) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + STAGE_TAG + name;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void addGlobalTransition(BSONObject transitionBSON) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + TRANSITION;
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_TRANSITION,
+                transitionBSON.toString()));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void removeGlobalTransition(String name) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + TRANSITION + name;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void updateGlobalTransition(String name, BSONObject transitionBSON) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + TRANSITION + name;
+        HttpPut request = new HttpPut(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_TRANSITION,
+                transitionBSON.toString()));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public BSONObject getGlobalTransition(String name) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + TRANSITION + name + "?action=find_transition";
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject listWorkspaceByTransitionName(String name) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + TRANSITION + name + "?action=list_workspace";
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject listTransition(String name) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + TRANSITION;
+        if (name != null) {
+            uri += "?flow_stage_tag_name=" + encode(name);
+        }
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void setSiteStageTag(String siteName, String stageTagName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + SITE
+                + STAGE_TAG + siteName;
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FieldName.FIELD_CLSITE_STAGE_TAG, stageTagName));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void alterSiteStageTag(String siteName, String stageTagName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + SITE
+                + STAGE_TAG + siteName;
+        HttpPut request = new HttpPut(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(FieldName.FIELD_CLSITE_STAGE_TAG, stageTagName));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void unsetSiteStageTag(String siteName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + SITE
+                + STAGE_TAG + siteName;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getSiteStageTag(String siteName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + SITE
+                + STAGE_TAG + siteName;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject applyTransition(String workspace, String transitionName,
+            ScmLifeCycleTransition transition, String preferredRegion, String preferredZone)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + WORKSPACE + workspace;
+        HttpPost request = new HttpPost(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("transition_name", transitionName));
+        if (transition != null) {
+            BSONObject obj = transition.toBSONObject();
+            params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_TRANSITION,
+                    obj.toString()));
+        }
+        params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_REGION, preferredRegion));
+        params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_ZONE, preferredZone));
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void removeWsTransition(String workspace, String transitionName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + WORKSPACE + encode(workspace) + "?transition_name=" + transitionName;
+        HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject updateWsTransition(String workspace, String transitionName,
+            BSONObject transitionBSON, String preferredRegion, String preferredZone)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + WORKSPACE + workspace;
+        HttpPut request = new HttpPut(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("transition_name", transitionName));
+        params.add(new BasicNameValuePair(FieldName.LifeCycleConfig.FIELD_TRANSITION,
+                transitionBSON.toString()));
+        if (preferredRegion != null) {
+            params.add(
+                    new BasicNameValuePair(RestDefine.RestKey.PREFERRED_REGION, preferredRegion));
+        }
+        if (preferredZone != null) {
+            params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_ZONE, preferredZone));
+        }
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public BSONObject getWsTransition(String workspace, String transitionName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + WORKSPACE + workspace + "?action=find_transition" + "&transition_name="
+                + transitionName;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void updateWsTransitionStatus(String workspace, String transitionName, Boolean status)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + WORKSPACE + workspace + "?action=update_status";
+        HttpPut request = new HttpPut(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("status", status.toString()));
+        params.add(new BasicNameValuePair("transition_name", transitionName));
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public BSONObject listWsTransition(String workspace) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + WORKSPACE + workspace + "?action=list_transition";
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public ScmId startOnceTransition(String workspaceName, BSONObject condition, int scope,
+            long maxExecTime, String source, String dest, String dataCheckLevel, boolean quickStart,
+            boolean isRecycleSpace, String type, String preferredRegion, String preferredZone)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + TASK
+                + "onceTransition";
+        HttpPost request = new HttpPost(uri);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("workspace_name", workspaceName));
+        if (ScheduleType.getType(type) == ScheduleType.MOVE_FILE) {
+            params.add(new BasicNameValuePair("task_type",
+                    String.valueOf(CommonDefine.TaskType.SCM_TASK_MOVE_FILE)));
+        }
+        else if (ScheduleType.getType(type) == ScheduleType.COPY_FILE) {
+            params.add(new BasicNameValuePair("task_type",
+                    String.valueOf(CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE)));
+        }
+        else {
+            throw new ScmInvalidArgumentException("unsupported this task type,type=" + type);
+        }
+
+        BSONObject options = new BasicBSONObject();
+        options.put("filter", condition);
+        options.put(CommonDefine.RestArg.TASK_SCOPE, scope);
+        options.put(CommonDefine.RestArg.TASK_MAX_EXEC_TIME, maxExecTime);
+        options.put(CommonDefine.RestArg.TASK_DATA_CHECK_LEVEL, dataCheckLevel);
+        options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
+        options.put(CommonDefine.RestArg.TASK_IS_RECYCLE_SPACE, isRecycleSpace);
+        params.add(new BasicNameValuePair("options", options.toString()));
+        params.add(new BasicNameValuePair("source", source));
+        params.add(new BasicNameValuePair("dest", dest));
+        params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_REGION, preferredRegion));
+        params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_ZONE, preferredZone));
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request, params);
+        BSONObject task = (BSONObject) resp.get("task");
+        return new ScmId((String) task.get("id"), false);
+    }
+
     private String encrypt(String str) throws ScmException {
         try {
             return ScmPasswordMgr.getInstance().encrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, str);

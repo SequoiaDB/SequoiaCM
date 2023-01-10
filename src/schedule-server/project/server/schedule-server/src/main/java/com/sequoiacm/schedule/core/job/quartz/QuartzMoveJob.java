@@ -1,10 +1,13 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
+import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.common.model.ScheduleException;
+import com.sequoiacm.schedule.common.model.ScheduleNewUserInfo;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.job.MoveFileJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
@@ -40,7 +43,7 @@ public class QuartzMoveJob extends QuartzContentserverJob {
                 info.getPreferredRegion(), info.getPreferredZone());
     }
 
-    private BSONObject createTaskContent(MoveFileJobInfo cInfo) {
+    private BSONObject createTaskContent(MoveFileJobInfo cInfo) throws ScheduleException {
         Date d = new Date();
         BSONObject ltTimes = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_LT,
                 d.getTime() - cInfo.getDays() * 24L * 3600L * 1000L);
@@ -54,12 +57,19 @@ public class QuartzMoveJob extends QuartzContentserverJob {
         BSONObject siteCondition = new BasicBSONObject(FieldName.File.FIELD_CLFILE_FILE_SITE_LIST,
                 elemMatch);
 
-        BSONObject array = new BasicBSONList();
-        array.put("0", siteCondition);
+        BasicBSONList array = new BasicBSONList();
+        array.add(siteCondition);
 
         BSONObject extraObj = cInfo.getExtraCondition();
         if (null != extraObj && !extraObj.isEmpty()) {
-            array.put("1", cInfo.getExtraCondition());
+            array.add(cInfo.getExtraCondition());
+        }
+
+        BSONObject transitionTriggersObj = cInfo.getTransitionTriggers();
+        if (null != transitionTriggersObj && !transitionTriggersObj.isEmpty()) {
+            array.add(ScheduleCommonTools.jointTriggerCondition(
+                    ScheduleDefine.ScheduleType.MOVE_FILE, transitionTriggersObj,
+                    cInfo.getSourceSiteId(), cInfo.getTargetSiteId(), d));
         }
 
         return new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);
@@ -72,5 +82,4 @@ public class QuartzMoveJob extends QuartzContentserverJob {
         option.put(FieldName.Schedule.FIELD_DATA_CHECK_LEVEL, moveFileJobInfo.getDataCheckLevel());
         return option;
     }
-
 }

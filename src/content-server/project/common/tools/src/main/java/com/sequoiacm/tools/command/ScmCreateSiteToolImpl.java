@@ -49,6 +49,8 @@ public class ScmCreateSiteToolImpl extends ScmTool {
     private final String OPT_LONG_AMDIN_PASSWORD = "passwd";
     private final String OPT_LONG_AMDIN_PASSWORD_FILE = "passwd-file";
 
+    private final String OPT_LONG_STAGE_TAG = "stagetag";
+
     private Options options;
     private ScmHelpGenerator hp;
 
@@ -88,6 +90,8 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                 false, true, true, false, false));
         options.addOption(hp.createOpt(null, OPT_LONG_AMDIN_PASSWORD_FILE,
                 "login admin password file.", false, true, false));
+        options.addOption(
+                hp.createOpt(null, OPT_LONG_STAGE_TAG, "site stage tag", false, true, false));
         ScmContentCommandUtil.addDsOption(options, hp);
     }
 
@@ -147,6 +151,8 @@ public class ScmCreateSiteToolImpl extends ScmTool {
         // if dataType is hdfs|hbase newSite setDataConf
         Map<String, String> dataConf = getDataConf(cl, dataType.getType());
 
+        String stageTag = cl.getOptionValue(OPT_LONG_STAGE_TAG);
+
         ScmSession ss = null;
         try {
             ScmSiteConfig siteConf = null;
@@ -154,6 +160,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                 siteConf = ScmSiteConfig.start(siteName).isRootSite(isRootSite)
                         .SetDataSourceType(dataType).setDataSource(dataDsInfo.getSdbUrlList(),
                                 dataDsInfo.getSdbUser(), dataDsInfo.getSdbPasswdFile(), dataConf)
+                        .setStageTag(stageTag)
                         .build();
             }
             else {
@@ -163,6 +170,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                                 dataDsInfo.getSdbPasswdFile(), dataConf)
                         .setMetaSource(metaDsInfo.getSdbUrlList(), metaDsInfo.getSdbUser(),
                                 metaDsInfo.getSdbPasswdFile())
+                        .setStageTag(stageTag)
                         .build();
             }
             ScmUserInfo adminUser = ScmCommandUtil.checkAndGetUser(cl, OPT_LONG_AMDIN_USER,

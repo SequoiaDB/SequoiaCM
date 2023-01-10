@@ -10,6 +10,7 @@ public class SiteConfig implements Config {
     private int id;
     private String name;
     private boolean isRootSite;
+    private String stageTag;
     private BSONObject dataSource;
     private BSONObject metaSource;
 
@@ -53,11 +54,20 @@ public class SiteConfig implements Config {
         this.name = name;
     }
 
+    public String getStageTag() {
+        return stageTag;
+    }
+
+    public void setStageTag(String stageTag) {
+        this.stageTag = stageTag;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BSONObject siteConfigObj = new BasicBSONObject();
         siteConfigObj.put(FieldName.FIELD_CLSITE_ID, id);
         siteConfigObj.put(FieldName.FIELD_CLSITE_NAME, name);
+        siteConfigObj.put(FieldName.FIELD_CLSITE_STAGE_TAG, stageTag);
         siteConfigObj.put(FieldName.FIELD_CLSITE_MAINFLAG, isRootSite);
         siteConfigObj.put(FieldName.FIELD_CLSITE_DATA, dataSource);
         if (metaSource != null) {
@@ -69,6 +79,7 @@ public class SiteConfig implements Config {
     @Override
     public String toString() {
         return "SiteConfig [id=" + id + ", name=" + name + ", isRootSite=" + isRootSite
+                + ", stageTag=" + stageTag
                 + ", dataSource=" + dataSource + ", metaSource=" + metaSource + "]";
     }
 

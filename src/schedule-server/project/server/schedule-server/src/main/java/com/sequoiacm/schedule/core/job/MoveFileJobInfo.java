@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
@@ -11,6 +12,7 @@ import com.sequoiacm.schedule.core.meta.WorkspaceInfo;
 import com.sequoiacm.schedule.entity.SiteEntity;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 
 public class MoveFileJobInfo extends ScheduleJobInfo {
 
@@ -29,6 +31,8 @@ public class MoveFileJobInfo extends ScheduleJobInfo {
     private boolean isQuickStart;
     private boolean isRecycleSpace;
     private String dataCheckLevel;
+
+    private BSONObject transitionTriggers;
 
     public MoveFileJobInfo(String id, String type, String workspace, BSONObject content,
             String cron, String preferredRegion, String preferredZone) throws ScheduleException {
@@ -98,6 +102,12 @@ public class MoveFileJobInfo extends ScheduleJobInfo {
         else {
             dataCheckLevel = ScheduleDefine.DataCheckLevel.WEEK;
         }
+
+        transitionTriggers = ScheduleCommonTools.getBSONObjectValue(content,
+                FieldName.LifeCycleConfig.FIELD_TRANSITION_TRANSITION_TRIGGERS);
+        if (null == transitionTriggers){
+            transitionTriggers = new BasicBSONObject();
+        }
     }
 
     public int getDays() {
@@ -142,6 +152,10 @@ public class MoveFileJobInfo extends ScheduleJobInfo {
 
     public String getTargetSiteName() {
         return targetSiteName;
+    }
+
+    public BSONObject getTransitionTriggers() {
+        return transitionTriggers;
     }
 
     @Override

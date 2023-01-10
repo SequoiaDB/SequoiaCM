@@ -3,6 +3,7 @@ package com.sequoiacm.metasource;
 import java.util.Date;
 
 import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 
@@ -19,6 +20,9 @@ public interface MetaFileAccessor extends MetaAccessor {
 
     public boolean updateAccessTime(String fileId, int majorVersion, int minorVersion, int siteId,
             Date date) throws ScmMetasourceException;
+
+    public boolean updateAccessHistory(String fileId, int majorVersion, int minorVersion,
+            int siteId, BasicBSONList newAccessTimeLististory) throws ScmMetasourceException;
 
     public boolean deleteFromSiteList(String fileId, int majorVersion, int minorVersion, int siteId)
             throws ScmMetasourceException;

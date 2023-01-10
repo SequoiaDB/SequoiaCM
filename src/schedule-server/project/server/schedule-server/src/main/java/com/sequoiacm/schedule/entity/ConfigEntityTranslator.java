@@ -12,6 +12,7 @@ public class ConfigEntityTranslator {
             site.setId((int) obj.get(FieldName.Site.FIELD_ID));
             site.setName((String) obj.get(FieldName.Site.FIELD_NAME));
             site.setRoot((boolean) obj.get(FieldName.Site.FIELD_ROOT_FLAG));
+            site.setStageTag((String) obj.get(FieldName.Site.FIELD_STAGE_TAG));
             return site;
         }
     }

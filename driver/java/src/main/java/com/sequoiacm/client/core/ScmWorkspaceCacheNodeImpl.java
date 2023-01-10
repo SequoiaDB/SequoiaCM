@@ -2,11 +2,13 @@ package com.sequoiacm.client.core;
 
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -109,6 +111,77 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
     public void updateDataLocation(List<ScmDataLocation> dataLocations, boolean mergeTo) throws ScmException {
         checkScmWorkspace();
         scmWorkspace.updateDataLocation(dataLocations, mergeTo);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName, String preferredRegion, String preferredZone)
+            throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.applyTransition(transitionName, preferredRegion, preferredZone);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName) throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.applyTransition(transitionName);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName, ScmLifeCycleTransition transition,
+            String preferredRegion, String preferredZone) throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.applyTransition(transitionName, transition, preferredRegion, preferredZone);
+    }
+
+    @Override
+    public ScmTransitionSchedule applyTransition(String transitionName, ScmLifeCycleTransition transition)
+            throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.applyTransition(transitionName, transition);
+    }
+
+    @Override
+    public void setTransitionConfig(String xmlPath) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.setTransitionConfig(xmlPath);
+    }
+
+    @Override
+    public void setTransitionConfig(InputStream xmlInputStream) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.setTransitionConfig(xmlInputStream);
+    }
+
+    @Override
+    public void removeTransition(String transitionName) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.removeTransition(transitionName);
+    }
+
+    @Override
+    public ScmTransitionSchedule updateTransition(String transitionName, ScmLifeCycleTransition transition)
+            throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.updateTransition(transitionName, transition);
+    }
+
+    @Override
+    public ScmTransitionSchedule getTransition(String transitionName) throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.getTransition(transitionName);
+    }
+
+    @Override
+    public List<ScmTransitionSchedule> listTransition() throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.listTransition();
+    }
+
+    @Override
+    public ScmTransitionSchedule updateTransition(String transitionName, ScmLifeCycleTransition transition,
+            String preferredRegion, String preferredZone) throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.updateTransition(transitionName, transition, preferredRegion, preferredZone);
     }
 
     @Override

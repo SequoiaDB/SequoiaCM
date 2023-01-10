@@ -18,6 +18,7 @@ import com.sequoiacm.tools.exception.ScmExitCode;
 public class ScmSiteConfig {
     private String name;
     private boolean isRootSite;
+    private String stageTag;
 
     private DatasourceType dataType;
     private String dataUser;
@@ -45,6 +46,7 @@ public class ScmSiteConfig {
             this.metaPassword = builder.metaPassword;
             this.metaUrl = builder.metaUrl;
         }
+        this.stageTag = builder.stageTag;
     }
 
     /**
@@ -75,6 +77,7 @@ public class ScmSiteConfig {
         // password is path
         private String metaPassword;
         private List<String> metaUrl;
+        private String stageTag;
 
         /**
          * construct site builder instance.
@@ -191,6 +194,11 @@ public class ScmSiteConfig {
             return this;
         }
 
+        public Builder setStageTag(String stageTag){
+            this.stageTag = stageTag;
+            return this;
+        }
+
         /**
          * finish build site config.
          *
@@ -212,6 +220,7 @@ public class ScmSiteConfig {
 
         confBson.put(FieldName.FIELD_CLSITE_NAME, name);
         confBson.put(FieldName.FIELD_CLSITE_MAINFLAG, isRootSite);
+        confBson.put(FieldName.FIELD_CLSITE_STAGE_TAG,stageTag);
 
         BasicBSONObject dataBson = new BasicBSONObject();
         dataBson.put(FieldName.FIELD_CLSITE_DATA_TYPE, dataType.toString());
@@ -324,4 +333,7 @@ public class ScmSiteConfig {
         return metaPassword;
     }
 
+    public String getStageTag() {
+        return stageTag;
+    }
 }

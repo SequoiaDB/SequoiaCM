@@ -10,6 +10,7 @@ public class FieldName {
     public static final String FIELD_CLSITE_ID = "id"; // int, 1
     public static final String FIELD_CLSITE_MAINFLAG = "root_site_flag"; // bool
                                                                          // false
+    public static final String FIELD_CLSITE_STAGE_TAG = "stage_tag";
 
     // CL_SITE.META || CL_SITE.DATA
     public static final String FIELD_CLSITE_META = "meta"; // meta:{xxx}
@@ -211,6 +212,10 @@ public class FieldName {
                                                                      // deleting;
     public static final String FIELD_CLFILE_EXTRA_TRANS_ID = "transaction_id"; // string,
                                                                                // transid
+
+    public static final String FIELD_CLFILE_ACCESS_HISTORY = "access_history";
+    public static final String FIELD_CLFILE_ACCESS_HISTORY_ID = "site_id";
+    public static final String FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS = "last_access_time_his";
     // CL_FILE_HISTORY only(file & document)
     public static final String FIELD_CLFILEHISTORY_FLAG = "history_flag"; // int
     public static final String FIELD_CLFILEHISTORY_USER = "history_user"; // string
@@ -572,5 +577,55 @@ public class FieldName {
         public static final String CREATE_DATE = "createDate";
         public static final String WS_VERSION = "wsVersion";
         public static final String TABLE_NAME = "tableName";
+    }
+
+    public static final class LifeCycleConfig{
+        public static final String FIELD_STAGE_TAG_CONFIG = "stage_tag";
+        public static final String FIELD_TRANSITION_CONFIG = "transition";
+        public static final String FIELD_STAGE_TAG_NAME = "name";
+        public static final String FIELD_STAGE_TAG_DESC = "desc";
+        public static final String FIELD_TRANSITION_FLOW = "flow";
+        public static final String FIELD_TRANSITION_FLOW_SOURCE = "source";
+        public static final String FIELD_TRANSITION_FLOW_DEST = "dest";
+
+        public static final String FIELD_TRANSITION_NAME = "name";
+        public static final String FIELD_TRANSITION_MATCHER = "matcher";
+        public static final String FIELD_TRANSITION_TRANSITION_TRIGGERS = "transition_triggers";
+        public static final String FIELD_TRANSITION_TRIGGERS_MODE = "mode";
+        public static final String FIELD_TRANSITION_TRIGGERS_MAX_EXEC_TIME = "max_exec_time";
+        public static final String FIELD_TRANSITION_TRIGGERS_RULE = "rule";
+        public static final String FIELD_TRANSITION_TRIGGERS_TRIGGER_LIST = "trigger_list";
+        public static final String FIELD_TRANSITION_TRIGGER_ID = "id";
+        public static final String FIELD_TRANSITION_TRIGGER_MODE = "mode";
+        public static final String FIELD_TRANSITION_TRIGGER_CREATE_TIME = "create_time";
+        public static final String FIELD_TRANSITION_TRIGGER_LAST_ACCESS_TIME = "last_access_time";
+        public static final String FIELD_TRANSITION_TRIGGER_BUILD_TIME = "build_time";
+        public static final String FIELD_TRANSITION_TRIGGER_TRANSITION_TIME = "transition_time";
+        public static final String FIELD_TRANSITION_EXTRA_CONTENT = "extra_content";
+        public static final String FIELD_EXTRA_CONTENT_DATA_CHECK_LEVEL = "data_check_level";
+        public static final String FIELD_EXTRA_CONTENT_QUICK_START = "quick_start";
+        public static final String FIELD_EXTRA_CONTENT_RECYCLE_SPACE = "recycle_space";
+        public static final String FIELD_EXTRA_CONTENT_SCOPE = "scope";
+        public static final String FIELD_TRANSITION_CLEAN_TRIGGERS = "clean_triggers";
+        public static final String FIELD_CLEAN_TRIGGERS_MODE = "mode";
+        public static final String FIELD_CLEAN_TRIGGERS_MAX_EXEC_TIME = "max_exec_time";
+        public static final String FIELD_CLEAN_TRIGGERS_RULE = "rule";
+        public static final String FIELD_CLEAN_TRIGGERS_TRIGGER_LIST = "trigger_list";
+        public static final String FIELD_TRANSITION = "transition";
+        public static final String FIELD_TRANSITION_SCHEDULE_ID = "id";
+        public static final String FIELD_TRANSITION_SCHEDULE_WORKSPACE = "workspace";
+        public static final String FIELD_TRANSITION_SCHEDULE_CREATE_USER = "create_user";
+        public static final String FIELD_TRANSITION_SCHEDULE_UPDATE_USER = "update_user";
+        public static final String FIELD_TRANSITION_SCHEDULE_CREATE_TIME = "create_time";
+        public static final String FIELD_TRANSITION_SCHEDULE_UPDATE_TIME = "update_time";
+        public static final String FIELD_TRANSITION_SCHEDULE_ENABLE = "enable";
+        public static final String FIELD_TRANSITION_SCHEDULE_CUSTOMIZED = "customized";
+        public static final String FIELD_TRANSITION_SCHEDULE_PREFERRED_REGION = "preferred_region";
+        public static final String FIELD_TRANSITION_SCHEDULE_PREFERRED_ZONE = "preferred_zone";
+        public static final String FIELD_TRANSITION_SCHEDULE_TRANSITION = "transition";
+        public static final String FIELD_TRANSITION_SCHEDULE_IDS = "schedule_ids";
+        public static final String FIELD_MAX_STAY_TIME = "max_stay_time";
+        public static final String FIELD_LIFE_CYCLE_CONFIG = "life_cycle_config";
+
     }
 }

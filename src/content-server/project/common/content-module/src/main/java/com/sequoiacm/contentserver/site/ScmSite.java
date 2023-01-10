@@ -30,6 +30,7 @@ public class ScmSite {
     private String name;
     private int id;
     private boolean isRootSite;
+    private String stageTag;
     private ScmSiteUrl metaUrl = null;
     private ScmSiteUrl dataUrl = null;
 
@@ -41,6 +42,7 @@ public class ScmSite {
             this.id = siteObj.getId();
             this.isRootSite = siteObj.isRootSite();
             this.dataUrl = createScmSiteUrl(siteObj);
+            this.stageTag = siteObj.getStageTag();
             //            if (siteObj.getDataType().equals(ScmDataSourceType.SEQUOIADB.getName())) {
             //                this.dataUrl = createSdbSiteUrl(siteObj, false);
             //            }
@@ -152,6 +154,10 @@ public class ScmSite {
 
     public ScmSiteUrl getDataUrl() {
         return dataUrl;
+    }
+
+    public String getStageTag() {
+        return stageTag;
     }
 
     @Override

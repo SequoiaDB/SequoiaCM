@@ -2,6 +2,8 @@ package com.sequoiacm.schedule.core;
 
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
+import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
@@ -11,11 +13,16 @@ import com.sequoiacm.schedule.common.model.*;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
 import com.sequoiacm.schedule.core.job.*;
 import com.sequoiacm.schedule.core.job.quartz.QuartzScheduleMgr;
+import com.sequoiacm.schedule.dao.LifeCycleConfigDao;
+import com.sequoiacm.schedule.dao.LifeCycleScheduleDao;
 import com.sequoiacm.schedule.dao.ScheduleDao;
+import com.sequoiacm.schedule.dao.Transaction;
+import com.sequoiacm.schedule.dao.TransactionFactory;
 import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +37,11 @@ public class ScheduleMgrWrapper {
 
     private ScheduleDao scheduleDao;
 
-    Lock lock = new ReentrantLock();
+    private LifeCycleConfigDao lifeCycleConfigDao;
+
+    private LifeCycleScheduleDao lifeCycleScheduleDao;
+
+    Lock scheduleLock = new ReentrantLock();
 
     private ScheduleMgr mgr;
 
@@ -40,6 +51,10 @@ public class ScheduleMgrWrapper {
 
     private ScmServiceDiscoveryClient discoveryClient;
 
+    private TransactionFactory transactionFactory;
+
+    private ScmLockManager scmLockManager;
+
     private ScheduleMgrWrapper() {
     }
 
@@ -48,15 +63,21 @@ public class ScheduleMgrWrapper {
     }
 
     public void init(ScheduleDao scheduleDao, ScheduleClientFactory clientFactory,
-            ScheduleApplicationConfig config, ScmServiceDiscoveryClient discoveryClient) {
+            ScheduleApplicationConfig config, ScmServiceDiscoveryClient discoveryClient,
+            LifeCycleConfigDao lifeCycleConfigDao, LifeCycleScheduleDao lifeCycleScheduleDao,
+            TransactionFactory transactionFactory, ScmLockManager scmLockManager) {
         this.scheduleDao = scheduleDao;
         this.clientFactory = clientFactory;
         this.config = config;
         this.discoveryClient = discoveryClient;
+        this.lifeCycleConfigDao = lifeCycleConfigDao;
+        this.lifeCycleScheduleDao = lifeCycleScheduleDao;
+        this.transactionFactory = transactionFactory;
+        this.scmLockManager = scmLockManager;
     }
 
     public void start() throws Exception {
-        lock.lock();
+        scheduleLock.lock();
         try {
             if (null != mgr) {
                 return;
@@ -84,7 +105,7 @@ public class ScheduleMgrWrapper {
             throw e;
         }
         finally {
-            lock.unlock();
+            scheduleLock.unlock();
         }
     }
 
@@ -132,7 +153,7 @@ public class ScheduleMgrWrapper {
                 date.getTime());
         ScheduleJobInfo jobInfo = createJobInfo(info);
 
-        lock.lock();
+        scheduleLock.lock();
         try {
             if (null == mgr) {
                 throw new Exception("mgr is null");
@@ -158,17 +179,17 @@ public class ScheduleMgrWrapper {
             return info;
         }
         finally {
-            lock.unlock();
+            scheduleLock.unlock();
         }
     }
 
     public void clear() {
-        lock.lock();
+        scheduleLock.lock();
         try {
             clearWithoutLock();
         }
         finally {
-            lock.unlock();
+            scheduleLock.unlock();
         }
     }
 
@@ -194,7 +215,7 @@ public class ScheduleMgrWrapper {
     }
 
     public void deleteSchedule(String scheduleId, boolean stopWorker) throws Exception {
-        lock.lock();
+        scheduleLock.lock();
         try {
             if (null == mgr) {
                 throw new Exception("mgr is null");
@@ -209,13 +230,18 @@ public class ScheduleMgrWrapper {
             throw e;
         }
         finally {
-            lock.unlock();
+            scheduleLock.unlock();
         }
     }
 
     public void deleteScheduleByWorkspace(String wsName) {
-        lock.lock();
+        ScmLock lockGlobal = null;
+        boolean lockSchedule = false;
         try {
+            lockGlobal = scmLockManager
+                    .acquiresLock(LifeCycleCommonDefine.GLOBAL_LIFE_CYCLE_LOCK_PATH);
+            scheduleLock.lock();
+            lockSchedule = true;
             if (null == mgr) {
                 // i am not leader, just return
                 return;
@@ -227,17 +253,37 @@ public class ScheduleMgrWrapper {
                     deleteJobSilence(createdJob.getId(), false);
                 }
             }
-
-            // remove schedule from db
-            BSONObject wsMatcher = new BasicBSONObject(FieldName.Schedule.FIELD_WORKSPACE, wsName);
-            scheduleDao.delete(wsMatcher);
-            logger.info("delete schedules success:ws={}", wsName);
+            BSONObject lifeCycleConfigUpdator = updateLifeCycleConfigInfo(wsName);
+            Transaction t = transactionFactory.createTransaction();
+            try {
+                t.begin();
+                // remove schedule from db
+                BSONObject wsMatcher = new BasicBSONObject(FieldName.Schedule.FIELD_WORKSPACE,
+                        wsName);
+                scheduleDao.delete(wsMatcher, t);
+                // remove ws transition from db
+                lifeCycleScheduleDao.delete(wsMatcher, t);
+                if (lifeCycleConfigUpdator != null) {
+                    lifeCycleConfigDao.update(lifeCycleConfigUpdator, t);
+                }
+                t.commit();
+                logger.info("delete schedules success:ws={}", wsName);
+            }
+            catch (Exception e) {
+                t.rollback();
+                throw e;
+            }
         }
         catch (Exception e) {
             logger.error("delete schedules failed:ws={}", wsName, e);
         }
         finally {
-            lock.unlock();
+            if (lockSchedule) {
+                scheduleLock.unlock();
+            }
+            if (lockGlobal != null) {
+                lockGlobal.unlock();
+            }
         }
     }
 
@@ -270,7 +316,7 @@ public class ScheduleMgrWrapper {
         ScheduleJobInfo oldJobInfo = null;
         boolean isOldJobDeleted = false;
         boolean isNewJobCreated = false;
-        lock.lock();
+        scheduleLock.lock();
         try {
             if (null == mgr) {
                 throw new Exception("mgr is null");
@@ -327,7 +373,7 @@ public class ScheduleMgrWrapper {
             throw e;
         }
         finally {
-            lock.unlock();
+            scheduleLock.unlock();
         }
     }
 
@@ -434,5 +480,25 @@ public class ScheduleMgrWrapper {
         catch (Exception e) {
             logger.warn("failed to disable schedule:id={}", info.getId(), e);
         }
+    }
+
+    private BSONObject updateLifeCycleConfigInfo(String removeWs) throws Exception {
+        BSONObject object = lifeCycleConfigDao.queryOne();
+        if (object == null){
+            return null;
+        }
+        LifeCycleConfigFullEntity fullInfo = LifeCycleEntityTranslator.FullInfo.fromBSONObject(object);
+        BasicBSONList transitionConfig = fullInfo.getTransitionConfig();
+        BasicBSONList newTransitionConfig = new BasicBSONList();
+        for (Object o : transitionConfig) {
+            TransitionFullEntity entity = TransitionEntityTranslator.FullInfo.fromBSONObject((BSONObject) o);
+            BasicBSONList workspaces = entity.getWorkspaces();
+            if (workspaces != null){
+                workspaces.remove(removeWs);
+            }
+            newTransitionConfig.add(TransitionEntityTranslator.FullInfo.toBSONObject(entity));
+        }
+        fullInfo.setTransitionConfig(newTransitionConfig);
+        return LifeCycleEntityTranslator.FullInfo.toBSONObject(fullInfo);
     }
 }

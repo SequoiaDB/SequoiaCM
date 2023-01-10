@@ -1,5 +1,9 @@
 package com.sequoiacm.client.core;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,11 +15,21 @@ import com.sequoiacm.client.element.ScmCheckConnResult;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.client.element.ScmCleanTaskConfig;
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
+import com.sequoiacm.client.element.ScmOnceTransitionConfig;
 import com.sequoiacm.client.element.ScmSpaceRecycleScope;
 import com.sequoiacm.client.element.ScmSpaceRecyclingTaskConfig;
 import com.sequoiacm.client.element.ScmTransferTaskConfig;
+import com.sequoiacm.client.element.lifecycle.ScmCleanTriggers;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleConfig;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleStageTag;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
+import com.sequoiacm.client.element.lifecycle.ScmTransitionTriggers;
+import com.sequoiacm.client.element.lifecycle.ScmTrigger;
 import com.sequoiacm.client.element.trace.ScmTrace;
+import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.IOUtils;
+import com.sequoiacm.infrastructure.common.XMLUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -1480,5 +1494,497 @@ public class ScmSystem {
             }
         }
 
+    }
+
+    /**
+     * Provide life cycle config operations.
+     *
+     * @since 3.2
+     */
+    public static class LifeCycleConfig {
+
+        /**
+         * start once transition use ScmOnceTransitionConfig.
+         *
+         * @param config
+         *            once transition config.
+         * 
+         * @return task ScmId.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmId startOnceTransition(ScmOnceTransitionConfig config)
+                throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startOnceTransition(config.getWorkspace(), config.getCondition(),
+                    config.getScope(), config.getMaxExecTime(), config.getSourceStageTag(),
+                    config.getDestStageTag(), config.getDataCheckLevel(), config.isQuickStart(),
+                    config.isRecycleSpace(), config.getType(), config.getPreferredRegion(),
+                    config.getPreferredZone());
+        }
+
+        private static ScmId _startOnceTransition(ScmWorkspace ws, BSONObject condition,
+                ScopeType scope, long maxExecTime, String source, String dest,
+                ScmDataCheckLevel dataCheckLevel, boolean quickStart, boolean isRecycleSpace,
+                String type, String preferredRegion, String preferredZone)
+                throws ScmException {
+            if (null == ws) {
+                throw new ScmInvalidArgumentException("workspace is null");
+            }
+
+            if (null == condition) {
+                throw new ScmInvalidArgumentException("condition is null");
+            }
+
+            if (null == scope) {
+                throw new ScmInvalidArgumentException("scope is null");
+            }
+            if (null == source) {
+                throw new ScmInvalidArgumentException("source stage tag is null");
+            }
+            if (null == dest) {
+                throw new ScmInvalidArgumentException("dest stage tag is null");
+            }
+            if (null == dataCheckLevel) {
+                throw new ScmInvalidArgumentException("dataCheckLevel is null");
+            }
+            if (null == type) {
+                throw new ScmInvalidArgumentException("type is null");
+            }
+            else {
+                if (ScheduleType.getType(type) != ScheduleType.MOVE_FILE
+                        && ScheduleType.getType(type) != ScheduleType.COPY_FILE) {
+                    throw new ScmInvalidArgumentException(
+                            "unsupported this task type,type=" + type);
+                }
+            }
+            if (null == preferredRegion) {
+                throw new ScmInvalidArgumentException("preferredRegion is null");
+            }
+            if (null == preferredZone) {
+                throw new ScmInvalidArgumentException("preferredZone is null");
+            }
+            if (scope != ScopeType.SCOPE_CURRENT) {
+                try {
+                    ScmArgChecker.File.checkHistoryFileMatcher(condition);
+                }
+                catch (InvalidArgumentException e) {
+                    throw new ScmInvalidArgumentException("invalid condition", e);
+                }
+            }
+            ScmSession conn = ws.getSession();
+            return conn.getDispatcher().startOnceTransition(ws.getName(), condition,
+                    scope.getScope(), maxExecTime, source, dest, dataCheckLevel.getName(),
+                    quickStart, isRecycleSpace, type, preferredRegion, preferredZone);
+        }
+
+        /**
+         * get transition list by stage tag name.
+         *
+         * @param stageTagName
+         *            stage tag name.
+         * 
+         * @param ss
+         *            session.
+         *
+         * @return ScmLifeCycleTransitionList.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmLifeCycleTransition> listTransition(ScmSession ss,
+                String stageTagName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("stageTagName", stageTagName);
+
+            BasicBSONList list = (BasicBSONList) ss.getDispatcher()
+                    .listTransition(stageTagName);
+            List<ScmLifeCycleTransition> transitionList = new ArrayList<ScmLifeCycleTransition>();
+            for (Object o : list) {
+                transitionList.add(new ScmLifeCycleTransition().fromBSONObject((BSONObject) o));
+            }
+            return transitionList;
+        }
+
+        /**
+         * get apply transition workspace by transition name.
+         *
+         * @param transitionName
+         *            transition name.
+         *
+         * @param ss
+         *            session.
+         *
+         * @return ScmTransitionApplyInfo.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmTransitionApplyInfo> listWorkspace(ScmSession ss,
+                String transitionName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("transitionName", transitionName);
+            BSONObject obj = ss.getDispatcher().listWorkspaceByTransitionName(transitionName);
+            List<ScmTransitionApplyInfo> result = new ArrayList<ScmTransitionApplyInfo>();
+            BasicBSONList customized = BsonUtils.getArray(obj, "customized");
+            BasicBSONList uncustomized = BsonUtils.getArray(obj, "uncustomized");
+            for (Object o : customized) {
+                result.add(new ScmTransitionApplyInfo((String) o, true));
+            }
+            for (Object o : uncustomized) {
+                result.add(new ScmTransitionApplyInfo((String) o, false));
+            }
+            return result;
+        }
+
+        /**
+         * get all transition.
+         *
+         * @param ss
+         *            session.
+         *
+         * @return ScmLifeCycleTransitionList.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static List<ScmLifeCycleTransition> getTransitionConfig(ScmSession ss)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            BasicBSONList list = (BasicBSONList) ss.getDispatcher().listTransition(null);
+            List<ScmLifeCycleTransition> transitionList = new ArrayList<ScmLifeCycleTransition>();
+            for (Object o : list) {
+                transitionList.add(new ScmLifeCycleTransition().fromBSONObject((BSONObject) o));
+            }
+            return transitionList;
+        }
+
+        /**
+         * update transition by transition name.
+         *
+         * @param transitionName
+         *            transition name.
+         * @param transition
+         *            new transition info
+         *
+         * @param ss
+         *            session.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void updateTransition(ScmSession ss, String transitionName,
+                ScmLifeCycleTransition transition) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("transitionName", transitionName);
+            checkTransitionValid(transition);
+            ss.getDispatcher().updateGlobalTransition(transitionName, transition.toBSONObject());
+        }
+
+        /**
+         * get transition by transition name.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param transitionName
+         *            transition name
+         *
+         * @return ScmLifeCycleTransition.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmLifeCycleTransition getTransition(ScmSession ss,
+                String transitionName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("transitionName", transitionName);
+            BSONObject obj = ss.getDispatcher().getGlobalTransition(transitionName);
+            return new ScmLifeCycleTransition().fromBSONObject(obj);
+        }
+
+        /**
+         * remove transition.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param transitionName
+         *            transition name.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void removeTransition(ScmSession ss, String transitionName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("transitionName", transitionName);
+            ss.getDispatcher().removeGlobalTransition(transitionName);
+        }
+
+        /**
+         * add transition.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param transition
+         *            transition info.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void addTransition(ScmSession ss, ScmLifeCycleTransition transition)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("transition", transition);
+            checkTransitionValid(transition);
+            ss.getDispatcher().addGlobalTransition(transition.toBSONObject());
+        }
+
+        /**
+         * remove stage tag by stage tag name.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param stageTagName
+         *            stage tag name.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void removeStageTag(ScmSession ss, String stageTagName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("stageName", stageTagName);
+            ss.getDispatcher().removeGlobalStageTag(stageTagName);
+        }
+
+        /**
+         * add stage tag.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param stageTagName
+         *            stage tag name.
+         *
+         * @param stageTagDesc
+         *            stage tag desc.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void addStageTag(ScmSession ss, String stageTagName, String stageTagDesc)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("stageName", stageTagName);
+            ss.getDispatcher().addGlobalStageTag(stageTagName, stageTagDesc);
+        }
+
+        /**
+         * delete life cycle config.
+         *
+         * @param ss
+         *            session.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void deleteLifeCycleConfig(ScmSession ss) throws ScmException {
+            checkArgNotNull("session", ss);
+            ss.getDispatcher().deleteGlobalLifeCycleConfig();
+        }
+
+        /**
+         * get life cycle config.
+         *
+         * @param ss
+         *            session.
+         *
+         * @return ScmLifeCycleConfig
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmLifeCycleConfig getLifeCycleConfig(ScmSession ss)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            BSONObject obj = ss.getDispatcher().getGlobalLifeCycleConfig();
+            return new ScmLifeCycleConfig().fromBSONObject(obj);
+        }
+
+        /**
+         * set life cycle config by xml config file path.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param xmlConfigFilePath
+         *            xml config file path.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void setLifeCycleConfig(ScmSession ss, String xmlConfigFilePath)
+                throws ScmException {
+            InputStream in = null;
+            try {
+                in = new FileInputStream(xmlConfigFilePath);
+                setLifeCycleConfig(ss, in);
+            }
+            catch (IOException e) {
+                throw new ScmException(ScmError.FILE_IO,
+                        "failed to read the xml file,xmlPath=" + xmlConfigFilePath, e);
+            }
+            finally {
+                IOUtils.close(in);
+            }
+        }
+
+        public static void setLifeCycleConfig(ScmSession ss, InputStream xmlInputStream)
+                throws ScmException {
+            ScmLifeCycleConfig lifeCycleConfig = null;
+            try {
+                BSONObject obj = XMLUtils.xmlToBSONObj(xmlInputStream);
+                if (obj != null) {
+                    lifeCycleConfig = new ScmLifeCycleConfig(obj);
+                }
+            }
+            catch (Exception e) {
+                throw new ScmException(ScmError.INVALID_ARGUMENT,
+                        "unable to parse xml life cycle config content", e);
+            }
+            setLifeCycleConfig(ss, lifeCycleConfig);
+        }
+
+        /**
+         * set life cycle config by ScmLifeCycleConfig.
+         *
+         * @param ss
+         *            session.
+         *
+         * @param lifeCycleConfig
+         *            ScmLifeCycleConfig.
+         *
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void setLifeCycleConfig(ScmSession ss,
+                ScmLifeCycleConfig lifeCycleConfig) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("life cycle config", lifeCycleConfig);
+            checkLifeCycleConfigValid(lifeCycleConfig);
+            ss.getDispatcher().setGlobalLifeCycleConfig(lifeCycleConfig.toBSONObject());
+        }
+
+        private static void checkLifeCycleConfigValid(ScmLifeCycleConfig lifeCycleConfig)
+                throws ScmException {
+            checkStageTagConfigValid(lifeCycleConfig.getStageTagConfig());
+            checkTransitionConfigValid(lifeCycleConfig.getTransitionConfig());
+        }
+
+        private static void checkStageTagConfigValid(List<ScmLifeCycleStageTag> stageTagConfig)
+                throws ScmException {
+            checkArgNotNull("stage tag configuration", stageTagConfig);
+            for (ScmLifeCycleStageTag stageTag : stageTagConfig) {
+                checkStringArgValid("stage tag name", stageTag.getName());
+            }
+
+        }
+
+        private static void checkTransitionConfigValid(
+                List<ScmLifeCycleTransition> transitionConfig)
+                throws ScmException {
+            checkArgNotNull("transition configuration", transitionConfig);
+            for (ScmLifeCycleTransition transition : transitionConfig) {
+                checkTransitionValid(transition);
+            }
+        }
+
+        private static void checkTransitionValid(ScmLifeCycleTransition transition)
+                throws ScmException {
+            checkArgNotNull("transition", transition);
+            checkStringArgValid("transition name", transition.getName());
+            checkFlowValid(transition.getSource(), transition.getDest());
+            checkTransitionTriggersValid(transition.getTransitionTriggers());
+            if (transition.getCleanTriggers() != null) {
+                checkCleanTriggersValid(transition.getCleanTriggers());
+            }
+            checkExtraContentValid(transition.getDataCheckLevel(), transition.getScope());
+        }
+
+        private static void checkExtraContentValid(String dataCheckLevel, String scope)
+                throws ScmInvalidArgumentException {
+            checkStringArgValid("dataCheckLevel", dataCheckLevel);
+            checkStringArgValid("scope", scope);
+            ScmDataCheckLevel type = ScmDataCheckLevel
+                    .getType(dataCheckLevel.toLowerCase());
+            if (type == ScmDataCheckLevel.UNKNOWN) {
+                throw new ScmInvalidArgumentException(
+                        "the dataCheckLevel only choose strict or week,dataCheckLevel="
+                                + dataCheckLevel);
+            }
+            if (!scope.equals("ALL") && !scope.equals("CURRENT") && !scope.equals("HISTORY")) {
+                throw new ScmInvalidArgumentException(
+                        "the scope only choose ALL or CURRENT or HISTORY.scope=" + scope);
+            }
+        }
+
+        private static void checkCleanTriggersValid(ScmCleanTriggers cleanTriggers)
+                throws ScmException {
+            checkArgNotNull("clean triggers", cleanTriggers);
+            checkStringArgValid("clean triggers mode", cleanTriggers.getMode());
+            checkStringArgValid("clean triggers rule", cleanTriggers.getRule());
+            if (cleanTriggers.getMaxExecTime() < 0) {
+                throw new ScmInvalidArgumentException(
+                        "clean triggers maxExecTime must be greater than 0");
+            }
+            for (ScmTrigger trigger : cleanTriggers.getTriggerList()) {
+                checkTriggerValid("CleanTriggers", trigger);
+            }
+        }
+
+        private static void checkTransitionTriggersValid(ScmTransitionTriggers transitionTriggers)
+                throws ScmException {
+            checkArgNotNull("transition triggers", transitionTriggers);
+            checkStringArgValid("transition triggers mode", transitionTriggers.getMode());
+            checkStringArgValid("transition triggers rule", transitionTriggers.getRule());
+            if (transitionTriggers.getMaxExecTime() < 0) {
+                throw new ScmInvalidArgumentException(
+                        "transition triggers maxExecTime must be greater than 0");
+            }
+            for (ScmTrigger trigger : transitionTriggers.getTriggerList()) {
+                checkTriggerValid("TransitionTriggers", trigger);
+            }
+        }
+
+        private static void checkTriggerValid(String checkType, ScmTrigger trigger)
+                throws ScmException {
+            checkArgNotNull("trigger", trigger);
+            checkStringArgValid("trigger ID", trigger.getID());
+            checkStringArgValid("triggers mode", trigger.getMode());
+            checkStringArgValid("trigger lastAccessTime", trigger.getLastAccessTime());
+            if (checkType.equals("TransitionTriggers")) {
+                checkStringArgValid("trigger createTime", trigger.getCreateTime());
+                checkStringArgValid("trigger buildTime", trigger.getBuildTime());
+
+            }
+            else if (checkType.equals("CleanTriggers")) {
+                checkStringArgValid("trigger transitionTime", trigger.getTransitionTime());
+            }
+        }
+
+        private static void checkFlowValid(String source, String dest) throws ScmException {
+            checkStringArgValid("flow source", source);
+            checkStringArgValid("flow dest", dest);
+            if (source.equals(dest)) {
+                throw new ScmInvalidArgumentException("flow source cannot be the same");
+            }
+        }
+
+        private static void checkStringArgValid(String argName, String argValue)
+                throws ScmInvalidArgumentException {
+            if (!Strings.hasText(argValue)) {
+                throw new ScmInvalidArgumentException("invalid " + argName + "=" + argValue);
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.sequoiacm.common;
 public enum ScmSiteCacheStrategy {
     ALWAYS,
     NEVER,
+    AUTO,
     UNKNOWN;
 
     public static ScmSiteCacheStrategy getStrategy(String strategyStr) {

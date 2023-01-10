@@ -96,11 +96,14 @@ public class ScmCuratorVote implements ScmVote {
 
     @Override
     public boolean isLeader() {
-        return latch.hasLeadership();
+        return listener.getVoteResult() == ScmVoteResultType.LEADER && latch.hasLeadership();
     }
 
     @Override
     public String getLeader() {
+        if (null == client){
+            return "";
+        }
         if (!client.getZookeeperClient().isConnected()) {
             return "";
         }
@@ -135,6 +138,7 @@ public class ScmCuratorVote implements ScmVote {
 
     @Override
     public void close() {
+        listener.notLeader();
         closeQuietly(latch);
         latch = null;
 
@@ -144,6 +148,9 @@ public class ScmCuratorVote implements ScmVote {
 
     @Override
     public String getId() {
+        if (null == latch) {
+            return "";
+        }
         return latch.getId();
     }
 }

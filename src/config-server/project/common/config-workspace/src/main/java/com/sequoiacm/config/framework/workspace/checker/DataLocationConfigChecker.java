@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -40,6 +41,26 @@ public class DataLocationConfigChecker {
     public void check(BasicBSONList dataLocations) throws MetasourceException {
         for (CheckItem checkItem : checkItems) {
             check(checkItem, dataLocations);
+        }
+        checkStageTag(dataLocations);
+    }
+
+    private void checkStageTag(BasicBSONList dataLocations) throws MetasourceException {
+        TableDao sysSiteTable = sysSiteMetaService.getSysSiteTable();
+        Set<String> stageTagSet = new HashSet<>();
+        for (Object dataLocation : dataLocations) {
+            BasicBSONObject location = (BasicBSONObject) dataLocation;
+
+            Integer siteId = BsonUtils.getIntegerChecked(location,
+                    FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID);
+            BSONObject siteObj = sysSiteTable
+                    .queryOne(new BasicBSONObject(FieldName.FIELD_CLSITE_ID, siteId), null, null);
+            if (siteObj == null) {
+                throw new IllegalArgumentException("site is not exist:site id=" + siteId);
+            }
+            // 检查是否有同阶段标签
+            String siteStageTag = (String) siteObj.get(FieldName.FIELD_CLSITE_STAGE_TAG);
+            checkStageTagRepeat(stageTagSet, siteStageTag);
         }
     }
 
@@ -81,6 +102,17 @@ public class DataLocationConfigChecker {
 
             }
 
+        }
+    }
+
+    private void checkStageTagRepeat(Set<String> stageTagSet, String siteStageTag) {
+        if (StringUtils.hasText(siteStageTag)) {
+            if (stageTagSet.contains(siteStageTag)) {
+                throw new IllegalArgumentException(
+                        "have different site have the same stage tag in the same workspace,stagetag:"
+                                + siteStageTag);
+            }
+            stageTagSet.add(siteStageTag);
         }
     }
 

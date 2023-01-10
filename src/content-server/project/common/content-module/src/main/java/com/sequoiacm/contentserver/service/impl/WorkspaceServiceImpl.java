@@ -30,7 +30,6 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.IResource;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
@@ -45,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -344,6 +344,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
             confUpdator.setAddDataLocation(addDataLocation.toCompleteBSON());
             dataLocationAfterUpdate.add(addSite.getId());
+            checkSiteStageTagValid(dataLocationAfterUpdate);
         }
 
         List<ClientLocationOutline> clientUpdateDataLocations = updator.getUpdateDataLocation();
@@ -470,6 +471,23 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
             else {
                 baseBson.put(field, sourceBson.get(field));
+            }
+        }
+    }
+
+    private void checkSiteStageTagValid(List<Integer> dataLocationAfterUpdate)
+            throws ScmInvalidArgumentException {
+        Map<String, String> stageTagMap = new HashMap<>();
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        for (Integer siteId : dataLocationAfterUpdate) {
+            ScmSite siteInfo = contentModule.getSiteInfo(siteId);
+            if (StringUtils.hasText(siteInfo.getStageTag())) {
+                if (stageTagMap.containsKey(siteInfo.getStageTag())) {
+                    throw new ScmInvalidArgumentException(
+                            "already exist same stage tag site, stagetag:" + siteInfo.getStageTag()
+                                    + ", siteName:" + stageTagMap.get(siteInfo.getStageTag()));
+                }
+                stageTagMap.put(siteInfo.getStageTag(), siteInfo.getName());
             }
         }
     }

@@ -18,13 +18,14 @@ public class ScheduleUserEntity {
     protected String preferredRegion;
     @JsonProperty(Schedule.FIELD_PREFERRED_ZONE)
     protected String preferredZone;
+    protected String transitionId;
 
     public ScheduleUserEntity() {
     }
 
     public ScheduleUserEntity(String name, String desc, String type, String workspace,
             BSONObject content, String cron, boolean enable, String preferredRegion,
-            String preferredZone) {
+            String preferredZone, String transitionId) {
         this.name = name;
         this.desc = desc;
         this.type = type;
@@ -34,6 +35,7 @@ public class ScheduleUserEntity {
         this.enable = enable;
         this.preferredRegion = preferredRegion;
         this.preferredZone = preferredZone;
+        this.transitionId = transitionId;
     }
 
     public String getName() {
@@ -106,6 +108,14 @@ public class ScheduleUserEntity {
 
     public void setPreferredZone(String preferredZone) {
         this.preferredZone = preferredZone;
+    }
+
+    public String getTransitionId() {
+        return transitionId;
+    }
+
+    public void setTransitionId(String transitionId) {
+        this.transitionId = transitionId;
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmFileReader;
 import com.sequoiacm.contentserver.remote.ScmLocalFileReader;
@@ -45,6 +46,7 @@ public class FileReaderDao {
     String wsName;
     ScmWorkspaceInfo wsInfo;
     boolean isNeedSeek = false;
+    BasicBSONList fileAccessHistory;
 
     public FileReaderDao(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo,
             BSONObject fileRecord, int flag) throws ScmServerException {
@@ -63,6 +65,7 @@ public class FileReaderDao {
         if (isExistNull) {
             pullNullSite();
         }
+        fileAccessHistory = BsonUtils.getArray(fileRecord,FieldName.FIELD_CLFILE_ACCESS_HISTORY);
 
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
 
@@ -80,8 +83,10 @@ public class FileReaderDao {
         }
 
         isNeedSeek = isNeedSeek(flag);
-        if (!isNeedSeek && wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.NEVER) {
-            // 当工作缓存策略为不缓存时，同时客户端不需要 seek，置位 FORCE_NO_CACHE
+        if (!isNeedSeek && (wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.NEVER
+                || (wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.AUTO
+                        && !cacheLocalByAuto(localSiteId, fileRecord)))) {
+            // 当工作缓存策略为不缓存时，或者工作区缓存策略是 auto且不满足缓存的条件时，同时客户端不需要 seek，置位 FORCE_NO_CACHE
             flag |= CommonDefine.ReadFileFlag.SCM_READ_FILE_FORCE_NO_CACHE;
         }
 
@@ -259,6 +264,46 @@ public class FileReaderDao {
                     + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                     + localSiteId, e);
         }
+
+        // 只有开启了auto缓存策略才需要记录历史访问记录
+        if (wsInfo.getSiteCacheStrategy() == ScmSiteCacheStrategy.AUTO) {
+            try {
+                FileCommonOperator.updateAccessHistoryInFile(wsInfo, fileId, majorVersion,
+                        minorVersion, localSiteId, getUpdatedLastAccessTimeHis(localSiteId, date));
+            }
+            catch (Exception e) {
+                logger.warn("record access history failed:wsName=" + wsName + ",fileId=" + fileId
+                        + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion
+                        + ",siteId=" + localSiteId, e);
+            }
+        }
+    }
+
+    private BasicBSONList getUpdatedLastAccessTimeHis(int siteId, Date date) {
+        int recordMaxLength = PropertiesUtils.getAutoAccessCount();
+        BasicBSONList newLastAccessTimeHis = new BasicBSONList();
+        if (fileAccessHistory != null) {
+            for (Object o : fileAccessHistory) {
+                BSONObject record = (BSONObject) o;
+                int id = (int) record.get(FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID);
+                if (id == siteId) {
+                    BasicBSONList lastAccessTimeHis = (BasicBSONList) record
+                            .get(FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS);
+                    if (lastAccessTimeHis.size() >= recordMaxLength) {
+                        for (int i = lastAccessTimeHis.size() - recordMaxLength
+                                + 1; i < lastAccessTimeHis.size(); i++) {
+                            newLastAccessTimeHis.add(lastAccessTimeHis.get(i));
+                        }
+                    }
+                    else {
+                        newLastAccessTimeHis.addAll(lastAccessTimeHis);
+                    }
+                    break;
+                }
+            }
+        }
+        newLastAccessTimeHis.add(date.getTime());
+        return newLastAccessTimeHis;
     }
 
     private boolean isForceNoCache(int flag) {
@@ -346,6 +391,26 @@ public class FileReaderDao {
             if (localSite == i.getSiteId()) {
                 // if it is in local, just return local site
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean cacheLocalByAuto(int localSiteId, BSONObject fileInfo) {
+        long daysTime = PropertiesUtils.getAutoDays() * 24L * 3600L * 1000L;
+        int times = PropertiesUtils.getAutoAccessCount();
+        for (Object o : fileAccessHistory) {
+            BSONObject access = (BSONObject) o;
+            int siteId = BsonUtils.getInteger(access, FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID);
+            if (siteId == localSiteId) {
+                BasicBSONList lastAccessTimeHis = BsonUtils.getArray(access,
+                        FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS);
+                if (lastAccessTimeHis.size() + 1 >= times) {
+                    long lastAccessTime = new Date().getTime();
+                    long time = (long) lastAccessTimeHis.get(lastAccessTimeHis.size() + 1 - times);
+                    return lastAccessTime - time < daysTime;
+                }
+                break;
             }
         }
         return false;

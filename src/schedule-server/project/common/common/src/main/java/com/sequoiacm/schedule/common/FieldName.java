@@ -86,6 +86,9 @@ public class FieldName {
         public static final String FIELD_PREFERRED_REGION = "preferred_region";
         public static final String FIELD_PREFERRED_ZONE = "preferred_zone";
 
+        // transition schedule
+        public static final String FIELD_TRANSITION = "transition";
+
         public static final String FIELD_QUICK_START = "quick_start";
         public static final String FIELD_IS_RECYCLE_SPACE = "is_recycle_space";
         public static final String FIELD_DATA_CHECK_LEVEL = "data_check_level";
@@ -94,6 +97,7 @@ public class FieldName {
         public static final String FIELD_CLEAN_SITE = "site";
         // for inner use
         public static final String FIELD_CLEAN_SITE_ID = "site_id";
+        public static final String FIELD_CLEAN_CHECK_SITE = "check_site";
         // *********************************************
 
         // ***************** copy job *****************
@@ -133,6 +137,7 @@ public class FieldName {
     public static class Site {
         public static final String FIELD_ID = "id";
         public static final String FIELD_NAME = "name";
+        public static final String FIELD_STAGE_TAG = "stage_tag";
         public static final String FIELD_ROOT_FLAG = "root_site_flag";
     }
 
@@ -158,5 +163,64 @@ public class FieldName {
         public static final String FIELD_SOURCE_SITE = "source_site";
         public static final String FIELD_TARGET_SITE = "target_site";
         public static final String FIELD_CONNECTIVITY = "connectivity";
+    }
+
+    public static final class LifeCycleConfig {
+        private LifeCycleConfig() {
+        }
+
+        public static final String FIELD_ID = "id";
+        public static final String FIELD_CREATE_USER = "create_user";
+        public static final String FIELD_CREATE_TIME = "create_time";
+        public static final String FIELD_UPDATE_TIME = "update_time";
+        public static final String FIELD_UPDATE_USER = "update_user";
+        public static final String FIELD_STAGE_TAG_CONFIG = "stage_tag";
+        public static final String FIELD_TRANSITION_CONFIG = "transition";
+        public static final String FIELD_STAGE_NAME = "name";
+        public static final String FIELD_STAGE_DESC = "desc";
+
+        public static final String FIELD_TRANSITION_FLOW = "flow";
+        public static final String FIELD_TRANSITION_FLOW_SOURCE = "source";
+        public static final String FIELD_TRANSITION_FLOW_DEST = "dest";
+
+        public static final String FIELD_TRANSITION_NAME = "name";
+        public static final String FIELD_TRANSITION_MATCHER = "matcher";
+        public static final String FIELD_TRANSITION_TRANSITION_TRIGGERS = "transition_triggers";
+        public static final String FIELD_TRANSITION_TRIGGERS_MODE = ScheduleDefine.MODE;
+        public static final String FIELD_TRANSITION_TRIGGERS_MAX_EXEC_TIME = "max_exec_time";
+        public static final String FIELD_TRANSITION_TRIGGERS_RULE = "rule";
+        public static final String FIELD_TRANSITION_TRIGGERS_TRIGGER_LIST = ScheduleDefine.TRIGGER_LIST;
+        public static final String FIELD_TRANSITION_TRIGGER_ID = "id";
+        public static final String FIELD_TRANSITION_TRIGGER_MODE = "mode";
+        public static final String FIELD_TRANSITION_TRIGGER_CREATE_TIME = "create_time";
+        public static final String FIELD_TRANSITION_TRIGGER_LAST_ACCESS_TIME = "last_access_time";
+        public static final String FIELD_TRANSITION_TRIGGER_BUILD_TIME = "build_time";
+        public static final String FIELD_TRANSITION_TRIGGER_TRANSITION_TIME = "transition_time";
+        public static final String FIELD_TRANSITION_EXTRA_CONTENT = "extra_content";
+        public static final String FIELD_EXTRA_CONTENT_DATA_CHECK_LEVEL = "data_check_level";
+        public static final String FIELD_EXTRA_CONTENT_QUICK_START = "quick_start";
+        public static final String FIELD_EXTRA_CONTENT_RECYCLE_SPACE = "recycle_space";
+        public static final String FIELD_EXTRA_CONTENT_SCOPE = "scope";
+        public static final String FIELD_TRANSITION_CLEAN_TRIGGERS = "clean_triggers";
+        public static final String FIELD_CLEAN_TRIGGERS_MODE = ScheduleDefine.MODE;
+        public static final String FIELD_CLEAN_TRIGGERS_MAX_EXEC_TIME = "max_exec_time";
+        public static final String FIELD_CLEAN_TRIGGERS_RULE = "rule";
+        public static final String FIELD_CLEAN_TRIGGERS_TRIGGER_LIST = ScheduleDefine.TRIGGER_LIST;
+        public static final String FIELD_TRANSITION_WORKSPACES = "workspaces";
+        public static final String FIELD_TRANSITION_ID= "id";
+        public static final String FIELD_WORKSPACE_NAME = "workspace";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_ID = "id";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_TRANSITION = "transition";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_HADCUSTOM = "customized";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_IDS = "schedule_ids";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_CREATE_TIME = "create_time";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_UPDATE_TIME = "update_time";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_CREATE_USER = "create_user";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_UPDATE_USER = "update_user";
+        public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_ENABLE = "enable";
+        public static final String FIELD_EXTRA_CONTENT_MAX_STAY_TIME = "max_stay_time";
+        public static final String FIELD_PREFERRED_REGION = "preferred_region";
+        public static final String FIELD_PREFERRED_ZONE = "preferred_zone";
+        public static final String FIELD_WS_TRANSITION_ID = "global_transition_id";
     }
 }

@@ -249,6 +249,13 @@ public interface ScmSchedule {
     public String getPreferredZone();
 
     /**
+     * Gets transition name,if schedule is a transition schedule
+     *
+     * @return transition name
+     */
+    public String getTransitionName();
+
+    /**
      * Updates the preferred region of the schedule.
      * 
      * @param region

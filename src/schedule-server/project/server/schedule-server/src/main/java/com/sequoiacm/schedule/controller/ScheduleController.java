@@ -7,6 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.schedule.common.RestCommonField;
+import com.sequoiacm.schedule.common.model.ScheduleClientEntity;
+import com.sequoiacm.schedule.common.model.TransitionScheduleEntity;
+import com.sequoiacm.schedule.dao.LifeCycleScheduleDao;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -16,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,6 +65,9 @@ public class ScheduleController {
     private ScheduleClientFactory clientFactory;
     @Autowired
     ScheduleApplicationConfig config;
+
+    @Autowired
+    private LifeCycleScheduleDao lifeCycleScheduleDao;
 
     @Autowired
     private ScmAudit audit;
@@ -156,6 +164,11 @@ public class ScheduleController {
         checkWsPriority(auth.getName(), info.getWorkspace(), ScmPrivilegeDefine.DELETE,
                 "delete schedule");
 
+        if (null != info.getTransitionId()) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                    "can not deleted life cycle schedule");
+        }
+
         if (!ScheduleElector.getInstance().isLeader()) {
             String leaderId = ScheduleElector.getInstance().getLeader();
             if (isLeaderStillMe(leaderId, ScheduleElector.getInstance().getId())) {
@@ -189,10 +202,18 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules/{schedule_id}")
-    public ScheduleFullEntity getSchedule(@PathVariable("schedule_id") String scheduleId,
+    public ScheduleClientEntity getSchedule(@PathVariable("schedule_id") String scheduleId,
             HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws Exception {
         ScheduleFullEntity info = service.getSchedule(scheduleId);
+        ScheduleClientEntity result = new ScheduleClientEntity(info);
+        if (StringUtils.hasText(info.getTransitionId())) {
+            TransitionScheduleEntity transitionSchedule = lifeCycleScheduleDao
+                    .queryOne(new BasicBSONObject(
+                            FieldName.LifeCycleConfig.FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_ID,
+                            info.getTransitionId()));
+            result.setTransitionName(transitionSchedule.getTransition().getName());
+        }
         if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
                     "schedule is not exist:schedule_id=" + scheduleId);
@@ -202,7 +223,7 @@ public class ScheduleController {
         audit.info(ScmAuditType.SCHEDULE_DQL, auth, info.getWorkspace(), 0,
                 "get schedule by scheduleId=" + scheduleId);
 
-        return info;
+        return result;
     }
 
     @GetMapping("/schedules")
@@ -246,6 +267,15 @@ public class ScheduleController {
             boolean isFirstObj = true;
             while (cursor.hasNext()) {
                 BSONObject obj = cursor.next();
+                ScheduleFullEntity info = ScheduleEntityTranslator.FullInfo.fromBSONObject(obj);
+                if (StringUtils.hasText(info.getTransitionId())) {
+                    TransitionScheduleEntity transitionSchedule = lifeCycleScheduleDao
+                            .queryOne(new BasicBSONObject(
+                                    FieldName.LifeCycleConfig.FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_ID,
+                                    info.getTransitionId()));
+                    obj.put(RestCommonField.REST_TRANSITION_NAME,
+                            transitionSchedule.getTransition().getName());
+                }
                 if (!isFirstObj) {
                     writer.write(",");
                 }
@@ -282,7 +312,6 @@ public class ScheduleController {
         }
         checkWsPriority(auth.getName(), info.getWorkspace(), ScmPrivilegeDefine.UPDATE,
                 "update schedule");
-
         if (!ScheduleElector.getInstance().isLeader()) {
             String leaderId = ScheduleElector.getInstance().getLeader();
             if (isLeaderStillMe(leaderId, ScheduleElector.getInstance().getId())) {

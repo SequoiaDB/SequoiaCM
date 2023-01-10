@@ -224,6 +224,30 @@
                     "enforced": "false"
                 }
             ]
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "GLOBAL_LIFE_CYCLE_CONFIG"
+        },
+        {
+            "csName": "SCMSYSTEM",
+            "clName": "WORKSPACE_LIFE_CYCLE_CONFIG",
+            "indexes": [
+                {
+                    "name": "idx_workspace_life_cycle_config_id",
+                    "indexDef": {
+                        "id": 1
+                    },
+                    "isUnique": "true",
+                    "enforced": "false"
+                },
+                {
+                    "name": "idx_workspace_life_cycle_config_workspace",
+                    "indexDef": {
+                        "workspace": 1
+                    }
+                }
+            ]
         }
     ]
 }

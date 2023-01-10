@@ -2641,6 +2641,91 @@ public class ScmFactory {
             String strategy = String.valueOf(result.get(CommonDefine.RestArg.SITE_STRATEGY));
             return ScmType.SiteStrategyType.getStrategyType(strategy);
         }
+
+        /**
+         * set site stage tag.
+         *
+         * @param ss
+         *            session object.
+         *
+         * @param siteName
+         *            site name.
+         *
+         * @param stageTagName
+         *            stage tag name.
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.2
+         */
+        public static void setSiteStageTag(ScmSession ss,String siteName,String stageTagName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("siteName", siteName);
+            checkArgNotNull("stageTagName", stageTagName);
+            ss.getDispatcher().setSiteStageTag(siteName,stageTagName);
+        }
+
+        /**
+         * alter site stage tag.
+         *
+         * @param ss
+         *            session object.
+         *
+         * @param siteName
+         *            site name.
+         *
+         * @param stageTagName
+         *            new stage tag name.
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.2
+         */
+        public static void alterSiteStageTag(ScmSession ss, String siteName, String stageTagName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("siteName", siteName);
+            checkArgNotNull("stageTagName", stageTagName);
+            ss.getDispatcher().alterSiteStageTag(siteName, stageTagName);
+        }
+
+        /**
+         * unset site stage tag.
+         *
+         * @param ss
+         *            session object.
+         *
+         * @param siteName
+         *            site name.
+         *
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.2
+         */
+        public static void unsetSiteStageTag(ScmSession ss, String siteName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("siteName", siteName);
+            ss.getDispatcher().unsetSiteStageTag(siteName);
+        }
+
+        /**
+         * get site stage tag by stie name.
+         *
+         * @param ss
+         *            session object.
+         *
+         * @param siteName
+         *            site name.
+         *
+         * @return stage tag name.
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.2
+         */
+        public static String getSiteStageTag(ScmSession ss, String siteName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("siteName", siteName);
+            BSONObject obj = ss.getDispatcher().getSiteStageTag(siteName);
+            return (String) obj.get(FieldName.FIELD_CLSITE_STAGE_TAG);
+        }
     }
 
     /**

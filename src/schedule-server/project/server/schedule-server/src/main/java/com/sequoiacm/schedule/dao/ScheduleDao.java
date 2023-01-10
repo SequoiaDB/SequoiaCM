@@ -27,5 +27,7 @@ public interface ScheduleDao {
     
     public void delete(BSONObject matcher) throws Exception;
 
+    public void delete(BSONObject matcher, Transaction t) throws Exception;
+
     long countSchedule(BSONObject condition) throws Exception;
 }

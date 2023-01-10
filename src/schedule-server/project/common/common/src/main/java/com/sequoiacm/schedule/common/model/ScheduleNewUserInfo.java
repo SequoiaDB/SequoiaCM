@@ -12,6 +12,7 @@ public class ScheduleNewUserInfo {
     protected Boolean enable;
     protected String preferredRegion;
     protected String preferredZone;
+    protected String transition;
 
     public String getName() {
         return name;
@@ -83,5 +84,13 @@ public class ScheduleNewUserInfo {
 
     public void setPreferredRegion(String preferredRegion) {
         this.preferredRegion = preferredRegion;
+    }
+
+    public String getTransition() {
+        return transition;
+    }
+
+    public void setTransition(String transition) {
+        this.transition = transition;
     }
 }

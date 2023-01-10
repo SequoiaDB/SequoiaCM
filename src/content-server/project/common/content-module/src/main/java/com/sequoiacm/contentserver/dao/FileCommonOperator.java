@@ -5,6 +5,12 @@ import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
+import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
+import com.sequoiacm.infrastructure.strategy.element.StrategyType;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,6 +228,17 @@ public class FileCommonOperator {
                 + siteId);
         ScmContentModule.getInstance().getMetaService().updateAccessTimeInFile(wsInfo, fileId,
                 majorVersion, minorVersion, siteId, date);
+
+    }
+
+    public static void updateAccessHistoryInFile(ScmWorkspaceInfo wsInfo, String fileId,
+            int majorVersion, int minorVersion, int siteId, BasicBSONList newAccessTimeList)
+            throws ScmServerException {
+        logger.debug("updating access history:wsName=" + wsInfo.getName() + ",fileId=" + fileId
+                + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
+                + siteId);
+        ScmContentModule.getInstance().getMetaService().updateAccessHistoryInFile(wsInfo, fileId,
+                majorVersion, minorVersion, siteId, newAccessTimeList);
 
     }
 

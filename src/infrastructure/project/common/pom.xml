@@ -38,6 +38,10 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-content-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

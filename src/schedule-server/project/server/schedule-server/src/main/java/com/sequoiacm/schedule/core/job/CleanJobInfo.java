@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -17,6 +18,8 @@ public class CleanJobInfo extends ScheduleJobInfo {
     private int days;
     private int siteId;
     private String siteName;
+    private String checkSiteName;
+    private int checkSiteId;
     private BSONObject extraCondition;
     private int scope;
     private long maxExecTime;
@@ -24,6 +27,8 @@ public class CleanJobInfo extends ScheduleJobInfo {
     private boolean quickStart;
     private boolean isRecycleSpace;
     private String dataCheckLevel;
+
+    private BSONObject cleanTriggers;
 
     public CleanJobInfo(String id, String type, String workspace, BSONObject content, String cron,
             String preferredRegion, String preferredZone) throws ScheduleException {
@@ -88,6 +93,19 @@ public class CleanJobInfo extends ScheduleJobInfo {
         }
         siteId = siteEntity.getId();
 
+        // 延迟清理需检查的对端站点信息
+        if (content.containsField(FieldName.Schedule.FIELD_CLEAN_CHECK_SITE)) {
+            checkSiteName = ScheduleCommonTools.getStringValue(content,
+                    FieldName.Schedule.FIELD_CLEAN_CHECK_SITE);
+            SiteEntity checkSiteEntity = wsInfo.getSite(checkSiteName);
+            if (null == checkSiteEntity) {
+                throw new ScheduleException(RestCommonDefine.ErrorCode.SITE_NOT_EXISTS,
+                        "site is not exist in workspace:workspace=" + wsInfo.getName()
+                                + ",site_name=" + checkSiteName);
+            }
+            checkSiteId = checkSiteEntity.getId();
+        }
+
         // check site
         ScheduleStrategyMgr.getInstance().checkCleanSite(wsInfo, siteId);
 
@@ -127,6 +145,12 @@ public class CleanJobInfo extends ScheduleJobInfo {
         else {
             dataCheckLevel = ScheduleDefine.DataCheckLevel.WEEK;
         }
+
+        cleanTriggers = ScheduleCommonTools.getBSONObjectValue(content,
+                FieldName.LifeCycleConfig.FIELD_TRANSITION_CLEAN_TRIGGERS);
+        if (null == cleanTriggers) {
+            cleanTriggers = new BasicBSONObject();
+        }
     }
 
     public long getMaxExecTime() {
@@ -137,8 +161,20 @@ public class CleanJobInfo extends ScheduleJobInfo {
         return scope;
     }
 
+    public String getCheckSiteName() {
+        return checkSiteName;
+    }
+
+    public int getCheckSiteId() {
+        return checkSiteId;
+    }
+
     public void setScope(int scope) {
         this.scope = scope;
+    }
+
+    public BSONObject getCleanTriggers() {
+        return cleanTriggers;
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.sequoiacm.schedule.remote;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.schedule.common.model.TransitionScheduleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ public class ScheduleClientFactory {
     private Map<String, ScheduleClient> nodeMapFeignClient = new ConcurrentHashMap<String, ScheduleClient>();
     private Map<String, WorkerClient> nodeMapWorkerClient = new ConcurrentHashMap<String, WorkerClient>();
     private ScheduleFullEntityDecoder decoder = new ScheduleFullEntityDecoder();
+    private TransitionScheduleEntityDecoder transitionScheduleEntityDecoder = new TransitionScheduleEntityDecoder();
     private ScheduleExceptionConverter exceptionConverter = new ScheduleExceptionConverter();
 
     @Autowired
@@ -30,6 +33,8 @@ public class ScheduleClientFactory {
             ScheduleClient client = scmFeignClient.builder()
                     .exceptionConverter(exceptionConverter)
                     .typeDecoder(ScheduleFullEntity.class, decoder)
+                    .typeDecoder(TransitionScheduleEntity.class,
+                            transitionScheduleEntityDecoder)
                     .instanceTarget(ScheduleClient.class, targetUrl);
             nodeMapFeignClient.put(targetUrl, client);
             return client;

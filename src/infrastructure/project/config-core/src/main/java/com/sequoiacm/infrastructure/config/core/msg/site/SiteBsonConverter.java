@@ -32,6 +32,9 @@ public class SiteBsonConverter implements BsonConverter {
         String name = BsonUtils.getStringChecked(config, FieldName.FIELD_CLSITE_NAME);
         siteConfig.setName(name);
 
+        String stageTag = BsonUtils.getString(config,FieldName.FIELD_CLSITE_STAGE_TAG);
+        siteConfig.setStageTag(stageTag);
+
         boolean isRootSite = BsonUtils.getBooleanChecked(config,
                 FieldName.FIELD_CLSITE_MAINFLAG);
         siteConfig.setRootSite(isRootSite);
@@ -102,7 +105,11 @@ public class SiteBsonConverter implements BsonConverter {
 
     @Override
     public ConfigUpdator convertToConfigUpdator(BSONObject configUpdatorObj) {
-        throw new IllegalArgumentException("unsupport to update site info");
+        String siteName = BsonUtils.getStringChecked(configUpdatorObj,ScmRestArgDefine.SITE_CONF_SITENAME);
+        BSONObject updator = BsonUtils.getBSONChecked(configUpdatorObj,ScmRestArgDefine.SITE_CONF_UPDATOR);
+        String updatorStageTag = BsonUtils.getStringChecked(updator,ScmRestArgDefine.SITE_CONF_STAGETAG);
+        SiteUpdator siteUpdator = new SiteUpdator(siteName,updatorStageTag);
+        return siteUpdator;
     }
 
     @Override

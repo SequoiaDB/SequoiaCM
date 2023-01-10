@@ -21,6 +21,7 @@ public class ScmScheduleBasicInfo {
     private boolean enable = true;
     private String preferredRegion;
     private String preferredZone;
+    private String transition;
 
     /**
      * Create a instance of ScmScheduleBasicInfo.
@@ -69,6 +70,11 @@ public class ScmScheduleBasicInfo {
 
         setPreferredRegion(BsonUtils.getString(info, RestDefine.RestKey.PREFERRED_REGION));
         setPreferredZone(BsonUtils.getString(info, RestDefine.RestKey.PREFERRED_ZONE));
+
+        temp = info.get(RestDefine.RestKey.TRANSITION_NAME);
+        if (null != temp){
+            setTransition((String) temp);
+        }
     }
 
     /**
@@ -240,6 +246,14 @@ public class ScmScheduleBasicInfo {
      */
     public String getPreferredZone() {
         return preferredZone;
+    }
+
+    public String getTransition() {
+        return transition;
+    }
+
+    public void setTransition(String transition) {
+        this.transition = transition;
     }
 
     @Override

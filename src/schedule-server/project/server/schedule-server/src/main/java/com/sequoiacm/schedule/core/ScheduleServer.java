@@ -144,6 +144,28 @@ public class ScheduleServer {
         return workspaceMgr.getWsInfo(wsName);
     }
 
+    public SiteInfo getSite(int siteId){
+        SiteInfo siteInfo = siteMgr.getSite(siteId);
+        if (null == siteInfo){
+            logger.warn("site not found: siteId={}", siteId);
+            return null;
+        }
+        return siteInfo;
+    }
+
+    public SiteInfo getSite(String siteName){
+        SiteInfo siteInfo = siteMgr.getSite(siteName);
+        if (null == siteInfo){
+            logger.warn("site not found: siteName={}", siteName);
+            return null;
+        }
+        return siteInfo;
+    }
+
+    public List<WorkspaceInfo> getAllWorkspace(){
+        return workspaceMgr.getAllWsInfo();
+    }
+
     public FileServerEntity getRandomServer(int siteId, String preferredRegion,
             String preferredZone) {
         SiteInfo siteInfo = siteMgr.getSite(siteId);
@@ -297,7 +319,7 @@ public class ScheduleServer {
 
     private SiteInfo transformSiteInfo(SiteEntity siteEntity) throws Exception {
         SiteInfo siteInfo = new SiteInfo(siteEntity.getId(), siteEntity.getName(),
-                siteEntity.isRoot());
+                siteEntity.isRoot(),siteEntity.getStageTag());
         return siteInfo;
     }
 

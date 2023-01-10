@@ -7,7 +7,6 @@ import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.BsonConverter;
-import com.sequoiacm.common.FieldName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -326,6 +325,11 @@ class ScmScheduleImpl implements ScmSchedule {
     @Override
     public String getPreferredZone() {
         return basicInfo.getPreferredZone();
+    }
+
+    @Override
+    public String getTransitionName() {
+        return basicInfo.getTransition();
     }
 
     @Override

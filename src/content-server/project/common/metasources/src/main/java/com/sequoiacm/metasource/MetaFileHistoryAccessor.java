@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
 
 public interface MetaFileHistoryAccessor {
     public BSONObject delete(String fileId, int majorVersion, int minorVersion)
@@ -20,6 +21,9 @@ public interface MetaFileHistoryAccessor {
 
     public boolean updateAccessTime(String fileId, int majorVersion, int minorVersion, int siteId,
             Date date) throws ScmMetasourceException;
+
+    public boolean updateAccessHistory(String fileId, int majorVersion, int minorVersion,
+            int siteId, BasicBSONList newAccessTimeList) throws ScmMetasourceException;
 
     public boolean updateMd5(String fileId, int majorVersion, int minorVersion, String md5)
             throws ScmMetasourceException;

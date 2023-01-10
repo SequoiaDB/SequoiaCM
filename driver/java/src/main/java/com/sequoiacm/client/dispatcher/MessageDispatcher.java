@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sequoiacm.client.element.ScmCheckConnTarget;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import org.bson.BSONObject;
 
@@ -405,4 +406,54 @@ public interface MessageDispatcher extends Closeable {
     void setBucketTag(String bucketName, Map<String, String> customTag) throws ScmException;
 
     void deleteBucketTag(String bucketName) throws ScmException;
+    void setGlobalLifeCycleConfig(BSONObject lifeCycleConfigBSON) throws ScmException;
+
+    void deleteGlobalLifeCycleConfig() throws ScmException;
+
+    BSONObject getGlobalLifeCycleConfig() throws ScmException;
+
+    void addGlobalStageTag(String stageTagName,String stageTagDesc) throws ScmException;
+
+    void removeGlobalStageTag(String stageTagName) throws ScmException;
+
+    void updateGlobalTransition(String transitionName, BSONObject transitionBSON) throws ScmException;
+
+    void addGlobalTransition(BSONObject transitionBSON) throws ScmException;
+
+    void removeGlobalTransition(String transitionName) throws ScmException;
+
+    BSONObject getGlobalTransition(String transitionName) throws ScmException;
+
+    BSONObject listWorkspaceByTransitionName(String transitionName) throws ScmException;
+
+    BSONObject listTransition(String stageTagName) throws ScmException;
+
+    void setSiteStageTag(String siteName,String stageTagName) throws ScmException;
+
+    void alterSiteStageTag(String siteName, String stageTagName) throws ScmException;
+
+    void unsetSiteStageTag(String siteName) throws ScmException;
+
+    BSONObject getSiteStageTag(String siteName) throws ScmException;
+
+    BSONObject applyTransition(String workspace, String transitionName,
+            ScmLifeCycleTransition transition, String preferredRegion, String preferredZone)
+            throws ScmException;
+
+    void removeWsTransition(String workspace, String transitionName) throws ScmException;
+
+    BSONObject updateWsTransition(String workspace, String transitionName,
+            BSONObject transitionBSON, String preferredRegion, String preferredZone)
+            throws ScmException;
+
+    BSONObject getWsTransition(String workspace, String transitionName) throws ScmException;
+
+    void updateWsTransitionStatus(String workspace, String transitionName, Boolean status) throws ScmException;
+
+    BSONObject listWsTransition(String workspace) throws ScmException;
+
+    ScmId startOnceTransition(String workspaceName, BSONObject condition, int scope,
+                              long maxExecTime, String source, String dest, String dataCheckLevel, boolean quickStart,
+                              boolean isRecycleSpace, String type, String preferredRegion,
+                              String preferredZone) throws ScmException;
 }

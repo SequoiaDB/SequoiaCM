@@ -16,5 +16,6 @@ public class RestDefine {
         // long (ms)
         public static final String CREATE_TIME = "create_time";
         public static final String ENABLE = "enable";
+        public static final String TRANSITION_NAME = "transition_name";
     }
 }

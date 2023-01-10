@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
+import com.sequoiacm.schedule.common.RestCommonField;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URLDecoder;
 
 public class ScheduleEntityTranslator {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleEntityTranslator.class);
@@ -47,7 +47,8 @@ public class ScheduleEntityTranslator {
             return new ScheduleFullEntity(id, userInfo.getName(), userInfo.getDesc(),
                     userInfo.getType(), userInfo.getWorkspace(), userInfo.getContent(),
                     userInfo.getCron(), userInfo.isEnable(), user, createTime,
-                    userInfo.getPreferredRegion(), userInfo.getPreferredZone());
+                    userInfo.getPreferredRegion(), userInfo.getPreferredZone(),
+                    userInfo.getTransitionId());
         }
 
         public static BSONObject toBSONObject(ScheduleFullEntity info) {
@@ -64,6 +65,7 @@ public class ScheduleEntityTranslator {
             obj.put(FieldName.Schedule.FIELD_ENABLE, info.isEnable());
             obj.put(FieldName.Schedule.FIELD_PREFERRED_REGION, info.getPreferredRegion());
             obj.put(FieldName.Schedule.FIELD_PREFERRED_ZONE, info.getPreferredZone());
+            obj.put(FieldName.Schedule.FIELD_TRANSITION, info.getTransitionId());
             return obj;
         }
 
@@ -87,6 +89,15 @@ public class ScheduleEntityTranslator {
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
                 info.setPreferredRegion(
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
+                Object transition = obj.get(FieldName.Schedule.FIELD_TRANSITION);
+                if (transition != null) {
+                    info.setTransitionId((String) transition);
+                }
+
+                Object transitionName = obj.get(RestCommonField.REST_TRANSITION_NAME);
+                if (transitionName != null) {
+
+                }
             }
             catch (Exception e) {
                 logger.error("translate BSONObject to ScheduleFullInfo failed:obj={}", obj);
@@ -110,6 +121,10 @@ public class ScheduleEntityTranslator {
             info.setEnable((Boolean) obj.get(FieldName.Schedule.FIELD_ENABLE));
             info.setPreferredRegion(BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
             info.setPreferredZone(BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
+            Object transition = obj.get(FieldName.Schedule.FIELD_TRANSITION);
+            if (transition != null) {
+                info.setTransition((String) transition);
+            }
             return info;
         }
     }
@@ -149,6 +164,10 @@ public class ScheduleEntityTranslator {
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
                 info.setPreferredZone(
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
+                Object transition = obj.get(FieldName.Schedule.FIELD_TRANSITION);
+                if (transition != null) {
+                    info.setTransitionId((String) transition);
+                }
             }
             catch (Exception e) {
                 logger.error("translate BSONObject to ScheduleUserEntity failed:obj={}", obj);

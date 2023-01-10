@@ -3,12 +3,16 @@ package com.sequoiacm.tools.common;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleConfig;
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleStageTag;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.ScmSiteConfig;
 import com.sequoiacm.tools.element.ScmSiteInfo;
+import com.sequoiacm.tools.exception.ScmExitCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +54,8 @@ public class ScmSiteHelper {
             }
             ss = ScmFactory.Session
                     .createSession(new ScmConfigOption(gatewayUrls, username, password));
+            // check site stage tag
+            checkStageTagValid(ss, siteConf.getStageTag());
             RestDispatcher.getInstance().createSite(ss, siteConf);
         }
         catch (ScmException e) {
@@ -96,7 +102,24 @@ public class ScmSiteHelper {
         siteInfo.setMetaUrl(siteConf.getMetaUrl());
         siteInfo.setMetaUser(siteConf.getMetaUser());
         siteInfo.setMetaPasswd(siteConf.getMetaPassword());
+        siteInfo.setStageTag(siteInfo.getStageTag());
         return siteInfo;
     }
 
+    private static void checkStageTagValid(ScmSession ss, String stageTag)
+            throws ScmException, ScmToolsException {
+        if (stageTag == null) {
+            return;
+        }
+        ScmLifeCycleConfig config = ScmSystem.LifeCycleConfig.getLifeCycleConfig(ss);
+        if (config != null) {
+            for (ScmLifeCycleStageTag scmLifeCycleStageTag : config.getStageTagConfig()) {
+                if (stageTag.equals(scmLifeCycleStageTag.getName())) {
+                    return;
+                }
+            }
+        }
+        throw new ScmToolsException("failed to resolve stage tag:" + stageTag + ",because "
+                + stageTag + " does not exist in the life cycle config", ScmExitCode.INVALID_ARG);
+    }
 }

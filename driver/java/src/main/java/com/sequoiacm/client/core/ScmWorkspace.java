@@ -1,8 +1,10 @@
 package com.sequoiacm.client.core;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 
@@ -129,6 +131,143 @@ public abstract class ScmWorkspace {
      *             if error happens.
      */
     public abstract void updateDataLocation(List<ScmDataLocation> dataLocations, boolean mergeTo) throws ScmException;
+
+    /**
+     * apply transition to workspace.
+     * 
+     * @param transitionName
+     *            global transition name.
+     * @param preferredRegion
+     *            priority region,if null,used session's preferred region
+     *
+     * @param preferredZone
+     *            priority zone,if null,used session's preferred zone
+     * @return ScmTransitionSchedule
+     * @throws ScmException
+     */
+    public abstract ScmTransitionSchedule applyTransition(String transitionName, String preferredRegion,
+            String preferredZone) throws ScmException;
+
+    /**
+     * apply transition to workspace.
+     * 
+     * @param transitionName
+     *            global transition name.
+     * @return ScmTransitionSchedule
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmTransitionSchedule applyTransition(String transitionName) throws ScmException;
+
+    /**
+     * apply transition to workspace.
+     *
+     * @param transitionName
+     *            global transition name.
+     *
+     * @param transition
+     *            custom transition info,if null,direct reference global transition.
+     *
+     * @param preferredRegion
+     *            priority region,if null,used session's preferred region
+     *
+     * @param preferredZone
+     *            priority zone,if null,used session's preferred zone
+     * @return  ScmTransitionSchedule
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmTransitionSchedule applyTransition(String transitionName, ScmLifeCycleTransition transition,
+            String preferredRegion, String preferredZone) throws ScmException;
+
+    /**
+     * apply transition to workspace.
+     * 
+     * @param transitionName
+     *            global transition name.
+     * @param transition
+     *            custom transition info,if null,direct reference global transition.
+     * @return ScmTransitionSchedule
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmTransitionSchedule applyTransition(String transitionName, ScmLifeCycleTransition transition)
+            throws ScmException;
+
+    /**
+     * inport transition by workspace apply transition xml file path.
+     *
+     * @param xmlPath
+     *            workspace apply transition xml file path.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void setTransitionConfig(String xmlPath) throws ScmException;
+
+    /**
+     * inport transition by workspace apply transition xml file path.
+     * 
+     * @param xmlInputStream
+     *            xml file input stream
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void setTransitionConfig(InputStream xmlInputStream) throws ScmException;
+
+    /**
+     * remove transition by transition name.
+     *
+     * @param transitionName
+     *            transition name.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void removeTransition(String transitionName) throws ScmException;
+
+    /**
+     * update workspace apply transition info.
+     *
+     * @param transitionName
+     *            transition name.
+     *
+     * @param transition
+     *            new transition info.
+     *
+     * @param preferredRegion
+     *            priority region,if null,used old transition preferred region.
+     *
+     * @param preferredZone
+     *            priority zone,if null,used old transition preferred zone.
+     *
+     * @return  ScmTransitionScheduleList
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmTransitionSchedule updateTransition(String transitionName, ScmLifeCycleTransition transition,
+            String preferredRegion, String preferredZone) throws ScmException;
+
+    public abstract ScmTransitionSchedule updateTransition(String transitionName, ScmLifeCycleTransition transition)
+            throws ScmException;
+
+    /**
+     * get apply transition info by transition name.
+     *
+     * @param transitionName
+     *            transition name.
+     * @return  ScmTransitionSchedule
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmTransitionSchedule getTransition(String transitionName)throws ScmException;
+
+    /**
+     * get workspace apply all transition info.
+     *
+     * @return  ScmTransitionScheduleList
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract List<ScmTransitionSchedule> listTransition() throws ScmException;
 
     /**
      * Returns the sharding type of batch.
