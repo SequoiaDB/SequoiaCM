@@ -191,7 +191,6 @@ public class SdbMetaSource implements ContentModuleMetaSource {
         try {
             if (null != ms) {
                 ms.clear();
-                ms = null;
             }
         }
         catch (Exception e) {
