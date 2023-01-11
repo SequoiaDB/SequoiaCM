@@ -62,10 +62,8 @@ public class BucketTag5527 extends TestScmBase {
         Map< String, String > customTag = bucket.getCustomTag();
 
         // 校验结果
-        if ( customTag.get( tagKey ) != null ) {
+        if ( customTag != null ) {
             Assert.assertEquals( customTag.get( tagKey ), tagValue );
-        } else {
-            Assert.assertEquals( customTag, new HashMap< String, String >() );
         }
         runSuccess = true;
     }
