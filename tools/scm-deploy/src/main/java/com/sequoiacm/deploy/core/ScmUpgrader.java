@@ -103,6 +103,9 @@ public class ScmUpgrader {
         }
 
         // 6.准备升级脚本和tar包
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(new Date());
+        upgradeInfoMgr.getConfigInfo().setUpgradePackPath(
+                upgradeInfoMgr.getConfigInfo().getUpgradePackPath() + "/upgrade-" + timestamp);
         String packPath = null;
         if (!dryrun) {
             packPath = prepareUpgradePackage();
@@ -121,7 +124,6 @@ public class ScmUpgrader {
         }
 
         // 7. 升级前准备
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd-hh:mm:ss").format(new Date());
         String backupPath = upgradeInfoMgr.getConfigInfo().getBackupPath() + "/backup-" + timestamp;
         upgradeInfoMgr.getConfigInfo().setBackupPath(backupPath);
         File upgradeStatusFile;
@@ -202,8 +204,14 @@ public class ScmUpgrader {
             String upgradePackPath = upgradeInfoMgr.getConfigInfo().getUpgradePackPath();
             String backupPath = upgradeInfoMgr.getConfigInfo().getBackupPath();
             ssh = SshMgr.getInstance().getSsh(host);
-            // 1. 在host上删除并创建新的upgradePackPath：用于存放升级所需文件
-            ssh.sudoExec("rm -rf " + upgradePackPath);
+            // 1. 检查 upgradePackPath 是否已经存在
+            boolean isExists = ssh.sudoExec("ls " + upgradePackPath, 0, 2) == 0;
+            if (isExists) {
+                throw new IllegalArgumentException(
+                        "failed to send upgrade package, dir already exist: host="
+                                + host.getHostName() + ", dir=" + upgradePackPath);
+            }
+
             ssh.sudoExec("mkdir -p " + upgradePackPath);
 
             //2. 传送升级包到host临时目录 并解压到upgradePackPath，改变upgradePackPath所属用户和用户组

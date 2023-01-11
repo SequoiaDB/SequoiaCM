@@ -63,4 +63,8 @@ public class ConfigInfo {
     public void setBackupPath(String backupPath) {
         this.backupPath = backupPath;
     }
+
+    public void setUpgradePackPath(String upgradePackPath) {
+        this.upgradePackPath = upgradePackPath;
+    }
 }

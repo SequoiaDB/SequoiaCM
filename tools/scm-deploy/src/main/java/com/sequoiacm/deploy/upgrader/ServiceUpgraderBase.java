@@ -59,10 +59,10 @@ public class ServiceUpgraderBase implements ServiceUpgrader {
                 String rollbackCommand = upgradeCommand + " --rollback";
                 try {
                     execScript(ssh, rollbackCommand, nodeStatusList);
+                    logger.info("Rollback success");
                 } catch (Exception e1) {
                     logger.error("failed to rollback " + type + " on " + host.getHostName() + ", causeby:" + e1.getMessage(), e1);
                 }
-                logger.info("Rollback success");
                 throw new UpgradeException("failed to upgrade " + type + " on " + host.getHostName() + ", causeby:" + e.getMessage(), e);
             }
         } finally {
