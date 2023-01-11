@@ -40,13 +40,12 @@ public class ScmConnCheck extends SubCommand {
 
     @Override
     public void run(String[] args) throws Exception {
-        Options ops = addParam();
-        CommandLine commandLine = new DefaultParser().parse(ops, args, false);
-
-        if (commandLine.hasOption("help")) {
+        if (hasHelp(args)) {
             printHelp();
             System.exit(0);
         }
+        Options ops = addParam();
+        CommandLine commandLine = new DefaultParser().parse(ops, args, false);
 
         String gatewayAddress = commandLine.getOptionValue(GATEWAY);
         try {
@@ -230,9 +229,8 @@ public class ScmConnCheck extends SubCommand {
 
 
     @Override
-    protected Options addParam() throws ParseException {
+    protected Options addParam() {
         Options ops = new Options();
-        ops.addOption(Option.builder("h").longOpt("help").hasArg(false).required(false).build());
         ops.addOption(Option.builder(null).longOpt(GATEWAY).desc("gateway url").optionalArg(true)
                 .hasArg(true).required(true).build());
         return ops;
@@ -248,7 +246,7 @@ public class ScmConnCheck extends SubCommand {
         return "execute scm cluster connCheck.";
     }
 
-    protected void printHelp() throws ParseException {
+    public void printHelp() {
         Options ops = addParam();
         HelpFormatter help = new HelpFormatter();
         help.printHelp(getName() + " [options]", ops);

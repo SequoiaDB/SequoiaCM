@@ -81,13 +81,12 @@ public class ScmClusterCollect extends SubCommand {
     @Override
     public void run(String[] args)
             throws ParseException, IOException, ScmToolsException, InterruptedException {
-        Options ops = addParam();
-        CommandLine commandLine = new DefaultParser().parse(ops, args, false);
-        if (commandLine.hasOption("help")) {
+        if (hasHelp(args)) {
             printHelp();
             System.exit(0);
         }
-
+        Options ops = addParam();
+        CommandLine commandLine = new DefaultParser().parse(ops, args, false);
         System.out.println("[INFO ] start analyze parameter");
         CollectConfig.setResultDir(RESULT_DIR);
         String gatewayAddress = commandLine.getOptionValue(GATEWAY);
@@ -350,14 +349,13 @@ public class ScmClusterCollect extends SubCommand {
     }
 
     @Override
-    protected Options addParam() throws ParseException {
+    protected Options addParam() {
         Options ops = new Options();
-        ops.addOption(Option.builder("h").longOpt("help").hasArg(false).required(false).build());
         ops.addOption(Option.builder(null).longOpt(GATEWAY).desc("gateway url").optionalArg(true)
                 .hasArg(true).required(true).build());
         ops.addOption(Option.builder(null).longOpt(HOSTS).desc("scm collect cluster machines")
                 .optionalArg(true).hasArg(true).required(false).build());
-        ops.addOption(Option.builder(null).longOpt(CONF).desc("scm collect log conf path")
+        ops.addOption(Option.builder(null).longOpt(CONF).desc("scm collect cluster conf path")
                 .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(SHORT_OUTPUT_PATH).longOpt(OUTPUT_PATH)
                 .desc("scm cluster collect outputPath").optionalArg(true).hasArg(true)
@@ -370,7 +368,7 @@ public class ScmClusterCollect extends SubCommand {
         return ops;
     }
 
-    protected void printHelp() throws ParseException {
+    public void printHelp() {
         Options ops = addParam();
         HelpFormatter help = new HelpFormatter();
         help.printHelp(getName() + " [options]", ops);

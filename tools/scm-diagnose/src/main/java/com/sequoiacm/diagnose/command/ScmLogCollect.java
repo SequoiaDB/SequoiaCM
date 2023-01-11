@@ -69,13 +69,12 @@ public class ScmLogCollect extends SubCommand {
 
     public void run(String[] args)
             throws ScmToolsException, IOException, ParseException, InterruptedException {
-        Options ops = addParam();
-        CommandLine commandLine = new DefaultParser().parse(ops, args, false);
-
-        if (commandLine.hasOption("help")) {
+        if (hasHelp(args)) {
             printHelp();
             System.exit(0);
         }
+        Options ops = addParam();
+        CommandLine commandLine = new DefaultParser().parse(ops, args, false);
 
         System.out.println("[INFO ] start analyze parameter");
 
@@ -171,15 +170,14 @@ public class ScmLogCollect extends SubCommand {
         }
     }
 
-    protected void printHelp() throws ParseException {
+    public void printHelp() {
         Options ops = addParam();
         HelpFormatter help = new HelpFormatter();
         help.printHelp(getName() + " [options]", ops);
     }
 
-    protected Options addParam() throws ParseException {
+    protected Options addParam() {
         Options ops = new Options();
-        ops.addOption(Option.builder("h").longOpt("help").hasArg(false).required(false).build());
         ops.addOption(Option.builder(null).longOpt(HOSTS).desc("scm collect log machines")
                 .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(null).longOpt(CONF).desc("scm collect log conf path")
@@ -188,14 +186,14 @@ public class ScmLogCollect extends SubCommand {
         ops.addOption(Option.builder(null).longOpt(INSTALL_PATH).desc("scm install path")
                 .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(SHORT_OUTPUT_PATH).longOpt(OUTPUT_PATH)
-                .desc("scm log collect outputPath").optionalArg(true).hasArg(true).required(false)
+                .desc("scm collect log outputPath").optionalArg(true).hasArg(true).required(false)
                 .build());
-        ops.addOption(Option.builder(null).longOpt(SERVICES).desc("scm services list")
+        ops.addOption(Option.builder(null).longOpt(SERVICES).desc("collect scm services list")
                 .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(null).longOpt(MAX_LOG_COUNT)
-                .desc("scm log collect logFile max number")
+                .desc("scm collect log logFile max number")
                 .optionalArg(true).hasArg(true).required(false).build());
-        ops.addOption(Option.builder(null).longOpt(THREAD).desc("scm log collect thread size")
+        ops.addOption(Option.builder(null).longOpt(THREAD).desc("scm collect log thread size")
                 .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(null).longOpt(NEED_ZIP).desc("scm collect log files need zip")
                 .optionalArg(true).hasArg(true)

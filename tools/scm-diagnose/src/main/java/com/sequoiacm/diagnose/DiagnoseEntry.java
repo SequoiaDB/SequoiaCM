@@ -30,7 +30,7 @@ public class DiagnoseEntry {
             System.exit(1);
         }
 
-        if (args[0].equals("--help") || args[0].equals("--h")) {
+        if (args[0].equals("--help") || args[0].equals("-h")) {
             displaySubcommandsDesc();
             System.exit(0);
         }
@@ -55,7 +55,7 @@ public class DiagnoseEntry {
         }
         catch (Exception e) {
             System.err.println(
-                    "[ERROR] Execution failed,detail:" + ScmHelper.getPwd()
+                    "[ERROR] Execution failed," + e.getMessage() + ",detail:" + ScmHelper.getPwd()
                             + "/log/scm-diagnose.log");
             logger.error("Execution failed, detail:{}", e.getMessage(), e);
             System.exit(1);
