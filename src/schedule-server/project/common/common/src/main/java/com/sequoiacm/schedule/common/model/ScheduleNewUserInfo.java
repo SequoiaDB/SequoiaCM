@@ -12,7 +12,7 @@ public class ScheduleNewUserInfo {
     protected Boolean enable;
     protected String preferredRegion;
     protected String preferredZone;
-    protected String transition;
+    protected String transitionId;
 
     public String getName() {
         return name;
@@ -86,11 +86,11 @@ public class ScheduleNewUserInfo {
         this.preferredRegion = preferredRegion;
     }
 
-    public String getTransition() {
-        return transition;
+    public String getTransitionId() {
+        return transitionId;
     }
 
-    public void setTransition(String transition) {
-        this.transition = transition;
+    public void setTransitionId(String transitionId) {
+        this.transitionId = transitionId;
     }
 }

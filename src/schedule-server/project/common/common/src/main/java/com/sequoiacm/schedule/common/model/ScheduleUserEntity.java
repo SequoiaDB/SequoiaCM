@@ -18,6 +18,7 @@ public class ScheduleUserEntity {
     protected String preferredRegion;
     @JsonProperty(Schedule.FIELD_PREFERRED_ZONE)
     protected String preferredZone;
+    @JsonProperty(Schedule.FIELD_TRANSITION_ID)
     protected String transitionId;
 
     public ScheduleUserEntity() {

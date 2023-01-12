@@ -65,7 +65,7 @@ public class ScheduleEntityTranslator {
             obj.put(FieldName.Schedule.FIELD_ENABLE, info.isEnable());
             obj.put(FieldName.Schedule.FIELD_PREFERRED_REGION, info.getPreferredRegion());
             obj.put(FieldName.Schedule.FIELD_PREFERRED_ZONE, info.getPreferredZone());
-            obj.put(FieldName.Schedule.FIELD_TRANSITION, info.getTransitionId());
+            obj.put(FieldName.Schedule.FIELD_TRANSITION_ID, info.getTransitionId());
             return obj;
         }
 
@@ -89,14 +89,9 @@ public class ScheduleEntityTranslator {
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
                 info.setPreferredRegion(
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
-                Object transition = obj.get(FieldName.Schedule.FIELD_TRANSITION);
-                if (transition != null) {
-                    info.setTransitionId((String) transition);
-                }
-
-                Object transitionName = obj.get(RestCommonField.REST_TRANSITION_NAME);
-                if (transitionName != null) {
-
+                Object transitionId = obj.get(FieldName.Schedule.FIELD_TRANSITION_ID);
+                if (transitionId != null) {
+                    info.setTransitionId((String) transitionId);
                 }
             }
             catch (Exception e) {
@@ -121,9 +116,9 @@ public class ScheduleEntityTranslator {
             info.setEnable((Boolean) obj.get(FieldName.Schedule.FIELD_ENABLE));
             info.setPreferredRegion(BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
             info.setPreferredZone(BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
-            Object transition = obj.get(FieldName.Schedule.FIELD_TRANSITION);
-            if (transition != null) {
-                info.setTransition((String) transition);
+            Object transitionId = obj.get(FieldName.Schedule.FIELD_TRANSITION_ID);
+            if (transitionId != null) {
+                info.setTransitionId((String) transitionId);
             }
             return info;
         }
@@ -164,9 +159,9 @@ public class ScheduleEntityTranslator {
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_REGION));
                 info.setPreferredZone(
                         BsonUtils.getString(obj, FieldName.Schedule.FIELD_PREFERRED_ZONE));
-                Object transition = obj.get(FieldName.Schedule.FIELD_TRANSITION);
-                if (transition != null) {
-                    info.setTransitionId((String) transition);
+                Object transitionId = obj.get(FieldName.Schedule.FIELD_TRANSITION_ID);
+                if (transitionId != null) {
+                    info.setTransitionId((String) transitionId);
                 }
             }
             catch (Exception e) {

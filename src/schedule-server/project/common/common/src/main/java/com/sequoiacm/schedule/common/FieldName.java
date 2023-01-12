@@ -85,6 +85,7 @@ public class FieldName {
 
         public static final String FIELD_PREFERRED_REGION = "preferred_region";
         public static final String FIELD_PREFERRED_ZONE = "preferred_zone";
+        public static final String FIELD_TRANSITION_ID = "transition_id";
 
         // transition schedule
         public static final String FIELD_TRANSITION = "transition";
