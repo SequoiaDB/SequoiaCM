@@ -110,7 +110,9 @@ public class ScmCuratorVote implements ScmVote {
 
         String leaderId = "";
         try {
-            leaderId = latch.getLeader().getId();
+            if (null != latch) {
+                leaderId = latch.getLeader().getId();
+            }
         }
         catch (Exception e) {
             logger.warn("getLeader failed", e);

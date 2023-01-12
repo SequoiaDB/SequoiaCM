@@ -40,8 +40,7 @@ public class ScheduleLeaderAction implements ScmLeaderAction {
         try {
             logger.info("################leader init#######################");
             ScheduleMgrWrapper.getInstance().start();
-            // todo 放start后
-
+            // 生命周期管理检查和修复
             ScmCheckCorrectionTools.getInstance().checkAndCorrection();
             lastFailedTime = 0;
             backOffExecution = backOff.start();
