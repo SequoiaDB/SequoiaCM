@@ -19,8 +19,13 @@ public class ExecLinuxCommandUtils {
     private static final Logger logger = LoggerFactory.getLogger(ExecLinuxCommandUtils.class);
 
     public static ExecRes localExecuteCommand(String command) throws ScmToolsException {
+        return localExecuteCommand(command, Arrays.asList(0));
+    }
+
+    public static ExecRes localExecuteCommand(String command, List<Integer> expectExitCode)
+            throws ScmToolsException {
         try {
-            return execCommand(command, Arrays.asList(0));
+            return execCommand(command, expectExitCode);
         }
         catch (Exception e) {
             throw new ScmToolsException("local failed to exec shell command," + e.getMessage(),
@@ -93,10 +98,7 @@ public class ExecLinuxCommandUtils {
             return false;
         }
         String command = "tar -zxvf " + tarName + " -C " + outputPath;
-        ExecRes execRes = ExecLinuxCommandUtils.localExecuteCommand(command);
-        if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
-        }
+        ExecLinuxCommandUtils.localExecuteCommand(command);
         return true;
     }
 
@@ -117,7 +119,7 @@ public class ExecLinuxCommandUtils {
         }
         String command = "tar --warning=no-file-changed -zcvf " + tarName + " -C " + tarPath
                 + builder;
-        ExecLinuxCommandUtils.localExecuteCommand(command);
+        ExecLinuxCommandUtils.localExecuteCommand(command, Arrays.asList(0, 1));
         return true;
     }
 

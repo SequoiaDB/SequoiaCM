@@ -109,11 +109,16 @@ public class Ssh {
     }
 
     public ExecRes sshExecuteCommand(String command) throws ScmToolsException {
+        return sshExecuteCommand(command, Arrays.asList(0));
+    }
+
+    public ExecRes sshExecuteCommand(String command, List<Integer> expectExitCode)
+            throws ScmToolsException {
         Channel channel = null;
         try {
             channel = session.openChannel("exec");
             ((ChannelExec) channel).setCommand(command);
-            return runCommand(channel, command, Arrays.asList(0));
+            return runCommand(channel, command, expectExitCode);
         }
         catch (Exception e) {
             throw new ScmToolsException(
@@ -244,10 +249,7 @@ public class Ssh {
     public void mkdir(String path) throws ScmToolsException {
         logger.info("remote hosts " + host + " create path " + path);
         String command = "mkdir -p " + path;
-        ExecRes execRes = sshExecuteCommand(command);
-        if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
-        }
+        sshExecuteCommand(command);
     }
 
     public void zipFile(String tarName, String tarPath, List<String> logFile)
@@ -259,10 +261,7 @@ public class Ssh {
         String command = "tar --warning=no-file-changed -zcvf " + tarName + " -C " + tarPath
                 + builder;
         logger.info("remote hosts " + host + " zip file, command=" + command);
-        ExecRes execRes = sshExecuteCommand(command);
-        if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
-        }
+        sshExecuteCommand(command, Arrays.asList(0, 1));
     }
 
     public List<String> lsFile(String path) throws ScmToolsException {
@@ -324,9 +323,6 @@ public class Ssh {
     public void rmDir(String path) throws ScmToolsException {
         logger.info("remote host " + host + " remove filePath " + path);
         String command = "rm -rf " + path;
-        ExecRes execRes = sshExecuteCommand(command);
-        if (execRes.getExitCode() != 0) {
-            throw new ScmToolsException(execRes.getStdErr(), CollectException.SHELL_EXEC_ERROR);
-        }
+        sshExecuteCommand(command);
     }
 }
