@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.controller;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.Const;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.ScmVersion;
@@ -39,7 +40,9 @@ public class InternalFileController {
             HttpServletResponse response) throws ScmServerException {
         logger.info("internal get file delta: workspace={},filter={},scope={}", workspaceName,
                 condition, scope);
-        long count = fileService.countFiles(workspaceName, scope, condition);
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
+        long count = fileService.countFiles(workspaceName, scope, condition,
+                isResContainsDeleteMarker);
         long sumSize = fileService.sumFileSizes(workspaceName, scope, condition);
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         response.setHeader("X-SCM-Sum", String.valueOf(sumSize));
@@ -52,7 +55,8 @@ public class InternalFileController {
                     + "") Integer scope,
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition)
             throws ScmServerException {
-        return fileService.countFiles(workspaceName, scope, condition);
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
+        return fileService.countFiles(workspaceName, scope, condition, isResContainsDeleteMarker);
     }
 
     @RequestMapping(value = "/files", method = RequestMethod.GET, params = "action=list")
@@ -65,8 +69,9 @@ public class InternalFileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_SELECTOR, required = false) BSONObject selector,
             HttpServletResponse response) throws ScmServerException {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
         MetaCursor cursor = fileService.getFileList(workspace_name, condition, scope, orderby,
-                skip, limit, selector);
+                skip, limit, selector, isResContainsDeleteMarker);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 

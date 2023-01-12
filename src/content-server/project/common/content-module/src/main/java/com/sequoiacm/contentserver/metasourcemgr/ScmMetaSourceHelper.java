@@ -156,7 +156,7 @@ public class ScmMetaSourceHelper {
         return matcher;
     }
 
-    public static BSONObject notDeleteMarkerMatcher() {
+    public static BasicBSONObject generateNewMatcherWithNotDeleteMarker(BSONObject matcher) {
         BasicBSONObject deleteMarkerIsFalse = new BasicBSONObject(
                 FieldName.FIELD_CLFILE_DELETE_MARKER, false);
         BasicBSONObject deleteMarkerNotExist = new BasicBSONObject(
@@ -164,7 +164,12 @@ public class ScmMetaSourceHelper {
         BasicBSONList orArr = new BasicBSONList();
         orArr.add(deleteMarkerIsFalse);
         orArr.add(deleteMarkerNotExist);
-        return new BasicBSONObject("$or", orArr);
+        BasicBSONObject notDeleteMarker = new BasicBSONObject("$or", orArr);
+
+        BasicBSONList andArr = new BasicBSONList();
+        andArr.add(matcher);
+        andArr.add(notDeleteMarker);
+        return new BasicBSONObject("$and", andArr);
     }
 
     public static BSONObject queryOne(MetaAccessor accessor, BSONObject matcher)

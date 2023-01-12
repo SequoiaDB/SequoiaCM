@@ -257,8 +257,7 @@ public class FileOperationFulltextListener implements FileOperationListener {
         MetaCursor cursor = null;
         try {
             cursor = ScmContentModule.getInstance().getMetaService()
-                    .queryCurrentFileIgnoreDeleteMarker(wsInfo,
-                    condition, null, null, 0, 1);
+                    .queryCurrentFile(wsInfo, condition, null, null, 0, 1, false);
             return cursor.getNext();
         }
         catch (Exception e) {

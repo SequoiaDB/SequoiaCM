@@ -499,4 +499,13 @@ public class ScmSystemUtils {
         }
     }
 
+    /**
+     * 参考 S3 规则，统计/列取最新版本文件接口，其结果不包含 deleteMarker
+     */
+    public static boolean isDeleteMarkerRequired(Integer scope) {
+        if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
+            return false;
+        }
+        return true;
+    }
 }

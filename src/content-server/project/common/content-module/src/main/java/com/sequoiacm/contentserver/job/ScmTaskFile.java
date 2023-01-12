@@ -144,8 +144,8 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     protected MetaCursor getCursor(ScmMetaService sms) throws ScmServerException {
         switch (scope) {
             case CommonDefine.Scope.SCOPE_CURRENT:
-                return sms.queryCurrentFileIgnoreDeleteMarker(wsInfo, actualMatcher, null,
-                        createOderBy(CommonDefine.Scope.SCOPE_CURRENT), 0, -1);
+                return sms.queryCurrentFile(wsInfo, actualMatcher, null,
+                        createOderBy(CommonDefine.Scope.SCOPE_CURRENT), 0, -1, false);
             case CommonDefine.Scope.SCOPE_ALL:
                 return sms.queryAllFile(wsInfo, actualMatcher, null,
                         createOderBy(CommonDefine.Scope.SCOPE_ALL));

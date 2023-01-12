@@ -197,9 +197,10 @@ public class FileController {
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
 
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = fileService.getFileList(user, workspace_name, condition, scope, orderby,
-                skip, limit, select);
+                skip, limit, select, isResContainsDeleteMarker);
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
     }
 
@@ -448,7 +449,9 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        long count = fileService.countFiles(user, workspaceName, scope, condition);
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
+        long count = fileService.countFiles(user, workspaceName, scope, condition,
+                isResContainsDeleteMarker);
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok("");
     }

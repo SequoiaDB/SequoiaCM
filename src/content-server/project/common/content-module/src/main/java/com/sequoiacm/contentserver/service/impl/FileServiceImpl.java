@@ -138,8 +138,8 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit, BSONObject selector)
-            throws ScmServerException {
+            BSONObject orderby, long skip, long limit, BSONObject selector,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
@@ -159,8 +159,8 @@ public class FileServiceImpl implements IFileService {
             }
 
             if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
-                metaCursor = contentModule.getMetaService().queryCurrentFileIgnoreDeleteMarker(ws,
-                        condition, selector, orderby, skip, limit);
+                metaCursor = contentModule.getMetaService().queryCurrentFile(ws, condition,
+                        selector, orderby, skip, limit, isResContainsDeleteMarker);
             }
             else {
                 ScmArgChecker.File.checkHistoryFileMatcher(condition);
@@ -168,7 +168,7 @@ public class FileServiceImpl implements IFileService {
                     ScmArgChecker.File.checkHistoryFileOrderby(orderby);
                     metaCursor = contentModule.getMetaService().queryHistoryFile(
                             ws.getMetaLocation(), workspaceName, condition, selector, orderby, skip,
-                            limit);
+                            limit, isResContainsDeleteMarker);
                 }
                 else if (scope == CommonDefine.Scope.SCOPE_ALL) {
                     if (orderby != null || skip != 0 || limit != -1) {
@@ -176,7 +176,7 @@ public class FileServiceImpl implements IFileService {
                                 "query all file unsupport orderby/skip/limit");
                     }
                     metaCursor = contentModule.getMetaService().queryAllFile(ws, condition,
-                            selector, null);
+                            selector, null, isResContainsDeleteMarker);
                 }
                 else {
                     throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
@@ -191,12 +191,12 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public MetaCursor getFileList(ScmUser user, String workspaceName, BSONObject condition,
-            int scope, BSONObject orderby, long skip, long limit, BSONObject selector)
-            throws ScmServerException {
+            int scope, BSONObject orderby, long skip, long limit, BSONObject selector,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.LOW_LEVEL_READ, "list files");
         MetaCursor ret = getFileList(workspaceName, condition, scope, orderby, skip, limit,
-                selector);
+                selector, isResContainsDeleteMarker);
         String message = "list file ";
         if (null != condition) {
             message += "by condition=" + condition.toString();
@@ -225,8 +225,9 @@ public class FileServiceImpl implements IFileService {
 
         audit.info(ScmAuditType.DIR_DQL, user, workspaceName, 0,
                 "list directory's files, dirId=" + dirId + ", matcher=" + matcher.toString());
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
         return getFileList(workspaceName, matcher, CommonDefine.Scope.SCOPE_CURRENT, orderby, skip,
-                limit, selector);
+                limit, selector, isResContainsDeleteMarker);
     }
 
     @Override
@@ -321,12 +322,11 @@ public class FileServiceImpl implements IFileService {
                 "delete file by fileId=" + fileId);
     }
 
-    public long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition)
-            throws ScmServerException {
-
+    public long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
                 ScmPrivilegeDefine.LOW_LEVEL_READ, "count file");
-        long ret = countFiles(workspaceName, scope, condition);
+        long ret = countFiles(workspaceName, scope, condition, isResContainsDeleteMarker);
         String message = "count file";
         if (null != condition) {
             message += " by condition=" + condition.toString();
@@ -336,14 +336,14 @@ public class FileServiceImpl implements IFileService {
     }
 
     @Override
-    public long countFiles(String workspaceName, int scope, BSONObject condition)
-            throws ScmServerException {
+    public long countFiles(String workspaceName, int scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
-            return contentModule.getMetaService().getCurrentFileCountIgnoreDeleteMarker(wsInfo,
-                    condition);
+            return contentModule.getMetaService().getCurrentFileCount(wsInfo, condition,
+                    isResContainsDeleteMarker);
         }
 
         try {
@@ -354,11 +354,11 @@ public class FileServiceImpl implements IFileService {
         }
         if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
             return contentModule.getMetaService().getHistoryFileCount(wsInfo.getMetaLocation(),
-                    workspaceName, condition);
+                    workspaceName, condition, isResContainsDeleteMarker);
         }
         if (scope == CommonDefine.Scope.SCOPE_ALL) {
             return contentModule.getMetaService().getAllFileCount(wsInfo.getMetaLocation(),
-                    workspaceName, condition);
+                    workspaceName, condition, isResContainsDeleteMarker);
         }
         throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
     }

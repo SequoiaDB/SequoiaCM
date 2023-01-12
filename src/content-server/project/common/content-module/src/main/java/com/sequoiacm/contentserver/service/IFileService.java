@@ -21,12 +21,12 @@ public interface IFileService {
      * condition, int scope) throws ScmServerException;
      */
     MetaCursor getFileList(ScmUser user, String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit, BSONObject selector)
-            throws ScmServerException;
+            BSONObject orderby, long skip, long limit, BSONObject selector,
+            boolean isResContainsDeleteMarker) throws ScmServerException;
 
     MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit, BSONObject selector)
-            throws ScmServerException;
+            BSONObject orderby, long skip, long limit, BSONObject selector,
+            boolean isResContainsDeleteMarker) throws ScmServerException;
 
     MetaCursor getDirSubFileList(ScmUser user, String workspaceName, String dirId,
             BSONObject condition, int scope, BSONObject orderby, long skip, long limit,
@@ -45,11 +45,11 @@ public interface IFileService {
     void deleteFile(String sessionid, String userDetail, String workspaceName, String fileId,
             int majorVersion, int minorVersion, boolean isPhysical) throws ScmServerException;
 
-    long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition)
-            throws ScmServerException;
+    long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException;
     
-    long countFiles(String workspaceName, int scope, BSONObject condition)
-            throws ScmServerException;
+    long countFiles(String workspaceName, int scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException;
 
     long sumFileSizes(String workspaceName, int scope, BSONObject condition)
             throws ScmServerException;

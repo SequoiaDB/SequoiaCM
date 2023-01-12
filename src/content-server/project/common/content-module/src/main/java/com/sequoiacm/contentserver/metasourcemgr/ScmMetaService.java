@@ -693,6 +693,14 @@ public class ScmMetaService {
 
     public long getHistoryFileCount(MetaSourceLocation location, String wsName, BSONObject matcher)
             throws ScmServerException {
+        return getHistoryFileCount(location, wsName, matcher, true);
+    }
+
+    public long getHistoryFileCount(MetaSourceLocation location, String wsName, BSONObject matcher,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
+        if (!isResContainsDeleteMarker) {
+            matcher = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(matcher);
+        }
         try {
             return metasource.getFileHistoryAccessor(location, wsName, null).count(matcher);
         }
@@ -720,6 +728,15 @@ public class ScmMetaService {
 
     public long getAllFileCount(MetaSourceLocation location, String wsName, BSONObject matcher)
             throws ScmServerException {
+        return getAllFileCount(location, wsName, matcher, true);
+    }
+
+    public long getAllFileCount(MetaSourceLocation location, String wsName, BSONObject matcher,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
+        if (!isResContainsDeleteMarker) {
+            matcher = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(matcher);
+        }
+
         try {
             long historyFileCount = metasource.getFileHistoryAccessor(location, wsName, null)
                     .count(matcher);
@@ -749,19 +766,17 @@ public class ScmMetaService {
         }
     }
 
-    public long getCurrentFileCountIgnoreDeleteMarker(ScmWorkspaceInfo ws, BSONObject matcher)
-            throws ScmServerException {
-        BSONObject notDeleteMarker = ScmMetaSourceHelper.notDeleteMarkerMatcher();
-
-        BasicBSONList andArr = new BasicBSONList();
-        andArr.add(matcher);
-        andArr.add(notDeleteMarker);
-        matcher = new BasicBSONObject("$and", andArr);
-        return getCurrentFileCount(ws, matcher);
-    }
-
     public long getCurrentFileCount(ScmWorkspaceInfo ws, BSONObject matcher)
             throws ScmServerException {
+        return getCurrentFileCount(ws, matcher, true);
+    }
+
+    public long getCurrentFileCount(ScmWorkspaceInfo ws, BSONObject matcher,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
+        if (!isResContainsDeleteMarker) {
+            matcher = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(matcher);
+        }
+
         try {
             if (ScmMetaSourceHelper.parseFileMatcher(ws,
                     matcher) == ScmMetaSourceHelper.QUERY_IN_RELATION_TABLE) {
@@ -1248,15 +1263,20 @@ public class ScmMetaService {
     }
 
     public MetaCursor queryAllFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector,
-            BSONObject oderBy)
-            throws ScmServerException {
+            BSONObject orderBy) throws ScmServerException {
+        return queryAllFile(ws, matcher, selector, orderBy, true);
+    }
+
+    public MetaCursor queryAllFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector,
+            BSONObject orderBy, boolean isResContainsDeleteMarker) throws ScmServerException {
         MetaCursor currentFileCursor = null;
         MetaCursor historyFileCursor = null;
         try {
-            currentFileCursor = queryCurrentFile(ws, matcher, selector, oderBy, 0, -1);
+            currentFileCursor = queryCurrentFile(ws, matcher, selector, orderBy, 0, -1,
+                    isResContainsDeleteMarker);
             historyFileCursor = queryHistoryFile(ws.getMetaLocation(), ws.getName(), matcher,
-                    selector, oderBy, 0, -1);
-            return new AllFileMetaCursor(currentFileCursor, historyFileCursor, oderBy);
+                    selector, orderBy, 0, -1, isResContainsDeleteMarker);
+            return new AllFileMetaCursor(currentFileCursor, historyFileCursor, orderBy);
         }
         catch (ScmMetasourceException e) {
             ScmSystemUtils.closeResource(currentFileCursor);
@@ -1275,6 +1295,16 @@ public class ScmMetaService {
     public MetaCursor queryHistoryFile(MetaSourceLocation location, String wsName,
             BSONObject matcher, BSONObject selector, BSONObject orderby, long skip, long limit)
             throws ScmServerException {
+        return queryHistoryFile(location, wsName, matcher, selector, orderby, skip, limit, true);
+    }
+
+    public MetaCursor queryHistoryFile(MetaSourceLocation location, String wsName,
+            BSONObject matcher, BSONObject selector, BSONObject orderby, long skip, long limit,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
+        if (!isResContainsDeleteMarker) {
+            matcher = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(matcher);
+        }
+
         try {
             MetaFileHistoryAccessor historyAccessor = metasource.getFileHistoryAccessor(location,
                     wsName, null);
@@ -1289,20 +1319,18 @@ public class ScmMetaService {
         }
     }
 
-    public MetaCursor queryCurrentFileIgnoreDeleteMarker(ScmWorkspaceInfo ws, BSONObject matcher,
-            BSONObject selector, BSONObject orderby, long skip, long limit)
-            throws ScmServerException {
-        BSONObject notDeleteMarker = ScmMetaSourceHelper.notDeleteMarkerMatcher();
-
-        BasicBSONList andArr = new BasicBSONList();
-        andArr.add(matcher);
-        andArr.add(notDeleteMarker);
-        matcher = new BasicBSONObject("$and", andArr);
-        return queryCurrentFile(ws, matcher, selector, orderby, skip, limit);
+    public MetaCursor queryCurrentFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector,
+            BSONObject orderby, long skip, long limit) throws ScmServerException {
+        return queryCurrentFile(ws, matcher, selector, orderby, skip, limit, true);
     }
 
     public MetaCursor queryCurrentFile(ScmWorkspaceInfo ws, BSONObject matcher, BSONObject selector,
-            BSONObject orderby, long skip, long limit) throws ScmServerException {
+            BSONObject orderby, long skip, long limit, boolean isResContainsDeleteMarker)
+            throws ScmServerException {
+        if (!isResContainsDeleteMarker) {
+            matcher = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(matcher);
+        }
+
         try {
             int matcherParseRes = ScmMetaSourceHelper.parseFileMatcher(ws, matcher);
             int selectorParseRes = ScmMetaSourceHelper.parseFileSelector(ws, selector);
