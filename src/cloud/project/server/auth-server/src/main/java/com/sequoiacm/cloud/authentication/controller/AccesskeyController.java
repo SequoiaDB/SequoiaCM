@@ -81,30 +81,16 @@ public class AccesskeyController {
             if (targetUser == null) {
                 throw new NotFoundException("Username is not found: " + username);
             }
+            checkPermission(currentUser, targetUser);
             // check password:
             // 1. i am not admin
-            // 2. i am admin and refresh myself
-            if (!currentUser.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)
-                    || currentUser.getUsername().equals(username)) {
-                if (password == null) {
-                    throw new BadRequestException("please specify password");
-                }
-                String srcPassword;
-                try {
-                    srcPassword = ScmPasswordMgr.getInstance()
-                            .decrypt(ScmPasswordMgr.SCM_CRYPT_TYPE_DES, password);
-                }
-                catch (Exception e) {
-                    throw new BadRequestException("failed to decrypt password");
-                }
-                Object salt = saltSource.getSalt(targetUser);
-                if (!passwordEncoder.isPasswordValid(targetUser.getPassword(), srcPassword, salt)) {
-                    throw new BadRequestException("Incorrect password for user " + username);
-                }
+            // 2. i am admin and targetUser is myself
+            if (!isAdminUser(currentUser) || isSameUser(currentUser, targetUser)) {
+                verifyPassword(targetUser, password);
             }
         }
         else if (signatureInfo != null) {
-            if (username != null || password != null) {
+            if (password != null) {
                 throw new BadRequestException(
                         "can not specify accesskey username signature_info at the same time");
             }
@@ -113,8 +99,8 @@ public class AccesskeyController {
                 throw new NotFoundException(
                         "Accesskey is not found: " + signatureInfo.getAccessKey());
             }
-            if (!currentUser.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)
-                    || currentUser.getUsername().equals(targetUser.getUsername())) {
+            checkPermission(currentUser, targetUser);
+            if (!isAdminUser(currentUser) || isSameUser(currentUser, targetUser)) {
                 if (signatureInfo.getSignature() == null) {
                     throw new BadRequestException("please specify signature");
                 }
@@ -157,6 +143,35 @@ public class AccesskeyController {
         }
     }
 
+    private void checkPermission(ScmUser currentUser, ScmUser targetUser) {
+        // 管理员无法刷新其他管理员的key
+        if (isAdminUser(currentUser) && isAdminUser(targetUser)
+                && !isSameUser(currentUser, targetUser)) {
+            throw new BadRequestException("can not refresh other admin user accesskey,targetUser: "
+                    + targetUser.getUsername());
+        }
+    }
+
+    private boolean isSameUser(ScmUser currentUser, ScmUser targetUser) {
+        return currentUser.getUsername().equals(targetUser.getUsername());
+    }
+
+    private boolean isAdminUser(ScmUser user) {
+        return user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME);
+    }
+
+    private void verifyPassword(ScmUser user, String password) throws Exception {
+        if (password == null) {
+            throw new BadRequestException(
+                    "please specify user password,userName=" + user.getUsername());
+        }
+        String srcPassword = decrypt(password);
+        Object salt = saltSource.getSalt(user);
+        if (!passwordEncoder.isPasswordValid(user.getPassword(), srcPassword, salt)) {
+            throw new BadRequestException("Incorrect password for user: " + user.getUsername());
+        }
+    }
+
     private String genRandomKey(String[] source, int keyLen) {
         Random random = new Random();
         StringBuffer key = new StringBuffer();
@@ -167,8 +182,7 @@ public class AccesskeyController {
         return key.toString();
     }
 
-    private void checkKeyValid(String username, String accesskey, String secretkey)
-            throws Exception {
+    private void checkKeyValid(String username, String accesskey, String secretkey) {
         if (accesskey != null && secretkey != null) {
             if (!StringUtils.hasText(accesskey)) {
                 throw new BadRequestException("Invalid accesskey: " + accesskey);

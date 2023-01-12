@@ -393,7 +393,7 @@ public interface MessageDispatcher extends Closeable {
     void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException;
     String getDefaultRegion(String s3ServiceName) throws ScmException;
 
-    BSONObject refreshAccesskey(String targetUser, String password, String accesskey,
+    BSONObject refreshAccesskey(String targetUser, String targetPassword, String accesskey,
             String secretkey) throws ScmException;
 
     String getHealthStatus(String url, String healthPath) throws ScmException;

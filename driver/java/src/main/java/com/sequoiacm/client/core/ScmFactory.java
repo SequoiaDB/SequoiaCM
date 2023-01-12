@@ -3404,27 +3404,31 @@ public class ScmFactory {
          * Return the generated accesskey secretkey
          *
          * @param ss
+         *            ScmSession
          * @param targetUser
          *            modified user
-         * @param password
-         *            admin user's password
+         * @param targetPassword
+         *            target user's password,if target user is admin user,password not
+         *            be null
          * @return ScmAccesskeyInfo.
          * @throws ScmException
          *             if error happens.
          */
         public static ScmAccesskeyInfo refreshAccesskey(ScmSession ss, String targetUser,
-                String password) throws ScmException {
-            return refreshAccesskey(ss, targetUser, password, null, null);
+                String targetPassword) throws ScmException {
+            return refreshAccesskey(ss, targetUser, targetPassword, null, null);
         }
 
         /**
          * Return the specified accesskey secretkey
          *
          * @param ss
+         *            ScmSession
          * @param targetUser
          *            modified user
-         * @param password
-         *            admin user's password
+         * @param targetPassword
+         *            target user's password,if target user is admin user,password not
+         *            be null
          * @param accesskey
          *            target user's accesskey
          * @param secretkey
@@ -3434,11 +3438,11 @@ public class ScmFactory {
          *             if error happens.
          */
         public static ScmAccesskeyInfo refreshAccesskey(ScmSession ss, String targetUser,
-                String password, String accesskey, String secretkey) throws ScmException {
+                String targetPassword, String accesskey, String secretkey) throws ScmException {
             checkArgNotNull("session", ss);
             checkArgNotNull("targetUser", targetUser);
-            BSONObject resp = ss.getDispatcher().refreshAccesskey(targetUser, password, accesskey,
-                    secretkey);
+            BSONObject resp = ss.getDispatcher().refreshAccesskey(targetUser, targetPassword,
+                    accesskey, secretkey);
             return new ScmAccesskeyInfo(resp);
         }
     }

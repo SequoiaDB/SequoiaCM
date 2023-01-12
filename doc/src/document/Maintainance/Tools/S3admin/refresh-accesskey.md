@@ -12,9 +12,11 @@ refresh-accesskey 子命令提供重置 SequoiaCM 用户 Accesskey 的功能。
 | --secretkey   |   | 用于指定需要重置 SequoiaCM 用户的 Secretkey，不指定值表示采用交互式输入 Secretkey |
 
 > **Note:**
-> 
+>
+> - 管理员用户不可重置其他管理员用户的 Accesskey
+>
 > - 没有指定 Accesskey 和 Secretkey 时，则由 SCM 生成 Accesskey 和 Secretkey
-> 
+>
 > - 不能指定已经被其他用户占用的 Accesskey
 
 ### 示例 ###
