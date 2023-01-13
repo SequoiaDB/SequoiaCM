@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.client.props;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,7 +23,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker;
@@ -48,26 +49,42 @@ public class ScmConfPropsScanner implements ApplicationRunner {
     private final Map<ScmPropsMatchRule, Class<?>> confRulMapType = new HashMap<>();
 
     @Override
-    public void run(ApplicationArguments args) {
-        Map<String, Object> scmConfPropsClasses = util.getScmConfBeans();
-        for (Map.Entry<String, Object> entry : scmConfPropsClasses.entrySet()) {
-            boolean isRefreshScopeBean = context.findAnnotationOnBean(entry.getKey(),
-                    RefreshScope.class) != null;
-            Class<?> clazz = ClassUtils.getUserClass(entry.getValue().getClass());
+    public void run(ApplicationArguments args) throws IOException, ClassNotFoundException {
+        Set<Class<?>> scmConfPropsClasses = util.getScmConfClass();
+        for (Class<?> clazz : scmConfPropsClasses) {
+            String[] beanNames = context.getBeanNamesForType(clazz);
+            if (beanNames == null || beanNames.length == 0) {
+                // 找不到对象是因为这个类可能不满足条件注入容器
+                logger.debug("class bean name not  found: class=" + clazz);
+                continue;
+            }
+
+            boolean isRefreshScopeBean = false;
+            for (String beanName : beanNames) {
+                if (context.findAnnotationOnBean(beanName, RefreshScope.class) != null) {
+                    isRefreshScopeBean = true;
+                }
+            }
+
             ConfigurationProperties configAnnotation = AnnotationUtils.findAnnotation(clazz,
                     ConfigurationProperties.class);
-            String configPrefix = configAnnotation.prefix();
-            if (!configPrefix.endsWith(".")) {
-                configPrefix = configPrefix + ".";
-            }
-            ScmConfFieldCallback fieldCallback = new ScmConfFieldCallback(isRefreshScopeBean,
-                    configPrefix, scmConfRules, refreshableConfRules, confRulMapType);
-            ReflectionUtils.doWithFields(clazz, fieldCallback, new ReflectionUtils.FieldFilter() {
-                @Override
-                public boolean matches(Field field) {
-                    return true;
+
+            if (configAnnotation != null) {
+                String configPrefix = configAnnotation.prefix();
+                if (!configPrefix.endsWith(".")) {
+                    configPrefix = configPrefix + ".";
                 }
-            });
+                ScmConfPropsFieldCallback fieldCallback = new ScmConfPropsFieldCallback(
+                        isRefreshScopeBean, configPrefix, scmConfRules, refreshableConfRules,
+                        confRulMapType);
+                ReflectionUtils.doWithFields(clazz, fieldCallback);
+            }
+            else {
+                // 类上成员变量携带 @Value ，解析其配置项
+                ScmValueFieldCallback fieldCallback = new ScmValueFieldCallback(isRefreshScopeBean,
+                        scmConfRules, refreshableConfRules, confRulMapType);
+                ReflectionUtils.doWithFields(clazz, fieldCallback);
+            }
         }
         logger.info("scm conf match rules: {}", scmConfRules);
         logger.info("scm refreshable conf match rules: {}", refreshableConfRules);
@@ -102,14 +119,49 @@ public class ScmConfPropsScanner implements ApplicationRunner {
 
 }
 
-class ScmConfFieldCallback implements ReflectionUtils.FieldCallback {
+// 解析含有被 @Value 注解修饰成员变量的类
+class ScmValueFieldCallback implements ReflectionUtils.FieldCallback {
+    private final Set<ScmPropsMatchRule> scmConfRules;
+    private final Set<ScmPropsMatchRule> refreshableConfRule;
+    private final Map<ScmPropsMatchRule, Class<?>> confRulMapType;
+    private final boolean isFieldInRefreshableClass;
+
+    public ScmValueFieldCallback(boolean isFieldInRefreshableClass,
+            Set<ScmPropsMatchRule> scmConfRules, Set<ScmPropsMatchRule> refreshableConfRule,
+            Map<ScmPropsMatchRule, Class<?>> confRulMapType) {
+        this.scmConfRules = scmConfRules;
+        this.refreshableConfRule = refreshableConfRule;
+        this.confRulMapType = confRulMapType;
+        this.isFieldInRefreshableClass = isFieldInRefreshableClass;
+    }
+
+    @Override
+    public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+        Value valueAnnotation = field.getAnnotation(Value.class);
+        if (valueAnnotation == null) {
+            return;
+        }
+        String conf = ScmCommonUtil.getValueConf(valueAnnotation);
+        ScmPropsExactMatchRule matchRule = new ScmPropsExactMatchRule(conf);
+        scmConfRules.add(matchRule);
+        confRulMapType.put(matchRule, field.getType());
+        boolean isRefreshableField = field.getAnnotation(ScmRefreshableConfigMarker.class) != null
+                && isFieldInRefreshableClass;
+        if (isRefreshableField) {
+            refreshableConfRule.add(matchRule);
+        }
+    }
+}
+
+// 解析被 @ConfigurationProperties 注解修饰的类
+class ScmConfPropsFieldCallback implements ReflectionUtils.FieldCallback {
     private final String configPrefix;
     private final Set<ScmPropsMatchRule> scmConfRules;
     private final Set<ScmPropsMatchRule> refreshableConfRule;
     private final Map<ScmPropsMatchRule, Class<?>> confRulMapType;
     private final boolean isFieldInRefreshableClass;
 
-    public ScmConfFieldCallback(boolean isFieldInRefreshableClass, String configPrefix,
+    public ScmConfPropsFieldCallback(boolean isFieldInRefreshableClass, String configPrefix,
             Set<ScmPropsMatchRule> scmConfRules, Set<ScmPropsMatchRule> refreshableConfRule,
             Map<ScmPropsMatchRule, Class<?>> confRulMapType) {
         this.configPrefix = configPrefix;

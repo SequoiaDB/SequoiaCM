@@ -3,6 +3,8 @@ package com.sequoiacm.infrastructure.metasource;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PreDestroy;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,11 @@ public class SdbDataSourceAutoConfig {
     public SdbDataSourceAutoConfig(SequoiadbConfig configuration) {
         this.configuration = configuration;
         DataSourceWrapper.getInstance().init(createSdbDatasource());
+    }
+
+    @PreDestroy
+    public void destroy() {
+        DataSourceWrapper.getInstance().clear();
     }
 
     public SequoiadbDatasource createSdbDatasource() {

@@ -207,14 +207,12 @@ public class AdminServerConfig {
 
     public long getJobPeriod() {
         long oneDay = 24 * 60 * 60 * 1000;
-        jobPeriod = jobPeriod.replace("d", "");
-        return Integer.parseInt(jobPeriod) * oneDay;
+        return Integer.parseInt(jobPeriod.replace("d", "")) * oneDay;
     }
 
     public long getBreakpointFileCleanPeriod() {
         long oneDay = 24 * 60 * 60 * 1000;
-        breakpointFileCleanPeriod = breakpointFileCleanPeriod.replace("d", "");
-        return Long.parseLong(breakpointFileCleanPeriod) * oneDay;
+        return Long.parseLong(breakpointFileCleanPeriod.replace("d", "")) * oneDay;
     }
 
     public long getBreakpointFileStayDays() {
