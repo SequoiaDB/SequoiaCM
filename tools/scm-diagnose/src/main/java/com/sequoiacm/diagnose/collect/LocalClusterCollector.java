@@ -55,16 +55,8 @@ public class LocalClusterCollector extends ClusterCollector {
         getNodesInfo(nodesOutPath);
 
         String topAllPidOutput = hostInfoOutPath + File.separator + "top_allPid.txt";
-        String topAllPidInfoCmd = ClusterCommand.getTopAllPidInfoCmd(pidBuild.toString(),
-                topAllPidOutput);
-        try {
-            ExecLinuxCommandUtils.localExecuteCommand(topAllPidInfoCmd);
-        }
-        catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host top all scm node pid info failed");
-            logger.warn("collect local host top all scm node pid info failed," + e.getMessage(), e);
-            dealWithError(e, topAllPidOutput);
-        }
+        getTopAllPidInfo(topAllPidOutput);
+
         if (CollectConfig.isNeedZipCopy()) {
             String tarName = hostPath + File.separator + hostName + ".tar.gz";
             ExecLinuxCommandUtils.zipFile(tarName, hostPath, Arrays
@@ -73,6 +65,40 @@ public class LocalClusterCollector extends ClusterCollector {
             FileUtils.deleteDirectory(new File(nodesOutPath));
         }
         System.out.println("[INFO ] local host cluster info collect finished");
+    }
+
+    private void getTopAllPidInfo(String outputPath) throws IOException, ScmToolsException {
+        try {
+            getTopAllPidHasArgW(outputPath);
+        }
+        catch (ScmToolsException e) {
+            if (e.getExitCode() == CollectException.SHELL_EXEC_ERROR) {
+                try {
+                    getTopAllPidNoArgW(outputPath);
+                }
+                catch (ScmToolsException ex) {
+                    logger.warn("collect local host top all scm node pid info failed", e);
+                    String consoleMsg = "collect local host top all scm node pid info failed";
+                    dealWithError(consoleMsg, ex, outputPath);
+                }
+            }
+            else {
+                String consoleMsg = "collect local host top all scm node pid info failed";
+                dealWithError(consoleMsg, e, outputPath);
+            }
+        }
+    }
+
+    private void getTopAllPidNoArgW(String outputPath) throws ScmToolsException {
+        String topAllPidInfoCmd = ClusterCommand.getTopAllPidInfoNoArgWCmd(pidBuild.toString(),
+                outputPath);
+        ExecLinuxCommandUtils.localExecuteCommand(topAllPidInfoCmd);
+    }
+
+    private void getTopAllPidHasArgW(String outputPath) throws ScmToolsException {
+        String topAllPidInfoCmd = ClusterCommand.getTopAllPidInfoHasArgWCmd(pidBuild.toString(),
+                outputPath);
+        ExecLinuxCommandUtils.localExecuteCommand(topAllPidInfoCmd);
     }
 
     private void getNodesInfo(String nodesOutputPath) throws IOException, ScmToolsException {
@@ -90,11 +116,9 @@ public class LocalClusterCollector extends ClusterCollector {
                 pid = getNodePid(nodeInfo);
             }
             catch (ScmToolsException e) {
-                System.out.println("[WARN ] local get node pid by port failed,node is "
-                        + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort());
-                logger.warn("local get node pid by port failed,node is " + nodeInfo.getIp_addr()
-                        + ":" + nodeInfo.getPort() + "," + e.getMessage(), e);
-                dealWithError(e, outputFile);
+                String consoleMsg = "local get node pid by port failed,node is "
+                        + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort();
+                dealWithError(consoleMsg, e, outputFile);
                 continue;
             }
             nodeInfo.setPid(pid);
@@ -108,12 +132,9 @@ public class LocalClusterCollector extends ClusterCollector {
                 ExecLinuxCommandUtils.localExecuteCommand(jstackCmd);
             }
             catch (ScmToolsException e) {
-                System.out.println("[WARN ] collect local node jstack by pid failed, node is "
-                        + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort());
-                logger.warn("collect local node jstack by pid failed, node is "
-                        + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort() + "," + e.getMessage(),
-                        e);
-                dealWithError(e, outputFile);
+                String consoleMsg = "collect local node jstack by pid failed, node is "
+                        + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort();
+                dealWithError(consoleMsg, e, outputFile);
             }
 
             logger.info("collect local node " + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort()
@@ -124,11 +145,9 @@ public class LocalClusterCollector extends ClusterCollector {
                 ExecLinuxCommandUtils.localExecuteCommand(nodeTcpCmd);
             }
             catch (ScmToolsException e) {
-                System.out.println("[WARN ] collect local node " + nodeInfo.getIp_addr() + ":"
-                        + nodeInfo.getPort() + " tcp info failed");
-                logger.warn("collect local node " + nodeInfo.getIp_addr() + ":" + nodeInfo.getPort()
-                        + " tcp info failed," + e.getMessage(), e);
-                dealWithError(e, outputFile);
+                String consoleMsg = "collect local node " + nodeInfo.getIp_addr() + ":"
+                        + nodeInfo.getPort() + " tcp info failed";
+                dealWithError(consoleMsg, e, outputFile);
             }
         }
     }
@@ -177,9 +196,8 @@ public class LocalClusterCollector extends ClusterCollector {
             ExecLinuxCommandUtils.localExecuteCommand(memoryCmd);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host memory info failed");
-            logger.warn("collect local host memory info failed," + e.getMessage(), e);
-            dealWithError(e, outputFile);
+            String consoleMsg = "collect local host memory info failed";
+            dealWithError(consoleMsg, e, outputFile);
         }
 
         logger.info("collect local host cpu info");
@@ -189,9 +207,8 @@ public class LocalClusterCollector extends ClusterCollector {
             ExecLinuxCommandUtils.localExecuteCommand(cpuCmd);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host cpu info failed");
-            logger.warn("collect local host cpu info failed," + e.getMessage(), e);
-            dealWithError(e, outputFile);
+            String consoleMsg = "collect local host cpu info failed";
+            dealWithError(consoleMsg, e, outputFile);
         }
 
         logger.info("collect local host system info");
@@ -202,9 +219,8 @@ public class LocalClusterCollector extends ClusterCollector {
             ExecLinuxCommandUtils.localExecuteCommand(systemCmd);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host System info failed");
-            logger.warn("collect local host System info failed," + e.getMessage(), e);
-            dealWithError(e, outputFile);
+            String consoleMsg = "collect local host System info failed";
+            dealWithError(consoleMsg, e, outputFile);
         }
 
         logger.info("collect local host disk info");
@@ -215,9 +231,8 @@ public class LocalClusterCollector extends ClusterCollector {
             ExecLinuxCommandUtils.localExecuteCommand(diskCmd);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host disk info failed");
-            logger.warn("collect local host disk info failed," + e.getMessage(), e);
-            dealWithError(e, outputFile);
+            String consoleMsg = "collect local host disk info failed";
+            dealWithError(consoleMsg, e, outputFile);
         }
 
         logger.info("collect local host ifconfig info");
@@ -228,27 +243,51 @@ public class LocalClusterCollector extends ClusterCollector {
             ExecLinuxCommandUtils.localExecuteCommand(ifconfigCmd);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host ifconfig info failed");
-            logger.warn("collect local host ifconfig info failed," + e.getMessage(), e);
-            dealWithError(e, outputFile);
+            String consoleMsg = "collect local host ifconfig info failed";
+            dealWithError(consoleMsg, e, outputFile);
         }
 
         logger.info("collect local host top all info");
         outputFile = hostInfoOutPath + File.separator + "top_all.txt";
-        String topAllCmd = ClusterCommand
-                .getTopAllInfoCmd(outputFile);
+        getTopAllInfo(outputFile);
+    }
+
+    private void getTopAllInfo(String outputPath) throws IOException, ScmToolsException {
         try {
-            ExecLinuxCommandUtils.localExecuteCommand(topAllCmd);
+            getTopAllHasArgW(outputPath);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] collect local host top all info failed");
-            logger.warn(" collect local host top all info failed," + e.getMessage(), e);
-            dealWithError(e, outputFile);
+            if (e.getExitCode() == CollectException.SHELL_EXEC_ERROR) {
+                try {
+                    getTopAllNoArgW(outputPath);
+                }
+                catch (ScmToolsException ex) {
+                    logger.warn("collect local host top all info failed", e);
+                    String consoleMsg = "collect local host top all info failed";
+                    dealWithError(consoleMsg, e, outputPath);
+                }
+            }
+            else {
+                String consoleMsg = "collect local host top all info failed";
+                dealWithError(consoleMsg, e, outputPath);
+            }
         }
     }
 
-    private void dealWithError(Exception e, String outputPath)
+    private void getTopAllNoArgW(String outputPath) throws ScmToolsException {
+        String topAllInfoCmd = ClusterCommand.getTopAllInfoNoArgWCmd(outputPath);
+        ExecLinuxCommandUtils.localExecuteCommand(topAllInfoCmd);
+    }
+
+    private void getTopAllHasArgW(String outputPath) throws ScmToolsException {
+        String topAllInfoCmd = ClusterCommand.getTopAllInfoHasArgWCmd(outputPath);
+        ExecLinuxCommandUtils.localExecuteCommand(topAllInfoCmd);
+    }
+
+    private void dealWithError(String consoleMsg, Exception e, String outputPath)
             throws IOException, ScmToolsException {
+        System.err.println("[WARN ] " + consoleMsg);
+        logger.warn(consoleMsg + "," + e.getMessage(), e);
         String exceptionStack = CollectException.getExceptionStack(e);
         String errorCmd = "echo \" " + exceptionStack + "\" >> " + outputPath;
         ExecLinuxCommandUtils.localExecuteCommand(errorCmd);

@@ -23,7 +23,11 @@ public class ClusterCommand {
         return "ifconfig > " + outputPath;
     }
 
-    public static String getTopAllInfoCmd(String outputPath) {
+    public static String getTopAllInfoNoArgWCmd(String outputPath) {
+        return "top -b -n 3 -d 1 -c > " + outputPath;
+    }
+
+    public static String getTopAllInfoHasArgWCmd(String outputPath) {
         return "top -b -n 3 -d 1 -c -w 512 > " + outputPath;
     }
 
@@ -39,7 +43,11 @@ public class ClusterCommand {
         return ScmCommandUtil.getPidCommandByjarName(jarNamePrefix);
     }
 
-    public static String getTopAllPidInfoCmd(String allPid, String outputPath) {
+    public static String getTopAllPidInfoNoArgWCmd(String allPid, String outputPath) {
+        return "top -b -n 3 -d 1 -c " + allPid + " > " + outputPath;
+    }
+
+    public static String getTopAllPidInfoHasArgWCmd(String allPid, String outputPath) {
         return "top -b -n 3 -d 1 -c -w 512 " + allPid + " > " + outputPath;
     }
 }

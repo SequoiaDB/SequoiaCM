@@ -82,19 +82,7 @@ public class RemoteClusterCollector extends ClusterCollector {
 
         logger.info("remote host " + ssh.getHost() + " collect all scm node pid info");
         String allPidOutputPath = hostInfoOutPath + File.separator + "top_allPid.txt";
-        String command = ClusterCommand.getTopAllPidInfoCmd(pidBuild.toString(), allPidOutputPath);
-        try {
-            ssh.sshExecuteCommand(command);
-        }
-        catch (ScmToolsException e) {
-            System.out.println(
-                    "[WARN ] remote host " + ssh.getHost()
-                            + " collect top all scm node pid info failed");
-            logger.warn("remote host " + ssh.getHost()
-                    + " collect top all scm node pid info failed,"
-                    + e.getMessage(), e);
-            dealWithError(e, outputPath);
-        }
+        getTopAllPidInfo(allPidOutputPath);
         String tarName = outputPath + File.separator + ssh.getHost() + ".tar.gz";
         ssh.zipFile(tarName, outputPath, Arrays.asList(new File(hostInfoOutPath).getName(),
                 new File(nodesOutPath).getName()));
@@ -116,6 +104,33 @@ public class RemoteClusterCollector extends ClusterCollector {
         }
     }
 
+    private void getTopAllPidInfo(String outputPath) throws IOException, ScmToolsException {
+        String command = ClusterCommand.getTopAllPidInfoHasArgWCmd(pidBuild.toString(), outputPath);
+        try {
+            ssh.sshExecuteCommand(command);
+        }
+        catch (ScmToolsException e) {
+            if (e.getExitCode() == CollectException.SHELL_EXEC_ERROR) {
+                command = ClusterCommand.getTopAllPidInfoNoArgWCmd(pidBuild.toString(), outputPath);
+                try {
+                    ssh.sshExecuteCommand(command);
+                }
+                catch (ScmToolsException ex) {
+                    logger.warn("remote host " + ssh.getHost()
+                            + " collect top all scm node pid info failed", e);
+                    String consoleMsg = "remote host " + ssh.getHost()
+                            + " collect top all scm node pid info failed";
+                    dealWithError(consoleMsg, ex, outputPath);
+                }
+            }
+            else {
+                String consoleMsg = "remote host " + ssh.getHost()
+                        + " collect top all scm node pid info failed";
+                dealWithError(consoleMsg, e, outputPath);
+            }
+        }
+    }
+
     private void getHostInfo(String hostInfoOutPath) throws ScmToolsException, IOException {
         ssh.mkdir(hostInfoOutPath);
 
@@ -126,11 +141,8 @@ public class RemoteClusterCollector extends ClusterCollector {
             ssh.sshExecuteCommand(command);
         }
         catch (ScmToolsException e) {
-            System.out.println(
-                    "[WARN ]  remote host " + ssh.getHost() + " collect memory info failed");
-            logger.warn("remote host " + ssh.getHost() + " collect memory info failed,"
-                    + e.getMessage(), e);
-            dealWithError(e, outputPath);
+            String consoleMsg = "remote host " + ssh.getHost() + " collect memory info failed";
+            dealWithError(consoleMsg, e, outputPath);
         }
 
         logger.info("remote host " + ssh.getHost() + " collect cpu info");
@@ -140,9 +152,8 @@ public class RemoteClusterCollector extends ClusterCollector {
             ssh.sshExecuteCommand(command);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] remote host " + ssh.getHost() + " collect cpu info failed");
-            logger.warn("remote host " + ssh.getHost() + " collect cpu info," + e.getMessage(), e);
-            dealWithError(e, outputPath);
+            String consoleMsg = "remote host " + ssh.getHost() + " collect cpu info failed";
+            dealWithError(consoleMsg, e, outputPath);
         }
 
         logger.info("remote host " + ssh.getHost() + " collect system info");
@@ -152,11 +163,8 @@ public class RemoteClusterCollector extends ClusterCollector {
             ssh.sshExecuteCommand(command);
         }
         catch (ScmToolsException e) {
-            System.out.println(
-                    "[WARN ] remote host " + ssh.getHost() + " collect system info failed");
-            logger.warn("remote host " + ssh.getHost() + " collect system info failed,"
-                    + e.getMessage(), e);
-            dealWithError(e, outputPath);
+            String consoleMsg = "remote host " + ssh.getHost() + " collect system info failed";
+            dealWithError(consoleMsg, e, outputPath);
         }
 
         logger.info("remote host " + ssh.getHost() + " collect disk info");
@@ -166,12 +174,8 @@ public class RemoteClusterCollector extends ClusterCollector {
             ssh.sshExecuteCommand(command);
         }
         catch (ScmToolsException e) {
-            System.out
-                    .println("[WARN ] remote host " + ssh.getHost() + " collect disk info failed");
-            logger.warn(
-                    "remote host " + ssh.getHost() + " collect disk info failed," + e.getMessage(),
-                    e);
-            dealWithError(e, outputPath);
+            String consoleMsg = "remote host " + ssh.getHost() + " collect disk info failed";
+            dealWithError(consoleMsg, e, outputPath);
         }
 
         logger.info("remote host " + ssh.getHost() + " collect ifconfig info");
@@ -181,25 +185,41 @@ public class RemoteClusterCollector extends ClusterCollector {
             ssh.sshExecuteCommand(command);
         }
         catch (ScmToolsException e) {
-            System.out.println("[WARN ] remote collect host " + ssh.getHost()
-                    + " collect ifconfig info failed");
-            logger.warn("remote collect host " + ssh.getHost() + " collect ifconfig info failed,"
-                    + e.getMessage(), e);
-            dealWithError(e, outputPath);
+            String consoleMsg = "remote collect host " + ssh.getHost()
+                    + " collect ifconfig info failed";
+            dealWithError(consoleMsg, e, outputPath);
         }
 
         logger.info("remote host " + ssh.getHost() + " collect top all info");
         outputPath = hostInfoOutPath + File.separator + "top_all.txt";
-        command = ClusterCommand.getIfconfigInfoCmd(outputPath);
+        getTopAllInfo(outputPath);
+    }
+
+    private void getTopAllInfo(String outputPath) throws IOException, ScmToolsException {
+        String command = ClusterCommand.getTopAllInfoHasArgWCmd(outputPath);
         try {
             ssh.sshExecuteCommand(command);
         }
         catch (ScmToolsException e) {
-            System.err.println("[WARN ] remote collect host " + ssh.getHost()
-                    + " collect top all info failed");
-            logger.warn("remote collect host " + ssh.getHost() + " collect top all info failed,"
-                    + e.getMessage(), e);
-            dealWithError(e, outputPath);
+            if (e.getExitCode() == CollectException.SHELL_EXEC_ERROR) {
+                command = ClusterCommand.getTopAllInfoNoArgWCmd(outputPath);
+                try {
+                    ssh.sshExecuteCommand(command);
+                }
+                catch (ScmToolsException ex) {
+                    logger.warn(
+                            "remote collect host " + ssh.getHost() + " collect top all info failed",
+                            e);
+                    String consoleMsg = "remote collect host " + ssh.getHost()
+                            + " collect top all info failed";
+                    dealWithError(consoleMsg, ex, outputPath);
+                }
+            }
+            else {
+                String consoleMsg = "remote collect host " + ssh.getHost()
+                        + " collect top all info failed";
+                dealWithError(consoleMsg, e, outputPath);
+            }
         }
     }
 
@@ -218,12 +238,10 @@ public class RemoteClusterCollector extends ClusterCollector {
                 pid = getNodePid(nodeInfo);
             }
             catch (ScmToolsException e) {
-                System.out.println("[WARN ] remote host " + ssh.getHost()
+                String consoleMsg = "remote host " + ssh.getHost()
                         + " get node pid by port failed,node is " + ssh.getHost() + ":"
-                        + nodeInfo.getPort());
-                logger.warn("remote host " + ssh.getHost() + " get node pid by port failed,node is "
-                        + ssh.getHost() + ":" + nodeInfo.getPort());
-                dealWithError(e, outputPath);
+                        + nodeInfo.getPort();
+                dealWithError(consoleMsg, e, outputPath);
                 continue;
             }
             nodeInfo.setPid(pid);
@@ -236,11 +254,9 @@ public class RemoteClusterCollector extends ClusterCollector {
                 ssh.sshExecuteCommand(command);
             }
             catch (ScmToolsException e) {
-                System.out.println("[WARN ] remote host collect " + ssh.getHost() + ":"
-                        + nodeInfo.getPort() + " jstack info failed");
-                logger.warn("remote host collect " + ssh.getHost() + ":" + nodeInfo.getPort()
-                        + " jstack info failed," + e.getMessage(), e);
-                dealWithError(e, outputPath);
+                String consoleMsg = "remote host collect " + ssh.getHost() + ":"
+                        + nodeInfo.getPort() + " jstack info failed";
+                dealWithError(consoleMsg, e, outputPath);
             }
 
             logger.info("remote host collect " + ssh.getHost() + ":" + nodeInfo.getPort()
@@ -251,11 +267,9 @@ public class RemoteClusterCollector extends ClusterCollector {
                 ssh.sshExecuteCommand(command);
             }
             catch (ScmToolsException e) {
-                System.out.println("[WARN ] remote host collect " + ssh.getHost() + ":"
-                        + nodeInfo.getPort() + " tcp info failed");
-                logger.warn("remote host collect " + ssh.getHost() + ":" + nodeInfo.getPort()
-                        + " tcp info failed," + e.getMessage(), e);
-                dealWithError(e, outputPath);
+                String consoleMsg = "remote host collect " + ssh.getHost() + ":"
+                        + nodeInfo.getPort() + " tcp info failed";
+                dealWithError(consoleMsg, e, outputPath);
             }
         }
     }
@@ -292,8 +306,10 @@ public class RemoteClusterCollector extends ClusterCollector {
         }
     }
 
-    private void dealWithError(Exception e, String outputPath)
+    private void dealWithError(String consoleMsg, Exception e, String outputPath)
             throws IOException, ScmToolsException {
+        System.err.println("[WARN ] " + consoleMsg);
+        logger.warn(consoleMsg + "," + e.getMessage(), e);
         String exceptionStack = CollectException.getExceptionStack(e);
         String errorCmd = "echo \"" + exceptionStack + "\" >> " + outputPath;
         ssh.sshExecuteCommand(errorCmd);
