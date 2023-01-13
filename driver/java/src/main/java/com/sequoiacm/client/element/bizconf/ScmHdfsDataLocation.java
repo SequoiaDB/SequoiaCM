@@ -129,7 +129,7 @@ public class ScmHdfsDataLocation extends ScmDataLocation {
      *             if error happens.
      */
     public void setRootPath(String rootPath) throws ScmInvalidArgumentException {
-        checkValueNotNull(shardingType, "rootPath");
+        checkValueNotNull(rootPath, "rootPath");
         this.rootPath = rootPath;
     }
 
