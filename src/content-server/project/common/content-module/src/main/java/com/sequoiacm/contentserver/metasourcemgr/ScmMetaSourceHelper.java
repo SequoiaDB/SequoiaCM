@@ -167,7 +167,9 @@ public class ScmMetaSourceHelper {
         BasicBSONObject notDeleteMarker = new BasicBSONObject("$or", orArr);
 
         BasicBSONList andArr = new BasicBSONList();
-        andArr.add(matcher);
+        if (matcher != null) {
+            andArr.add(matcher);
+        }
         andArr.add(notDeleteMarker);
         return new BasicBSONObject("$and", andArr);
     }

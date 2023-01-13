@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
+import org.bson.BSONObject;
 import org.bson.types.BSONTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -507,5 +509,9 @@ public class ScmSystemUtils {
             return false;
         }
         return true;
+    }
+
+    public static boolean isEmptyBSONObject(BSONObject bsonObject) {
+        return bsonObject == null || StringUtils.equals("{  }", bsonObject.toString());
     }
 }

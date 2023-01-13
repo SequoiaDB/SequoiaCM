@@ -1,8 +1,10 @@
 package com.sequoiacm.client.core;
 
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.client.util.ScmHelper;
@@ -131,8 +133,23 @@ class ScmBucketImpl implements ScmBucket {
     @Override
     public ScmCursor<ScmFileBasicInfo> listFile(BSONObject condition, BSONObject orderby, long skip,
             long limit) throws ScmException {
-        BsonReader reader = session.getDispatcher().bucketListFile(name, condition, orderby, skip,
-                limit);
+        return internalListFile(null, condition, orderby, skip, limit, false);
+    }
+
+    @Override
+    public ScmCursor<ScmFileBasicInfo> listFile(ScopeType scope, BSONObject condition,
+            BSONObject orderby, long skip, long limit) throws ScmException {
+        return internalListFile(scope, condition, orderby, skip, limit, true);
+    }
+
+    private ScmCursor<ScmFileBasicInfo> internalListFile(ScopeType scope, BSONObject condition,
+            BSONObject orderby, long skip, long limit, boolean isNeedCheckSopce)
+            throws ScmException {
+        if (isNeedCheckSopce && scope == null) {
+            throw new ScmInvalidArgumentException("scope is null");
+        }
+        BsonReader reader = session.getDispatcher().bucketListFile(name, scope, condition, orderby,
+                skip, limit);
         return new ScmBsonCursor<ScmFileBasicInfo>(reader, new BsonConverter<ScmFileBasicInfo>() {
             @Override
             public ScmFileBasicInfo convert(BSONObject obj) throws ScmException {
@@ -151,7 +168,20 @@ class ScmBucketImpl implements ScmBucket {
 
     @Override
     public long countFile(BSONObject condition) throws ScmException {
-        return session.getDispatcher().bucketCountFile(name, condition);
+        return internalCountFile(null, condition, false);
+    }
+
+    @Override
+    public long countFile(ScopeType scope, BSONObject condition) throws ScmException {
+        return internalCountFile(scope, condition, true);
+    }
+
+    private long internalCountFile(ScopeType scope, BSONObject condition, boolean isNeedCheckSopce)
+            throws ScmException {
+        if (isNeedCheckSopce && null == scope) {
+            throw new ScmInvalidArgumentException("scope is null");
+        }
+        return session.getDispatcher().bucketCountFile(name, scope, condition);
     }
 
     @Override

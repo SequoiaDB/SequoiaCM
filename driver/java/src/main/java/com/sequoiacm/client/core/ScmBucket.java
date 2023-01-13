@@ -1,5 +1,6 @@
 package com.sequoiacm.client.core;
 
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
@@ -83,7 +84,7 @@ public interface ScmBucket {
     ScmFile getNullVersionFile(String fileName) throws ScmException;
 
     /**
-     * List files in the bucket.
+     * List the latest version of the files in the bucket, including delteMarker.
      * 
      * @param condition
      *            the condition for query
@@ -102,6 +103,35 @@ public interface ScmBucket {
             long limit) throws ScmException;
 
     /**
+     * List the files in the bucket
+     *
+     * @param scope
+     *            The scope of file version.
+     *            <dl>
+     *            <dt>ScopeType.SCOPE_CURRENT : get the latest version of the file,
+     *            excluding delteMarker.
+     *            <dt>ScopeType.SCOPE_HISTORY : get the version history of the file,
+     *            including delteMarker.
+     *            <dt>ScopeType.SCOPE_ALL : get all version of the file, including
+     *            delteMarker.
+     *            </dl>
+     * @param condition
+     *            the condition for query
+     * @param orderby
+     *            the condition for sort.
+     * @param skip
+     *            skip to the first number record
+     * @param limit
+     *            return the total records of query, when value is -1, return all
+     *            records
+     * @return cursor.
+     * @throws ScmException
+     *             if error happens.
+     */
+    ScmCursor<ScmFileBasicInfo> listFile(ScopeType scope, BSONObject condition, BSONObject orderby,
+            long skip, long limit) throws ScmException;
+
+    /**
      * Constructs a new instance of the subclassable ScmFile class to be persisted
      * in the bucket.
      * 
@@ -114,7 +144,8 @@ public interface ScmBucket {
     ScmFile createFile(String fileName) throws ScmException;
 
     /**
-     * Return the file count in the bucket.
+     * Return the count of the latest version files in the bucket, including
+     * delteMarker.
      * 
      * @param condition
      *            file condition for count.
@@ -123,6 +154,28 @@ public interface ScmBucket {
      *             if error happens.
      */
     long countFile(BSONObject condition) throws ScmException;
+
+    /**
+     * Return the file count in the bucket.
+     *
+     * @param scope
+     *            The scope of file version.
+     *            <dl>
+     *            <dt>ScopeType.SCOPE_CURRENT : count the number of the latest
+     *            version files in the bucket, excluding delteMarker.
+     *            <dt>ScopeType.SCOPE_HISTORY : count the number of the version
+     *            history of the file, including delteMarker.
+     *            <dt>ScopeType.SCOPE_ALL : count the number of all versions of the
+     *            file, including delteMarker.
+     *            </dl>
+     *
+     * @param condition
+     *            file condition for count.
+     * @return file count.
+     * @throws ScmException
+     *             if error happens.
+     */
+    long countFile(ScopeType scope, BSONObject condition) throws ScmException;
 
     /**
      * Deletes the file version with the specify file name and version.

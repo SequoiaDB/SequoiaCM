@@ -1,6 +1,7 @@
 package com.sequoiacm.common;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,14 @@ public class ScmArgChecker {
     private static final Logger logger = LoggerFactory.getLogger(ScmArgChecker.class);
 
     public static class File {
+        enum CheckType {
+            BUCKET_FILE,
+            HISTORY_FILE
+        }
+
         private static final List<String> HISTORY_MATCHER_VALID_KEY = new ArrayList<String>();
+        private static final List<String> BUCKET_FILE_MATCHER_VALID_KEY = new ArrayList<String>();
+        private static final Map<CheckType, List<String>> VALID_KEY_MAP = new HashMap();
         static {
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_ID);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_ID);
@@ -31,6 +39,22 @@ public class ScmArgChecker {
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_ID);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_NAME);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_ETAG);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_MAJOR_VERSION);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_MINOR_VERSION);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_UPDATE_TIME);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_CREATE_USER);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_MIME_TYPE);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_SIZE);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_CREATE_TIME);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_VERSION_SERIAL);
+            BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_DELETE_MARKER);
+
+            VALID_KEY_MAP.put(CheckType.HISTORY_FILE, HISTORY_MATCHER_VALID_KEY);
+            VALID_KEY_MAP.put(CheckType.BUCKET_FILE, BUCKET_FILE_MATCHER_VALID_KEY);
         }
 
         public static boolean checkFileName(String name) {
@@ -43,7 +67,7 @@ public class ScmArgChecker {
             return true;
         }
 
-        public static void checkHistoryFileFields(BSONObject fields)
+        public static void checkFileFields(BSONObject fields, CheckType checkType)
                 throws InvalidArgumentException {
             if (fields == null) {
                 return;
@@ -52,15 +76,18 @@ public class ScmArgChecker {
                 BasicBSONList list = (BasicBSONList) fields;
                 for (Object ele : list) {
                     if (ele instanceof BSONObject) {
-                        checkHistoryFileFields((BSONObject) ele);
+                        checkFileFields((BSONObject) ele, checkType);
                     }
                 }
             }
             else {
                 for (String key : fields.keySet()) {
-                    if (!HISTORY_MATCHER_VALID_KEY.contains(key) && !key.startsWith("$")) {
-                        if (isExternalData(key)) {
-                            continue;
+                    List<String> validKeys = VALID_KEY_MAP.get(checkType);
+                    if (!validKeys.contains(key) && !key.startsWith("$")) {
+                        if (CheckType.HISTORY_FILE == checkType) {
+                            if (isExternalData(key)) {
+                                continue;
+                            }
                         }
                         if (isSiteListDollerNum(key)) {
                             continue;
@@ -69,7 +96,7 @@ public class ScmArgChecker {
                     }
                     Object value = fields.get(key);
                     if (value instanceof BSONObject) {
-                        checkHistoryFileFields((BSONObject) value);
+                        checkFileFields((BSONObject) value, checkType);
                     }
                 }
             }
@@ -141,7 +168,7 @@ public class ScmArgChecker {
         public static void checkHistoryFileOrderby(BSONObject orderby)
                 throws InvalidArgumentException {
             try {
-                checkHistoryFileFields(orderby);
+                checkFileFields(orderby, CheckType.HISTORY_FILE);
             }
             catch (InvalidArgumentException e) {
                 throw new InvalidArgumentException(
@@ -152,7 +179,29 @@ public class ScmArgChecker {
         public static void checkHistoryFileMatcher(BSONObject fileMatcher)
                 throws InvalidArgumentException {
             try {
-                checkHistoryFileFields(fileMatcher);
+                checkFileFields(fileMatcher, CheckType.HISTORY_FILE);
+            }
+            catch (InvalidArgumentException e) {
+                throw new InvalidArgumentException(
+                        "the matcher parameter contains an invalid key: " + e.getMessage(), e);
+            }
+        }
+
+        public static void checkBucketFileOrderBy(BSONObject orderby)
+                throws InvalidArgumentException {
+            try {
+                checkFileFields(orderby, CheckType.BUCKET_FILE);
+            }
+            catch (InvalidArgumentException e) {
+                throw new InvalidArgumentException(
+                        "the orderby parameter contains an invalid key: " + e.getMessage(), e);
+            }
+        }
+
+        public static void checkBucketFileMatcher(BSONObject fileMatcher)
+                throws InvalidArgumentException {
+            try {
+                checkFileFields(fileMatcher, CheckType.BUCKET_FILE);
             }
             catch (InvalidArgumentException e) {
                 throw new InvalidArgumentException(

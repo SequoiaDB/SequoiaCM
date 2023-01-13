@@ -3,11 +3,14 @@ package com.sequoiacm.contentserver.controller;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.InvalidArgumentException;
+import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
+import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.ScmBucket;
@@ -175,24 +178,62 @@ public class BucketController {
 
     @GetMapping(path = "/buckets/{name}/files", params = "action=list_file")
     public void listFile(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_LIST_SCOPE, required = false) Integer scope,
             @RequestParam(value = CommonDefine.RestArg.FILTER, required = false, defaultValue = "{}") BSONObject condition,
             @RequestParam(value = CommonDefine.RestArg.ORDER_BY, required = false, defaultValue = "{}") BSONObject orderby,
             @RequestParam(value = CommonDefine.RestArg.SKIP, required = false, defaultValue = "0") long skip,
             @RequestParam(value = CommonDefine.RestArg.LIMIT, required = false, defaultValue = "-1") long limit,
             HttpServletResponse resp, Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        MetaCursor cursor = service.listFile(user, bucketName, condition, null, orderby, skip,
-                limit);
+        boolean isResContainsDeleteMarker;
+        if (scope == null) {
+            // 兼容旧接口（请求参数不带 scope）: 1. 默认为列取文件的最新版本 2. 返回结果需要携带 deleteMarker
+            scope = CommonDefine.Scope.SCOPE_CURRENT;
+            isResContainsDeleteMarker = true;
+        }
+        else {
+            // 新接口需要做条件参数的有效性校验
+            try {
+                ScmArgChecker.File.checkBucketFileMatcher(condition);
+                ScmArgChecker.File.checkBucketFileOrderBy(orderby);
+            }
+            catch (InvalidArgumentException e) {
+                throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
+            }
+            isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
+        }
+
+        MetaCursor cursor = service.listFile(user, bucketName, scope, condition, null, orderby,
+                skip, limit, isResContainsDeleteMarker);
         resp.setHeader("Content-Type", "application/json;charset=utf-8");
         ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(resp));
     }
 
     @GetMapping(path = "/buckets/{name}/files", params = "action=count_file")
     public ResponseEntity countFile(@PathVariable("name") String bucketName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_LIST_SCOPE, required = false) Integer scope,
             @RequestParam(value = CommonDefine.RestArg.FILTER, required = false, defaultValue = "{}") BSONObject condition,
             HttpServletResponse resp, Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        long count = service.countFile(user, bucketName, condition);
+        boolean isResContainsDeleteMarker;
+        if (scope == null) {
+            // 兼容旧接口（请求参数不带 scope）: 1. 默认为列取文件的最新版本 2. 返回结果需要携带 deleteMarker
+            scope = CommonDefine.Scope.SCOPE_CURRENT;
+            isResContainsDeleteMarker = true;
+        }
+        else {
+            // 新接口需要做条件参数的有效性校验
+            try {
+                ScmArgChecker.File.checkBucketFileMatcher(condition);
+            }
+            catch (InvalidArgumentException e) {
+                throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
+            }
+            isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
+        }
+
+        long count = service.countFile(user, bucketName, scope, condition,
+                isResContainsDeleteMarker);
         resp.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok().header(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count))
                 .build();

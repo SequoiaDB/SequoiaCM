@@ -15,6 +15,7 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleConfig;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
@@ -2475,22 +2476,29 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BsonReader bucketListFile(String bucketName, BSONObject condition, BSONObject orderby,
-            long skip, long limit) throws ScmException {
+    public BsonReader bucketListFile(String bucketName, ScopeType scope, BSONObject condition,
+            BSONObject orderby, long skip, long limit) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
                 + "/files?action=list_file&" + CommonDefine.RestArg.FILTER + "="
                 + encodeCondition(condition) + "&" + CommonDefine.RestArg.ORDER_BY + "="
                 + encodeCondition(orderby) + "&" + CommonDefine.RestArg.SKIP + "=" + skip + "&"
                 + CommonDefine.RestArg.LIMIT + "=" + limit;
+        if (scope != null) {
+            uri = uri + "&" + CommonDefine.RestArg.FILE_LIST_SCOPE + "=" + scope.getScope();
+        }
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
     }
 
     @Override
-    public long bucketCountFile(String bucketName, BSONObject condition) throws ScmException {
+    public long bucketCountFile(String bucketName, ScopeType scope, BSONObject condition)
+            throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName)
                 + "/files?action=count_file&" + CommonDefine.RestArg.FILTER + "="
                 + encodeCondition(condition);
+        if (scope != null) {
+            uri = uri + "&" + CommonDefine.RestArg.FILE_LIST_SCOPE + "=" + scope.getScope();
+        }
         HttpGet request = new HttpGet(uri);
         String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
                 X_SCM_COUNT);

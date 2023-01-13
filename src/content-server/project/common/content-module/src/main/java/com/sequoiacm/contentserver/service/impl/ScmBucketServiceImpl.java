@@ -2,15 +2,19 @@ package com.sequoiacm.contentserver.service.impl;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
 import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.dao.FileVersionDeleteDao;
+import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
@@ -42,6 +46,7 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
+import com.sequoiacm.metasource.AllFileMetaCursor;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
@@ -50,6 +55,7 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,8 +119,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
-    public long countFile(ScmUser user, String bucketName, BSONObject condition)
-            throws ScmServerException {
+    public long countFile(ScmUser user, String bucketName, Integer scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         ScmBucket bucket = bucketInfoManager.getBucket(bucketName);
         if (bucket == null) {
             throw new ScmServerException(ScmError.BUCKET_NOT_EXISTS,
@@ -123,22 +129,75 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.READ, "count bucket file");
 
-        long ret = countFile(bucket, condition);
+        long ret = countFile(bucket, scope, condition, isResContainsDeleteMarker);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
                 "count file in bucket: bucketName=" + bucketName + ", ws=" + bucket.getWorkspace()
                         + ", condition=" + condition);
         return ret;
     }
 
-    public long countFile(ScmBucket bucket, BSONObject condition) throws ScmServerException {
+    public long countFile(ScmBucket bucket, Integer scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         try {
-            MetaAccessor accessor = bucket.getFileTableAccessor(null);
-            return accessor.count(condition);
+            if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
+                return getCurrentBucketFileCount(bucket, condition, isResContainsDeleteMarker);
+            }
+
+            ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
+                    .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
+
+            if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
+                return getHistoryBucketFileCount(wsInfo, bucket, condition,
+                        isResContainsDeleteMarker);
+            }
+
+            if (scope == CommonDefine.Scope.SCOPE_ALL) {
+                return getAllBucketFileCount(wsInfo, bucket, condition, isResContainsDeleteMarker);
+            }
         }
         catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(), "failed to count bucket file: bucket="
+            throw new ScmServerException(e.getScmError(),
+                    "failed to count file of the bucket: bucket="
                     + bucket.getName() + ", condition=" + condition, e);
         }
+
+        throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
+    }
+
+    private long getCurrentBucketFileCount(ScmBucket bucket, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException, ScmMetasourceException {
+        if (!isResContainsDeleteMarker) {
+            condition = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(condition);
+        }
+
+        MetaAccessor accessor = bucket.getFileTableAccessor(null);
+        return accessor.count(condition);
+    }
+
+    private long getHistoryBucketFileCount(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
+            BSONObject condition, boolean isResContainsDeleteMarker) throws ScmServerException {
+        BSONObject matcher = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
+                bucket.getId());
+        if (condition != null) {
+            BasicBSONList arrayCond = new BasicBSONList();
+            arrayCond.add(condition);
+            arrayCond.add(matcher);
+
+            matcher = new BasicBSONObject();
+            matcher.put("$and", arrayCond);
+        }
+        return ScmContentModule.getInstance().getMetaService().getHistoryFileCount(
+                wsInfo.getMetaLocation(), wsInfo.getName(), matcher, isResContainsDeleteMarker);
+    }
+
+    private long getAllBucketFileCount(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
+            BSONObject condition, boolean isResContainsDeleteMarker)
+            throws ScmServerException, ScmMetasourceException {
+        long currentFileCount = getCurrentBucketFileCount(bucket, condition,
+                isResContainsDeleteMarker);
+        long historyBucketFileCount = getHistoryBucketFileCount(wsInfo, bucket, condition,
+                isResContainsDeleteMarker);
+        return currentFileCount + historyBucketFileCount;
     }
 
     @Override
@@ -181,7 +240,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.DELETE, "delete bucket");
 
-        if (countFile(bucket, null) > 0) {
+        if (countFile(bucket, CommonDefine.Scope.SCOPE_CURRENT, null, true) > 0) {
             throw new ScmServerException(ScmError.BUCKET_NOT_EMPTY, "bucket not empty:" + name);
         }
         try {
@@ -292,32 +351,110 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
-    public MetaCursor listFile(ScmUser user, String bucketName, BSONObject condition, BSONObject selector,
-            BSONObject orderBy, long skip, long limit)
-            throws ScmServerException {
+    public MetaCursor listFile(ScmUser user, String bucketName, Integer scope, BSONObject condition,
+            BSONObject selector, BSONObject orderBy, long skip, long limit,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         ScmBucket bucket = getBucket(bucketName);
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.READ, "list file in bucket");
-        MetaCursor ret = listFile(condition, selector, orderBy, skip, limit, bucket);
+        MetaCursor ret = listFile(scope, condition, selector, orderBy, skip, limit, bucket,
+                isResContainsDeleteMarker);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
                 "list file in bucket: bucketName=" + bucketName + ", condition=" + condition
                         + ", orderby=" + orderBy + ", skip=" + skip + ", limit=" + limit);
         return ret;
     }
 
-    private MetaCursor listFile(BSONObject condition, BSONObject selector, BSONObject orderBy,
-            long skip, long limit, ScmBucket bucket) throws ScmServerException {
-        ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
+    private MetaCursor listFile(Integer scope, BSONObject condition, BSONObject selector,
+            BSONObject orderBy, long skip, long limit, ScmBucket bucket,
+            boolean isResContainsDeleteMarker) throws ScmServerException {
         try {
-            MetaAccessor accessor = bucket.getFileTableAccessor(null);
-            return accessor.query(condition, selector, orderBy, skip, limit, 0);
+            if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
+                return queryCurrentBucketFile(bucket, condition, selector, orderBy, skip, limit,
+                        isResContainsDeleteMarker);
+            }
+
+            ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
+                    .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
+
+            if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
+                return queryHistoryBucketFile(wsInfo, bucket, condition, selector, orderBy, skip,
+                        limit, isResContainsDeleteMarker);
+            }
+
+            if (scope == CommonDefine.Scope.SCOPE_ALL) {
+                if (!ScmSystemUtils.isEmptyBSONObject(orderBy) || skip != 0 || limit != -1) {
+                    throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+                            "query all file in bucket unsupport orderby/skip/limit");
+                }
+                return queryAllBucketFile(wsInfo, bucket, condition, selector, orderBy,
+                        isResContainsDeleteMarker);
+            }
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
-                    "failed to list file, bucket not exist:bucket=" + bucket.getName()
+                    "failed to list the file in the bucket, bucket=" + bucket.getName()
                             + ", condition=" + condition + ", orderby=" + orderBy + ", skip=" + skip
                             + ", limit=" + limit,
                     e);
+        }
+
+        throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
+    }
+
+    public MetaCursor queryCurrentBucketFile(ScmBucket bucket, BSONObject condition,
+            BSONObject selector, BSONObject orderBy, long skip, long limit,
+            boolean isResContainsDeleteMarker) throws ScmServerException, ScmMetasourceException {
+        if (!isResContainsDeleteMarker) {
+            condition = ScmMetaSourceHelper.generateNewMatcherWithNotDeleteMarker(condition);
+        }
+
+        MetaAccessor accessor = bucket.getFileTableAccessor(null);
+        return accessor.query(condition, selector, orderBy, skip, limit, 0);
+    }
+
+    public MetaCursor queryHistoryBucketFile(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
+            BSONObject condition, BSONObject selector, BSONObject orderBy, long skip, long limit,
+            boolean isResContainsDeleteMarker) throws ScmServerException, ScmMetasourceException {
+        BSONObject matcher = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
+                bucket.getId());
+        if (condition != null) {
+            BasicBSONList arrayCond = new BasicBSONList();
+            arrayCond.add(condition);
+            arrayCond.add(matcher);
+
+            matcher = new BasicBSONObject();
+            matcher.put("$and", arrayCond);
+        }
+
+        return ScmContentModule.getInstance().getMetaService().queryHistoryFile(
+                wsInfo.getMetaLocation(), wsInfo.getName(), matcher, selector, orderBy, skip, limit,
+                isResContainsDeleteMarker);
+    }
+
+    public MetaCursor queryAllBucketFile(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
+            BSONObject matcher, BSONObject selector, BSONObject orderBy,
+            boolean isResContainsDeleteMarker) throws ScmServerException, ScmMetasourceException {
+        MetaCursor currentBucketFileCursor = null;
+        MetaCursor historyBucketFileCursor = null;
+        try {
+            currentBucketFileCursor = queryCurrentBucketFile(bucket, matcher, selector, orderBy, 0,
+                    -1, isResContainsDeleteMarker);
+            historyBucketFileCursor = queryHistoryBucketFile(wsInfo, bucket, matcher, selector,
+                    orderBy, 0, -1, isResContainsDeleteMarker);
+            return new AllFileMetaCursor(currentBucketFileCursor, historyBucketFileCursor, orderBy);
+        }
+        catch (ScmMetasourceException e) {
+            ScmSystemUtils.closeResource(currentBucketFileCursor);
+            ScmSystemUtils.closeResource(historyBucketFileCursor);
+            throw new ScmServerException(e.getScmError(),
+                    String.format("Failed to query file in file table:fileMatcher=%s", matcher), e);
+        }
+        catch (Exception e) {
+            ScmSystemUtils.closeResource(currentBucketFileCursor);
+            ScmSystemUtils.closeResource(historyBucketFileCursor);
+            throw new ScmSystemException(
+                    String.format("Failed to query file in file table:fileMatcher=%s", matcher), e);
         }
     }
 

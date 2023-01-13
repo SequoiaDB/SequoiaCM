@@ -20,7 +20,8 @@ import java.util.Map;
 public interface IScmBucketService {
     ScmBucket createBucket(ScmUser user, String ws, String name) throws ScmServerException;
 
-    long countFile(ScmUser user, String bucketName, BSONObject condition) throws ScmServerException;
+    long countFile(ScmUser user, String bucketName, Integer scope, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException;
 
     ScmBucket getBucket(ScmUser user, String name) throws ScmServerException;
 
@@ -55,8 +56,9 @@ public interface IScmBucketService {
     BSONObject getFileNullVersion(ScmUser user, String bucket, String fileName)
             throws ScmServerException;
 
-    MetaCursor listFile(ScmUser user, String bucketName, BSONObject condition, BSONObject selector,
-            BSONObject orderBy, long skip, long limit) throws ScmServerException;
+    MetaCursor listFile(ScmUser user, String bucketName, Integer scope, BSONObject condition,
+            BSONObject selector, BSONObject orderBy, long skip, long limit,
+            boolean isResContainsDeleteMarker) throws ScmServerException;
 
     String getFileId(ScmUser user, String bucket, String fileName) throws ScmServerException;
 

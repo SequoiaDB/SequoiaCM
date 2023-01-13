@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
@@ -373,10 +374,11 @@ public interface MessageDispatcher extends Closeable {
     BSONObject bucketGetFileNullVersion(String bucketName, String fileName)
             throws ScmException;
 
-    BsonReader bucketListFile(String bucketName, BSONObject condition, BSONObject orderby,
-            long skip, long limit) throws ScmException;
+    BsonReader bucketListFile(String bucketName, ScopeType scope, BSONObject condition,
+            BSONObject orderby, long skip, long limit) throws ScmException;
 
-    long bucketCountFile(String bucketName, BSONObject condition) throws ScmException;
+    long bucketCountFile(String bucketName, ScopeType scope, BSONObject condition)
+            throws ScmException;
 
     void bucketDeleteFile(String bucketName, String fileName, boolean isPhysical)
             throws ScmException;
