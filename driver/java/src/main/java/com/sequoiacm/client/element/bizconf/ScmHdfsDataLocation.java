@@ -1,5 +1,7 @@
 package com.sequoiacm.client.element.bizconf;
 
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
@@ -45,6 +47,7 @@ public class ScmHdfsDataLocation extends ScmDataLocation {
      */
     public ScmHdfsDataLocation(BSONObject obj) throws ScmInvalidArgumentException {
         super(obj);
+        // 新增字段，需要在 ScmHdfsDataLocation(BSONObject obj, boolean strict) 增加相应的字段进行校验
         String shardingStr = (String) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (shardingStr != null) {
             ScmShardingType sharding = ScmShardingType.getShardingType(shardingStr);
@@ -56,6 +59,31 @@ public class ScmHdfsDataLocation extends ScmDataLocation {
         String path = (String) obj.get(FieldName.FIELD_CLWORKSPACE_HDFS_DFS_ROOT_PATH);
         if (path != null) {
             setRootPath(path);
+        }
+    }
+
+    /**
+     * Create a hdfs data location with specified arg.
+     *
+     * @param obj
+     *            a bson containing information about hdfs location.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmHdfsDataLocation(BSONObject obj, boolean strict) throws ScmInvalidArgumentException {
+        this(obj);
+        // strict 为 true 时，obj 中不能包含未定义的字段
+        // 应与 ScmHdfsDataLocation(BSONObject obj) 中的解析的字段一致，
+        // 根据业务需要，部分字段可缺省，但不可以有多余字段
+        if (strict) {
+            BSONObject objCopy = BsonUtils.deepCopyRecordBSON(obj);
+            objCopy.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_HDFS_DFS_ROOT_PATH);
+
+            if (!objCopy.isEmpty()) {
+                throw new ScmInvalidArgumentException("contain invalid key:" + objCopy.keySet());
+            }
         }
     }
 

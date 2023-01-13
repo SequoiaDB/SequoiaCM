@@ -480,17 +480,17 @@ public class ScmContentCommon {
         DatasourceType dataType = site.getDataType();
         switch (dataType) {
             case SEQUOIADB:
-                return new ScmSdbDataLocation(dataLocationBSON);
+                return new ScmSdbDataLocation(dataLocationBSON, true);
             case HDFS:
-                return new ScmHdfsDataLocation(dataLocationBSON);
+                return new ScmHdfsDataLocation(dataLocationBSON, true);
             case HBASE:
-                return new ScmHbaseDataLocation(dataLocationBSON);
+                return new ScmHbaseDataLocation(dataLocationBSON, true);
             case CEPH_S3:
-                return new ScmCephS3DataLocation(dataLocationBSON);
+                return new ScmCephS3DataLocation(dataLocationBSON, true);
             case CEPH_SWIFT:
-                return new ScmCephSwiftDataLocation(dataLocationBSON);
+                return new ScmCephSwiftDataLocation(dataLocationBSON, true);
             case SFTP:
-                return new ScmSftpDataLocation(dataLocationBSON);
+                return new ScmSftpDataLocation(dataLocationBSON, true);
             default:
                 throw new ScmToolsException(
                         "unknown siteType:siteName=" + siteName + ",type=" + dataType,

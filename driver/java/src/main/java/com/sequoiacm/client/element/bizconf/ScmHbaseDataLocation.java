@@ -1,5 +1,7 @@
 package com.sequoiacm.client.element.bizconf;
 
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
@@ -54,6 +56,7 @@ public class ScmHbaseDataLocation extends ScmDataLocation {
      */
     public ScmHbaseDataLocation(BSONObject obj) throws ScmInvalidArgumentException {
         super(obj);
+        // 新增字段，需要在 ScmHbaseDataLocation(BSONObject obj, boolean strict) 增加相应的字段进行校验
         String shardingStr = (String) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (shardingStr != null) {
             ScmShardingType sharding = ScmShardingType.getShardingType(shardingStr);
@@ -66,6 +69,31 @@ public class ScmHbaseDataLocation extends ScmDataLocation {
         String namespace = (String) obj.get(FieldName.FIELD_CLWORKSPACE_HABSE_NAME_SPACE);
         if (namespace != null) {
             setNamespace(namespace);
+        }
+    }
+
+    /**
+     * Create a habse data location with specified arg.
+     *
+     * @param obj
+     *            a bson containing information about hbase location.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmHbaseDataLocation(BSONObject obj, boolean strict) throws ScmInvalidArgumentException {
+        this(obj);
+        // strict 为 true 时，obj 中不能包含未定义的字段
+        // 应与 ScmHbaseDataLocation(BSONObject obj) 中的解析的字段一致，
+        // 根据业务需要，部分字段可缺省，但不可以有多余字段
+        if (strict) {
+            BSONObject objCopy = BsonUtils.deepCopyRecordBSON(obj);
+            objCopy.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_HABSE_NAME_SPACE);
+
+            if (!objCopy.isEmpty()) {
+                throw new ScmInvalidArgumentException("contain invalid key:" + objCopy.keySet());
+            }
         }
     }
 

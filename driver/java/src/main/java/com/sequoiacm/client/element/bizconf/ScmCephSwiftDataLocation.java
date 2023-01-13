@@ -1,5 +1,7 @@
 package com.sequoiacm.client.element.bizconf;
 
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
@@ -52,6 +54,7 @@ public class ScmCephSwiftDataLocation extends ScmDataLocation {
      */
     public ScmCephSwiftDataLocation(BSONObject obj) throws ScmInvalidArgumentException {
         super(obj);
+        // 新增字段，需要在 ScmCephSwiftDataLocation(BSONObject obj, boolean strict) 增加相应的字段进行校验
         String shardingStr = (String) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (shardingStr != null) {
             ScmShardingType sharding = ScmShardingType.getShardingType(shardingStr);
@@ -59,6 +62,31 @@ public class ScmCephSwiftDataLocation extends ScmDataLocation {
                 throw new ScmInvalidArgumentException("unknown sharding type:" + obj);
             }
             setShardingType(sharding);
+        }
+    }
+
+    /**
+     * Create ceph swift data location with specified arg.
+     *
+     * @param obj
+     *            a bson containing information about ceph swift location.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmCephSwiftDataLocation(BSONObject obj, boolean strict)
+            throws ScmInvalidArgumentException {
+        this(obj);
+        // strict 为 true 时，obj 中不能包含未定义的字段
+        // 应与 ScmCephSwiftDataLocation(BSONObject obj) 中的解析的字段一致，
+        // 根据业务需要，部分字段可缺省，但不可以有多余字段
+        if (strict) {
+            BSONObject objCopy = BsonUtils.deepCopyRecordBSON(obj);
+            objCopy.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
+
+            if (!objCopy.isEmpty()) {
+                throw new ScmInvalidArgumentException("contain invalid key:" + objCopy.keySet());
+            }
         }
     }
 

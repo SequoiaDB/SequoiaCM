@@ -1,5 +1,7 @@
 package com.sequoiacm.client.element.bizconf;
 
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -56,6 +58,7 @@ public class ScmSdbDataLocation extends ScmDataLocation {
      */
     public ScmSdbDataLocation(BSONObject obj) throws ScmInvalidArgumentException {
         super(obj);
+        // 新增字段，需要在 ScmSdbDataLocation(BSONObject obj, boolean strict) 增加相应的字段进行校验
         domainName = (String) obj.get(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
         BSONObject sharding = (BSONObject) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (sharding != null) {
@@ -81,6 +84,52 @@ public class ScmSdbDataLocation extends ScmDataLocation {
         if (dataOptions != null) {
             clOptions = (BSONObject) dataOptions.get(FieldName.FIELD_CLWORKSPACE_DATA_CL);
             csOptions = (BSONObject) dataOptions.get(FieldName.FIELD_CLWORKSPACE_DATA_CS);
+        }
+    }
+
+    /**
+     * Create a sequoiadb data location with specified arg.
+     *
+     * @param obj
+     *            a bson containing information about sequoiadb location.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmSdbDataLocation(BSONObject obj, boolean strict) throws ScmInvalidArgumentException {
+        this(obj);
+        // strict 为 true 时，obj 中不能包含未定义的字段
+        // 应与 ScmSdbDataLocation(BSONObject obj) 中的解析的字段一致，
+        // 根据业务需要，部分字段可缺省，不可以有多余字段
+        if (strict) {
+            BSONObject objCopy = BsonUtils.deepCopyRecordBSON(obj);
+            objCopy.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
+            BSONObject sharding = (BSONObject) objCopy
+                    .removeField(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
+            if (sharding != null) {
+                sharding.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CL);
+                sharding.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CS);
+                if (!sharding.isEmpty()) {
+                    throw new ScmInvalidArgumentException(
+                            "contain invalid key:" + FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE
+                                    + "." + sharding.keySet());
+                }
+            }
+
+            BSONObject dataOptions = (BSONObject) objCopy
+                    .removeField(FieldName.FIELD_CLWORKSPACE_DATA_OPTIONS);
+            if (dataOptions != null) {
+                dataOptions.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CL);
+                dataOptions.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CS);
+                if (!dataOptions.isEmpty()) {
+                    throw new ScmInvalidArgumentException(
+                            "contain invalid key:" + dataOptions.keySet());
+                }
+            }
+
+            if (!objCopy.isEmpty()) {
+                throw new ScmInvalidArgumentException("contain invalid key:" + objCopy.keySet());
+            }
         }
     }
 

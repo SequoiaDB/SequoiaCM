@@ -1,5 +1,7 @@
 package com.sequoiacm.client.element.bizconf;
 
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -307,6 +309,7 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
      */
     public ScmCephS3DataLocation(BSONObject obj) throws ScmInvalidArgumentException {
         super(obj);
+        // 新增字段，需要在 ScmCephS3DataLocation(BSONObject obj, boolean strict) 增加相应的字段进行校验
         String shardingStr = (String) obj.get(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
         if (shardingStr != null) {
             ScmShardingType sharding = ScmShardingType.getShardingType(shardingStr);
@@ -359,7 +362,70 @@ public class ScmCephS3DataLocation extends ScmDataLocation {
                 setStandbyConfig(new ScmCephS3UserConfig(standbyUser, standbyPassword));
             }
         }
+    }
 
+    /**
+     * Create ceph s3 data location with specified args.
+     *
+     * @param obj
+     *            a bson containing information about ceph s3 location.
+     * @throws ScmInvalidArgumentException
+     *             if error happens.
+     */
+    public ScmCephS3DataLocation(BSONObject obj, boolean strict)
+            throws ScmInvalidArgumentException {
+        this(obj);
+        // strict 为 true 时，obj 中不能包含未定义的字段
+        // 应与 ScmCephS3DataLocation(BSONObject obj) 中的解析的字段一致，
+        // 根据业务需要，部分字段可缺省，但不可以有多余字段
+        if (strict) {
+            BSONObject objCopy = BsonUtils.deepCopyRecordBSON(obj);
+            objCopy.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_DATA_SHARDING_TYPE);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_OBJECT_SHARDING_TYPE);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_CONTAINER_PREFIX);
+            objCopy.removeField(FieldName.FIELD_CLWORKSPACE_BUCKET_NAME);
+
+            BSONObject userInfo = (BSONObject) objCopy
+                    .removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO);
+            if (userInfo != null) {
+                BSONObject primary = (BSONObject) userInfo
+                        .removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_PRIMARY);
+                if (primary != null) {
+                    primary.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER);
+                    primary.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD);
+                    if (!primary.isEmpty()) {
+                        throw new ScmInvalidArgumentException("contain invalid key:"
+                                + FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO + "."
+                                + FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_PRIMARY + "."
+                                + primary.keySet());
+                    }
+                }
+
+                BSONObject standby = (BSONObject) userInfo
+                        .removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_STANDBY);
+                if (standby != null) {
+                    standby.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_USER);
+                    standby.removeField(FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_CONFIG_PASSWORD);
+                    if (!standby.isEmpty()) {
+                        throw new ScmInvalidArgumentException("contain invalid key:"
+                                + FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO + "."
+                                + FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_STANDBY + "."
+                                + standby.keySet());
+                    }
+                }
+
+                if (!userInfo.isEmpty()) {
+                    throw new ScmInvalidArgumentException("contain invalid key:"
+                            + FieldName.FIELD_CLWORKSPACE_DATA_CEPHS3_USER_INFO + "."
+                            + userInfo.keySet());
+                }
+            }
+
+            if (!objCopy.isEmpty()) {
+                throw new ScmInvalidArgumentException("contain invalid key:" + objCopy.keySet());
+            }
+        }
     }
 
     /**
