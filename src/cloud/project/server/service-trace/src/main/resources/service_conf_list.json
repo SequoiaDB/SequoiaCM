@@ -1,0 +1,11 @@
+{
+    "checked_list": [
+        {
+            "key": "zipkin.storage.mem.max-spans",
+            "type": "number"
+        }
+    ],
+    
+    "forbidden_list": [
+    ]
+}

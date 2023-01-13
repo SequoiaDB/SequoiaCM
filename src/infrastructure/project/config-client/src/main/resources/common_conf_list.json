@@ -1,0 +1,161 @@
+{
+    "checked_list": [
+        {
+            "key": "ribbon.MaxAutoRetries",
+            "type": "number",
+            "min": 0
+        },
+        {
+            "key": "ribbon.MaxAutoRetriesNextServer",
+            "type": "number",
+            "min": 0
+        },
+        {
+            "key": "ribbon.ConnectTimeout",
+            "type": "number"
+        },
+        {
+            "key": "ribbon.ReadTimeout",
+            "type": "number"
+        },
+        {
+            "key": "hystrix.command.default.execution.isolation.semaphore.maxConcurrentRequests",
+            "type": "number"
+        },
+        {
+            "key": "hystrix.command.default.circuitBreaker.enabled",
+            "type": "boolean"
+        },
+        {
+            "key": "hystrix.command.default.metrics.rollingStats.timeInMilliseconds",
+            "type": "number"
+        },
+        {
+            "key": "hystrix.command.default.circuitBreaker.requestVolumeThreshold",
+            "type": "number"
+        },
+        {
+            "key": "hystrix.command.default.circuitBreaker.errorThresholdPercentage",
+            "type": "number"
+        },
+        {
+            "key": "hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds",
+            "type": "number"
+        },
+        {
+            "key": "eureka.client.prefer-same-zone-eureka",
+            "type": "boolean"
+        },
+        {
+            "key": "management.port",
+            "type": "number"
+        },
+        {
+            "key": "management.security.enabled",
+            "type": "number"
+        },
+        {
+            "key": "spring.zipkin.enabled",
+            "type": "boolean"
+        },
+        {
+            "key": "hystrix.command.default.execution.timeout.enabled",
+            "type": "boolean"
+        },
+        {
+            "key": "ribbon.OkToRetryOnAllOperations",
+            "type": "boolean"
+        },
+        {
+            "key": "eureka.client.availability-zones",
+            "type": "string"
+        },
+        {
+            "key": "eureka.client.service-url",
+            "type": "string"
+        },
+        {
+            "key": "eureka.instance.metadata-map.zone",
+            "type": "string"
+        },
+        {
+            "key": "eureka.client.prefer-same-zone-eureka",
+            "type": "boolean"
+        },
+        {
+            "key": "eureka.instance.hostname",
+            "type": "string"
+        },
+        {
+            "key": "spring.cloud.client.hostname",
+            "type": "string"
+        },
+        {
+            "key": "eureka.instance.ip-address",
+            "type": "string"
+        },
+        {
+            "key": "scm.ribbon.localPreferred",
+            "type": "boolean"
+        },
+        {
+            "key": "eureka.instance.metadata-map.nodeGroup",
+            "type": "string"
+        },
+        {
+            "key": "eureka.instance.metadata-map.zone",
+            "type": "string"
+        },
+        {
+            "key": "eureka.instance.metadata-map.groupAccessMode",
+            "type": "string"
+        },
+        {
+            "key": "scm.jvm.options",
+            "type": "string"
+        },
+        {
+            "key": "server.tomcat.max-threads",
+            "type": "number"
+        }
+    ],
+    
+    "forbidden_list": [
+        {
+            "key": "spring.application.name"
+        },
+        {
+            "key": "eureka.client.register-with-eureka"
+        },
+        {
+            "key": "eureka.instance.metadata-map.region"
+        },
+        {
+            "key": "eureka.client.region"
+        },
+        {
+            "key": "server.port"
+        },
+        {
+            "key": "eureka.client.fetch-registry"
+        },
+        {
+            "key": "info.app.name"
+        },
+        {
+            "key": "info.app.version"
+        },
+        {
+            "key": "info.app.description"
+        },
+        {
+            "key": "eureka.instance.metadata-map.version"
+        },
+        {
+            "key": "eureka.instance.metadata-map.actuatorSecurityEnabled"
+        },
+        {
+            "key": "eureka.instance.health-check-url-path"
+        }
+    ]
+}

@@ -40,6 +40,7 @@ public class ScmAuthenticationProvider extends AbstractUserDetailsAuthentication
     private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
     private static final String ISO8601BasicFormat = "yyyyMMdd'T'HHmmss'Z'";
 
+    // 由于这个bean无法在容器中获取出来，导致配置扫描框架忽略了这个配置，所以这个配置项通过 service_conf_list.json 资源文件手工注入
     @Value("${scm.auth.authorization.maxTimeOffset}")
     private int maxTimeOffset;
     private PasswordEncoder passwordEncoder;

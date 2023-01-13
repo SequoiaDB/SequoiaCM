@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -39,14 +40,45 @@ public class ScmConfPropsScanner implements ApplicationRunner {
     @Autowired
     private ScmCommonUtil util;
 
+    @Autowired
+    private ConversionService conversionService;
+
     // 支持动态刷新的scm配置列表
     private final Set<ScmPropsMatchRule> refreshableConfRules = new HashSet<>();
 
     // scm配置列表
     private final Set<ScmPropsMatchRule> scmConfRules = new HashSet<>();
 
-    // scm配置与类型的映射（ scm.test.intConf = Integer.class）
-    private final Map<ScmPropsMatchRule, Class<?>> confRulMapType = new HashMap<>();
+    // scm配置与校验规则的映射（ scm.test.intConf = Integer.class）
+    // scmConfRules 中有一些项在这个 map 中可能没有对应的校验规则，表示这个配置项比较复杂的嵌套结构，没有解析出其校验规则
+    private final Map<ScmPropsMatchRule, PropCheckRule> confRulMapType = new HashMap<>();
+
+    public void registerInnerConfList() throws IOException {
+        CommonConfScanner commonConfScanner = new CommonConfScanner();
+        // 所有服务均包含的内置配置列表
+        Map<ScmPropsMatchRule, PropInfo> commConfList = commonConfScanner
+                .scanCommonProps(conversionService, "common_conf_list.json");
+        // 当前服务内置的配置列表
+        Map<ScmPropsMatchRule, PropInfo> serviceConfList = commonConfScanner
+                .scanCommonProps(conversionService, "service_conf_list.json");
+        commConfList.putAll(serviceConfList);
+        for (Map.Entry<ScmPropsMatchRule, PropInfo> entry : commConfList.entrySet()) {
+            confRulMapType.put(entry.getKey(), entry.getValue().getCheckRule());
+            scmConfRules.add(entry.getKey());
+            if (entry.getValue().isRefreshable()) {
+                refreshableConfRules.add(entry.getKey());
+            }
+        }
+    }
+
+    public PropCheckRule getPropCheckRule(String prop) {
+        for (Map.Entry<ScmPropsMatchRule, PropCheckRule> entry : confRulMapType.entrySet()) {
+            if (entry.getKey().isMatch(prop)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws IOException, ClassNotFoundException {
@@ -76,16 +108,18 @@ public class ScmConfPropsScanner implements ApplicationRunner {
                 }
                 ScmConfPropsFieldCallback fieldCallback = new ScmConfPropsFieldCallback(
                         isRefreshScopeBean, configPrefix, scmConfRules, refreshableConfRules,
-                        confRulMapType);
+                        confRulMapType, conversionService);
                 ReflectionUtils.doWithFields(clazz, fieldCallback);
             }
             else {
                 // 类上成员变量携带 @Value ，解析其配置项
                 ScmValueFieldCallback fieldCallback = new ScmValueFieldCallback(isRefreshScopeBean,
-                        scmConfRules, refreshableConfRules, confRulMapType);
+                        scmConfRules, refreshableConfRules, confRulMapType, conversionService);
                 ReflectionUtils.doWithFields(clazz, fieldCallback);
             }
         }
+
+        registerInnerConfList();
         logger.info("scm conf match rules: {}", scmConfRules);
         logger.info("scm refreshable conf match rules: {}", refreshableConfRules);
     }
@@ -108,31 +142,25 @@ public class ScmConfPropsScanner implements ApplicationRunner {
         return false;
     }
 
-    public Class<?> getType(String confProp) {
-        for (Map.Entry<ScmPropsMatchRule, Class<?>> entry : confRulMapType.entrySet()) {
-            if (entry.getKey().isMatch(confProp)) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
-
 }
 
 // 解析含有被 @Value 注解修饰成员变量的类
 class ScmValueFieldCallback implements ReflectionUtils.FieldCallback {
     private final Set<ScmPropsMatchRule> scmConfRules;
     private final Set<ScmPropsMatchRule> refreshableConfRule;
-    private final Map<ScmPropsMatchRule, Class<?>> confRulMapType;
+    private final Map<ScmPropsMatchRule, PropCheckRule> confRulMapType;
     private final boolean isFieldInRefreshableClass;
+    private final ConversionService conversionService;
 
     public ScmValueFieldCallback(boolean isFieldInRefreshableClass,
             Set<ScmPropsMatchRule> scmConfRules, Set<ScmPropsMatchRule> refreshableConfRule,
-            Map<ScmPropsMatchRule, Class<?>> confRulMapType) {
+            Map<ScmPropsMatchRule, PropCheckRule> confRulMapType,
+            ConversionService conversionService) {
         this.scmConfRules = scmConfRules;
         this.refreshableConfRule = refreshableConfRule;
         this.confRulMapType = confRulMapType;
         this.isFieldInRefreshableClass = isFieldInRefreshableClass;
+        this.conversionService = conversionService;
     }
 
     @Override
@@ -144,7 +172,7 @@ class ScmValueFieldCallback implements ReflectionUtils.FieldCallback {
         String conf = ScmCommonUtil.getValueConf(valueAnnotation);
         ScmPropsExactMatchRule matchRule = new ScmPropsExactMatchRule(conf);
         scmConfRules.add(matchRule);
-        confRulMapType.put(matchRule, field.getType());
+        confRulMapType.put(matchRule, new CommonTypeCheckRule(conversionService, field.getType()));
         boolean isRefreshableField = field.getAnnotation(ScmRefreshableConfigMarker.class) != null
                 && isFieldInRefreshableClass;
         if (isRefreshableField) {
@@ -158,17 +186,20 @@ class ScmConfPropsFieldCallback implements ReflectionUtils.FieldCallback {
     private final String configPrefix;
     private final Set<ScmPropsMatchRule> scmConfRules;
     private final Set<ScmPropsMatchRule> refreshableConfRule;
-    private final Map<ScmPropsMatchRule, Class<?>> confRulMapType;
+    private final Map<ScmPropsMatchRule, PropCheckRule> confRulMapType;
     private final boolean isFieldInRefreshableClass;
+    private final ConversionService conversionService;
 
     public ScmConfPropsFieldCallback(boolean isFieldInRefreshableClass, String configPrefix,
             Set<ScmPropsMatchRule> scmConfRules, Set<ScmPropsMatchRule> refreshableConfRule,
-            Map<ScmPropsMatchRule, Class<?>> confRulMapType) {
+            Map<ScmPropsMatchRule, PropCheckRule> confRulMapType,
+            ConversionService conversionService) {
         this.configPrefix = configPrefix;
         this.scmConfRules = scmConfRules;
         this.refreshableConfRule = refreshableConfRule;
         this.confRulMapType = confRulMapType;
         this.isFieldInRefreshableClass = isFieldInRefreshableClass;
+        this.conversionService = conversionService;
     }
 
     private boolean doWithSimpleOrMapType(String prefix, Field field, boolean isRefreshableField) {
@@ -178,7 +209,7 @@ class ScmConfPropsFieldCallback implements ReflectionUtils.FieldCallback {
             if (isRefreshableField) {
                 refreshableConfRule.add(rule);
             }
-            confRulMapType.put(rule, field.getType());
+            confRulMapType.put(rule, new CommonTypeCheckRule(conversionService, field.getType()));
             return true;
         }
 
@@ -190,7 +221,8 @@ class ScmConfPropsFieldCallback implements ReflectionUtils.FieldCallback {
             if (isRefreshableField) {
                 refreshableConfRule.add(rule);
             }
-            confRulMapType.put(rule, (Class<?>) paramType.getActualTypeArguments()[1]);
+            confRulMapType.put(rule, new CommonTypeCheckRule(conversionService,
+                    (Class<?>) paramType.getActualTypeArguments()[1]));
             return true;
         }
         return false;

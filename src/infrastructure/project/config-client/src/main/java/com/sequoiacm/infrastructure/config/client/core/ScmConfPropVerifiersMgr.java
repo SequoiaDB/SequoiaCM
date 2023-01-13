@@ -10,10 +10,9 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionFailedException;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
+import com.sequoiacm.infrastructure.config.client.props.PropCheckRule;
 import com.sequoiacm.infrastructure.config.client.props.ScmConfPropsScanner;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -28,10 +27,7 @@ public class ScmConfPropVerifiersMgr {
     private boolean isSorted = false;
 
     @Autowired
-    public ScmConfPropVerifiersMgr(CommonSpringConfVerifier commonSpringConfVerifier,
-            ScmConfPropsScanner scmConfPropsScanner, ConversionService conversionService) {
-        verifiers.add(commonSpringConfVerifier);
-
+    public ScmConfPropVerifiersMgr(ScmConfPropsScanner scmConfPropsScanner) {
         verifiers.add(new ScmConfigPropVerifier() {
             @Override
             public VerifyResult verifyUpdate(String key, String value) {
@@ -39,16 +35,11 @@ public class ScmConfPropVerifiersMgr {
                     if (value == null) {
                         return VerifyResult.getValidRes();
                     }
-                    Class<?> type = scmConfPropsScanner.getType(key);
-                    if (type != null) {
-                        try {
-                            conversionService.convert(value, type);
-                        }
-                        catch (ConversionFailedException e) {
-                            logger.error("failed to check config: config={}, value={}", key, value,
-                                    e);
+                    PropCheckRule checkRule = scmConfPropsScanner.getPropCheckRule(key);
+                    if (checkRule != null) {
+                        if (!checkRule.checkValue(value)) {
                             return VerifyResult.createInvalidRes("config " + key + "=" + value
-                                    + " is invalid: " + e.getMessage());
+                                    + " is invalid: checkRule=" + checkRule.toString());
                         }
                     }
                     return VerifyResult.getValidRes();
@@ -58,7 +49,17 @@ public class ScmConfPropVerifiersMgr {
 
             @Override
             public VerifyResult verifyDeletion(String key) {
-                return verifyUpdate(key, null);
+                if (scmConfPropsScanner.isScmConfProp(key)) {
+                    PropCheckRule checkRule = scmConfPropsScanner.getPropCheckRule(key);
+                    if (checkRule != null) {
+                        if (!checkRule.isDeletable()) {
+                            return VerifyResult.createInvalidRes("can not delete config " + key
+                                    + ": checkRule=" + checkRule.toString());
+                        }
+                    }
+                    return VerifyResult.getValidRes();
+                }
+                return VerifyResult.getUnrecognizedRes();
             }
 
             @Override
