@@ -45,14 +45,12 @@ public class LocalLogCollector extends LogCollector {
     @Override
     public void start() throws ScmToolsException, IOException {
         System.out.println("[INFO ] local host start log collect");
-        if (!isExistDir(CollectConfig.getInstallPath())
-                || lsSubDirectory(CollectConfig.getInstallPath()).size() < 1) {
-            throw new ScmToolsException(
-                    "scm install path is not exist or not install in local,install path="
-                            + CollectConfig.getInstallPath(),
-                    CollectException.SCM_NOT_EXIST_ERROR);
+        if (!isScmInstallPath()) {
+            System.out.println("[WARN ] local host " + CollectConfig.getInstallPath()
+                    + " no scm is installed");
+            logger.warn("local host " + CollectConfig.getInstallPath() + " no scm is installed");
+            return;
         }
-
         try {
             hostAddress = InetAddress.getLocalHost().getHostAddress();
         }
@@ -100,6 +98,23 @@ public class LocalLogCollector extends LogCollector {
             }
         }
         System.out.println("[INFO ] local host log collect finished");
+    }
+
+    private boolean isScmInstallPath() throws ScmToolsException {
+        if (!isExistDir(CollectConfig.getInstallPath())
+                || lsSubDirectory(CollectConfig.getInstallPath()).size() < 1) {
+            return false;
+        }
+        boolean isScmInstallPath = false;
+        for (Services value : Services.values()) {
+            String installPath = CollectConfig.getInstallPath() + File.separator
+                    + value.getServiceInstallPath();
+            if (isExistDir(installPath)) {
+                isScmInstallPath = true;
+                break;
+            }
+        }
+        return isScmInstallPath;
     }
 
     private void copyNoteLogfiles(String destServicePath, String destNodePath, String srcDir,

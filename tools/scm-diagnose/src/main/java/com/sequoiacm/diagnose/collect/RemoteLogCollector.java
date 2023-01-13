@@ -50,7 +50,13 @@ public class RemoteLogCollector extends LogCollector {
         System.out.println("[INFO ] remote host " + getSsh().getHost() + " start log collect");
         String tempCollectPath = TEMP_PATH + File.separator + CollectConfig.getResultDir();
         try {
-            checkScmInstallPath();
+            if (!isScmInstallPath()) {
+                System.out.println("[WARN ] remote host " + ssh.getHost() + " "
+                        + CollectConfig.getInstallPath() + " no scm is installed");
+                logger.warn("remote host " + ssh.getHost() + " " + CollectConfig.getInstallPath()
+                        + " no scm is installed");
+                return;
+            }
             ssh.rmDir(tempCollectPath);
             ssh.mkdir(tempCollectPath);
             remoteCollectLogFile();
@@ -83,27 +89,39 @@ public class RemoteLogCollector extends LogCollector {
         return true;
     }
 
-    private void checkScmInstallPath() throws ScmToolsException {
+    private boolean isScmInstallPath() throws ScmToolsException {
         try {
             ssh.checkExistDir(CollectConfig.getInstallPath());
             List<String> lsFiles = ssh.lsFile(CollectConfig.getInstallPath());
             if (lsFiles.size() < 1) {
-                throw new ScmToolsException(
-                        "scm not install in remote host " + ssh.getHost() + ",install path="
-                                + CollectConfig.getInstallPath(),
-                        CollectException.SCM_NOT_EXIST_ERROR);
+                return false;
             }
         }
         catch (ScmToolsException e) {
             if (e.getExitCode() == CollectException.FILE_NOT_FIND) {
-                throw new ScmToolsException(
-                        "scm install path is not exist or not install in remote host "
-                                + ssh.getHost() + ",install path="
-                                + CollectConfig.getInstallPath(),
-                        CollectException.SCM_NOT_EXIST_ERROR);
+                return false;
             }
             throw new ScmToolsException(e.getMessage(), e.getExitCode(), e);
         }
+        boolean isScmInstallPath = false;
+        for (Services value : Services.values()) {
+            String installPath = CollectConfig.getInstallPath() + File.separator
+                    + value.getServiceInstallPath();
+            try {
+                ssh.checkExistDir(installPath);
+                isScmInstallPath = true;
+                break;
+            }
+            catch (ScmToolsException e) {
+                if (e.getExitCode() == CollectException.FILE_NOT_FIND) {
+                    continue;
+                }
+                else {
+                    throw e;
+                }
+            }
+        }
+        return isScmInstallPath;
     }
 
     public void remoteCollectLogFile() throws ScmToolsException, IOException {

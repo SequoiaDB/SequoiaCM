@@ -151,8 +151,21 @@ public class ScmLogCollect extends SubCommand {
 
     private void printResult(List<CollectResult> collectResult) {
         if (collectFailCount == 0) {
-            System.out.println("[INFO ] scm log collect successfully："
-                    + CollectConfig.getOutputPath() + File.separator + currentCollectPath);
+            File file = new File(
+                    CollectConfig.getOutputPath() + File.separator + currentCollectPath);
+            File[] files = file.listFiles();
+            if (files == null || files.length == 0) {
+                System.out.println(
+                        "[WARN ] scm log collect result is empty in " + file.getAbsolutePath());
+                String serviceString = CollectConfig.getServiceList().toString();
+                logger.warn("scm log collect result is empty from install path "
+                        + CollectConfig.getInstallPath() + ",serivces is "
+                        + serviceString.substring(1, serviceString.length() - 1));
+            }
+            else {
+                System.out
+                        .println("[INFO ] scm log collect successfully：" + file.getAbsolutePath());
+            }
         }
         else {
             for (CollectResult result : collectResult) {
