@@ -74,10 +74,14 @@
                     size="mini"
                     v-for="item of scope.row.privileges"
                     :key="item"
-                    closable
+                    :closable="item!=='LOW_LEVEL_READ'"
                     @close="handleRevokePrivilege(scope.row, item)"
                     style="margin-right:0.2rem">
-                    {{item}}
+                    <el-tooltip content="系统内置权限类型" :disabled="item!=='LOW_LEVEL_READ'" placement="top-start" >
+                      <template>
+                        <span> {{item}} </span>
+                      </template>
+                    </el-tooltip>
                 </el-tag>
               </template>
             </el-table-column>

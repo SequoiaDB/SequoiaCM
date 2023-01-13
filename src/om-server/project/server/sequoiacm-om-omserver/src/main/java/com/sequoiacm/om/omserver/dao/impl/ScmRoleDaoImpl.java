@@ -6,11 +6,13 @@ import java.util.List;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.om.omserver.common.CommonUtil;
 import com.sequoiacm.om.omserver.module.OmPrivilegeBasic;
 import com.sequoiacm.om.omserver.module.OmPrivilegeDetail;
 import com.sequoiacm.om.omserver.module.OmUserInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
+import org.apache.commons.lang.StringUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -30,6 +32,8 @@ import com.sequoiacm.om.omserver.module.OmRoleBasicInfo;
 import com.sequoiacm.om.omserver.module.OmRoleInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.sequoiacm.infrastructrue.security.core.ScmRole.AUTH_MONITOR_ROLE_NAME;
 
 public class ScmRoleDaoImpl implements ScmRoleDao {
 
@@ -158,7 +162,7 @@ public class ScmRoleDaoImpl implements ScmRoleDao {
                 ScmPrivilege privilege = cursor.getNext();
                 ScmResource resource = ScmFactory.Resource.getResourceById(conn,
                         privilege.getResourceId());
-                privilegeList.add(transformToOmPrivilegeDetail(privilege, resource));
+                privilegeList.add(transformToOmPrivilegeDetail(roleName, privilege, resource));
             }
         }
         catch (ScmException e) {
@@ -173,7 +177,7 @@ public class ScmRoleDaoImpl implements ScmRoleDao {
         return privilegeList;
     }
 
-    private OmPrivilegeDetail transformToOmPrivilegeDetail(ScmPrivilege privilege,
+    private OmPrivilegeDetail transformToOmPrivilegeDetail(String roleName, ScmPrivilege privilege,
             ScmResource resource) {
         OmPrivilegeDetail privilegeDetail = new OmPrivilegeDetail();
         privilegeDetail.setId(privilege.getId());
@@ -182,6 +186,12 @@ public class ScmRoleDaoImpl implements ScmRoleDao {
         List<String> privileges = new ArrayList<>();
         List<ScmPrivilegeType> privilegeTypes = privilege.getPrivilegeTypes();
         for (ScmPrivilegeType privilegeType : privilegeTypes) {
+            // SEQUOIACM-1134: 处理 LOW_LEVEL_READ 无法识别问题
+            if (StringUtils.equals(AUTH_MONITOR_ROLE_NAME, roleName)
+                    && privilegeType.equals(ScmPrivilegeType.UNKNOWN)) {
+                privileges.add(ScmPrivilegeDefine.LOW_LEVEL_READ.getName());
+                continue;
+            }
             privileges.add(privilegeType.getPriv());
         }
         privilegeDetail.setPrivilegeList(privileges);

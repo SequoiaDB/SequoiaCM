@@ -27,7 +27,6 @@
             <el-table-column prop="resource_type" label="资源类型" width="90" /> 
             <el-table-column prop="resource_name" label="资源名称" width="180" />
             <el-table-column
-                show-overflow-tooltip
                 label="权限列表">
                 <template slot-scope="scope">
                     <el-tag
@@ -35,7 +34,11 @@
                         v-for="item of scope.row.privileges"
                         :key="item"
                         style="margin-right:0.2rem">
-                        {{item}}
+                        <el-tooltip content="系统内置权限类型" :disabled="item!=='LOW_LEVEL_READ'" placement="top-start" >
+                          <template>
+                            <span> {{item}} </span>
+                          </template>
+                        </el-tooltip>
                     </el-tag>
                 </template>
             </el-table-column>

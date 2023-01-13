@@ -80,7 +80,8 @@
           <template slot-scope="scope">
             <el-tag
               v-for="role in scope.row.roles"
-              :key="role.role_name">
+              :key="role.role_name"
+              style="margin-left: 3px">
               {{role.role_name}}
             </el-tag>
           </template>
