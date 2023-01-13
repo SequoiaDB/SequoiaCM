@@ -1,5 +1,6 @@
 package com.sequoiacm.fulltext.server.consumer;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,6 +12,7 @@ public class IdxConsumerConfig {
     private static final Logger logger = LoggerFactory.getLogger(IdxConsumerConfig.class);
 
     // 用于处理消息的线程池配置
+    @ScmRewritableConfMarker
     private int corePoolSize = 15;
     private int maxPoolSize = 15;
     private int coreThreadKeepAliveTime = 20; // second

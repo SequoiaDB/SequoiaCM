@@ -1,5 +1,6 @@
 package com.sequoiacm.fulltext.server.sch;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class IdxThreadPoolConfig {
     private static final Logger logger = LoggerFactory.getLogger(IdxThreadPoolConfig.class);
+    @ScmRewritableConfMarker
     private int corePoolSize = 5;
     private int maxPoolSize = 10;
     private int keepAliveTime = 20; //second

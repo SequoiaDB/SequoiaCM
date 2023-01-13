@@ -1,6 +1,7 @@
 package com.sequoiacm.schedule;
 
 import com.sequoiacm.infrastructure.common.ZkAcl;
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,6 +239,7 @@ class ConfigRevoteInterval {
 class ConfigInternalSchedule {
     private static final Logger logger = LoggerFactory.getLogger(ConfigInternalSchedule.class);
     //second
+    @ScmRewritableConfMarker
     private int healthCheckInterval = 30;
 
     public int getHealthCheckInterval() {

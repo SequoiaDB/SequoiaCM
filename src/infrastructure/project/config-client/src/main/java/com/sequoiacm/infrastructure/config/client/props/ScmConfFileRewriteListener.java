@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
@@ -195,7 +196,7 @@ class ScmValueBeanComparator {
                     ret.put(conf, conversionService.convert(beanValue, String.class));
                 }
             }
-        });
+        }, RewritableFieldFilter.INSTANCE);
 
         return ret;
     }
@@ -287,7 +288,7 @@ class ScmConfigBeanComparator {
                     ret.putAll(comparator.compare());
                 }
             }
-        });
+        }, RewritableFieldFilter.INSTANCE);
 
         return ret;
     }
@@ -305,5 +306,15 @@ class ScmConfigBeanComparator {
             }
         }
         return false;
+    }
+}
+
+class RewritableFieldFilter implements ReflectionUtils.FieldFilter {
+
+    static RewritableFieldFilter INSTANCE = new RewritableFieldFilter();
+
+    @Override
+    public boolean matches(Field field) {
+        return field.getAnnotation(ScmRewritableConfMarker.class) != null;
     }
 }

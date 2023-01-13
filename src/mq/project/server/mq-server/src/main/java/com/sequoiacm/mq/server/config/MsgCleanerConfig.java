@@ -1,5 +1,6 @@
 package com.sequoiacm.mq.server.config;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "scm.mq.msgCleaner")
 public class MsgCleanerConfig {
     private Logger logger = LoggerFactory.getLogger(MsgCleanerConfig.class);
+    @ScmRewritableConfMarker
     private long period = 5 * 60 * 1000;
+    @ScmRewritableConfMarker
     private long msgCountThreshold = 20 * 10000;
 
     public long getPeriod() {

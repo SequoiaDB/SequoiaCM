@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,16 +25,20 @@ public class ScmAuditConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmAuditConfig.class);
 
     @ScmRefreshableConfigMarker
+    @ScmRewritableConfMarker
     private String mask = "";
 
     @ScmRefreshableConfigMarker
+    @ScmRewritableConfMarker
     private String userMask = "";
 
     @ScmRefreshableConfigMarker
+    @ScmRewritableConfMarker
     // key is username and value is audit type
     private Map<String, String> user = new HashMap<String, String>();
 
     @ScmRefreshableConfigMarker
+    @ScmRewritableConfMarker
     // key is user type and value is audit type
     private Map<String, String> userType = new HashMap<String, String>();
     

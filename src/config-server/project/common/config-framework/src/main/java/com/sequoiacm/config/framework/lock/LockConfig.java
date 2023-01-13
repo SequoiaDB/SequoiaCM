@@ -1,6 +1,7 @@
 package com.sequoiacm.config.framework.lock;
 
 import com.sequoiacm.infrastructure.common.ZkAcl;
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,10 +14,15 @@ import javax.annotation.PostConstruct;
 public class LockConfig {
     private static final Logger logger = LoggerFactory.getLogger(LockConfig.class);
     private String urls;
+    @ScmRewritableConfMarker
     private long cleanJobPeriod = 1000L * 60 * 30;
+    @ScmRewritableConfMarker
     private long cleanJobResidualTime = 180L * 1000L;
+    @ScmRewritableConfMarker
     private int coreCleanThreads = 3;
+    @ScmRewritableConfMarker
     private int maxCleanThreads = 6;
+    @ScmRewritableConfMarker
     private int cleanQueueSize = 10000;
     private int maxBuffer;
     private ZkAcl acl = new ZkAcl();

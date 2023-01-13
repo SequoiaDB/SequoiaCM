@@ -1,13 +1,18 @@
 package com.sequoiacm.cloud.authentication.config;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "scm.session")
 public class SessionConfig {
+
+    @ScmRewritableConfMarker
     private int maxInactiveInterval = 1800;
+    @ScmRewritableConfMarker
     private int cleanInactiveInterval = 3600;
+    @ScmRewritableConfMarker
     private int maxCleanupNum = 500;
 
     public int getMaxInactiveInterval() {

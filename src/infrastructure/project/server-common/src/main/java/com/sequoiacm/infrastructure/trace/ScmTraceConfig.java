@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -23,6 +24,7 @@ public class ScmTraceConfig {
     private boolean enabled;
 
     @ScmRefreshableConfigMarker
+    @ScmRewritableConfMarker
     private int samplePercentage = 10;
 
     @ScmRefreshableConfigMarker

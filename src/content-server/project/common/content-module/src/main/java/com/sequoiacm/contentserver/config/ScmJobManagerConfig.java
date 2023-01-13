@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.config;
 
 import javax.annotation.PostConstruct;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,11 +21,15 @@ public class ScmJobManagerConfig {
     /**
      * shortTimeThreadPool
      */
+    @ScmRewritableConfMarker
     @ScmRefreshableConfigMarker
     private int coreSize = 8;
+
+    @ScmRewritableConfMarker
     @ScmRefreshableConfigMarker
     private int maxSize = 10;
 
+    @ScmRewritableConfMarker
     private int queueSize = 5000;
 
     /**
@@ -35,8 +40,11 @@ public class ScmJobManagerConfig {
     /**
      * longTimeThreadPool
      */
+    @ScmRewritableConfMarker
     private int longTimeThreadPoolCoreSize = 10;
+    @ScmRewritableConfMarker
     private int longTimeThreadPoolMaxSize = 20;
+    @ScmRewritableConfMarker
     private int longTimeThreadPoolQueueSize = 100;
 
     @PostConstruct

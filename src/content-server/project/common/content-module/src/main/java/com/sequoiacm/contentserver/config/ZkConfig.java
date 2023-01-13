@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.config;
 
 import com.sequoiacm.infrastructure.common.ZkAcl;
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,10 +19,15 @@ public class ZkConfig {
     private String urls = CommonDefine.DefaultValue.ZK_URL;
     private int lockTimeout = CommonDefine.DefaultValue.ZK_LOCK_TIMEOUT;
     private int clientTimeout = CommonDefine.DefaultValue.ZK_CLIENT_TIMEOUT;
+    @ScmRewritableConfMarker
     private long cleanJobPeriod = CommonDefine.DefaultValue.ZK_CLEANJOB_PERIOD;
+    @ScmRewritableConfMarker
     private long cleanJobResidualTime = CommonDefine.DefaultValue.ZK_CLEANJOB_RESIDUAL;
+    @ScmRewritableConfMarker
     private int maxCleanThreads = CommonDefine.DefaultValue.ZK_MAX_CLEAN_THREAD;
+    @ScmRewritableConfMarker
     private int coreCleanThreads = CommonDefine.DefaultValue.ZK_CORE_CLEAN_THREAD;
+    @ScmRewritableConfMarker
     private int cleanQueueSize = CommonDefine.DefaultValue.ZK_CLEAN_QUEUE_SIZE;
     private int maxBuffer = CommonDefine.DefaultValue.ZK_MAX_BUFFER;
     private ZkAcl acl = new ZkAcl();

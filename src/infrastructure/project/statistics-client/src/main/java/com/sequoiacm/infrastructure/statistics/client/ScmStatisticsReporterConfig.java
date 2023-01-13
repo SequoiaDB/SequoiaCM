@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.statistics.client;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,8 +13,11 @@ import com.sequoiacm.infrastructure.common.annotation.ScmRefreshableConfigMarker
 public class ScmStatisticsReporterConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmStatisticsReporterConfig.class);
 
+    @ScmRewritableConfMarker
     @ScmRefreshableConfigMarker
     private int rawDataCacheSize = 5000;
+
+    @ScmRewritableConfMarker
     @ScmRefreshableConfigMarker
     private int rawDataReportPeriod = 10000;
 

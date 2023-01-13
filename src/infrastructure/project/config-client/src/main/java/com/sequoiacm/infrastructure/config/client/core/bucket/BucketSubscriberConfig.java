@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.client.core.bucket;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("scm.conf.client.bucket")
 public class BucketSubscriberConfig {
     private Logger logger = LoggerFactory.getLogger(BucketSubscriberConfig.class);
+    @ScmRewritableConfMarker
     private int cacheLimit = 1000;
     private long heartbeatInterval = 180000;
 

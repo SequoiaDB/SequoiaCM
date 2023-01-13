@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.config;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "scm.cacheStrategy.auto")
 public class AutoConfig {
     private static final Logger logger = LoggerFactory.getLogger(AutoConfig.class);
+    @ScmRewritableConfMarker
     private int days = 3;
 
     private int accessCount = 3;

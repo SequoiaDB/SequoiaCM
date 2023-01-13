@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.config;
 
+import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "scm.dir.cache")
 public class DirCacheConfig {
 
+    @ScmRewritableConfMarker
     private int maxSize = 10000;
     private boolean enable = true;
 
