@@ -43,7 +43,8 @@
                     <div slot="content">
                       文件缓存策略控制跨中心读时，文件数据是否缓存在途经的站点上，目前支持如下缓存策略：<br>
                       <b>ALWAYS</b>：文件在跨中心读时，文件数据总是会缓存在途经的站点上<br>
-                      <b>NEVER</b>： 文件在跨中心读时，文件数据不会缓存在途经的站点上
+                      <b>NEVER</b>：文件在跨中心读时，文件数据不会缓存在途经的站点上<br>
+                      <b>AUTO</b>：文件在跨中心读时，根据文件的访问频率决定是否将文件缓存在本地<br>
                     </div>
                     <i class="el-icon-question"></i>
                   </el-tooltip>
@@ -114,15 +115,15 @@
             </el-row>
             <el-tabs v-model="activeSite" type="border-card" class="datasource-tabs" closable @tab-remove="removeSite" style="margin-top:5px">
               <el-tab-pane
-                v-for="(site, index) in addedSites"
-                :key="index"
+                v-for="site in addedSites"
+                :key="site.name"
                 :label="site.name"
                 :name="site.name">
                 <!-- sequoaidb -->
                 <sdb-data-location v-if="site.datasource_type === 'sequoiadb'" :ref="'dataLocation_'+site.name" :siteName="site.name"/>
 
                 <!-- s3 -->
-                <ceph-s3-data-location v-if="site.datasource_type === 'ceph_s3'" :ref="'dataLocation_'+site.name" :siteName="site.name"/>
+                <ceph-s3-data-location v-if="site.datasource_type === 'ceph_s3'" :ref="'dataLocation_'+site.name" :siteName="site.name" :hasStandby="site.datasource_url.length >= 2"/>
 
                 <!-- hbase -->
                 <hbase-data-location v-if="site.datasource_type === 'hbase'" :ref="'dataLocation_'+site.name" :siteName="site.name"/>
@@ -213,6 +214,8 @@ export default {
         value : 'ALWAYS', label : 'ALWAYS'
       }, {
         value : 'NEVER', label : 'NEVER'
+      }, {
+        value : 'AUTO', label : 'AUTO'
       }]
     }
   },
