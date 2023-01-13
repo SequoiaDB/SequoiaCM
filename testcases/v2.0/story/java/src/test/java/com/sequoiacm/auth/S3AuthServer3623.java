@@ -5,6 +5,7 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmUser;
 import com.sequoiacm.client.core.ScmUserModifier;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
@@ -30,6 +31,7 @@ public class S3AuthServer3623 extends TestScmBase {
     private ScmSession session = null;
     private String username = "user3623";
     private String password = "user3623123456";
+    private String roleName = "role_3623";
     private String[] accessKeys = null;
 
     @BeforeClass(alwaysRun = true)
@@ -37,8 +39,8 @@ public class S3AuthServer3623 extends TestScmBase {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
-        ScmAuthUtils.createAdminUser( session, wsp.getName(), username,
-                password );
+        ScmAuthUtils.createNormalUser( session, wsp.getName(), username,
+                password, roleName, ScmPrivilegeType.ALL );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );
     }
@@ -82,6 +84,7 @@ public class S3AuthServer3623 extends TestScmBase {
         try {
             if ( runSuccess ) {
                 ScmFactory.User.deleteUser( session, username );
+                ScmFactory.Role.deleteRole( session, roleName );
             }
         } finally {
             if ( session != null ) {

@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -34,14 +35,15 @@ public class S3AuthServer3626 extends TestScmBase {
     private String password = "user3626123456";
     private String[] accessKeys = null;
     private String algorithm = "HmacSHA256";
+    private String roleName = "role_3626";
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
-        ScmAuthUtils.createAdminUser( session, wsp.getName(), username,
-                password );
+        ScmAuthUtils.createNormalUser( session, wsp.getName(), username,
+                password, roleName, ScmPrivilegeType.ALL );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );
     }
@@ -85,6 +87,7 @@ public class S3AuthServer3626 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.User.deleteUser( session, username );
+                ScmFactory.Role.deleteRole( session, roleName );
             }
         } finally {
             if ( session != null ) {

@@ -47,21 +47,19 @@ public class S3AuthServer3629 extends TestScmBase {
                 password1 );
         String cryptPassword = ScmPasswordMgr.getInstance()
                 .encrypt( ScmPasswordMgr.SCM_CRYPT_TYPE_DES, password1 );
-        // 账户密码刷新生成accesskeys
-        accessKeys = ScmAuthUtils.refreshAccessKey( session, username1,
-                cryptPassword, null );
-        // 使用accessKeys刷新
-        BSONObject signInfo = new BasicBSONObject();
-        signInfo.put( "accesskey", accessKeys[ 0 ] );
-        accessKeys = ScmAuthUtils.refreshAccessKey( session, null, null,
-                signInfo );
-        checkSign();
 
-        // 创建普通用户
+        // 刷新普通用户
         ScmAuthUtils.createNormalUser( session, wsp.getName(), username2,
                 password2, roleName, ScmPrivilegeType.ALL );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username2, null,
                 null );
+        checkSign();
+
+        // 使用signInfo刷新普通用户
+        BSONObject signInfo = new BasicBSONObject();
+        signInfo.put( "accesskey", accessKeys[ 0 ] );
+        accessKeys = ScmAuthUtils.refreshAccessKey( session, null, null,
+                signInfo );
         checkSign();
 
         // 刷新自己

@@ -1,5 +1,6 @@
 package com.sequoiacm.auth;
 
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -38,6 +39,7 @@ public class S3AuthServer3634 extends TestScmBase {
     private String password = "user3634123456";
     private String[] accessKeys = null;
     private String algorithm = "HmacSHA256";
+    private String roleName = "role_3634";
     private String prefix = "prefix";
     private String[] stringData = { "1", "2", "3", "4", "5" };
     private String signatureClient = null;
@@ -47,8 +49,8 @@ public class S3AuthServer3634 extends TestScmBase {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
-        ScmAuthUtils.createAdminUser( session, wsp.getName(), username,
-                password );
+        ScmAuthUtils.createNormalUser( session, wsp.getName(), username,
+                password, roleName, ScmPrivilegeType.ALL );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, null,
                 null );
         signatureClient = signatureClient( accessKeys );
@@ -68,6 +70,7 @@ public class S3AuthServer3634 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.User.deleteUser( session, username );
+                ScmFactory.Role.deleteRole( session, roleName );
             }
         } finally {
             if ( session != null ) {

@@ -14,12 +14,9 @@ import org.testng.annotations.Test;
 import com.amazonaws.util.Base64;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
 /**
@@ -41,6 +38,7 @@ public class S3AuthServer3621To3625 extends TestScmBase {
     private String[] accessKeys = null;
     private String algorithm = "HmacSHA256";
     private String[] stringData = { "1", "2", "3", "4", "5" };
+    private String roleName = "role_3621";
     private String signatureClient = null;
 
     @BeforeClass(alwaysRun = true)
@@ -48,8 +46,8 @@ public class S3AuthServer3621To3625 extends TestScmBase {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         session = TestScmTools.createSession( site );
-        ScmAuthUtils.createAdminUser( session, wsp.getName(), username,
-                password );
+        ScmAuthUtils.createNormalUser( session, wsp.getName(), username,
+                password, roleName, ScmPrivilegeType.ALL );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );
         signatureClient = signatureClient();
@@ -148,6 +146,7 @@ public class S3AuthServer3621To3625 extends TestScmBase {
             if ( runSuccessCount.get() == expRunSuccessCount
                     || TestScmBase.forceClear ) {
                 ScmFactory.User.deleteUser( session, username );
+                ScmFactory.Role.deleteRole( session, roleName );
             }
         } finally {
             if ( session != null ) {
