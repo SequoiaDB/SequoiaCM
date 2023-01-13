@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+// listen to scm nodes which in service-center
 public class ApplicationClosedListener implements ApplicationListener<ContextClosedEvent> {
 
     private Logger logger = LoggerFactory.getLogger(ApplicationClosedListener.class);

@@ -9,7 +9,8 @@ com.sequoiacm.infrastructure.ribbon.ScmRibbonClientAutoConfiguration,\
 com.sequoiacm.infrastructure.trace.ScmTraceAutoConfiguration,\
 com.sequoiacm.infrastructure.config.ScmEurekaClientAutoConfiguration,\
 com.sequoiacm.infrastructure.config.SpringClientFactoryPostProcess,\
-com.sequoiacm.infrastructure.config.ConnectivityCheckAutoConfiguration
+com.sequoiacm.infrastructure.config.ConnectivityCheckAutoConfiguration,\
+com.sequoiacm.infrastructure.common.ScmApplicationCloseListener
 
 
 org.springframework.context.ApplicationListener=\
