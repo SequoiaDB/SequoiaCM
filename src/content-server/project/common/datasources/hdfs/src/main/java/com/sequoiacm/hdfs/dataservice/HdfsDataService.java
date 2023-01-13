@@ -52,6 +52,7 @@ public class HdfsDataService extends ScmService {
         conf.set("dfs.client.failover.max.attempts","5");
         conf.set("dfs.client.failover.sleep.base.millis","100");
         conf.set("dfs.client.failover.sleep.max.millis","500");
+        conf.set("fs.hdfs.impl.disable.cache", "true");
         if (null != dataConf) {
             for (Map.Entry<String, String> entry : dataConf.entrySet()) {
                 conf.set(entry.getKey(), entry.getValue());
