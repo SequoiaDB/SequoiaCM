@@ -66,7 +66,7 @@ public class ClusterSubCommand extends SubCommand {
             noExecuteOption = true;
             if (!commandLine.hasOption(OPT_UPGRADE_CONF)) {
                 throw new IllegalArgumentException(
-                        "upgrade missing required option: " + OPT_CONF_PATH);
+                        "upgrade missing required option: " + OPT_UPGRADE_CONF);
             }
             if (commandLine.hasOption(OPT_ROLLBACK)) {
                 throw new IllegalArgumentException(
