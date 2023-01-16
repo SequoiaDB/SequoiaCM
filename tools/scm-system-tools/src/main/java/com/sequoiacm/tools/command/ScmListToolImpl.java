@@ -97,7 +97,7 @@ public class ScmListToolImpl extends ScmTool {
             }
         }
 
-        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_PORT)) {
+        if (commandLine.hasOption(ScmCommandUtil.OPT_SHORT_LONG)) {
             for (ScmNodeInfoDetail nodeInfo : printNodes) {
                 String propPath = nodeInfo.getNodeInfo().getConfPath() + File.separator + "application.properties";
                 String pidStr = "-";
