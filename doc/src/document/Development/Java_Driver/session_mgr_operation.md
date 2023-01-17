@@ -13,9 +13,9 @@ ScmSessionPoolConf sessionPoolConf = ScmSessionPoolConf.builder()
         .setMaxCacheSize(100) // 设置会话池缓存 session 的数量
         .setMaxConnections(200)  // 设置访问 SequoiaCM 集群的最大连接数，一般为应用系统的最大并发数
         .setKeepAliveTime(1200)  // 设置 session 的有效期，单位：秒，需要小于 auth-server 配置项 scm.session.maxInactiveInterval 指定的值
-        .setSynGatewayUrlsInterval(30 * 1000) // 设置从注册中心同步最新网关地址的间隔，单位：毫秒，不设置时默认关闭同步功能
         .setCheckGatewayUrlsInterval(10 * 1000) // 设置检查网关地址健康状态的间隔，单位：毫秒
         .setClearAbnormalSessionInterval(120 * 1000) // 设置清理不可用 session 的间隔，单位：毫秒
+        //.setSynGatewayUrlsInterval(30 * 1000) // 设置从注册中心同步最新网关地址的间隔，单位：毫秒，不设置时默认关闭同步功能
         // 设置节点组
         //.setNodeGroup("group1") 
         // 设置节点组对应的访问模式，如果是内置节点组，无需指定该配置

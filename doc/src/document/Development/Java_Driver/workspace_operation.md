@@ -15,8 +15,8 @@ ScmWorkspaceConf conf = new ScmWorkspaceConf();
 conf.setName("test_ws");
 conf.setMetaLocation(new ScmSdbMetaLocation("rootSite", "meta_domain"));
 conf.addDataLocation(new ScmSdbDataLocation("rootSite", "data_domain"));
-// 设置开启目录功能
-conf.setEnableDirectory(true);
+// 设置关闭目录功能
+conf.setEnableDirectory(false);
 // 设置工作区文件站点缓存策略
 conf.setSiteCacheStrategy(ScmSiteCacheStrategy.ALWAYS);
 // 设置批次分区类型

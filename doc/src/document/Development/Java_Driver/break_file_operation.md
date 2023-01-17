@@ -12,10 +12,10 @@ ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace("test_ws", session);
 
 // 创建断点文件:
 // ScmChecksumType 表示数据校验方式
-// 5 * 1024 * 1024 表示 5M 上传增量
+// 15 * 1024 * 1024 表示 15M 上传增量
 ScmBreakpointFileOption option = new ScmBreakpointFileOption();
-option.setChecksumType(ScmChecksumType.CRC32);
-option.setBreakpointSize(5 * 1024 * 1024);
+// option.setChecksumType(ScmChecksumType.CRC32); // 设置数据校验方式为 CRC32，不设置默认不做校验
+option.setBreakpointSize(15 * 1024 * 1024);
 // BreakpointFileType.DIRECTED 表示数据不在驱动缓存
 ScmBreakpointFile breakFile = ScmFactory.BreakpointFile.createInstance(workspace, "test", option,
                 ScmType.BreakpointFileType.DIRECTED);
