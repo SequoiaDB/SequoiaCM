@@ -353,7 +353,7 @@ public class FileCreatorDao {
             fileWriter = ScmDataOpFactoryAssit.getFactory().createWriter(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(dataInfo.getWsVersion()), contentModule.getDataService(),
-                    dataInfo);
+                    dataInfo, context);
         }
         catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
