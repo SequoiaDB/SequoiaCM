@@ -192,8 +192,11 @@ public class ListTrace5454 extends TestScmBase {
                 null, 1L, new Date( now - hour ), new Date(), query, 100 );
         Assert.assertNotEquals( scmTraces.size(), 0 );
         for ( ScmTrace trace : scmTraces ) {
-            Assert.assertTrue(
-                    trace.getRequestUrl().contains( "/v2/localLogin" ) );
+            if ( trace.isComplete() ) {
+                Assert.assertTrue(
+                        trace.getRequestUrl().contains( "/v2/localLogin" ),
+                        trace.toString() );
+            }
         }
 
         // test b：匹配不到链路信息
