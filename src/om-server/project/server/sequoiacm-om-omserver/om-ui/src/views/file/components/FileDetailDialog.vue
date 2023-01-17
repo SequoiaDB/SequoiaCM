@@ -151,7 +151,7 @@
           <el-col :span="21"><span class="value">{{curVersionFileDetail.id}}</span></el-col>
         </el-row>
         <el-row>
-          <el-col :span="3"><span class="key">内容类型</span></el-col>
+          <el-col :span="3"><span class="key">MIME 类型</span></el-col>
           <el-col :span="21"><span class="value">{{curVersionFileDetail.mime_type?curVersionFileDetail.mime_type:'无'}}</span></el-col>
         </el-row>
         <el-row>
@@ -161,6 +161,10 @@
         <el-row>
           <el-col :span="3"><span class="key">MD5</span></el-col>
           <el-col :span="21"><span class="value">{{curVersionFileDetail.md5?curVersionFileDetail.md5:'未计算'}}</span></el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="3"><span class="key">文件 ETag</span></el-col>
+          <el-col :span="21"><span class="value">{{curVersionFileDetail.etag?curVersionFileDetail.etag:'无'}}</span></el-col>
         </el-row>
         <el-row>
           <el-col :span="3">

@@ -80,6 +80,7 @@ class ScmFileImpl extends ScmFile {
     private InputStream inputStream = null;
     protected ScmBreakpointFile breakpointFile;
     private String md5;
+    private String eTag;
     private Map<String, String> customMetadata = Collections.emptyMap();
 
     private static final Logger logger = LoggerFactory.getLogger(ScmFileImpl.class);
@@ -938,14 +939,16 @@ class ScmFileImpl extends ScmFile {
         }
 
         buf.append("class_properties : ").append(classProperties).append(" , ");
+        buf.append("customTag : ").append(customTag).append(" , ");
         buf.append("tags : ").append(tags).append(" , ");
         buf.append("author : \"").append(author).append("\" , ");
         buf.append("user : \"").append(getUser()).append("\", ");
         buf.append("createTime : \"").append(getCreateTime()).append("\" , ");
         buf.append("updateUser : \"").append(updateUser).append("\" , ");
         buf.append("updateTime : \"").append(updateTime).append("\" , ");
-        buf.append("size : ").append(size);
-        buf.append("md5: ").append(md5);
+        buf.append("size : ").append(size).append(" , ");
+        buf.append("md5 : ").append(md5).append(" , ");
+        buf.append("eTag : ").append(eTag);
         buf.append("}");
         return buf.toString();
     }
@@ -1169,6 +1172,7 @@ class ScmFileImpl extends ScmFile {
         }
 
         md5 = BsonUtils.getString(fileBSON, FieldName.FIELD_CLFILE_FILE_MD5);
+        eTag = BsonUtils.getString(fileBSON, FieldName.FIELD_CLFILE_FILE_ETAG);
 
         BSONObject customMetadataObj = BsonUtils.getBSONObject(fileBSON,
                 FieldName.FIELD_CLFILE_CUSTOM_METADATA);
@@ -1263,6 +1267,11 @@ class ScmFileImpl extends ScmFile {
     @Override
     public String getMd5() {
         return md5;
+    }
+
+    @Override
+    public String getETag() {
+        return eTag;
     }
 
     @Override

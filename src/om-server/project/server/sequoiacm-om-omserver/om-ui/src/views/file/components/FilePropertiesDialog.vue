@@ -5,10 +5,10 @@
       title="json 查询示例"
       class="file-propreties-dialog"
       :visible.sync="fieldDialogVisible"
-      width="800px">
+      width="1000px">
       <el-table
         :data="isWorkspaceView ? filePropertiesData : filePropertiesInBucekt"
-        max-height="500px"
+        max-height="600px"
         style="width: 100%">
         <el-table-column
           prop="field"
@@ -23,6 +23,11 @@
         <el-table-column
           prop="sample"
           label="示例">
+        </el-table-column>
+        <el-table-column
+          prop="remark"
+          label="备注"
+          width="230">
         </el-table-column>
       </el-table>
     </el-dialog>
@@ -61,7 +66,8 @@ export default {
     const createTime = {
       field: 'create_time',
       desc: '创建时间',
-      sample: '{ "create_time" : { "$gte" : 946654000000 } }'
+      sample: '{ "create_time" : { "$gte" : 946654000000 } }',
+      remark: '时间仅支持以时间戳形式查询'
     }
     const updateUser = {
       field: 'update_user',
@@ -71,7 +77,8 @@ export default {
     const updateTime = {
       field: 'update_time',
       desc: '更新时间',
-      sample: '{ "update_time" : { "$gte" : 946654000000 } }'
+      sample: '{ "update_time" : { "$gte" : 946654000000 } }',
+      remark: '时间仅支持以时间戳形式查询'
     }
     const majorVersion = {
       field: 'major_version',
@@ -100,7 +107,7 @@ export default {
     }
     const mimeType = {
       field: 'mime_type',
-      desc: '文件内容 MIME 类型',
+      desc: 'MIME 类型',
       sample: '{ "mime_type" : "application/octet-stream" }'
     }
     const md5 = {

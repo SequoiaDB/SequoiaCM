@@ -223,6 +223,7 @@ public class ScmFileDaoImpl implements ScmFileDao {
         fileDetail.setName(file.getFileName());
         fileDetail.setSize(file.getSize());
         fileDetail.setMd5(file.getMd5());
+        fileDetail.setETag(file.getETag());
         fileDetail.setTags(file.getTags() == null ? new HashSet<String>() : file.getTags().toSet());
         fileDetail.setCustomMetadata(file.getCustomMetadata());
         fileDetail.setCustomTag(file.getCustomTag());

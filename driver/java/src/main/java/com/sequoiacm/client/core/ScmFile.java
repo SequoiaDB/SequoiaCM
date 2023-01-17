@@ -714,6 +714,13 @@ public abstract class ScmFile {
     public abstract void calcMd5() throws ScmException;
 
     /**
+     * Get the file eTag
+     *
+     * @return eTag
+     */
+    public abstract String getETag();
+
+    /**
      * Get the file's content location list
      *
      * @return the content locations of file

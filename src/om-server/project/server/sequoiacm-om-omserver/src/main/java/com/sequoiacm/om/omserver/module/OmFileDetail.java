@@ -38,6 +38,9 @@ public class OmFileDetail extends OmFileBasic {
     @JsonProperty("md5")
     private String md5;
 
+    @JsonProperty("eTag")
+    private String eTag;
+
     @JsonProperty("mime_type")
     private String mimeType;
 
@@ -213,6 +216,14 @@ public class OmFileDetail extends OmFileBasic {
 
     public void setMd5(String md5) {
         this.md5 = md5;
+    }
+
+    public String getETag() {
+        return eTag;
+    }
+
+    public void setETag(String eTag) {
+        this.eTag = eTag;
     }
 
     public String getMimeType() {
