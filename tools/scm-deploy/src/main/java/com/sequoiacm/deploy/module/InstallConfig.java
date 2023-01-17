@@ -10,9 +10,7 @@ import com.sequoiacm.deploy.parser.ConfCoverter;
  * @author huangqiaohui
  *
  */
-public class InstallConfig {
-    private String installPath;
-    private String installUser;
+public class InstallConfig extends BasicInstallConfig {
     private String installUserPassword;
     private String installUserGroup;
 
@@ -26,14 +24,7 @@ public class InstallConfig {
     };
 
     public InstallConfig(BSONObject bson) {
-        installPath = BsonUtils.getStringChecked(bson, ConfFileDefine.INSTALLCONFIG_PATH);
-        if(!installPath.endsWith("/sequoiacm")){
-            installPath += "/sequoiacm";
-        }
-        installUser = BsonUtils.getString(bson, ConfFileDefine.INSTALLCONFIG_USER);
-        if (installUser == null || installUser.length() <= 0) {
-            installUser = "scmadmin";
-        }
+        super(bson);
         installUserPassword = BsonUtils.getStringChecked(bson,
                 ConfFileDefine.INSTALLCONFIG_PASSWORD);
         installUserGroup = BsonUtils.getString(bson, ConfFileDefine.INSTALLCONFIG_USER_GROUP);
@@ -46,21 +37,14 @@ public class InstallConfig {
         return installUserGroup;
     }
 
-    public String getInstallPath() {
-        return installPath;
-    }
-
-    public String getInstallUser() {
-        return installUser;
-    }
-
     public String getInstallUserPassword() {
         return installUserPassword;
     }
 
     @Override
     public String toString() {
-        return "InstallConfig [installPath=" + installPath + ", installUser=" + installUser + "]";
+        return "InstallConfig [installPath=" + getInstallPath() + ", installUser="
+                + getInstallUser() + ", installUserGroup=" + this.installUserGroup + "]";
     }
 
     public void resetInstallUserGroup(String installUserGroup) throws Exception {
@@ -71,9 +55,10 @@ public class InstallConfig {
         }
         if (!this.installUserGroup.equals(installUserGroup)) {
             throw new Exception(
-                    "the user is already exist, but in the group with different name in different hosts," +
-                            " please set the user in the group with the same name, user=" + installUser +
-                            ", group=" + installUserGroup + ", another host group=" + this.installUserGroup);
+                    "the user is already exist, but in the group with different name in different hosts,"
+                            + " please set the user in the group with the same name, user="
+                            + getInstallUser() + ", group=" + installUserGroup
+                            + ", another host group=" + this.installUserGroup);
         }
     }
 }

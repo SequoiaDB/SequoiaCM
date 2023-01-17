@@ -89,13 +89,12 @@ public class ServiceRollbackerBase implements ServiceRollbacker {
 
     protected void startNode(Ssh ssh, List<NodeStatus> nodeStatusList, Map<String, String> env)
             throws Exception {
-        InstallConfig installConfig = upgradeStatusInfoMgr.getInstallConfig();
         for (NodeStatus nodeStatus : nodeStatusList) {
             if (nodeStatus.isStart()) {
                 logger.info("Restarting " + type + " node:port=" + nodeStatus.getPort());
                 String startCmd = getInstallPath() + "/bin/" + type.getStartStopScript()
                         + " start --timeout " + CommonUtils.getWaitServiceReadyTimeout() + " -p " + nodeStatus.getPort();
-                ssh.sudoSuExecRes(installConfig.getInstallUser(), startCmd, env);
+                ssh.sudoSuExecRes(upgradeStatusInfoMgr.getInstallConfig().getInstallUser(), startCmd, env);
             }
         }
     }

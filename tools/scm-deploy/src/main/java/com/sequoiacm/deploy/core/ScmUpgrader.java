@@ -6,9 +6,9 @@ import com.sequoiacm.deploy.common.ConfFileDefine;
 import com.sequoiacm.deploy.config.CommonConfig;
 import com.sequoiacm.deploy.exception.UpgradeException;
 import com.sequoiacm.deploy.installer.ServicesInstallPackManager;
+import com.sequoiacm.deploy.module.BasicInstallConfig;
 import com.sequoiacm.deploy.module.ConfigInfo;
 import com.sequoiacm.deploy.module.HostInfo;
-import com.sequoiacm.deploy.module.InstallConfig;
 import com.sequoiacm.deploy.module.InstallPackType;
 import com.sequoiacm.deploy.module.NodeStatus;
 import com.sequoiacm.deploy.module.ServiceType;
@@ -34,7 +34,7 @@ public class ScmUpgrader {
     private static final Logger logger = LoggerFactory.getLogger(ScmUpgrader.class);
     private ScmUpgradeInfoMgr upgradeInfoMgr = ScmUpgradeInfoMgr.getInstance();
     private final ServicesInstallPackManager packManager = ServicesInstallPackManager.getInstance();
-    private InstallConfig installConfig = upgradeInfoMgr.getInstallConfig();
+    private BasicInstallConfig installConfig = upgradeInfoMgr.getInstallConfig();
 
     public void upgrade(boolean dryrun) throws Exception {
         Map<InstallPackType, String> installPackToNewVersion = upgradeInfoMgr
@@ -204,6 +204,7 @@ public class ScmUpgrader {
             String upgradePackPath = upgradeInfoMgr.getConfigInfo().getUpgradePackPath();
             String backupPath = upgradeInfoMgr.getConfigInfo().getBackupPath();
             ssh = SshMgr.getInstance().getSsh(host);
+            String group = ssh.getUserEffectiveGroup(installConfig.getInstallUser());
             // 1. 检查 upgradePackPath 是否已经存在
             boolean isExists = ssh.sudoExec("ls " + upgradePackPath, 0, 2) == 0;
             if (isExists) {
@@ -218,18 +219,16 @@ public class ScmUpgrader {
             ssh.scp(packPath, ssh.getScpTmpPath());
             ssh.sudoExec("tar -xf " + ssh.getScpTmpPath() + "/" + new File(packPath).getName()
                     + " -C " + upgradePackPath);
-            ssh.changeOwner(upgradePackPath, installConfig.getInstallUser(),
-                    installConfig.getInstallUserGroup());
+            ssh.changeOwner(upgradePackPath, installConfig.getInstallUser(), group);
 
-            //3. 授予upgradePackPath下升级脚本执行权限
+            // 3. 授予upgradePackPath下升级脚本执行权限
             String upgradeScriptPath = upgradePackPath + "/"
                     + new File(CommonConfig.getInstance().getLocalUpgradeScript()).getName();
             ssh.sudoSuExec(installConfig.getInstallUser(), "chmod +x " + upgradeScriptPath, null);
 
-            //4. 创建新的备份目录
+            // 4. 创建新的备份目录
             ssh.sudoExec("mkdir -p " + backupPath);
-            ssh.changeOwner(backupPath, installConfig.getInstallUser(),
-                    installConfig.getInstallUserGroup());
+            ssh.changeOwner(backupPath, installConfig.getInstallUser(), group);
         } finally {
             CommonUtils.closeResource(ssh);
         }
@@ -258,16 +257,12 @@ public class ScmUpgrader {
             this.bfw = new BufferedWriter(writer);
         }
 
-        private void writeInstallConfig(InstallConfig installConfig) throws Exception {
+        private void writeInstallConfig(BasicInstallConfig installConfig) throws Exception {
             bfw.write("[" + ConfFileDefine.SEACTION_INSTALLCONFIG + "]" + "\n");
             bfw.write(ConfFileDefine.INSTALLCONFIG_PATH + ",  ");
-            bfw.write(ConfFileDefine.INSTALLCONFIG_USER + ",  ");
-            bfw.write(ConfFileDefine.INSTALLCONFIG_PASSWORD + ",  ");
-            bfw.write(ConfFileDefine.INSTALLCONFIG_USER_GROUP + "\n");
+            bfw.write(ConfFileDefine.INSTALLCONFIG_USER + "\n");
             bfw.write(installConfig.getInstallPath() + ",  ");
-            bfw.write(installConfig.getInstallUser() + ",  ");
-            bfw.write(installConfig.getInstallUserPassword() + ",  ");
-            bfw.write(installConfig.getInstallUserGroup() + "\n");
+            bfw.write(installConfig.getInstallUser() + "\n");
         }
 
         private void writeHostInfo(Set<HostInfo> hosts) throws Exception {
@@ -302,8 +297,8 @@ public class ScmUpgrader {
             bfw.write(ConfFileDefine.STATUS_NEW_VERSION);
         }
 
-        public void writeBeforeUpgrade(InstallConfig installConfig, Set<HostInfo> hostInfos,
-                                       ConfigInfo configInfo) throws Exception {
+        public void writeBeforeUpgrade(BasicInstallConfig installConfig, Set<HostInfo> hostInfos,
+                ConfigInfo configInfo) throws Exception {
             writeInstallConfig(installConfig);
             writeHostInfo(hostInfos);
             writeConfigInfo(configInfo);

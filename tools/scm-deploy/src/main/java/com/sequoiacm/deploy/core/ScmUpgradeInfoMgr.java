@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.deploy.module.BasicInstallConfig;
 import com.sequoiacm.deploy.module.VersionFileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class ScmUpgradeInfoMgr {
     private static volatile ScmUpgradeInfoMgr instance;
     private SshMgr sshMgr = SshMgr.getInstance();
     private ServicesInstallPackManager packManager = ServicesInstallPackManager.getInstance();
-    private InstallConfig installConfig;
+    private BasicInstallConfig installConfig;
     private List<HostInfo> hosts;
     private Map<String, HostInfo> hostInfoMap = new HashMap<>();
     private ConfigInfo configInfo;
@@ -86,8 +87,8 @@ public class ScmUpgradeInfoMgr {
     }
 
     private void initInstallConfig(ScmConfParser parser) {
-        List<InstallConfig> installConfigs = parser.getSeactionWithCheck(
-                ConfFileDefine.SEACTION_INSTALLCONFIG, InstallConfig.CONVERTER);
+        List<BasicInstallConfig> installConfigs = parser.getSeactionWithCheck(
+                ConfFileDefine.SEACTION_INSTALLCONFIG, BasicInstallConfig.CONVERTER);
         CommonUtils.assertTrue(installConfigs.size() == 1,
                 "only need one installconfig:" + installConfigs.toString());
         this.installConfig = installConfigs.get(0);
@@ -409,7 +410,7 @@ public class ScmUpgradeInfoMgr {
         }
     }
 
-    public InstallConfig getInstallConfig() {
+    public BasicInstallConfig getInstallConfig() {
         return installConfig;
     }
 
