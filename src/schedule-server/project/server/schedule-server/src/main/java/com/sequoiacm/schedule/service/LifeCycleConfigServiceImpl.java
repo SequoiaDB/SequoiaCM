@@ -741,7 +741,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                 // 先停掉旧的调度任务，再创建新的
                 if (oldTransitionSchedule.isEnable()) {
                     // 如果调度任务本来就是关闭的，则不用停
-                    enableSchedule(oldScheduleIds, false);
+                    alterScheduleSilence(oldScheduleIds, false);
                 }
 
                 BasicBSONList newScheduleIds = createScheduleAndGetIds(updateTransitionSchedule,
@@ -784,7 +784,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                         checkAndCorrection = true;
                     }
                     if (oldTransitionSchedule.isEnable()) {
-                        enableSchedule(oldScheduleIds, true);
+                        alterScheduleSilence(oldScheduleIds, true);
                     }
                     throw e;
                 }
@@ -807,7 +807,6 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
 
     @Override
     public void wsRemoveTransition(String workspace, String transitionName) throws Exception {
-        boolean checkAndCorrection = false;
         ScmLock lock = null;
         try {
             lock = lockGlobal();
@@ -844,12 +843,16 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                 }
             }
 
+            BasicBSONList scheduleIds = entity.getScheduleIds();
+            // 先停掉关联的调度任务
+            if (entity.isEnable()) {
+                alterScheduleSilence(scheduleIds, false);
+            }
+
             Transaction t = transactionFactory.createTransaction();
             try {
                 t.begin();
                 lifeCycleScheduleDao.delete(entity.getId(), t);
-                removeSchedule(entity.getScheduleIds());
-                checkAndCorrection = true;
                 if (updatorLifeCycleConfig != null) {
                     lifeCycleConfigDao.update(updatorLifeCycleConfig, t);
                 }
@@ -857,14 +860,22 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
             }
             catch (Exception e) {
                 t.rollback();
+                // 删除记录失败，将关联的调度任务重启
+                if (entity.isEnable()) {
+                    alterScheduleSilence(scheduleIds, true);
+                }
                 throw e;
+            }
+            try {
+                // 删除掉关联的调度任务
+                removeSchedule(scheduleIds);
+            }
+            catch (Exception e) {
+                logger.error("failed to delete schedule,scheduleIds={}", scheduleIds, e);
             }
         }
         finally {
             unLock(lock);
-            if (checkAndCorrection) {
-                revote();
-            }
         }
     }
 
@@ -991,7 +1002,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                     t.begin();
                     lifeCycleScheduleDao
                             .update(TransitionEntityTranslator.WsFullInfo.toBSONObject(entity), t);
-                    enableSchedule(scheduleIds, enable);
+                    alterScheduleSilence(scheduleIds, enable);
                     t.commit();
                 }
                 catch (Exception e) {
@@ -1383,17 +1394,17 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
         return client;
     }
 
-    private void enableSchedule(BasicBSONList scheduleIds, boolean enable) {
+    private void alterScheduleSilence(BasicBSONList scheduleIds, boolean enableFlag) {
         for (Object obj : scheduleIds) {
             String scheduleId = (String) obj;
             ScheduleNewUserInfo newScheduleInfo = new ScheduleNewUserInfo();
-            newScheduleInfo.setEnable(enable);
+            newScheduleInfo.setEnable(enableFlag);
             try {
                 scheduleService.updateSchedule(scheduleId, newScheduleInfo);
             }
             catch (Exception e) {
-                logger.error("transition schedule update enable failed, scheduleId=" + scheduleId
-                        + ", enable=" + enable, e);
+                logger.error("transition schedule alter enable failed, scheduleId=" + scheduleId
+                        + ", enable=" + enableFlag, e);
             }
         }
     }
@@ -1431,7 +1442,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
 
         // 先停掉旧的
         if (wsOldInfo.isEnable()) {
-            enableSchedule(oldScheduleIds, false);
+            alterScheduleSilence(oldScheduleIds, false);
         }
         BasicBSONList newScheduleIds = createScheduleAndGetIds(newEntity, sourceSiteInfo,
                 destSiteInfo, user, workspace);
@@ -1450,7 +1461,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
             }
 
             if (wsOldInfo.isEnable()) {
-                enableSchedule(oldScheduleIds, true);
+                alterScheduleSilence(oldScheduleIds, true);
             }
             throw e;
         }
