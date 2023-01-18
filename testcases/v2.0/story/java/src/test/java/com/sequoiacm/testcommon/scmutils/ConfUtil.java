@@ -1,12 +1,6 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -18,39 +12,15 @@ import org.testng.Assert;
 import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmAuditInfo;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmRole;
-import com.sequoiacm.client.core.ScmSchedule;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmUserModifier;
-import com.sequoiacm.client.core.ScmUserPasswordType;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmConfigProperties;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
-import com.sequoiacm.client.element.ScmScheduleContent;
-import com.sequoiacm.client.element.ScmServiceInstance;
-import com.sequoiacm.client.element.ScmUpdateConfResult;
-import com.sequoiacm.client.element.ScmUpdateConfResultSet;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 
 /**
  * Created by fanyu on 2018/11/30.
@@ -454,7 +424,7 @@ public class ConfUtil extends TestScmBase {
             session = TestScmTools.createSession( branSite );
             ScmScheduleContent content = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), "0d", new BasicBSONObject() );
-            String cron = "* * * * * ? 2022";
+            String cron = "* * * * * ?";
             ScmSchedule sche = ScmSystem.Schedule.create( session,
                     wsp.getName(), ScheduleType.CLEAN_FILE, scheName, scheName,
                     content, cron );

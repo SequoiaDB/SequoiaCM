@@ -14,21 +14,10 @@ import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.core.ScmSchedule;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.element.ScmConfigProperties;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
-import com.sequoiacm.client.element.ScmScheduleContent;
-import com.sequoiacm.client.element.ScmServiceInstance;
-import com.sequoiacm.client.element.ScmUpdateConfResultSet;
+import com.sequoiacm.client.element.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.config.ConfigCommonDefind;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 
@@ -132,7 +121,7 @@ public class DeleteConf2329 extends TestScmBase {
                 session = TestScmTools.createSession( branSite );
                 ScmScheduleContent content = new ScmScheduleCleanFileContent(
                         branSite.getSiteName(), "0d", new BasicBSONObject() );
-                String cron = "* * * * * ? 2022";
+                String cron = "* * * * * ?";
                 ScmSchedule sche = ScmSystem.Schedule.create( session,
                         wsp.getName(), ScheduleType.CLEAN_FILE, scheName,
                         scheName, content, cron );
