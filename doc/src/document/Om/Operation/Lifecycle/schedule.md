@@ -31,18 +31,17 @@
 在调度任务列表界面，点击指定调度任务的 运行记录 按钮，列表展示该调度任务的运行记录，显示任务每次执行的开始时间、结束时间、预估数量、实际数量、成功数量、失败数量和执行进度。对于正在执行的任务，可以点击“停止”按钮停止本次执行。
 ![查看调度任务运行记录][schedule_task_list]
 
->  **Note：**
+> **Note：**
 >
 >  * 此页面的数据每隔5s自动刷新一次
 >
 
 ## 启用/禁用、删除调度任务 ##
+
 在调度任务列表界面，可通过点击指定调度任务的开关按钮或 删除任务 按钮，完成对指定调度任务的启用/禁用或删除操作。
 
-
-
-[schedule_list]:Om/Operation/schedule_list.png
-[schedule_create]:Om/Operation/schedule_create.png
-[schedule_detail]:Om/Operation/schedule_detail.png
-[schedule_update]:Om/Operation/schedule_update.png
-[schedule_task_list]:Om/Operation/schedule_task_list.png
+[schedule_list]:Om/Operation/LifeCycle/schedule_list.png
+[schedule_create]:Om/Operation/LifeCycle/schedule_create.png
+[schedule_detail]:Om/Operation/LifeCycle/schedule_detail.png
+[schedule_update]:Om/Operation/LifeCycle/schedule_update.png
+[schedule_task_list]:Om/Operation/LifeCycle/schedule_task_list.png

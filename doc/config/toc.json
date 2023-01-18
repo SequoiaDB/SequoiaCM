@@ -418,10 +418,30 @@
                 "en": "Workspace"
             },
             {
-                "id": 1632359337,
-                "file": "schedule",
-                "cn": "调度任务管理",
-                "en": "Schedule"
+                "id": 1673537778,
+                "dir": "Lifecycle",
+                "cn": "生命周期管理",
+                "en": "LifeCycle",
+                "contents": [
+                    {
+                        "id": 1673537989,
+                        "file": "stage_tag",
+                        "cn": "阶段标签管理",
+                        "en": "Stage Tag"
+                    },
+                    {
+                        "id": 1673538006,
+                        "file": "transition",
+                        "cn": "数据流管理",
+                        "en": "Transition"
+                    },
+                    {
+                        "id": 1632359337,
+                        "file": "schedule",
+                        "cn": "调度任务管理",
+                        "en": "Schedule"
+                    }
+                ]
             },
             {
                 "id": 1646032853,
