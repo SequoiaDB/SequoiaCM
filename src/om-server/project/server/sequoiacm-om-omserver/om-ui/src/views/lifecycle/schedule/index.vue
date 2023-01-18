@@ -1079,4 +1079,11 @@ export default {
 .pointer-cursor {
   cursor: pointer;
 }
+.el-textarea >>> textarea {
+  padding-bottom: 13px;
+}
+.el-textarea >>> .el-input__count {
+  height: 12px;
+  line-height: 12px;
+}
 </style>
