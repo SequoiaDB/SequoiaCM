@@ -21,6 +21,8 @@ public class ListObjVersion {
     private String eTag;
     @JsonProperty("Size")
     private long size;
+    @JsonProperty("StorageClass")
+    private String storageClass = "STANDARD";
 
     public ListObjVersion(String key, String versionId, Boolean isLatest, String lastModified,
             String user, String eTag, long size) {
