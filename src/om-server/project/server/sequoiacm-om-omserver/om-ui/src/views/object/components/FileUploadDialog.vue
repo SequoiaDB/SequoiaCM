@@ -155,7 +155,7 @@
               <div v-for="(item, index) in this.form.customMetadata" :key="index" style="margin-top: 5px">
                 <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
                 <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
-                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomMeta">删除</el-button>
+                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomMeta(index)">删除</el-button>
               </div>
             </div>
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomMeta">添加自由元数据</el-button>
@@ -165,7 +165,7 @@
               <div v-for="(item, index) in this.form.customTag" :key="index" style="margin-top: 5px">
                 <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
                 <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
-                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomTag">删除</el-button>
+                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomTag(index)">删除</el-button>
               </div>
             </div>
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomTag">添加自由标签</el-button>
@@ -537,10 +537,6 @@ export default {
 }
 .upload-container >>> .el-row {
   margin-top: 8px !important;
-}
-::v-deep .el-form-item__content {
-  display: flex;
-  flex-wrap: wrap;
 }
 .el-tag {
   margin-right: 10px;

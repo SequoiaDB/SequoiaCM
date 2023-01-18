@@ -125,7 +125,7 @@
                     v-if="attr.type==='BOOLEAN'"
                     v-model="attr.value"
                     size="medium"
-                    style="width: 200px;">
+                    style="width: 300px;">
                     <el-option
                       v-for="item in booleanType"
                       :key="item.value"
@@ -142,13 +142,13 @@
                     placeholder="选择日期时间"
                     align="right"
                     :picker-options="pickerOptions"
-                    style="width: 200px;">
+                    style="width: 300px;">
                   </el-date-picker>
-                  <el-input id="input_attr_val" v-else style="width: 200px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>
+                  <el-input id="input_attr_val" v-else style="width: 300px;" v-model="attr.value" :type=getInputType(attr.type) :placeholder="attr.type"></el-input>
                   <el-button id="btn_delete_attr_option" v-if="!attr.required" size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C;margin-left: 5px" @click="removeAttributes(attr)">删除</el-button>
               </el-form-item>
               <template v-if="form.residualAttributes.length > 0">
-                <el-select v-model="form.attributeName" placeholder="请选择属性" style="width: 330px;">
+                <el-select v-model="form.attributeName" placeholder="请选择属性" style="width: 430px;">
                   <el-option
                       v-for="item in form.residualAttributes"
                       :key="item.name"
@@ -164,7 +164,7 @@
               <div v-for="(item, index) in this.form.customMetadata" :key="index" style="margin-top: 5px">
                 <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
                 <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
-                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomMeta">删除</el-button>
+                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomMeta(index)">删除</el-button>
               </div>
             </div>
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomMeta">添加自由元数据</el-button>
@@ -174,7 +174,7 @@
               <div v-for="(item, index) in this.form.customTag" :key="index" style="margin-top: 5px">
                 <el-input class="input-new-custom-metadata" v-model="item.key" placeholder="key"></el-input>
                 <el-input class="input-new-custom-metadata" v-model="item.value" placeholder="value"></el-input>
-                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomTag">删除</el-button>
+                <el-button size="mini" type="text" icon="el-icon-delete" style="color: #F56C6C" @click="deleteCustomTag(index)">删除</el-button>
               </div>
             </div>
             <el-button size="mini" type="text" icon="el-icon-plus" style="margin-top: 5px" @click="addCustomTag">添加自由标签</el-button>
@@ -702,10 +702,6 @@ export default {
 .upload-container >>> .el-row {
   margin-top: 8px !important;
 }
-::v-deep .el-form-item__content {
-  display: flex;
-  flex-wrap: wrap;
-}
 .el-tag {
   margin-right: 10px;
   margin-bottom: 5px;
@@ -752,5 +748,8 @@ export default {
 }
 .upload-error-text {
   color: red;
+}
+.upload-dialog >>> .el-upload-dragger {
+  width: 500px;
 }
 </style>
