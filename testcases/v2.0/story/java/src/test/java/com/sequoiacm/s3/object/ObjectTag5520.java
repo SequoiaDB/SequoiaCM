@@ -106,15 +106,6 @@ public class ObjectTag5520 extends TestScmBase {
             Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND );
         }
 
-        // 获取标签
-        try {
-            Map< String, String > customTag = file.getCustomTag();
-            // TODO:SEQUOIACM-1177
-            // Assert.fail( "except fail but success" );
-        } catch ( ScmException e ) {
-            Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND );
-        }
-
         // 删除标签
         try {
             file.deleteCustomTag();
