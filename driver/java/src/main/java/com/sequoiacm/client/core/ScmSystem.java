@@ -1,7 +1,6 @@
 package com.sequoiacm.client.core;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -1602,7 +1601,7 @@ public class ScmSystem {
                     .listTransition(stageTagName);
             List<ScmLifeCycleTransition> transitionList = new ArrayList<ScmLifeCycleTransition>();
             for (Object o : list) {
-                transitionList.add(new ScmLifeCycleTransition().fromBSONObject((BSONObject) o));
+                transitionList.add(ScmLifeCycleTransition.fromRecord((BSONObject) o));
             }
             return transitionList;
         }
@@ -1653,9 +1652,31 @@ public class ScmSystem {
             BasicBSONList list = (BasicBSONList) ss.getDispatcher().listTransition(null);
             List<ScmLifeCycleTransition> transitionList = new ArrayList<ScmLifeCycleTransition>();
             for (Object o : list) {
-                transitionList.add(new ScmLifeCycleTransition().fromBSONObject((BSONObject) o));
+                transitionList.add(ScmLifeCycleTransition.fromRecord((BSONObject) o));
             }
             return transitionList;
+        }
+
+        /**
+         * get all stage tag
+         * 
+         * @param ss
+         *            session
+         * @return ScmLifeCycleStageTagList
+         * @throws ScmException
+         *             if error happens
+         */
+        public static List<ScmLifeCycleStageTag> getStageTag(ScmSession ss)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            BasicBSONList list = (BasicBSONList) ss.getDispatcher().listStageTag();
+            List<ScmLifeCycleStageTag> stageTagList = new ArrayList<ScmLifeCycleStageTag>();
+            for (Object o : list) {
+                String name = BsonUtils.getString((BSONObject) o, "name");
+                String desc = BsonUtils.getString((BSONObject) o, "desc");
+                stageTagList.add(new ScmLifeCycleStageTag(name, desc));
+            }
+            return stageTagList;
         }
 
         /**
@@ -1698,7 +1719,7 @@ public class ScmSystem {
             checkArgNotNull("session", ss);
             checkArgNotNull("transitionName", transitionName);
             BSONObject obj = ss.getDispatcher().getGlobalTransition(transitionName);
-            return new ScmLifeCycleTransition().fromBSONObject(obj);
+            return ScmLifeCycleTransition.fromRecord(obj);
         }
 
         /**
@@ -1808,7 +1829,7 @@ public class ScmSystem {
                 throws ScmException {
             checkArgNotNull("session", ss);
             BSONObject obj = ss.getDispatcher().getGlobalLifeCycleConfig();
-            return new ScmLifeCycleConfig().fromBSONObject(obj);
+            return ScmLifeCycleConfig.fromRecord(obj);
         }
 
         /**
@@ -1845,7 +1866,7 @@ public class ScmSystem {
             try {
                 BSONObject obj = XMLUtils.xmlToBSONObj(xmlInputStream);
                 if (obj != null) {
-                    lifeCycleConfig = new ScmLifeCycleConfig(obj);
+                    lifeCycleConfig = ScmLifeCycleConfig.fromUser(obj);
                 }
             }
             catch (Exception e) {

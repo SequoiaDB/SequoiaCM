@@ -15,37 +15,39 @@ public class ScmTrigger {
     public ScmTrigger() {
     }
 
-    public ScmTrigger(BSONObject content){
+    public static ScmTrigger fromUser(BSONObject content) {
+        ScmTrigger trigger = new ScmTrigger();
         Object temp = null;
         temp = content.get("ID");
         if (null != temp) {
-            setID(String.valueOf(temp));
+            trigger.id = (String.valueOf(temp));
         }
 
         temp = content.get("Mode");
         if (null != temp) {
-            setMode((String) temp);
+            trigger.mode = ((String) temp);
         }
 
         temp = content.get("CreateTime");
         if (null != temp) {
-            setCreateTime((String) temp);
+            trigger.createTime = ((String) temp);
         }
 
         temp = content.get("LastAccessTime");
         if (null != temp) {
-            setLastAccessTime((String) temp);
+            trigger.lastAccessTime = ((String) temp);
         }
 
         temp = content.get("BuildTime");
         if (null != temp) {
-            setBuildTime((String) temp);
+            trigger.buildTime = ((String) temp);
         }
 
         temp = content.get("TransitionTime");
         if (null != temp) {
-            setTransitionTime((String) temp);
+            trigger.transitionTime = ((String) temp);
         }
+        return trigger;
     }
 
     public ScmTrigger(String id, String mode, String createTime, String lastAccessTime,
@@ -130,37 +132,39 @@ public class ScmTrigger {
         return bsonObject;
     }
 
-    public ScmTrigger fromBSONObject(BSONObject content){
+    public static ScmTrigger fromRecord(BSONObject content) {
+        ScmTrigger trigger = new ScmTrigger();
         Object temp = null;
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_ID);
         if (null != temp) {
-            setID((String) temp);
+            trigger.id = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_MODE);
         if (null != temp) {
-            setMode((String) temp);
+            trigger.mode = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_CREATE_TIME);
         if (null != temp) {
-            setCreateTime((String) temp);
+            trigger.createTime = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_LAST_ACCESS_TIME);
         if (null != temp) {
-            setLastAccessTime((String) temp);
+            trigger.lastAccessTime = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_BUILD_TIME);
         if (null != temp) {
-            setBuildTime((String) temp);
+            trigger.buildTime = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGER_TRANSITION_TIME);
         if (null != temp) {
-            setTransitionTime((String) temp);
+            trigger.transitionTime = ((String) temp);
         }
-        return this;
+
+        return trigger;
     }
 }

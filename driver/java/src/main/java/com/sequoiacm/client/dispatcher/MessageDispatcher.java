@@ -430,6 +430,8 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject listTransition(String stageTagName) throws ScmException;
 
+    BSONObject listStageTag() throws ScmException;
+
     void setSiteStageTag(String siteName,String stageTagName) throws ScmException;
 
     void alterSiteStageTag(String siteName, String stageTagName) throws ScmException;

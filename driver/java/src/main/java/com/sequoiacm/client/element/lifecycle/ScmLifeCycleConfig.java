@@ -20,7 +20,11 @@ public class ScmLifeCycleConfig {
     public ScmLifeCycleConfig() {
     }
 
-    public ScmLifeCycleConfig(BSONObject obj) throws ScmException {
+    public static ScmLifeCycleConfig fromUser(BSONObject obj) throws ScmException {
+        ScmLifeCycleConfig config = new ScmLifeCycleConfig();
+        List<ScmLifeCycleStageTag> stageTagConfig = new ArrayList<ScmLifeCycleStageTag>();
+        List<ScmLifeCycleTransition> transitionConfig = new ArrayList<ScmLifeCycleTransition>();
+
         Object temp = null;
 
         BSONObject lifeCycleConfiguration = BsonUtils.getBSONObjectChecked(obj,
@@ -33,14 +37,13 @@ public class ScmLifeCycleConfig {
         if (null != transitionConfiguration) {
             temp = transitionConfiguration.get("Transition");
             if (null != temp) {
-                transitionConfig = new ArrayList<ScmLifeCycleTransition>();
                 if (temp instanceof BasicBSONObject) {
-                    transitionConfig.add(new ScmLifeCycleTransition((BSONObject) temp));
+                    transitionConfig.add(ScmLifeCycleTransition.fromUser((BSONObject) temp));
                 }
                 else if (temp instanceof BasicBSONList) {
                     BasicBSONList l = (BasicBSONList) temp;
                     for (Object o : l) {
-                        transitionConfig.add(new ScmLifeCycleTransition((BSONObject) o));
+                        transitionConfig.add(ScmLifeCycleTransition.fromUser((BSONObject) o));
                     }
                 }
                 else {
@@ -53,14 +56,13 @@ public class ScmLifeCycleConfig {
         if (null != stageTagConfiguration) {
             temp = stageTagConfiguration.get("StageTag");
             if (null != temp) {
-                stageTagConfig = new ArrayList<ScmLifeCycleStageTag>();
                 if (temp instanceof BasicBSONObject) {
-                    stageTagConfig.add(new ScmLifeCycleStageTag((BSONObject) temp));
+                    stageTagConfig.add(ScmLifeCycleStageTag.fromUser((BSONObject) temp));
                 }
                 else if (temp instanceof BasicBSONList) {
                     BasicBSONList l = (BasicBSONList) temp;
                     for (Object o : l) {
-                        stageTagConfig.add(new ScmLifeCycleStageTag((BSONObject) o));
+                        stageTagConfig.add(ScmLifeCycleStageTag.fromUser((BSONObject) o));
                     }
                 }
                 else {
@@ -69,6 +71,10 @@ public class ScmLifeCycleConfig {
                 }
             }
         }
+
+        config.stageTagConfig = stageTagConfig;
+        config.transitionConfig = transitionConfig;
+        return config;
     }
 
     public List<ScmLifeCycleStageTag> getStageTagConfig() {
@@ -107,26 +113,31 @@ public class ScmLifeCycleConfig {
         return bsonObject;
     }
 
-    public ScmLifeCycleConfig fromBSONObject(BSONObject obj){
-        stageTagConfig = new ArrayList<ScmLifeCycleStageTag>();
-        transitionConfig = new ArrayList<ScmLifeCycleTransition>();
+    public static ScmLifeCycleConfig fromRecord(BSONObject obj) {
+        ScmLifeCycleConfig config = new ScmLifeCycleConfig();
+
+        List<ScmLifeCycleStageTag> stageTagConfig = new ArrayList<ScmLifeCycleStageTag>();
+        List<ScmLifeCycleTransition> transitionConfig = new ArrayList<ScmLifeCycleTransition>();
         Object temp = null;
 
         temp = obj.get(FieldName.LifeCycleConfig.FIELD_STAGE_TAG_CONFIG);
         if (null != temp) {
             BasicBSONList l = (BasicBSONList) temp;
             for (Object o : l) {
-                stageTagConfig.add(new ScmLifeCycleStageTag().fromBSONObject((BSONObject) o));
+                stageTagConfig.add(ScmLifeCycleStageTag.fromRecord((BSONObject) o));
             }
         }
+        config.stageTagConfig = stageTagConfig;
 
         temp = obj.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_CONFIG);
         if (null != temp) {
             BasicBSONList l = (BasicBSONList) temp;
             for (Object o : l) {
-                transitionConfig.add(new ScmLifeCycleTransition().fromBSONObject((BSONObject) o));
+                transitionConfig.add(ScmLifeCycleTransition.fromRecord((BSONObject) o));
             }
         }
-        return this;
+        config.transitionConfig = transitionConfig;
+
+        return config;
     }
 }

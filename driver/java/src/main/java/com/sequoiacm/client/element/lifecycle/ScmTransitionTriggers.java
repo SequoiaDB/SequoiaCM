@@ -21,40 +21,44 @@ public class ScmTransitionTriggers {
 
     public ScmTransitionTriggers(){}
 
-    public ScmTransitionTriggers(BSONObject content) throws ScmException {
+    public static ScmTransitionTriggers fromUser(BSONObject content) throws ScmException {
+        ScmTransitionTriggers triggers = new ScmTransitionTriggers();
         Object temp = null;
         temp = content.get("Mode");
         if (null != temp) {
-            setMode((String) temp);
+            triggers.mode = ((String) temp);
         }
 
         temp = content.get("MaxExecTime");
         if (null != temp) {
-            setMaxExecTime((Integer) temp);
+            triggers.maxExecTime = ((Integer) temp);
         }
 
         temp = content.get("Rule");
         if (null != temp) {
-            setRule((String) temp);
+            triggers.rule = ((String) temp);
         }
 
         temp = content.get("Trigger");
         if (null != temp) {
-            triggerList = new ArrayList<ScmTrigger>();
+            List<ScmTrigger> triggerList = new ArrayList<ScmTrigger>();
             if (temp instanceof BasicBSONObject) {
-                triggerList.add(new ScmTrigger((BSONObject) temp));
+                triggerList.add(ScmTrigger.fromUser((BSONObject) temp));
             }
             else if (temp instanceof BasicBSONList){
                 BasicBSONList l = (BasicBSONList) temp;
                 for (Object o : l) {
-                    triggerList.add(new ScmTrigger((BSONObject) o));
+                    triggerList.add(ScmTrigger.fromUser((BSONObject) o));
                 }
             }
             else {
                 throw new ScmException(ScmError.INVALID_ARGUMENT,
                         "can not analysis TransitionTrigger's Trigger");
             }
+            triggers.triggerList = triggerList;
         }
+
+        return triggers;
     }
 
     public String getMode() {
@@ -137,21 +141,22 @@ public class ScmTransitionTriggers {
         return bsonObject;
     }
 
-    public ScmTransitionTriggers formBSONObject(BSONObject content){
+    public static ScmTransitionTriggers formRecord(BSONObject content) {
+        ScmTransitionTriggers triggers = new ScmTransitionTriggers();
         Object temp = null;
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGERS_MODE);
         if (null != temp) {
-            setMode((String) temp);
+            triggers.mode = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGERS_MAX_EXEC_TIME);
         if (null != temp) {
-            setMaxExecTime((Integer) temp);
+            triggers.maxExecTime = ((Integer) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGERS_RULE);
         if (null != temp) {
-            setRule((String) temp);
+            triggers.rule = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRIGGERS_TRIGGER_LIST);
@@ -159,11 +164,11 @@ public class ScmTransitionTriggers {
             BasicBSONList l = (BasicBSONList) temp;
             List<ScmTrigger> list = new ArrayList<ScmTrigger>();
             for (Object o : l) {
-                list.add(new ScmTrigger().fromBSONObject((BSONObject) o));
+                list.add(ScmTrigger.fromRecord((BSONObject) o));
             }
-            setTriggerList(list);
+            triggers.triggerList = list;
         }
-        return this;
+        return triggers;
     }
 
     private static void checkStringArgNotEmpty(String argName, String argValue)

@@ -7,14 +7,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.sequoiacm.client.dispatcher.BsonReader;
 import com.sequoiacm.client.element.bizconf.*;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.client.element.lifecycle.ScmWorkspaceLifeCycleConfig;
-import com.sequoiacm.client.util.BsonConverter;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.common.XMLUtils;
 import org.bson.BSONObject;
@@ -321,7 +318,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
                     "unable to parse xml life cycle config content", e);
         }
         if (obj != null) {
-            workspaceLifeCycleConfig = new ScmWorkspaceLifeCycleConfig(obj);
+            workspaceLifeCycleConfig = ScmWorkspaceLifeCycleConfig.fromUser(obj);
             for (ScmLifeCycleTransition transition : workspaceLifeCycleConfig
                     .getTransitionConfig()) {
                 String transitionName = transition.getName();

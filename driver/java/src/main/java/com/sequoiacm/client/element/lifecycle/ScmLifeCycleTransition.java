@@ -39,43 +39,45 @@ public class ScmLifeCycleTransition {
         this.transitionTriggers = transitionTriggers;
     }
 
-    public ScmLifeCycleTransition(BSONObject content) throws ScmException {
+    public static ScmLifeCycleTransition fromUser(BSONObject content) throws ScmException {
+        ScmLifeCycleTransition transition = new ScmLifeCycleTransition();
         Object temp = null;
         temp = content.get("Name");
         if (null != temp) {
-            setName((String) temp);
+            transition.name = ((String) temp);
         }
 
         temp = content.get("Flow");
         if (null != temp) {
             BSONObject obj = (BSONObject) temp;
-            setSource((String) obj.get("Source"));
-            setDest((String) obj.get("Dest"));
+            transition.source = ((String) obj.get("Source"));
+            transition.dest = ((String) obj.get("Dest"));
         }
 
         temp = content.get("Matcher");
         if (null != temp) {
-            setMatcher((String) temp);
+            transition.matcher = ((String) temp);
         }
 
         temp = content.get("ExtraContent");
         if (null != temp) {
             BSONObject obj = (BSONObject) temp;
-            setQuickStart(BsonUtils.getBoolean(obj, "QuickStart"));
-            setScope(BsonUtils.getString(obj, "Scope"));
-            setRecycleSpace(BsonUtils.getBoolean(obj, "RecycleSpace"));
-            setDataCheckLevel(BsonUtils.getString(obj, "DataCheckLevel"));
+            transition.isQuickStart = (BsonUtils.getBoolean(obj, "QuickStart"));
+            transition.scope = (BsonUtils.getString(obj, "Scope"));
+            transition.isRecycleSpace = (BsonUtils.getBoolean(obj, "RecycleSpace"));
+            transition.dataCheckLevel = (BsonUtils.getString(obj, "DataCheckLevel"));
         }
 
         temp = content.get("TransitionTriggers");
         if (null != temp) {
-            setTransitionTriggers(new ScmTransitionTriggers((BSONObject) temp));
+            transition.transitionTriggers = (ScmTransitionTriggers.fromUser((BSONObject) temp));
         }
 
         temp = content.get("CleanTriggers");
         if (null != temp) {
-            setCleanTriggers(new ScmCleanTriggers((BSONObject) temp));
+            transition.cleanTriggers = (ScmCleanTriggers.fromUser((BSONObject) temp));
         }
+        return transition;
     }
 
     public String getName() {
@@ -194,45 +196,52 @@ public class ScmLifeCycleTransition {
         return bsonObject;
     }
 
-    public ScmLifeCycleTransition fromBSONObject(BSONObject content){
+    public static ScmLifeCycleTransition fromRecord(BSONObject content) {
+        ScmLifeCycleTransition transition = new ScmLifeCycleTransition();
         Object temp = null;
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_NAME);
         if (null != temp) {
-            setName((String) temp);
+            transition.name = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_FLOW);
         if (null != temp) {
             BSONObject flow = (BSONObject) temp;
-            setSource((String) flow.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_FLOW_SOURCE));
-            setDest((String) flow.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_FLOW_DEST));
+            transition.source = ((String) flow
+                    .get(FieldName.LifeCycleConfig.FIELD_TRANSITION_FLOW_SOURCE));
+            transition.dest = ((String) flow
+                    .get(FieldName.LifeCycleConfig.FIELD_TRANSITION_FLOW_DEST));
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_MATCHER);
         if (null != temp) {
             BSONObject o = (BSONObject) temp;
-            setMatcher(o.toString());
+            transition.matcher = (o.toString());
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_EXTRA_CONTENT);
         if (null != temp) {
             BSONObject extraContent = (BSONObject) temp;
-            setScope((String) extraContent.get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_SCOPE));
-            setDataCheckLevel((String) extraContent.get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_DATA_CHECK_LEVEL));
-            setQuickStart((Boolean) extraContent.get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_QUICK_START));
-            setRecycleSpace((Boolean) extraContent.get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_RECYCLE_SPACE));
+            transition.scope = ((String) extraContent
+                    .get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_SCOPE));
+            transition.dataCheckLevel = ((String) extraContent
+                    .get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_DATA_CHECK_LEVEL));
+            transition.isQuickStart = ((Boolean) extraContent
+                    .get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_QUICK_START));
+            transition.isRecycleSpace = ((Boolean) extraContent
+                    .get(FieldName.LifeCycleConfig.FIELD_EXTRA_CONTENT_RECYCLE_SPACE));
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRANSITION_TRIGGERS);
         if (null != temp) {
-            setTransitionTriggers(new ScmTransitionTriggers().formBSONObject((BSONObject) temp));
+            transition.transitionTriggers = (ScmTransitionTriggers.formRecord((BSONObject) temp));
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_TRANSITION_CLEAN_TRIGGERS);
         if (null != temp) {
-            setCleanTriggers(new ScmCleanTriggers().fromBSONObject((BSONObject) temp));
+            transition.cleanTriggers = (ScmCleanTriggers.fromRecord((BSONObject) temp));
         }
 
-        return this;
+        return transition;
     }
 }

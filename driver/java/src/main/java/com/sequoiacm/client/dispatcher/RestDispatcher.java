@@ -2762,6 +2762,13 @@ public class RestDispatcher implements MessageDispatcher {
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
     }
 
+    public BSONObject listStageTag() throws ScmException {
+        String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG
+                + STAGE_TAG;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
     @Override
     public void setSiteStageTag(String siteName, String stageTagName) throws ScmException {
         String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + SITE

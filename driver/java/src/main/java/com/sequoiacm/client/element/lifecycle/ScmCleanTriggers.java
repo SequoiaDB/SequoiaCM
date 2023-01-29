@@ -23,40 +23,44 @@ public class ScmCleanTriggers {
 
     public ScmCleanTriggers(){}
 
-    public ScmCleanTriggers(BSONObject content) throws ScmException {
+    public static ScmCleanTriggers fromUser(BSONObject content) throws ScmException {
+        ScmCleanTriggers triggers = new ScmCleanTriggers();
         Object temp = null;
         temp = content.get("Mode");
         if (null != temp) {
-            setMode((String) temp);
+            triggers.mode = ((String) temp);
         }
 
         temp = content.get("MaxExecTime");
         if (null != temp) {
-            setMaxExecTime((Integer) temp);
+            triggers.maxExecTime = ((Integer) temp);
         }
 
         temp = content.get("Rule");
         if (null != temp) {
-            setRule((String) temp);
+            triggers.rule = ((String) temp);
         }
 
         temp = content.get("Trigger");
         if (null != temp) {
-            triggerList = new ArrayList<ScmTrigger>();
+            List<ScmTrigger> triggerList = new ArrayList<ScmTrigger>();
             if (temp instanceof BasicBSONObject) {
-                triggerList.add(new ScmTrigger((BSONObject) temp));
+                triggerList.add(ScmTrigger.fromUser((BSONObject) temp));
             }
             else if (temp instanceof BasicBSONList) {
                 BasicBSONList l = (BasicBSONList) temp;
                 for (Object o : l) {
-                    triggerList.add(new ScmTrigger((BSONObject) o));
+                    triggerList.add(ScmTrigger.fromUser((BSONObject) o));
                 }
             }
             else {
                 throw new ScmException(ScmError.INVALID_ARGUMENT,
                         "can not analysis CleanTrigger's Trigger");
             }
+            triggers.triggerList = triggerList;
         }
+
+        return triggers;
     }
 
     public String getMode() {
@@ -136,21 +140,23 @@ public class ScmCleanTriggers {
         }
     }
 
-    public ScmCleanTriggers fromBSONObject(BSONObject content){
+    public static ScmCleanTriggers fromRecord(BSONObject content) {
+        ScmCleanTriggers triggers = new ScmCleanTriggers();
+
         Object temp = null;
         temp = content.get(FieldName.LifeCycleConfig.FIELD_CLEAN_TRIGGERS_MODE);
         if (null != temp) {
-            setMode((String) temp);
+            triggers.mode = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_CLEAN_TRIGGERS_MAX_EXEC_TIME);
         if (null != temp) {
-            setMaxExecTime((Integer) temp);
+            triggers.maxExecTime = ((Integer) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_CLEAN_TRIGGERS_RULE);
         if (null != temp) {
-            setRule((String) temp);
+            triggers.rule = ((String) temp);
         }
 
         temp = content.get(FieldName.LifeCycleConfig.FIELD_CLEAN_TRIGGERS_TRIGGER_LIST);
@@ -158,12 +164,12 @@ public class ScmCleanTriggers {
             BasicBSONList l = (BasicBSONList) temp;
             List<ScmTrigger> list = new ArrayList<ScmTrigger>();
             for (Object o : l) {
-                list.add(new ScmTrigger().fromBSONObject((BSONObject) o));
+                list.add(ScmTrigger.fromRecord((BSONObject) o));
             }
-            setTriggerList(list);
+            triggers.triggerList = list;
         }
 
-        return this;
+        return triggers;
     }
 
     private static void checkStringArgNotEmpty(String argName, String argValue)

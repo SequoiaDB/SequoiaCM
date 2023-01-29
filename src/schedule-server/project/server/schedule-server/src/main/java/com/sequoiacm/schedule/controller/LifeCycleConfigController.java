@@ -2,7 +2,6 @@ package com.sequoiacm.schedule.controller;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
@@ -96,7 +95,8 @@ public class LifeCycleConfigController {
     public LifeCycleConfigFullEntity getLifeCycleConfig() throws ScheduleException {
         BSONObject globalLifeCycleConfig = service.getGlobalLifeCycleConfig();
         if (globalLifeCycleConfig == null) {
-            return null;
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                    "life cycle config not found.");
         }
         return LifeCycleEntityTranslator.FullInfo.fromBSONObject(globalLifeCycleConfig);
     }
@@ -145,6 +145,11 @@ public class LifeCycleConfigController {
         else {
             service.removeGlobalStageTag(stageTagName, user.getUsername());
         }
+    }
+
+    @GetMapping("/lifeCycleConfig/stageTag")
+    public BSONObject listGlobalStageTag() throws ScheduleException {
+        return service.listGlobalStageTag();
     }
 
     @PostMapping("/lifeCycleConfig/transition")

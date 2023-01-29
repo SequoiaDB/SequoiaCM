@@ -13,17 +13,21 @@ public class ScmLifeCycleStageTag {
     public ScmLifeCycleStageTag() {
     }
 
-    public ScmLifeCycleStageTag(BSONObject obj) {
+    public static ScmLifeCycleStageTag fromUser(BSONObject obj) {
+        ScmLifeCycleStageTag stageTag = new ScmLifeCycleStageTag();
+
         Object temp = null;
         temp = obj.get("Name");
         if (null != temp) {
-            setName((String) temp);
+            stageTag.name = ((String) temp);
         }
 
         temp = obj.get("Desc");
         if (null != temp) {
-            setDesc((String) temp);
+            stageTag.desc = ((String) temp);
         }
+
+        return stageTag;
     }
 
     public ScmLifeCycleStageTag(String name, String desc) {
@@ -54,18 +58,20 @@ public class ScmLifeCycleStageTag {
         return bsonObject;
     }
 
-    public ScmLifeCycleStageTag fromBSONObject(BSONObject obj){
+    public static ScmLifeCycleStageTag fromRecord(BSONObject obj) {
+        ScmLifeCycleStageTag stageTag = new ScmLifeCycleStageTag();
+
         Object temp = null;
         temp = obj.get(FieldName.LifeCycleConfig.FIELD_STAGE_TAG_NAME);
         if (null != temp) {
-            setName((String) temp);
+            stageTag.name = (String) temp;
         }
 
         temp = obj.get(FieldName.LifeCycleConfig.FIELD_STAGE_TAG_DESC);
         if (null != temp) {
-            setDesc((String) temp);
+            stageTag.desc = (String) temp;
         }
 
-        return this;
+        return stageTag;
     }
 }

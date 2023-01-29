@@ -1,6 +1,5 @@
 package com.sequoiacm.schedule.service;
 
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.schedule.common.model.LifeCycleConfigUserEntity;
 import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.common.model.TransitionFullEntity;
@@ -19,6 +18,8 @@ public interface LifeCycleConfigService {
     void addGlobalStageTag(String user, String stageTagName, String stageTagDesc) throws Exception;
 
     void removeGlobalStageTag(String stageTagName, String user) throws Exception;
+
+    BSONObject listGlobalStageTag() throws ScheduleException;
 
     void addGlobalTransition(TransitionUserEntity info, String user) throws Exception;
 

@@ -272,6 +272,19 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
     }
 
     @Override
+    public BSONObject listGlobalStageTag() throws ScheduleException {
+        BSONObject obj = getGlobalLifeCycleConfig();
+        if (obj == null) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                    "get stage tag config failed, life cycle config not found");
+        }
+        else {
+            LifeCycleConfigFullEntity info = LifeCycleEntityTranslator.FullInfo.fromBSONObject(obj);
+            return info.getStageTagConfig();
+        }
+    }
+
+    @Override
     public void addGlobalTransition(TransitionUserEntity info, String user) throws Exception {
         ScmLock lock = null;
         try {

@@ -62,7 +62,7 @@ public class ScmTransitionScheduleImpl implements ScmTransitionSchedule {
 
         BSONObject temp = (BSONObject) obj
                 .get(FieldName.LifeCycleConfig.FIELD_TRANSITION_SCHEDULE_TRANSITION);
-        transition = new ScmLifeCycleTransition().fromBSONObject(temp);
+        transition = ScmLifeCycleTransition.fromRecord(temp);
 
     }
 

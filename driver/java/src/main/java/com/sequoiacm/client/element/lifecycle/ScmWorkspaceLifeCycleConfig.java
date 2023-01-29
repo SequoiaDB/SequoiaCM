@@ -18,7 +18,9 @@ public class ScmWorkspaceLifeCycleConfig {
     public ScmWorkspaceLifeCycleConfig(){
 
     }
-    public ScmWorkspaceLifeCycleConfig(BSONObject obj) throws ScmException {
+
+    public static ScmWorkspaceLifeCycleConfig fromUser(BSONObject obj) throws ScmException {
+        ScmWorkspaceLifeCycleConfig config = new ScmWorkspaceLifeCycleConfig();
         Object temp = null;
 
         BSONObject workspaceLifeCycleConfig = BsonUtils.getBSONObjectChecked(obj,
@@ -28,26 +30,29 @@ public class ScmWorkspaceLifeCycleConfig {
 
         temp = workspaceLifeCycleConfig.get("Name");
         if (null != temp){
-            setWorkspaceName((String) temp);
+            config.workspaceName = ((String) temp);
         }
 
         temp = transitionConfiguration.get("Transition");
         if (null != temp) {
-            transitionConfig = new ArrayList<ScmLifeCycleTransition>();
+            List<ScmLifeCycleTransition> transitionConfig = new ArrayList<ScmLifeCycleTransition>();
             if (temp instanceof BasicBSONObject) {
-                transitionConfig.add(new ScmLifeCycleTransition((BSONObject) temp));
+                transitionConfig.add(ScmLifeCycleTransition.fromUser((BSONObject) temp));
             }
             else if (temp instanceof BasicBSONList) {
                 BasicBSONList l = (BasicBSONList) temp;
                 for (Object o : l) {
-                    transitionConfig.add(new ScmLifeCycleTransition((BSONObject) o));
+                    transitionConfig.add(ScmLifeCycleTransition.fromUser((BSONObject) o));
                 }
             }
             else {
                 throw new ScmException(ScmError.INVALID_ARGUMENT,
                         "can not analysis TransitionConfiguration");
             }
+            config.transitionConfig = transitionConfig;
         }
+
+        return config;
     }
 
     public String getWorkspaceName() {
