@@ -36,6 +36,7 @@
                 <exclude>commons-codec:commons-codec</exclude>
                 <exclude>commons-logging:commons-logging</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
+                <exclude>org.json:json</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
