@@ -5,7 +5,7 @@ alterws 子命令提供修改工作区的功能。
 |子命令    |描述             |
 |----------|-----------------|
 |addsite   |向工作区添加站点 |
-|updatesite|修改工作区中的站点属性 |
+|updatesites|修改工作区中的站点属性 |
 |update-preferred  |更新工作区 preferred 属性|
 |disable-directory |设置工作区目录为禁用状态 |
 
@@ -40,9 +40,9 @@ addsite 支持向工作区增加分站点。
    $  scmadmin.sh alterws addsite --name ws --data '[{site:"site3",domain:"dataDomain"}]' --url localhost:8080/rootsite --user admin --password
 ```
 
-###（2）updatesite###
+###（2）updatesites###
 
-updatesite 支持修改工作区中已存在的站点信息。
+updatesites 支持修改工作区中已存在的站点信息。
 
 ####子命令选项####
 
@@ -67,7 +67,7 @@ updatesite 支持修改工作区中已存在的站点信息。
 修改工作区 ws 中的分站点 site3 中的 data_sharding_type 配置。
 
 ```lang-javascript
-   $  scmadmin.sh alterws updatesite --name ws --data '[{site:"site3", data_sharding_type:{collection_space:"month"}}]' --url localhost:8080/rootsite --user admin --password
+   $  scmadmin.sh alterws updatesites --name ws --data '[{site:"site3", data_sharding_type:{collection_space:"month"}}]' --url localhost:8080/rootsite --user admin --password
 ```
 
 ###（3）update-preferred###
