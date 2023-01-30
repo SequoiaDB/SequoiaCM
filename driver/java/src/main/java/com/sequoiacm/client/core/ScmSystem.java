@@ -1926,7 +1926,7 @@ public class ScmSystem {
             checkStringArgValid("transition name", transition.getName());
             checkFlowValid(transition.getSource(), transition.getDest());
             checkTransitionTriggersValid(transition.getTransitionTriggers());
-            if (transition.getCleanTriggers() != null) {
+            if (transition.getCleanTriggers() != null && !transition.getCleanTriggers().isEmpty()) {
                 checkCleanTriggersValid(transition.getCleanTriggers());
             }
             checkExtraContentValid(transition.getDataCheckLevel(), transition.getScope());
@@ -1954,9 +1954,14 @@ public class ScmSystem {
             checkArgNotNull("clean triggers", cleanTriggers);
             checkStringArgValid("clean triggers mode", cleanTriggers.getMode());
             checkStringArgValid("clean triggers rule", cleanTriggers.getRule());
+            checkArgNotNull("clean trigger list", cleanTriggers.getTriggerList());
             if (cleanTriggers.getMaxExecTime() < 0) {
                 throw new ScmInvalidArgumentException(
                         "clean triggers maxExecTime must be greater than 0");
+            }
+            if (cleanTriggers.getTriggerList().size() == 0) {
+                throw new ScmInvalidArgumentException(
+                        "clean triggers trigger list should not be empty");
             }
             for (ScmTrigger trigger : cleanTriggers.getTriggerList()) {
                 checkTriggerValid("CleanTriggers", trigger);
@@ -1968,9 +1973,14 @@ public class ScmSystem {
             checkArgNotNull("transition triggers", transitionTriggers);
             checkStringArgValid("transition triggers mode", transitionTriggers.getMode());
             checkStringArgValid("transition triggers rule", transitionTriggers.getRule());
+            checkArgNotNull("transition trigger list", transitionTriggers.getTriggerList());
             if (transitionTriggers.getMaxExecTime() < 0) {
                 throw new ScmInvalidArgumentException(
                         "transition triggers maxExecTime must be greater than 0");
+            }
+            if (transitionTriggers.getTriggerList().size() == 0) {
+                throw new ScmInvalidArgumentException(
+                        "transition triggers trigger list should not be empty");
             }
             for (ScmTrigger trigger : transitionTriggers.getTriggerList()) {
                 checkTriggerValid("TransitionTriggers", trigger);

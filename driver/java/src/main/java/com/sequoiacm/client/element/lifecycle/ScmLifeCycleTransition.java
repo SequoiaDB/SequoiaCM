@@ -29,6 +29,7 @@ public class ScmLifeCycleTransition {
     private String scope = "ALL";
 
     public ScmLifeCycleTransition() {
+        cleanTriggers = new ScmCleanTriggers();
     }
 
     public ScmLifeCycleTransition(String transitionName, String source, String dest,
@@ -37,6 +38,7 @@ public class ScmLifeCycleTransition {
         this.source = source;
         this.dest = dest;
         this.transitionTriggers = transitionTriggers;
+        cleanTriggers = new ScmCleanTriggers();
     }
 
     public static ScmLifeCycleTransition fromUser(BSONObject content) throws ScmException {
@@ -179,7 +181,7 @@ public class ScmLifeCycleTransition {
             bsonObject.put(FieldName.LifeCycleConfig.FIELD_TRANSITION_TRANSITION_TRIGGERS,
                     transitionTriggers.toBSONObject());
         }
-        if (cleanTriggers != null) {
+        if (cleanTriggers != null && !cleanTriggers.isEmpty()) {
             bsonObject.put(FieldName.LifeCycleConfig.FIELD_TRANSITION_CLEAN_TRIGGERS,
                     cleanTriggers.toBSONObject());
         }

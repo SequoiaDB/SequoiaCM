@@ -18,6 +18,8 @@ public class ScmLifeCycleConfig {
     private List<ScmLifeCycleTransition> transitionConfig;
 
     public ScmLifeCycleConfig() {
+        stageTagConfig = new ArrayList<ScmLifeCycleStageTag>();
+        transitionConfig = new ArrayList<ScmLifeCycleTransition>();
     }
 
     public static ScmLifeCycleConfig fromUser(BSONObject obj) throws ScmException {

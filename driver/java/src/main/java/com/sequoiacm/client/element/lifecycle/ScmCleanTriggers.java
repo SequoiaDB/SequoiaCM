@@ -178,4 +178,8 @@ public class ScmCleanTriggers {
             throw new ScmInvalidArgumentException(argName + " is null or empty");
         }
     }
+
+    public boolean isEmpty() {
+        return mode == null && rule == null && triggerList == null && maxExecTime == 0;
+    }
 }
