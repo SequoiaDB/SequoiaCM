@@ -247,6 +247,14 @@
 | DatesourceName | 数据源名称 | 是 |
 | IsRootSite | 是否为主站点，取值如下：<br>true：主站点<br>false：分站点 | 是 |
 
+**sitestrategy**
+
+该配置段用于配置[站点网络模型][sitestrategy]，参数说明如下：
+
+| 参数名 | 说明 | 是否必填 |
+| ------ | ---- | -------- |
+| Strategy | 站点网络模型，取值如下：<br>network：网状模型<br>start：星型模型 | 是 |
+
 **zone**
 
 该配置段用于配置机房信息，参数说明如下：
@@ -378,3 +386,4 @@
 [primary_standby_cephs3]:Architecture/data_storage.md
 [node_group]:Architecture/node_group.md
 [encrypt_password]:Maintainance/Tools/Scmadmin/encrypt.md
+[sitestrategy]:Architecture/site_network.md
