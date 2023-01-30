@@ -52,7 +52,7 @@
         },
         {
             "key": "management.security.enabled",
-            "type": "number"
+            "type": "boolean"
         },
         {
             "key": "spring.zipkin.enabled",
