@@ -228,7 +228,7 @@ public class FileCreatorDao {
         return Objects.equals(conflictFile.getBatchId(), conflictFileInLock.getBatchId());
     }
 
-    @SlowLog(operation = "crateFile")
+    @SlowLog(operation = "createFile")
     public FileMeta createFile(String workspaceName, FileMeta fileMeta, FileUploadConf uploadConf,
             TransactionCallback transactionCallback) throws ScmServerException {
         IdInfo idInfo = generateFileId(fileMeta);
@@ -238,7 +238,7 @@ public class FileCreatorDao {
                 transactionCallback, true);
     }
 
-    @SlowLog(operation = "crateFile", extras = @SlowLogExtra(name = "breakpointFileName", data = "breakpointFileName"))
+    @SlowLog(operation = "createFile", extras = @SlowLogExtra(name = "breakpointFileName", data = "breakpointFileName"))
     public FileMeta createFile(String workspaceName, FileMeta fileMeta, FileUploadConf uploadConf,
             String breakpointFileName) throws ScmServerException {
         IdInfo idInfo = generateFileId(fileMeta);
@@ -334,7 +334,7 @@ public class FileCreatorDao {
         return new IdInfo(fileId, dataId, fileCreateDate);
     }
 
-    @SlowLog(operation = "crateFile")
+    @SlowLog(operation = "createFile")
     public FileMeta createFile(String ws, FileMeta fileMeta, FileUploadConf conf, InputStream is)
             throws ScmServerException {
         IdInfo idInfo = generateFileId(fileMeta);

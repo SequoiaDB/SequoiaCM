@@ -1,5 +1,6 @@
 package com.sequoiacm.metasource.sequoiadb;
 
+import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ public class SdbTransactionContext implements TransactionContext {
     }
 
     @Override
+    @SlowLog(operation = "beginTransaction")
     public void begin() throws SdbMetasourceException {
         try {
             db.beginTransaction();
@@ -39,6 +41,7 @@ public class SdbTransactionContext implements TransactionContext {
     }
 
     @Override
+    @SlowLog(operation = "commitTransaction")
     public void commit() throws SdbMetasourceException {
         if (!isBegin) {
             // do nothing if transaction is not started
@@ -64,6 +67,7 @@ public class SdbTransactionContext implements TransactionContext {
     }
 
     @Override
+    @SlowLog(operation = "rollbackTransaction")
     public void rollback() {
         if (!isBegin) {
             // do nothing if transaction is not started
