@@ -83,15 +83,18 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
         expectFileNames.add( fileName2 );
         int currentVersionNum = 2;
         listInstanceByCurrentVersion( expectFileNames, currentVersionNum );
+        countInstanceByCurrentVersion( currentVersionNum );
 
         // test4831:指定历史版本列取文件(匹配size条件),包含2个deleteMarker标记版本
         int historyVersionNum = 6;
         expectFileNames.add( fileName3 );
         listInstanceByHistoryVersion( expectFileNames, historyVersionNum );
+        countInstanceByHistoryVersion( historyVersionNum );
 
         // test4833：指定所有版本列取文件(匹配fildId条件)
         int allVersionNum = 9;
         listInstanceByAllVersion( expectFileNames, allVersionNum );
+        countInstanceByAllVersion( allVersionNum );
 
         runSuccess = true;
     }
@@ -200,4 +203,42 @@ public class ScmFile4830_4832_4834 extends TestScmBase {
                 "query cond :" + condition.toString() );
     }
 
+    private void countInstanceByCurrentVersion( int fileVersionNum )
+            throws ScmException {
+        BSONObject condition = ScmQueryBuilder
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
+        long size = ScmFactory.File.countInstance( ws,
+                ScmType.ScopeType.SCOPE_CURRENT, condition );
+        Assert.assertEquals( size, fileVersionNum );
+    }
+
+    private void countInstanceByHistoryVersion( int fileVersionNum )
+            throws ScmException {
+        BSONObject obj1 = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId1.get() ).get();
+        BSONObject obj2 = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId2.get() ).get();
+        BSONObject obj3 = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId3.get() ).get();
+        BSONObject condition = ScmQueryBuilder.start().or( obj1, obj2, obj3 )
+                .get();
+        long size = ScmFactory.File.countInstance( ws,
+                ScmType.ScopeType.SCOPE_HISTORY, condition );
+        Assert.assertEquals( size, fileVersionNum );
+    }
+
+    private void countInstanceByAllVersion( int fileVersionNum )
+            throws ScmException {
+        BSONObject obj1 = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId1.get() ).get();
+        BSONObject obj2 = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId2.get() ).get();
+        BSONObject obj3 = ScmQueryBuilder.start( ScmAttributeName.File.FILE_ID )
+                .is( fileId3.get() ).get();
+        BSONObject condition = ScmQueryBuilder.start().or( obj1, obj2, obj3 )
+                .get();
+        long size = ScmFactory.File.countInstance( ws,
+                ScmType.ScopeType.SCOPE_ALL, condition );
+        Assert.assertEquals( size, fileVersionNum );
+    }
 }
