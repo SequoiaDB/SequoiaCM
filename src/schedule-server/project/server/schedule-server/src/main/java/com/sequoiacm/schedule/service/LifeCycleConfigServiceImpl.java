@@ -248,12 +248,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                                     + fullInfo.getStageTagConfig() + ", stageTag=" + stageTagName);
                 }
                 // check used by transition
-                if (stageTagUsedByTransition(stageTagName, fullInfo.getTransitionConfig())) {
-                    throw new ScheduleException(RestCommonDefine.ErrorCode.LIFE_CYCLE_CONFIG_USED,
-                            "remove stage tag failed,the stage tag already used,transitionConfig="
-                                    + fullInfo.getTransitionConfig() + ", stageTag="
-                                    + stageTagName);
-                }
+                checkUsedByTransition(stageTagName, fullInfo.getTransitionConfig());
 
                 if (stageTagUsedBySite(stageTagName)) {
                     throw new ScheduleException(RestCommonDefine.ErrorCode.LIFE_CYCLE_CONFIG_USED,
@@ -1880,21 +1875,22 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
         }
     }
 
-    private boolean stageTagUsedByTransition(String stageTagName, BasicBSONList transitionConfig) {
-        if (transitionConfig == null || transitionConfig.size() == 0) {
-            return false;
+    private void checkUsedByTransition(String stageTagName, BasicBSONList transitionConfig)
+            throws ScheduleException {
+        if (transitionConfig == null) {
+            return;
         }
-        stageTagName = stageTagName.toLowerCase();
         for (Object o : transitionConfig) {
             TransitionFullEntity transition = TransitionEntityTranslator.FullInfo
                     .fromBSONObject((BSONObject) o);
             String source = transition.getFlow().getSource();
             String dest = transition.getFlow().getDest();
             if (stageTagName.equals(source) || stageTagName.equals(dest)) {
-                return true;
+                throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                        "remove stage tag failed, the stage tag already used by transition, stageTag="
+                                + stageTagName + ", transitionName=" + transition.getName());
             }
         }
-        return false;
     }
 
     private boolean isSystemStageTag(String stageTagName) {
@@ -1909,7 +1905,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
             BSONObject stageTag = (BSONObject) o;
             String existStageTagName = (String) stageTag
                     .get(FieldName.LifeCycleConfig.FIELD_STAGE_NAME);
-            if (stageTageName.equalsIgnoreCase(existStageTagName)) {
+            if (stageTageName.equals(existStageTagName)) {
                 return true;
             }
         }
@@ -2204,7 +2200,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
                     "flow dest can not be null, dest=" + dest);
         }
-        if (source.equalsIgnoreCase(dest)) {
+        if (source.equals(dest)) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
                     "flow source and dest can not be the same, source=" + source + ", dest="
                             + dest);
