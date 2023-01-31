@@ -170,6 +170,16 @@ public class ScheduleMgrWrapper {
                     mgr.createJob(context);
                 }
                 catch (Exception e) {
+                    if (e instanceof SchedulerException) {
+                        if (isTriggerExpireException(e.getMessage())) {
+                            // 如果是因为cron过期抛出的异常，就禁用该调度任务，不需要 revote
+                            logger.warn(
+                                    "failed to create schedule job, schedule info's cron is overdue, this schedule job will not be executed, disable this schedule:{}",
+                                    info, e);
+                            disableScheduleSilence(info);
+                            return info;
+                        }
+                    }
                     logger.error("failed to create schedule job, revote now:{}", jobInfo, e);
                     revote();
                     return info;
@@ -476,8 +486,7 @@ public class ScheduleMgrWrapper {
             // job的cron表达式过期，job将会一直无法被创建执行，并且会抛出 trigger 过期的异常。
             // 导致调度服务切主时执行restoreJob时启这种调度任务，遇到createJob异常就revote
             // 最后所有的调度服务节点都无法当主,无法处理后续业务操作。
-            if (e.getMessage().contains("Based on configured schedule, the given trigger")
-                    && e.getMessage().contains("will never fire")) {
+            if (isTriggerExpireException(e.getMessage())) {
                 // createJob 时，如果是 trigger 过期的异常，则将该job对应的schedule禁用
                 logger.warn(
                         "schedule info's cron is overdue, this schedule job will not be executed, disable this schedule:{}",
@@ -488,6 +497,11 @@ public class ScheduleMgrWrapper {
             throw e;
         }
 
+    }
+
+    private boolean isTriggerExpireException(String message) {
+        return message.contains("Based on configured schedule, the given trigger")
+                && message.contains("will never fire");
     }
 
     private void disableScheduleSilence(ScheduleFullEntity info) {
