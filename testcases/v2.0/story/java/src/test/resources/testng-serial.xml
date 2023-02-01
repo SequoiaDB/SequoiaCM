@@ -42,7 +42,7 @@
             <package name="com.sequoiacm.reloadconf.serial"/>
             <package name="com.sequoiacm.readcachefile.serial"/>
             <package name="com.sequoiacm.scmfile.serial"/>
-            
+
             <package name="com.sequoiacm.fulltextsearch"/>
             <package name="com.sequoiacm.fulltextsearch.concurrent"/>
             <package name="com.sequoiacm.fulltextsearch.serial"/>
@@ -93,6 +93,10 @@
             <!--sftp-->
             <!--  <package name="com.sequoiacm.sftp.serial"/>-->
             <!--  sftp site is required-->
+
+            <!--生命周期管理-->
+            <package name="com.sequoiacm.lifecycle"/>
+            <package name="com.sequoiacm.lifecycle.concurrent"/>
         </packages>
     </test>
 
