@@ -63,6 +63,9 @@ SequoiaCM 配置
 |scm.cephs3.detectClient.maxConns     |num  |内容服务节点探测宕机的cephs3是否恢复时，允许同时与cephs3打开的最大连接数，默认值：1|重启生效|
 |scm.cephs3.detectClient.signerOverride|str  |内容服务节点探测宕机的cephs3是否恢复时的签名配置，默认值： S3SignerType（v2版本签名），填空串表示由客户端自动选择签名算法|重启生效|
 |scm.cephs3.detectClient.useExpectContinue     |boolean  |内容服务节点探测宕机的cephs3是否恢复时是否使用 epxect continue，默认值：false|重启生效|
+|scm.cephs3.client.idleClientCleanInteral | num | 配置 cephs3 站点下空闲连接的清理周期，默认值为 600000，单位为毫秒 | 重启生效 |
+|scm.cephs3.client.idleClientTimeOut | num | 配置 cephs3 站点下，未使用的连接转化为空闲连接的时间阈值，默认值为 1200000，单位为毫秒  | 重启生效 |
+|scm.cephs3.quotaExceeded.autoCreateBucket.objectCountThreshold | num | 配置 cephs3 站点在触发自动创建新桶之前，旧桶需写入的对象数量，默认值为 1000，取值范围为 (0, 10000] | 重启生效 |
 |scm.sftp.connectTimeout       |num  |配置 sftp 站点 ssh 建立连接超时时长，默认值：30000，单位：毫秒|重启生效|
 |scm.sftp.socketTimeout       |num   |配置 sftp 站点 ssh socket 连接超时时长，默认值：30000，单位：毫秒|重启生效|
 |scm.sftp.serverAliveInterval |num   |配置 sftp 站点 ssh 连接的心跳保持频率，默认值：2000，单位：毫秒|重启生效|
