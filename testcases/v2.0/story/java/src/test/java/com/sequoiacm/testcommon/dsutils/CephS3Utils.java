@@ -384,4 +384,134 @@ public class CephS3Utils extends TestScmBase {
         } while ( objects.isTruncated() );
         s3connect.deleteBucket( bucketName );
     }
+
+    /**
+     * ceph数据源中创建用户和指定access_key和secret_key创建ceph_S3 key
+     *
+     * @param site
+     * @param userUid
+     * @param access_key
+     * @param secret_key
+     * @param isPrimary
+     *        isPrimary为ture则链接主库创建用户，为false则链接备库创建用户
+     * @throws Exception
+     */
+    public static void createCephS3UserAndKey( SiteWrapper site, String userUid,
+            String access_key, String secret_key, Boolean isPrimary )
+            throws Exception {
+        Ssh ssh = null;
+        String hostStr = null;
+        if ( isPrimary ) {
+            hostStr = site.getCephPrimaryDataDsUrl();
+        } else {
+            hostStr = site.getCephStandbyDataDsUrl();
+        }
+        String host = getHostForSiteUrl( hostStr );
+
+        try {
+            ssh = new Ssh( host );
+            ssh.exec( "radosgw-admin user create --uid=" + userUid
+                    + " --display-name=\"testUser\"" );
+            ssh.exec( "radosgw-admin key create --uid=" + userUid
+                    + " --key-type=s3 --access-key " + access_key
+                    + " --secret-key " + secret_key );
+        } finally {
+            if ( ssh != null ) {
+                ssh.disconnect();
+            }
+        }
+    }
+
+    /**
+     * ceph数据源中删除用户
+     *
+     * @param site
+     * @param userUid
+     * @param isPrimary
+     *        isPrimary为ture则删除主库用户，为false则删除备库用户
+     * @throws Exception
+     */
+    public static void deleteCephS3User( SiteWrapper site, String userUid,
+            Boolean isPrimary ) throws Exception {
+        Ssh ssh = null;
+        String hostStr = null;
+        if ( isPrimary ) {
+            hostStr = site.getCephPrimaryDataDsUrl();
+        } else {
+            hostStr = site.getCephStandbyDataDsUrl();
+        }
+
+        String host = getHostForSiteUrl( hostStr );
+
+        try {
+            ssh = new Ssh( host );
+            ssh.exec( "radosgw-admin user rm --uid=" + userUid
+                    + " --purge-data" );
+        } catch ( Exception e ) {
+            if ( !e.getMessage().contains( "user does not exist" ) ) {
+                throw e;
+            }
+        } finally {
+            if ( ssh != null ) {
+                ssh.disconnect();
+            }
+        }
+    }
+
+    /**
+     * 根据站点dataDsUrl获取host
+     * 
+     * @param siteDataDsUrl
+     * @throws Exception
+     */
+    public static String getHostForSiteUrl( String siteDataDsUrl ) {
+        String[] split = siteDataDsUrl.split( "//" );
+        String[] split1 = split[ 1 ].split( ":" );
+        return split1[ 0 ];
+    }
+
+    /**
+     * 在ScmInstallDir路径下创建密码文件
+     * 
+     * @param site
+     * @param passwdPath
+     * @param filename
+     * @throws Exception
+     */
+    public static String preparePasswdFile( SiteWrapper site, String passwdPath,
+            String filename ) throws Exception {
+        Ssh ssh = null;
+        String host = site.getNode().getHost();
+        try {
+            ssh = new Ssh( host );
+            String remotePath = ssh.getScmInstallDir() + filename;
+            ssh.scpTo( passwdPath, remotePath );
+            return remotePath;
+        } finally {
+            if ( ssh != null ) {
+                ssh.disconnect();
+            }
+        }
+    }
+
+    /**
+     * 删除指定路径下密码文件
+     * 
+     * @param site
+     * @param remotePath
+     * @throws Exception
+     */
+    public static void deletePasswdFile( SiteWrapper site, String remotePath )
+            throws Exception {
+        Ssh ssh = null;
+        String host = site.getNode().getHost();
+        try {
+            ssh = new Ssh( host );
+            ssh.exec( "rm -rf " + remotePath );
+        } finally {
+            if ( ssh != null ) {
+                ssh.disconnect();
+            }
+        }
+    }
 }

@@ -420,6 +420,32 @@ public class TestTools {
         }
 
         /**
+         * 指定文件内容创建文件
+         *
+         * @param filePath
+         * @param fileContent
+         * @throws Exception
+         */
+        public static void createFileSpecifiedContent( String filePath,
+                                                       String fileContent ) throws IOException {
+            FileOutputStream fos = null;
+            try {
+                TestTools.LocalFile.createFile( filePath );
+                File file = new File( filePath );
+                fos = new FileOutputStream( file );
+                byte[] fileBlock = fileContent.getBytes();
+                fos.write( fileBlock );
+            } catch ( IOException e ) {
+                System.out.println( "create file failed, file=" + filePath );
+                throw e;
+            } finally {
+                if ( fos != null ) {
+                    fos.close();
+                }
+            }
+        }
+
+        /**
          * create file, the file content are randomly generated character
          *
          * @param filePath

@@ -11,6 +11,7 @@ import com.sequoiacm.client.element.ScmSiteInfo;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import org.testng.SkipException;
 
 public class SiteWrapper {
     // private static final Logger logger = Logger.getLogger(Site.class);
@@ -65,8 +66,31 @@ public class SiteWrapper {
     }
 
     public String getDataPasswd() {
-        String passwd = "sequoiadb";
-        return passwd;
+        Sequoiadb sdb = null;
+        DBCursor cursor = null;
+        String conf = null;
+        try {
+            sdb = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
+            DBCollection cl = sdb.getCollectionSpace( TestSdbTools.SCM_CS )
+                    .getCollection( TestSdbTools.SCM_CL_SITE );
+            String matcher = "{ \"id\" : " + this.getSiteId()
+                    + ", \"data.configuration\" : {$exists:1} }";
+            cursor = cl.query( matcher, null, null, null );
+            while ( cursor.hasNext() ) {
+                BSONObject data = ( BSONObject ) cursor.getNext().get( "data" );
+                if ( data != null ) {
+                    conf = ( String ) data.get( "password" );
+                }
+            }
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+        return conf;
     }
 
     public String getMetaDsUrl() {
@@ -77,6 +101,27 @@ public class SiteWrapper {
     public String getDataDsUrl() {
         List< String > urls = this.getDataDsUrls();
         String dataDsUrl = urls.get( random.nextInt( urls.size() ) );
+        return dataDsUrl;
+    }
+
+    public String getCephPrimaryDataDsUrl() throws Exception {
+        if ( this.getDataType() != DatasourceType.CEPH_S3 ) {
+            throw new SkipException( "必须为ceph S3站点！" );
+        }
+        List< String > urls = this.getDataDsUrls();
+        String dataDsUrl = urls.get( 0 );
+        return dataDsUrl;
+    }
+
+    public String getCephStandbyDataDsUrl() throws Exception {
+        if ( this.getDataType() != DatasourceType.CEPH_S3 ) {
+            throw new SkipException( "必须为ceph S3站点！" );
+        }
+        List< String > urls = this.getDataDsUrls();
+        if ( urls.size() <= 1 ) {
+            throw new SkipException( "该站点未配置备库用户" );
+        }
+        String dataDsUrl = urls.get( 1 );
         return dataDsUrl;
     }
 
