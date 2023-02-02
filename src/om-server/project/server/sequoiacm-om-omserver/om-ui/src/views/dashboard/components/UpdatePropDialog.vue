@@ -2,7 +2,7 @@
   <div>
     <!-- 动态刷新属性对话框 -->
     <el-dialog
-      :title="'修改 ' + service.name + ' 配置'"
+      :title="'修改 ' + getResourceName() + ' 配置'"
       :visible.sync="updatePropDialogVisible"
       width="700px">
       <el-collapse v-model="activeNames" >
@@ -161,6 +161,7 @@ export default {
   props:{
     type: String,
     service: Object,
+    instance: Object,
     configProps: Array,
     allConfig: Object,
     isServiceTraceExist: {type: Boolean, default: false}
@@ -206,6 +207,16 @@ export default {
     }
   },
   methods: {
+    // 获取需要更新的资源（服务/节点）名称
+    getResourceName() {
+      if (this.type === 'service') {
+        return this.service.name
+      } else if (this.type === 'instance') {
+        return this.instance.instance_id
+      }
+      return ''
+    },
+
     // 添加操作告警列表项
     addSlowLogOperationConfig() {
       this.slowLog.operationList.push({ name: '', value: ''});
@@ -335,7 +346,7 @@ export default {
       }
       let confPropParam = {}
       confPropParam['target_type'] = this.type
-      confPropParam['targets'] = [ this.service.name ]
+      confPropParam['targets'] = [ this.getResourceName() ]
 
       let properties = {}
       let deletedKeys = []

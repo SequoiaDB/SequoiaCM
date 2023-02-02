@@ -47,14 +47,12 @@
               </td>
               <td>
                 <span class="is-breakable" v-text="value" />
-                <span v-if="isUpdatableProp(key)" class="el-icon-edit" @click="handleClickChangeConfig"/>
               </td>
             </tr>
           </table>
         </panel>
       </template>
     </div>
-    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :name="currentInstance" :configProps="configProps" @refreshConfig="refreshConfigInfo"></update-prop-dialog>
   </div>
 </template>
 
@@ -99,17 +97,6 @@ export default {
     await this.refreshConfigInfo()
   },
   methods: {
-    isUpdatableProp(key) {
-      for (var i = 0; i < JOB_CONFIG_PROPS.length; i++) {
-        if (JOB_CONFIG_PROPS[i].key === key) {
-          return true
-        }
-      }
-      return false
-    },
-    handleClickChangeConfig() {
-      this.$refs['updatePropDialog'].show()
-    },
     refreshConfigInfo() {
       getConfigInfo(this.$route.params.id).then(res => {
         this.configInfo = res.data

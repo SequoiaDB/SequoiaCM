@@ -37,6 +37,11 @@
             size="mini" 
             @click="$emit('onClickViewInstancesBtn', instance)" 
             plain>查看</el-button>
+          <el-button v-if="service.isContentServer || service.isS3Server || name === 'gateway'" 
+            size="mini" 
+            icon="el-icon-edit"
+            @click="handleClickChangeNodeConfig(service, instance)" 
+            plain>修改配置</el-button>
           <el-button v-if="instance.status == INSTANCE_STATUS.DOWN || instance.status == INSTANCE_STATUS.STOPPED" 
             type="info" 
             size="mini" 
@@ -45,7 +50,7 @@
         </el-col>
       </el-row>
     </el-collapse-item>
-    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :service="selectService" :configProps="configProps" :allConfig="allConfig" :isServiceTraceExist="isServiceTraceExist"></update-prop-dialog>
+    <update-prop-dialog ref="updatePropDialog" :type="updatePropType" :service="selectService" :instance="selectInstance" :configProps="configProps" :allConfig="allConfig" :isServiceTraceExist="isServiceTraceExist"></update-prop-dialog>
   </el-collapse>
 </template>
 
@@ -67,33 +72,43 @@ export default {
         DOWN: 'danger',
         STOPPED: 'info'
       },
-      updatePropType: 'service',
+      updatePropType: '',
       selectService: {},
+      selectInstance: {},
       allConfig: {},
       configProps: []
     }
   },
   methods: {
     handleClickChangeConfig(service) {
+      this.updatePropType = 'service'
+      this.selectService = service
       // 查找站点下第一个节点的配置, 不存在则补全默认值
       if (service.instances.length > 0) {
-        getConfigInfo(service.instances[0].instance_id).then(res => {
-          let configInfo = res.data
-          this.allConfig = configInfo
-          this.configProps = JSON.parse(JSON.stringify(JOB_CONFIG_PROPS))
-          this.configProps.forEach((item)=>{
-            if (configInfo[item.key]) {
-              item.value = Number(configInfo[item.key])
-            }
-          })
-          this.selectService = service
-          this.$nextTick(()=>{
-            this.$refs['updatePropDialog'].show()
-          })
-          
-        })
+        this.getConfigInfoAndShowUpdateDialog(service.instances[0].instance_id)
       }
-      
+    },
+    // 节点级别更新配置
+    handleClickChangeNodeConfig(service, instance) {
+      this.updatePropType = 'instance'
+      this.selectService = service
+      this.selectInstance = instance
+      this.getConfigInfoAndShowUpdateDialog(instance.instance_id)
+    },
+    getConfigInfoAndShowUpdateDialog(instanceId) {
+      getConfigInfo(instanceId).then(res => {
+        let configInfo = res.data
+        this.allConfig = configInfo
+        this.configProps = JSON.parse(JSON.stringify(JOB_CONFIG_PROPS))
+        this.configProps.forEach((item)=>{
+          if (configInfo[item.key]) {
+            item.value = Number(configInfo[item.key])
+          }
+        })
+        this.$nextTick(()=>{
+          this.$refs['updatePropDialog'].show()
+        })
+      })
     },
     // 跳转到指定服务下的第一个节点
     toHomePage(service) {
