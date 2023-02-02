@@ -70,8 +70,7 @@ public class WorkSpaces5598 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
     }
 
-    //SEQUOIACM-1196
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base },enabled = false)
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     public void test() throws Exception {
         List< ScmDataLocation > dataLocation = prepareExpWsDataLocation();
         ws.updateDataLocation( dataLocation, true );
