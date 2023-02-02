@@ -326,7 +326,7 @@
           </el-collapse-item>
         </el-collapse>
       </el-form>
-      <span slot="footer" class="dialog-footer" style="border:1px soild red">
+      <span slot="footer" class="dialog-footer">
         <el-button @click="close" size="mini">关 闭</el-button>
         <el-button @click="submit" type="primary" :loading="saveButtonLoading" size="mini">保 存</el-button>
       </span>

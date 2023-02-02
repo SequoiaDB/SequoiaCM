@@ -51,7 +51,7 @@ public class ScmLifeCycleConfigDaoImpl implements ScmLifeCycleConfigDao {
             List<OmStageTagDetail> matchStageTagList = new ArrayList<>();
             String nameMatcher = BsonUtils.getString(condition, "nameMatcher");
             for (ScmLifeCycleStageTag scmLifeCycleStageTag : stageTagList) {
-                String bindingSite = getBindingSite(siteList, scmLifeCycleStageTag.getName());
+                List<String> bindingSite = getBindingSite(siteList, scmLifeCycleStageTag.getName());
                 if (StringUtils.isEmpty(nameMatcher)) {
                     matchStageTagList.add(new OmStageTagDetail(scmLifeCycleStageTag, bindingSite));
                     continue;
@@ -131,13 +131,15 @@ public class ScmLifeCycleConfigDaoImpl implements ScmLifeCycleConfigDao {
         }
     }
 
-    private String getBindingSite(List<ScmSiteInfo> siteList, String stageTag) throws ScmException {
+    private List<String> getBindingSite(List<ScmSiteInfo> siteList, String stageTag)
+            throws ScmException {
+        List<String> res = new ArrayList<>();
         for (ScmSiteInfo scmSiteInfo : siteList) {
             if (StringUtils.equals(scmSiteInfo.getStageTag(), stageTag)) {
-                return scmSiteInfo.getName();
+                res.add(scmSiteInfo.getName());
             }
         }
-        return null;
+        return res;
     }
 
     @Override

@@ -13,7 +13,7 @@
               <el-input id="input_stage_tag_description" v-model="stageTag.description" placeholder="请输入标签述信息"></el-input>
             </el-form-item>
           </el-form>
-        <span slot="footer" class="dialog-footer" style="border:1px soild red">
+        <span slot="footer" class="dialog-footer">
           <el-button id="btn_create_stage_tag" @click="close" size="mini">关 闭</el-button>
           <el-button id="btn_create_stage_tag" @click="submit" type="primary" size="mini">保 存</el-button>
         </span>

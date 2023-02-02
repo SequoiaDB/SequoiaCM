@@ -44,28 +44,18 @@
           </el-table-column>
           <el-table-column
             prop="site"
-            show-overflow-tooltip
             label="应用站点"
-            width="270">
+            width="400">
             <template slot-scope="scope">
-              <el-select
-                id="select_transition_conf_site"
-                v-model="scope.row.bindingSite" 
-                placeholder="未关联站点" 
-                size="small"
-                width="220"
-                :disabled="scope.row.bindingSite != null"
-                @change="onBindingSite(scope.row)">
-                <el-option
-                  v-for="item in freeSiteList"
-                  :key="item"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-              <el-tooltip content="点击解除阶段标签与该站点的关联" placement="top">
-                <span><el-button v-if="scope.row.bindingSite" size="mini" icon="el-icon-remove-outline" @click="unbindindSite(scope.row)" circle style="margin-left:10px"></el-button></span>
-              </el-tooltip>
+              <el-tag
+                :key="site"
+                v-for="site in scope.row.bindingSite"
+                style="margin-left: 4px; margin-top: 4px"
+                closable
+                @close="handleRemoveSite(scope.row.name, site)">
+                {{site}}
+              </el-tag>
+              <el-button size="mini" icon="el-icon-plus" style="margin-left: 4px; margin-top: 4px" @click="handlApplySite(scope.row)">添加</el-button>
             </template>
           </el-table-column>
           <el-table-column
@@ -101,17 +91,20 @@
 
     <!-- 新增阶段标签弹框 -->
     <stage-tag-create-dialog ref="stageTagCreateDialog" @onStageTagCreated="queryTableData"></stage-tag-create-dialog>
+    <!-- 阶段标签添加站点弹框 -->
+    <stage-tag-apply-site-dialog ref="stageTagApplySiteDialog" @onStageTagChanged="queryTableData"></stage-tag-apply-site-dialog>
   </div>
 </template>
 <script>
 import StageTagCreateDialog from './components/StageTagCreateDialog.vue'
+import StageTagApplySiteDialog from './components/StageTagApplySiteDialog.vue'
 import { Loading } from 'element-ui'
 import { X_RECORD_COUNT, SYSTEM_STAGE_TAGS } from '@/utils/common-define'
-import { listStageTag, deleteStageTag, addStageTag, removeStageTag } from "@/api/lifecycle"
-import { querySiteList } from "@/api/site"
+import { listStageTag, deleteStageTag, removeStageTag } from "@/api/lifecycle"
 export default {
   components: {
-    StageTagCreateDialog
+    StageTagCreateDialog,
+    StageTagApplySiteDialog
   },
   data(){
     return {
@@ -125,51 +118,36 @@ export default {
         name: undefined
       },
       tableLoading: false,
-      tableData: [],
-      freeSiteList: []
+      tableData: []
     }
   },
   methods:{
     // 初始化
     init(){
       this.queryTableData()
-      this.initFreeSiteList()
-    },
-    // 初始化空闲的（无阶段标签）的站点列表
-    initFreeSiteList() {
-      this.freeSiteList = []
-      querySiteList().then(res => {
-        let siteList = res.data
-        if (siteList && siteList.length > 0) {
-          for (let site of siteList) {
-            if (!site.stage_tag || site.staget_tag === '') {
-              this.freeSiteList.push(site.name)
-            }
-          }
-        }
-      })
     },
     // 新增阶段标签
     handleCreateBtnClick() {
       this.$refs['stageTagCreateDialog'].show()
     },
     // 站点设置阶段标签
-    onBindingSite(row) {
-      addStageTag(row.bindingSite, row.name).then(res => {
-        this.$message.success(`阶段标签【${row.name}】关联站点成功`)
-        this.freeSiteList.splice(this.freeSiteList.indexOf(row.bindingSite), 1);
-        this.queryTableData()
-      })
+    handlApplySite(row) {
+      this.$refs['stageTagApplySiteDialog'].show(row.name)
     },
     // 移除站点的阶段标签
-    unbindindSite(row) {
-      if (row.bindingSite && row.bindingSite !== '') {
-        removeStageTag(row.bindingSite).then(res => {
-          this.$message.success(`阶段标签【${row.name}】解除关联站点成功`)
-          this.freeSiteList.push(row.bindingSite)
+    handleRemoveSite(stageTag, site) {
+      let confirmMsg = `您确认解除阶段标签【${stageTag}】与站点【${site}】的关联吗吗`
+      this.$confirm(confirmMsg, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        confirmButtonClass: 'btn_site_confirmRemoveStageTag',
+        type: 'warning'
+      }).then(() => {
+        removeStageTag(site).then(res => {
+          this.$message.success(`阶段标签【${stageTag}】解除关联站点【${site}】成功`)
           this.queryTableData()
         })
-      }
+      })
     },
     // 删除阶段标签
     handleDeleteBtnClick(row) {
