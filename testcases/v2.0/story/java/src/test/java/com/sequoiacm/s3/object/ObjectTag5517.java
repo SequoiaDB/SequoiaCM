@@ -9,10 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GetObjectTaggingRequest;
-import com.amazonaws.services.s3.model.GetObjectTaggingResult;
-import com.amazonaws.services.s3.model.SetObjectTaggingResult;
-import com.amazonaws.services.s3.model.Tag;
+import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
@@ -118,8 +115,7 @@ public class ObjectTag5517 extends TestScmBase {
         // 设置标签
         SetObjectTaggingResult result = S3Utils.setObjectTag( s3Client,
                 bucketName, keyName, tagSet );
-        // TODO:SEQUOIACM-1174
-        // Assert.assertEquals( result.getVersionId(), "3.0" );
+        Assert.assertEquals( result.getVersionId(), "3.0" );
 
         // 获取标签
         GetObjectTaggingResult objectTagging = s3Client.getObjectTagging(
@@ -140,12 +136,33 @@ public class ObjectTag5517 extends TestScmBase {
         objectTagging = s3Client.getObjectTagging( request );
         Assert.assertEquals( objectTagging.getTagSet(), tagSet );
 
-        // deleteMarker
-        // s3Client.deleteObject( bucketName, keyName );
-        // TODO:SEQUOIACM-1173
-        // result = S3Utils.setObjectTag( s3Client, bucketName, keyName, tagSet
-        // );
-        // s3Client.deleteVersion( bucketName, keyName, "4.0" );
+        // 生成eleteMarker
+        s3Client.deleteObject( bucketName, keyName );
+        // 设置标签
+        try {
+            S3Utils.setObjectTag( s3Client, bucketName, keyName, tagSet );
+            Assert.fail( "except fail but success" );
+        } catch ( AmazonS3Exception e ) {
+            Assert.assertEquals( e.getErrorCode(), "MethodNotAllowed" );
+        }
+
+        // 删除标签
+        try {
+            s3Client.deleteObjectTagging(
+                    new DeleteObjectTaggingRequest( bucketName, keyName ) );
+            Assert.fail( "except fail but success" );
+        } catch ( AmazonS3Exception e ) {
+            Assert.assertEquals( e.getErrorCode(), "MethodNotAllowed" );
+        }
+        // 获取标签
+        try {
+            s3Client.getObjectTagging(
+                    new GetObjectTaggingRequest( bucketName, keyName ) );
+            Assert.fail( "except fail but success" );
+        } catch ( AmazonS3Exception e ) {
+            Assert.assertEquals( e.getErrorCode(), "MethodNotAllowed" );
+        }
+        s3Client.deleteVersion( bucketName, keyName, "4.0" );
     }
 
     private class ListComparator implements Comparator< Tag > {
