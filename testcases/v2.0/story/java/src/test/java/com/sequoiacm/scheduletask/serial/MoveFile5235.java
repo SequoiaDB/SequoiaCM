@@ -68,8 +68,7 @@ public class MoveFile5235 extends TestScmBase {
         prepare();
     }
 
-    // 问题单SEQUOIACM-1159影响，用例屏蔽
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         ThreadExecutor t = new ThreadExecutor();
         MoveFileThread thread1 = new MoveFileThread();

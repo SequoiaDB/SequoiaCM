@@ -82,9 +82,7 @@ public class CleanFile5263 extends TestScmBase {
                 ScmShardingType.MONTH };
     }
 
-    // 问题单SEQUOIACM-1159影响，用例屏蔽
-    @Test(groups = { "twoSite",
-            "fourSite" }, dataProvider = "data", enabled = false)
+    @Test(groups = { "twoSite", "fourSite" }, dataProvider = "data")
     public void test( ScmShardingType shardingType ) throws Exception {
         createWs( shardingType );
         wsM = ScmFactory.Workspace.getWorkspace( wsName, sessionM );
