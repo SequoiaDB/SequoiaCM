@@ -83,7 +83,7 @@ public class FileCacheDao {
                         // update meta data info and return
                         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion,
                                 minorVersion, localSiteId, localDataInfo.getWsVersion(),
-                                localDataWriterContext);
+                                localDataWriterContext.getTableName());
                         return;
                     }
                     if (!FileCommonOperator.deleteLocalResidulFile(wsInfo, localSiteId, localDataInfo)) {
@@ -129,11 +129,10 @@ public class FileCacheDao {
 
         // update meta data info
         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                localSiteId, localDataInfo.getWsVersion(), localDataWriterContext);
+                localSiteId, localDataInfo.getWsVersion(), localDataWriterContext.getTableName());
         logger.info("add site info success:wsName={},fileId={},addedSiteId={},version={}",
                 wsInfo.getName(), fileId, localSiteId,
                 ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
-
     }
 
     private ScmDataWriter createLocalWriter(ScmDataInfo dataInfo, ScmDataWriterContext context)

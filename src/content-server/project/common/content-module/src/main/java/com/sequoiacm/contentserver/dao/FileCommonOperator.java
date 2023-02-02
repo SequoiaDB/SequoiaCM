@@ -210,14 +210,14 @@ public class FileCommonOperator {
     }
 
     public static void addSiteInfoToList(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, int addedSiteId, int wsVersion, ScmDataWriterContext context)
+            int minorVersion, int addedSiteId, int wsVersion, String tableName)
             throws ScmServerException {
         logger.info("add site to site list:wsName=" + wsInfo.getName() + ",fileId=" + fileId
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + addedSiteId);
         ScmContentModule.getInstance().getMetaService().addSiteInfoToFile(wsInfo, fileId,
                 majorVersion, minorVersion, addedSiteId, new Date(), wsVersion,
-                context.getTableName());
+                tableName);
 
     }
 

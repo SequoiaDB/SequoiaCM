@@ -10,6 +10,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -206,14 +207,28 @@ public class DatasourceController {
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) int wsVersion,
             HttpServletRequest request) throws ScmServerException, IOException {
+        ScmDataWriterContext writerContext;
+        ScmWorkspaceInfo wsInfo = null;
         InputStream is = request.getInputStream();
-        ScmDataWriterContext writerContext = new ScmDataWriterContext();
         try {
+            wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
+            writerContext = new ScmDataWriterContext();
             datasourceService.createDataInLocal(wsName,
-                    ScmDataInfo.forCreateNewData(type, dataId, new Date(createTime), wsVersion), is,
-                    writerContext);
+                    ScmDataInfo.forCreateNewData(type, dataId, new Date(createTime),
+                            wsInfo.getVersion()),
+                    is, writerContext);
+        }
+        catch (ScmServerException e) {
+            if (wsInfo != null) {
+                // 出现异常，需要将本次写入数据采用的工作区版本号带给对端，如果是数据已存在，对端可以直接将版本号写到文件元数据中
+                if (e.getExtraInfo() == null) {
+                    e.setExtraInfo(new BasicBSONObject());
+                }
+                e.getExtraInfo().put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION,
+                        wsInfo.getVersion());
+            }
+            throw e;
         }
         finally {
             ScmSystemUtils.consumeAndCloseResource(is);
@@ -223,6 +238,7 @@ public class DatasourceController {
         if (tableName != null) {
             ret.header(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME, tableName);
         }
+        ret.header(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION, wsInfo.getVersion() + "");
         ret.body("");
         return ret.build();
     }

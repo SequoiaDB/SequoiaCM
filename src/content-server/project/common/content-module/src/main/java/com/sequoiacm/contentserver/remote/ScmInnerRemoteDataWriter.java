@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,39 +36,44 @@ import com.sequoiacm.infrastructure.dispatcher.ScmURLConfig;
 
 public class ScmInnerRemoteDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(ScmInnerRemoteDataWriter.class);
+    private final String dataId;
+    private final int dataType;
+    private final Date dataCreateTime;
 
-    private ScmDataInfo dataInfo;
     private String remoteSiteName;
     private HttpURLConnection conn;
     private OutputStream os;
-    private ScmDataWriterContext context;
+    private String remoteTableName;
+    private Integer remoteWorkspaceVersion;
 
     @SlowLog(operation = "openWriter", extras = {
-            @SlowLogExtra(name = "writeFileId", data = "dataInfo.getId()"),
+            @SlowLogExtra(name = "writeFileId", data = "dataId"),
             @SlowLogExtra(name = "writeRemoteSiteName", data = "remoteSiteName") })
     public ScmInnerRemoteDataWriter(int remoteSiteId, final ScmWorkspaceInfo wsInfo,
-            final ScmDataInfo dataInfo, ScmDataWriterContext dataWriterContext)
+            String dataId, int dataType, Date dataCreateTime)
             throws ScmServerException {
-        this.dataInfo = dataInfo;
-        this.context = dataWriterContext;
+        this.dataId = dataId;
+        this.dataType = dataType;
+        this.dataCreateTime = dataCreateTime;
         ScmContentModule contentModule = ScmContentModule.getInstance();
         remoteSiteName = contentModule.getSiteInfo(remoteSiteId).getName();
         ServiceInstance instance = LoadBalancedUtil.chooseInstance(remoteSiteName);
         final String hostPort = instance.getHost() + ":" + instance.getPort();
         try {
             conn = ScmRestClientUtils.getScmRestClient().getHttpURLConnection(
-                    getConfig(hostPort, wsInfo.getName(), dataInfo), instance);
+                    getConfig(hostPort, wsInfo.getName(), dataId, dataType, dataCreateTime),
+                    instance);
             os = conn.getOutputStream();
         }
         catch (IOException e) {
             closeOs(os);
             closeConn(conn);
             throw new ScmServerException(ScmError.NETWORK_IO, "write data to remote failed:remote="
-                    + remoteSiteName + ",dataInfo=" + dataInfo, e);
+                    + remoteSiteName + ",dataInfo=" + dataInfoDesc(), e);
         }
         catch (ScmServerException e) {
             logger.error("write data to remote failed:remote=" + remoteSiteName + ",dataInfo="
-                    + dataInfo);
+                    + dataInfoDesc());
             closeOs(os);
             closeConn(conn);
             throw e;
@@ -76,7 +82,7 @@ public class ScmInnerRemoteDataWriter {
             closeOs(os);
             closeConn(conn);
             throw new ScmSystemException("write data to remote failed:remote=" + remoteSiteName
-                    + ",dataInfo=" + dataInfo, e);
+                    + ",dataInfo=" + dataInfoDesc(), e);
         }
     }
 
@@ -89,15 +95,15 @@ public class ScmInnerRemoteDataWriter {
             ScmServerException remoteException = getExceptonFromRemote();
             if (remoteException != null) {
                 logger.error("write data to remote failed:remote={},dataInfo={}", remoteSiteName,
-                        dataInfo, e);
+                        dataInfoDesc(), e);
                 throw remoteException;
             }
             throw new ScmServerException(ScmError.NETWORK_IO, "write data to remote failed:remote="
-                    + remoteSiteName + ",dataInfo=" + dataInfo, e);
+                    + remoteSiteName + ",dataInfo=" + dataInfoDesc(), e);
         }
         catch (Exception e) {
             throw new ScmSystemException("write data to remote failed:remote=" + remoteSiteName
-                    + ",dataInfo=" + dataInfo, e);
+                    + ",dataInfo=" + dataInfoDesc(), e);
         }
     }
 
@@ -106,6 +112,19 @@ public class ScmInnerRemoteDataWriter {
     public void cancel() {
         closeConn(conn);
         closeOs(os);
+    }
+
+    public String getRemoteTableName() {
+        return remoteTableName;
+    }
+
+    public Integer getRemoteWorkspaceVersion() {
+        return remoteWorkspaceVersion;
+    }
+
+    private String dataInfoDesc() {
+        return "{dataId=" + dataId + ", dataType=" + dataType + ", dataCreateTime=" + dataCreateTime
+                + "}";
     }
 
     // close and commit this file & release writer's resources
@@ -121,12 +140,16 @@ public class ScmInnerRemoteDataWriter {
                     throw remoteException;
                 }
                 throw new ScmSystemException("write data to remote failed:remote=" + remoteSiteName
-                        + ",dataInfo=" + dataInfo + ",repstatus=" + respStatus);
+                        + ",dataInfo=" + dataInfoDesc() + ",repstatus=" + respStatus);
             }
             else {
-                String resField = conn
+                remoteTableName = conn
                         .getHeaderField(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME);
-                context.recordTableName(resField);
+                String remoteWorkspaceVersionStr = conn
+                        .getHeaderField(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION);
+                if (remoteWorkspaceVersionStr != null && !remoteWorkspaceVersionStr.isEmpty()) {
+                    remoteWorkspaceVersion = Integer.valueOf(remoteWorkspaceVersionStr);
+                }
             }
         }
         catch (ScmServerException e) {
@@ -136,15 +159,15 @@ public class ScmInnerRemoteDataWriter {
             ScmServerException remoteException = getExceptonFromRemote();
             if (remoteException != null) {
                 logger.error("write data to remote failed:remote={},dataInfo={}", remoteSiteName,
-                        dataInfo, e);
+                        dataInfoDesc(), e);
                 throw remoteException;
             }
             throw new ScmServerException(ScmError.NETWORK_IO, "write data to remote failed:remote="
-                    + remoteSiteName + ",dataInfo=" + dataInfo, e);
+                    + remoteSiteName + ",dataInfo=" + dataInfoDesc(), e);
         }
         catch (Exception e) {
             throw new ScmSystemException("write data to remote failed:remote=" + remoteSiteName
-                    + ",dataInfo=" + dataInfo, e);
+                    + ",dataInfo=" + dataInfoDesc(), e);
         }
         finally {
             closeOs(os);
@@ -186,16 +209,15 @@ public class ScmInnerRemoteDataWriter {
         return null;
     }
 
-    private ScmURLConfig getConfig(String hostPort, String wsName, ScmDataInfo dataInfo)
+    private ScmURLConfig getConfig(String hostPort, String wsName, String dataId, int dataType,
+            Date dataCreateTime)
             throws ScmServerException {
         ScmURLConfig config = new ScmURLConfig();
-        String addr = "http://" + hostPort + "/internal/v1/datasource/" + dataInfo.getId() + "?"
+        String addr = "http://" + hostPort + "/internal/v1/datasource/" + dataId + "?"
                 + CommonDefine.RestArg.WORKSPACE_NAME + "=" + wsName + "&"
-                + CommonDefine.RestArg.DATASOURCE_DATA_TYPE + "=" + dataInfo.getType() + "&"
+                + CommonDefine.RestArg.DATASOURCE_DATA_TYPE + "=" + dataType + "&"
                 + CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME + "="
-                + dataInfo.getCreateTime().getTime() + "&"
-                + CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION + "="
-                + dataInfo.getWsVersion();
+                + dataCreateTime.getTime();
         config.setUrl(addr);
         config.setDoOutput(true);
         config.setDoInput(true);
@@ -230,7 +252,7 @@ public class ScmInnerRemoteDataWriter {
             }
             catch (Exception e) {
                 logger.warn("close resource failed:remote={}, dataInfo={}", remoteSiteName,
-                        dataInfo, e);
+                        dataInfoDesc(), e);
             }
         }
     }

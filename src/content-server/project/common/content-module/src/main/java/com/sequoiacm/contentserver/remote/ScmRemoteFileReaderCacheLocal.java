@@ -55,7 +55,7 @@ public class ScmRemoteFileReaderCacheLocal extends ScmFileReader {
         try {
             FileCommonOperator.closeWriter(fileWriter);
             FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                    localSiteId, fileWriterDataInfo.getWsVersion(), context);
+                    localSiteId, fileWriterDataInfo.getWsVersion(), context.getTableName());
         }
         catch (Exception e) {
             // we ignore this exception because our purpose is read file, not

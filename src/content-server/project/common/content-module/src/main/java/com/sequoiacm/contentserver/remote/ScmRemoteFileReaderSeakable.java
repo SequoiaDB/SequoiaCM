@@ -137,7 +137,7 @@ public class ScmRemoteFileReaderSeakable extends ScmFileReader {
                     // 2. residue data
                     // we have fileContentLock, just add it again.
                     FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                            localSiteId, dataInfo.getWsVersion(), context);
+                            localSiteId, dataInfo.getWsVersion(), context.getTableName());
                     innerReader = new ScmLocalFileReader(localSiteId, wsInfo, dataInfo);
                 }
                 else {

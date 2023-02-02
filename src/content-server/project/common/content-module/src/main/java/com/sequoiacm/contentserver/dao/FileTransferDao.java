@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -95,28 +96,38 @@ public class FileTransferDao {
         }
 
 
-        ScmDataInfo remoteDataInfo = ScmDataInfo.forCreateNewData(file, wsInfo.getVersion());
-        ScmDataWriterContext remoteWriterContext = new ScmDataWriterContext();
+        ScmDataInfo remoteDataInfo = null;
         try {
-            // interrupt,return false
-            if (!readLocalWriteRomete(localDataInfo, remoteDataInfo, majorVersion, minorVersion,
-                    remoteWriterContext)) {
+            // 返回 null 表示读写过程中收到中断了
+            remoteDataInfo = readLocalWriteRemote(localDataInfo, majorVersion, minorVersion);
+            if (remoteDataInfo == null) {
                 return FileTransferResult.INTERRUPT;
             }
         }
         catch (ScmServerException e) {
             if (e.getError() == ScmError.DATA_EXIST) {
-                String tableName = null;
+                String remoteDataTableName = null;
+                Integer remoteDataWsVersion = null;
                 if (e.getExtraInfo() != null) {
-                    tableName = (String) e.getExtraInfo()
-                            .get(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME);
+                    remoteDataTableName = BsonUtils.getString(e.getExtraInfo(),
+                            FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME);
+                    remoteDataWsVersion = BsonUtils.getInteger(e.getExtraInfo(),
+                            FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION);
                 }
-                remoteDataInfo.setTableName(tableName);
-                remoteWriterContext.recordTableName(tableName);
+
+                // wsVersion == null 表示对端是一个旧版的内容服务节点，
+                // 集群存在旧版内容服务节点是不允许有多版本工作区的，所以这里取初始版本 1
+                remoteDataWsVersion = remoteDataWsVersion == null ? 1 : remoteDataWsVersion;
+
+                remoteDataInfo = ScmDataInfo.forOpenExistData(localDataInfo.getType(),
+                        localDataInfo.getId(), localDataInfo.getCreateTime(), remoteDataWsVersion,
+                        remoteDataTableName);
+
                 if (checkDataIsSame(localDataInfo, remoteDataInfo, size, majorVersion, minorVersion)) {
                     // if data is valid and update meta success,just return
                     FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                            remoteSiteId, remoteDataInfo.getWsVersion(), remoteWriterContext);
+                            remoteSiteId, remoteDataInfo.getWsVersion(),
+                            remoteDataInfo.getTableName());
                     return FileTransferResult.SUCCESS;
                 }
                 else {
@@ -127,10 +138,10 @@ public class FileTransferDao {
                                 ScmSystemUtils.getVersionStr(majorVersion, minorVersion),e);
                         throw e;
                     }
-                    // interrupt,return false
                     try {
-                        if (!readLocalWriteRomete(localDataInfo, remoteDataInfo, majorVersion,
-                                minorVersion, remoteWriterContext)) {
+                        remoteDataInfo = readLocalWriteRemote(localDataInfo, majorVersion,
+                                minorVersion);
+                        if (remoteDataInfo == null) {
                             return FileTransferResult.INTERRUPT;
                         }
                     }
@@ -152,14 +163,13 @@ public class FileTransferDao {
             }
         }
 
-        remoteDataInfo.setTableName(remoteWriterContext.getTableName());
         if (!checkDataIsSame(localDataInfo, remoteDataInfo, size, majorVersion, minorVersion)) {
             FileCommonOperator.deleteRemoteResidulFile(wsInfo, remoteSiteId, remoteDataInfo);
             return FileTransferResult.DATA_INCORRECT;
         }
         // update meta data info
         FileCommonOperator.addSiteInfoToList(wsInfo, fileId, majorVersion, minorVersion,
-                remoteSiteId, remoteDataInfo.getWsVersion(), remoteWriterContext);
+                remoteSiteId, remoteDataInfo.getWsVersion(), remoteDataInfo.getTableName());
         return FileTransferResult.SUCCESS;
     }
 
@@ -195,8 +205,10 @@ public class FileTransferDao {
         }
     }
 
-    private boolean readLocalWriteRomete(ScmDataInfo localDataInfo, ScmDataInfo remoteDataInfo,
-            int majorVersion, int minorVersion, ScmDataWriterContext remoteWriterContext)
+    // 成功, 返回写入对端的 Remote Data Info
+    // 被中断, 返回 null
+    private ScmDataInfo readLocalWriteRemote(ScmDataInfo localDataInfo, int majorVersion,
+            int minorVersion)
             throws ScmServerException {
         ScmInnerRemoteDataWriter writer = null;
         ScmDataReader reader = null;
@@ -206,8 +218,8 @@ public class FileTransferDao {
             this.localDataMd5 = null;
         }
         try {
-            writer = new ScmInnerRemoteDataWriter(remoteSiteId, wsInfo, remoteDataInfo,
-                    remoteWriterContext);
+            writer = new ScmInnerRemoteDataWriter(remoteSiteId, wsInfo, localDataInfo.getId(),
+                    localDataInfo.getType(), localDataInfo.getCreateTime());
             reader = ScmDataOpFactoryAssit.getFactory().createReader(
                     ScmContentModule.getInstance().getLocalSite(), wsInfo.getName(),
                     wsInfo.getDataLocation(localDataInfo.getWsVersion()), ScmContentModule.getInstance().getDataService(),
@@ -226,18 +238,22 @@ public class FileTransferDao {
                             ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
                     FileCommonOperator.cancelRemoteWriter(writer);
                     FileCommonOperator.closeReader(reader);
-                    // interrupt,return false
-                    return false;
+                    // interrupt,return null
+                    return null;
                 }
             }
 
             FileCommonOperator.closeReader(reader);
             reader = null;
             FileCommonOperator.closeRemoteWriter(writer);
+            ScmDataInfo remoteDataInfo = ScmDataInfo.forOpenExistData(localDataInfo.getType(),
+                    localDataInfo.getId(), localDataInfo.getCreateTime(),
+                    writer.getRemoteWorkspaceVersion(), writer.getRemoteTableName());
             writer = null;
             if (md5Calc != null) {
                 this.localDataMd5 = DatatypeConverter.printBase64Binary(md5Calc.digest());
             }
+            return remoteDataInfo;
         }
         catch (ScmServerException e) {
             FileCommonOperator.cancelRemoteWriter(writer);
@@ -250,7 +266,6 @@ public class FileTransferDao {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "failed to transfer file", e);
         }
-        return true;
     }
 
     private void resetInterrupter() {
