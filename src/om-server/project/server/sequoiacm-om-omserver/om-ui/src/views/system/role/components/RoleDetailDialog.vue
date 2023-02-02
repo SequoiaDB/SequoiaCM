@@ -24,7 +24,7 @@
           border
             :data="role.privileges"
             empty-text="该角色暂无权限" > 
-            <el-table-column prop="resource_type" label="资源类型" width="90" /> 
+            <el-table-column prop="resource_type" label="资源类型" width="120" /> 
             <el-table-column prop="resource_name" label="资源名称" width="180" />
             <el-table-column
                 label="权限列表">

@@ -21,10 +21,9 @@
                 max-height="300px"
                 empty-text="该角色暂无权限"
                 v-loading="row.loading" > 
-                <el-table-column prop="resource_type" label="资源类型" width="180" /> 
+                <el-table-column prop="resource_type" label="资源类型" width="120" /> 
                 <el-table-column prop="resource_name" label="资源名称" width="180" />
                 <el-table-column
-                    show-overflow-tooltip
                     label="权限列表">
                     <template slot-scope="scope">
                         <el-tag

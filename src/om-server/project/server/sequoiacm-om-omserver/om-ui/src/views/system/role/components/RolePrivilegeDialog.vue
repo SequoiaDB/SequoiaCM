@@ -49,7 +49,7 @@
             :value="item.value">
           </el-option>
         </el-select>
-        <el-button id="btn_create_role" type="primary" icon="el-icon-plus" size="mini" @click="handleGrantPrivilege" style="margin-left:10px">添 加</el-button>
+        <el-button id="btn_create_role" :disabled="!isPrivilegeCompleted()" type="primary" icon="el-icon-plus" size="mini" @click="handleGrantPrivilege" style="margin-left:10px">添 加</el-button>
         <el-table
             size="mini"
             :data="privilegeList"
@@ -59,7 +59,7 @@
             <el-table-column
                 prop="resource_type"
                 label="资源类型"
-                width="80">
+                width="120">
             </el-table-column>
             <el-table-column
                 prop="resource_name"
@@ -67,7 +67,6 @@
                 width="210">
             </el-table-column>
             <el-table-column
-              show-overflow-tooltip
               label="权限列表">
               <template slot-scope="scope">
                 <el-tag
@@ -97,18 +96,10 @@ import { grantPrivilege, revokePrivilege, listPrivilegesByRole } from "@/api/rol
 import { queryBucketList } from '@/api/bucket'
 import { queryWorkspaceList } from '@/api/workspace'
 export default {
-  props: {
-    role: {
-      type: Object
-    },
-    privilegeList: {
-      type: Array,
-      default: () => []
-    }
-  },
   data() {
     return{
       rolePrivilegeDialogVisible: false,
+      privilegeList: [],
       currentResourceType: '',
       resourceType: [
         { label: '所有工作区', value: 'workspace_all'},
@@ -168,7 +159,20 @@ export default {
         })
       })
     },
-    show() {
+    // 添加参数按钮，做非空检验
+    isPrivilegeCompleted() {
+      if (this.currentResourceType === '' || this.privilegeType === '') {
+        return false
+      }
+      // 资源类型为 '所有工作区时'，不需要选择资源名称
+      if (this.currentResourceType !== 'workspace_all' && this.currentResource === '') {
+        return false
+      }
+      return true
+    },
+    show(role, privilegeList) {
+      this.role = role
+      this.privilegeList = privilegeList
       this.rolePrivilegeDialogVisible = true
     },
     close() {

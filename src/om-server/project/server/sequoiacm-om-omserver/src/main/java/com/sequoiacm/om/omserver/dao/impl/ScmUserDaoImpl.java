@@ -163,17 +163,25 @@ public class ScmUserDaoImpl implements ScmUserDao {
     public List<OmUserInfo> listUsers(OmUserFilter userFilter, long skip, int limit)
             throws ScmInternalException {
         ScmCursor<ScmUser> cursor = null;
-        List<OmUserInfo> userInfos = new ArrayList<>();
+        List<OmUserInfo> res = new ArrayList<>();
         try {
             cursor = ScmFactory.User.listUsers(session.getConnection(),
-                    generateCondition(userFilter), skip, limit);
+                    generateCondition(userFilter), 0, -1);
+            long counter = 0;
             while (cursor.hasNext()) {
                 ScmUser user = cursor.getNext();
+                if (++counter <= skip) {
+                    continue;
+                }
                 if (userFilter.getNameMatcher() == null
                         || user.getUsername().contains(userFilter.getNameMatcher())) {
-                    userInfos.add(transformUser(user));
+                    res.add(transformUser(user));
+                }
+                if (limit != -1 && limit == res.size()) {
+                    break;
                 }
             }
+            return res;
         }
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(), "failed to list users, " + e.getMessage(),
@@ -184,7 +192,6 @@ public class ScmUserDaoImpl implements ScmUserDao {
                 cursor.close();
             }
         }
-        return userInfos;
     }
 
     private BSONObject generateCondition(OmUserFilter userFilter) {

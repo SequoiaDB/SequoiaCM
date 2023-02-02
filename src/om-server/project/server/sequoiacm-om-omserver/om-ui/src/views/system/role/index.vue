@@ -80,7 +80,7 @@
     <!-- 用户详情弹框 -->
     <role-detail-dialog ref="roleDetailDialog" :role="currentRole"></role-detail-dialog>
     <!-- 角色赋权弹框 -->
-    <role-privilege-dialog ref="rolePrivilegeDialog" :role="currentRole" :privilegeList="privilegesOfCurrentRole"></role-privilege-dialog>
+    <role-privilege-dialog ref="rolePrivilegeDialog"></role-privilege-dialog>
   </div>
 </template>
 <script>
@@ -109,8 +109,7 @@ export default {
       },
       tableLoading: false,
       tableData: [],
-      currentRole: {},
-      privilegesOfCurrentRole:[],
+      currentRole: {}
     }
   },
   methods:{
@@ -123,12 +122,11 @@ export default {
       this.$refs['roleCreateDialog'].show()
     },
     // 角色赋权
-    handleEditBtnClick(row) {
-      this.currentRole = row
-      listPrivilegesByRole(row.role_name).then(res => {
-        this.privilegesOfCurrentRole = res.data
-      })
-      this.$refs['rolePrivilegeDialog'].show()
+    async handleEditBtnClick(row) {
+      let currentRole = row
+      let res = await listPrivilegesByRole(currentRole.role_name)
+      let privilegesList = res.data
+      this.$refs['rolePrivilegeDialog'].show(currentRole, privilegesList)
     },
     // 查看角色详情
     handleShowBtnClick(row) {

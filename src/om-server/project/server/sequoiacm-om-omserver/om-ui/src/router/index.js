@@ -202,7 +202,7 @@ export const constantRoutes = [
     path: '/system',
     component: Layout,
     meta: { title: '系统管理', icon: 'el-icon-setting', roles: ['ROLE_AUTH_ADMIN'] },
-    redirect: '/user/table',
+    redirect: '/system/user',
     children: [
       {
         path: 'user',
