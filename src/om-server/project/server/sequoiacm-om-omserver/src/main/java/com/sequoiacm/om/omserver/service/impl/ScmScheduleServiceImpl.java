@@ -81,7 +81,7 @@ public class ScmScheduleServiceImpl implements ScmScheduleService {
     public List<OmTaskBasicInfo> getScheduleTasks(ScmOmSession session, String scheduleId,
             BSONObject filter, BSONObject orderBy, long skip, long limit)
             throws ScmOmServerException, ScmInternalException {
-        String preferSite = siteChooser.chooseFromAllSite();
+        String preferSite = siteChooser.getRootSite();
         ScmScheduleDao scheduleDao = scmScheduleDaoFactory.createScheduleDao(session);
         try {
             session.resetServiceEndpoint(preferSite);

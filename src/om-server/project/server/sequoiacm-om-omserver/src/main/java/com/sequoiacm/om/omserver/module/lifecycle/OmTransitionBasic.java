@@ -1,6 +1,7 @@
 package com.sequoiacm.om.omserver.module.lifecycle;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.client.element.lifecycle.ScmCleanTriggers;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 
 public class OmTransitionBasic {
@@ -53,8 +54,9 @@ public class OmTransitionBasic {
         this.dest = transition.getDest();
         this.matcher = transition.getMatcher();
         this.transitionTriggers = new OmTransitionTriggers(transition.getTransitionTriggers());
-        if (transition.getCleanTriggers() != null) {
-            this.cleanTriggers = new OmCleanTriggers(transition.getCleanTriggers());
+        ScmCleanTriggers tmpCleanTriggers = transition.getCleanTriggers();
+        if (tmpCleanTriggers != null && !tmpCleanTriggers.isEmpty()) {
+            this.cleanTriggers = new OmCleanTriggers(tmpCleanTriggers);
         }
         this.scope = transition.getScope();
         this.isRecycleSpace = transition.isRecycleSpace();

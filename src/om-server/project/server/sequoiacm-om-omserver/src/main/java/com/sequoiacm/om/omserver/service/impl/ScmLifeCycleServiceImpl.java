@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.om.omserver.module.OmBatchOpResult;
+import com.sequoiacm.om.omserver.module.OmWorkspaceDetail;
+import com.sequoiacm.om.omserver.service.ScmWorkspaceService;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,9 @@ public class ScmLifeCycleServiceImpl implements ScmLifeCycleService {
 
     @Autowired
     private ScmSiteChooser siteChooser;
+
+    @Autowired
+    private ScmWorkspaceService wsService;
 
     @Autowired
     private ScmLifeCycleConfigDaoFactory scmLifeCycleConfigDaoFactory;
@@ -238,7 +243,8 @@ public class ScmLifeCycleServiceImpl implements ScmLifeCycleService {
     @Override
     public List<OmTransitionSchedule> listTransitionByWs(ScmOmSession session, String workspaceName)
             throws ScmOmServerException, ScmInternalException {
-        String preferSite = siteChooser.chooseFromAllSite();
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, workspaceName);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmLifeCycleConfigDao scmLifeCycleConfigDao = scmLifeCycleConfigDaoFactory
                 .createLifeCycleConfigDao(session);
         try {
@@ -254,7 +260,8 @@ public class ScmLifeCycleServiceImpl implements ScmLifeCycleService {
     @Override
     public void addTransition(ScmOmSession session, OmTransitionBasic omTransitionBasic,
             String workspaceName) throws ScmOmServerException, ScmInternalException {
-        String preferSite = siteChooser.chooseFromAllSite();
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, workspaceName);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmLifeCycleConfigDao scmLifeCycleConfigDao = scmLifeCycleConfigDaoFactory
                 .createLifeCycleConfigDao(session);
         try {
@@ -271,7 +278,8 @@ public class ScmLifeCycleServiceImpl implements ScmLifeCycleService {
     public void updateWsTransition(ScmOmSession session, String oldTransition,
             OmTransitionBasic omTransitionBasic, String workspaceName)
             throws ScmOmServerException, ScmInternalException {
-        String preferSite = siteChooser.chooseFromAllSite();
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, workspaceName);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmLifeCycleConfigDao scmLifeCycleConfigDao = scmLifeCycleConfigDaoFactory
                 .createLifeCycleConfigDao(session);
         try {
@@ -288,7 +296,8 @@ public class ScmLifeCycleServiceImpl implements ScmLifeCycleService {
     @Override
     public void removeTransition(ScmOmSession session, String workspace, String transition)
             throws ScmOmServerException, ScmInternalException {
-        String preferSite = siteChooser.chooseFromAllSite();
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, workspace);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmLifeCycleConfigDao scmLifeCycleConfigDao = scmLifeCycleConfigDaoFactory
                 .createLifeCycleConfigDao(session);
         try {
@@ -304,7 +313,8 @@ public class ScmLifeCycleServiceImpl implements ScmLifeCycleService {
     @Override
     public void changeTransitionState(ScmOmSession session, String workspaceName, String transition,
             boolean isEnabled) throws ScmOmServerException, ScmInternalException {
-        String preferSite = siteChooser.chooseFromAllSite();
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, workspaceName);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         ScmLifeCycleConfigDao scmLifeCycleConfigDao = scmLifeCycleConfigDaoFactory
                 .createLifeCycleConfigDao(session);
         try {
