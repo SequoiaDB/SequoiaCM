@@ -3,6 +3,7 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 import java.util.Date;
 
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -77,8 +78,8 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         String subClName = metaCLInfo.getClHistoryName();
         String clFullName = getCsName() + "." + subClName;
         try {
-            BSONObject options = generatorClFileOptions();
-            options.putAll(metaCLInfo.getClOptions());
+            BSONObject options = mergeClOptions(generatorClFileOptions(),
+                    metaCLInfo.getClOptions());
             logger.info("creating cl:cl=" + getCsName() + "." + subClName + ",options="
                     + options.toString());
             SequoiadbHelper.createCL(sdb, getCsName(), subClName, options);
@@ -132,6 +133,21 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         }
     }
 
+    private BSONObject mergeClOptions(BSONObject innerOptions, BSONObject userOptions) {
+        BSONObject res = new BasicBSONObject();
+        if (innerOptions != null) {
+            res.putAll(innerOptions);
+        }
+        if (userOptions != null) {
+            res.putAll(userOptions);
+        }
+        Boolean compressed = BsonUtils.getBoolean(res, "Compressed");
+        if (compressed != null && !compressed) {
+            res.removeField("CompressionType");
+        }
+        return res;
+    }
+
     private BSONObject generatorClFileOptions() {
         BSONObject key = new BasicBSONObject(FieldName.FIELD_CLFILE_ID, 1);
         BSONObject options = new BasicBSONObject();
@@ -151,8 +167,8 @@ public class SdbFileBaseAccessor extends SdbMetaAccessor {
         String subClName = metaCLInfo.getClName();
         String clFullName = getCsName() + "." + subClName;
         try {
-            BSONObject options = generatorClFileOptions();
-            options.putAll(metaCLInfo.getClOptions());
+            BSONObject options = mergeClOptions(generatorClFileOptions(),
+                    metaCLInfo.getClOptions());
             logger.info("creating cl:cl={}.{},options={}", getCsName(), subClName,
                     options.toString());
             SequoiadbHelper.createCL(sdb, getCsName(), subClName, options);
