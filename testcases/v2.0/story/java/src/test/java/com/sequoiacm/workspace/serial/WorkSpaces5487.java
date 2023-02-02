@@ -36,6 +36,8 @@ public class WorkSpaces5487 extends TestScmBase {
     private String wsName = "ws5487";
     private String fileName1 = "file5487_1";
     private String fileName2 = "file5487_2";
+    private String fileName3 = "file5487_3";
+    private String fileName4 = "file5487_4";
     private static SimpleDateFormat yearFm = new SimpleDateFormat( "yyyy" );
     private static SimpleDateFormat monthFm = new SimpleDateFormat( "MM" );
     private ArrayList< SiteWrapper > siteList = new ArrayList<>();
@@ -44,8 +46,6 @@ public class WorkSpaces5487 extends TestScmBase {
     private String filePath2 = null;
     private File localPath = null;
     private boolean runSuccess = false;
-    private ScmId fileId1 = null;
-    private ScmId fileId2 = null;
     private ScmShardingType scmShardingType = ScmShardingType.YEAR;
     private ScmShardingType newScmShardingType = ScmShardingType.MONTH;
     private ScmWorkspace ws;
@@ -74,11 +74,10 @@ public class WorkSpaces5487 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
     }
 
-    // 问题单SEQUOIACM-1168未修改，用例暂时屏蔽
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
-        fileId1 = uploadFile( fileName1, filePath1 );
-        fileId2 = uploadFile( fileName2, filePath2 );
+        ScmId fileId1 = uploadFile( fileName1, filePath1 );
+        ScmId fileId2 = uploadFile( fileName2, filePath2 );
 
         List< ScmDataLocation > dataLocation = ScmWorkspaceUtil
                 .prepareWsDataLocation( siteList, scmShardingType );
@@ -93,14 +92,14 @@ public class WorkSpaces5487 extends TestScmBase {
         ScmFileUtils.checkMetaAndData( wsName, fileId2, expSite, localPath,
                 filePath2 );
 
-        fileId1 = uploadFile( fileName1, filePath1 );
-        fileId2 = uploadFile( fileName2, filePath2 );
+        ScmId fileId3 = uploadFile( fileName3, filePath1 );
+        ScmId fileId4 = uploadFile( fileName4, filePath2 );
 
-        createMoveTask( fileName1, false, scmShardingType );
-        createMoveTask( fileName2, true, scmShardingType );
-        ScmFileUtils.checkMetaAndData( wsName, fileId1, expSite, localPath,
+        createMoveTask( fileName3, false, scmShardingType );
+        createMoveTask( fileName4, true, scmShardingType );
+        ScmFileUtils.checkMetaAndData( wsName, fileId3, expSite, localPath,
                 filePath1 );
-        ScmFileUtils.checkMetaAndData( wsName, fileId2, expSite, localPath,
+        ScmFileUtils.checkMetaAndData( wsName, fileId4, expSite, localPath,
                 filePath2 );
 
         // 修改分区规则后再次验证
@@ -109,9 +108,9 @@ public class WorkSpaces5487 extends TestScmBase {
         ws.updateDataLocation( dataLocation );
         ScmWorkspaceUtil.checkWsUpdate( session, wsName, dataLocation );
 
-        ScmFileUtils.checkMetaAndData( wsName, fileId1, expSite, localPath,
+        ScmFileUtils.checkMetaAndData( wsName, fileId3, expSite, localPath,
                 filePath1 );
-        ScmFileUtils.checkMetaAndData( wsName, fileId2, expSite, localPath,
+        ScmFileUtils.checkMetaAndData( wsName, fileId4, expSite, localPath,
                 filePath2 );
 
         runSuccess = true;
