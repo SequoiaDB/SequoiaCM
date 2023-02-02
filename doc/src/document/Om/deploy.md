@@ -15,7 +15,6 @@ zone1,     config-server,     scmServer,      8190,
 zone1,     schedule-server,   scmServer,      8910,
 zone1,     admin-server,      scmServer,      8900, 
 zone1,     mq-server,         scmServer,      8710, 
-zone1,     fulltext-server,   scmServer,      8610, '{"scm.fulltext.es.urls": "http://esServer:9200", "scm.fulltext.textualParser.pic.tessdataDir": "/usr/share/tesseract-ocr/tessdata/"}'
 ```
 
 - 执行部署脚本，快速部署工具的详细使用说明请见[快速部署][quick_deploy]章节。
