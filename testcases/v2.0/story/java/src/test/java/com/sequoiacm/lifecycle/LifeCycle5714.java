@@ -92,6 +92,15 @@ public class LifeCycle5714 extends TestScmBase {
         actTag = ScmFactory.Site.getSiteStageTag( session,
                 rootSite.getSiteName() );
         Assert.assertEquals( actTag, tagHot );
+
+        // 移除绑定数据流后删除
+        ws.removeTransition( LifeCycleUtils.hotWarmName );
+        ScmFactory.Site.unsetSiteStageTag( session, rootSite.getSiteName() );
+        ScmFactory.Site.unsetSiteStageTag( session, branchSite.getSiteName() );
+        Assert.assertEquals( ScmFactory.Site.getSiteStageTag( session,
+                rootSite.getSiteName() ), "" );
+        Assert.assertEquals( ScmFactory.Site.getSiteStageTag( session,
+                branchSite.getSiteName() ), "" );
         runSuccess = true;
     }
 
