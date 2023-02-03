@@ -64,8 +64,8 @@ public class ObjectTag5521 extends TestScmBase {
         // 校验标签
         GetObjectTaggingResult tagging = s3Client.getObjectTagging(
                 new GetObjectTaggingRequest( bucketName, keyName ) );
-        // TODO: SEQUOIACM-1176
-        // S3Utils.compareTagSet( tagging.getTagSet(), tagSet );
+
+        S3Utils.compareTagSet( tagging.getTagSet(), tagSet );
 
         // 删除文件
         s3Client.deleteObject( bucketName, keyName );
@@ -81,8 +81,8 @@ public class ObjectTag5521 extends TestScmBase {
         // 校验标签
         tagging = s3Client.getObjectTagging(
                 new GetObjectTaggingRequest( bucketName, keyName ) );
-        // TODO: SEQUOIACM-1176
-        // S3Utils.compareTagSet( tagging.getTagSet(), tagSet );
+
+        S3Utils.compareTagSet( tagging.getTagSet(), tagSet );
         runSuccess = true;
     }
 

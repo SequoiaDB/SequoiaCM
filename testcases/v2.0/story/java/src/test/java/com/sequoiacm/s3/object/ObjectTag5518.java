@@ -85,8 +85,7 @@ public class ObjectTag5518 extends TestScmBase {
         GetObjectTaggingResult objectTagging = s3Client.getObjectTagging(
                 new GetObjectTaggingRequest( bucketName, keyName ) );
 
-        // TODO: SEQUOIACM-1176
-        // compareTagSet( objectTagging.getTagSet(), tagSet );
+        compareTagSet( objectTagging.getTagSet(), tagSet );
 
         runSuccess = true;
     }
