@@ -29,7 +29,7 @@ export function listRoles(filter, page, size) {
  */
  export function createRole(rolename, description) {
   return request({
-    url: BASE_API + '/roles/' + rolename,
+    url: BASE_API + '/roles/' + encodeURIComponent(rolename),
     method: 'post',
     params: {
       description: description
@@ -44,7 +44,7 @@ export function listRoles(filter, page, size) {
  */
  export function listPrivilegesByRole(rolename) {
   return request({
-    url: BASE_API + '/roles/' + rolename + '?action=list_privilege',
+    url: BASE_API + '/roles/' + encodeURIComponent(rolename) + '?action=list_privilege',
     method: 'get'
   })
 }
@@ -59,7 +59,7 @@ export function listRoles(filter, page, size) {
  */
  export function grantPrivilege(rolename, resourceType, resourceName, privilegeType) {
   return request({
-    url: BASE_API + '/roles/' + rolename + '?action=grant',
+    url: BASE_API + '/roles/' + encodeURIComponent(rolename) + '?action=grant',
     method: 'put',
     params: {
       resource_type: resourceType,
@@ -79,7 +79,7 @@ export function listRoles(filter, page, size) {
  */
  export function revokePrivilege(rolename, resourceType, resourceName, privilegeType) {
   return request({
-    url: BASE_API + '/roles/' + rolename + '?action=revoke',
+    url: BASE_API + '/roles/' + encodeURIComponent(rolename) + '?action=revoke',
     method: 'put',
     params: {
       resource_type: resourceType,
@@ -96,7 +96,7 @@ export function listRoles(filter, page, size) {
  */
  export function deleteRole(rolename) {
   return request({
-    url: BASE_API + '/roles/' + rolename,
+    url: BASE_API + '/roles/' + encodeURIComponent(rolename),
     method: 'delete'
   })
 }

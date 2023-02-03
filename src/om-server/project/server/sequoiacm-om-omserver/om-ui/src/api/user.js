@@ -55,7 +55,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function createUser(username, password) {
   return request({
-    url: BASE_API + '/users/' + username,
+    url: BASE_API + '/users/' + encodeURIComponent(username),
     method: 'post',
     params: {
       password: encrypt(password)
@@ -71,7 +71,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function updatePwd(username, oldPwd, newPwd) {
   return request({
-    url: BASE_API + '/users/' + username + '?action=change_password',
+    url: BASE_API + '/users/' + encodeURIComponent(username) + '?action=change_password',
     method: 'put',
     params: {
       old_password: encrypt(oldPwd),
@@ -88,7 +88,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function grantRoles(username, roles) {
   return request({
-    url: BASE_API + '/users/' + username + '?action=grant_role',
+    url: BASE_API + '/users/' + encodeURIComponent(username) + '?action=grant_role',
     headers: {
       "Content-Type" : "application/json"
     },
@@ -105,7 +105,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function revokeRoles(username, roles) {
   return request({
-    url: BASE_API + '/users/' + username + '?action=revoke_role',
+    url: BASE_API + '/users/' + encodeURIComponent(username) + '?action=revoke_role',
     headers: {
       "Content-Type" : "application/json"
     },
@@ -121,7 +121,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function enableUser(username) {
   return request({
-    url: BASE_API + '/users/' + username + '?action=enable',
+    url: BASE_API + '/users/' + encodeURIComponent(username) + '?action=enable',
     method: 'put'
   })
 }
@@ -133,7 +133,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function disableUser(username, roleList) {
   return request({
-    url: BASE_API + '/users/' + username + '?action=disable',
+    url: BASE_API + '/users/' + encodeURIComponent(username) + '?action=disable',
     method: 'put'
   })
 }
@@ -145,7 +145,7 @@ export function listUsers(user_filter, page, size) {
  */
  export function deleteUser(username) {
   return request({
-    url: BASE_API + '/users/' + username,
+    url: BASE_API + '/users/' + encodeURIComponent(username),
     method: 'delete'
   })
 }
