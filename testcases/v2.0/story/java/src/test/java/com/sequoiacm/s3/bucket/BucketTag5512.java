@@ -42,7 +42,7 @@ public class BucketTag5512 extends TestScmBase {
     private TagSet tagSet = new TagSet();
     private TagSet newTagSet = new TagSet();
     private TagSet newUnSortedTagSet = new TagSet();
-    private Map< String, String > map = new HashMap<>();
+    private Map< String, String > map = new TreeMap<>();
     private Map< String, String > newMap = new HashMap<>();
     private Map< String, String > newUnsortedMap = new HashMap<>();
     private String bucketName = "bucket5512";
@@ -79,8 +79,7 @@ public class BucketTag5512 extends TestScmBase {
     public void test( String bucketName ) throws ScmException {
         testS3API( bucketName );
 
-        // TODO:SEQUOIACM-1172
-        // testSCMAPI( bucketName );
+        testSCMAPI( bucketName );
         runSuccessCount.getAndIncrement();
     }
 
@@ -116,12 +115,12 @@ public class BucketTag5512 extends TestScmBase {
         Assert.assertEquals( bucket.getCustomTag(), newMap );
 
         // 删除桶标签
-        // TODO: SEQUOIACM-1175
         bucket.deleteCustomTag();
+        //SEQUOIACM-1175验证删除标签后，Map对象不被清空
+        Assert.assertNotEquals( map, new TreeMap< String, String >() );
 
         // 获取校验
-        Assert.assertEquals( bucket.getCustomTag(),
-                new TreeMap< String, String >() );
+        Assert.assertEquals( bucket.getCustomTag(), null );
     }
 
     private void testS3API( String bucketName ) {
