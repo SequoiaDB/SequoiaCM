@@ -114,11 +114,7 @@ public class FileTransferDao {
                     remoteDataWsVersion = BsonUtils.getInteger(e.getExtraInfo(),
                             FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION);
                 }
-
-                // wsVersion == null 表示对端是一个旧版的内容服务节点，
-                // 集群存在旧版内容服务节点是不允许有多版本工作区的，所以这里取初始版本 1
-                remoteDataWsVersion = remoteDataWsVersion == null ? 1 : remoteDataWsVersion;
-
+                remoteDataWsVersion = processRemoteWorkspaceVersion(remoteDataWsVersion);
                 remoteDataInfo = ScmDataInfo.forOpenExistData(localDataInfo.getType(),
                         localDataInfo.getId(), localDataInfo.getCreateTime(), remoteDataWsVersion,
                         remoteDataTableName);
@@ -248,7 +244,8 @@ public class FileTransferDao {
             FileCommonOperator.closeRemoteWriter(writer);
             ScmDataInfo remoteDataInfo = ScmDataInfo.forOpenExistData(localDataInfo.getType(),
                     localDataInfo.getId(), localDataInfo.getCreateTime(),
-                    writer.getRemoteWorkspaceVersion(), writer.getRemoteTableName());
+                    processRemoteWorkspaceVersion(writer.getRemoteWorkspaceVersion()),
+                    writer.getRemoteTableName());
             writer = null;
             if (md5Calc != null) {
                 this.localDataMd5 = DatatypeConverter.printBase64Binary(md5Calc.digest());
@@ -266,6 +263,12 @@ public class FileTransferDao {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "failed to transfer file", e);
         }
+    }
+
+    private int processRemoteWorkspaceVersion(Integer remoteWsVersion) {
+        // wsVersion == null 表示对端是一个旧版的内容服务节点，
+        // 集群存在旧版内容服务节点是不允许有多版本工作区的，所以这里取初始版本 1
+        return remoteWsVersion == null ? 1 : remoteWsVersion;
     }
 
     private void resetInterrupter() {
