@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.exception.ScmError;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -18,6 +17,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -106,8 +106,8 @@ public class WorkSpaces5485 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
