@@ -1057,44 +1057,44 @@
                     "cn": "createnode",
                     "en": "createnode"
                 }]
-              },
-              {
-                  "id": 1631934728,
-                  "dir": "Omctl",
-                  "cn": "OM服务节点管理工具",
-                  "en": "Omctl",
-                  "contents": [{
-                      "id": 1631934809,
-                      "file": "Readme",
-                      "cn": "概述",
-                      "en": "Overview"
-                  },
-                  {
-                      "id": 1631934826,
-                      "file": "start",
-                      "cn": "start",
-                      "en": "start"
-                  },
-                  {
-                      "id": 1631934850,
-                      "file": "stop",
-                      "cn": "stop",
-                      "en": "stop"
-                  },
-                  {
-                      "id": 1631934875,
-                      "file": "list",
-                      "cn": "list",
-                      "en": "list"
-                  }]
-              },
-              {
-                  "id": 1631934885,
-                  "file": "om_deploy_script",
-                  "cn": "OM服务部署工具",
-                  "en": "Om Deployment Script"
-              },
-              {
+            },
+            {
+                "id": 1631934728,
+                "dir": "Omctl",
+                "cn": "OM服务节点管理工具",
+                "en": "Omctl",
+                "contents": [{
+                    "id": 1631934809,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                }, 
+                {
+                    "id": 1631934826,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                }, 
+                {
+                    "id": 1631934850,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                }, 
+                {
+                    "id": 1631934875,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            }, 
+            {
+                "id": 1631934885,
+                "file": "om_deploy_script",
+                "cn": "OM服务部署工具",
+                "en": "Om Deployment Script"
+            }, 
+            {
                 "id": 1631934896,
                 "dir": "S3admin",
                 "cn": "S3服务管理工具",
@@ -1129,43 +1129,74 @@
                     "cn": "show-default-region",
                     "en": "show-default-region"
                 }]
-              },
-              {
-                  "id": 1631935648,
-                  "dir": "S3ctl",
-                  "cn": "S3服务节点管理工具",
-                  "en": "S3ctl",
-                  "contents": [{
-                      "id": 1631935609,
-                      "file": "Readme",
-                      "cn": "概述",
-                      "en": "Overview"
-                  },
-                  {
-                      "id": 1631234826,
-                      "file": "start",
-                      "cn": "start",
-                      "en": "start"
-                  },
-                  {
-                      "id": 1631344850,
-                      "file": "stop",
-                      "cn": "stop",
-                      "en": "stop"
-                  },
-                  {
-                      "id": 1613934875,
-                      "file": "list",
-                      "cn": "list",
-                      "en": "list"
-                  }]
-              },
-              {
-                  "id": 1636734885,
-                  "file": "s3_deploy_script",
-                  "cn": "S3服务部署工具",
-                  "en": "S3 Deployment Script"
-              }]
+            }, 
+            {
+                "id": 1631935648,
+                "dir": "S3ctl",
+                "cn": "S3服务节点管理工具",
+                "en": "S3ctl",
+                "contents": [{
+                    "id": 1631935609,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                }, 
+                {
+                    "id": 1631234826,
+                    "file": "start",
+                    "cn": "start",
+                    "en": "start"
+                }, 
+                {
+                    "id": 1631344850,
+                    "file": "stop",
+                    "cn": "stop",
+                    "en": "stop"
+                },
+                {
+                    "id": 1613934875,
+                    "file": "list",
+                    "cn": "list",
+                    "en": "list"
+                }]
+            }, 
+            {
+                "id": 1636734885,
+                "file": "s3_deploy_script",
+                "cn": "S3服务部署工具",
+                "en": "S3 Deployment Script"
+            }, 
+            {
+                "id": 1673518698,
+                "dir": "Scmdiagnose",
+                "cn": "诊断工具",
+                "en": "Scm Diagnose",
+                "contents": [
+                {
+                    "id": 1673526235,
+                    "file": "Readme",
+                    "cn": "概述",
+                    "en": "Overview"
+                 },   
+                {
+                    "id": 1673524769,
+                    "file": "logcollect",
+                    "cn": "log-collect",
+                    "en": "log-collect"
+                 },
+                {
+                    "id": 1673524803,
+                    "file": "conncheck",
+                    "cn": "conn-check",
+                    "en": "conn-check"
+                }, 
+                {
+                    "id": 1673524883,
+                    "file": "clusterinfo",
+                    "cn": "cluster-info",
+                    "en": "cluster-info"    
+                }]
+            }]
         },
         {
             "id": 1551230885,
