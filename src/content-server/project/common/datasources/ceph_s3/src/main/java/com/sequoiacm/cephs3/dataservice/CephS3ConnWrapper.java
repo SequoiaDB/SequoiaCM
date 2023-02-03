@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +114,44 @@ public class CephS3ConnWrapper {
             checkError(e);
             throw new CephS3Exception(
                     "create bucket failed:siteId=" + conn.getSiteId() + ",bucketName=" + bucketName,
+                    e);
+        }
+    }
+
+    //删除不受版本控制的存储桶
+    public void clearAndDeleteBucket(String bucketName) throws CephS3Exception {
+        try {
+            logger.info("delete bucket:bucketName=" + bucketName);
+            ListObjectsRequest request = new ListObjectsRequest().withBucketName(bucketName).withMaxKeys(1000);
+            ObjectListing listing;
+            do {
+                listing = conn.getAmzClient().listObjects(request);
+                List<S3ObjectSummary> objectSummaries = listing.getObjectSummaries();
+                List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
+                for (S3ObjectSummary objectSummary : objectSummaries) {
+                    DeleteObjectsRequest.KeyVersion keyVersion = new DeleteObjectsRequest.KeyVersion(
+                            objectSummary.getKey());
+                    keys.add(keyVersion);
+                }
+                // keys最多支持1000个
+                DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName)
+                        .withKeys(keys);
+                conn.getAmzClient().deleteObjects(deleteObjectsRequest);
+                request.setMarker(listing.getNextMarker());
+            }
+            while (listing.isTruncated());
+            conn.getAmzClient().deleteBucket(bucketName);
+        }
+        catch (AmazonServiceException e) {
+            checkError(e);
+            throw new CephS3Exception(e.getStatusCode(), e.getErrorCode(),
+                    "delete bucket failed:siteId=" + conn.getSiteId() + ",bucketName=" + bucketName,
+                    e);
+        }
+        catch (Exception e) {
+            checkError(e);
+            throw new CephS3Exception(
+                    "delete bucket failed:siteId=" + conn.getSiteId() + ",bucketName=" + bucketName,
                     e);
         }
     }

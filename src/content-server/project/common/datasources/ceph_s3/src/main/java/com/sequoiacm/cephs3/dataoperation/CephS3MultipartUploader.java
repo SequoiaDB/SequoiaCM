@@ -56,6 +56,7 @@ public class CephS3MultipartUploader implements CephS3DataUploader {
     private String targetBucketName;
     private boolean hasCreateActiveBucket;
     private CephS3BreakpointFileContext breakpointContext;
+    private String newCreateBucket;
 
     public CephS3MultipartUploader(ScmService service, BucketNameOption bucketNameOp, String key,
             CephS3BreakpointFileContext cephS3BreakpointFileContext, long writeOffset,
@@ -163,7 +164,9 @@ public class CephS3MultipartUploader implements CephS3DataUploader {
                 logger.info(
                         "failed to init multipart cause by no such bucket, try create bucket an init again: bucket={}, key={}, uploadId={}",
                         targetBucketName, key, breakpointContext.getUploadId(), e);
-                bucketManager.createSpecifiedBucket(conn, targetBucketName);
+                if (bucketManager.createSpecifiedBucket(conn, targetBucketName)){
+                    newCreateBucket = targetBucketName;
+                }
                 sendRequestAndInit(targetBucketName, key);
             }
             else if (bucketNameOption.shouldHandleQuotaExceedException()
@@ -172,8 +175,12 @@ public class CephS3MultipartUploader implements CephS3DataUploader {
                 logger.info(
                         "failed to init multipart cause by QUOTA_EXCEEDED, try create bucket an init again: bucket={}, key={}, uploadId={}",
                         targetBucketName, key, breakpointContext.getUploadId(), e);
-                targetBucketName = bucketManager.createNewActiveBucket(conn, targetBucketName,
+                BucketCreateInfo createInfo = bucketManager.createNewActiveBucket(conn, targetBucketName,
                         bucketNameOption.getOriginBucketName(), wsName, siteId, dataService);
+                targetBucketName = createInfo.getBucketName();
+                if (createInfo.isCreate()){
+                    newCreateBucket =  targetBucketName;
+                }
                 sendRequestAndInit(targetBucketName, key);
             }
             else {
@@ -266,8 +273,11 @@ public class CephS3MultipartUploader implements CephS3DataUploader {
             if (!hasCreateActiveBucket
                     && e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_QUOTA_EXCEEDED)) {
                 if (bucketNameOption.shouldHandleQuotaExceedException()) {
-                    bucketManager.createNewActiveBucket(conn, targetBucketName,
+                    BucketCreateInfo createInfo = bucketManager.createNewActiveBucket(conn, targetBucketName,
                             bucketNameOption.getOriginBucketName(), wsName, siteId, dataService);
+                    if (createInfo.isCreate()){
+                        newCreateBucket = createInfo.getBucketName();
+                    }
                     hasCreateActiveBucket = true;
                 }
             }
@@ -338,6 +348,11 @@ public class CephS3MultipartUploader implements CephS3DataUploader {
     @Override
     public long getFileSize() {
         return fileSize;
+    }
+
+    @Override
+    public String getCreatedBucketName() {
+        return newCreateBucket;
     }
 
     public CephS3BreakpointFileContext getBreakpointContext() {

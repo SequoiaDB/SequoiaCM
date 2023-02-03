@@ -16,4 +16,7 @@ public interface CephS3DataUploader {
 
     // 返回实时更新的写入文件大小
     long getFileSize();
+    //返回新创建桶名
+    String getCreatedBucketName();
+
 }

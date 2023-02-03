@@ -6,6 +6,10 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.contentserver.model.DataTableDeleteOption;
+import com.sequoiacm.contentserver.site.ScmSite;
+import com.sequoiacm.datasource.DatalocationFactory;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -218,12 +222,13 @@ public class DatasourceServiceImpl implements IDatasourceService {
     }
 
     @Override
-    public void deleteDataTables(List<String> tableNames) throws ScmServerException {
+    public void deleteDataTables(List<String> tableNames, String wsName, ScmLocation location)
+            throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmDataTableDeletor deletor;
         try {
             deletor = ScmDataOpFactoryAssit.getFactory().createDataTableDeletor(tableNames,
-                    contentModule.getDataService());
+                    contentModule.getDataService(), location, wsName);
             deletor.delete();
         }
         catch (ScmDatasourceException e) {

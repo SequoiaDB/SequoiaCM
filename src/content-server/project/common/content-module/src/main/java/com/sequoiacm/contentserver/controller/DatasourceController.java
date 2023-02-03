@@ -9,8 +9,11 @@ import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.model.DataTableDeleteOption;
+import com.sequoiacm.datasource.DatalocationFactory;
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -245,8 +248,22 @@ public class DatasourceController {
 
     @DeleteMapping(value = "/datasource/tables")
     public void deleteDataTable(
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames)
-                    throws ScmServerException {
-        datasourceService.deleteDataTables(tableNames);
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames,
+            @RequestParam(value = CommonDefine.RestArg.WORKSPACE_NAME, required = false) String wsName,
+            @RequestBody(required = false) DataTableDeleteOption option) throws ScmServerException {
+        ScmLocation location = null;
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        ScmSite siteInfo = contentModule.getLocalSiteInfo();
+        try {
+            if (option != null) {
+                location = DatalocationFactory.createDataLocation(siteInfo.getDataUrl().getType(),
+                        option.getWsLocalSiteLocation(), siteInfo.getName());
+            }
+            datasourceService.deleteDataTables(tableNames, wsName, location);
+        }
+        catch (ScmDatasourceException e) {
+            throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR),
+                    "Failed to delete data tables:" + tableNames, e);
+        }
     }
 }

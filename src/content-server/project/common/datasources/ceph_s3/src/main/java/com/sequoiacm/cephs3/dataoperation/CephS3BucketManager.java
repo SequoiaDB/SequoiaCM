@@ -2,6 +2,9 @@ package com.sequoiacm.cephs3.dataoperation;
 
 import static com.sequoiacm.metasource.MetaSourceDefine.CsName.CS_SCMSYSTEM;
 
+import com.sequoiacm.datasource.ScmDatasourceException;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -101,8 +104,8 @@ public class CephS3BucketManager {
         metaAccessor.upsert(matcher, new BasicBSONObject("$set", insertor));
         activeBucketCache.put(wsName + ruleBucket, activeBucket);
     }
-
-    public void createSpecifiedBucket(CephS3ConnWrapper conn, String bucketName)
+    // 返回值代表是否是新创建的桶
+    public boolean createSpecifiedBucket(CephS3ConnWrapper conn, String bucketName)
             throws CephS3Exception {
         logger.info("create bucket: {}", bucketName);
         try {
@@ -113,10 +116,12 @@ public class CephS3BucketManager {
                 throw ex;
             }
             logger.info("ignore create bucket, bucket already exist: {}", bucketName);
+            return false;
         }
+        return true;
     }
 
-    public String createNewActiveBucket(CephS3ConnWrapper conn, String currentActiveBucketName,
+    public BucketCreateInfo createNewActiveBucket(CephS3ConnWrapper conn, String currentActiveBucketName,
             String ruleBucketName, String workspaceName, int siteId, CephS3DataService service)
             throws CephS3Exception {
         ScmLockPath lockPath = BucketNameLockPathFactory.createBucketNameLockPath(workspaceName,
@@ -130,7 +135,7 @@ public class CephS3BucketManager {
                 logger.info(
                         "latest active bucket name is change, ignore create new active bucket: currentActiveBucket={}, latestActiveBucket={}, workspace={}",
                         currentActiveBucketName, currentActiveBucketNameInLock, workspaceName);
-                return currentActiveBucketNameInLock;
+                return new BucketCreateInfo(currentActiveBucketNameInLock, false);
             }
 
             if (!conn.isObjectsUpToSpecifiedCount(currentActiveBucketNameInLock,
@@ -144,9 +149,9 @@ public class CephS3BucketManager {
 
             String newActiveBucketName = generateNextActiveBucketName(currentActiveBucketNameInLock,
                     ruleBucketName);
-            createSpecifiedBucket(conn, newActiveBucketName);
+            boolean isNewCreateBucket = createSpecifiedBucket(conn, newActiveBucketName);
             insertAndAddCacheData(metaAccessor, ruleBucketName, newActiveBucketName, workspaceName);
-            return newActiveBucketName;
+            return new BucketCreateInfo(newActiveBucketName, isNewCreateBucket);
         }
         catch (ScmLockException e) {
             throw new CephS3Exception("failed to lock bucketName, lockPath=" + lockPath.toString(),
@@ -158,6 +163,29 @@ public class CephS3BucketManager {
         finally {
             if (lock != null) {
                 lock.unlock();
+            }
+        }
+    }
+    // 根据工作区名删除对应缓存中和DATA_BUCKET_NAME_ACTIVE表中记录
+    public void deleteActiveBucketMapping(String wsName) throws ScmDatasourceException {
+        MetaCursor cursor = null;
+        BSONObject matcher = new BasicBSONObject();
+        matcher.put(FieldName.FIELD_CL_WORKSPACE_NAME, wsName);
+        try {
+            cursor = metaAccessor.query(matcher, null, null);
+            while (cursor.hasNext()) {
+                String ruleBucketName = BsonUtils.getString(cursor.getNext(),
+                        FieldName.FIELD_CL_BUCKET_RULE_NAME);
+                activeBucketCache.remove(wsName + ruleBucketName);
+            }
+            metaAccessor.delete(matcher);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmDatasourceException("failed to delete bucket record, wsName=" + wsName, e);
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
     }

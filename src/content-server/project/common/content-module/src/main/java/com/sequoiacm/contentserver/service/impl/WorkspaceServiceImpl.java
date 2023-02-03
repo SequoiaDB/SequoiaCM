@@ -8,6 +8,7 @@ import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
 import com.sequoiacm.contentserver.model.ClientLocationOutline;
 import com.sequoiacm.contentserver.model.ClientWorkspaceUpdator;
+import com.sequoiacm.contentserver.model.DataTableDeleteOption;
 import com.sequoiacm.contentserver.model.DataTableNameHistoryInfo;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
@@ -139,6 +140,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                         "workspace not exist:wsName=" + wsName);
             }
         }
+
+        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(wsName);
+        Map<Integer, ScmLocation> locations = wsInfo.getDataLocations();
         ContenserverConfClient.getInstance().deleteWorkspace(new WorkspaceFilter(wsName));
 
         cleanPrivilege(token, user, wsName);
@@ -146,7 +150,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         AsyncUtils.execute(new Runnable() {
             @Override
             public void run() {
-                deleteDataTable(contentModule, wsName);
+                deleteDataTable(contentModule, wsName, locations);
             }
         });
 
@@ -203,7 +207,8 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
     }
 
-    private void deleteDataTable(ScmContentModule coontentserver, String wsName) {
+    private void deleteDataTable(ScmContentModule coontentserver, String wsName,
+            Map<Integer, ScmLocation> locations) {
         // siteName map dataTableName list
         Map<String, List<String>> tableNameMap = new HashMap<>();
 
@@ -241,13 +246,17 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         ScmSite mySite = coontentserver.getLocalSiteInfo();
         for (String siteName : tableNameMap.keySet()) {
             try {
+                ScmSite siteInfo = coontentserver.getSiteInfo(siteName);
+                ScmLocation location = locations.get(siteInfo.getId());
                 if (siteName.equalsIgnoreCase(mySite.getName())) {
-                    datasourceService.deleteDataTables(tableNameMap.get(siteName));
+                    datasourceService.deleteDataTables(tableNameMap.get(siteName), wsName,
+                            location);
                 }
                 else {
                     ContentServerClient client = ContentServerClientFactory
                             .getFeignClientByServiceName(siteName.toLowerCase());
-                    client.deleteDataTables(tableNameMap.get(siteName));
+                    client.deleteDataTables(tableNameMap.get(siteName), wsName,
+                            new DataTableDeleteOption(location.asBSON()));
                 }
             }
             catch (Exception e) {

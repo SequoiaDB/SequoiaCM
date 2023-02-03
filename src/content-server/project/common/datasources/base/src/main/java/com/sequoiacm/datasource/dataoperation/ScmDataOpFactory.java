@@ -38,6 +38,10 @@ public interface ScmDataOpFactory {
             String wsName, String fileName, ScmDataInfo dataInfo, boolean createData,
             long writeOffset, BSONObject extraContext) throws ScmDatasourceException;
 
+    default ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service,
+            ScmLocation location, String wsName) throws ScmDatasourceException {
+        return createDataTableDeletor(tableNames, service);
+    }
     ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException;
 

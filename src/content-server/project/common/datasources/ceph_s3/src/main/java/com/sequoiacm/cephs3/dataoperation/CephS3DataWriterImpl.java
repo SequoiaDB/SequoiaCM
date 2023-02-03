@@ -17,7 +17,6 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
     private final CephS3UploaderWrapper uploader;
     private final String key;
     private final BucketNameOption bucketNameOption;
-
     @SlowLog(operation = "createWriter", extras = {
             @SlowLogExtra(name = "writeCephS3BucketName", data = "bucketNameOption"),
             @SlowLogExtra(name = "writeCephS3ObjectKey", data = "key") })
@@ -68,8 +67,7 @@ public class CephS3DataWriterImpl extends ScmDataWriter {
 
     @Override
     public String getCreatedTableName() {
-        // TODO:no record now!
-        return null;
+        return uploader.getCreatedBucketName();
     }
 
     private void closeUploaderSilence() {

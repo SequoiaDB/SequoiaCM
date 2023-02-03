@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.sequoiacm.datasource.metadata.ScmLocation;
 import org.bson.BSONObject;
 
 import com.sequoiacm.common.ScmFileLocation;
@@ -43,7 +44,7 @@ public interface IDatasourceService {
     ScmDataInfoDetail createData(String ws, InputStream data, long createTime)
             throws ScmServerException;
 
-    void deleteDataTables(List<String> tableNames) throws ScmServerException;
+    void deleteDataTables(List<String> tableNames, String wsName, ScmLocation location) throws ScmServerException;
 
     ScmDataReader getScmDataReader(String wsName, String dataId, int dataType, long createTime, int wsVersion, String tableName)
             throws ScmServerException, ScmDatasourceException;

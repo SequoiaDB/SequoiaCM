@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.contentserver.model.BreakpointFile;
+import com.sequoiacm.contentserver.model.DataTableDeleteOption;
 import com.sequoiacm.contentserver.model.MetadataAttr;
 import com.sequoiacm.contentserver.model.MetadataClass;
 import com.sequoiacm.contentserver.model.ScmBucket;
@@ -72,6 +73,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 .registerTypeAdapter(ScmBucket.class, new BucketGsonTypeAdapter())
                 .registerTypeAdapter(ScmFileLocation.class, new ScmFileLocationGsonTypeAdapter())
                 .registerTypeAdapter(Map.class, new MapGsonTypeAdapter())
+                .registerTypeAdapter(DataTableDeleteOption.class, new DataTableDeleteOptionGsonTypeAdapter())
                 .build();
 
         converters.add(converter);

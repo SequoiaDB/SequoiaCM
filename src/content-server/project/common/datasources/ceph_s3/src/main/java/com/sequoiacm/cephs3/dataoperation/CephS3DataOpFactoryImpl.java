@@ -167,9 +167,18 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
+    public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service, ScmLocation location, String wsName)
+            throws ScmDatasourceException {
+        if (Strings.isNullOrEmpty(wsName) || location == null) {
+            throw new CephS3Exception("build ceph s3 data table deletor failed:wsName=" + wsName);
+        }
+        CephS3DataLocation dataLocation = (CephS3DataLocation) location;
+        return new CephS3DataTableDeletor(dataLocation, service, tableNames, wsName);
+    }
+    @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
-        return new CephS3DataTableDeletor();
+        throw new CephS3Exception(CephS3Exception.ERR_CODE_OPERATION_UNSUPPORTED,"Unable to process");
     }
 
     @Override

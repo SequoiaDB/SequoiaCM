@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.remote;
 import java.util.List;
 
 import com.sequoiacm.common.ScmFileLocation;
+import com.sequoiacm.contentserver.model.DataTableDeleteOption;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.springframework.web.bind.annotation.*;
@@ -136,7 +137,9 @@ public interface ContentServerClient {
 
     @DeleteMapping(value = "/internal/v1/datasource/tables")
     public void deleteDataTables(
-            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames)
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames,
+            @RequestParam(value = CommonDefine.RestArg.WORKSPACE_NAME, required = false) String wsName,
+            @RequestBody(required = false) DataTableDeleteOption location)
             throws ScmServerException;
 
     @DeleteMapping(value = "/api/v1/workspaces/{workspace_name}")

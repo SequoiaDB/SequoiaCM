@@ -32,6 +32,8 @@ public class CephS3UploaderWrapper implements CephS3DataUploader {
 
     private final CephS3BucketManager bucketManager;
 
+    private String newCreateBucket;
+
     public CephS3UploaderWrapper(CephS3DataService dataService, BucketNameOption bucketNameOption,
             String key, String wsName, CephS3DataLocation location, int siteId,
             ScmDataWriterContext context) throws CephS3Exception {
@@ -77,6 +79,11 @@ public class CephS3UploaderWrapper implements CephS3DataUploader {
         return bufferDataOffset;
     }
 
+    @Override
+    public String getCreatedBucketName() {
+        return newCreateBucket;
+    }
+
     private void sendBufferDataAsObject() throws CephS3Exception {
         CephS3ConnWrapper con = dataService.getConn(location.getPrimaryUserInfo(),
                 location.getStandbyUserInfo());
@@ -118,7 +125,9 @@ public class CephS3UploaderWrapper implements CephS3DataUploader {
                 logger.info(
                         "failed to create object cause by NO_SUCH_BUCKET, try create bucket and create object again: bucket={}, key={}, uploadId={}",
                         targetBucketName, key, e);
-                bucketManager.createSpecifiedBucket(con, targetBucketName);
+                if (bucketManager.createSpecifiedBucket(con, targetBucketName)){
+                    newCreateBucket = targetBucketName;
+                }
                 con.putObject(targetBucketName, key,
                         new ByteArrayInputStream(buffer, 0, bufferDataOffset),
                         bufferDataOffset);
@@ -128,8 +137,12 @@ public class CephS3UploaderWrapper implements CephS3DataUploader {
                 logger.info(
                         "failed to create object cause by QUOTA_EXCEEDED, try create new bucket and create object again: bucket={}, key={}, uploadId={}",
                         targetBucketName, key, e);
-                targetBucketName = bucketManager.createNewActiveBucket(con, targetBucketName,
+                BucketCreateInfo createInfo = bucketManager.createNewActiveBucket(con, targetBucketName,
                         bucketNameOption.getOriginBucketName(), workspaceName, siteId, dataService);
+                targetBucketName = createInfo.getBucketName();
+                if (createInfo.isCreate()){
+                    newCreateBucket =  targetBucketName;
+                }
                 con.putObject(targetBucketName, key,
                         new ByteArrayInputStream(buffer, 0, bufferDataOffset), bufferDataOffset);
             }
