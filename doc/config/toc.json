@@ -454,6 +454,26 @@
                 "file": "bucket",
                 "cn": "桶管理",
                 "en": "Bucket"
+            },
+            {
+                "id": 1675304257,
+                "dir": "System",
+                "cn": "系统管理",
+                "en": "System",
+                "contents": [
+                    {
+                        "id": 1675243404,
+                        "file": "user",
+                        "cn": "用户管理",
+                        "en": "user"
+                    },
+                    {
+                        "id": 1675243342,
+                        "file": "role",
+                        "cn": "角色管理",
+                        "en": "role"
+                    }
+                ]
             }
             ]
         }]
