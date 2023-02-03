@@ -16,7 +16,7 @@ import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.*;
 
 /**
- * @descreption SCM-5895:创建调度任务，配置执行时间已经过期的cron
+ * @descreption SCM-5895:创建调度任务，配置执行时间已经过期的cron SCM-5916:创建调度任务后立即删除调度任务
  * @author YiPan
  * @date 2023/2/2
  * @updateUser
@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.*;
  * @updateRemark
  * @version 1.0
  */
-public class ScheduleTask5895 extends TestScmBase {
+public class ScheduleTask5895_5916 extends TestScmBase {
     private final static String filename = "file5895";
     private final static String cron = "* * * * * ? 2010";
     private ScmSession session = null;
@@ -59,6 +59,14 @@ public class ScheduleTask5895 extends TestScmBase {
         Assert.assertFalse( getSche.isEnable() );
         List< ScmTask > tasks = getSche.getTasks( null, null, 0, 1 );
         Assert.assertEquals( tasks.size(), 0, tasks.toString() );
+
+        // 删除调度任务
+        ScmSystem.Schedule.delete( session, sche.getId() );
+
+        // 再次创建并删除
+        sche = ScmSystem.Schedule.create( session, wsp.getName(),
+                ScheduleType.CLEAN_FILE, "sch5895", "test", content, cron );
+        ScmSystem.Schedule.delete( session, sche.getId() );
         runSuccess = true;
     }
 
@@ -66,7 +74,6 @@ public class ScheduleTask5895 extends TestScmBase {
     public void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmSystem.Schedule.delete( session, sche.getId() );
             }
         } finally {
             if ( session != null ) {
