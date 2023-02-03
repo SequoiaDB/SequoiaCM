@@ -131,13 +131,34 @@
                             条件
                           </div>
                         </el-form-item>
-                        <el-form-item label="文件创建时间" label-width="120px" :prop="'transitionTriggers.triggers.' + index + '.create_time'" :rules="rules.trigger">
+                        <el-form-item label-width="130px" :prop="'transitionTriggers.triggers.' + index + '.create_time'" :rules="rules.trigger">
+                          <template slot="label">
+                            文件创建时间
+                            <el-tooltip effect="dark" placement="top-start">
+                              <div slot="content">文件的创建时间已超过指定天数</div>
+                              <i class="el-icon-question"></i>
+                            </el-tooltip>
+                          </template>
                           <el-input v-number-only="{minValue:0}" maxlength="6" v-model="trigger.create_time" placeholder="单位: 天"></el-input>
                         </el-form-item>
-                        <el-form-item label="上次访问时间" label-width="120px" :prop="'transitionTriggers.triggers.' + index + '.last_access_time'" :rules="rules.trigger">
+                        <el-form-item label-width="130px" :prop="'transitionTriggers.triggers.' + index + '.last_access_time'" :rules="rules.trigger">
+                          <template slot="label">
+                            上次访问时间
+                            <el-tooltip effect="dark" placement="top-start">
+                              <div slot="content">最近一次通过起始阶段对应站点访问文件已超过指定天数</div>
+                              <i class="el-icon-question"></i>
+                            </el-tooltip>
+                          </template>
                           <el-input v-number-only="{minValue:0}" maxlength="6" v-model="trigger.last_access_time" placeholder="单位: 天"></el-input>
                         </el-form-item>
-                        <el-form-item label="文件停留时间" label-width="120px" :prop="'transitionTriggers.triggers.' + index + '.build_time'" :rules="rules.trigger">
+                        <el-form-item label-width="130px" :prop="'transitionTriggers.triggers.' + index + '.build_time'" :rules="rules.trigger">
+                          <template slot="label">
+                            文件停留时间
+                            <el-tooltip effect="dark" placement="top-start">
+                              <div slot="content">文件上传至起始阶段对应站点的时间已超过指定天数</div>
+                              <i class="el-icon-question"></i>
+                            </el-tooltip>
+                          </template>
                           <el-input v-number-only="{minValue:0}" maxlength="6" v-model="trigger.build_time" placeholder="单位: 天"></el-input>
                         </el-form-item>
                       </el-collapse-item>
@@ -220,10 +241,24 @@
                             条件
                           </div>
                         </el-form-item>
-                        <el-form-item label="上次访问时间" label-width="120px" :prop="'cleanTriggers.triggers.' + index + '.last_access_time'" :rules="rules.trigger">
+                        <el-form-item label-width="130px" :prop="'cleanTriggers.triggers.' + index + '.last_access_time'" :rules="rules.trigger">
+                          <template slot="label">
+                            上次访问时间
+                            <el-tooltip effect="dark" placement="top-start">
+                              <div slot="content">最近一次通过起始阶段对应站点访问文件已超过指定天数</div>
+                              <i class="el-icon-question"></i>
+                            </el-tooltip>
+                          </template>
                           <el-input v-number-only="{minValue:0}" maxlength="6" v-model="trigger.last_access_time" placeholder="单位: 天"></el-input>
                         </el-form-item>
-                        <el-form-item label="文件停留时间" label-width="120px" :prop="'cleanTriggers.triggers.' + index + '.transition_time'" :rules="rules.trigger">
+                        <el-form-item label-width="130px" :prop="'cleanTriggers.triggers.' + index + '.transition_time'" :rules="rules.trigger">
+                          <template slot="label">
+                            文件停留时间
+                            <el-tooltip effect="dark" placement="top-start">
+                              <div slot="content">文件迁移至目标阶段对应站点的时间已超过指定天数</div>
+                              <i class="el-icon-question"></i>
+                            </el-tooltip>
+                          </template>
                           <el-input v-number-only="{minValue:0}" maxlength="6" v-model="trigger.transition_time" placeholder="单位: 天"></el-input>
                         </el-form-item>
                       </el-collapse-item>
