@@ -57,7 +57,7 @@ public interface ScmDataOpFactory {
         return new NoOpDataSpaceRecycler();
     }
 
-    default void init(MetaSource metaSource, ScmLockManager lockManager)
+    default void init(int siteId, MetaSource metaSource, ScmLockManager lockManager)
             throws ScmDatasourceException {
 
     }

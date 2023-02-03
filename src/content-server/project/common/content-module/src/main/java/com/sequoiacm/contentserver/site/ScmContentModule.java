@@ -364,7 +364,7 @@ public class ScmContentModule {
             throw new ScmInvalidArgumentException("local site is not exist:siteId=" + localSiteId);
         }
 
-        siteMgr.setOpFactory(info.getDataUrl().getType());
+        siteMgr.setOpFactory(info.getId(), info.getDataUrl().getType());
         initDataSourceService(info);
     }
 

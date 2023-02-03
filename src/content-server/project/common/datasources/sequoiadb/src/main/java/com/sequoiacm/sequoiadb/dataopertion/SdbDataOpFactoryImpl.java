@@ -198,7 +198,7 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
-    public void init(MetaSource metaSource, ScmLockManager lockManager) {
+    public void init(int siteId, MetaSource metaSource, ScmLockManager lockManager) {
         this.metaSource = metaSource;
         this.lockManager = lockManager;
     }

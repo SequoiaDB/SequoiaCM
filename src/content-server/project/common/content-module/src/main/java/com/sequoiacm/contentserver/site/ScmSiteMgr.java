@@ -118,7 +118,7 @@ public class ScmSiteMgr {
         return opFactory;
     }
 
-    public void setOpFactory(String datasourceType) throws ScmServerException {
+    public void setOpFactory(int siteId, String datasourceType) throws ScmServerException {
         String pluginDir = null;
         DatasourcePlugin plugin = null;
         try {
@@ -158,7 +158,7 @@ public class ScmSiteMgr {
                             "data source is unrecognized:type=" + datasourceType);
                 }
             }
-            opFactory.init(metaService.getMetaSource(),
+            opFactory.init(siteId, metaService.getMetaSource(),
                     ScmLockManager.getInstance().getInnerLockManager());
         } catch (ScmDatasourceException e) {
             throw new ScmServerException(e.getScmError(ScmError.DATA_ERROR),

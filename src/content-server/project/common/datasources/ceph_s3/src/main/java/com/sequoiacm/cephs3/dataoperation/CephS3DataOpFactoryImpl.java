@@ -182,17 +182,17 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
     }
 
     @Override
-    public void init(MetaSource metaSource, ScmLockManager lockManager)
+    public void init(int siteId, MetaSource metaSource, ScmLockManager lockManager)
             throws ScmDatasourceException {
         try {
             MetaAccessor metaAccessor = metaSource.createMetaAccessor(
-                    CS_SCMSYSTEM + "." + MetaSourceDefine.SystemClName.CL_DATA_BUCKET_NAME_ACTIVE);
+                    CS_SCMSYSTEM + "." + MetaSourceDefine.SystemClName.CL_DATA_TABLE_NAME_ACTIVE);
             IndexDef indexDef = new IndexDef();
             indexDef.setUnique(true);
-            indexDef.setUnionKeys(Arrays.asList(FieldName.FIELD_CL_WORKSPACE_NAME,
-                    FieldName.FIELD_CL_BUCKET_RULE_NAME));
+            indexDef.setUnionKeys(Arrays.asList(FieldName.FIELD_CLACTIVE_WORKSPACE_NAME,
+                    FieldName.FIELD_CLACTIVE_SITE_ID, FieldName.FIELD_CLACTIVE_RULE_TABLE_NAME));
             metaAccessor.ensureTable(Arrays.asList(indexDef));
-            CephS3BucketManager.getInstance().init(metaSource, lockManager);
+            CephS3BucketManager.getInstance().init(siteId, metaSource, lockManager);
         }
         catch (ScmMetasourceException e) {
             throw new ScmDatasourceException("failed to init cephs3 op factory", e);

@@ -37,6 +37,7 @@ public class CephS3BucketManager {
     private ScmLockManager lockManager;
     private MetaAccessor metaAccessor;
     private static CephS3BucketManager manager;
+    private int siteId;
 
     public static CephS3BucketManager getInstance() {
         if (manager == null) {
@@ -52,15 +53,16 @@ public class CephS3BucketManager {
     private CephS3BucketManager() {
     }
 
-    public void init(MetaSource metaSource, ScmLockManager lockManager)
+    public void init(int siteId, MetaSource metaSource, ScmLockManager lockManager)
             throws ScmMetasourceException {
         this.lockManager = lockManager;
         this.metaAccessor = getMetAccessor(metaSource);
+        this.siteId = siteId;
     }
 
     private MetaAccessor getMetAccessor(MetaSource metaSource) throws ScmMetasourceException {
         return metaSource.createMetaAccessor(
-                CS_SCMSYSTEM + "." + MetaSourceDefine.SystemClName.CL_DATA_BUCKET_NAME_ACTIVE);
+                CS_SCMSYSTEM + "." + MetaSourceDefine.SystemClName.CL_DATA_TABLE_NAME_ACTIVE);
     }
 
     public String getActiveBucketName(String workspaceName, String ruleBucketName)
@@ -71,19 +73,20 @@ public class CephS3BucketManager {
         }
 
         BSONObject relClMatcher = new BasicBSONObject();
-        relClMatcher.put(FieldName.FIELD_CL_WORKSPACE_NAME, workspaceName);
-        relClMatcher.put(FieldName.FIELD_CL_BUCKET_RULE_NAME, ruleBucketName);
+        relClMatcher.put(FieldName.FIELD_CLACTIVE_WORKSPACE_NAME, workspaceName);
+        relClMatcher.put(FieldName.FIELD_CLACTIVE_RULE_TABLE_NAME, ruleBucketName);
+        relClMatcher.put(FieldName.FIELD_CLACTIVE_SITE_ID, siteId);
         BSONObject bucketInfo;
         try {
             bucketInfo = metaAccessor.queryOne(relClMatcher, null, null);
         }
         catch (ScmMetasourceException e) {
             throw new CephS3Exception("failed to query record, tableName = "
-                    + MetaSourceDefine.SystemClName.CL_DATA_BUCKET_NAME_ACTIVE + ", matcher = "
+                    + MetaSourceDefine.SystemClName.CL_DATA_TABLE_NAME_ACTIVE + ", matcher = "
                     + relClMatcher, e);
         }
         if (bucketInfo != null) {
-            activeBucketName = (String) bucketInfo.get(FieldName.FIELD_CL_BUCKET_ACTIVE_NAME);
+            activeBucketName = (String) bucketInfo.get(FieldName.FIELD_CLACTIVE_ACTIVE_TABLE_NAME);
             activeBucketCache.put(workspaceName + ruleBucketName, activeBucketName);
             return activeBucketName;
         }
@@ -95,12 +98,16 @@ public class CephS3BucketManager {
     private void insertAndAddCacheData(MetaAccessor metaAccessor, String ruleBucket,
             String activeBucket, String wsName) throws ScmMetasourceException {
         BSONObject insertor = new BasicBSONObject();
-        insertor.put(FieldName.FIELD_CL_WORKSPACE_NAME, wsName);
-        insertor.put(FieldName.FIELD_CL_BUCKET_RULE_NAME, ruleBucket);
-        insertor.put(FieldName.FIELD_CL_BUCKET_ACTIVE_NAME, activeBucket);
+        insertor.put(FieldName.FIELD_CLACTIVE_WORKSPACE_NAME, wsName);
+        insertor.put(FieldName.FIELD_CLACTIVE_RULE_TABLE_NAME, ruleBucket);
+        insertor.put(FieldName.FIELD_CLACTIVE_SITE_ID, siteId);
+        insertor.put(FieldName.FIELD_CLACTIVE_ACTIVE_TABLE_NAME, activeBucket);
+
         BSONObject matcher = new BasicBSONObject();
-        matcher.put(FieldName.FIELD_CL_WORKSPACE_NAME, wsName);
-        matcher.put(FieldName.FIELD_CL_BUCKET_RULE_NAME, ruleBucket);
+        matcher.put(FieldName.FIELD_CLACTIVE_WORKSPACE_NAME, wsName);
+        matcher.put(FieldName.FIELD_CLACTIVE_RULE_TABLE_NAME, ruleBucket);
+        matcher.put(FieldName.FIELD_CLACTIVE_SITE_ID, siteId);
+
         metaAccessor.upsert(matcher, new BasicBSONObject("$set", insertor));
         activeBucketCache.put(wsName + ruleBucket, activeBucket);
     }
@@ -170,12 +177,13 @@ public class CephS3BucketManager {
     public void deleteActiveBucketMapping(String wsName) throws ScmDatasourceException {
         MetaCursor cursor = null;
         BSONObject matcher = new BasicBSONObject();
-        matcher.put(FieldName.FIELD_CL_WORKSPACE_NAME, wsName);
+        matcher.put(FieldName.FIELD_CLACTIVE_SITE_ID, siteId);
+        matcher.put(FieldName.FIELD_CLACTIVE_WORKSPACE_NAME, wsName);
         try {
             cursor = metaAccessor.query(matcher, null, null);
             while (cursor.hasNext()) {
                 String ruleBucketName = BsonUtils.getString(cursor.getNext(),
-                        FieldName.FIELD_CL_BUCKET_RULE_NAME);
+                        FieldName.FIELD_CLACTIVE_RULE_TABLE_NAME);
                 activeBucketCache.remove(wsName + ruleBucketName);
             }
             metaAccessor.delete(matcher);

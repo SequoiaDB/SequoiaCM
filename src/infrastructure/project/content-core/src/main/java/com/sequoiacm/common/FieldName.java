@@ -282,10 +282,12 @@ public class FieldName {
     public static final String FIELD_CLRECYCLE_LOG_INFO = "log_info";
     public static final String FIELD_CLRECYCLE_TIME = "time";
 
-    //CL_DATA_BUCKET_NAME_ACTIVE
-    public static final String FIELD_CL_WORKSPACE_NAME = "workspace_name";
-    public static final String FIELD_CL_BUCKET_RULE_NAME = "bucket_rule_name";
-    public static final String FIELD_CL_BUCKET_ACTIVE_NAME = "bucket_active_name";
+    // CL_DATA_TABLE_NAME_ACTIVE
+    public static final String FIELD_CLACTIVE_WORKSPACE_NAME = "workspace_name";
+    public static final String FIELD_CLACTIVE_RULE_TABLE_NAME = "rule_table_name";
+    public static final String FIELD_CLACTIVE_ACTIVE_TABLE_NAME = "active_table_name";
+    public static final String FIELD_CLACTIVE_SITE_ID = "site_id";
+
     public static class Task {
         public static final String FIELD_ID = "id";
         public static final String FIELD_TYPE = "type";
