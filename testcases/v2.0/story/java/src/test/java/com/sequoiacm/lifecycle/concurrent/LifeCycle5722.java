@@ -1,5 +1,6 @@
 package com.sequoiacm.lifecycle.concurrent;
 
+import com.sequoiacm.client.core.ScmWorkspace;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

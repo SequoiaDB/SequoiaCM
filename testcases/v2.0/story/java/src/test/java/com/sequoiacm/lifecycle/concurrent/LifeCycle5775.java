@@ -107,18 +107,7 @@ public class LifeCycle5775 extends TestScmBase {
         t.addWorker( appyTransition2 );
         t.run();
 
-        if ( appyTransition1.getRetCode() == 0 && appyTransition2
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode() ) {
-            // 校验appyTransition1线程成功场景
-            checkThreadTransition( fowlName1 );
-        } else if ( appyTransition1
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode()
-                && appyTransition2.getRetCode() == 0 ) {
-            // 校验appyTransition2线程成功场景
-            checkThreadTransition( fowlName2 );
-        } else if ( appyTransition1.getRetCode() == 0
+        if ( appyTransition1.getRetCode() == 0
                 && appyTransition2.getRetCode() == 0 ) {
             // 校验两个线程都成功场景
             checkThreadTransition( fowlName1 );
@@ -152,26 +141,7 @@ public class LifeCycle5775 extends TestScmBase {
         t.addWorker( appyTransition );
         t.run();
 
-        if ( removeTransition.getRetCode() == 0 && appyTransition
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode() ) {
-            // 校验removeTransition线程成功场景
-            try {
-                ws.getTransition( fowlName1 );
-                Assert.fail( "预期失败，实际成功！" );
-            } catch ( ScmException e ) {
-                if ( e.getErrorCode() != ScmError.HTTP_NOT_FOUND
-                        .getErrorCode() ) {
-                    throw e;
-                }
-            }
-        } else if ( removeTransition
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode()
-                && appyTransition.getRetCode() == 0 ) {
-            // 校验appyTransition线程成功场景
-            checkThreadTransition( fowlName2 );
-        } else if ( removeTransition.getRetCode() == 0
+        if ( removeTransition.getRetCode() == 0
                 && appyTransition.getRetCode() == 0 ) {
             // 校验两个线程都成功场景
             try {
@@ -212,21 +182,7 @@ public class LifeCycle5775 extends TestScmBase {
         t.addWorker( appyTransition );
         t.run();
 
-        if ( updateTransitionThread.getRetCode() == 0 && appyTransition
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode() ) {
-            // 校验updateTransitionThread线程成功场景
-            ScmLifeCycleTransition actTransition = ws.getTransition( fowlName3 )
-                    .getTransition();
-            Assert.assertEquals( actTransition.toBSONObject(),
-                    updateTransition.toBSONObject() );
-        } else if ( updateTransitionThread
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode()
-                && appyTransition.getRetCode() == 0 ) {
-            // 校验appyTransition线程成功场景
-            checkThreadTransition( fowlName2 );
-        } else if ( updateTransitionThread.getRetCode() == 0
+        if ( updateTransitionThread.getRetCode() == 0
                 && appyTransition.getRetCode() == 0 ) {
             // 校验两个线程都成功场景
             ScmLifeCycleTransition actTransition = ws.getTransition( fowlName3 )

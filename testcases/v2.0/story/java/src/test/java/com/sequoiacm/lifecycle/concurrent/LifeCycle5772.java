@@ -37,6 +37,7 @@ public class LifeCycle5772 extends TestScmBase {
     private String stageTagName1 = "testTag5772_1";
     private String stageTagName2 = "testTag5772_2";
     private String stageTagName3 = "testTag5772_3";
+    private String stageTagName4 = "testTag5772_4";
     private String fowlName1 = "testFowlName5772_1To2";
     private String fowlName2 = "testFowlName5772_2To1";
     private String fileName = "file5771";
@@ -75,36 +76,7 @@ public class LifeCycle5772 extends TestScmBase {
 
         ScmLifeCycleConfig actLifeCycleConfig = ScmSystem.LifeCycleConfig
                 .getLifeCycleConfig( session );
-
-        if ( deleteSiteStageTag.getRetCode() == 0 && addSiteStageTag
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode() ) {
-            // 校验deleteSiteStageTag线程成功场景
-            List< ScmLifeCycleStageTag > stageTags = actLifeCycleConfig
-                    .getStageTagConfig();
-            for ( ScmLifeCycleStageTag stageTag : stageTags ) {
-                if ( stageTag.getName().equals( stageTagName2 ) ) {
-                    Assert.fail(
-                            "删除阶段标签失败，该阶段标签依然存在！stageTag = " + stageTagName2 );
-                }
-            }
-        } else if ( deleteSiteStageTag
-                .getRetCode() == ScmError.HTTP_INTERNAL_SERVER_ERROR
-                        .getErrorCode()
-                && addSiteStageTag.getRetCode() == 0 ) {
-            // 校验addSiteStageTag线程成功场景
-            List< ScmLifeCycleStageTag > stageTags = actLifeCycleConfig
-                    .getStageTagConfig();
-            boolean isStageTagsExit = false;
-            for ( ScmLifeCycleStageTag stageTag : stageTags ) {
-                if ( stageTag.getName().equals( stageTagName3 ) ) {
-                    isStageTagsExit = true;
-                }
-            }
-            if ( !isStageTagsExit ) {
-                Assert.fail( "预期该标签应该存在，标签名为：" + stageTagName3 );
-            }
-        } else if ( deleteSiteStageTag.getRetCode() == 0
+        if ( deleteSiteStageTag.getRetCode() == 0
                 && addSiteStageTag.getRetCode() == 0 ) {
             // 校验两个线程都成功场景
             List< ScmLifeCycleStageTag > stageTags = actLifeCycleConfig
@@ -113,7 +85,9 @@ public class LifeCycle5772 extends TestScmBase {
             expStageTags.add(
                     new ScmLifeCycleStageTag( stageTagName1, stageTagName1 ) );
             expStageTags.add(
-                    new ScmLifeCycleStageTag( stageTagName3, stageTagName3 ) );
+                    new ScmLifeCycleStageTag( stageTagName2, stageTagName2 ) );
+            expStageTags.add(
+                    new ScmLifeCycleStageTag( stageTagName4, stageTagName4 ) );
             LifeCycleUtils.checkStageTagConfig( stageTags, expStageTags );
         } else {
             Assert.fail( "两个线程预期不该都失败！线程addSiteStageTag错误码为："
@@ -148,9 +122,13 @@ public class LifeCycle5772 extends TestScmBase {
         ScmLifeCycleStageTag testStageTag2 = new ScmLifeCycleStageTag();
         testStageTag2.setName( stageTagName2 );
         testStageTag2.setDesc( stageTagName2 );
+        ScmLifeCycleStageTag testStageTag3 = new ScmLifeCycleStageTag();
+        testStageTag3.setName( stageTagName3 );
+        testStageTag3.setDesc( stageTagName3 );
 
         stageTagConfig.add( testStageTag1 );
         stageTagConfig.add( testStageTag2 );
+        stageTagConfig.add( testStageTag3 );
 
         // 文件流转触发器配置
         List< ScmTrigger > triggers1 = new ArrayList<>();
@@ -188,8 +166,8 @@ public class LifeCycle5772 extends TestScmBase {
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
             try ( ScmSession session = TestScmTools.createSession( site )) {
-                ScmSystem.LifeCycleConfig.addStageTag( session, stageTagName3,
-                        stageTagName3 );
+                ScmSystem.LifeCycleConfig.addStageTag( session, stageTagName4,
+                        stageTagName4 );
             } catch ( ScmException e ) {
                 saveResult( e.getErrorCode(), e );
             }
@@ -201,7 +179,7 @@ public class LifeCycle5772 extends TestScmBase {
         private void run() {
             try ( ScmSession session = TestScmTools.createSession( site )) {
                 ScmSystem.LifeCycleConfig.removeStageTag( session,
-                        stageTagName2 );
+                        stageTagName3 );
             } catch ( ScmException e ) {
                 saveResult( e.getErrorCode(), e );
             }
