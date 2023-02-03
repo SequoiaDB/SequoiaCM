@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * @descreption SCM-4580:用户创建session池，指定网关同步周期参数
+ *              SCM-5913:ScmConfigOption对象默认region和zone验证
  * @author YiPan
  * @date 2022/7/19
  * @updateUser
@@ -22,9 +23,11 @@ import java.util.List;
  * @updateRemark
  * @version 1.0
  */
-public class SessionMgr4580 extends TestScmBase {
+public class SessionMgr4580_5913 extends TestScmBase {
     private ScmConfigOption scmConfigOption;
     private ScmSessionPoolConf conf;
+    private String defaultRegion = "DefaultRegion";
+    private String defaultZone = "zone1";
     private List< ScmSession > sessions = new ArrayList<>();
 
     @BeforeClass
@@ -51,6 +54,10 @@ public class SessionMgr4580 extends TestScmBase {
         // 校验小于0值被设置正确(实际按0生效)
         conf.setSynGatewayUrlsInterval( -100 );
         checkSynGatewayUrlsInterval( conf, -100 );
+
+        // 校验默认region和zone
+        Assert.assertEquals( scmConfigOption.getRegion(), defaultRegion );
+        Assert.assertEquals( scmConfigOption.getZone(), defaultZone );
     }
 
     @AfterClass
