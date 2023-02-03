@@ -56,8 +56,10 @@ public class ScmScheduleUtils extends TestScmBase {
                     break;
                 } catch ( Exception e ) {
                     if ( e.getMessage() != null
-                            && e.getMessage()
-                                    .contains( "Failed to check siteNum" )
+                            && ( e.getMessage()
+                                    .contains( "Failed to check siteId" )
+                                    || e.getMessage().contains(
+                                            "Failed to check siteNum" ) )
                             && retryTimes < maxRetryTimes ) {
                         Thread.sleep( sleepTime );
                         retryTimes++;
@@ -70,6 +72,63 @@ public class ScmScheduleUtils extends TestScmBase {
                 }
             }
         }
+    }
+
+    public static void checkFileMetaAndData( ScmWorkspace ws,
+            List< ScmId > fileIds, SiteWrapper[] expSites,
+            java.io.File localPath, String filePath ) throws Exception {
+        int sleepTime = 500;
+        int maxRetryTimes = ( defaultTimeOut * 1000 ) / sleepTime;
+        int retryTimes = 0;
+        while ( true ) {
+            try {
+                ScmFileUtils.checkMetaAndData( ws.getName(), fileIds, expSites,
+                        localPath, filePath );
+                break;
+            } catch ( Exception e ) {
+                if ( e.getMessage() != null
+                        && e.getMessage().contains( "Failed to check" )
+                        && retryTimes < maxRetryTimes ) {
+                    Thread.sleep( sleepTime );
+                    retryTimes++;
+                } else {
+                    TestSdbTools.Task.printlnTaskInfos();
+                    throw new Exception( "failed to wait task finished, "
+                            + "fileId = " + fileIds + ", " + e.getMessage() );
+                }
+            }
+        }
+
+    }
+
+    public static void checkHistoryFileMetaAndData( ScmWorkspace ws,
+            List< ScmId > fileIds, SiteWrapper[] expSites,
+            java.io.File localPath, String filePath, int majorVersion,
+            int minorVersion ) throws Exception {
+        int sleepTime = 500;
+        int maxRetryTimes = ( defaultTimeOut * 1000 ) / sleepTime;
+        int retryTimes = 0;
+        while ( true ) {
+            try {
+                ScmFileUtils.checkHistoryFileMetaAndData( ws.getName(), fileIds,
+                        expSites, localPath, filePath, majorVersion,
+                        minorVersion );
+                break;
+            } catch ( Exception e ) {
+                if ( e.getMessage() != null
+                        && e.getMessage().contains( "Failed to check" )
+                        && retryTimes < maxRetryTimes ) {
+                    Thread.sleep( sleepTime );
+                    retryTimes++;
+                } else {
+                    TestSdbTools.Task.printlnTaskInfos();
+                    throw new Exception( "failed to wait task finished, "
+                            + "fileId = " + fileIds.toString() + ", "
+                            + e.getMessage() );
+                }
+            }
+        }
+
     }
 
     public static void cleanTask( ScmSession session, ScmId scheId )

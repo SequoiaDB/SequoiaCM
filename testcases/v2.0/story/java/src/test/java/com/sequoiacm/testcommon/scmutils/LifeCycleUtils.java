@@ -395,4 +395,89 @@ public class LifeCycleUtils {
         }
         Assert.assertEquals( act, exp );
     }
+
+    /**
+     * @descreption 校验全局生命周期配置
+     * @param actLifeCycleConfig
+     *            实际配置
+     * @param expLifeCycleConfig
+     *            预期配置
+     */
+    public static void checkScmLifeCycleConfig(
+            ScmLifeCycleConfig actLifeCycleConfig,
+            ScmLifeCycleConfig expLifeCycleConfig ) {
+        // 设置全局配置
+        List< ScmLifeCycleTransition > actTransitionConfig = actLifeCycleConfig
+                .getTransitionConfig();
+        List< ScmLifeCycleTransition > expTransitionConfig = expLifeCycleConfig
+                .getTransitionConfig();
+
+        List< ScmLifeCycleStageTag > actStageTagConfig = actLifeCycleConfig
+                .getStageTagConfig();
+        List< ScmLifeCycleStageTag > expStageTagConfig = expLifeCycleConfig
+                .getStageTagConfig();
+
+        LifeCycleUtils.checkStageTagConfig( actStageTagConfig,
+                expStageTagConfig );
+        LifeCycleUtils.checkTransitionConfig( actTransitionConfig,
+                expTransitionConfig );
+    }
+
+    /**
+     * @descreption 校验TransitionConfig
+     * @param actTransitionConfig
+     *            实际TransitionConfig
+     * @param expTransitionConfig
+     *            预期TransitionConfig
+     */
+    public static void checkTransitionConfig(
+            List< ScmLifeCycleTransition > actTransitionConfig,
+            List< ScmLifeCycleTransition > expTransitionConfig ) {
+        Assert.assertEquals( actTransitionConfig.size(),
+                expTransitionConfig.size() );
+        for ( int i = 0; i < expTransitionConfig.size(); i++ ) {
+            // 校验TransitionConfig基础属性
+            Assert.assertEquals( actTransitionConfig.get( i ).getName(),
+                    expTransitionConfig.get( i ).getName() );
+            Assert.assertEquals( actTransitionConfig.get( i ).getDest(),
+                    expTransitionConfig.get( i ).getDest() );
+            Assert.assertEquals( actTransitionConfig.get( i ).getSource(),
+                    expTransitionConfig.get( i ).getSource() );
+            Assert.assertEquals( actTransitionConfig.get( i ).getScope(),
+                    expTransitionConfig.get( i ).getScope() );
+            Assert.assertEquals( actTransitionConfig.get( i ).getMatcher(),
+                    expTransitionConfig.get( i ).getMatcher() );
+            Assert.assertEquals(
+                    actTransitionConfig.get( i ).getDataCheckLevel(),
+                    expTransitionConfig.get( i ).getDataCheckLevel() );
+
+            // 校验TransitionConfig中TriggerList
+            List< ScmTrigger > expTriggerList = expTransitionConfig.get( i )
+                    .getTransitionTriggers().getTriggerList();
+            List< ScmTrigger > actTriggerList = actTransitionConfig.get( i )
+                    .getTransitionTriggers().getTriggerList();
+            checkTriggersConfig( actTriggerList, expTriggerList );
+
+            // 校验TransitionConfig中CleanTriggers
+            // 预期结果中不存在cleanTriggers，则不校验
+            ScmCleanTriggers cleanTriggers = expTransitionConfig.get( i )
+                    .getCleanTriggers();
+            if ( cleanTriggers != null ) {
+                ScmCleanTriggers expCleanTriggers = expTransitionConfig.get( i )
+                        .getCleanTriggers();
+                ScmCleanTriggers actCleanTriggers = actTransitionConfig.get( i )
+                        .getCleanTriggers();
+
+                Assert.assertEquals( actCleanTriggers.getMode(),
+                        expCleanTriggers.getMode() );
+                Assert.assertEquals( actCleanTriggers.getMaxExecTime(),
+                        expCleanTriggers.getMaxExecTime() );
+                Assert.assertEquals( actCleanTriggers.getRule(),
+                        expCleanTriggers.getRule() );
+                checkTriggersConfig( actCleanTriggers.getTriggerList(),
+                        expCleanTriggers.getTriggerList() );
+            }
+
+        }
+    }
 }
