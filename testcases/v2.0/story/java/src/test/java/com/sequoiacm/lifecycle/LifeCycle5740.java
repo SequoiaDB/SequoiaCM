@@ -57,15 +57,14 @@ public class LifeCycle5740 extends TestScmBase {
         LifeCycleUtils.checkScmLifeCycleConfigByBson( actConfig, config );
 
         // 存在、且有全局流使用
-        // TODO: SEQUOIACM-1246
-        // try {
-        // ScmSystem.LifeCycleConfig.removeStageTag( session, hot );
-        // Assert.fail( "except fail but success" );
-        // } catch ( ScmException e ) {
-        // if ( !e.getError().equals( ScmError.HTTP_BAD_REQUEST ) ) {
-        // throw e;
-        // }
-        // }
+        try {
+            ScmSystem.LifeCycleConfig.removeStageTag( session, hot );
+            Assert.fail( "except fail but success" );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.HTTP_INTERNAL_SERVER_ERROR ) ) {
+                throw e;
+            }
+        }
 
         // 存在、且有站点使用
         ScmSystem.LifeCycleConfig.addStageTag( session, newTag, newTag );
