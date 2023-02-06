@@ -79,10 +79,8 @@ public class LifeCycle5762 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                LifeCycleUtils.cleanLifeCycleConfig( session );
-            }
         } finally {
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }

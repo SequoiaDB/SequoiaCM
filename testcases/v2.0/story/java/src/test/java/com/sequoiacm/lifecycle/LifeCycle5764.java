@@ -111,11 +111,11 @@ public class LifeCycle5764 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFileUtils.cleanFile( wsp, queryCond );
-                LifeCycleUtils.cleanWsLifeCycleConfig( ws );
-                LifeCycleUtils.cleanLifeCycleConfig( session );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
+            LifeCycleUtils.cleanWsLifeCycleConfig( ws );
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }

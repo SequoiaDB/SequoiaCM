@@ -124,12 +124,12 @@ public class LifeCycle5761 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                LifeCycleUtils.cleanWsLifeCycleConfig( ws );
-                LifeCycleUtils.cleanLifeCycleConfig( session );
                 ScmFactory.Role.deleteRole( session, user );
                 ScmAuthUtils.deleteUser( session, user );
             }
         } finally {
+            LifeCycleUtils.cleanWsLifeCycleConfig( ws );
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }

@@ -88,10 +88,10 @@ public class LifeCycle5765 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFileUtils.cleanFile( wsp, queryCond );
-                LifeCycleUtils.cleanWsLifeCycleConfig( ws );
-                LifeCycleUtils.cleanLifeCycleConfig( session );
             }
         } finally {
+            LifeCycleUtils.cleanWsLifeCycleConfig( ws );
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }

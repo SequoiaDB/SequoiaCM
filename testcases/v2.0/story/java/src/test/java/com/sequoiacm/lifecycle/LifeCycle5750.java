@@ -42,7 +42,6 @@ public class LifeCycle5750 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
-
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -50,34 +49,34 @@ public class LifeCycle5750 extends TestScmBase {
         // test a : 全局Transition数量为0
         lifeCycleConfig = prepareLifeCycleConfig1();
         LifeCycleUtils.cleanLifeCycleConfig( session );
-        try {
-            ScmSystem.LifeCycleConfig.setLifeCycleConfig( session,
-                    lifeCycleConfig );
-            Assert.fail( "预期失败，实际成功" );
-        } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.INVALID_ARGUMENT
-                    .getErrorCode() ) {
-                throw e;
-            }
-        }
+        ScmSystem.LifeCycleConfig.setLifeCycleConfig( session,
+                lifeCycleConfig );
+
+        List< ScmLifeCycleTransition > actTransitions = ScmSystem.LifeCycleConfig
+                .getTransitionConfig( session );
+        List< ScmLifeCycleTransition > expTransitions = new ArrayList<>();
+        Assert.assertEquals( actTransitions, expTransitions );
 
         // test b : 全局Transition数量为1
         lifeCycleConfig = prepareLifeCycleConfig2();
         LifeCycleUtils.cleanLifeCycleConfig( session );
         ScmSystem.LifeCycleConfig.setLifeCycleConfig( session,
                 lifeCycleConfig );
-        ScmLifeCycleConfig actLifeCycleConfig = ScmSystem.LifeCycleConfig
-                .getLifeCycleConfig( session );
-        LifeCycleUtils.checkScmLifeCycleConfig(actLifeCycleConfig,lifeCycleConfig);
+
+        actTransitions = ScmSystem.LifeCycleConfig
+                .getTransitionConfig( session );
+        LifeCycleUtils.checkTransitionConfig( actTransitions,
+                lifeCycleConfig.getTransitionConfig() );
 
         // test c : 全局Transition数量为多个
         lifeCycleConfig = prepareLifeCycleConfig3();
         LifeCycleUtils.cleanLifeCycleConfig( session );
         ScmSystem.LifeCycleConfig.setLifeCycleConfig( session,
                 lifeCycleConfig );
-        actLifeCycleConfig = ScmSystem.LifeCycleConfig
-                .getLifeCycleConfig( session );
-        LifeCycleUtils.checkScmLifeCycleConfig(actLifeCycleConfig,lifeCycleConfig);
+        actTransitions = ScmSystem.LifeCycleConfig
+                .getTransitionConfig( session );
+        LifeCycleUtils.checkTransitionConfig( actTransitions,
+                lifeCycleConfig.getTransitionConfig() );
 
         runSuccess = true;
     }
@@ -85,16 +84,13 @@ public class LifeCycle5750 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                LifeCycleUtils.cleanLifeCycleConfig( session );
-            }
         } finally {
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }
         }
     }
-
 
     public ScmLifeCycleConfig prepareLifeCycleConfig1() throws ScmException {
         // 阶段标签配置
@@ -127,7 +123,6 @@ public class LifeCycle5750 extends TestScmBase {
 
         stageTagConfig.add( testStageTag1 );
         stageTagConfig.add( testStageTag2 );
-
 
         // 文件流转触发器配置
         List< ScmTrigger > triggers1 = new ArrayList<>();

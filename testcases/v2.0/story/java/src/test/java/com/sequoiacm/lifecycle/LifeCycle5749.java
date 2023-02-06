@@ -63,9 +63,9 @@ public class LifeCycle5749 extends TestScmBase {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.Role.deleteRole( session, user );
                 ScmAuthUtils.deleteUser( session, user );
-                LifeCycleUtils.cleanLifeCycleConfig( session );
             }
         } finally {
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }

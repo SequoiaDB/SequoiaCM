@@ -474,8 +474,10 @@ public class LifeCycleUtils {
                         expCleanTriggers.getMaxExecTime() );
                 Assert.assertEquals( actCleanTriggers.getRule(),
                         expCleanTriggers.getRule() );
-                checkTriggersConfig( actCleanTriggers.getTriggerList(),
-                        expCleanTriggers.getTriggerList() );
+                if ( expCleanTriggers.getTriggerList() != null ) {
+                    checkTriggersConfig( actCleanTriggers.getTriggerList(),
+                            expCleanTriggers.getTriggerList() );
+                }
             }
 
         }

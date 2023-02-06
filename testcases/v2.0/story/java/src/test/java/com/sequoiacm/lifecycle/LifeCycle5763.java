@@ -102,12 +102,10 @@ public class LifeCycle5763 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                LifeCycleUtils.cleanLifeCycleConfig( session );
-                ScmWorkspaceUtil.deleteWs( wsNameA, session );
-                ScmWorkspaceUtil.deleteWs( wsNameB, session );
-            }
         } finally {
+            LifeCycleUtils.cleanLifeCycleConfig( session );
+            ScmWorkspaceUtil.deleteWs( wsNameA, session );
+            ScmWorkspaceUtil.deleteWs( wsNameB, session );
             if ( session != null ) {
                 session.close();
             }

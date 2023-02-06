@@ -150,12 +150,12 @@ public class LifeCycle5754 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                LifeCycleUtils.cleanWsLifeCycleConfig( ws );
-                LifeCycleUtils.cleanLifeCycleConfig( session );
                 TestTools.LocalFile.removeFile( localPath );
-                ScmWorkspaceUtil.deleteWs( wsName, session );
             }
         } finally {
+            LifeCycleUtils.cleanWsLifeCycleConfig( ws );
+            LifeCycleUtils.cleanLifeCycleConfig( session );
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

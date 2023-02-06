@@ -81,11 +81,9 @@ public class LifeCycle5771 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                LifeCycleUtils.cleanWsLifeCycleConfig( ws );
-                LifeCycleUtils.cleanLifeCycleConfig( session );
-            }
         } finally {
+            LifeCycleUtils.cleanWsLifeCycleConfig( ws );
+            LifeCycleUtils.cleanLifeCycleConfig( session );
             if ( session != null ) {
                 session.close();
             }
