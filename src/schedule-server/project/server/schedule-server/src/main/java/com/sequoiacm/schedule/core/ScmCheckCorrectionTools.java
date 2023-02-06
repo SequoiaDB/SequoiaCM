@@ -410,7 +410,7 @@ public class ScmCheckCorrectionTools {
                     "correction flow failed,can not get sourceStageTag destStageTag from site,sourceSiteName="
                             + source + ", destSiteName=" + dest + ", transitionId=" + info.getId());
         }
-        info.getTransition().setFlow(new ScmFlow(sourceSite.getStageTag(), destSite.getName()));
+        info.getTransition().setFlow(new ScmFlow(sourceSite.getStageTag(), destSite.getStageTag()));
         info.setUpdateUser("admin");
         info.setUpdateTime(new Date().getTime());
         try {
