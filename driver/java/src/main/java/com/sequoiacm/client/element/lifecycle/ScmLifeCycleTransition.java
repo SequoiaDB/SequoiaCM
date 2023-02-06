@@ -7,6 +7,9 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
 
+/**
+ * The transition info.
+ */
 public class ScmLifeCycleTransition {
     private String name;
 
@@ -82,82 +85,192 @@ public class ScmLifeCycleTransition {
         return transition;
     }
 
+    /**
+     * Return the transition name.
+     * 
+     * @return the transition name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set the transition name.
+     * 
+     * @param name
+     *            the transition name.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Return the transitionTriggers info.
+     * 
+     * @return ScmTransitionTriggers.
+     */
     public ScmTransitionTriggers getTransitionTriggers() {
         return transitionTriggers;
     }
 
+    /**
+     * Set the transitionTriggers info.
+     * 
+     * @param transitionTriggers
+     *            ScmTransitionTriggers.
+     */
     public void setTransitionTriggers(ScmTransitionTriggers transitionTriggers) {
         this.transitionTriggers = transitionTriggers;
     }
 
+    /**
+     * Return the cleanTriggers info.
+     * 
+     * @return ScmCleanTriggers.
+     */
     public ScmCleanTriggers getCleanTriggers() {
         return cleanTriggers;
     }
 
+    /**
+     * Set the cleanTriggers info.
+     * 
+     * @param cleanTriggers
+     *            ScmCleanTriggers.
+     */
     public void setCleanTriggers(ScmCleanTriggers cleanTriggers) {
         this.cleanTriggers = cleanTriggers;
     }
 
+    /**
+     * Return the transition matcher info for filter files.
+     * 
+     * @return the transition matcher info.
+     */
     public String getMatcher() {
         return matcher;
     }
 
+    /**
+     * Set the transition matcher info for filter files.
+     * 
+     * @param matcher
+     *            the transition matcher info.
+     */
     public void setMatcher(String matcher) {
         this.matcher = matcher;
     }
 
+    /**
+     * Return the flow's source info.
+     * 
+     * @return the flow's source info.
+     */
     public String getSource() {
         return source;
     }
 
+    /**
+     * Set the flow's source info.
+     * 
+     * @param source
+     *            the flow's source info.
+     */
     public void setSource(String source) {
         this.source = source;
     }
 
+    /**
+     * Return the flow's dest info.
+     *
+     * @return the flow's dest info.
+     */
     public String getDest() {
         return dest;
     }
 
+    /**
+     * Set the flow's dest info.
+     * 
+     * @param dest
+     *            the flow's dest info.
+     */
     public void setDest(String dest) {
         this.dest = dest;
     }
 
+    /**
+     * Is need quick start.
+     * 
+     * @return Is need quick start.
+     */
     public boolean isQuickStart() {
         return isQuickStart;
     }
 
+    /**
+     * Set need quick start.
+     * 
+     * @param quickStart
+     *            Is need quick start.
+     */
     public void setQuickStart(boolean quickStart) {
         isQuickStart = quickStart;
     }
 
+    /**
+     * Is need recycle space.
+     * 
+     * @return Is need recycle space.
+     */
     public boolean isRecycleSpace() {
         return isRecycleSpace;
     }
 
+    /**
+     * Set need recycle space.
+     * 
+     * @param recycleSpace
+     *            Is need recycle space.
+     */
     public void setRecycleSpace(boolean recycleSpace) {
         isRecycleSpace = recycleSpace;
     }
 
+    /**
+     * Return the data check level for files.
+     * 
+     * @return the data check level.
+     */
     public String getDataCheckLevel() {
         return dataCheckLevel;
     }
 
+    /**
+     * Set the data check level for files, can only set 'strict' or 'week'.
+     * 
+     * @param dataCheckLevel
+     *            the data check level.
+     */
     public void setDataCheckLevel(String dataCheckLevel) {
         this.dataCheckLevel = dataCheckLevel;
     }
 
+    /**
+     * Return the scope of the task.
+     * 
+     * @return the scope.
+     */
     public String getScope() {
         return scope;
     }
 
+    /**
+     * Set the scope of the task, can only set 'ALL' or 'CURRENT' or 'HISTORY'.
+     * 
+     * @param scope
+     *            the scope.
+     */
     public void setScope(String scope) {
         this.scope = scope;
     }

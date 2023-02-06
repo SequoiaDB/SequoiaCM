@@ -10,6 +10,9 @@ import org.bson.types.BasicBSONList;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The workspace apply life cycle config info.
+ */
 public class ScmWorkspaceLifeCycleConfig {
     private String workspaceName;
 
@@ -55,18 +58,40 @@ public class ScmWorkspaceLifeCycleConfig {
         return config;
     }
 
+    /**
+     * Return the workspace name.
+     * 
+     * @return the workspace name.
+     */
     public String getWorkspaceName() {
         return workspaceName;
     }
 
+    /**
+     * Set the workspace name.
+     * 
+     * @param workspaceName
+     *            workspace name.
+     */
     public void setWorkspaceName(String workspaceName) {
         this.workspaceName = workspaceName;
     }
 
+    /**
+     * Return the ScmLifeCycleTransition List for apply into workspace.
+     * 
+     * @return the ScmLifeCycleTransition List.
+     */
     public List<ScmLifeCycleTransition> getTransitionConfig() {
         return transitionConfig;
     }
 
+    /**
+     * Set the ScmLifeCycleTransition List for apply into workspace.
+     * 
+     * @param transitionConfig
+     *            ScmLifeCycleTransition List.
+     */
     public void setTransitionConfig(List<ScmLifeCycleTransition> transitionConfig) {
         this.transitionConfig = transitionConfig;
     }

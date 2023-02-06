@@ -12,6 +12,9 @@ import org.bson.types.BasicBSONList;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The cleanTriggers info.
+ */
 public class ScmCleanTriggers {
     private String mode;
 
@@ -63,34 +66,78 @@ public class ScmCleanTriggers {
         return triggers;
     }
 
+    /**
+     * Return the clean triggers mode.
+     * 
+     * @return The clean triggers mode.
+     */
     public String getMode() {
         return mode;
     }
 
+    /**
+     * Set the clean triggers mode, can only set 'ALL' or 'ANY'.
+     *
+     * @param mode
+     *            clean triggers mode.
+     */
     public void setMode(String mode) {
         this.mode = mode;
     }
 
+    /**
+     * Return the clean triggers maxExecTime.
+     *
+     * @return The clean triggers maxExecTime.
+     */
     public long getMaxExecTime() {
         return maxExecTime;
     }
 
+    /**
+     * Set the clean triggers maxExecTime.
+     * 
+     * @param maxExecTime
+     *            clean triggers maxExecTime.
+     */
     public void setMaxExecTime(long maxExecTime) {
         this.maxExecTime = maxExecTime;
     }
 
+    /**
+     * Return the clean triggers rule.
+     *
+     * @return The clean triggers rule.
+     */
     public String getRule() {
         return rule;
     }
 
+    /**
+     * Set the clean triggers rule, can only set a cron expression.
+     * 
+     * @param rule
+     *            clean triggers rule.
+     */
     public void setRule(String rule) {
         this.rule = rule;
     }
 
+    /**
+     * Return ScmTrigger List.
+     *
+     * @return ScmTrigger List.
+     */
     public List<ScmTrigger> getTriggerList() {
         return triggerList;
     }
 
+    /**
+     * Set the ScmTrigger List.
+     * 
+     * @param triggerList
+     *            ScmTrigger List.
+     */
     public void setTriggerList(List<ScmTrigger> triggerList) {
         this.triggerList = triggerList;
     }

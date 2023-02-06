@@ -13,6 +13,9 @@ import org.bson.types.BasicBSONList;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The transitionTriggers info.
+ */
 public class ScmTransitionTriggers {
     private String mode;
     private long maxExecTime;
@@ -61,34 +64,78 @@ public class ScmTransitionTriggers {
         return triggers;
     }
 
+    /**
+     * Return the transition triggers mode.
+     *
+     * @return The transition triggers mode.
+     */
     public String getMode() {
         return mode;
     }
 
+    /**
+     * Set the transition triggers mode, can only set 'ALL' or 'ANY'.
+     * 
+     * @param mode
+     *            transition triggers mode.
+     */
     public void setMode(String mode) {
         this.mode = mode;
     }
 
+    /**
+     * Return the transition triggers maxExecTime.
+     * 
+     * @return the transition triggers maxExecTime.
+     */
     public long getMaxExecTime() {
         return maxExecTime;
     }
 
+    /**
+     * Set the transition triggers maxExecTime.
+     * 
+     * @param maxExecTime
+     *            transition triggers maxExecTime.
+     */
     public void setMaxExecTime(long maxExecTime) {
         this.maxExecTime = maxExecTime;
     }
 
+    /**
+     * Return the transition triggers rule.
+     * 
+     * @return the transition triggers rule.
+     */
     public String getRule() {
         return rule;
     }
 
+    /**
+     * Set the transition triggers rule, can only set a cron expression.
+     * 
+     * @param rule
+     *            transition triggers rule.
+     */
     public void setRule(String rule) {
         this.rule = rule;
     }
 
+    /**
+     * Return the ScmTrigger List.
+     * 
+     * @return the ScmTrigger List.
+     */
     public List<ScmTrigger> getTriggerList() {
         return triggerList;
     }
 
+    /**
+     * Set the ScmTrigger List.
+     * 
+     * @param triggerList
+     *            ScmTrigger List.
+     */
     public void setTriggerList(List<ScmTrigger> triggerList) {
         this.triggerList = triggerList;
     }

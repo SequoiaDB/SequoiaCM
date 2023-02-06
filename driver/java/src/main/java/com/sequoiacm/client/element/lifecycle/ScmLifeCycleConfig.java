@@ -11,6 +11,9 @@ import org.bson.types.BasicBSONList;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The life cycle config info.
+ */
 public class ScmLifeCycleConfig {
 
     private List<ScmLifeCycleStageTag> stageTagConfig;
@@ -79,18 +82,40 @@ public class ScmLifeCycleConfig {
         return config;
     }
 
+    /**
+     * Return the ScmLifeCycleStageTag List.
+     * 
+     * @return the ScmLifeCycleStageTag List.
+     */
     public List<ScmLifeCycleStageTag> getStageTagConfig() {
         return stageTagConfig;
     }
 
+    /**
+     * Set the ScmLifeCycleStageTag List.
+     * 
+     * @param stageTagConfig
+     *            ScmLifeCycleStageTag List.
+     */
     public void setStageTagConfig(List<ScmLifeCycleStageTag> stageTagConfig) {
         this.stageTagConfig = stageTagConfig;
     }
 
+    /**
+     * Return the ScmLifeCycleTransition List.
+     * 
+     * @return the ScmLifeCycleTransition List.
+     */
     public List<ScmLifeCycleTransition> getTransitionConfig() {
         return transitionConfig;
     }
 
+    /**
+     * Set the ScmLifeCycleTransition List.
+     * 
+     * @param transitionConfig
+     *            ScmLifeCycleTransition List.
+     */
     public void setTransitionConfig(List<ScmLifeCycleTransition> transitionConfig) {
         this.transitionConfig = transitionConfig;
     }

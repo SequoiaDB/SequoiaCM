@@ -4,6 +4,9 @@ import com.sequoiacm.common.FieldName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+/**
+ * The stage tag info.
+ */
 public class ScmLifeCycleStageTag {
 
     private String name;
@@ -35,18 +38,40 @@ public class ScmLifeCycleStageTag {
         this.desc = desc;
     }
 
+    /**
+     * Return the stage tag name.
+     * 
+     * @return stage tag name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set the stage tag name.
+     * 
+     * @param name
+     *            stage tag name.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Return the stage tag desc.
+     * 
+     * @return stage tag desc.
+     */
     public String getDesc() {
         return desc;
     }
 
+    /**
+     * Set the stage tag desc.
+     * 
+     * @param desc
+     *            stage tag desc.
+     */
     public void setDesc(String desc) {
         this.desc = desc;
     }

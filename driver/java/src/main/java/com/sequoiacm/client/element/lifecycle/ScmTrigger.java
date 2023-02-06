@@ -4,6 +4,9 @@ import com.sequoiacm.common.FieldName;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
+/**
+ * The trigger info.
+ */
 public class ScmTrigger {
     private String id;
     private String mode;
@@ -65,50 +68,117 @@ public class ScmTrigger {
         this.lastAccessTime = lastAccessTime;
         this.transitionTime = transitionTime;
     }
+
+    /**
+     * Return the trigger id.
+     * 
+     * @return the trigger id.
+     */
     public String getID() {
         return id;
     }
 
+    /**
+     * Set the trigger id.
+     * 
+     * @param id
+     *            trigger id.
+     */
     public void setID(String id) {
         this.id = id;
     }
 
+    /**
+     * Return the trigger mode.
+     * 
+     * @return the trigger mode.
+     */
     public String getMode() {
         return mode;
     }
 
+    /**
+     * Set the trigger mode, can only set 'ALL' or 'ANY'.
+     * 
+     * @param mode
+     *            trigger mode.
+     */
     public void setMode(String mode) {
         this.mode = mode;
     }
 
+    /**
+     * Return the trigger createTime.
+     * 
+     * @return the trigger createTime.
+     */
     public String getCreateTime() {
         return createTime;
     }
 
+    /**
+     * Set the trigger createTime.
+     * 
+     * @param createTime
+     *            trigger createTime
+     */
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
+    /**
+     * Return the trigger lastAccessTime.
+     * 
+     * @return the trigger lastAccessTime.
+     */
     public String getLastAccessTime() {
         return lastAccessTime;
     }
 
+    /**
+     * Set the trigger lastAccessTime.
+     * 
+     * @param lastAccessTime
+     *            trigger lastAccessTime.
+     */
     public void setLastAccessTime(String lastAccessTime) {
         this.lastAccessTime = lastAccessTime;
     }
 
+    /**
+     * Return the trigger buildTime.
+     * 
+     * @return the trigger buildTime.
+     */
     public String getBuildTime() {
         return buildTime;
     }
 
+    /**
+     * Set the trigger buildTime.
+     * 
+     * @param buildTime
+     *            trigger buildTime.
+     */
     public void setBuildTime(String buildTime) {
         this.buildTime = buildTime;
     }
 
+    /**
+     * Return the trigger transitionTime.
+     * 
+     * @return trigger transitionTime.
+     */
     public String getTransitionTime() {
         return transitionTime;
     }
 
+    /**
+     * Set the trigger transitionTime.
+     * 
+     * @param transitionTime
+     *            trigger transitionTime.
+     */
     public void setTransitionTime(String transitionTime) {
         this.transitionTime = transitionTime;
     }
