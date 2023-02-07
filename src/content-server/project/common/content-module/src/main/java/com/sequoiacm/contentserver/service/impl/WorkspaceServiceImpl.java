@@ -141,18 +141,24 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
         }
 
-        ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(wsName);
-        Map<Integer, ScmLocation> locations = wsInfo.getDataLocations();
+        Map<Integer, ScmLocation> locations = null;
+        ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfo(wsName);
+        if (workspaceInfo != null) {
+            locations = workspaceInfo.getDataLocations();
+        }
+
         ContenserverConfClient.getInstance().deleteWorkspace(new WorkspaceFilter(wsName));
 
         cleanPrivilege(token, user, wsName);
-
-        AsyncUtils.execute(new Runnable() {
-            @Override
-            public void run() {
-                deleteDataTable(contentModule, wsName, locations);
-            }
-        });
+        if (locations != null) {
+            Map<Integer, ScmLocation> locationMap = locations;
+            AsyncUtils.execute(new Runnable() {
+                @Override
+                public void run() {
+                    deleteDataTable(contentModule, wsName, locationMap);
+                }
+            });
+        }
 
         audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
                 "delete wsName=" + wsName + ", isEnforced=" + isEnforced);
