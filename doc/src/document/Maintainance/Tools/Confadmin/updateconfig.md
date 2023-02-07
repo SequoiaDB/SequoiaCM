@@ -30,5 +30,5 @@ updateconfig 子命令提供动态修改服务或节点配置的功能。
    如果指定修改重启生效的配置，工具将会输出如下信息，提示需要重启节点
    
    ```lang-javascript
-   config 'scm.sdb.connectTimeout' require restart to take effect.
+   config 'scm.store.sequoiadb.connectTimeout' require restart to take effect.
    ```
