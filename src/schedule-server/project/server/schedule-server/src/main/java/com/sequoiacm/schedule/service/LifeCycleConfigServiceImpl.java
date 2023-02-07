@@ -479,8 +479,8 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
         }
     }
 
-    private void updateWsTransitionFlowStageTag(String workspace, String oldStageTag,
-            String newStageTag) throws Exception {
+    private void updateWsTransitionFlowStageTag(LifeCycleConfigFullEntity fullInfo,
+            String workspace, String oldStageTag, String newStageTag) throws Exception {
         BSONObject matcher = new BasicBSONObject(FieldName.LifeCycleConfig.FIELD_WORKSPACE_NAME,
                 workspace);
         ScmBSONObjectCursor wsTransitionList = null;
@@ -497,6 +497,15 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                         BSONObject updator = TransitionEntityTranslator.WsFullInfo
                                 .toBSONObject(entity);
                         lifeCycleScheduleDao.update(updator, t);
+
+                        // 更新 flow 后就变为自定义，从全局 transition 的 workspaces 剔除该工作区
+                        TransitionFullEntity transition = getTransitionById(fullInfo,
+                                entity.getGlobalTransitionId());
+                        if (null != transition) {
+                            BSONObject object = updateTransitionRemoveWs(fullInfo, transition,
+                                    workspace);
+                            lifeCycleConfigDao.update(object, t);
+                        }
                     }
                     t.commit();
                 }
@@ -1138,8 +1147,8 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                 for (WorkspaceInfo scmWorkspaceInfo : workspaceInfoList) {
                     // 更新工作区下对应流的Transition的flow
                     try {
-                        updateWsTransitionFlowStageTag(scmWorkspaceInfo.getName(), siteStageTag,
-                                newStageTag);
+                        updateWsTransitionFlowStageTag(lifeCycleConfig, scmWorkspaceInfo.getName(),
+                                siteStageTag, newStageTag);
                         logger.info(
                                 "update workspace transition flow by update site stage tag, workspace="
                                         + scmWorkspaceInfo.getName() + ", oldStageTag="
