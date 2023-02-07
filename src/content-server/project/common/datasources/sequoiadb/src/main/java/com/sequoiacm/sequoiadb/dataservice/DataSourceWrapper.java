@@ -97,7 +97,6 @@ public class DataSourceWrapper {
         try {
             if (null != dataSource) {
                 dataSource.close();
-                dataSource = null;
             }
         }
         catch (Exception e) {
