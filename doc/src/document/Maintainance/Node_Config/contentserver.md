@@ -80,7 +80,8 @@ SequoiaCM 配置
 |scm.jobManager.threadpool.coreSize     |num  |内容服务节点异步任务线程池的核心线程大小，支持动态刷新，默认值：8|在线生效|
 |scm.jobManager.threadpool.maxSize     |num  |内容服务节点异步任务线程池的最大线程大小，支持动态刷新，默认值：10|在线生效|
 |scm.jobManager.threadpool.queueSize    |num  |内容服务节点异步任务线程池的任务队列大小，默认值：5000|重启生效|
-
+| scm.cacheStrategy.auto.days                 | num     | auto 缓存策略下，触发缓存的最大天数，默认值为 3                                                                                |重启生效|
+| scm.cacheStrategy.auto.accessCount          | num     | auto 缓存策略下，在触发缓存的最大天数内，文件数据需达到的最小访问次数，默认值为 3                                                                            |重启生效|
 
  > **Note:**
  >

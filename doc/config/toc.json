@@ -158,6 +158,12 @@
                 "file": "service_trace_operation",
                 "cn": "链路追踪操作",
                 "en": "Service Trace Operation"
+            },
+            {
+                "id": 1673591570,
+                "file": "lifecycle_operation",
+                "cn": "生命周期管理操作",
+                "en": "LifeCycle Manage Operation"
             }]
         },
         {
@@ -351,6 +357,12 @@
             "file": "schedule_principle",
             "cn": "调度原理",
             "en": "Schedule Principle"
+        },
+        {
+            "id": 1673591416,
+            "file": "lifecycle_manage",
+            "cn": "生命周期管理",
+            "en": "LifeCycle Manage"
         },
         {
             "id": 1535329945,

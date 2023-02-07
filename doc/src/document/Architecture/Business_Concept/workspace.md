@@ -33,7 +33,6 @@ Workspace （工作区） 用于承载具体业务的逻辑单元，可以存储
 >
 >  * 上层业务逻辑并不感知底层文件的存储分区方式，分区仅作为规划底层数据存储的方式。
 
-
 ## 文件缓存策略 ##
 
 在多站点环境下，业务读取工作区的文件可能会使得文件数据在多个站点上流动（[跨中心读文件][cross_site_read_file]），文件缓存策略可以控制文件数据是否缓存在途经的站点上，目前支持如下缓存策略：
@@ -42,10 +41,16 @@ Workspace （工作区） 用于承载具体业务的逻辑单元，可以存储
 
 - never：文件在跨中心读时，文件数据不会缓存在途经的站点上
 
->  **Note**
+- auto：文件在跨中心读时，文件数据会根据文件在直连站点的访问频率，缓存在途经的站点上
+
+> **Note**
 >
 >  * 目前版本当客户端指定 seek 方式跨中心读取文件时，即便缓存策略为 never，数据仍然会缓存在途经的站点上
+>  * 当缓存策略为 auto 时，默认访问频率为三天内访问次数达到三次，用户可通过[内容服务节点配置][content_node_config_file]修改频率。
 
 
 [workspace_arch]:Architecture/Business_Concept/workspace.png
+
 [cross_site_read_file]:Architecture/cross_site_read_file.md
+
+[content_node_config_file]:Maintainance/Node_Config/contentserver.md
