@@ -208,13 +208,13 @@ export const constantRoutes = [
         path: 'user',
         name: 'User',
         component: () => import('@/views/system/user/index'),
-        meta: { title: '用户管理', icon: 'el-icon-user',  keepAlive:true }      // icon: 'el-icon-setting',
+        meta: { title: '用户管理', icon: 'el-icon-user',  keepAlive:true, roles: ['ROLE_AUTH_ADMIN']}      // icon: 'el-icon-setting',
       },
       {
           path: 'role',
           name: 'Role',
           component: () => import('@/views/system/role/index'),
-          meta: { title: '角色管理', icon: 'el-icon-s-custom', keepAlive:true }    // icon: 'el-icon-setting'
+          meta: { title: '角色管理', icon: 'el-icon-s-custom', keepAlive:true, roles: ['ROLE_AUTH_ADMIN'] }    // icon: 'el-icon-setting'
       }
     ]
   },

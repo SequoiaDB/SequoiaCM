@@ -57,7 +57,7 @@ const actions = {
       return new Promise((resolve, reject) => {
         getInfo(username).then(res => {
           commit('SET_USER_INFO', res.data)
-          resolve()
+          resolve(res)
         }).catch(error => {
           reject(error)
         })

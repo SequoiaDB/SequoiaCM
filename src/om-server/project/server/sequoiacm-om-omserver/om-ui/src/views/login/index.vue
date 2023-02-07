@@ -90,10 +90,30 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+          this.$store.dispatch('user/login', this.loginForm).then((res) => {
+            let userRoles = res.data.roles
+            let redirectPath = '/'
+            if (this.redirect) {
+              // SEQUOIACM-1138： 避免非管理员用户访问到系统管理页面
+              let res = this.$router.resolve({path: this.redirect})
+              let routeList = res.resolved.matched
+              let hasPriority = true
+              routeList.forEach(ele => {
+                if (ele.meta && ele.meta.roles) {
+                  let meta = ele.meta
+                  if (!userRoles.some(role => meta.roles.includes(role.role_name))) {
+                    hasPriority = false
+                  }
+                }                
+              })
+              if (hasPriority) {
+                redirectPath = this.redirect
+              }
+            }  
+            this.$router.push({ path: redirectPath })
             this.loading = false
-          }).catch(() => {
+          }).catch((error) => {
+            console.log(error)
             this.loading = false
           })
         } else {
