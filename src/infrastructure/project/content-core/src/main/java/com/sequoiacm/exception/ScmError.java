@@ -90,6 +90,7 @@ public enum ScmError {
     DATA_IS_IN_USE(-411, "Data is in use"),
     STORE_SPACE_IS_NOT_EXIST(-412, "Store space is not exist"),
     DATA_PIECES_INFO_OVERFLOW(-413, "Data piece info overflow"),
+    DATA_STORAGE_QUOTA_EXCEEDED(-414, "data storage quota exceeded"),
 
     // metadata error 5xx
     METADATA_CHECK_ERROR(-501, "Properties check error"),

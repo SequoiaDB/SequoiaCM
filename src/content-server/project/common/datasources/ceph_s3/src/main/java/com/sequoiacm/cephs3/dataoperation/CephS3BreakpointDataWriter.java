@@ -1,5 +1,6 @@
 package com.sequoiacm.cephs3.dataoperation;
 
+import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
 
 import com.sequoiacm.cephs3.CephS3Exception;
@@ -30,7 +31,16 @@ public class CephS3BreakpointDataWriter implements ScmBreakpointDataWriter {
     @Override
     @SlowLog(operation = "writeData")
     public void write(byte[] data, int offset, int length) throws ScmDatasourceException {
-        uploader.write(data, offset, length);
+        try {
+            uploader.write(data, offset, length);
+        }
+        catch (CephS3Exception e) {
+            if (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_QUOTA_EXCEEDED)) {
+                throw new ScmDatasourceException(ScmError.DATA_STORAGE_QUOTA_EXCEEDED,
+                        "failed to write data", e);
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -41,13 +51,31 @@ public class CephS3BreakpointDataWriter implements ScmBreakpointDataWriter {
     @Override
     @SlowLog(operation = "flushData")
     public void flush() throws ScmDatasourceException {
-        uploader.flush();
+        try {
+            uploader.flush();
+        }
+        catch (CephS3Exception e) {
+            if (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_QUOTA_EXCEEDED)) {
+                throw new ScmDatasourceException(ScmError.DATA_STORAGE_QUOTA_EXCEEDED,
+                        "failed to flush data", e);
+            }
+            throw e;
+        }
     }
 
     @Override
     @SlowLog(operation = "completeData")
     public void complete() throws ScmDatasourceException {
-        uploader.complete();
+        try {
+            uploader.complete();
+        }
+        catch (CephS3Exception e) {
+            if (e.getS3ErrorCode().equals(CephS3Exception.ERR_CODE_QUOTA_EXCEEDED)) {
+                throw new ScmDatasourceException(ScmError.DATA_STORAGE_QUOTA_EXCEEDED,
+                        "failed to complete data", e);
+            }
+            throw e;
+        }
     }
 
     @Override

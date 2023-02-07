@@ -62,6 +62,7 @@
 | DATA_IS_IN_USE | -411 | 文件内容正在使用 |
 | STORE_SPACE_IS_NOT_EXIST | -412 | 数据源的存储空间（如 CephS3 的 bucket）不存在 |
 | DATA_PIECES_INFO_OVERFLOW | -413 | 数据片段信息溢出 |
+| DATA_STORAGE_QUOTA_EXCEEDED | -414 | 超出数据存储配额(如 cephS3 的 bucket_quota 配额限制)|
 | METADATA_CHECK_ERROR | -501 | 元数据参数校验错误 |
 | METADATA_CLASS_EXIST | -502 | 元数据模型已存在 |
 | METADATA_CLASS_NOT_EXIST | -503 | 元数据模型不存在 |

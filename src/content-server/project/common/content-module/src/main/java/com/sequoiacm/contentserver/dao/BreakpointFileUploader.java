@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.zip.Checksum;
 
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -122,9 +123,29 @@ public class BreakpointFileUploader {
         }
         catch (ScmDatasourceException e) {
             dirty = false;
+            checkIsQuotaExceeded(e);
             closeDataWriterSilence();
             throw new ScmServerException(e.getScmError(ScmError.DATA_BREAKPOINT_WRITE_ERROR),
                     "Failed to write breakpoint file data, cause by:" + e.getMessage(), e);
+        }
+    }
+
+    private void checkIsQuotaExceeded(ScmDatasourceException e) {
+        try {
+            ScmError err = e.getScmError(ScmError.DATA_BREAKPOINT_WRITE_ERROR);
+            if (err == ScmError.DATA_STORAGE_QUOTA_EXCEEDED) {
+                file.setChecksum(0);
+                file.setUploadSize(0L);
+                file.setExtraContext(new BasicBSONObject());
+                file.setTableName(null);
+                file.setDataId(ScmIdGenerator.FileId.get(new Date(file.getCreateTime())));
+                ScmContentModule.getInstance().getMetaService().updateBreakpointFile(file);
+                dataWriter.abort();
+            }
+        }
+        catch (Exception ex) {
+            logger.warn("Failed to handle quotaExceeded : wsName=" + workspaceInfo.getName()
+                    + " , breakpointFile= " + file, ex);
         }
     }
 
@@ -165,9 +186,9 @@ public class BreakpointFileUploader {
                         file.setCompleted(true);
                         if (file.isNeedMd5()) {
                             ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(
-                                    ENDataType.Normal.getValue(),
-                                    file.getDataId(), new Date(file.getCreateTime()),
-                                    file.getWsVersion(), file.getTableName());
+                                    ENDataType.Normal.getValue(), file.getDataId(),
+                                    new Date(file.getCreateTime()), file.getWsVersion(),
+                                    file.getTableName());
                             String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
                             file.setMd5(md5);
                         }
@@ -195,8 +216,9 @@ public class BreakpointFileUploader {
                 file.setUploadTime(System.currentTimeMillis());
                 if (file.isNeedMd5()) {
                     ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(
-                            ENDataType.Normal.getValue(),
-                            file.getDataId(), new Date(file.getCreateTime()), file.getWsVersion(), file.getTableName());
+                            ENDataType.Normal.getValue(), file.getDataId(),
+                            new Date(file.getCreateTime()), file.getWsVersion(),
+                            file.getTableName());
                     String md5 = ScmSystemUtils.calcMd5(workspaceInfo, dataInfo);
                     file.setMd5(md5);
                 }
