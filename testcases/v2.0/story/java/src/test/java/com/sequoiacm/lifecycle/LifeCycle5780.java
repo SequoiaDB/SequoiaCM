@@ -92,6 +92,7 @@ public class LifeCycle5780 extends TestScmBase {
         } finally {
             LifeCycleUtils.cleanWsLifeCycleConfig( ws );
             LifeCycleUtils.cleanLifeCycleConfig( session );
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }
