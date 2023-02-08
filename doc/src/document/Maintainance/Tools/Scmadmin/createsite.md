@@ -213,5 +213,6 @@ createsite 子命令提供创建站点的功能。
    $ service sshd restart 或 /etc/init.d/sshd restart （不同 Linux 版本的重启方式会有所不同）
 ```
 
+[lifecycle_config]:Development/Java_Driver/lifecycle_operation.md
 [encrypt_tool]:Maintainance/Tools/Scmadmin/encrypt.md
 [primary_standby_cephs3]:Architecture/data_storage.md
