@@ -11,12 +11,11 @@
     <version>1.11.343</version>
 </dependency>
 ```
-- **下载 jar 包手动引入**
-
- 用户可以直接[下载 aws-java-sdk-s3 驱动包][download_java]。
 
 ##创建连接##
 ----
+
+以下示例中的 accessKey 和 secretKey 可以通过 S3 服务管理工具 [refresh-accessKey][refresh-accessKey] 生成。
 
 ```lang-java
 String accessKey="2W1H5GBU66KSKUY8DMPE";
@@ -144,3 +143,5 @@ s3.deleteVersion(bucketName, objectName, versionId);
 ```lang-java
 s3.deleteBucket(bucketName);
 ```
+
+[refresh-accesskey]:Maintainance/Tools/S3admin/refresh-accesskey.md
