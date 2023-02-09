@@ -3,8 +3,6 @@ package com.sequoiacm.s3.bucketDirectory.serial;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -13,13 +11,17 @@ import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
+import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
  * @description SCM-4120:创建工作区，指定objectSharding参数为year
@@ -35,7 +37,7 @@ import com.sequoiacm.testcommon.dsutils.CephS3Utils;
  * @version v1.0
  */
 public class BucketDirectory4120_4121_4122_4123_4124 extends TestScmBase {
-    private String wsName = "ws4120";
+    private String wsNameBase = "ws4120_";
     private SiteWrapper site = null;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
@@ -67,7 +69,8 @@ public class BucketDirectory4120_4121_4122_4123_4124 extends TestScmBase {
 
     @Test(groups = { GroupTags.twoSite,
             GroupTags.fourSite }, dataProvider = "dataProvider")
-    public void test( ScmShardingType objectIDShardingType ) throws Exception {
+    public void test( ScmShardingType objectIDShardingType, String wsName )
+            throws Exception {
         String actObjectID = null;
         // 指定存在bucketName创建工作区,赋予权限,设置objectShardingType
         ScmCephS3DataLocation cephS3DataLocation = new ScmCephS3DataLocation(
@@ -112,8 +115,10 @@ public class BucketDirectory4120_4121_4122_4123_4124 extends TestScmBase {
 
     @DataProvider(name = "dataProvider")
     public Object[][] generateDate() {
-        return new Object[][] { { ScmShardingType.YEAR },
-                { ScmShardingType.QUARTER }, { ScmShardingType.MONTH },
-                { ScmShardingType.DAY }, { ScmShardingType.NONE } };
+        return new Object[][] { { ScmShardingType.YEAR, wsNameBase + "year" },
+                { ScmShardingType.QUARTER, wsNameBase + "quarter" },
+                { ScmShardingType.MONTH, wsNameBase + "month" },
+                { ScmShardingType.DAY, wsNameBase + "day" },
+                { ScmShardingType.NONE, wsNameBase + "none" } };
     }
 }
