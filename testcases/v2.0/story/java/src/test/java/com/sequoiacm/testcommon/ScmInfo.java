@@ -8,10 +8,6 @@ import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.element.ScmSiteInfo;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
@@ -96,6 +92,19 @@ public class ScmInfo {
     }
 
     /**
+     * @descreption 指定工作区获取所有站点
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static SiteWrapper getSite( String wsName ) throws ScmException {
+        List< SiteWrapper > siteListForWs = ScmInfo.getSitesForWs( wsName );
+        SiteWrapper site = siteListForWs
+                .get( random.nextInt( siteListForWs.size() ) );
+        return site;
+    }
+
+    /**
      * get sites by siteType
      *
      * @return
@@ -118,10 +127,46 @@ public class ScmInfo {
     }
 
     /**
+     * @descreption 指定站点类型和工作区获取所有站点
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static List< SiteWrapper > getSitesByType(
+            ScmType.DatasourceType siteType, String wsName )
+            throws ScmException {
+        List< SiteWrapper > sites1 = ScmInfo.getSitesForWs( wsName );
+        List< SiteWrapper > sites2 = new ArrayList<>();
+        for ( SiteWrapper tmpsite : sites1 ) {
+            if ( tmpsite.getDataType().equals( siteType ) ) {
+                sites2.add( tmpsite );
+                break;
+            }
+        }
+        if ( sites2.size() == 0 ) {
+            throw new SkipException(
+                    "the site of " + siteType + " is not existed" );
+        }
+        return sites2;
+    }
+
+    /**
      * get a site by siteType
      */
     public static SiteWrapper getSiteByType( ScmType.DatasourceType siteType ) {
         List< SiteWrapper > sites = ScmInfo.getSitesByType( siteType );
+        return sites.get( new Random().nextInt( sites.size() ) );
+    }
+
+    /**
+     * @descreption 指定站点类型和工作区获取一个站点
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static SiteWrapper getSiteByType( ScmType.DatasourceType siteType,
+            String wsName ) throws ScmException {
+        List< SiteWrapper > sites = ScmInfo.getSitesByType( siteType, wsName );
         return sites.get( new Random().nextInt( sites.size() ) );
     }
 
@@ -134,6 +179,17 @@ public class ScmInfo {
      */
     public static SiteWrapper getBranchSite() {
         return getBranchSites( 1 ).get( 0 );
+    }
+
+    /**
+     * @descreption 指定工作区获取分站点
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static SiteWrapper getBranchSite( String wsName )
+            throws ScmException {
+        return getBranchSites( 1, wsName ).get( 0 );
     }
 
     /**
@@ -170,10 +226,69 @@ public class ScmInfo {
         return branchSites;
     }
 
+    /**
+     * @descreption 指定数量和工作区获取分站点
+     * @param num
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static List< SiteWrapper > getBranchSites( int num, String wsName )
+            throws ScmException {
+        List< SiteWrapper > allBranchSites = getBranchSites( wsName );
+
+        // check parameter
+        int maxBranchSiteNum = allBranchSites.size();
+        if ( num > maxBranchSiteNum ) {
+            throw new IllegalArgumentException(
+                    "error, num > maxBranchSiteNum num:" + num
+                            + " maxBranchSiteNum:" + maxBranchSiteNum );
+        }
+
+        List< SiteWrapper > branchSites = new ArrayList<>();
+
+        // get random number branch sites
+        int randNum = random.nextInt( maxBranchSiteNum );
+        branchSites.add( allBranchSites.get( randNum ) );
+
+        int addNum = randNum;
+        for ( int i = 1; i < num; i++ ) {
+            addNum++;
+            if ( addNum < maxBranchSiteNum ) {
+                branchSites.add( allBranchSites.get( addNum ) );
+            } else {
+                branchSites
+                        .add( allBranchSites.get( addNum - maxBranchSiteNum ) );
+            }
+        }
+
+        return branchSites;
+    }
+
     public static List< SiteWrapper > getBranchSites() {
         List< SiteWrapper > branchSites = new ArrayList<>();
         for ( int i = 1; i < siteList.size(); i++ ) { // i=0 is rootSite
             branchSites.add( siteList.get( i ) );
+        }
+        return branchSites;
+    }
+
+    /**
+     * @descreption 指定工作区获取所有分站点
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static List< SiteWrapper > getBranchSites( String wsName )
+            throws ScmException {
+        List< SiteWrapper > branchSites = new ArrayList<>();
+        List< SiteWrapper > sites = ScmInfo.getSitesForWs( wsName );
+
+        for ( int i = 0; i < sites.size(); i++ ) {
+            if ( !sites.get( i ).getSiteName()
+                    .equals( ScmInfo.getRootSite().getSiteName() ) ) {
+                branchSites.add( sites.get( i ) );
+            }
         }
         return branchSites;
     }
@@ -361,5 +476,56 @@ public class ScmInfo {
             throw new SkipTestException( "there is no such type site!" );
         }
         return branchSites;
+    }
+
+    /**
+     * @descreption 指定站点类型和工作区获取站点
+     * @param dateType
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static List< SiteWrapper > getBranchSitesBySiteType(
+            ScmType.DatasourceType dateType, String wsName )
+            throws ScmException {
+        List< SiteWrapper > branchSites = new ArrayList<>();
+        List< SiteWrapper > sites = ScmInfo.getSitesForWs( wsName );
+        for ( int i = 0; i < sites.size(); i++ ) {
+            if ( sites.get( i ).getDataType() == dateType
+                    && !sites.get( i ).getSiteName()
+                            .equals( ScmInfo.getRootSite().getSiteName() ) )
+                branchSites.add( sites.get( i ) );
+        }
+        if ( branchSites.size() == 0 ) {
+            throw new SkipException( "there is no such type site!" );
+        }
+        return branchSites;
+    }
+
+    /**
+     * @descreption 指定工作区获取站点
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static List< SiteWrapper > getSitesForWs( String wsName )
+            throws ScmException {
+        List< SiteWrapper > siteListForWs = new ArrayList<>();
+        try ( ScmSession session = TestScmTools
+                .createSession( ScmInfo.getRootSite() )) {
+            ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
+                    session );
+            List< ScmDataLocation > dataLocations = workspace
+                    .getDataLocations();
+            for ( ScmDataLocation dataLocation : dataLocations ) {
+                String siteName = dataLocation.getSiteName();
+                for ( SiteWrapper site : siteList ) {
+                    if ( site.getSiteName().equals( siteName ) ) {
+                        siteListForWs.add( site );
+                    }
+                }
+            }
+        }
+        return siteListForWs;
     }
 }
