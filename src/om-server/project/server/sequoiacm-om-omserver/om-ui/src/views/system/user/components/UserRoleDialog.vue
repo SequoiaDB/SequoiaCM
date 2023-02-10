@@ -41,9 +41,9 @@ export default {
     }
   },
   methods: {
-    handleChange(value, direction, movedKeys) {
+    async handleChange(value, direction, movedKeys) {
       if (direction === 'right') {
-        grantRoles(this.user, movedKeys).then(res=>{
+        await grantRoles(this.user, movedKeys).then(res=>{
           this.$message.success(`角色分配成功`)
         }).catch(error => {
           // 如果请求失败，穿梭框需要做数据回滚
@@ -52,7 +52,7 @@ export default {
           })
         })
       } else {
-        revokeRoles(this.user, movedKeys).then(res=>{
+        await revokeRoles(this.user, movedKeys).then(res=>{
           this.$message.success(`角色移除成功`)
         }).catch(error => {
           // 如果请求失败，穿梭框需要做数据回滚

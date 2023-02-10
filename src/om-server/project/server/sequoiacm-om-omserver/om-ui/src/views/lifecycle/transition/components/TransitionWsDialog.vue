@@ -51,9 +51,9 @@ export default {
         });
       })
     },
-    handleChange(value, direction, movedKeys) {
+    async handleChange(value, direction, movedKeys) {
       if (direction === 'right') {
-        addTransitionApply(this.transition, movedKeys).then(res=>{
+        await addTransitionApply(this.transition, movedKeys).then(res=>{
           let resList = res.data
           this.$util.showBatchOpMessage("应用工作区", resList)
           // 如果存在添加失败的工作区，穿梭框需要做回滚
@@ -64,7 +64,7 @@ export default {
           })
         })
       } else {
-        removeTransitionApply(this.transition, movedKeys).then(res=>{
+        await removeTransitionApply(this.transition, movedKeys).then(res=>{
           let resList = res.data
           this.$util.showBatchOpMessage("移除工作区", resList)
           // 如果存在移除失败的工作区，穿梭框需要做回滚

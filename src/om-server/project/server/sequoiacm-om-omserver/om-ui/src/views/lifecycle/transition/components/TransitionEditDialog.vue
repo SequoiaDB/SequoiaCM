@@ -544,7 +544,7 @@ export default {
           transition['name'] = this.form.name
           transition['source'] = this.form.source
           transition['dest'] = this.form.dest
-          transition['matcher'] = this.form.matcher
+          transition['matcher'] = this.form.matcher === '' ? '{}' : this.form.matcher
           let transitionTriggers = {}
           transitionTriggers['mode'] = this.form.transitionTriggers.mode === '所有' ? 'ALL' : 'ANY'
           transitionTriggers['rule'] = this.form.transitionTriggers.rule
@@ -561,7 +561,7 @@ export default {
           }
           transitionTriggers['triggers'] = triggers
           transition['transition_triggers'] = transitionTriggers
-          
+
           transition['scope'] = this.form.scope
           transition['data_check_level'] = this.form.dataCheckLevel
           transition['is_recycle_space'] = this.form.recycleSpace
