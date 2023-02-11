@@ -30,5 +30,5 @@ SequoiaCM 基于调度服务提供了生命周期管理功能，可以依据用�
 
 [lifecycle_arc]:Architecture/lifecycle_arc.png
 [lifecycle_apply]:Architecture/lifecycle_apply.png
-[stage_tag]:Om/Operation/Lifecycle/stage_tag.md
-[transition]:Om/Operation/Lifecycle/transition.md
+[stage_tag]:Om/Operation/LifeCycle/stage_tag.md
+[transition]:Om/Operation/LifeCycle/transition.md
