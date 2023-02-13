@@ -14,11 +14,7 @@ import org.javaswift.joss.model.StoredObject;
 
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 
 public class CephSwiftUtils extends TestScmBase {
     private static final Logger logger = Logger
@@ -55,10 +51,10 @@ public class CephSwiftUtils extends TestScmBase {
         try {
             account = createAccount( site );
             String containerName = getContainerName( site, ws );
-
             Container container = account.getContainer( containerName );
-            // container.create();
-
+            if ( !container.exists() ) {
+                container.create();
+            }
             StoredObject storeObject = container.getObject( objectName );
             byte[] data = TestTools.getBuffer( filePath );
             storeObject.uploadObject( data );
