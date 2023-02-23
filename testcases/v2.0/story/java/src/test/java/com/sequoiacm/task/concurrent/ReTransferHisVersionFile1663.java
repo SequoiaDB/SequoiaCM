@@ -1,4 +1,4 @@
-package com.sequoiacm.version.serial;
+package com.sequoiacm.task.concurrent;
 
 import java.util.Collection;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -36,7 +36,7 @@ import com.sequoiacm.testcommon.scmutils.VersionUtils;
  * @updateRemark
  * @version v1.0
  */
-public class ReTransferCurVersionFile1664 extends TestScmBase {
+public class ReTransferHisVersionFile1663 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
@@ -46,11 +46,11 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     private ScmWorkspace wsM = null;
     private ScmId fileId = null;
     private ScmId taskId = null;
-    private String fileName = "versionfile1664";
-    private String authorName = "author1664";
+    private boolean runSuccess = false;
+    private String fileName = "versionfile1663";
+    private String authorName = "author1663";
     private byte[] filedata = new byte[ 1024 * 80 ];
     private byte[] updatedata = new byte[ 1024 * 200 ];
-    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws ScmException {
@@ -73,29 +73,24 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         int historyVersion = 1;
-        int currentVersion = 2;
-        // asyncTransfer the historyVersion file, is both on rootSite and
-        // branchSite
-        asyncTransferCurrentVersionFile( historyVersion );
+        // asyncTransfer the history file, is both on rootSite and branchSite
+        AsyncTransferHisVersionFile( historyVersion );
         Collection< ScmFileLocation > firstSiteInfo = getSiteInfo(
                 historyVersion );
 
-        // Transfer the current file once again
-        startTransferTaskByCurrentVerFile( wsA, sessionA );
-
-        // check the currentVersion file data and siteinfo
-        SiteWrapper[] expCurSiteList = { rootSite, branSite };
-        VersionUtils.checkSite( wsA, fileId, currentVersion, expCurSiteList );
-        VersionUtils.CheckFileContentByStream( wsM, fileName, currentVersion,
-                updatedata );
-
-        // check the historyVersion file sitelist, the sitelist no update
+        // Transfer the history file once again
+        startTransferTaskByHistoryVerFile( wsA, sessionA );
         Collection< ScmFileLocation > secondSiteInfo = getSiteInfo(
                 historyVersion );
+
+        // check the siteinfo is the same
         Assert.assertEquals( firstSiteInfo.toString(),
                 secondSiteInfo.toString(),
                 "fisrt get siteList:" + firstSiteInfo.toString()
                         + " 2nd get siteList:" + secondSiteInfo.toString() );
+        // check the history file data
+        VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
+                filedata );
         runSuccess = true;
     }
 
@@ -103,8 +98,8 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmFactory.File.deleteInstance( wsA, fileId, true );
                 TestSdbTools.Task.deleteMeta( taskId );
+                ScmFactory.File.deleteInstance( wsA, fileId, true );
             }
         } finally {
             if ( sessionA != null ) {
@@ -116,24 +111,23 @@ public class ReTransferCurVersionFile1664 extends TestScmBase {
         }
     }
 
-    private void asyncTransferCurrentVersionFile( int majorVersion )
+    private void AsyncTransferHisVersionFile( int majorVersion )
             throws Exception {
+        // the first asyncCache history version file
         ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0,
                 rootSite.getSiteName() );
-
-        // wait task finished
-        int sitenums = 2;
+        SiteWrapper[] expHisSiteList = { rootSite, branSite };
         VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
-                sitenums );
+                expHisSiteList.length );
     }
 
-    private void startTransferTaskByCurrentVerFile( ScmWorkspace ws,
+    private void startTransferTaskByHistoryVerFile( ScmWorkspace ws,
             ScmSession session ) throws Exception {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
         taskId = ScmSystem.Task.startTransferTask( ws, condition,
-                ScopeType.SCOPE_CURRENT, rootSite.getSiteName() );
+                ScopeType.SCOPE_HISTORY, rootSite.getSiteName() );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );

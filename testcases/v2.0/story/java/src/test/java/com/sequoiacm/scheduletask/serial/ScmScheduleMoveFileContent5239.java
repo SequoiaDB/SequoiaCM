@@ -155,7 +155,7 @@ public class ScmScheduleMoveFileContent5239 extends TestScmBase {
         ScmScheduleMoveFileContent content = getDefaultContent( queryCond );
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.MOVE_FILE, taskName, "", content,
-                "0/10 * * * * ?" );
+                "0/1 * * * * ?" );
         ScmScheduleUtils.waitForTask( sche, 2 );
         SiteWrapper[] expASites = { branchSite };
         SiteWrapper[] expBSites = { rootSite };
@@ -175,7 +175,7 @@ public class ScmScheduleMoveFileContent5239 extends TestScmBase {
         content.setMaxStayTime( "10d" );
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.MOVE_FILE, taskName, "", content,
-                "0/10 * * * * ?" );
+                "0/1 * * * * ?" );
         ScmScheduleUtils.waitForTask( sche, 2 );
         SiteWrapper[] expSites = { rootSite };
         ScmFileUtils.checkMetaAndData( wsp, fileIdsA, expSites, localPath,
@@ -194,7 +194,7 @@ public class ScmScheduleMoveFileContent5239 extends TestScmBase {
         try {
             sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                     ScheduleType.MOVE_FILE, taskName, "", content,
-                    "0/10 * * * * ?" );
+                    "0/1 * * * * ?" );
             ScmScheduleUtils.waitForTask( sche, 2 );
             Assert.fail( "except fail but success" );
         } catch ( ScmException e ) {

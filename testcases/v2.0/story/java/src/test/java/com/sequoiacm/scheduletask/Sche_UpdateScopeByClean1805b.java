@@ -1,48 +1,37 @@
-package com.sequoiacm.version.serial;
+package com.sequoiacm.scheduletask;
+
+import com.sequoiacm.client.common.ScheduleType;
+import com.sequoiacm.client.common.ScmType.ScopeType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.VersionUtils;
+import org.bson.BSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.common.ScmType.ScopeType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSchedule;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
-import com.sequoiacm.client.element.ScmScheduleContent;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
-import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @description SCM-1674:异步调度任务指定清理历史版本文件
+ * @description SCM-1805:异步清理任务，更新scopeType类型
  * @author wuyan
- * @createDate 2018.06.13
+ * @createDate 2018.06.14
  * @updateUser ZhangYanan
- * @updateDate 2021.12.06
+ * @updateDate 2021.12.09
  * @updateRemark
  * @version v1.0
  */
-public class Sche_CleanHisVersionFile1674 extends TestScmBase {
-    private final static String taskname = "versionfile_schetask1674";
+public class Sche_UpdateScopeByClean1805b extends TestScmBase {
+    private final static String taskname = "versionfile_schetask1805b";
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
@@ -56,15 +45,16 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
     private int fileNum = 10;
     private BSONObject condition = null;
     private ScmId scheduleId = null;
-    private ScmScheduleContent content = null;
+    private ScmScheduleCleanFileContent content = null;
     private String cron = null;
-    private String fileName = "fileVersion1674";
-    private String authorName = "author1674";
-    private int fileSize1 = 1024 * 10;
+    private String fileName = "fileVersion1805b";
+    private String authorName = "author1805b";
+    private int fileSize1 = 1024 * 20;
     private int fileSize2 = 1024 * 5;
     private String filePath1 = null;
     private String filePath2 = null;
-    private byte[] writedata = new byte[ 1024 * 20 ];
+    private byte[] writedata = new byte[ 1024 * 10 ];
+    private ScmSchedule sche;
     private boolean runSuccess = false;
 
     @BeforeClass
@@ -99,20 +89,52 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
     private void test() throws Exception {
         int currentVersion = 2;
         int historyVersion = 1;
-        readFileFromM( wsM, currentVersion );
-        readFileFromM( wsM, historyVersion );
+        readFile( wsM, currentVersion );
+        readFile( wsM, historyVersion );
 
-        // clean history version file
+        // clean current version file
         createScheduleTask( sessionA );
 
         // check siteinfo
-        SiteWrapper[] expCurSiteList = { rootSite, branSite };
-        VersionUtils.checkScheTaskFileSites( wsA, fileIdList, currentVersion,
-                expCurSiteList );
         SiteWrapper[] exphHisSiteList = { rootSite };
-        ;
         VersionUtils.checkScheTaskFileSites( wsM, fileIdList, historyVersion,
                 exphHisSiteList );
+        ScmScheduleUtils.waitForTask( sche, 5 );
+        sche.disable();
+        ScmScheduleUtils.cleanTask( sessionM, scheduleId );
+
+        // test b:update task to clean history version file
+        ScopeType scope_b = ScopeType.SCOPE_CURRENT;
+        updateScheTaskByScopeType( wsA, scope_b );
+        // read history version file again at the branSite
+        readFile( wsA, historyVersion );
+        sche.enable();
+
+        // test b: check siteinfo
+        SiteWrapper[] expCurSiteList_b = { rootSite };
+        VersionUtils.checkScheTaskFileSites( wsA, fileIdList, currentVersion,
+                expCurSiteList_b );
+        SiteWrapper[] exphHisSiteList_b = { rootSite, branSite };
+        VersionUtils.checkScheTaskFileSites( wsM, fileIdList, historyVersion,
+                exphHisSiteList_b );
+        ScmScheduleUtils.waitForTask( sche, 5 );
+        sche.disable();
+        ScmScheduleUtils.cleanTask( sessionM, scheduleId );
+
+        // test c:update task to clean all version file
+        ScopeType scope_c = ScopeType.SCOPE_ALL;
+        updateScheTaskByScopeType( wsA, scope_c );
+        // read current version file again at the branSite
+        readFile( wsA, currentVersion );
+        sche.enable();
+
+        // test b: check siteinfo
+        SiteWrapper[] expCurSiteList_c = { rootSite };
+        VersionUtils.checkScheTaskFileSites( wsA, fileIdList, currentVersion,
+                expCurSiteList_c );
+        SiteWrapper[] exphHisSiteList_c = { rootSite };
+        VersionUtils.checkScheTaskFileSites( wsM, fileIdList, historyVersion,
+                exphHisSiteList_c );
         runSuccess = true;
     }
 
@@ -161,23 +183,29 @@ public class Sche_CleanHisVersionFile1674 extends TestScmBase {
         // create schedule task
         content = new ScmScheduleCleanFileContent( branSite.getSiteName(),
                 maxStayTime, condition, ScopeType.SCOPE_HISTORY );
-
         cron = "* * * * * ?";
 
-        ScmSchedule sche = ScmSystem.Schedule.create( session, wsp.getName(),
+        sche = ScmSystem.Schedule.create( session, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskname, "", content, cron );
         scheduleId = sche.getId();
-
+        Assert.assertEquals( content.getScope(), ScopeType.SCOPE_HISTORY );
     }
 
-    private void readFileFromM( ScmWorkspace ws, int version )
-            throws Exception {
+    private void updateScheTaskByScopeType( ScmWorkspace ws, ScopeType scope )
+            throws ScmException {
+        sche = ScmSystem.Schedule.get( sessionA, scheduleId );
+        content.setScope( scope );
+        Assert.assertEquals( content.getScope(), scope );
+        sche.updateContent( content );
+    }
+
+    private void readFile( ScmWorkspace ws, int version ) throws Exception {
         for ( int i = 0; i < fileNum; i++ ) {
             ScmId fileId = fileIdList.get( i );
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
-            ScmFile file = ScmFactory.File.getInstance( wsM, fileId, version,
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId, version,
                     0 );
             file.getContent( downloadPath );
         }

@@ -1,4 +1,4 @@
-package com.sequoiacm.version.serial;
+package com.sequoiacm.task.concurrent;
 
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
@@ -14,27 +14,25 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @description SCM-1665:指定文件版本不存在，执行迁移任务
+ * @description SCM-1666:任务条件包含历史表以外的字段
  * @author wuyan
- * @createDate 2018.06.05
+ * @createDate 2018.06.08
  * @updateUser ZhangYanan
  * @updateDate 2021.12.09
  * @updateRemark
  * @version v1.0
  */
-public class TransferHisVersionFile1665 extends TestScmBase {
+public class TransferFile1666 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
@@ -42,11 +40,11 @@ public class TransferHisVersionFile1665 extends TestScmBase {
     private ScmWorkspace wsA = null;
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
-    private ScmId taskId = null;
     private ScmId fileId = null;
-    private String fileName = "fileVersion1661";
-    private String authorName = "transfer1661";
+    private String fileName = "fileVersion1666";
+    private String authorName = "transfer1666";
     private byte[] writeData = new byte[ 1024 * 2 ];
+    private byte[] updateData = new byte[ 1 ];
     private boolean runSuccess = false;
 
     @BeforeClass
@@ -64,20 +62,18 @@ public class TransferHisVersionFile1665 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
         fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
+        VersionUtils.updateContentByStream( wsA, fileId, updateData );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        int currentVersion = 1;
-        startTransferTaskByHistoryVerFile( wsA, sessionA );
+        int currentVersion = 2;
+        int historyVersion = 1;
+        startTransferTaskError( wsA, sessionA );
 
-        // check task info, the task successCount is 0
-        ScmTask taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
-        Assert.assertEquals( taskInfo.getSuccessCount(), 0 );
-        Assert.assertEquals( taskInfo.getActualCount(), 0 );
-
-        // check the currentVersion file data and siteinfo
+        // check the file siteinfo
         SiteWrapper[] expSiteList = { branSite };
+        VersionUtils.checkSite( wsA, fileId, historyVersion, expSiteList );
         VersionUtils.checkSite( wsA, fileId, currentVersion, expSiteList );
         runSuccess = true;
     }
@@ -86,7 +82,6 @@ public class TransferHisVersionFile1665 extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                TestSdbTools.Task.deleteMeta( taskId );
                 ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
         } finally {
@@ -99,15 +94,32 @@ public class TransferHisVersionFile1665 extends TestScmBase {
         }
     }
 
-    private void startTransferTaskByHistoryVerFile( ScmWorkspace ws,
-            ScmSession session ) throws Exception {
+    private void startTransferTaskError( ScmWorkspace ws, ScmSession session )
+            throws Exception {
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
-                .get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition,
-                ScopeType.SCOPE_HISTORY, rootSite.getSiteName() );
+                .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
 
-        // wait task finish
-        ScmTaskUtils.waitTaskFinish( session, taskId );
+        try {
+            ScmSystem.Task.startTransferTask( ws, condition,
+                    ScopeType.SCOPE_HISTORY, rootSite.getSiteName() );
+            Assert.fail( "transfer file must bu fail!" );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
+            }
+        }
+
+        try {
+            ScmSystem.Task.startTransferTask( ws, condition,
+                    ScopeType.SCOPE_ALL, rootSite.getSiteName() );
+            Assert.fail( "transfer file must bu fail!" );
+        } catch ( ScmException e ) {
+            if ( ScmError.INVALID_ARGUMENT != e.getError() ) {
+                Assert.fail( "expErrorCode:-101  actError:" + e.getError()
+                        + e.getMessage() );
+            }
+        }
     }
+
 }

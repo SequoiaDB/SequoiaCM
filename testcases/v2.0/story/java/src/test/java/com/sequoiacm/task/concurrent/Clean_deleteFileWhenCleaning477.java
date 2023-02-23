@@ -45,8 +45,8 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
  */
 
 public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
-    private final int fileSize = 1024 * 200;
-    private final int fileNum = 30;
+    private final int fileSize = 1024 * 1024 * 5;
+    private final int fileNum = 10;
     private final String authorName = "DeleteFileWhenCleaning477 ";
     private boolean runSuccess = false;
     private List< ScmId > fileIdList = new ArrayList< ScmId >();

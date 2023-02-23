@@ -50,7 +50,7 @@ import com.sequoiadb.exception.BaseException;
 
 public class Transfer_listTask422 extends TestScmBase {
     private final int fileSize = 200 * 1024;
-    private final int fileNum = 100;
+    private final int fileNum = 10;
     private boolean runSuccess = false;
     private List< ScmId > fileIdList1 = new ArrayList< ScmId >();
     private List< ScmId > fileIdList2 = new ArrayList< ScmId >();

@@ -74,7 +74,7 @@ public class SpaceRecycle5245 extends TestScmBase {
                 .mothBefore( 0 );
         ScmScheduleSpaceRecyclingContent spaceRecyclingContent = new ScmScheduleSpaceRecyclingContent(
                 rootSite.getSiteName(), scmSpaceRecycleScope );
-        String cron = "0/10 * * * * ?";
+        String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.RECYCLE_SPACE, taskName, "", spaceRecyclingContent,
                 cron );

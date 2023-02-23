@@ -75,7 +75,7 @@ public class MoveFile5216 extends TestScmBase {
                 queryCond, ScmType.ScopeType.SCOPE_CURRENT );
 
         // 启动迁移并清理调度任务
-        String cron = "0/10 * * * * ?";
+        String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsName,
                 ScheduleType.MOVE_FILE, taskName, "", content, cron );
 

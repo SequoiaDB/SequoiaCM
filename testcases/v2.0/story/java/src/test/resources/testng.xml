@@ -97,6 +97,13 @@
 
             <!-- schedulePreferredZone：需要至少有2个分站点，且每个分站点至少需要有两个节点分别位于zone1和zone2 -->
             <!-- <package name="com.sequoiacm.schedulePreferredZone"/>-->
+
+            <!--task-->
+            <package name="com.sequoiacm.task"/>
+            <package name="com.sequoiacm.task.concurrent"/>
+            <package name="com.sequoiacm.scheduletask"/>
+            <package name="com.sequoiacm.scheduletask.concurrent"/>
+
         </packages>
     </test>
 

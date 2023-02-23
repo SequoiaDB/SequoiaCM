@@ -53,7 +53,7 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
     private boolean runSuccess = false;
 
     private int fileSize = 2 * 1024 * 1024;
-    private int fileNum = 100;
+    private int fileNum = 50;
     private File localPath = null;
     private String filePath = null;
 

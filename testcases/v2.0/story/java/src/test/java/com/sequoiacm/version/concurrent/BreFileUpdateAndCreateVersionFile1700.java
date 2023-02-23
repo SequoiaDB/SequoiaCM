@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.sequoiacm.version.serial;
+package com.sequoiacm.version.concurrent;
 
 import java.io.File;
 import java.util.List;

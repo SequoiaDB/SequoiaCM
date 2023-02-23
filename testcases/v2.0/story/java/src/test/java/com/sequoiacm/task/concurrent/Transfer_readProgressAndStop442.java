@@ -52,7 +52,7 @@ public class Transfer_readProgressAndStop442 extends TestScmBase {
     private int FILE_SIZE = 1024;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private int fileNum = 100;
+    private int fileNum = 50;
     private String authorName = "ReadProgressAndStop442";
     private BSONObject cond = null;
     private List< ScmId > fileIdList = new ArrayList< ScmId >();

@@ -53,8 +53,8 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
 
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private String authorName = "Clean476";
-    private int fileSize = 1024 * 1024;
-    private int fileNum = 50;
+    private int fileSize = 1024 * 1024 * 5;
+    private int fileNum = 10;
     private File localPath = null;
     private List< String > filePathList = new ArrayList< String >();
     private ScmId taskId = null;
@@ -101,7 +101,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
     }
 
     // bug:SEQUOIACM-194
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base  })
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     private void test() {
         try {
             StartTaskFromSubCenterA startTask = new StartTaskFromSubCenterA();

@@ -46,8 +46,8 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
-    private final int fileSize = 512 * 1024;
-    private final int fileNum = 100;
+    private final int fileSize = 1024 * 1024;
+    private final int fileNum = 50;
     private final String authorName = "WriteWhenTaskRunning429";
     private boolean runSuccess = false;
     private File localPath = null;

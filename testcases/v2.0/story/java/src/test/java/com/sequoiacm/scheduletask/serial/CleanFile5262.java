@@ -91,7 +91,7 @@ public class CleanFile5262 extends TestScmBase {
                 false, true );
 
         // 启动清理调度任务
-        String cron = "0/10 * * * * ?";
+        String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsName,
                 ScheduleType.CLEAN_FILE, taskName, "", content, cron );
 

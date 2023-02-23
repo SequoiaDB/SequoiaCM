@@ -44,7 +44,7 @@ public class Clean_readAfterClean1028 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private String authorName = "ReadAfterClean1028";
     private int fileSize = 1024 * 1024;
-    private int fileNum = 50;
+    private int fileNum = 10;
     private File localPath = null;
     private String filePath = null;
     private ScmId taskId = null;

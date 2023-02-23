@@ -79,7 +79,7 @@ public class CopyFile5253 extends TestScmBase {
                 ScmDataCheckLevel.WEEK, true );
 
         // 启动迁移调度任务
-        String cron = "0/10 * * * * ?";
+        String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.COPY_FILE, taskName, "", content, cron );
 

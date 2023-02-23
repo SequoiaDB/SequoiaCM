@@ -1,6 +1,5 @@
-package com.sequoiacm.version.serial;
+package com.sequoiacm.task.concurrent;
 
-import java.util.Collection;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -10,14 +9,13 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
@@ -28,15 +26,15 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @description SCM-1664:主/分中心已存在历史版本文件，再次迁移当前版本文件
+ * @description SCM-1665:指定文件版本不存在，执行迁移任务
  * @author wuyan
- * @createDate 2018.06.07
+ * @createDate 2018.06.05
  * @updateUser ZhangYanan
- * @updateDate 2021.12.06
+ * @updateDate 2021.12.09
  * @updateRemark
  * @version v1.0
  */
-public class ReTransferHisVersionFile1663 extends TestScmBase {
+public class TransferHisVersionFile1665 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
@@ -44,13 +42,12 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
     private ScmWorkspace wsA = null;
     private ScmSession sessionM = null;
     private ScmWorkspace wsM = null;
-    private ScmId fileId = null;
     private ScmId taskId = null;
+    private ScmId fileId = null;
+    private String fileName = "fileVersion1661";
+    private String authorName = "transfer1661";
+    private byte[] writeData = new byte[ 1024 * 2 ];
     private boolean runSuccess = false;
-    private String fileName = "versionfile1663";
-    private String authorName = "author1663";
-    private byte[] filedata = new byte[ 1024 * 80 ];
-    private byte[] updatedata = new byte[ 1024 * 200 ];
 
     @BeforeClass
     private void setUp() throws ScmException {
@@ -65,32 +62,23 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata,
+        fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
-        VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
-        int historyVersion = 1;
-        // asyncTransfer the history file, is both on rootSite and branchSite
-        AsyncTransferHisVersionFile( historyVersion );
-        Collection< ScmFileLocation > firstSiteInfo = getSiteInfo(
-                historyVersion );
-
-        // Transfer the history file once again
+        int currentVersion = 1;
         startTransferTaskByHistoryVerFile( wsA, sessionA );
-        Collection< ScmFileLocation > secondSiteInfo = getSiteInfo(
-                historyVersion );
 
-        // check the siteinfo is the same
-        Assert.assertEquals( firstSiteInfo.toString(),
-                secondSiteInfo.toString(),
-                "fisrt get siteList:" + firstSiteInfo.toString()
-                        + " 2nd get siteList:" + secondSiteInfo.toString() );
-        // check the history file data
-        VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
-                filedata );
+        // check task info, the task successCount is 0
+        ScmTask taskInfo = ScmSystem.Task.getTask( sessionA, taskId );
+        Assert.assertEquals( taskInfo.getSuccessCount(), 0 );
+        Assert.assertEquals( taskInfo.getActualCount(), 0 );
+
+        // check the currentVersion file data and siteinfo
+        SiteWrapper[] expSiteList = { branSite };
+        VersionUtils.checkSite( wsA, fileId, currentVersion, expSiteList );
         runSuccess = true;
     }
 
@@ -99,7 +87,7 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 TestSdbTools.Task.deleteMeta( taskId );
-                ScmFactory.File.deleteInstance( wsA, fileId, true );
+                ScmFactory.File.deleteInstance( wsM, fileId, true );
             }
         } finally {
             if ( sessionA != null ) {
@@ -109,16 +97,6 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
                 sessionM.close();
             }
         }
-    }
-
-    private void AsyncTransferHisVersionFile( int majorVersion )
-            throws Exception {
-        // the first asyncCache history version file
-        ScmFactory.File.asyncTransfer( wsA, fileId, majorVersion, 0,
-                rootSite.getSiteName() );
-        SiteWrapper[] expHisSiteList = { rootSite, branSite };
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
-                expHisSiteList.length );
     }
 
     private void startTransferTaskByHistoryVerFile( ScmWorkspace ws,
@@ -131,14 +109,5 @@ public class ReTransferHisVersionFile1663 extends TestScmBase {
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
-    }
-
-    private Collection< ScmFileLocation > getSiteInfo( int majorVersion )
-            throws ScmException {
-        // get the create and last access time
-        ScmFile file = ScmFactory.File.getInstance( wsA, fileId, majorVersion,
-                0 );
-        Collection< ScmFileLocation > actSiteInfo = file.getLocationList();
-        return actSiteInfo;
     }
 }

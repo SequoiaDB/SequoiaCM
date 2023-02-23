@@ -85,7 +85,7 @@ public class MoveFile5215 extends TestScmBase {
                 ScmType.ScopeType.SCOPE_HISTORY );
 
         // 启动迁移并清理调度任务
-        String cron = "0/10 * * * * ?";
+        String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.MOVE_FILE, taskName, "", content, cron );
         ScmScheduleUtils.waitForTask( sche, 2 );

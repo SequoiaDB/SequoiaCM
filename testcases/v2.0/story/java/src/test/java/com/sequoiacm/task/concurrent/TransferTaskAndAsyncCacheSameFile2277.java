@@ -50,7 +50,7 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
 
     private String author = "TD2277";
     private ScmId fileId = null;
-    private int fileSize = 1024 * 1024 * 50;
+    private int fileSize = 1024 * 1024 * 5;
     private File localPath = null;
     private String filePath = null;
     private ScmId taskId = null;

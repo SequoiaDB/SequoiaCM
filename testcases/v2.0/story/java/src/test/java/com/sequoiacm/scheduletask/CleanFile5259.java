@@ -78,7 +78,7 @@ public class CleanFile5259 extends TestScmBase {
                 ScmDataCheckLevel.WEEK, true, false );
 
         // 启动迁移并清理调度任务
-        String cron = "0/10 * * * * ?";
+        String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskName, "", content, cron );
 

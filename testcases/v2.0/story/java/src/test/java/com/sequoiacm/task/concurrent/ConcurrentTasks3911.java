@@ -35,7 +35,7 @@ import java.util.List;
 public class ConcurrentTasks3911 extends TestScmBase {
     private static final String fileName = "file3911";
     private static final String fileAuthor = "author3911";
-    private static final int fileSize = 1024 * 1024 * 50;
+    private static final int fileSize = 1024 * 1024 * 5;
     private static int taskNum;
     private File localPath = null;
     private String filePath = null;

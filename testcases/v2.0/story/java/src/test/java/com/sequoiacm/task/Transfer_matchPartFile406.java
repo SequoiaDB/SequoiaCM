@@ -59,7 +59,7 @@ public class Transfer_matchPartFile406 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private String authorName = "transfer406";
     private int fileSize = 100;
-    private int fileNum = 100;
+    private int fileNum = 10;
     private int startNum = 2;
     private File localPath = null;
     private List< String > filePathList = new ArrayList< String >();

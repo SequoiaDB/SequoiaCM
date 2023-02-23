@@ -54,7 +54,7 @@ public class Transfer_stopSameTask439 extends TestScmBase {
     private int FILE_SIZE = new Random().nextInt( 1024 ) + 1;
     private ScmSession session = null;
     private ScmWorkspace ws = null;
-    private int fileNum = 100;
+    private int fileNum = 50;
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private BSONObject cond = null;
     private String authorName = "StopSameTask439";

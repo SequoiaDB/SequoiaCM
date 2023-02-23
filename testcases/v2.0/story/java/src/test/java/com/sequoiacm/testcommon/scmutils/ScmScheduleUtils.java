@@ -514,7 +514,7 @@ public class ScmScheduleUtils extends TestScmBase {
                 quickStart );
         schBuilder.type( ScheduleType.MOVE_FILE ).workspace( wsName )
                 .name( scheduleName ).description( description )
-                .content( copyContent ).cron( "0/15 * * * * ?" ).enable( true );
+                .content( copyContent ).cron( "0/1 * * * * ?" ).enable( true );
         return schBuilder.build();
     }
 

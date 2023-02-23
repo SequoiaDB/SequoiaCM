@@ -50,11 +50,8 @@
 
             <!--only one task is allowed under a ws -->
             <!--task-->
-            <package name="com.sequoiacm.task"/>
-            <package name="com.sequoiacm.task.concurrent"/>
-            <package name="com.sequoiacm.scheduletask"/>
             <package name="com.sequoiacm.scheduletask.serial"/>
-            <package name="com.sequoiacm.scheduletask.concurrent"/>
+
             <!--version-->
             <package name="com.sequoiacm.version.serial"/>
             <!--session-->

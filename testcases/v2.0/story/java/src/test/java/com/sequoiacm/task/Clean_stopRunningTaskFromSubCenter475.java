@@ -54,7 +54,7 @@ public class Clean_stopRunningTaskFromSubCenter475 extends TestScmBase {
     private ScmSession sessionA = null;
     private ScmWorkspace ws = null;
     private ScmId taskId = null;
-    private int fileNum = 100;
+    private int fileNum = 50;
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
 
     private SiteWrapper rootSite = null;

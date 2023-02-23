@@ -99,7 +99,7 @@ public class ScmScheduleCleanFileContent5264 extends TestScmBase {
                 ScmDataCheckLevel.STRICT, true, true );
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskName, "", content,
-                "0/10 * * * * ?" );
+                "0/1 * * * * ?" );
         Assert.assertEquals( content.getSiteName(), branchSite.getSiteName() );
         Assert.assertEquals( content.getMaxStayTime(), "0d" );
         Assert.assertEquals( content.getExtraCondition(), queryCond );
@@ -118,7 +118,7 @@ public class ScmScheduleCleanFileContent5264 extends TestScmBase {
                 ScmType.ScopeType.SCOPE_CURRENT );
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskName, "", content,
-                "0/10 * * * * ?" );
+                "0/1 * * * * ?" );
         BSONObject bsonObject = sche.getContent().toBSONObject();
         Assert.assertEquals( bsonObject.get( "data_check_level" ), "week" );
         Assert.assertEquals( bsonObject.get( "quick_start" ), false );
@@ -133,7 +133,7 @@ public class ScmScheduleCleanFileContent5264 extends TestScmBase {
                 ScmType.ScopeType.SCOPE_CURRENT );
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskName, "", content,
-                "0/10 * * * * ?" );
+                "0/1 * * * * ?" );
         ScmScheduleUtils.waitForTask( sche, 2 );
         SiteWrapper[] expASites = { rootSite };
         SiteWrapper[] expBSites = { rootSite, branchSite };

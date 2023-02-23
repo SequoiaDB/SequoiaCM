@@ -1,20 +1,20 @@
-package com.sequoiacm.version.serial;
+package com.sequoiacm.task.concurrent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
@@ -29,20 +29,19 @@ import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @description SCM-1660:迁移当前版本文件
+ * @description SCM-1669:清理所有版本文件
  * @author wuyan
- * @createDate 2018.06.05
+ * @createDate 2018.06.11
  * @updateUser ZhangYanan
- * @updateDate 2021.12.09
+ * @updateDate 2021.12.06
  * @updateRemark
  * @version v1.0
  */
-public class TransferCurVersionFile1660 extends TestScmBase {
+public class CleanAllVersionFile1669 extends TestScmBase {
     private static WsWrapper wsp = null;
     private SiteWrapper branSite = null;
     private SiteWrapper rootSite = null;
@@ -55,13 +54,13 @@ public class TransferCurVersionFile1660 extends TestScmBase {
     private File localPath = null;
     private int fileNum = 10;
     private BSONObject condition = null;
-    private String fileName = "fileVersion1660";
-    private String authorName = "author1660";
-    private int fileSize1 = 1024 * 100;
-    private int fileSize2 = 1024 * 5;
+    private String fileName = "fileVersion1669";
+    private String authorName = "author1669";
+    private int fileSize1 = 1024 * 50;
+    private int fileSize2 = 1024 * 100;
     private String filePath1 = null;
     private String filePath2 = null;
-    private byte[] writedata = new byte[ 1024 * 200 ];
+    private byte[] writedata = new byte[ 1024 * 15 ];
     private boolean runSuccess = false;
 
     @BeforeClass
@@ -96,11 +95,16 @@ public class TransferCurVersionFile1660 extends TestScmBase {
     private void test() throws Exception {
         int currentVersion = 2;
         int historyVersion = 1;
-        ScopeType scopeType = ScopeType.SCOPE_CURRENT;
-        startTransferTaskByCurrentVerFile( wsA, sessionA, scopeType );
+        readFileFromM( wsM, currentVersion );
+        readFileFromM( wsM, historyVersion );
 
-        checkCurrentVerFileSiteAndDataInfo( wsA, currentVersion );
-        checkHisVersionFileInfo( wsM, historyVersion );
+        // clean history version file
+        ScopeType scopeType = ScopeType.SCOPE_ALL;
+        startCleanTaskByAllVerFile( wsA, sessionA, scopeType );
+
+        // check siteinfo
+        checkClearedFileSiteInfo( wsA, currentVersion, historyVersion );
+        checkNoClearedFileInfo( wsM, currentVersion );
         runSuccess = true;
     }
 
@@ -141,68 +145,54 @@ public class TransferCurVersionFile1660 extends TestScmBase {
         }
     }
 
-    private void startTransferTaskByCurrentVerFile( ScmWorkspace ws,
+    private void startCleanTaskByAllVerFile( ScmWorkspace ws,
             ScmSession session, ScopeType scopeType ) throws Exception {
-        condition = ScmQueryBuilder.start().put( ScmAttributeName.File.SIZE )
-                .greaterThanEquals( fileSize1 )
-                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        taskId = ScmSystem.Task.startTransferTask( ws, condition, scopeType,
-                rootSite.getSiteName() );
+        condition = ScmQueryBuilder.start( ScmAttributeName.File.SIZE )
+                .lessThanEquals( fileSize1 )
+                .put( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
+        taskId = ScmSystem.Task.startCleanTask( ws, condition, scopeType );
 
         // wait task finish
         ScmTaskUtils.waitTaskFinish( session, taskId );
     }
 
-    private void checkCurrentVerFileSiteAndDataInfo( ScmWorkspace ws,
-            int currentVersion ) throws Exception {
-        // check the transfered file,check the sitelist and data
+    private void checkClearedFileSiteInfo( ScmWorkspace ws, int currentVersion,
+            int historyVersion ) throws Exception {
+        // check the cleared current and history version file sitelist ,only on
+        // the rootSite
         ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
-                ScopeType.SCOPE_CURRENT, condition );
+                ScopeType.SCOPE_ALL, condition );
         int size = 0;
-        ScmFileBasicInfo file;
-        List< ScmId > transferfileIdList = new ArrayList< ScmId >();
+        SiteWrapper[] expSiteList = { rootSite };
         while ( cursor.hasNext() ) {
-            file = cursor.getNext();
+            ScmFileBasicInfo file = cursor.getNext();
             ScmId fileId = file.getFileId();
-            transferfileIdList.add( fileId );
+            int version = file.getMajorVersion();
+            if ( version == currentVersion ) {
+                // current version file cleared nums is 5
+                VersionUtils.checkSite( ws, fileId, currentVersion,
+                        expSiteList );
+            } else {
+                // history version file cleared nums is 10
+                VersionUtils.checkSite( ws, fileId, historyVersion,
+                        expSiteList );
+            }
             size++;
         }
         cursor.close();
-        int expFileNum = 5;
+        int expFileNum = 15;
         Assert.assertEquals( size, expFileNum );
-
-        // check transfered file siteinfo and data
-        SiteWrapper[] expCurSiteList = { rootSite, branSite };
-        ScmFileUtils.checkMetaAndData( wsp, transferfileIdList, expCurSiteList,
-                localPath, filePath1 );
-
-        // check the no transfer file by current version
-        BSONObject condition1 = ScmQueryBuilder.start()
-                .put( ScmAttributeName.File.SIZE ).lessThan( fileSize1 )
-                .put( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
-        ScmCursor< ScmFileBasicInfo > cursor1 = ScmFactory.File
-                .listInstance( ws, ScopeType.SCOPE_CURRENT, condition1 );
-        int size1 = 0;
-        SiteWrapper[] expCurSiteList1 = { branSite };
-        while ( cursor1.hasNext() ) {
-            ScmFileBasicInfo file1 = cursor1.getNext();
-            ScmId fileId1 = file1.getFileId();
-            VersionUtils.checkSite( ws, fileId1, currentVersion,
-                    expCurSiteList1 );
-            size1++;
-        }
-        cursor1.close();
-        Assert.assertEquals( size1, expFileNum );
     }
 
-    private void checkHisVersionFileInfo( ScmWorkspace ws, int version )
+    private void checkNoClearedFileInfo( ScmWorkspace ws, int version )
             throws ScmException {
-        // all history version file only on the branSite
+        // no cleared current version file
         BSONObject condition = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
+                .start( ScmAttributeName.File.SIZE ).greaterThan( fileSize1 )
+                .put( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
         ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
-                ScopeType.SCOPE_CURRENT, condition );
-        SiteWrapper[] expHisSiteList = { branSite };
+                ScopeType.SCOPE_ALL, condition );
+        SiteWrapper[] expHisSiteList = { rootSite, branSite };
         int size = 0;
         while ( cursor.hasNext() ) {
             ScmFileBasicInfo file = cursor.getNext();
@@ -212,8 +202,21 @@ public class TransferCurVersionFile1660 extends TestScmBase {
             size++;
         }
         cursor.close();
-        int expFileNums = 10;
+        int expFileNums = 5;
         Assert.assertEquals( size, expFileNums );
+    }
+
+    private void readFileFromM( ScmWorkspace ws, int version )
+            throws Exception {
+        for ( int i = 0; i < fileNum; i++ ) {
+            ScmId fileId = new ScmId( fileIdList.get( i ) );
+            String downloadPath = TestTools.LocalFile.initDownloadPath(
+                    localPath, TestTools.getMethodName(),
+                    Thread.currentThread().getId() );
+            ScmFile file = ScmFactory.File.getInstance( wsM, fileId, version,
+                    0 );
+            file.getContent( downloadPath );
+        }
     }
 
 }

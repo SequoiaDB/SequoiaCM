@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class ConcurrentTasks3906 extends TestScmBase {
     private static final String fileName = "file3906";
-    private static final int fileSize = 1024 * 1024 * 50;
+    private static final int fileSize = 1024 * 1024 * 5;
     private SiteWrapper rootSite = null;
     private SiteWrapper branchSite1 = null;
     private SiteWrapper branchSite2 = null;

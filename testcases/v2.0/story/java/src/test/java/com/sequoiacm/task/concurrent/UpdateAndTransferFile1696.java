@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.sequoiacm.version.serial;
+package com.sequoiacm.task.concurrent;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;

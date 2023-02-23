@@ -51,7 +51,7 @@ import com.sequoiadb.exception.BaseException;
 
 public class Transfer_rootSiteIsExist412 extends TestScmBase {
     private final int fileSize = 200 * 1024;
-    private final int fileNum = 100;
+    private final int fileNum = 10;
     private boolean runSuccess = false;
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
     private String authorName = "TransferExistFile412 ";

@@ -1,17 +1,15 @@
 /**
  *
  */
-package com.sequoiacm.version.serial;
+package com.sequoiacm.scheduletask;
 
-import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -34,15 +32,15 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
- * @description SCM-1807:异步迁移任务，更新scopeType类型
+ * @description SCM-1672:异步调度任务指定迁移所有版本文件
  * @author luweikang
- * @createDate 2018.06.15
+ * @createDate 2018.06.13
  * @updateUser ZhangYanan
  * @updateDate 2021.12.09
  * @updateRemark
  * @version v1.0
  */
-public class ScheduleUpdateScopeType1807b extends TestScmBase {
+public class ScheduleAsyncTransferAllVersionFile1672 extends TestScmBase {
     private static WsWrapper wsp = null;
     private boolean runSuccess = false;
     private SiteWrapper branSite = null;
@@ -51,10 +49,14 @@ public class ScheduleUpdateScopeType1807b extends TestScmBase {
     private ScmSession sessionM = null;
     private ScmWorkspace wsA = null;
     private ScmWorkspace wsM = null;
-    private ScmId fileId = null;
+    private ScmId fileId1 = null;
+    private ScmId fileId2 = null;
     private ScmId scheduleId = null;
-    private String fileName = "fileVersion1807b";
-    private String scheduleName = "schedule1807b";
+    private List< String > fileIdList = new ArrayList<>();
+    private String fileName1 = "fileVersion1672_1";
+    private String fileName2 = "fileVersion1672_2";
+    private String scheduleName = "schedule1672";
+    private String authorName = "fileVersion1672";
     private byte[] filedata = new byte[ 1024 * 100 ];
     private byte[] updatedata = new byte[ 1024 * 200 ];
 
@@ -68,33 +70,47 @@ public class ScheduleUpdateScopeType1807b extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         sessionM = TestScmTools.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-        BSONObject cond = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
+        BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
+                .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        VersionUtils.updateContentByStream( wsA, fileId, updatedata );
+        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata,
+                authorName );
+        fileId2 = VersionUtils.createFileByStream( wsA, fileName2, filedata,
+                authorName );
+        VersionUtils.updateContentByStream( wsA, fileId1, updatedata );
+        VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
+        VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
+        fileIdList.add( fileId1.toString() );
+        fileIdList.add( fileId2.toString() );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         createScheduleTask();
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2 );
 
-        changeScheduleType();
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 2, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId1, 1, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId1, 2, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 1, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 2, 2 );
+        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 3, 2 );
 
         SiteWrapper[] expSites = { rootSite, branSite };
-        VersionUtils.checkSite( wsM, fileId, 1, expSites );
-        VersionUtils.checkSite( wsM, fileId, 2, expSites );
+        VersionUtils.checkSite( wsM, fileId1, 1, expSites );
+        VersionUtils.checkSite( wsM, fileId1, 2, expSites );
+        VersionUtils.checkSite( wsM, fileId2, 1, expSites );
+        VersionUtils.checkSite( wsM, fileId2, 2, expSites );
+        VersionUtils.checkSite( wsM, fileId2, 3, expSites );
+
         runSuccess = true;
     }
 
-    @AfterClass
+    @AfterClass()
     private void tearDown() throws Exception {
         try {
-            ScmSystem.Schedule.delete( sessionM, scheduleId );
+            ScmSystem.Schedule.delete( sessionA, scheduleId );
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmFactory.File.deleteInstance( wsM, fileId, true );
+                ScmFactory.File.deleteInstance( wsM, fileId1, true );
+                ScmFactory.File.deleteInstance( wsM, fileId2, true );
                 ScmScheduleUtils.cleanTask( sessionA, scheduleId );
             }
         } finally {
@@ -109,25 +125,13 @@ public class ScheduleUpdateScopeType1807b extends TestScmBase {
 
     private void createScheduleTask() throws ScmException {
         BSONObject queryCond = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID ).in( fileId.toString() )
-                .get();
+                .start( ScmAttributeName.File.FILE_ID ).in( fileIdList ).get();
         ScmScheduleContent content = new ScmScheduleCopyFileContent(
                 branSite.getSiteName(), rootSite.getSiteName(), "0d", queryCond,
-                ScopeType.SCOPE_HISTORY );
+                ScopeType.SCOPE_ALL );
         String cron = "* * * * * ?";
         ScmSchedule sche = ScmSystem.Schedule.create( sessionA, wsp.getName(),
                 ScheduleType.COPY_FILE, scheduleName, "", content, cron );
         scheduleId = sche.getId();
-    }
-
-    private void changeScheduleType() throws ScmException {
-        BSONObject queryCond = ScmQueryBuilder
-                .start( ScmAttributeName.File.FILE_ID ).in( fileId.toString() )
-                .get();
-        ScmScheduleContent content = new ScmScheduleCopyFileContent(
-                branSite.getSiteName(), rootSite.getSiteName(), "0d", queryCond,
-                ScopeType.SCOPE_CURRENT );
-        ScmSchedule sche = ScmSystem.Schedule.get( sessionA, scheduleId );
-        sche.updateContent( content );
     }
 }

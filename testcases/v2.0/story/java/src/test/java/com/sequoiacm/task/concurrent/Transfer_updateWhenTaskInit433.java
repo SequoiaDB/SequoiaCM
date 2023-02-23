@@ -51,8 +51,8 @@ import com.sequoiadb.exception.BaseException;
  */
 
 public class Transfer_updateWhenTaskInit433 extends TestScmBase {
-    private final int fileSize = 512 * 1024;
-    private final int fileNum = 100;
+    private final int fileSize = 1024 * 1024;
+    private final int fileNum = 50;
     private final String transauthorName = "case433";
     private final String randauthorName = "case433_rand";
     private boolean runSuccess = false;

@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.testcommon.*;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,11 +27,6 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -49,7 +45,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
     private SiteWrapper rootSite = null;
     private SiteWrapper branSite = null;
     private ScmSession session = null;
-    private String wsName = "ws1232";
+    private WsWrapper wsp = null;
     private List< ScmId > fileIds = new ArrayList<>();
     private File localPath = null;
     private String filePath = null;
@@ -69,13 +65,11 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
+            wsp = ScmInfo.getWs();
             // get site and workspace, create session
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
             session = TestScmTools.createSession( rootSite );
-            ScmWorkspaceUtil.deleteWs( wsName, session );
-            ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
-            ScmWorkspaceUtil.wsSetPriority( session, wsName );
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( name ).get();
         } catch ( Exception e ) {
@@ -123,7 +117,6 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
         if ( null != scheduleId ) {
             this.deleteScheduleTask();
         }
-        ScmWorkspaceUtil.deleteWs( wsName, session );
         if ( session != null ) {
             session.close();
         }
@@ -137,7 +130,8 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( branSite );
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
 
             for ( int i = startNum; i < endNum; i++ ) {
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -169,7 +163,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
                     queryCond );
             // System.out.println(content.toBSONObject());
             String cron = "* * * * * ?";
-            ScmSchedule sche = ScmSystem.Schedule.create( ss, wsName,
+            ScmSchedule sche = ScmSystem.Schedule.create( ss, wsp.getName(),
                     ScheduleType.COPY_FILE, name, "", content, cron );
             scheduleId = sche.getId();
 
@@ -207,7 +201,8 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
         ScmSession ss = null;
         try {
             ss = TestScmTools.createSession( branSite );
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    ss );
             ScmScheduleUtils.checkScmFile( ws, fileIds, startNum, endNum,
                     expSites );
         } catch ( ScmException e ) {
