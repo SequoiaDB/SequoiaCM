@@ -33,7 +33,8 @@ public class SlowLogManagerInitializer implements SmartApplicationListener {
     @Override
     public int getOrder() {
         /**
-         * 在 LoggingApplicationListener 后初始化，确保 SlowLogManager.init() 中的日志能正常输出
+         * 1. 在 LoggingApplicationListener 后初始化，确保 SlowLogManager.init() 中的日志能正常输出
+         * 2. 在 ScmConfClassScanner 之前初始化，否则 ScmConfClassScanner 会把原始class载入jvm，这里将无法执行类修改
          */
         return LoggingApplicationListener.DEFAULT_ORDER + 1;
     }
