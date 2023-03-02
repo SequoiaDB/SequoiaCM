@@ -45,11 +45,17 @@ public class WorkSpaces5635 extends TestScmBase {
     private SiteWrapper rootSite = null;
     private final String access_key = "abcdefghijklmnopqrstuvwxyzabcdefghij5635";
     private static final String secret_key = "abcdefghijklmnopqrstuvwxyzabcdefghijklmn";
+
+    private final String access_keyOld = "abcdefghijklmnopqrstuvwxyzabcdefghij5635old";
+    private static final String secret_keyOld = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnold";
+
     private File localPath = null;
     private ScmSession session = null;
     private final String uid = "uid5635";
     private final String passwordFileName = uid + "testPwd.txt";
+    private final String passwordFileNameOld = uid + "testPwdOld.txt";
     private static String passwdFilePath = null;
+    private static String passwdFilePathOld = null;
     private int fileSize = 1024 * 1024;
     private String fileName = "file5635_";
     private ScmWorkspace ws;
@@ -61,6 +67,7 @@ public class WorkSpaces5635 extends TestScmBase {
     private String filePath = null;
     private String fileUpdatePath = null;
     private String passwdLocalPath = null;
+    private String passwdLocalPathOld = null;
     private ArrayList< SiteWrapper > siteList = new ArrayList<>();
 
     @BeforeClass(alwaysRun = true)
@@ -72,6 +79,8 @@ public class WorkSpaces5635 extends TestScmBase {
         fileUpdatePath = localPath + File.separator + "updateFile_" + fileSize
                 + ".txt";
         passwdLocalPath = localPath + File.separator + "passwdFile1_" + ".txt";
+        passwdLocalPathOld = localPath + File.separator + "passwdFileOld_"
+                + ".txt";
 
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
@@ -81,24 +90,21 @@ public class WorkSpaces5635 extends TestScmBase {
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         siteList.add( site );
 
-        // 加密密码,后续写入文件中
-        String cryptPassword = ScmPasswordMgr.getInstance()
-                .encrypt( ScmPasswordMgr.SCM_CRYPT_TYPE_DES, secret_key );
-        TestTools.LocalFile.createFileSpecifiedContent( passwdLocalPath,
-                access_key + ":" + cryptPassword );
-
-        CephS3Utils.deleteCephS3User( site, uid, true );
-        CephS3Utils.createCephS3UserAndKey( site, uid, access_key, secret_key,
-                true );
-
-        passwdFilePath = CephS3Utils.preparePasswdFile( site, passwdLocalPath,
-                passwordFileName );
+        // 准备初始用户和修改的用户
+        prepareCephS3User();
 
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
+
+        // 工作区配置主库用户
+        List< ScmDataLocation > dataLocation = prepareWsCephS3DataLocation(
+                siteList, access_keyOld, passwdFilePathOld, false );
+        ws.updateDataLocation( dataLocation );
+        ScmWorkspaceUtil.checkWsUpdate( session, wsName, dataLocation );
+
         prepareFile();
     }
 
@@ -121,12 +127,13 @@ public class WorkSpaces5635 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
                 CephS3Utils.deleteCephS3User( site, uid, true );
                 CephS3Utils.deletePasswdFile( site, passwdFilePath );
+                CephS3Utils.deletePasswdFile( site, passwdFilePathOld );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }
@@ -371,5 +378,29 @@ public class WorkSpaces5635 extends TestScmBase {
         file.setFileName( fileName + "delete" );
         file.setAuthor( fileName );
         deleteFileId = file.save();
+    }
+
+    public void prepareCephS3User() throws Exception {
+        // 加密密码,后续写入文件中
+        String cryptPasswordOld = ScmPasswordMgr.getInstance()
+                .encrypt( ScmPasswordMgr.SCM_CRYPT_TYPE_DES, secret_keyOld );
+        TestTools.LocalFile.createFileSpecifiedContent( passwdLocalPathOld,
+                access_keyOld + ":" + cryptPasswordOld );
+
+        String cryptPassword = ScmPasswordMgr.getInstance()
+                .encrypt( ScmPasswordMgr.SCM_CRYPT_TYPE_DES, secret_key );
+        TestTools.LocalFile.createFileSpecifiedContent( passwdLocalPath,
+                access_key + ":" + cryptPassword );
+
+        CephS3Utils.deleteCephS3User( site, uid, true );
+        CephS3Utils.createCephS3UserAndKey( site, uid, access_key, secret_key,
+                true );
+        CephS3Utils.createCephS3UserAndKey( site, uid, access_keyOld,
+                secret_keyOld, true );
+
+        passwdFilePath = CephS3Utils.preparePasswdFile( site, passwdLocalPath,
+                passwordFileName );
+        passwdFilePathOld = CephS3Utils.preparePasswdFile( site,
+                passwdLocalPathOld, passwordFileNameOld );
     }
 }

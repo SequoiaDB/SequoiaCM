@@ -159,11 +159,11 @@ public class WorkSpaces5035 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            ScmWorkspaceUtil.deleteWs( wsName, ssRootSite );
             if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, ssRootSite );
             if ( ssRootSite != null ) {
                 ssRootSite.close();
             }

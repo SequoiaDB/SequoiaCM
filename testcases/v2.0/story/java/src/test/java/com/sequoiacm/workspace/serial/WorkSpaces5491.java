@@ -92,10 +92,10 @@ public class WorkSpaces5491 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

@@ -98,11 +98,11 @@ public class WorkSpaces5480 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsNameA, session );
-                ScmWorkspaceUtil.deleteWs( wsNameB, session );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsNameA, session );
+            ScmWorkspaceUtil.deleteWs( wsNameB, session );
             if ( session != null ) {
                 session.close();
             }

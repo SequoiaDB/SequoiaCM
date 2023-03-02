@@ -88,10 +88,8 @@ public class WorkSpaces5608 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
-            }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

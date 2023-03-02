@@ -107,12 +107,12 @@ public class WorkSpaces5604 extends TestScmBase {
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
                 CephS3Utils.deleteCephS3User( site, uid, true );
                 CephS3Utils.deletePasswdFile( site, passwdFilePath );
                 CephS3Utils.deletePasswdFile( site, passwdErrorFilePath );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

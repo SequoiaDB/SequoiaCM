@@ -220,13 +220,10 @@ public class ListWorkSpaces2576 extends TestScmBase {
     @AfterClass(alwaysRun = true)
     private void tearDown() throws Exception {
         try {
-            if ( actSuccessTestCount.get() == ( generateRangData().length + 2 )
-                    || TestScmBase.forceClear ) {
-                for ( String wsName : wsNames ) {
-                    ScmWorkspaceUtil.deleteWs( wsName, session );
-                }
-            }
         } finally {
+            for ( String wsName : wsNames ) {
+                ScmWorkspaceUtil.deleteWs( wsName, session );
+            }
             if ( session != null ) {
                 session.close();
             }

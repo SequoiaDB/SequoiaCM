@@ -69,11 +69,8 @@ public class WorkSpaces5469 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccessCount.get() == generateDate().length
-                    || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
-            }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

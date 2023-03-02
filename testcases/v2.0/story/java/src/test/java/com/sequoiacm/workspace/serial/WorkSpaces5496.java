@@ -92,10 +92,10 @@ public class WorkSpaces5496 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmFactory.Bucket.deleteBucket( session, bucketName );
-                ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

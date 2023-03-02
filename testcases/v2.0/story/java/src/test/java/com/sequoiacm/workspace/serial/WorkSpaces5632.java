@@ -150,7 +150,6 @@ public class WorkSpaces5632 extends TestScmBase {
         try {
             if ( successTestCount.get() == users().length
                     || TestScmBase.forceClear ) {
-                ScmWorkspaceUtil.deleteWs( wsName, session );
                 TestTools.LocalFile.removeFile( localPath );
                 CephS3Utils.deleteCephS3User( site, uid, false );
                 CephS3Utils.deleteCephS3User( site, uid, true );
@@ -158,6 +157,7 @@ public class WorkSpaces5632 extends TestScmBase {
                 CephS3Utils.deletePasswdFile( site, passwdFilePathB );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }

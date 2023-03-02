@@ -95,9 +95,9 @@ public class WorkSpaces5478 extends TestScmBase {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
                 TestTools.LocalFile.removeFile( localPath );
-                ScmWorkspaceUtil.deleteWs( wsName, session );
             }
         } finally {
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }
