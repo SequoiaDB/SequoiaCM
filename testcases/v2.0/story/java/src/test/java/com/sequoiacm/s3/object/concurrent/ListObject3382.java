@@ -4,19 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CreateBucketRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.*;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -32,9 +27,12 @@ public class ListObject3382 extends TestScmBase {
     private String keyName = "dir/dir";
     private String prefix = "dir";
     private String delimiter = "/";
-    private List< String > expresultList1 = new ArrayList< String >();
-    private List< String > expresultList2 = new ArrayList< String >();
-    private List< String > expresultList3 = new ArrayList< String >();
+    private List< String > expresultList1 = Collections
+            .synchronizedList( new ArrayList< String >() );
+    private List< String > expresultList2 = Collections
+            .synchronizedList( new ArrayList< String >() );
+    private List< String > expresultList3 = Collections
+            .synchronizedList( new ArrayList< String >() );
     private int objectTotalNum = 100;
     private AmazonS3 s3Client = null;
     private boolean runSuccess = false;
