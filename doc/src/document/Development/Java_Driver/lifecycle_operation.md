@@ -93,7 +93,7 @@ SequoiaCM 支持通过 Java 驱动或导入 xml 文件的方式配置生命周�
    > **Note：**
    >
    > * 触发条件中的 ID 必须唯一。
-   > * 配置中 CreateTime、LastAccessTime、BuildTime 和 TransitionTime 的取值均以 d 结尾，表示天数。
+   > * 配置中 CreateTime、LastAccessTime、BuildTime 和 TransitionTime 的取值均以 d 结尾，表示天数，最大值 2147483647。
    > * 如果未配置清理任务，数据流仅生成 move_file 调度任务；如果配置了清理任务，将根据迁移任务条件生成 copy_file 调度任务，根据清理任务条件生成 clean_file 调度任务。
 
 ###阶段标签###
