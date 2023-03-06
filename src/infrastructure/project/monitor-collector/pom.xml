@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-infrastructure</artifactId>
-        <version>3.2.2</version>
+        <version>3.6.1</version>
     </parent>
     <artifactId>sequoiacm-infrastructure-monitor-collector</artifactId>
     <name>SequoiaCM Infrastructure Monitor Collector</name>
