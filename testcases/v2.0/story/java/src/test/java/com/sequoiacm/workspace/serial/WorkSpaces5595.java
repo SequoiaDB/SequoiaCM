@@ -88,11 +88,9 @@ public class WorkSpaces5595 extends TestScmBase {
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess || TestScmBase.forceClear ) {
-                deleteDomain( rootSite, domainName );
-            }
         } finally {
             ScmWorkspaceUtil.deleteWs( wsName, session );
+            deleteDomain( rootSite, domainName );
             if ( session != null ) {
                 session.close();
             }

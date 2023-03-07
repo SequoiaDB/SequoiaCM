@@ -145,7 +145,7 @@ public class WorkSpaces5632 extends TestScmBase {
         successTestCount.getAndIncrement();
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() throws Exception {
         try {
             if ( successTestCount.get() == users().length
