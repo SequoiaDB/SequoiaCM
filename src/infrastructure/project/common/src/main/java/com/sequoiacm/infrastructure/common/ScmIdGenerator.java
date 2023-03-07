@@ -107,6 +107,8 @@ public class ScmIdGenerator {
 
         // Thu Jan 01 00:00:00 CST 9998
         private static final long ID_MAX_SECONDS = 253339200000L;
+        // Sat Jan 01 00:00:00 CST 1
+        private static final long ID_MIN_SECONDS = -62135798400L;
 
         public static void init(int clusterId, int contentServerId) throws Exception {
             if ((clusterId & ID_VERSION_FLAG) > 0) {
@@ -124,9 +126,9 @@ public class ScmIdGenerator {
         }
 
         static String generateId(long seconds, int inc) {
-            if (seconds > ID_MAX_SECONDS) {
+            if (seconds > ID_MAX_SECONDS || seconds < ID_MIN_SECONDS) {
                 throw new RuntimeException("seconds is out of bounds:seconds=" + seconds + ",max="
-                        + ID_MAX_SECONDS);
+                        + ID_MAX_SECONDS + ",min=" + ID_MIN_SECONDS);
             }
 
             byte[] total = new byte[TOTAL_BYTE_LENGTH];
@@ -202,7 +204,7 @@ public class ScmIdGenerator {
                 seconds = secondsLow32Bits;
             }
             else if (version == ID_VERSION_1) {
-                long secondsHigh16Bits = getUnsignByte(bb);
+                long secondsHigh16Bits = getSignByte(bb);
                 seconds = secondsHigh16Bits << 32 | secondsLow32Bits;
                 serial = getInt(bb);
 
@@ -264,6 +266,10 @@ public class ScmIdGenerator {
 
         private static int getUnsignByte(ByteBuffer bb) {
             return getByte(bb) & 0x0FF;
+        }
+
+        private static int getSignByte(ByteBuffer bb) {
+            return getByte(bb);
         }
 
         private static void putShort(ByteBuffer bb, short value) {
