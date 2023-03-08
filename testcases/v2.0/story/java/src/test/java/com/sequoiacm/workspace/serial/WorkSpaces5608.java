@@ -85,7 +85,7 @@ public class WorkSpaces5608 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() throws Exception {
         try {
         } finally {

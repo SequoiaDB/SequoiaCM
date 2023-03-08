@@ -105,7 +105,7 @@ public class WorkSpaces5609 extends TestScmBase {
         runSuccess = true;
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     private void tearDown() throws Exception {
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
