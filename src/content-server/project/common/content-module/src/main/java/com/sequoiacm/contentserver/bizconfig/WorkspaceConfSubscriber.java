@@ -63,6 +63,11 @@ public class WorkspaceConfSubscriber implements ScmConfSubscriber {
     }
 
     @Override
+    public long getInitStatusInterval() {
+        return 2 * 1000;
+    }
+
+    @Override
     public NotifyOption versionToNotifyOption(EventType eventType, Version version) {
         return new WorkspaceNotifyOption(version.getBussinessName(), version.getVersion(),
                 eventType);

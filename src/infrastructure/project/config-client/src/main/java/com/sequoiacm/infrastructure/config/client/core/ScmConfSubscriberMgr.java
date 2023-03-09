@@ -49,12 +49,22 @@ public class ScmConfSubscriberMgr {
                     "subscriber already exist for config: " + subscriber.subscribeConfigName()
                             + ", can not subscribe twice");
         }
+        addTempChecker(subscriber, client);
         ConfVersionChecker checker = new ConfVersionChecker(subscriber, client, notifyLock);
         timer.schedule(checker, subscriber.getHeartbeatIterval(), subscriber.getHeartbeatIterval());
         logger.info("config version's heartbeat is started:configName={},filter={},interval={}",
                 subscriber.subscribeConfigName(), subscriber.getVersionFilter(),
                 subscriber.getHeartbeatIterval());
         confVersionTasks.put(subscriber.subscribeConfigName(), checker);
+    }
+
+    private void addTempChecker(ScmConfSubscriber subscriber, ScmConfClient client) {
+        if (subscriber.getInitStatusInterval() > 0) {
+            // 临时的检查配置版本任务
+            ConfVersionChecker tempChecker = new ConfVersionChecker(subscriber, client, notifyLock,
+                    true);
+            timer.schedule(tempChecker, 0, subscriber.getInitStatusInterval());
+        }
     }
 
     @PreDestroy
@@ -105,13 +115,17 @@ class ConfVersionChecker extends ScmTimerTask {
     private Map<String, Version> myVersions;
     private ScmConfSubscriber subscriber;
     private ReentrantLock notifyLock;
+    private boolean isTemp;
+    private long runTime = 0L;
 
     public ConfVersionChecker(ScmConfSubscriber processer, ScmConfClient client,
-            ReentrantLock notifyLock) throws ScmConfigException {
+            ReentrantLock notifyLock, boolean isTemp) {
         this.notifyLock = notifyLock;
         this.subscriber = processer;
         this.client = client;
         this.myVersions = new ConcurrentHashMap<>();
+        this.isTemp = isTemp;
+        runTime = System.currentTimeMillis();
 
         try {
             List<Version> versions = client.getConfVersion(subscriber.subscribeConfigName(),
@@ -123,6 +137,11 @@ class ConfVersionChecker extends ScmTimerTask {
         catch (Exception e) {
             logger.warn("failed to query version from config server, try again later..", e);
         }
+    }
+
+    public ConfVersionChecker(ScmConfSubscriber processer, ScmConfClient client,
+            ReentrantLock notifyLock) {
+        this(processer, client, notifyLock, false);
     }
 
     @Override
@@ -176,6 +195,13 @@ class ConfVersionChecker extends ScmTimerTask {
                     finally {
                         notifyLock.unlock();
                     }
+                }
+            }
+
+            if (isTemp) {
+                if (System.currentTimeMillis() - runTime >= subscriber.getHeartbeatIterval()) {
+                    // 如果临时任务执行的时长达到了正式任务的延迟启动时长，就剔除掉该任务。
+                    cancel();
                 }
             }
         }

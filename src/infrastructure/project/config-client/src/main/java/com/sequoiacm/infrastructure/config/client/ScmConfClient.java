@@ -250,7 +250,7 @@ public class ScmConfClient {
      *            ConfFilePath that relative to the config-client jar
      * @throws ScmConfigException
      */
-    public void setConfFilePaht(String relativeConfFilePath) throws ScmConfigException {
+    public void setConfFilePath(String relativeConfFilePath) throws ScmConfigException {
         configPropsDaoFactory.setConfigPropsPath(relativeConfFilePath);
     }
 }

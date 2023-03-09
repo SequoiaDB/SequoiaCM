@@ -16,6 +16,10 @@ public interface ScmConfSubscriber {
 
     public long getHeartbeatIterval();
 
+    default long getInitStatusInterval() {
+        return 0;
+    }
+
     public NotifyOption versionToNotifyOption(EventType eventType, Version version);
 
 }
