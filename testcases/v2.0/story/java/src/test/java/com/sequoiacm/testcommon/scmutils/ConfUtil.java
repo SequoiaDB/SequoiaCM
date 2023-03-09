@@ -2,13 +2,14 @@ package com.sequoiacm.testcommon.scmutils;
 
 import java.util.*;
 
+import bsh.StringUtil;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.testng.Assert;
-
+import org.apache.commons.lang.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmType;
@@ -634,5 +635,36 @@ public class ConfUtil extends TestScmBase {
         }
         scmAuditInfoScmCursor.close();
         return flag;
+    }
+
+    /**
+     * @descreption 校验认证服务是否配置LDAP
+     * @throws ScmException
+     */
+    public static void checkLDAPConfig() throws ScmException {
+        ScmSession session = TestScmTools
+                .createSession( ScmInfo.getRootSite() );
+        List< ScmServiceInstance > serviceInstanceList = ScmSystem.ServiceCenter
+                .getServiceInstanceList( session, AUTH_SERVER_SERVICE_NAME );
+        ScmCursor< ScmHealth > scmHealthScmCursor = ScmSystem.Monitor
+                .listHealth( session, AUTH_SERVER_SERVICE_NAME );
+        try {
+            while ( scmHealthScmCursor.hasNext() ) {
+                String nodeName = scmHealthScmCursor.getNext().getNodeName();
+                Map< ? , ? > confByRest = getConfByRest( nodeName );
+                for ( Map.Entry< ? , ? > entry : confByRest.entrySet() ) {
+                    if ( String.valueOf( entry.getKey() )
+                            .contains( "spring.ldap" ) ) {
+                        if ( StringUtils
+                                .isEmpty( entry.getValue().toString() ) ) {
+                            Assert.fail( "内容服务节点未配置LDAP用户配置！配置名为："
+                                    + entry.getKey() );
+                        }
+                    }
+                }
+            }
+        } finally {
+            scmHealthScmCursor.close();
+        }
     }
 }

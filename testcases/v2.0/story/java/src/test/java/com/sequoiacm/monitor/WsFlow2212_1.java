@@ -86,8 +86,7 @@ public class WsFlow2212_1 extends TestScmBase {
         }
     }
 
-    // 问题单SEQUOIACM-1149未修改暂时屏蔽用例
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     private void testList() throws Exception {
         BasicBSONObject ws_flow_before = getFlowByWsName( wsp.getName() );
         UploadFile up = new UploadFile();

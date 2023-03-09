@@ -1,6 +1,7 @@
 package com.sequoiacm.auth.concurrent;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +34,8 @@ public class AuthServer_CrudSameUser1549 extends TestScmBase {
     private ScmUser user;
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws ScmException {
+        ConfUtil.checkLDAPConfig();
         try {
             site = ScmInfo.getSite();
             session = TestScmTools.createSession( site );

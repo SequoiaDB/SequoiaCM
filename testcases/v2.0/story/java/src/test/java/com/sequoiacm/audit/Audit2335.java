@@ -44,6 +44,7 @@ public class Audit2335 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
+        ConfUtil.checkLDAPConfig();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         name3 = TestScmBase.ldapUserName;

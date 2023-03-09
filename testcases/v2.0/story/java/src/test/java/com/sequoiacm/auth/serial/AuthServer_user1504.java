@@ -1,5 +1,6 @@
 package com.sequoiacm.auth.serial;
 
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -33,6 +34,7 @@ public class AuthServer_user1504 extends TestScmBase {
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
+        ConfUtil.checkLDAPConfig();
         site = ScmInfo.getSite();
         session = TestScmTools.createSession( site );
         // clean new user

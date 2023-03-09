@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +39,8 @@ public class AuthServer_CrudDiffUser1550 extends TestScmBase {
     private List< ScmUser > userList = new CopyOnWriteArrayList< ScmUser >();
 
     @BeforeClass(alwaysRun = true)
-    private void setUp() {
+    private void setUp() throws ScmException {
+        ConfUtil.checkLDAPConfig();
         try {
             site = ScmInfo.getSite();
             session = TestScmTools.createSession( site );
