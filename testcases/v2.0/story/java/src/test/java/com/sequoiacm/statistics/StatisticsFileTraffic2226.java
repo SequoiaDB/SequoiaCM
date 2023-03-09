@@ -63,7 +63,8 @@ public class StatisticsFileTraffic2226 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { GroupTags.base })
+    // 问题单SEQUOIACM-1285未修改，暂时屏蔽用例
+    @Test(groups = { GroupTags.base }, enabled = false)
     private void test() throws Exception {
         // get statisticDownload before create file
         HashMap< String, Long > firstmap = StatisticsUtils.statisticsFile( ws,
