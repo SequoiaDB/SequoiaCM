@@ -644,11 +644,9 @@ public class ConfUtil extends TestScmBase {
     public static void checkLDAPConfig() throws ScmException {
         ScmSession session = TestScmTools
                 .createSession( ScmInfo.getRootSite() );
-        List< ScmServiceInstance > serviceInstanceList = ScmSystem.ServiceCenter
-                .getServiceInstanceList( session, AUTH_SERVER_SERVICE_NAME );
         ScmCursor< ScmHealth > scmHealthScmCursor = ScmSystem.Monitor
                 .listHealth( session, AUTH_SERVER_SERVICE_NAME );
-        try {
+        try{
             while ( scmHealthScmCursor.hasNext() ) {
                 String nodeName = scmHealthScmCursor.getNext().getNodeName();
                 Map< ? , ? > confByRest = getConfByRest( nodeName );
@@ -665,6 +663,9 @@ public class ConfUtil extends TestScmBase {
             }
         } finally {
             scmHealthScmCursor.close();
+            if ( session != null ) {
+                session.close();
+            }
         }
     }
 }
