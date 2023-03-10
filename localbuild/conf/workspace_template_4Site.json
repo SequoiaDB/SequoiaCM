@@ -1,0 +1,92 @@
+{
+  "url": "hostname:8080/rootsite",
+  "userName": "admin",
+  "password": "admin",
+  "workspaces": [
+    {
+      "name": "ws_default",
+      "description": "'default sharding workspace'",
+      "enable_directory": false,
+      "meta": {
+        "site": "rootSite",
+        "domain": "domain1",
+        "meta_sharding_type": "year"
+      },
+      "data": [
+        {
+          "site": "rootSite",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite1",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite2",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite3",
+          "domain": "domain2"
+        }
+      ]
+    },
+    {
+      "name": "ws_default2",
+      "description": "'default sharding workspace'",
+      "enable_directory": true,
+      "meta": {
+        "site": "rootSite",
+        "domain": "domain1",
+        "meta_sharding_type": "year"
+      },
+      "data": [
+        {
+          "site": "rootSite",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite1",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite2",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite3",
+          "domain": "domain2"
+        }
+      ]
+    },
+    {
+      "name": "ws_default3",
+      "description": "'default sharding workspace'",
+      "enable_directory": true,
+      "meta": {
+        "site": "rootSite",
+        "domain": "domain1",
+        "meta_sharding_type": "year"
+      },
+      "data": [
+        {
+          "site": "rootSite",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite1",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite2",
+          "domain": "domain2"
+        },
+        {
+          "site": "branchSite3",
+          "domain": "domain2"
+        }
+      ]
+    }
+  ]
+}
+

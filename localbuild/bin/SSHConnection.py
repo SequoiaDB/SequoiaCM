@@ -3,7 +3,7 @@ import sys
 import os
 rootDir = sys.path[0]+os.sep
 sys.path.append(rootDir + "localbuild" + os.sep + "bin")
-paramiko.util.log_to_file(rootDir + ".." + os.sep + "temp_package" + os.sep + "paramiko.log")
+paramiko.util.log_to_file(rootDir + ".." + os.sep + "tmp" + os.sep + "paramiko.log")
 
 class SSHConnection:
 

@@ -2,22 +2,22 @@
 目的：用于开发人员快速编译，测试，执行用例
 
 ## 1 前提准备
-   * Python版本:2.7.X
-   * 系统:Linux或Windows
-   * 所需部署安装虚拟机相互配置好 host 映射
+* Python版本:2.7.X
+* 系统:Linux或Windows
+* 所需部署安装虚拟机相互配置好 host 映射
 
 ## 2 使用介绍
-  在Linux或Windows中进行:
+在Linux或Windows中进行:
 ### 2.1. 环境要求:
 
 Python版本:2.7.X
 
 ### 2.2安装paramiko库
 
-   * 目的：安装Python paramiko 外部库进行本地化构建ssh远程连接
-   * 方式：离线安装
-   * Python版本:2.7.X
-   * 账号:root 密码:sequoiadb
+* 目的：安装Python paramiko 外部库进行本地化构建ssh远程连接
+* 方式：离线安装
+* Python版本:2.7.X
+* 账号:root 密码:sequoiadb
 
 **(1)在需要部署集群的Linux机器上(必须)(脚本安装)**
 
@@ -25,6 +25,10 @@ Python版本:2.7.X
 ```shell
 bash install_paramiko.sh --host 192.168.XX.XX,192.168.XX.XX
 ```
+
+--host参数说明，后面接所需要安装部署主机名，逗号分隔(必填):
+
+其脚本主要作用是在填写的主机中安装paramiko外部库，修改/etc/ssh/sshd_config 修改配置文件，在/etc/environment中添加JAVA_HOME
 
 注意:对于麒麟系统机器或者账号密码不一致情况安装Python Paramiko 需要单独在其机器下拷贝Linux文件夹在/usr/local/目录下，之后执行命令:
 ```shell
@@ -41,8 +45,8 @@ bash start.sh
 
 ### 2.3填写配置信息和安装包存放位置
 
- * ./localbuild/conf/localbuild.conf ssh主机配置文件
- * ./localbuild/temp_package/sequoiadb-xx-installer.run SDB安装包存放位置
+* ./localbuild/conf/localbuild.conf ssh主机配置文件
+* ./localbuild/temp_package/sequoiadb-xx-installer.run SDB安装包存放位置
 
 ### 2.4主脚本:localbuild.py参数解析
 
@@ -58,57 +62,66 @@ bash start.sh
 -h | --help                          |使用帮助
 --host <arg>                         |后面配置主机号,逗号分隔 
 --cleanscm                           |卸载SCM集群
---cleanws                            |清理工作区
+--site                               |站点数，支持两站点，四站点 (适用于installsdb, installscm, runtest)
+--project                            |测试工程，支持story, tdd, sdv, all (仅适用于runtest)
+--runbase                            |是否跑基本测试用例 (仅适用于runtest)
 ```
 
 ### 2.5操作命令
-   * 一键编译测试部署安装：
+* 一键编译测试部署安装：
    ```shell
-   python localbuild.py --compile --installsdb --installscm  --runtest  --host  192.168.XX.XX,192.168.XX.XX    
+   python localbuild.py --compile --installsdb --installscm  --runtest  --host  192.168.XX.XX,192.168.XX.XX  --site twoSite --runbase  
    ```
 
 ***需在./localbuild/temp_package/下放置SDB安装包文件***
 
-   * 仅编译
-   
+* 仅编译
+
    ```shell
    python localbuild.py --compile   
    ```
-   * 仅安装sdb集群
+* 仅安装sdb集群
    ```shell
-    python localbuild.py --installsdb    --host 192.168.XX.XX    
+    python localbuild.py --installsdb  --host 192.168.XX.XX --site twoSite 
    ```
 
-***需在./localbuild/temp_package/下放置SDB安装包文件，安装两套单组单节点SDB集群***
+***需在./localbuild/temp_package/下放置SDB安装包文件，twoSite代表安装两套单组单节点SDB集群***
 
-   * 强制安装sdb集群
+* 强制安装sdb集群
    ```shell
-   python localbuild.py --installsdb    --host 192.168.XX.XX  --force     
+   python localbuild.py --installsdb    --host 192.168.XX.XX --site twoSite --force     
    ```
-   * 仅安装scm集群
+* 安装sdb集群(4套单组单节点)
    ```shell
-   python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX     
+   python localbuild.py --installsdb    --host 192.168.XX.XX  --site fourSite      
    ```
-   * 强制安装scm集群
+* 仅安装scm集群
    ```shell
-   python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX --force      
+   python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX --site twoSite    
+   ```
+* 强制安装scm集群
+   ```shell
+   python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX --site twoSite --force      
    ```
 
-   ***安装SCM集群后其安装包解压位置位于./localbuild/temp_package/sequoiacm***
-
-   * 卸载scm集群
+***安装SCM集群后其安装包解压位置位于./localbuild/temp_package/sequoiacm***
+* 安装scm集群(4站点集群)
+   ```shell
+   python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX --site fourSite    
+   ```
+* 卸载scm集群
    ```shell
   python localbuild.py  --cleanscm  --host 192.168.XX.XX,192.168.XX.XX     
    ```
-   * 仅执行基本测试用例
+* 仅执行基本测试用例(2个站点)
    ```shell
-   python localbuild.py  --runtest      
+   python localbuild.py  --runtest --host 192.168.XX,XX,192.168,XX,XX --site twoSite --runbase    
    ```
-
-   * 仅清理全部工作区
+* 仅执行测试用例(4个站点)
    ```shell
-   python localbuild.py  --cleanws      
+   python localbuild.py  --runtest --host 192.168.XX,XX,192.168,XX,XX --site fourSite   
    ```
+***执行测试用例参数可以特殊指定一个站点即：--site oneSite***
 
 ## 3 工作目录
 ```shell
@@ -116,18 +129,17 @@ bash start.sh
               |--conf
                           |--localbuild.conf  #填写主机ssh相关信息（必填）
                           |-- deployscmHostX_template #部署SCM模板文件（可根据实际需求修改）
-              |temp_package #主要存放脚本生成文件和必要安装包
+              |--tmp #主要存放脚本生成文件和必要安装包
                           |sequoiadb-3.2.4-linux_x86_64-installer.run #SDB安装包存放位置
-                          |test-report # 测试报告存放位置
                           |deployscmHostX_template.cfg #实际部署SCM文件
                           |paramiko.log # paramiko 连接日志
                           |scm.info # 部署scm集群后生成信息
                           |sdb.info # 部署sdb集群后生成信息
-                          |workspace_template.json # 创建工作区文件
-                          |testng.xml # test-case-story并行xml文件
-                          |test-serial.xml #test-case-story串行行xml文件
                           |sequoicm-X.X.X-release.tar.gz # SCM安装包位置
                           |sequoicm #scm安装包解压后文件
+                          |localbuild.log # 日志文件
+                          |test_executor # 测试工具工作目录
+              |--test_executor # 测试工具目录
 ```
 ## 3 附属脚本介绍
 ### 3.1 compile.py
@@ -159,13 +171,25 @@ python deploy_scm.py  --package-file <arg> --host <arg> --template <arg>  --sdb-
 # ssh-file <arg>     # 填写主机ssh相关信 具体参考./localbuild/conf/localbuild.conf
 # force              # 是否强制安装
 ```   
-### 3.4 run_test.py
-执行基本测试用例
+### 3.4 run_test_tool.py
+执行测试用例
 ```shell
-python run_test.py --scm-info <arg> --workspace-file <arg>
+python run_test_tool.py --scm-info <arg>  ssh-file <arg> --project all --site fourSite 
+# 跑多个测试工程：表示执行四个站点tdd,story, sdv串并行所有用例
+python run_test_tool.py --scm-info <arg>  ssh-file <arg> --project all --site twoSite --runbase
+# 跑多个测试工程：表示执行两个站点tdd,story, sdv串并行所有基本用例
+python run_test_tool.py --scm-info <arg>  ssh-file <arg> --project sotry --site twoSite --testng-conf testng
+# 跑单个测试工程：表示执行两个站点story并行所有用例
 # scm-info <arg>              # 部署完scm集群生成信息存放位置,.info文件 具体参考scm.info文件
-# workspace-file   <arg>      # 工作区创建模板,具体参考./localbuild/conf/workspace_template.json
 # ssh-file <arg>              # 填写主机ssh相关信 具体参考./localbuild/conf/localbuild.conf
+# project <arg>               # 填写测试工程名称，支持tdd, story, sdv, all(表示跑tdd,story串并行)
+# site <arg>                  # 填写站点，支持oneSite ,twoSite, fourSite
+# testng-conf <arg>           # 支持testng , testng-serial
+# runbase                     # 跑基本测试用例，搭配 all，project 使用
+# packages <arg>              # 指定需要执行的包（逗号分隔，依赖于 --testng-conf）
+# classes <arg>               # 指定需要执行的类（逗号分隔，依赖于 --testng-conf）
+# work-path                   # 工作目录，本次工具执行中间产物，结果收集
+# conf                        # 工具配置文件路径，默认从模板中读取(./localbuild/test_executor), 用户可自定义调整文件路径
 ```   
 
 ### 3.5 clean_scm.py
@@ -174,14 +198,6 @@ python run_test.py --scm-info <arg> --workspace-file <arg>
 python clean_scm.py --host <arg>  --ssh-file <arg>
 # host <arg>                  # 主机名，逗号分隔
 # ssh-file <arg>              # 填写主机ssh相关信 具体参考./localbuild/conf/localbuild.conf
-```   
-
-### 3.6 clean_ws.py
-清理工作区
-```shell
-python clean_scm.py --scm-info <arg>  --workspace-file <arg>
-# scm-info <arg>              # 部署完sc,集群生成信息存放位置,.info文件 具体参考scm.info文件
-# workspace-file   <arg>      # 工作区创建模板,具体参考./localbuild/conf/workspace_template.json
 ```
 
 ## 4 附属生成文件(部分介绍)
@@ -192,11 +208,15 @@ coord = XX.XX.XX.XX:XX,
 
 [cluster2]
 coord = XX.XX.XX.XX:XX,
+# 第一个SDB集群作为SCM主站点,部署SCM会根据部署模板替换掉[metasource]与[datasource]中信息;
 ```
 ### 4.1 scm.info
 ```shell
-mainSdbUrl=XX.XX.XX.XX:XX  # 192.168.XX.XX:11810
-getWayUrl=XX.XX.XX.XX:XX   # 192.168.XX.XX:8080
-S3Url=XX.XX.XX.XX:XX       # 192.168.XX.XX:16000
-sshHostInfo=root,sequoiadb # 用来保存需要生成s3key机器的ssh用户密码信息
+mainSdbUrl=XX.XX.XX.XX:XX  # 元数据服务Url
+sdbuser=XX                 # 元数据服务账号
+sdbpassword=XX             # 元数据服务密码
+gateWayUrl=XX.XX.XX.XX:XX  # 网关Url
+sshuser=XX                 # 网关所在机器ssh 用户 
+sshpassword=XX             # 网关所在机器ssh 密码
+omUrl=XX.XX.XX.XX:XX       # Om服务信息
 ```
