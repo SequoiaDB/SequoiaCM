@@ -110,7 +110,7 @@ public class BreakpointFileController {
                 throw new ScmMissingArgumentException("Missing is_last_content");
             }
 
-            if (null == createTime || 0 == createTime) {
+            if (null == createTime) {
                 createTime = System.currentTimeMillis();
             }
 

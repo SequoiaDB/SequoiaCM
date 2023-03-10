@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +141,9 @@ public class BreakpointFileServiceImpl implements IBreakpointFileService {
             throw new ScmOperationUnsupportedException(String.format(
                     "Upload BreakpointFile is not support: /%s/%s", workspaceName, fileName));
         }
+
+        long seconds = createTime / 1000;
+        ScmIdGenerator.FileId.checkCreateTime(seconds);
 
         ScmWorkspaceInfo workspaceInfo = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 

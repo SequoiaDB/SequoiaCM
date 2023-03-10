@@ -125,11 +125,15 @@ public class ScmIdGenerator {
             isInit = true;
         }
 
-        static String generateId(long seconds, int inc) {
+        public static void checkCreateTime(long seconds) {
             if (seconds > ID_MAX_SECONDS || seconds < ID_MIN_SECONDS) {
                 throw new RuntimeException("seconds is out of bounds:seconds=" + seconds + ",max="
                         + ID_MAX_SECONDS + ",min=" + ID_MIN_SECONDS);
             }
+        }
+
+        static String generateId(long seconds, int inc) {
+            checkCreateTime(seconds);
 
             byte[] total = new byte[TOTAL_BYTE_LENGTH];
             ByteBuffer bb = ByteBuffer.wrap(total);
