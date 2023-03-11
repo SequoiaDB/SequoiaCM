@@ -332,8 +332,11 @@ public class ScmWorkspaceUtil extends TestScmBase {
                 }
                 return;
             } catch ( ScmException e ) {
-                Assert.assertEquals( e.getError(),
-                        ScmError.OPERATION_UNAUTHORIZED, e.getMessage() );
+                if ( !( e.getError().equals( ScmError.OPERATION_UNAUTHORIZED )
+                        || e.getError()
+                                .equals( ScmError.WORKSPACE_NOT_EXIST ) ) ) {
+                    throw e;
+                }
             }
         }
         Assert.fail( "grantPrivilege is not done in 60 seconds" );
