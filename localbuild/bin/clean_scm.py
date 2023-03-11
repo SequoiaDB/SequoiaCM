@@ -18,11 +18,13 @@ SSH_ARR = []
 SSH_INFO_FILE = ""
 TMP_DIR = rootDir + '..' + os.sep + 'tmp' + os.sep
 
+
 def display(exit_code):
     print(" --help | -h       : print help message")
     print(" --host <arg>      : hostname : required, ',' separate ")
     print(" --ssh-file <arg>  : ssh information : filled in localbuild.conf ")
     sys.exit(exit_code)
+
 
 def parse_command():
     global HOST_LIST, SSH_INFO_FILE
@@ -62,6 +64,7 @@ def getSSHInfo():
         log.error("The information you filled in have insufficient in localbuild.conf!, error info:" + ex)
         raise ex
 
+
 def cleanScm(host, sshInfo):
     dbStr = "/opt/sequoiadb/bin/sdb -s \"db = new Sdb();var arr = db.listCollectionSpaces(); String.prototype.endWith = function(endStr){ var d = this.length-endStr.length; return (d >= 0 && this.lastIndexOf(endStr) == d) } ;while(arr.next()) {var obj = arr.current();var str1 = \\\"SCMSYSTEM\\\";var str2 = \\\"SCMAUDIT\\\";var name = obj.toObj().Name.toString();if( name===str1 || name===str2 || name.endWith(\\\"_META\\\")){ db.dropCS(obj.toObj().Name);}}\""
     daemonStr = "ps -ef | grep -v grep|grep sequoiacm/daemon |awk '{print $10}'|awk -F 'daemon/' '{print $1}'"
@@ -97,6 +100,7 @@ def cleanScm(host, sshInfo):
     except Exception as e:
         log.error(e)
         raise e
+
 
 if __name__ == '__main__':
     try:

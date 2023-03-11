@@ -1,16 +1,14 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 import shutil
-import sys, getopt
+import sys
+import getopt
 import os
-import re
-import linecache
 import ConfigParser
 
 rootDir = sys.path[0] + os.sep
 sys.path.append(rootDir)
 from scmCmdExecutor import ScmCmdExecutor
-from SSHConnection import SSHConnection
 
 TMP_DIR = rootDir + '..' + os.sep + 'tmp' + os.sep
 TEST_EXECUTOR_DIR = rootDir + '..' + os.sep + 'tmp' + os.sep + 'test_executor'
@@ -35,12 +33,6 @@ CLASSES = ""
 WORK_PATH = rootDir + '..' + os.sep + 'tmp' + os.sep + 'test_executor'
 CONF = rootDir + '..' + os.sep + 'test_executor' + os.sep + 'conf'
 
-GATEWAY_URL = ""
-S3_URL = ""
-S3ACCESSKEYID = ""
-S3SECRETKEY = ""
-WORKSPACE_FILE = ""
-S3_HOST_INFO  = ""
 TEST_RESULT = "======================================TEST RESULT=================================================\n"
 
 
@@ -61,12 +53,12 @@ def display(exit_code):
 
 
 def parse_command():
-    global SCM_INFO_FILE, SSH_FILE, HOST_LIST, PROJECT, SITE, RUNBASE, TESTNG_CONF, PACKAGES, CLASSES, WORK_PATH, CONF, WORKSPACE_FILE
+    global SCM_INFO_FILE, SSH_FILE, HOST_LIST, PROJECT, SITE, RUNBASE, TESTNG_CONF, PACKAGES, CLASSES, WORK_PATH, CONF
     try:
         options, args = getopt.getopt(sys.argv[1:], "h",
                                       ["help", "scm-info=", "ssh-file=", "host=",
                                        "project=", "site=", "runbase", "testng-conf=", "packages=", "classes=",
-                                       "work-path=", "conf=", "workspace-file="])
+                                       "work-path=", "conf="])
     except getopt.GetoptError, e:
         log.error(e, exc_info=True)
         sys.exit(-1)
@@ -96,23 +88,7 @@ def parse_command():
             WORK_PATH = value
         elif name in ("--conf"):
             CONF = value
-        elif name in ("--workspace-file"):
-            WORKSPACE_FILE = value
 
-def updateWs(gateWayInfo, tmpWorkspaceFile):
-    with open(tmpWorkspaceFile, 'r') as file:
-        data = file.read()
-        data = data.replace("hostname:8080", str(gateWayInfo))
-    with open(tmpWorkspaceFile, 'w') as file:
-        file.write(data)
-
-def getS3Info(s3Res):
-    s3Arr = s3Res[1].split('\n')
-    key = s3Arr[1].strip()
-    res = re.compile(r'\b[a-zA-Z0-9]+\b',re.I).findall(key)
-    if len(res) != 3:
-        raise Exception("the S3key is wrong!")
-    return res
 
 def execTestCase(project, site, xmlName, runbase, packages, classes, workPath, confPath):
     try:
@@ -156,7 +132,6 @@ def generateTestFile(moudleName, site, runbase, workPath):
 
 
 def updateScmTestByScmInfo(scmInfoPath, workPath):
-    global S3ACCESSKEYID, S3SECRETKEY
     # 　读取scm.info 信息
     with open(scmInfoPath) as lines:
         for line in lines:
@@ -208,42 +183,12 @@ def updateScmTestByScmInfo(scmInfoPath, workPath):
                     temp += str(strs[0]) + "=" + str(strs[1]) + "\n"
                 else:
                     temp += str(strs[0]) + "=" + str(strs[1]) + "\n"
-    temp += 'scm.test.param.S3ACCESSKEYID=' + S3ACCESSKEYID + "\n"
-    temp += 'scm.test.param.S3SECRETKEY=' + S3SECRETKEY + "\n"
-    with open(workPath  + os.sep + 'conf' + os.sep + 'scmtest.properties', 'w') as file:
+    with open(workPath + os.sep + 'conf' + os.sep + 'scmtest.properties', 'w') as file:
         file.write(temp)
 
-def createWs(wsPath):
-    global TMP_DIR, WORKSPACE_FILE, GATEWAY_URL
-    log.info('create workspace, use template:' + wsPath)
-    shutil.copy(wsPath, TMP_DIR)
-    tmpWorkspaceFile = TMP_DIR + os.path.basename(WORKSPACE_FILE)
-    updateWs(GATEWAY_URL, tmpWorkspaceFile)
-    res = cmdExecutor.command("python "+ TMP_DIR  + "sequoiacm" + os.sep + "scm.py  workspace --clean-all --conf "+ tmpWorkspaceFile + " --create --grant-all-priv")
-    if res != 0:
-        raise Exception("Failed to create workspace")
-    log.info('create workspace success!')
 
-def generateS3Key():
-    global S3_HOST_INFO, S3_URL, GATEWAY_URL, S3ACCESSKEYID, S3SECRETKEY
-    sshArr = S3_HOST_INFO.split(",")
-    if len(sshArr) == 0:
-        raise Exception("Missing sshInfo !")
-    arr = str(S3_URL).split(":")
-    ssh = SSHConnection(host = arr[0], user = str(sshArr[0]), pwd =  str(sshArr[1]))
-    ssh.cmd("chmod +x /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh")
-    ssh.cmd("sh /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh set-default-region -r ws_default -u admin -p admin --url " + str(GATEWAY_URL) )
-    res = ssh.cmd("sh /opt/sequoiacm/sequoiacm-s3/bin/s3admin.sh refresh-accesskey -t admin -u admin -p admin -s " + str(S3_URL))
-    s3Arr = getS3Info(res)
-    S3ACCESSKEYID = str(s3Arr[1])
-    S3SECRETKEY = str(s3Arr[2])
-
-
-def runTest(project, site, testngConf, packages, classes, scmInfoPath, workPath, scmTestConf, wsPath):
+def runTest(project, site, testngConf, packages, classes, scmInfoPath, workPath, scmTestConf):
     try:
-        createWs(wsPath)
-        generateS3Key()
-
         confPath = workPath + os.sep + 'conf'
         shutil.copytree(scmTestConf, confPath)
         updateScmTestByScmInfo(scmInfoPath, workPath)
@@ -290,32 +235,21 @@ def getSSHInfo(confFile):
         raise e
 
 
-def getWorkMachineInfo(hostArr, sshDict):
+def generateTestWorkers(hostArr, sshDict):
     global MACHINE_STR
-    count = 1
-    while count <= len(hostArr):
-        if sshDict.has_key(count):
-            # workers = root:sequoiadb:XXX:XXX:22, root:sequoiadb:XXX:XX:22
-            sshArr = str(sshDict[count]).split(",")
-            MACHINE_STR += str(sshArr[0]) + ":" + sshArr[1] + ":" + str(hostArr[count - 1]) + ":22" + ","
+    # scm.test.workers=
+    # root:sequoiadb:XXX:XXX:22,root:sequoiadb:XXX:XX:22
+    for idx, host in enumerate(hostArr):
+        if idx != 0:
+            MACHINE_STR += ","
+        if (idx + 1) in sshDict:
+            sshArr = str(sshDict[idx + 1]).split(",")
+            MACHINE_STR += str(sshArr[0]) + ":" + sshArr[1] + ":" + str(hostArr[idx]) + ":22"
         else:
             sshArr = str(sshDict[0]).split(",")
-            MACHINE_STR += str(sshArr[0]) + ":" + sshArr[1] + ":" + str(hostArr[count - 1]) + ":22" + ","
-        count += 1
+            MACHINE_STR += str(sshArr[0]) + ":" + sshArr[1] + ":" + str(hostArr[idx]) + ":22"
     if len(MACHINE_STR.strip()) == 0:
         raise Exception("The worker machine is null!")
-
-def parseScmInfo(scmFile):
-    global S3_HOST_INFO, S3_URL, GATEWAY_URL
-    with open(scmFile) as lines:
-        for line in lines:
-            line = line.strip()
-            if line.startswith("S3Url="):
-                S3_URL = line.replace("S3Url=", "")
-            if line.startswith("sshHostInfo="):
-                S3_HOST_INFO = line.replace("sshHostInfo=", "")
-            if line.startswith("gateWayUrl="):
-                GATEWAY_URL = line.replace("gateWayUrl=", "")
 
 
 if __name__ == '__main__':
@@ -339,10 +273,9 @@ if __name__ == '__main__':
         if os.path.exists(WORK_PATH):
             shutil.rmtree(WORK_PATH)
             os.makedirs(WORK_PATH)
-        parseScmInfo(SCM_INFO_FILE)
         sshDict = getSSHInfo(SSH_FILE)
-        getWorkMachineInfo(hostArr, sshDict)
-        runTest(PROJECT, SITE, TESTNG_CONF, PACKAGES, CLASSES, SCM_INFO_FILE, WORK_PATH, CONF, WORKSPACE_FILE)
+        generateTestWorkers(hostArr, sshDict)
+        runTest(PROJECT, SITE, TESTNG_CONF, PACKAGES, CLASSES, SCM_INFO_FILE, WORK_PATH, CONF)
     except Exception as e:
         log.error(e, exc_info=True)
         raise e

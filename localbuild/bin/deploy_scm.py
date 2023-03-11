@@ -78,20 +78,11 @@ def parse_command():
 
 
 def generateScmInfo(scmInfoFile, deployFile, hostList, sshInfo, template):
-    hostNum = getS3record(template)
-    if sshInfo.has_key(int(hostNum)):
-        info = sshInfo[int(hostNum)]
-    else:
-        info =  sshInfo[0]
     with open(deployFile, 'r') as file:
         data = file.readlines()
     gateWayHost = ""
     line = 1
     for ele in data:
-        if 'BindingSite' in ele:
-            S3Str = linecache.getline(deployFile, int(line+1))
-            arr = str(S3Str).split(",")
-            S3Url = str(arr[2]).strip() + ":" + str(arr[3]).strip()
         if 'ds1,   sequoiadb' in ele:
             arr1 = str(ele).split(",")
             mainSdbUrl = str(arr1[2]).strip()
@@ -134,10 +125,7 @@ def generateScmInfo(scmInfoFile, deployFile, hostList, sshInfo, template):
         file.write(sdbuser + "\n")
         file.write("sdbpassword=")
         file.write(sdbpassword + "\n")
-        file.write("S3Url=")
-        file.write(S3Url + "\n")
-        file.write("sshHostInfo=")
-        file.write(info + "\n")
+
 
 def updateCfgBySdbInfo(sdbInfoArr, template):
     with open(template, 'r') as file:
@@ -188,25 +176,6 @@ def updateCfg(template, hostList, sdbFile, sshInfo):
             data = data.replace("hostname" + str(count), str(hostList[sum])).replace("sshUser" + str(count), str(info[0])).replace("sshPassword" + str(count), str(info[1]))
             count += 1
     with open(template, 'w') as file:
-        file.write(data)
-
-def getS3record(template):
-    with open(template, 'r') as file:
-        data = file.readlines()
-    count = 1
-    for ele in data:
-        if 'BindingSite' in ele:
-            S3Str = linecache.getline(template, int(count+1))
-            arr = str(S3Str).split(",")
-            hostNum = str(arr[2]).strip().replace("hostname", "")
-        count += 1
-    return hostNum
-
-def updateWs(getWayInfo):
-    with open(TMP_DIR + "workspace_template.json", 'r') as file:
-        data = file.read()
-        data = data.replace("hostname:8080", str(getWayInfo))
-    with open(TMP_DIR + "workspace_template.json", 'w') as file:
         file.write(data)
 
 

@@ -2,15 +2,10 @@
 # -*- coding:utf-8 -*-
 import sys, getopt
 import os
-import tarfile
-import shutil
 import glob
-import paramiko
-import time
 import datetime
 rootDir = sys.path[0]+os.sep
 sys.path.append(rootDir + "localbuild" + os.sep + "bin")
-import scmCmdExecutor
 from scmCmdExecutor import ScmCmdExecutor
 from logUtil import Logging
 LOG_PATH = rootDir + 'localbuild' + os.sep + 'tmp' + os.sep + 'localbuild.log'
@@ -54,6 +49,7 @@ def display(exit_code):
     print(" --runbase         : test base case, can be used with project,site ")
     sys.exit(exit_code)
 
+
 def parse_command():
     global IS_INSTALL_SCM, IS_INSTALL_SDB, COMPILE, IS_RUN_TEST, HOST_LIST, IS_FORCE, IS_CLEAN_SCM, IS_CLEAN_WS, SITE, PROJECT, RUN_BASE
     try:
@@ -90,9 +86,10 @@ def parse_command():
 
 
 def compileScm():
-    cmdStr = "python "+ BIN_DIR + "compile.py --package-path " + TMP_DIR
+    cmdStr = "python " + BIN_DIR + "compile.py --package-path " + TMP_DIR
     log.info('exec compile:' + cmdStr)
     cmdExecutor.command(cmdStr)
+
 
 def installSdb():
     runPath = TMP_DIR + 'sequoiadb-*-installer.run'
@@ -139,12 +136,14 @@ def installScm():
         log.info('exec installscm: ' + cmd + " --force")
         cmdExecutor.command(cmd)
 
+
 def cleanScm():
     if len(HOST_LIST.strip()) == 0:
         raise Exception("Missing hostname!")
-    cmd = "python " + BIN_DIR +"clean_scm.py --host " + str(HOST_LIST)  + " --ssh-file " + CONF_FILE
+    cmd = "python " + BIN_DIR + "clean_scm.py --host " + str(HOST_LIST)  + " --ssh-file " + CONF_FILE
     log.info('exec cleanscm: ' + cmd )
     cmdExecutor.command(cmd)
+
 
 def cleanWs():
     if not os.path.exists(SCM_INFO_FILE) or len(SCM_INFO_FILE.strip()) == 0 :
@@ -153,6 +152,7 @@ def cleanWs():
     log.info('exec cleanws:' + cmd )
     cmdExecutor.command(cmd)
 
+
 def runTest():
     if len(HOST_LIST.strip()) == 0:
         raise Exception("Missing hostname !")
@@ -160,12 +160,13 @@ def runTest():
         raise Exception("The parameter of project is invalid !")
     if SITE != "oneSite" and SITE != "twoSite" and SITE != "fourSite":
         raise Exception("The parameter of site is invalid !")
-    cmdStr = "python "+ BIN_DIR +"run_test.py --scm-info " + SCM_INFO_FILE + " --ssh-file " + CONF_FILE + " --host " + str(HOST_LIST) + " --project " + PROJECT + " --site " + SITE+ " --workspace-file " + WORKSPACE_FILE
+    cmdStr = "python " + BIN_DIR + "run_test.py --scm-info " + SCM_INFO_FILE + " --ssh-file " + CONF_FILE + " --host " + str(HOST_LIST) + " --project " + PROJECT + " --site " + SITE
     log.info('exec runtest: ' + cmdStr )
     if RUN_BASE:
         cmdExecutor.command(cmdStr + " --runbase")
     else:
         cmdExecutor.command(cmdStr)
+
 
 def formatTime(sum):
     hour = sum / 3600
@@ -187,10 +188,6 @@ if __name__ == '__main__':
     total = 0
     try:
         parse_command()
-
-        if SITE == "fourSite":
-            WORKSPACE_FILE = CONF_DIR + 'workspace_template.json'
-
         doSomething = False
         if COMPILE:
             start_time = datetime.datetime.now()
