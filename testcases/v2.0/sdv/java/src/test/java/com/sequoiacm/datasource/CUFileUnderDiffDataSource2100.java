@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -82,7 +83,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
             }
         }
         if ( hbaseSite == null || hdfsSite == null ) {
-            throw new SkipException( "NO hbase/hdfs Datasourse, Skip!" );
+            throw new SkipTestException( "NO hbase/hdfs Datasourse, Skip!" );
         }
 
         wsp = ScmInfo.getWs();

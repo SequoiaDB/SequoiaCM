@@ -1,9 +1,15 @@
 package com.sequoiacm.testcommon;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
+import com.sequoiacm.testresource.CheckResource;
 import org.apache.log4j.Logger;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
@@ -42,20 +48,21 @@ public class TestScmBase {
 
     @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
-            "LDAPPASSWD", "SCMPASSWDPATH" })
+            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
+            "SCMPASSWDPATH", "LDAPUSER", "LDAPPASSWD", "COMMONWS" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String DATADIR,
             String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD, String LDAPUSER,
-            String LDAPPASSWD, String SCMPASSWDPATH ) throws ScmException {
+            String SCMUSER, String SCMPASSWD, String SCMPASSWDPATH,
+            String LDAPUSER, String LDAPPASSWD, String COMMONWS )
+            throws Exception {
 
+        // 加载xml配置
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;
-        ntpServer = NTPSERVER;
         localHostName = LOCALHOSTNAME;
 
         sshUserName = SSHUSER;
@@ -72,36 +79,38 @@ public class TestScmBase {
         scmPassword = SCMPASSWD;
         scmPasswordPath = SCMPASSWDPATH;
 
+        ntpServer = NTPSERVER;
+
         ldapUserName = LDAPUSER;
         ldapPassword = LDAPPASSWD;
 
         // initialize scmInfo
         ScmSession session = null;
         try {
-            List< String > urlList = new ArrayList< String >();
-            for ( String gateWay : gateWayList ) {
-                urlList.add( gateWay + "/" + ROOTSITESVCNAME );
-            }
-            logger.info( "gateWay info \n" + gateWayList );
-            try {
-                for ( String url : urlList ) {
-                    checkSiteIsOk( url );
-                }
-            } catch ( Exception e ) {
-                e.printStackTrace();
-            }
-            ScmConfigOption scOpt = new ScmConfigOption( urlList,
-                    TestScmBase.scmUserName, TestScmBase.scmPassword );
-            session = ScmFactory.Session
-                    .createSession( SessionType.AUTH_SESSION, scOpt );
+            // 加载集群站点、节点信息
+            session = ScmFactory.Session.createSession( new ScmConfigOption(
+                    gateWayList.get( 0 ) + "/" + rootSiteServiceName,
+                    scmUserName, scmPassword ) );
             ScmInfo.refresh( session );
-        } catch ( ScmException e ) {
-            e.printStackTrace();
-            throw e;
+
+            // 读取配置文件中的工作区并添加s3工作区后并发创建
+            HashMap< String, String > wsConfig = loadWsConfig( COMMONWS );
+            WsPool.init( wsConfig );
+            ScmInfo.refreshWs( session, new ArrayList<>( wsConfig.keySet() ) );
+
         } finally {
             if ( null != session ) {
                 session.close();
             }
+        }
+    }
+
+    @AfterSuite(alwaysRun = true)
+    public static void finiSuite() throws Exception {
+        try {
+            CheckResource.checkRemain();
+        } finally {
+            WsPool.destroy();
         }
     }
 
@@ -118,30 +127,31 @@ public class TestScmBase {
         return infoList;
     }
 
-    private static void checkSiteIsOk( String url ) throws Exception {
-        int i = 0;
-        int tryNum = 6;
-        int interval = 10 * 1000;
-        ScmConfigOption scOpt = new ScmConfigOption( url,
-                TestScmBase.scmUserName, TestScmBase.scmPassword );
-        for ( ; i < tryNum; i++ ) {
-            ScmSession session = null;
-            try {
-                session = ScmFactory.Session
-                        .createSession( SessionType.AUTH_SESSION, scOpt );
-                break;
-            } catch ( ScmException e ) {
-                if ( ScmError.HTTP_NOT_FOUND != e.getError()
-                        || i == tryNum - 1 ) {
-                    e.printStackTrace();
-                    throw e;
-                }
-                Thread.sleep( interval );
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
+    private static Properties loadConfig() throws IOException {
+        String configPath = "src/test/resources/testcase_conf.properties";
+        Properties config = new Properties();
+        FileInputStream in = new FileInputStream( configPath );
+        try {
+            config.load( in );
+        } finally {
+            in.close();
         }
+        return config;
+    }
+
+    /**
+     * @description 读取配置文件中的工作区名及分区规则
+     * @param common_workspaces
+     * @return
+     */
+    private static HashMap< String, String > loadWsConfig(
+            String common_workspaces ) {
+        HashMap< String, String > map = new HashMap<>();
+        String[] wsConfigs = common_workspaces.split( "," );
+        for ( String wsConfig : wsConfigs ) {
+            String[] strings = wsConfig.split( ":" );
+            map.put( strings[ 0 ], strings[ 1 ] );
+        }
+        return map;
     }
 }

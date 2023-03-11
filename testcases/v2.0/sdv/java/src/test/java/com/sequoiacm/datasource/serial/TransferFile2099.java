@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -93,7 +94,7 @@ public class TransferFile2099 extends TestScmBase {
             dbDataSoureCount++;
         }
         if ( dbDataSoureCount == branSitelist.size() ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "all bransite are connected to sequoiadb datasourse, "
                             + "skip!" );
         }

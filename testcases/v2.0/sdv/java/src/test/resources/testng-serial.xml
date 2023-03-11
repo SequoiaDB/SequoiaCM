@@ -3,8 +3,8 @@
 <!--testcase for function test, which can be excuted concurrently -->
 <suite name="scm_sdv_serial" verbose="1" parallel="classes" thread-count="1">
    <parameter name="FORCECLEAR" value="false" />
+   <parameter name="NTPSERVER" value="192.168.20.200"/>
    <parameter name="DATADIR" value="/tmp/ci_cm" />
-   <parameter name="NTPSERVER" value="192.168.20.11" />
    <parameter name="LOCALHOSTNAME" value="localhost" />
 
    <parameter name="SSHUSER" value="root" />
@@ -21,8 +21,10 @@
    <parameter name="SCMPASSWD" value="admin" />
    <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info" />
 
-   <parameter name="LDAPUSER" value="ldapadmin" />
-   <parameter name="LDAPPASSWD" value="admin" />
+   <parameter name="LDAPUSER" value="LDAPUSER"/>
+   <parameter name="LDAPPASSWD" value="LDAPPASSWD"/>
+   <parameter name="COMMONWS" value="ws_year:year,ws_month:month,ws_none:none,ws_quarter:quarter"/>
+
    <listeners>
        <listener class-name="com.sequoiacm.testcommon.listener.TestScmListener"/>
        <listener class-name="com.sequoiacm.testcommon.listener.GroupListener"/>

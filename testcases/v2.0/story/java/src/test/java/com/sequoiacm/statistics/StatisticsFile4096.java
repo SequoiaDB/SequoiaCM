@@ -4,21 +4,24 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @author ZhangYanan
@@ -51,7 +54,7 @@ public class StatisticsFile4096 extends TestScmBase {
         List< SiteWrapper > DBSites = ScmBreakpointFileUtils
                 .checkDBAndCephS3DataSource();
         if ( ScmInfo.getWsNum() < 2 ) {
-            throw new SkipException( "need 2 wss!!!!" );
+            throw new SkipTestException( "need 2 wss!!!!" );
         }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

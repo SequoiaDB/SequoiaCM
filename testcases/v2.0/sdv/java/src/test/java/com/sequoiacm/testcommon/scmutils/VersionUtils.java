@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.testng.Assert;
 import org.testng.SkipException;
 
@@ -44,7 +45,7 @@ public class VersionUtils extends TestScmBase {
         for ( SiteWrapper site : sites ) {
             DatasourceType dsType = site.getDataType();
             if ( !dsType.equals( DatasourceType.SEQUOIADB ) ) {
-                throw new SkipException(
+                throw new SkipTestException(
                         "breakpoint file only support sequoiadb datasourse, "
                                 + "skip!" );
             }

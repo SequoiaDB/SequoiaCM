@@ -7,34 +7,23 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Random;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmBreakpointFile;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description: SCM-2566:指定isOverwrite参数，断点文件转换/更新不带有批次的同名scm文件（被覆盖的文件大小为0）
@@ -77,7 +66,7 @@ public class OverWriteFile2566 extends TestScmBase {
             }
         }
         if ( site == null ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "Upload BreakpointFile is not support in hdfs(hbase)" );
         }
         wsp = ScmInfo.getWs();

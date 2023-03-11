@@ -7,21 +7,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.breakpointfile.BreakpointUtil;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testresource.SkipTestException;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -54,7 +53,7 @@ public class BreakpointFile4024b extends TestScmBase {
         List< SiteWrapper > sites = ScmBreakpointFileUtils
                 .checkDBAndCephS3DataSource();
         if ( sites.size() < 2 ) {
-            throw new SkipException( "指定类型站点数量不足！" );
+            throw new SkipTestException( "指定类型站点数量不足！" );
         }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

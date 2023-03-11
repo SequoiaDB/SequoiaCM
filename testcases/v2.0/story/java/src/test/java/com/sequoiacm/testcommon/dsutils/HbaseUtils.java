@@ -1,11 +1,13 @@
 package com.sequoiacm.testcommon.dsutils;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -103,5 +105,25 @@ public class HbaseUtils extends TestScmBase {
             }
         }
         return isIn;
+    }
+
+    public static void deleteTableInHbase( SiteWrapper site ) throws Exception {
+        Connection connect = null;
+        try {
+            connect = HbaseUtils.getConnection( site );
+            Admin admin = connect.getAdmin();
+            String regex = ".*";
+            Pattern pattern = Pattern.compile( regex );
+            admin.disableTables( pattern );
+            admin.deleteTables( pattern );
+            TableName[] tableNames = admin.listTableNames( pattern );
+            if ( tableNames.length > 0 ) {
+                throw new Exception( "delete table in hbase fail" );
+            }
+        } finally {
+            if ( connect != null ) {
+                connect.close();
+            }
+        }
     }
 }

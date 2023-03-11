@@ -6,6 +6,7 @@ package com.sequoiacm.testresource;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.TestScmListener;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
@@ -28,37 +29,26 @@ public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
 
-    @BeforeClass(alwaysRun = true)
-    private void setUp() {
-    }
-
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testRemainSession() throws Exception {
-        List< String > sessionList = this.isRemainScmSession();
-        int session_num = 0;
-        if ( sessionList.size() > session_num ) {
-            throw new Exception( "remain session \n" + sessionList );
+    public static void checkRemain() throws Exception {
+        Sequoiadb db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
+        try {
+            List< String > sessionList = isRemainScmSession( db );
+            List< String > fileList = isRemainScmFile( db );
+            List< String > skipTests = TestScmListener.skipTests;
+            if ( sessionList.size() + fileList.size() + skipTests.size() > 0 ) {
+                throw new Exception( "remain session: \n" + sessionList + "\n"
+                        + "remain scmFile: \n" + fileList + "\n"
+                        + "abnormal skip test: \n" + skipTests );
+            }
+        } finally {
+            db.close();
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testRemainScmFile() throws Exception {
-        List< String > fileList = this.isRemainScmFile();
-        if ( fileList.size() > 0 ) {
-            throw new Exception( "remain scmfile \n" + fileList );
-        }
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void tearDown() {
-    }
-
-    private List< String > isRemainScmSession() {
-        Sequoiadb db = null;
+    private static List< String > isRemainScmSession( Sequoiadb db ) {
         DBCursor cursor = null;
         List< String > sessionList = new ArrayList<>();
         try {
-            db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
             CollectionSpace cs = db.getCollectionSpace( TestSdbTools.SCM_CS );
             DBCollection cl = cs.getCollection( TestSdbTools.SCM_CL_SESSION );
 
@@ -100,22 +90,17 @@ public class CheckResource extends TestScmBase {
             if ( null != cursor ) {
                 cursor.close();
             }
-            if ( null != db ) {
-                db.close();
-            }
         }
         return sessionList;
     }
 
-    private List< String > isRemainScmFile() throws Exception {
-        Sequoiadb db = null;
+    private static List< String > isRemainScmFile( Sequoiadb db ) {
         DBCursor cursor = null;
         List< String > fileList = new ArrayList<>();
         try {
             List< WsWrapper > wss = ScmInfo.getAllWorkspaces();
             for ( WsWrapper ws : wss ) {
                 String wsName = ws.getName();
-                db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
                 DBCollection cl = db.getCollectionSpace( wsName + "_META" )
                         .getCollection( "FILE" );
 
@@ -135,9 +120,6 @@ public class CheckResource extends TestScmBase {
         } finally {
             if ( null != cursor ) {
                 cursor.close();
-            }
-            if ( null != db ) {
-                db.close();
             }
         }
         return fileList;

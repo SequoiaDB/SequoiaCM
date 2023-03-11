@@ -8,10 +8,10 @@ import org.bson.BSONObject;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.element.ScmSiteInfo;
+import com.sequoiacm.testresource.SkipTestException;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
-import org.testng.SkipException;
 
 public class SiteWrapper {
     // private static final Logger logger = Logger.getLogger(Site.class);
@@ -106,7 +106,7 @@ public class SiteWrapper {
 
     public String getCephPrimaryDataDsUrl() throws Exception {
         if ( this.getDataType() != DatasourceType.CEPH_S3 ) {
-            throw new SkipException( "必须为ceph S3站点！" );
+            throw new SkipTestException( "必须为ceph S3站点！" );
         }
         List< String > urls = this.getDataDsUrls();
         String dataDsUrl = urls.get( 0 );
@@ -115,11 +115,11 @@ public class SiteWrapper {
 
     public String getCephStandbyDataDsUrl() throws Exception {
         if ( this.getDataType() != DatasourceType.CEPH_S3 ) {
-            throw new SkipException( "必须为ceph S3站点！" );
+            throw new SkipTestException( "必须为ceph S3站点！" );
         }
         List< String > urls = this.getDataDsUrls();
         if ( urls.size() <= 1 ) {
-            throw new SkipException( "该站点未配置备库用户" );
+            throw new SkipTestException( "该站点未配置备库用户" );
         }
         String dataDsUrl = urls.get( 1 );
         return dataDsUrl;

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -64,7 +65,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWsStar extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         if ( ScmInfo.getWsNum() < wsNum ) {
-            throw new SkipException( "Skip!" );
+            throw new SkipTestException( "Skip!" );
         }
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );

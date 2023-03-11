@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -88,7 +89,7 @@ public class BreakFileUnderDiffDataSource2102 extends TestScmBase {
             }
         }
         if ( hbaseSite == null || hdfsSite == null || sdbSite == null ) {
-            throw new SkipException( "NO Datasourse, Skip!" );
+            throw new SkipTestException( "NO Datasourse, Skip!" );
         }
 
         wsp = ScmInfo.getWs();

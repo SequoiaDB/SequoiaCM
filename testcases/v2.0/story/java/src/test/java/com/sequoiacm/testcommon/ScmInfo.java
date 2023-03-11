@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.sequoiacm.client.common.ScmType;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
@@ -17,19 +16,11 @@ import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.element.ScmSiteInfo;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testresource.SkipTestException;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
-import org.testng.SkipException;
-import org.apache.log4j.Logger;
-import org.bson.BSONObject;
-import org.testng.SkipException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import org.testng.SkipException;
 
 public class ScmInfo {
     private static final Logger logger = Logger.getLogger( ScmInfo.class );
@@ -45,7 +36,6 @@ public class ScmInfo {
     public static void refresh( ScmSession session ) throws ScmException {
         siteList = new ArrayList<>();
         nodeList = getNodeList();
-        wsList = getWsList( session );
         scheServerList = getServiceInstances( session, scheServiceName );
         authServerList = getServiceInstances( session, authServiceName );
         // site2node
@@ -57,6 +47,11 @@ public class ScmInfo {
 
         // print ScmSystem's info
         logger.info( "sites info \n" + siteList );
+    }
+
+    public static void refreshWs( ScmSession session, List< String > wsNames )
+            throws ScmException {
+        wsList = getWsList( session, wsNames );
         logger.info( "workspaces info \n" + wsList );
     }
 
@@ -116,7 +111,7 @@ public class ScmInfo {
             }
         }
         if ( sites2.size() == 0 ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "the site of " + siteType + " is not existed" );
         }
         return sites2;
@@ -305,31 +300,21 @@ public class ScmInfo {
     }
 
     /**
-     * 排除全文索引工作区 get all workspace if there is a new ws to use this function,
-     * otherwise, recommended to use getAllWorkspaces()
-     */
-    public static List< WsWrapper > getWsList( ScmSession session )
-            throws ScmException {
-        return getWsList( session, TestScmBase.FULLTEXT_WS_PREFIX );
-    }
-
-    /**
-     * 排除某些ws，获取ws列表
-     * 
+     * @descreption 获取公共工作区
      * @param session
-     * @param excludePrefix
+     * @param wsNames
      * @return
      * @throws ScmException
      */
-    public static List< WsWrapper > getWsList( ScmSession session,
-            String excludePrefix ) throws ScmException {
+    private static List< WsWrapper > getWsList( ScmSession session,
+            List< String > wsNames ) throws ScmException {
         ScmCursor< ScmWorkspaceInfo > cursor = null;
         List< ScmWorkspaceInfo > wsInfoList = new ArrayList<>();
         try {
             cursor = ScmFactory.Workspace.listWorkspace( session );
             while ( cursor.hasNext() ) {
                 ScmWorkspaceInfo info = cursor.getNext();
-                if ( !info.getName().startsWith( excludePrefix ) ) {
+                if ( wsNames.contains( info.getName() ) ) {
                     if ( info.isEnableDirectory()
                             && !info.isBatchFileNameUnique() ) {
                         wsInfoList.add( info );
@@ -341,7 +326,6 @@ public class ScmInfo {
                 cursor.close();
             }
         }
-
         List< WsWrapper > wss = new ArrayList<>();
         for ( ScmWorkspaceInfo wsInfo : wsInfoList ) {
             WsWrapper ws = new WsWrapper( wsInfo );
@@ -374,7 +358,7 @@ public class ScmInfo {
                 branchSites.add( siteList.get( i ) );
         }
         if ( branchSites.size() == 0 ) {
-            throw new SkipException( "there is no such type site!" );
+            throw new SkipTestException( "there is no such type site!" );
         }
         return branchSites;
     }

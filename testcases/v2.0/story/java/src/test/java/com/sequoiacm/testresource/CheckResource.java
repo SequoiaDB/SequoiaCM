@@ -5,12 +5,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.listener.TestScmListener;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
@@ -23,46 +21,31 @@ public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
     private static final int fileNum = 500;
-    private Sequoiadb db = null;
 
-    @BeforeClass(alwaysRun = true)
-    private void setUp() {
-        db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
-    }
-
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testRemainSession() throws Exception {
-        List< String > sessionList = this.isRemainScmSession();
-        int session_num = 0;
-        if ( sessionList.size() > session_num ) {
-            throw new Exception( "remain session \n" + sessionList );
-        }
-    }
-
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testRemainScmFile() throws Exception {
-        List< String > fileList = this.isRemainScmFile();
-        if ( fileList.size() > 0 ) {
-            throw new Exception( "remain scmfile \n" + fileList );
-        }
-    }
-
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
-    private void testRemainBuckets() throws Exception {
-        List< String > buckets = this.isRemainBuckets();
-        if ( buckets.size() > 0 ) {
-            throw new Exception( "remain s3 buckets \n" + buckets );
-        }
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void tearDown() {
-        if ( db != null ) {
+    public static void checkRemain() throws Exception {
+        Sequoiadb db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
+        try {
+            List< String > sessionList = isRemainScmSession( db );
+            List< String > fileList = isRemainScmFile( db );
+            List< String > buckets = isRemainBuckets( db );
+            List< String > skipTests = TestScmListener.skipTests;
+            if ( sessionList.size() + fileList.size() + buckets.size()
+                    + skipTests.size() > 0 ) {
+                logger.error( "remain session: \n" + sessionList + "\n"
+                        + "remain scmFile: \n" + fileList + "\n"
+                        + "remain s3 buckets: \n" + buckets + "\n"
+                        + "abnormal skip test: \n" + skipTests );
+                throw new Exception( "remain session: \n" + sessionList + "\n"
+                        + "remain scmFile: \n" + fileList + "\n"
+                        + "remain s3 buckets: \n" + buckets + "\n"
+                        + "abnormal skip test: \n" + skipTests );
+            }
+        } finally {
             db.close();
         }
     }
 
-    private List< String > isRemainScmSession() {
+    private static List< String > isRemainScmSession( Sequoiadb db ) {
         DBCursor cursor = null;
         List< String > sessionList = new ArrayList<>();
         try {
@@ -111,7 +94,7 @@ public class CheckResource extends TestScmBase {
         return sessionList;
     }
 
-    private List< String > isRemainBuckets() {
+    private static List< String > isRemainBuckets( Sequoiadb db ) {
         List< String > bucketNames = new ArrayList<>();
         DBCursor wsCursor = null;
         try {
@@ -133,7 +116,7 @@ public class CheckResource extends TestScmBase {
         return bucketNames;
     }
 
-    private List< String > isRemainScmFile() {
+    private static List< String > isRemainScmFile( Sequoiadb db ) {
         List< String > fileList = new ArrayList<>();
         DBCursor wsCursor = null;
         try {
@@ -159,7 +142,8 @@ public class CheckResource extends TestScmBase {
      * @param wsName
      * @return
      */
-    private List< String > getHistoryFileInfo( Sequoiadb db, String wsName ) {
+    private static List< String > getHistoryFileInfo( Sequoiadb db,
+            String wsName ) {
         String csName = wsName + "_META";
         String clName = "FILE_HISTORY";
         return queryCl( db, csName, clName );
@@ -171,7 +155,7 @@ public class CheckResource extends TestScmBase {
      * @param wsName
      * @return
      */
-    private List< String > getFileInfo( Sequoiadb db, String wsName ) {
+    private static List< String > getFileInfo( Sequoiadb db, String wsName ) {
         String csName = wsName + "_META";
         String clName = "FILE";
         return queryCl( db, csName, clName );
@@ -184,7 +168,7 @@ public class CheckResource extends TestScmBase {
      * @param clName
      * @return
      */
-    private List< String > queryCl( Sequoiadb db, String csName,
+    private static List< String > queryCl( Sequoiadb db, String csName,
             String clName ) {
         List< String > fileList = new ArrayList<>();
         DBCollection cl = db.getCollectionSpace( csName )

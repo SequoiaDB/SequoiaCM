@@ -5,25 +5,18 @@ import java.util.*;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmClassProperties;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.client.element.privilege.ScmResource;
-import com.sequoiacm.client.element.privilege.ScmResourceFactory;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
-import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @description SCM-3818:不同工作空间下，文件上传部分失败，查询统计信息。
@@ -67,7 +60,7 @@ public class StatisticsFile3818 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         if ( ScmInfo.getWsNum() < 2 ) {
-            throw new SkipException( "need 2 wss!!!!" );
+            throw new SkipTestException( "need 2 wss!!!!" );
         }
         fileNums = fileSizes.length;
         localPath = StatisticsUtils.createFile( fileSizes, filePathList );

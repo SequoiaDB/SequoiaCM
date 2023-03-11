@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -74,7 +75,7 @@ public class BraekFile2ScmFileWithDir2068 extends TestScmBase {
                 break;
             }
             if ( i == siteList.size() - 1 ) {
-                throw new SkipException( "NO Sequoiadb Datasourse, Skip!" );
+                throw new SkipTestException( "NO Sequoiadb Datasourse, Skip!" );
             }
         }
         wsp = ScmInfo.getWs();

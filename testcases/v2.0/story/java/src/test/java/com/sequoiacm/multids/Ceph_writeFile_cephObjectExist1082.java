@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -17,16 +16,11 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import com.sequoiacm.testcommon.dsutils.CephSwiftUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Testcase: SCM-1082:通过AwsS3驱动写缓存文件，ceph数据源Object已存在
@@ -74,7 +68,7 @@ public class Ceph_writeFile_cephObjectExist1082 extends TestScmBase {
             }
 
             if ( null == cephSite ) {
-                throw new SkipException( "Not ceph env, skip." );
+                throw new SkipTestException( "Not ceph env, skip." );
             }
 
             wsp = ScmInfo.getWs();

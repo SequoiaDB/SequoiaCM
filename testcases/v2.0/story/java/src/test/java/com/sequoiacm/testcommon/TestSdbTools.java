@@ -13,14 +13,7 @@ import java.util.UUID;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
@@ -31,12 +24,7 @@ import org.testng.Assert;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
-import com.sequoiacm.client.core.ScmCursor;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.exception.ScmException;
@@ -44,12 +32,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import com.sequoiacm.testcommon.dsutils.CephSwiftUtils;
 import com.sequoiacm.testcommon.dsutils.HdfsUtils;
-import com.sequoiadb.base.CollectionSpace;
-import com.sequoiadb.base.ConfigOptions;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.DBCursor;
-import com.sequoiadb.base.DBLob;
-import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.base.*;
 import com.sequoiadb.exception.BaseException;
 
 public class TestSdbTools {
@@ -782,5 +765,40 @@ public class TestSdbTools {
                 System.out.println( "taskInfo : " + bsonObject.toString() );
             }
         }
+    }
+
+    public static void deleteLobCS( SiteWrapper site ) {
+        List< String > csNames = getLobCsNames( site );
+        Sequoiadb sdb = null;
+        try {
+            sdb = TestSdbTools.getSdb( site.getDataDsUrl() );
+            for ( String csName : csNames ) {
+                sdb.dropCollectionSpace( csName );
+            }
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+    }
+
+    private static List< String > getLobCsNames( SiteWrapper site ) {
+        Sequoiadb sdb = null;
+        List< String > lodCSNames = null;
+        try {
+            sdb = TestSdbTools.getSdb( site.getDataDsUrl() );
+            List< String > csNames = sdb.getCollectionSpaceNames();
+            lodCSNames = new ArrayList<>();
+            for ( String name : csNames ) {
+                if ( name.contains( "LOB" ) ) {
+                    lodCSNames.add( name );
+                }
+            }
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+        return lodCSNames;
     }
 }

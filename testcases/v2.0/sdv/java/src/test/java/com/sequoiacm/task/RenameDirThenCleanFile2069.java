@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -79,7 +80,7 @@ public class RenameDirThenCleanFile2069 extends TestScmBase {
         List< SiteWrapper > siteList = ScmInfo
                 .getBranchSites( ScmInfo.getAllSites().size() - 1 );
         if ( siteList.size() <= 1 ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "branch site's num is less than 2, Skip!" );
         }
         if ( siteList.get( 0 ).getSiteId() < siteList.get( 1 ).getSiteId() ) {

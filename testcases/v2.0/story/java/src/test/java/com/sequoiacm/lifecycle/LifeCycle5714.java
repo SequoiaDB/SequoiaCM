@@ -16,8 +16,6 @@ import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 
-import java.util.List;
-
 /**
  * @descreption SCM-5714:站点删除阶段标签
  * @author YiPan
@@ -45,13 +43,6 @@ public class LifeCycle5714 extends TestScmBase {
         session = TestScmTools.createSession( rootSite );
         config = LifeCycleUtils.getDefaultScmLifeCycleConfig();
         wsp = ScmInfo.getWs();
-
-        List< WsWrapper > wsList = ScmInfo.getWsList( session );
-        for ( WsWrapper wsWrapper : wsList ) {
-            if ( wsWrapper.getName().equals( "ws_three" ) ) {
-                wsp = wsWrapper;
-            }
-        }
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         LifeCycleUtils.cleanWsLifeCycleConfig( ws );
         LifeCycleUtils.cleanLifeCycleConfig( session );

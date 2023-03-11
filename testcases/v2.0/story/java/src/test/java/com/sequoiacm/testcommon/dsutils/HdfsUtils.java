@@ -32,8 +32,9 @@ public class HdfsUtils extends TestScmBase {
 
     public static FileSystem getFs( SiteWrapper site ) {
         Configuration conf = new Configuration();
-        conf.addResource( "core-site.xml" );
-        conf.addResource( "hdfs-site.xml" );
+        conf.set( urlKey, TestScmBase.hdfsURI );
+        conf.set( "fs.hdfs.impl",
+                "org.apache.hadoop.hdfs.DistributedFileSystem" );
         FileSystem fs = null;
         try {
             fs = FileSystem.get( new URI( conf.get( urlKey ) ), conf,

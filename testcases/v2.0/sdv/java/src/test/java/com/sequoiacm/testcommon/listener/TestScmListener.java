@@ -1,7 +1,11 @@
 package com.sequoiacm.testcommon.listener;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.apache.log4j.Logger;
 import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
@@ -12,6 +16,8 @@ import org.testng.ITestResult;
 public class TestScmListener implements IInvokedMethodListener, ITestListener {
     private static final Logger logger = Logger
             .getLogger( TestScmListener.class );
+    public static List< String > skipTests = Collections
+            .synchronizedList( new ArrayList< String >() );
     private static final String beginMethodName = "setUp";
     private static final String afterMethodName = "tearDown";
     // private boolean finishSuccess = true;
@@ -94,9 +100,12 @@ public class TestScmListener implements IInvokedMethodListener, ITestListener {
     }
 
     @Override
-    public void onTestSkipped( ITestResult arg0 ) {
-        // TODO Auto-generated method stub
-
+    public void onTestSkipped( ITestResult iTestResult ) {
+        String skipTag = SkipTestException.getSkipTag();
+        Throwable throwable = iTestResult.getThrowable();
+        if ( !throwable.toString().contains( skipTag ) ) {
+            skipTests.add( iTestResult.getTestClass().getName() );
+        }
     }
 
     @Override

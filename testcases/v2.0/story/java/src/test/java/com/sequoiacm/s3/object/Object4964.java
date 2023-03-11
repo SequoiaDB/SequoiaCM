@@ -108,7 +108,7 @@ public class Object4964 extends TestScmBase {
     }
 
     // 有效期内获取对象、对象内容为字符串、禁用版本控制
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test2() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() + 1000 * 60 * 24 );
@@ -131,7 +131,7 @@ public class Object4964 extends TestScmBase {
     }
 
     // 开启版本控制、文件大小为0、200K等
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test3() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() + 1000 * 60 * 24 );
@@ -169,7 +169,7 @@ public class Object4964 extends TestScmBase {
     }
 
     // 过期后获取对象
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test4() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() + 1000 );
@@ -207,7 +207,7 @@ public class Object4964 extends TestScmBase {
     }
 
     // bucketName或者keyName不存在
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test5() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() + 1000 );
@@ -248,7 +248,7 @@ public class Object4964 extends TestScmBase {
     }
 
     // expireTime小于当前时间
-    @Test
+    @Test(groups = { GroupTags.base })
     public void test6() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis( new Date().getTime() - 24 * 60 * 60 * 1000 );

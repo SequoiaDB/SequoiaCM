@@ -1,5 +1,15 @@
 package com.sequoiacm.workspace.serial;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -10,16 +20,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.HbaseUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
-import org.testng.Assert;
-import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description SCM-2364:不指定namespace,创建ws
@@ -57,7 +58,7 @@ public class CreateWorkspace2364 extends TestScmBase {
             }
         }
         if ( site == null ) {
-            throw new SkipException( "the site of hbase is not existed" );
+            throw new SkipTestException( "the site of hbase is not existed" );
         }
         session = TestScmTools.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );

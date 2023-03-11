@@ -3,17 +3,11 @@
  */
 package com.sequoiacm.breakpointfile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Random;
 
 import org.testng.Assert;
-import org.testng.SkipException;
 
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType.DatasourceType;
@@ -27,6 +21,7 @@ import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description BreakpointUtil.java
@@ -120,7 +115,7 @@ public class BreakpointUtil extends TestScmBase {
         for ( SiteWrapper site : sites ) {
             DatasourceType dsType = site.getDataType();
             if ( !dsType.equals( DatasourceType.SEQUOIADB ) ) {
-                throw new SkipException(
+                throw new SkipTestException(
                         "breakpoint file only support sequoiadb datasourse, "
                                 + "skip!" );
             }

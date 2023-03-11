@@ -3,22 +3,11 @@ package com.sequoiacm.testcommon.dsutils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.bizconf.*;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.client.element.privilege.ScmResource;
-import com.sequoiacm.client.element.privilege.ScmResourceFactory;
-import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.*;
 import org.apache.log4j.Logger;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
@@ -28,24 +17,21 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.S3ClientOptions;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PartETag;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.UploadPartRequest;
-import com.amazonaws.services.s3.model.UploadPartResult;
+import com.amazonaws.services.s3.model.*;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmUser;
+import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
+import com.sequoiacm.client.element.privilege.ScmResource;
+import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
-import org.bson.BasicBSONObject;
-import org.testng.Assert;
-
-import javax.xml.crypto.Data;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
 
 public class CephS3Utils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( CephS3Utils.class );
@@ -393,7 +379,7 @@ public class CephS3Utils extends TestScmBase {
      * @param access_key
      * @param secret_key
      * @param isPrimary
-     *        isPrimary为ture则链接主库创建用户，为false则链接备库创建用户
+     *            isPrimary为ture则链接主库创建用户，为false则链接备库创建用户
      * @throws Exception
      */
     public static void createCephS3UserAndKey( SiteWrapper site, String userUid,
@@ -428,7 +414,7 @@ public class CephS3Utils extends TestScmBase {
      * @param site
      * @param userUid
      * @param isPrimary
-     *        isPrimary为ture则删除主库用户，为false则删除备库用户
+     *            isPrimary为ture则删除主库用户，为false则删除备库用户
      * @throws Exception
      */
     public static void deleteCephS3User( SiteWrapper site, String userUid,
@@ -512,6 +498,44 @@ public class CephS3Utils extends TestScmBase {
             if ( ssh != null ) {
                 ssh.disconnect();
             }
+        }
+    }
+
+    /**
+     * @descreption 清理CephS3数据源中的所有桶
+     * @param site
+     * @throws Exception
+     */
+    public static void deleteAllBuckets( SiteWrapper site ) throws Exception {
+        AmazonS3 conn;
+        String bucketName = "";
+        String key = "";
+        List< Bucket > buckets;
+        try {
+            conn = CephS3Utils.createConnect( site );
+            buckets = conn.listBuckets();
+            for ( int i = 0; i < buckets.size(); i++ ) {
+                bucketName = buckets.get( i ).getName();
+                ObjectListing objects = conn.listObjects( bucketName );
+                List< S3ObjectSummary > summarys = objects.getObjectSummaries();
+                for ( S3ObjectSummary summ : summarys ) {
+                    key = summ.getKey();
+                    conn.deleteObject( bucketName, key );
+                }
+                conn.deleteBucket( bucketName );
+            }
+
+            buckets = conn.listBuckets();
+            if ( 0 != buckets.size() ) {
+                throw new Exception(
+                        "failed to delete all buckets, remain buckets = "
+                                + buckets );
+            }
+        } catch ( Exception e ) {
+            logger.error( "failed to delete all buckets, siteId = "
+                    + site.getSiteId() + ", bucketName = " + bucketName
+                    + ", key = " + key );
+            throw e;
         }
     }
 }

@@ -1,14 +1,21 @@
 package com.sequoiacm.testcommon.listener;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 
+import com.sequoiacm.testresource.SkipTestException;
+
 public class TestScmListener extends TestListenerAdapter {
     private static final Logger logger = Logger
             .getLogger( TestScmListener.class );
+    public static List< String > skipTests = Collections
+            .synchronizedList( new ArrayList< String >() );
     private static final String[] testPubClass = {
             "java.util.List<com.sequoiacm.testcommon.SiteWrapper>",
             "class com.sequoiacm.testcommon.SiteWrapper",
@@ -89,5 +96,15 @@ public class TestScmListener extends TestListenerAdapter {
                 }
             }
         }
+    }
+
+    @Override
+    public void onTestSkipped( ITestResult iTestResult ) {
+        String skipTag = SkipTestException.getSkipTag();
+        Throwable throwable = iTestResult.getThrowable();
+        if ( !throwable.toString().contains( skipTag ) ) {
+            skipTests.add( iTestResult.getTestClass().getName() );
+        }
+        super.onTestSkipped( iTestResult );
     }
 }

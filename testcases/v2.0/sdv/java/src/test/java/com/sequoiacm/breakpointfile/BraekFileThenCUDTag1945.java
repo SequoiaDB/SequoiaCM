@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -71,7 +72,7 @@ public class BraekFileThenCUDTag1945 extends TestScmBase {
                 break;
             }
             if ( i == siteList.size() - 1 ) {
-                throw new SkipException( "NO Sequoiadb Datasourse, Skip!" );
+                throw new SkipTestException( "NO Sequoiadb Datasourse, Skip!" );
             }
         }
         site = ScmInfo.getRootSite();

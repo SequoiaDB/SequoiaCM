@@ -34,7 +34,6 @@ public class ScmInfo {
     public static void refresh( ScmSession session ) throws ScmException {
         siteList = new ArrayList<>();
         nodeList = getNodeList();
-        wsList = getWsList( session );
         scheServerList = getServiceInstances( session, scheServiceName );
         authServerList = getServiceInstances( session, authServiceName );
         // site2node
@@ -46,6 +45,11 @@ public class ScmInfo {
 
         // print ScmSystem's info
         logger.info( "sites info \n" + siteList );
+    }
+
+    public static void refreshWs( ScmSession session, List< String > wsNames )
+            throws ScmException {
+        wsList = getWsList( session, wsNames );
         logger.info( "workspaces info \n" + wsList );
     }
 
@@ -263,31 +267,21 @@ public class ScmInfo {
     }
 
     /**
-             *排除全文索引工作区
-     * get all workspace if there is a new ws to use this function, otherwise,
-     * recommended to use getAllWorkspaces()
-     */
-    public static List< WsWrapper > getWsList( ScmSession session )
-            throws ScmException {
-        return  getWsList( session, TestScmBase.FULLTEXT_WS_PREFIX );
-    }
-    
-    /**
-              *  排除某些ws，获取ws列表
+     * @descreption 获取公共工作区
      * @param session
-     * @param excludePrefix
+     * @param wsNames
      * @return
      * @throws ScmException
      */
-    public static List< WsWrapper > getWsList( ScmSession session,
-            String excludePrefix ) throws ScmException {
+    private static List< WsWrapper > getWsList( ScmSession session,
+                                                List< String > wsNames ) throws ScmException {
         ScmCursor< ScmWorkspaceInfo > cursor = null;
         List< ScmWorkspaceInfo > wsInfoList = new ArrayList<>();
         try {
             cursor = ScmFactory.Workspace.listWorkspace( session );
             while ( cursor.hasNext() ) {
                 ScmWorkspaceInfo info = cursor.getNext();
-                if ( !info.getName().startsWith( excludePrefix ) ) {
+                if ( wsNames.contains( info.getName() ) ) {
                     if ( info.isEnableDirectory()
                             && !info.isBatchFileNameUnique() ) {
                         wsInfoList.add( info );
@@ -299,7 +293,6 @@ public class ScmInfo {
                 cursor.close();
             }
         }
-
         List< WsWrapper > wss = new ArrayList<>();
         for ( ScmWorkspaceInfo wsInfo : wsInfoList ) {
             WsWrapper ws = new WsWrapper( wsInfo );

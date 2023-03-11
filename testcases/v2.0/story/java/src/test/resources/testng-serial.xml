@@ -3,8 +3,8 @@
 <!--testcase for function test, which can be excuted concurrently -->
 <suite name="scm_story_serial" verbose="1" parallel="classes" thread-count="1">
     <parameter name="FORCECLEAR" value="false"/>
-    <parameter name="DATADIR" value="/tmp/ci_cm"/>
     <parameter name="NTPSERVER" value="192.168.20.200"/>
+    <parameter name="DATADIR" value="/tmp/ci_cm"/>
     <parameter name="LOCALHOSTNAME" value="localhost"/>
     <parameter name="SSHUSER" value="root"/>
     <parameter name="SSHPASSWD" value="jenkins"/>
@@ -20,16 +20,17 @@
     <parameter name="SCMUSER" value="admin"/>
     <parameter name="SCMPASSWD" value="admin"/>
     <parameter name="SCMPASSWDPATH" value="/opt/dbuser_info"/>
-    <!--  SCM S3配置  -->
-    <parameter name="S3ACCESSKEYID" value="S3USER"/>
-    <parameter name="S3SECRETKEY" value="S3PASSWORD"/>
-    <parameter name="S3WOKERSPACES" value="ws_default"/>
-    <!--  LDAP服务用户  -->
-    <parameter name="LDAPUSER" value="ldapadmin"/>
-    <parameter name="LDAPPASSWD" value="admin"/>
-
     <!--  SCM om服务  -->
     <parameter name="OMSERVERURL" value="omServerHostName:port"/>
+    <!--  LDAP服务  -->
+    <parameter name="LDAPUSER" value="LDAPUSER"/>
+    <parameter name="LDAPPASSWD" value="LDAPPASSWD"/>
+    <!--  SCM集群包含第三方数据源时需要配置  -->
+    <parameter name="CEPHS3SECRETKEY" value="w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW"/>
+    <parameter name="CEPHSWIFTSECRETKEY" value="XphCjBUNa8Kr4POSAlFBotXaDZSGAJD7NhNhtcu5"/>
+    <parameter name="HDFSURL" value="hdfs://scm-test-ci-cent8:9000"/>
+    <!--  公共工作区名:分区方式  -->
+    <parameter name="COMMONWS" value="ws_year:year,ws_month:month,ws_none:none,ws_quarter:quarter"/>
 
     <listeners>
         <listener class-name="com.sequoiacm.testcommon.listener.TestScmListener"/>

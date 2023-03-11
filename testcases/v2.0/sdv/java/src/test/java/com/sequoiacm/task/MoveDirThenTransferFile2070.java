@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -78,7 +79,7 @@ public class MoveDirThenTransferFile2070 extends TestScmBase {
 
         List< SiteWrapper > siteList = ScmInfo.getAllSites();
         if ( siteList.size() < 3 ) {
-            throw new SkipException( "site's num is less than 3, Skip!" );
+            throw new SkipTestException( "site's num is less than 3, Skip!" );
         }
         site1 = siteList.get( 1 );
         site2 = siteList.get( 0 );

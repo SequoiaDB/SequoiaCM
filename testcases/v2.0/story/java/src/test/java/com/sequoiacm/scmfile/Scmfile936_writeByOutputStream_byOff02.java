@@ -6,26 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmOutputStream;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 
 /**
  * @Testcase: SCM-936:ScmOutputStream.write偏移写文件
@@ -87,7 +78,7 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
     /*
      * 3）off<文件大小,len=文件大小-off；
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testOffLtFileSize02() throws Exception {
         int off = fileSize / 2;
         int len = fileSize - off;
@@ -102,7 +93,7 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
     /*
      * 4）off<文件大小,len>文件大小-off；
      */
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    @Test(groups = { GroupTags.base })
     private void testOffLtFileSize03() throws IOException {
         int off = fileSize / 2;
         int len = ( fileSize - off ) + 1;

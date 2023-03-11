@@ -1,5 +1,16 @@
 package com.sequoiacm.readcachefile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
@@ -7,17 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
-import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description: SCM-2411 :: 分站点存在残留大小一致的文件，通过seekable的方式跨中心读取文件
@@ -53,7 +54,7 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         if ( branSites.get( 1 )
                 .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "the behavior of cephS3 is inconsistent with other data sources" );
         }
         wsp = ScmInfo.getWs();

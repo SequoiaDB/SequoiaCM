@@ -3,21 +3,10 @@
  */
 package com.sequoiacm.testcommon.scmutils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.io.*;
+import java.util.*;
 
 import org.testng.Assert;
-import org.testng.SkipException;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
@@ -27,11 +16,8 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description VersionUtil.java
@@ -47,7 +33,7 @@ public class VersionUtils extends TestScmBase {
         for ( SiteWrapper site : sites ) {
             DatasourceType dsType = site.getDataType();
             if ( !dsType.equals( DatasourceType.SEQUOIADB ) ) {
-                throw new SkipException(
+                throw new SkipTestException(
                         "breakpoint file only support sequoiadb datasourse, "
                                 + "skip!" );
             }

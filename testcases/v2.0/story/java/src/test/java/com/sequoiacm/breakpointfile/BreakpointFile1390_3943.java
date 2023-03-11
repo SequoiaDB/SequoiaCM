@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -18,12 +16,9 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @description SCM-1390:跨站点删除断点文件 SCM-3943:跨站点删除断点文件
@@ -62,7 +57,7 @@ public class BreakpointFile1390_3943 extends TestScmBase {
 
         DBSites.remove( 0 );
         if ( DBSites.size() < 2 ) {
-            throw new SkipException( "need two DBSites, skip!" );
+            throw new SkipTestException( "need two DBSites, skip!" );
         }
 
         branSites = DBSites;

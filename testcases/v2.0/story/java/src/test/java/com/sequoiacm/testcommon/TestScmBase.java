@@ -1,33 +1,35 @@
 package com.sequoiacm.testcommon;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmWorkspaceInfo;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
-import com.sequoiadb.threadexecutor.ThreadExecutor;
-import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.log4j.Logger;
+import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import com.amazonaws.services.s3.AmazonS3;
+import com.sequoiacm.client.core.ScmConfigOption;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.testcommon.dsutils.CephS3Utils;
+import com.sequoiacm.testcommon.dsutils.CephSwiftUtils;
+import com.sequoiacm.testcommon.dsutils.HbaseUtils;
+import com.sequoiacm.testcommon.dsutils.HdfsUtils;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testresource.CheckResource;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.Sequoiadb;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
     protected static final String FULLTEXT_SERVICE_NAME = "fulltext-server";
-    protected static final String FULLTEXT_WS_PREFIX = "fulltext_";
-    private static final int WS_NUM_PER_POOL = 1;
-    // 为规避直连ceph数据源失败，新增ceph S3和ceph Swift数据源SecretKey参数
-    protected static final String CEPHS3_s3SecretKey = "w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW";
-    protected static final String CEPHSwift_s3SecretKey = "XphCjBUNa8Kr4POSAlFBotXaDZSGAJD7NhNhtcu5";
+    protected static String CEPHS3_s3SecretKey;
+    protected static String CEPHSwift_s3SecretKey;
+    protected static String hdfsURI;
 
     protected static boolean forceClear;
     protected static String dataDirectory;
@@ -49,7 +51,6 @@ public class TestScmBase {
     protected static String scmPasswordPath;
     protected static String s3AccessKeyID;
     protected static String s3SecretKey;
-    protected static String s3ClientUrl;
     protected static String s3WorkSpaces;
     protected static List< String > serviceList;
 
@@ -69,25 +70,25 @@ public class TestScmBase {
     protected static boolean isfulltextExists = false;
     protected static String resourceFilePath;
 
-    @Parameters({ "FORCECLEAR", "DATADIR", "NTPSERVER", "LOCALHOSTNAME",
+    @Parameters({ "FORCECLEAR", "NTPSERVER", "DATADIR", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD", "LDAPUSER",
-            "LDAPPASSWD", "SCMPASSWDPATH", "S3ACCESSKEYID", "S3SECRETKEY",
-            "S3WOKERSPACES", "OMSERVERURL" })
+            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
+            "SCMPASSWDPATH", "OMSERVERURL", "LDAPUSER", "LDAPPASSWD",
+            "CEPHS3SECRETKEY", "CEPHSWIFTSECRETKEY", "HDFSURL", "COMMONWS" })
 
     @BeforeSuite(alwaysRun = true)
-    public static void initSuite( boolean FORCECLEAR, String DATADIR,
-            String NTPSERVER, String LOCALHOSTNAME, String SSHUSER,
+    public static void initSuite( boolean FORCECLEAR, String NTPSERVER,
+            String DATADIR, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
             String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD, String LDAPUSER,
-            String LDAPPASSWD, String SCMPASSWDPATH, String S3ACCESSKEYID,
-            String S3SECRETKEY, String S3WOKERSPACES, String OMSERVERURL )
-            throws Exception {
+            String SCMUSER, String SCMPASSWD, String SCMPASSWDPATH,
+            String OMSERVERURL, String LDAPUSER, String LDAPPASSWD,
+            String CEPHS3SECRETKEY, String CEPHSWIFTSECRETKEY, String HDFSURL,
+            String COMMONWS ) throws Exception {
 
+        // 加载xml配置
         forceClear = FORCECLEAR;
         dataDirectory = DATADIR;
-        ntpServer = NTPSERVER;
         localHostName = LOCALHOSTNAME;
 
         sshUserName = SSHUSER;
@@ -103,83 +104,126 @@ public class TestScmBase {
         scmUserName = SCMUSER;
         scmPassword = SCMPASSWD;
         scmPasswordPath = SCMPASSWDPATH;
-        s3ClientUrl = "http://" + gateWayList.get( 0 ) + "/s3";
-        s3AccessKeyID = S3ACCESSKEYID;
-        s3SecretKey = S3SECRETKEY;
-        s3WorkSpaces = S3WOKERSPACES;
-        ldapUserName = LDAPUSER;
-        ldapPassword = LDAPPASSWD;
         omServerUrl = OMSERVERURL;
 
-        // CI分发到不同机器上执行存在并发问题，需要使用不同的桶名规避
-        bucketName = "commbucket" + InetAddress.getLocalHost().getHostAddress();
-        enableVerBucketName = "commbucketwithversion"
-                + InetAddress.getLocalHost().getHostAddress();
-        susVerBucketName = "commsuspendedbucket"
-                + InetAddress.getLocalHost().getHostAddress();
+        ntpServer = NTPSERVER;
+        ldapUserName = LDAPUSER;
+        ldapPassword = LDAPPASSWD;
 
-        // TODO schedulePreferredZone特性需要，暂时写死，后续替换为xml传参形式
+        CEPHS3_s3SecretKey = CEPHS3SECRETKEY;
+        CEPHSwift_s3SecretKey = CEPHSWIFTSECRETKEY;
+        hdfsURI = HDFSURL;
+        // s3配置
+        s3AccessKeyID = "ABCDEFGHIJKLMNOPQRST";
+        s3SecretKey = "abcdefghijklmnopqrstuvwxyz0123456789ABCD";
+        s3WorkSpaces = "ws_s3_default";
+        // 公共桶桶名
+        bucketName = "commbucket";
+        enableVerBucketName = "commbucketwithversion";
+        susVerBucketName = "commsuspendedbucket";
+        // schedulePreferredZone目录下用例使用
         zone1 = "zone1";
         zone2 = "zone2";
         defaultRegion = "DefaultRegion";
 
-        // TODO:SEQUOIACM-936 暂时关闭缓存
+        // SEQUOIACM-936 关闭全局工作区缓存
         ScmFactory.Workspace.setKeepAliveTime( 0 );
-        // initialize scmInfo
         ScmSession session = null;
         try {
-            List< String > urlList = new ArrayList< String >();
-            for ( String gateWay : gateWayList ) {
-                urlList.add( gateWay + "/" + ROOTSITESVCNAME );
-            }
-            logger.info( "gateWay info \n" + gateWayList );
-            try {
-                for ( String url : urlList ) {
-                    checkSiteIsOk( url );
-                }
-            } catch ( Exception e ) {
-                e.printStackTrace();
-            }
-            ScmConfigOption scOpt = new ScmConfigOption( urlList,
-                    TestScmBase.scmUserName, TestScmBase.scmPassword );
-            session = ScmFactory.Session
-                    .createSession( SessionType.AUTH_SESSION, scOpt );
+            // 加载集群站点、节点信息
+            session = ScmFactory.Session.createSession( new ScmConfigOption(
+                    gateWayList.get( 0 ) + "/" + rootSiteServiceName,
+                    scmUserName, scmPassword ) );
             ScmInfo.refresh( session );
+
+            // 读取配置文件中的工作区并添加s3工作区后并发创建
+            HashMap< String, String > wsConfig = loadWsConfig( COMMONWS );
+            wsConfig.put( s3WorkSpaces, null );
+            WsPool.init( wsConfig );
+            ScmInfo.refreshWs( session, new ArrayList<>( wsConfig.keySet() ) );
+
+            // 检查服务
             serviceList = ScmSystem.ServiceCenter.getServiceList( session );
             if ( serviceList.contains( FULLTEXT_SERVICE_NAME ) ) {
                 isfulltextExists = true;
-                List< String > wsNames = prepareWs( session );
-                List< WsWrapper > wsps = ScmInfo.getWsList( session );
-                for ( WsWrapper wsp : wsps ) {
-                    wsNames.add( wsp.getName() );
-                }
-                WsPool.init( wsNames );
             }
 
-            // 存在s3节点时创建S3公共桶
+            // 数据源环境检查清理
+            CleanDataSource();
+
+            // 刷新s3key、设置默认工作区、创建公共桶
             for ( String serviceName : serviceList ) {
                 if ( serviceName.contains( "s3" ) ) {
-                    createS3CommBucket( session );
+                    ScmFactory.S3.setDefaultRegion( session, s3WorkSpaces );
+                    ScmFactory.S3.refreshAccesskey( session, scmUserName,
+                            scmPassword, s3AccessKeyID, s3SecretKey );
+                    createS3CommBucket();
                 }
             }
+
         } finally {
             if ( null != session ) {
                 session.close();
             }
         }
-
-        resourceFilePath = FileLoader.loadAndGetFilePath(dataDirectory, "story");
+        resourceFilePath = FileLoader.loadAndGetFilePath( dataDirectory,
+                "story" );
     }
 
     @AfterSuite(alwaysRun = true)
     public static void finiSuite() throws Exception {
-        if ( serviceList.contains( FULLTEXT_SERVICE_NAME ) ) {
+        try {
+            CheckResource.checkRemain();
+        } finally {
             WsPool.destroy();
+            // SEQUOIACM-1316
+            Sequoiadb sdb = null;
+            try {
+                sdb = TestSdbTools.getSdb( mainSdbUrl );
+                DBCollection cl = sdb.getCollectionSpace( "SCMSYSTEM" )
+                        .getCollection( "DATA_TABLE_NAME_HISTORY" );
+                cl.truncate();
+            } finally {
+                if ( sdb != null ) {
+                    sdb.close();
+                }
+            }
         }
     }
 
-    private static void createS3CommBucket( ScmSession session )
-            throws Exception {
+    private static void CleanDataSource() throws Exception {
+        List< SiteWrapper > allSites = ScmInfo.getAllSites();
+        for ( SiteWrapper site : allSites ) {
+            switch ( site.getDataType() ) {
+            case CEPH_S3:
+                CephS3Utils.deleteAllBuckets( site );
+                break;
+            case CEPH_SWIFT:
+                CephSwiftUtils.deleteAllContainers( site );
+                break;
+            case HDFS:
+                List< WsWrapper > wspList = ScmInfo.getAllWorkspaces();
+                for ( WsWrapper wsp : wspList ) {
+                    String rootPath = HdfsUtils.getRootPath( site, wsp );
+                    HdfsUtils.deletePath( site, rootPath );
+                }
+                break;
+            case HBASE:
+                HbaseUtils.deleteTableInHbase( site );
+                break;
+            case SEQUOIADB:
+                TestSdbTools.deleteLobCS( site );
+                break;
+            case SFTP:
+                break;
+            default:
+                Assert.fail(
+                        "dataSourceType not match: " + site.getDataType() );
+            }
+        }
+    }
+
+    private static void createS3CommBucket() throws Exception {
         AmazonS3 s3Client = null;
         try {
             // clean up existing buckets
@@ -230,74 +274,19 @@ public class TestScmBase {
         return infoList;
     }
 
-    private static void checkSiteIsOk( String url ) throws Exception {
-        int i = 0;
-        int tryNum = 6;
-        int interval = 10 * 1000;
-        ScmConfigOption scOpt = new ScmConfigOption( url,
-                TestScmBase.scmUserName, TestScmBase.scmPassword );
-        for ( ; i < tryNum; i++ ) {
-            ScmSession session = null;
-            try {
-                session = ScmFactory.Session
-                        .createSession( SessionType.AUTH_SESSION, scOpt );
-                break;
-            } catch ( ScmException e ) {
-                if ( ScmError.HTTP_NOT_FOUND != e.getError()
-                        || i == tryNum - 1 ) {
-                    e.printStackTrace();
-                    throw e;
-                }
-                Thread.sleep( interval );
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
-            }
+    /**
+     * @description 读取配置文件中的工作区名及分区规则
+     * @param common_workspaces
+     * @return
+     */
+    private static HashMap< String, String > loadWsConfig(
+            String common_workspaces ) {
+        HashMap< String, String > map = new HashMap<>();
+        String[] wsConfigs = common_workspaces.split( "," );
+        for ( String wsConfig : wsConfigs ) {
+            String[] strings = wsConfig.split( ":" );
+            map.put( strings[ 0 ], strings[ 1 ] );
         }
-    }
-
-    private static List< String > prepareWs( ScmSession session )
-            throws Exception {
-        List< String > wsNames = new ArrayList<>();
-        ScmCursor< ScmWorkspaceInfo > wsInfo = ScmFactory.Workspace
-                .listWorkspace( session );
-        String wsNamePrefix = getWsNamePrefix();
-        while ( wsInfo.hasNext() ) {
-            ScmWorkspaceInfo info = wsInfo.getNext();
-            if ( info.getName().startsWith( wsNamePrefix ) ) {
-                ScmWorkspaceUtil.deleteWs( info.getName(), session );
-            }
-        }
-        ThreadExecutor threadExec = new ThreadExecutor();
-        for ( int i = 0; i < WS_NUM_PER_POOL; i++ ) {
-            String wsName = wsNamePrefix + "_test_" + i;
-            threadExec.addWorker(
-                    new TestScmBase().new CreateWS( session, wsName ) );
-            wsNames.add( wsName );
-        }
-        threadExec.run();
-        return wsNames;
-    }
-
-    private static String getWsNamePrefix() throws UnknownHostException {
-        return FULLTEXT_WS_PREFIX
-                + InetAddress.getLocalHost().getHostName().replace( "-", "_" );
-    }
-
-    private class CreateWS {
-        private ScmSession session;
-        private String wsName;
-
-        public CreateWS( ScmSession session, String wsName ) {
-            this.session = session;
-            this.wsName = wsName;
-        }
-
-        @ExecuteOrder(step = 1)
-        private void created() throws ScmException, InterruptedException {
-            ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
-            ScmWorkspaceUtil.wsSetPriority( session, wsName );
-        }
+        return map;
     }
 }

@@ -6,28 +6,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmChecksumType;
-import com.sequoiacm.client.core.ScmBreakpointFile;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @descreption SCM-3936:设置断点文件为文件的内容，执行文件操作 SCM-1378:设置断点文件为文件的内容，执行文件操作
@@ -57,7 +48,7 @@ public class BreakpointFile3936_1378 extends TestScmBase {
     private void setUp() throws IOException, ScmException {
         sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         if ( sites.size() < 2 ) {
-            throw new SkipException( "指定类型站点数量不足！" );
+            throw new SkipTestException( "指定类型站点数量不足！" );
         }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

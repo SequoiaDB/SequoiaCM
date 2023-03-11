@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -69,7 +70,7 @@ public class AsyncTransferFile2098 extends TestScmBase {
             dbDataSoureCount++;
         }
         if ( dbDataSoureCount == branSitelist.size() ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "all bransite are connected to sequoiadb datasourse, "
                             + "skip!" );
         }

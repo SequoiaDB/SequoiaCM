@@ -2,42 +2,25 @@ package com.sequoiacm.statistics;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bson.BSONObject;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description: SCM-3588:指定时间段内有统计信息，用户查询所有工作区上传/下载接口的统计信息
@@ -65,7 +48,7 @@ public class StatisticsFile3588 extends TestScmBase {
     private void setUp() throws Exception {
         calendar = Calendar.getInstance();
         if ( ScmInfo.getWsNum() < 2 ) {
-            throw new SkipException( "need 2 wss!!!!" );
+            throw new SkipTestException( "need 2 wss!!!!" );
         }
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

@@ -1,11 +1,13 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.testcommon.*;
-import org.testng.SkipException;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Description ScmBreakpointFileUtils.java
@@ -33,7 +35,7 @@ public class ScmBreakpointFileUtils extends TestScmBase {
             }
         }
         if ( DBSites.size() == 0 ) {
-            throw new SkipException(
+            throw new SkipTestException(
                     "breakpoint file only support sequoiadb datasourse and ceph S3 datasourse, "
                             + "skip!" );
         } else {

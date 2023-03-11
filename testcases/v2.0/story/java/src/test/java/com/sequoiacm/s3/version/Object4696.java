@@ -1,12 +1,9 @@
 package com.sequoiacm.s3.version;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
-import com.amazonaws.services.s3.model.ListVersionsRequest;
-import com.amazonaws.services.s3.model.VersionListing;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testng.Assert;
@@ -14,10 +11,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
+import com.amazonaws.services.s3.model.ListVersionsRequest;
+import com.amazonaws.services.s3.model.VersionListing;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
  * @descreption SCM-4696 :: 指定不同格式分割符查询
@@ -76,7 +76,7 @@ public class Object4696 extends TestScmBase {
     }
 
     // b、""
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testEmptyStr() throws Exception {
         VersionListing vsList = s3Client.listVersions( new ListVersionsRequest()
                 .withBucketName( bucketName ).withDelimiter( "" ) );
@@ -98,7 +98,7 @@ public class Object4696 extends TestScmBase {
     }
 
     // 特殊字符：“!”，“-”，“_”，“.”，“*”，“'”，“(”，“)”
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSpecial() throws Exception {
         String str = objectNames[ 0 ];
         char[] delimiters = str.toCharArray();
@@ -123,7 +123,7 @@ public class Object4696 extends TestScmBase {
     }
 
     // 要特殊处理的字符：&@:,$=+?;
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSpecial1() throws Exception {
         String str = objectNames[ 1 ];
         char[] delimiters = str.toCharArray();
@@ -148,7 +148,7 @@ public class Object4696 extends TestScmBase {
     }
 
     // "^`><{}[]#%\"~|"
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSpecial3() throws Exception {
         String str = objectNames[ 2 ];
         char[] delimiters = str.toCharArray();
@@ -173,7 +173,7 @@ public class Object4696 extends TestScmBase {
     }
 
     // ""this is\012atest!!!"
-    @Test
+    @Test(groups = { GroupTags.base })
     private void testSpecial5() throws Exception {
         String str = objectNames[ 4 ];
         String delimiter = "\010";

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testresource.SkipTestException;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -64,7 +65,7 @@ public class TD738_ReadAndCleanAndTransferInDiffWsNet extends TestScmBase {
                 + ".txt";
         try {
             if ( ScmInfo.getWsNum() < wsNum ) {
-                throw new SkipException( "Skip!" );
+                throw new SkipTestException( "Skip!" );
             }
             wsList = ScmInfo.getWss( 3 );
             TestTools.LocalFile.removeFile( localPath );

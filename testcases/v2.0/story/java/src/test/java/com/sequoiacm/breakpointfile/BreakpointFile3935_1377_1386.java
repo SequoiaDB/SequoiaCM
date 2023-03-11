@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -23,12 +21,9 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
+import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @descreption SCM-3935:跨站点断点续传文件 SCM-1377:跨站点断点续传文件 SCM-1386:跨站点获取断点文件信息
@@ -67,7 +62,7 @@ public class BreakpointFile3935_1377_1386 extends TestScmBase {
 
         siteList = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         if ( siteList.size() < 2 ) {
-            throw new SkipException( "指定类型站点数量不足！" );
+            throw new SkipTestException( "指定类型站点数量不足！" );
         }
         wsp = ScmInfo.getWs();
         session1 = TestScmTools.createSession( siteList.get( 0 ) );

@@ -236,4 +236,45 @@ public class CephSwiftUtils extends TestScmBase {
         return containerName;
     }
 
+    /**
+     * @descreption 清理CephSwift数据源中的所有桶
+     * @param site
+     * @throws Exception
+     */
+    public static void deleteAllContainers( SiteWrapper site )
+            throws Exception {
+        Account account = null;
+        String containerName = null;
+        String objectName = null;
+        try {
+            account = CephSwiftUtils.createAccount( site );
+
+            Collection< Container > containers = account.list();
+            for ( Container container : containers ) {
+                containerName = container.getName();
+                // System.out.println("containerName = " + containerName + ",
+                // site = " + site.getSiteName());
+
+                Collection< StoredObject > storedObjs = container.list();
+                for ( StoredObject storedObj : storedObjs ) {
+                    objectName = storedObj.getName();
+                    storedObj.delete();
+                }
+
+                container.delete();
+            }
+
+            containers = account.list();
+            if ( 0 != containers.size() ) {
+                throw new Exception(
+                        "failed to delete all containers, remain buckets = "
+                                + containers );
+            }
+        } catch ( Exception e ) {
+            logger.error( "failed to delete all containers, siteId = "
+                    + site.getSiteId() + ", containerName = " + containerName
+                    + ", objectName = " + objectName );
+            throw e;
+        }
+    }
 }
