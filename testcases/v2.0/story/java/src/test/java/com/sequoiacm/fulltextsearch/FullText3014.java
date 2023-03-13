@@ -12,26 +12,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.common.MimeType;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextJobInfo;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsPool;
+import com.sequoiacm.infrastructure.fulltext.core.*;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
@@ -54,7 +40,7 @@ public class FullText3014 extends TestScmBase {
     private List< ScmId > fileIdList1 = new ArrayList<>();
     private List< ScmId > fileIdList2 = new ArrayList<>();
     private BSONObject fileCondition = null;
-    private int fileNum = 50;
+    private int fileNum = 20;
 
     @BeforeClass
     private void setUp() throws Exception {

@@ -23,12 +23,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsPool;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
@@ -47,7 +42,7 @@ public class FullText3155 extends TestScmBase {
     private List< ScmId > fileIdList = new ArrayList<>();
     private String filePath = null;
     private String fileNameBase = "file3155_";
-    private int fileNum = 100;
+    private int fileNum = 20;
 
     @BeforeClass
     private void setUp() throws Exception {

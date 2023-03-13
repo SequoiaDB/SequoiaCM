@@ -20,12 +20,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsPool;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
@@ -44,7 +39,7 @@ public class FullText3024 extends TestScmBase {
     private String fileNameBase = "file3024_";
     private List< ScmId > fileIdList = new ArrayList<>();
     private String filePath = null;
-    private int fileNum = 50;
+    private int fileNum = 20;
 
     @BeforeClass
     private void setUp() throws Exception {

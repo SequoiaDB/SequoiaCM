@@ -35,8 +35,8 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
  */
 public class WsPool {
     private static final int timeout = 2;
-    private static final int newWsNum = 3;
-    private static final int getWsMaxTimesCount = 10;
+    private static final int newWsNum = 15;
+    private static final int getWsMaxTimesCount = 20;
     private static ArrayBlockingQueue< String > resources;
     private static AtomicInteger count = new AtomicInteger( 0 );
     private static List< String > wsList = new CopyOnWriteArrayList<>();
@@ -44,13 +44,13 @@ public class WsPool {
     public static void init( HashMap< String, String > wsConfig )
             throws Exception {
         List< String > wsNames = createCommonWs( wsConfig );
-        resources = new ArrayBlockingQueue<>( 12 );
+        resources = new ArrayBlockingQueue<>( wsNames.size() + newWsNum );
         resources.addAll( wsNames );
         resources.remove( TestScmBase.s3WorkSpaces );
         wsList.addAll( wsNames );
     }
 
-    public static String get() throws Exception {
+    public synchronized static String get() throws Exception {
         int TimesCount = 0;
         while ( true ) {
             String resource = resources.poll( timeout, TimeUnit.SECONDS );
@@ -67,9 +67,12 @@ public class WsPool {
                 }
                 resources.offer( resource, timeout, TimeUnit.SECONDS );
                 TimesCount++;
+                if ( count.incrementAndGet() <= newWsNum ) {
+                    return createNewWs();
+                }
                 if ( TimesCount > getWsMaxTimesCount ) {
                     throw new Exception(
-                            "get a workspaces times count should not exceed"
+                            "get a workspaces times count should not exceed "
                                     + getWsMaxTimesCount );
                 }
             } else {
@@ -84,7 +87,7 @@ public class WsPool {
         }
     }
 
-    public static void release( String wsName ) {
+    public synchronized static void release( String wsName ) {
         System.out.println( "release = " + wsName );
         try {
             if ( wsName != null ) {

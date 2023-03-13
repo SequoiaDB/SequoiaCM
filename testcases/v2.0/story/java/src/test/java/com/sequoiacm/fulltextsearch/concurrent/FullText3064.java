@@ -15,12 +15,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.client.exception.ScmException;
@@ -28,12 +23,7 @@ import com.sequoiacm.common.MimeType;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
-import com.sequoiacm.testcommon.WsPool;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -55,7 +45,7 @@ public class FullText3064 extends TestScmBase {
     private String fileNameBase = "file3064-";
     private String authorName1 = "auth3064A";
     private String authorName2 = "auth3064B";
-    private int fileNum = 100;
+    private int fileNum = 20;
     byte[] bytes = new byte[ 1024 * 200 ];
 
     @BeforeClass

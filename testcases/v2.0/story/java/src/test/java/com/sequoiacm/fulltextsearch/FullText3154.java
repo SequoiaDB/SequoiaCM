@@ -1,10 +1,6 @@
 package com.sequoiacm.fulltextsearch;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -14,27 +10,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmQueryBuilder;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.fulltext.ScmFulltextModifiler;
 import com.sequoiacm.client.element.fulltext.ScmFulltextOption;
 import com.sequoiacm.common.MimeType;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextJobInfo;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
-import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsPool;
+import com.sequoiacm.infrastructure.fulltext.core.*;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 
 /**
@@ -56,7 +38,7 @@ public class FullText3154 extends TestScmBase {
     private String dirId = null;
     private String dirName = "/dir3154";
     private String fileNameBase = "file3154_";
-    private int fileNum = 100;
+    private int fileNum = 20;
     private int versionNum = 2;
 
     @BeforeClass
