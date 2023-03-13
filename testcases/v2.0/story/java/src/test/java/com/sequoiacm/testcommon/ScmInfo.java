@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
@@ -17,6 +20,7 @@ import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import org.testng.SkipException;
 
 public class ScmInfo {
     private static final Logger logger = Logger.getLogger( ScmInfo.class );
