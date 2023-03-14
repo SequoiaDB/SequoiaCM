@@ -13,7 +13,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Descreption SCM-4733:桶禁用版本控制
@@ -32,7 +32,7 @@ public class Bucket4733 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 

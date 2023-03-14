@@ -41,11 +41,11 @@ public class Bucket4259 extends TestScmBase {
     public void setUp() throws Exception {
         envAdminBuckets = S3Utils.getEnvBuckets( TestScmBase.scmUserName );
         envNewUsersBuckets = S3Utils.getEnvBuckets( username );
-        adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
+        adminSession = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         // 新建用户赋予默认s3工作区权限
         ScmAuthUtils.createAdminUserGrant( adminSession, s3WorkSpaces, username,
                 password );
-        newUserSession = TestScmTools.createSession( ScmInfo.getRootSite(),
+        newUserSession = ScmSessionUtils.createSession( ScmInfo.getRootSite(),
                 username, password );
         ScmAuthUtils.checkPriorityByS3( newUserSession, s3WorkSpaces );
         adminUserWs = ScmFactory.Workspace.getWorkspace( s3WorkSpaces,

@@ -21,7 +21,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.TestTools;
 
 /**
- * @Description: 全文检索公共方法 
+ * @Description: 全文检索公共方法
  * @author fanyu
  * @Date:2020/9/14
  * @version:1.0
@@ -34,11 +34,11 @@ public class FullTextUtils {
             .values();
 
     /**
-     * 创建文件，默认创建十个
-     * 
+     * @descreption 创建文件，默认创建十个
      * @param ws
      * @param fileNamePrefix
-     *        文件名前缀
+     *            文件名前缀
+     * @return List< ScmId >
      * @throws Exception
      */
     public static List< ScmId > createFiles( ScmWorkspace ws,
@@ -47,11 +47,12 @@ public class FullTextUtils {
     }
 
     /**
-     * 执行文件数量创建文件，文件类型在TEXT, DOC, DOCX, XLSX, XLS, BMP, PNG, JPEG中随机选择
-     *
+     * @descreption 执行文件数量创建文件，文件类型在TEXT, DOC, DOCX, XLSX, XLS, BMP, PNG,
+     *              JPEG中随机选择
      * @param ws
      * @param fileNamePrefix
      * @param fileNum
+     * @return List< ScmId >
      * @throws Exception
      */
     public static List< ScmId > createFiles( ScmWorkspace ws,
@@ -66,8 +67,7 @@ public class FullTextUtils {
     }
 
     /**
-     * 检查全文检索和普通查询结果
-     * 
+     * @descreption 检查全文检索和普通查询结果
      * @param ws
      *            工作区
      * @param scope
@@ -76,6 +76,7 @@ public class FullTextUtils {
      *            es的检索条件
      * @param expFileCondition
      *            db的检索条件
+     * @return
      * @throws Exception
      */
     public static void searchAndCheckResults( ScmWorkspace ws,
@@ -98,9 +99,10 @@ public class FullTextUtils {
     }
 
     /**
-     *比较全文检索的游标和普通查询的游标
+     * @descreption 比较全文检索的游标和普通查询的游标
      * @param fulltextResults
      * @param normalResults
+     * @return
      * @throws Exception
      */
     public static void checkCursor(
@@ -181,11 +183,12 @@ public class FullTextUtils {
     }
 
     /**
-     * 等待索引同步到ES
+     * @descreption 等待索引同步到ES
      * @param ws
      * @param scope
      * @param actFileCondition
      * @param expFileCondition
+     * @return
      * @throws Exception
      */
     public static void waitIndexSyncToES( ScmWorkspace ws,
@@ -217,10 +220,10 @@ public class FullTextUtils {
     }
 
     /**
-     * 限时等待工作区达到status
-     * 
+     * @descreption限时等待工作区达到status
      * @param ws
      * @param status
+     * @return
      * @throws Exception
      */
     public static void waitWorkSpaceIndexStatus( ScmWorkspace ws,
@@ -229,12 +232,12 @@ public class FullTextUtils {
     }
 
     /**
-     * 限时等待工作区达到status，超时会抛异常
-     * 
+     * @descreption 限时等待工作区达到status，超时会抛异常
      * @param ws
      * @param status
      * @param timeout
      * @param interval
+     * @return
      * @throws Exception
      */
     public static void waitWorkSpaceIndexStatus( ScmWorkspace ws,
@@ -255,11 +258,11 @@ public class FullTextUtils {
     }
 
     /**
-     * 限时等待文件索引状态达到status
-     * 
+     * @descreption 限时等待文件索引状态达到status
      * @param ws
      * @param status
      * @param expCount
+     * @return
      * @throws Exception
      */
     public static void waitFilesStatus( ScmWorkspace ws,
@@ -268,13 +271,13 @@ public class FullTextUtils {
     }
 
     /**
-     * 限时等待文件索引状态达到status
-     * 
+     * @descreption 限时等待文件索引状态达到status
      * @param ws
      * @param status
      * @param expCount
      * @param timeout
      * @param interval
+     * @return
      * @throws Exception
      */
     public static void waitFilesStatus( ScmWorkspace ws,
@@ -297,11 +300,11 @@ public class FullTextUtils {
     }
 
     /**
-     * 限时等待指定单个文件索引状态达到status
-     *
+     * @descreption 限时等待指定单个文件索引状态达到status
      * @param ws
      * @param status
      * @param fileId
+     * @return
      * @throws Exception
      */
     public static void waitFileStatus( ScmWorkspace ws,
@@ -310,13 +313,13 @@ public class FullTextUtils {
     }
 
     /**
-     * 限时等待指定单个文件索引状态达到status
-     *
+     * @descreption 限时等待指定单个文件索引状态达到status
      * @param ws
      * @param status
      * @param fileId
      * @param timeout
      * @param interval
+     * @return
      * @throws Exception
      */
     public static void waitFileStatus( ScmWorkspace ws,

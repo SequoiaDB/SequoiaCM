@@ -61,7 +61,7 @@ public class AsyncTransferAndReadCacheFile_whenLobRemain2414
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
         // login in
-        sessionA = TestScmTools.createSession( sourceSite );
+        sessionA = ScmSessionUtils.createSession( sourceSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         prepareFiles();
         // make remain
@@ -135,7 +135,7 @@ public class AsyncTransferAndReadCacheFile_whenLobRemain2414
         public void exec() throws Exception {
             ScmSession sessionA = null;
             try {
-                sessionA = TestScmTools.createSession( sourceSite );
+                sessionA = ScmSessionUtils.createSession( sourceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
                 ScmFactory.File.asyncTransfer( ws, fileId );
@@ -154,7 +154,7 @@ public class AsyncTransferAndReadCacheFile_whenLobRemain2414
             OutputStream fos = null;
             ScmInputStream sis = null;
             try {
-                sessionA = TestScmTools.createSession( targetSite );
+                sessionA = ScmSessionUtils.createSession( targetSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );

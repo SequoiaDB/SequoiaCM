@@ -18,7 +18,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-2244:countSessions/GetStatus/ListHostInfo/gaugeResponse/
@@ -35,7 +35,7 @@ public class Monitor_Param2244 extends TestScmBase {
     private void setUp()
             throws InterruptedException, IOException, ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         session.close();
     }
 
@@ -85,7 +85,7 @@ public class Monitor_Param2244 extends TestScmBase {
 
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmCursor< ScmHealth > cursor = ScmSystem.Monitor
                     .listHealth( session, "sdbserver" + UUID.randomUUID() );
             while ( cursor.hasNext() ) {

@@ -18,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1494:admin角色删除当前用户 SCM-1496:admin角色删除admin用户（非最后一个）
@@ -41,7 +41,7 @@ public class AuthServer_user1494_1496 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         for ( int i = 0; i < USER_NUM; i++ ) {
@@ -80,7 +80,7 @@ public class AuthServer_user1494_1496 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_deleteCurrentUser() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME + "_0",
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME + "_0",
                 PASSWORD );
         try {
             ScmFactory.User.deleteUser( ss, NAME + "_0" );
@@ -96,7 +96,7 @@ public class AuthServer_user1494_1496 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_deleteAdminUser() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME + "_0",
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME + "_0",
                 PASSWORD );
         // delete admin user
         ScmFactory.User.deleteUser( ss, NAME + "_1" );

@@ -27,7 +27,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -68,7 +68,7 @@ public class MoveFileAndCreateDir1181 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( author ).get();
             ScmFileUtils.cleanFile( wsp, cond );

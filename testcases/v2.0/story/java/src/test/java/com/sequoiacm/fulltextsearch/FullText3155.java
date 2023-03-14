@@ -47,7 +47,7 @@ public class FullText3155 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         filePath = TestTools.LocalFile

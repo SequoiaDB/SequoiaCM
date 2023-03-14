@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -24,16 +22,14 @@ import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiadb.exception.BaseException;
 
 /**
  * @FileName SCM-472: 清理主中心文件
@@ -84,14 +80,14 @@ public class Clean_startCleanTaskInMain472 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
 
         // login in
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         ScmId fileID = ScmFileUtils.create( wsM, authorName, filePath );
         fileIds.add( fileID );
 
         // 缓存至分站点
         branchSite = ScmInfo.getBranchSite();
-        sessionB = TestScmTools.createSession( branchSite );
+        sessionB = ScmSessionUtils.createSession( branchSite );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
         ScmFile instance = ScmFactory.File.getInstance( wsB, fileID );
         instance.getContent( tmpPath );

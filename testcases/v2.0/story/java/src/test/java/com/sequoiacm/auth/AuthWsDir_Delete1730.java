@@ -31,7 +31,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -78,7 +78,7 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
 
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             cleanEnv();
             prepare();
@@ -261,7 +261,7 @@ public class AuthWsDir_Delete1730 extends TestScmBase {
 
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
-            sessionCRUD = TestScmTools.createSession( site, username, passwd );
+            sessionCRUD = ScmSessionUtils.createSession( site, username, passwd );
             wsCRUD = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionCRUD );
         } catch ( ScmException e ) {

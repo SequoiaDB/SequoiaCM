@@ -2,6 +2,7 @@ package com.sequoiacm.version;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -11,7 +12,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -43,14 +44,14 @@ public class AsyncTransferCurVersionFile1652b extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsM, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsM, fileName, filedata );
         VersionUtils.updateContentByStream( wsM, fileId, updatedata );
     }
 
@@ -61,7 +62,7 @@ public class AsyncTransferCurVersionFile1652b extends TestScmBase {
         ScmFactory.File.asyncTransfer( wsM, fileId, branSite.getSiteName() );
         // wait task finished
         int sitenums = 2;
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, currentVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, currentVersion,
                 sitenums );
 
         // check the currentVersion file data and siteinfo

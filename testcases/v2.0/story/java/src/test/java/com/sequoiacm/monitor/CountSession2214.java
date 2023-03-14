@@ -15,7 +15,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-2214 :: 多个Authserver节点,查看系统的会话数
@@ -33,7 +33,7 @@ public class CountSession2214 extends TestScmBase {
             throws InterruptedException, IOException, ScmException {
         site = ScmInfo.getSite();
         for ( int i = 0; i < num; i++ ) {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             sessionList.add( session );
         }
     }

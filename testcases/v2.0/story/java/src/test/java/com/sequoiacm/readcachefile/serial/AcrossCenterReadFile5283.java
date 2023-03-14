@@ -47,7 +47,7 @@ public class AcrossCenterReadFile5283 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        sessionM = TestScmTools.createSession( ScmInfo.getRootSite() );
+        sessionM = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ScmWorkspaceUtil.deleteWs( wsName, sessionM );
         wsM = ScmWorkspaceUtil.createWS( sessionM, wsName,
                 ScmInfo.getSiteNum() );
@@ -106,7 +106,7 @@ public class AcrossCenterReadFile5283 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws ScmException, IOException {
-            ScmSession session = TestScmTools.createSession( branchSite );
+            ScmSession session = ScmSessionUtils.createSession( branchSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {
@@ -134,7 +134,7 @@ public class AcrossCenterReadFile5283 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws ScmException {
-            ScmSession session = TestScmTools.createSession( branchSite );
+            ScmSession session = ScmSessionUtils.createSession( branchSite );
             try {
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );

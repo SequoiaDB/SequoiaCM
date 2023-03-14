@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
@@ -55,7 +55,7 @@ public class AuthWs_Dir2795 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( site );
+        sessionA = ScmSessionUtils.createSession( site );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         prepareUser();
     }
@@ -78,7 +78,7 @@ public class AuthWs_Dir2795 extends TestScmBase {
             // 检查权限
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site, username, passwd );
+                session = ScmSessionUtils.createSession( site, username, passwd );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 // 有权限读取目录

@@ -19,7 +19,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
@@ -44,7 +44,7 @@ public class BucketTag5536 extends TestScmBase {
     private void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( s3Client, bucketName );
         s3Client.createBucket( bucketName );
     }

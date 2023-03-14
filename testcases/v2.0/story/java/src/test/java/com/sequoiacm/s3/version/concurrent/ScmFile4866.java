@@ -4,9 +4,10 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -54,13 +55,13 @@ public class ScmFile4866 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         bucket.suspendVersionControl();
-        S3Utils.createFile( bucket, keyName, filePath );
+        ScmFileUtils.createFile( bucket, keyName, filePath );
     }
 
     @Test

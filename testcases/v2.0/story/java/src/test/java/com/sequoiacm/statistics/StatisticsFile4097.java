@@ -3,6 +3,7 @@ package com.sequoiacm.statistics;
 import java.io.File;
 import java.util.*;
 
+import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -72,12 +73,12 @@ public class StatisticsFile4097 extends TestScmBase {
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
 
         // 创建用户
-        StatisticsUtils.createUserAndRole( rolename1, username1, wsp, site );
-        StatisticsUtils.createUserAndRole( rolename2, username2, wsp, site );
+        ScmAuthUtils.createUserAndRole( rolename1, username1, wsp, site );
+        ScmAuthUtils.createUserAndRole( rolename2, username2, wsp, site );
 
-        siteSession = TestScmTools.createSession( site );
-        siteSession1 = TestScmTools.createSession( site, username1, username1 );
-        siteSession2 = TestScmTools.createSession( site, username2, username2 );
+        siteSession = ScmSessionUtils.createSession( site );
+        siteSession1 = ScmSessionUtils.createSession( site, username1, username1 );
+        siteSession2 = ScmSessionUtils.createSession( site, username2, username2 );
 
         siteWorkspace1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession1 );
@@ -166,10 +167,10 @@ public class StatisticsFile4097 extends TestScmBase {
         int breakpointFileToFileTime;
         // 上传断点文件
         for ( int i = 0; i < uploadFilesSuccedNums1; i++ ) {
-            createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+            createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                     .createAndUploadBreakpointFile( fileName + i,
                             siteWorkspace1, filePath );
-            breakpointFileToFileTime = ( int ) StatisticsUtils
+            breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                     .breakpointFileToFile( fileName + i, siteWorkspace1,
                             fileName + i, fileIdList1 );
             uploadTime1.add( createAndUploadBreakpointFileTime
@@ -179,10 +180,10 @@ public class StatisticsFile4097 extends TestScmBase {
         // user2上传文件
         for ( int i = uploadFilesSuccedNums1; i < uploadFilesSuccedNums1
                 + uploadFilesSuccedNums2; i++ ) {
-            createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+            createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                     .createAndUploadBreakpointFile( fileName + i,
                             siteWorkspace2, filePath );
-            breakpointFileToFileTime = ( int ) StatisticsUtils
+            breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                     .breakpointFileToFile( fileName + i, siteWorkspace2,
                             fileName + i, fileIdList2 );
             uploadTime2.add( createAndUploadBreakpointFileTime

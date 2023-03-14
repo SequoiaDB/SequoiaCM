@@ -3,18 +3,14 @@ package com.sequoiacm.scmfile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
@@ -26,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -53,8 +49,8 @@ public class ScmFileMD5Calc2976 extends TestScmBase {
         site1 = ScmInfo.getRootSite();
         site2 = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        session1 = TestScmTools.createSession( site1 );
-        session2 = TestScmTools.createSession( site2 );
+        session1 = ScmSessionUtils.createSession( site1 );
+        session2 = ScmSessionUtils.createSession( site2 );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );
         ws2 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session2 );
         new Random().nextBytes( bytes );

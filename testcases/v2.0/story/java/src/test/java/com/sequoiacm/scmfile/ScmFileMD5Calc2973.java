@@ -23,7 +23,7 @@ import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -50,7 +50,7 @@ public class ScmFileMD5Calc2973 extends TestScmBase {
         site1 = sites.get( 0 );
         site2 = sites.get( 1 );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site1 );
+        session = ScmSessionUtils.createSession( site1 );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
@@ -74,7 +74,7 @@ public class ScmFileMD5Calc2973 extends TestScmBase {
         // 连接站点B,指定版本计算文件md5
         ScmSession sessionB = null;
         try {
-            sessionB = TestScmTools.createSession( site2 );
+            sessionB = ScmSessionUtils.createSession( site2 );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionB );
             for ( int i = 1; i <= versionNum; i++ ) {

@@ -21,13 +21,12 @@ import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -46,7 +45,7 @@ public class Param_setCsOptions2259 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName1, session );
         ScmWorkspaceUtil.deleteWs( wsName2, session );
     }

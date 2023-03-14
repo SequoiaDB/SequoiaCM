@@ -48,7 +48,7 @@ public class CreateWorksPace1937 extends TestScmBase {
         List< SiteWrapper > siteList = ScmInfo.getBranchSites( 2 );
         branSite1 = siteList.get( 0 );
         branSite2 = siteList.get( 1 );
-        session = TestScmTools.createSession( branSite2 );
+        session = ScmSessionUtils.createSession( branSite2 );
 
         metaDomainName = TestSdbTools.getDomainNames( rootSite.getMetaDsUrl() )
                 .get( 0 );
@@ -72,7 +72,7 @@ public class CreateWorksPace1937 extends TestScmBase {
         conf.setName( wsName );
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace( session, conf );
         scmMetaLocation = ( ScmSdbMetaLocation ) ws.getMetaLocation();
-        ScmSession session1 = TestScmTools.createSession( branSite1 );
+        ScmSession session1 = ScmSessionUtils.createSession( branSite1 );
 
         ScmWorkspaceUtil.wsSetPriority( session1, wsName );
         ScmId fileId = null;

@@ -26,7 +26,7 @@ import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -50,7 +50,7 @@ public class UpdateWorkspace2180 extends TestScmBase {
         List< SiteWrapper > siteList = ScmInfo.getBranchSites( 2 );
         branchSite1 = siteList.get( 0 );
         branchSite2 = siteList.get( 1 );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 

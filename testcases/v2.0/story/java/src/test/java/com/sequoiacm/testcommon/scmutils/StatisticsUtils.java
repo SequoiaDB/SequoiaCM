@@ -1,18 +1,11 @@
 package com.sequoiacm.testcommon.scmutils;
 
-import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.client.element.privilege.ScmResource;
-import com.sequoiacm.client.element.privilege.ScmResourceFactory;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -34,6 +27,9 @@ public class StatisticsUtils extends TestScmBase {
     public final static int TIMEOUT = 1000 * 120;
     public final static int INTERVAL = 200;
 
+    /**
+     * @descreption 根据日期获取timeStamp @return @throws
+     */
     // get the timestamp of the Day,eg "2018-09-12" is 1536681600000
     public static long getTimestampOfTheDay() {
         Date date = new Date();
@@ -49,6 +45,13 @@ public class StatisticsUtils extends TestScmBase {
         return currentTimestamp;
     }
 
+    /**
+     * @descreption 统计工作区下文件上传下载信息
+     * @param ws
+     * @param session
+     * @return
+     * @throws ScmException
+     */
     public static HashMap< String, Long > statisticsFile( ScmWorkspace ws,
             ScmSession session ) throws ScmException {
         long currentTimestamp = getTimestampOfTheDay();
@@ -86,6 +89,13 @@ public class StatisticsUtils extends TestScmBase {
         return map;
     }
 
+    /**
+     * @descreption 统计工作区下文件Delta信息
+     * @param ws
+     * @param session
+     * @return
+     * @throws ScmException
+     */
     public static HashMap< String, Long > statisticsFileDelta( ScmWorkspace ws,
             ScmSession session ) throws ScmException {
         long currentTimestamp = getTimestampOfTheDay();
@@ -115,39 +125,7 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * create File by stream
-     *
-     * @param ws
-     * @param fileName
-     * @param data
-     * @param authorName
-     * @throws ScmException
-     */
-    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName ) throws ScmException {
-        return createFileByStream( ws, fileName, data, authorName, 0 );
-    }
-
-    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName, long timestamp )
-            throws ScmException {
-        ScmFile file = ScmFactory.File.createInstance( ws );
-        new Random().nextBytes( data );
-        file.setContent( new ByteArrayInputStream( data ) );
-        file.setFileName( fileName );
-        file.setAuthor( authorName );
-        if ( timestamp != 0 ) {
-            Date date = new Date( timestamp );
-            file.setCreateTime( date );
-        }
-
-        ScmId fileId = file.save();
-        return fileId;
-    }
-
-    /**
-     * 获取工作区统计信息记录数
-     *
+     * @descreption 获取工作区统计信息记录数
      * @param wsName
      * @return
      * @throws Exception
@@ -162,8 +140,8 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 清理统计信息表
-     *
+     * @descreption 清理统计信息表
+     * @return
      * @throws Exception
      */
     public static void clearStatisticalInfo() throws Exception {
@@ -177,9 +155,9 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 限时等待统计记录达到预期值
-     *
+     * @descreption 限时等待统计记录达到预期值
      * @param count
+     * @return
      * @throws Exception
      */
     public static void waitStatisticalInfoCount( long count ) throws Exception {
@@ -187,11 +165,11 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 限时等待统计记录达到预期值
-     *
+     * @descreption 限时等待统计记录达到预期值
      * @param count
      * @param timeout
      * @param interval
+     * @return
      * @throws Exception
      */
     public static void waitStatisticalInfoCount( long count, int timeout,
@@ -221,15 +199,15 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 设置网关本地时间
-     *
+     * @descreption 设置网关本地时间
      * @param time
+     * @return
      * @throws Exception
      */
     public static void setGateWaySystemTime( long time ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
             List< ScmServiceInstance > instanceList = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session,
                             ConfUtil.GATEWAY_SERVICE_NAME );
@@ -244,14 +222,14 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 恢复网关本地时间
-     *
+     * @descreption 恢复网关本地时间
+     * @return
      * @throws Exception
      */
     public static void restoreGateWaySystemTime() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
             List< ScmServiceInstance > instanceList = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session,
                             ConfUtil.GATEWAY_SERVICE_NAME );
@@ -266,10 +244,10 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 检查统计信息
-     *
+     * @descreption 检查统计信息
      * @param actInfo
      * @param expInfo
+     * @return
      * @throws Exception
      */
     public static void checkScmFileStatisticInfo( ScmFileStatisticInfo actInfo,
@@ -303,10 +281,10 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 检查新增指标的统计信息 (最大响应时间、最小响应时间、失败数)
-     *
+     * @descreption 检查新增指标的统计信息 (最大响应时间、最小响应时间、失败数)
      * @param actInfo
      * @param expInfo
+     * @return
      * @throws Exception
      */
     public static void checkScmFileStatisticNewAddInfo(
@@ -331,9 +309,9 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 配置网关信息,统计文件上传下载信息
-     *
+     * @descreption 配置网关信息,统计文件上传下载信息
      * @param wsp
+     * @return
      * @throws Exception
      */
     public static void configureGatewayAndAdminInfo( WsWrapper wsp )
@@ -355,10 +333,10 @@ public class StatisticsUtils extends TestScmBase {
     }
 
     /**
-     * 配置网关信息
-     * 
+     * @descreption 配置网关信息
      * @param wsp
      * @param tpye
+     * @return
      * @throws Exception
      */
     public static void configureGatewayAndAdminInfo( WsWrapper wsp,
@@ -389,223 +367,4 @@ public class StatisticsUtils extends TestScmBase {
         StatisticsUtils.clearStatisticalInfo();
     }
 
-    /**
-     * 创建用户和角色
-     *
-     * @param rolename
-     * @param username
-     * @param wsp
-     * @param site
-     * @throws Exception
-     */
-    public static void createUserAndRole( String rolename, String username,
-            WsWrapper wsp, SiteWrapper site ) throws Exception {
-        ScmSession sessionA = null;
-        try {
-            sessionA = TestScmTools.createSession( site,
-                    TestScmBase.scmUserName, TestScmBase.scmPassword );
-            // 清理环境
-            try {
-                ScmFactory.Role.deleteRole( sessionA, rolename );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
-                    throw e;
-                }
-            }
-            try {
-                ScmFactory.User.deleteUser( sessionA, username );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
-                    throw e;
-                }
-            }
-            // 创建用户、角色和授权
-            ScmUser scmUser = ScmFactory.User.createUser( sessionA, username,
-                    ScmUserPasswordType.LOCAL, username );
-            ScmRole role = ScmFactory.Role.createRole( sessionA, rolename, "" );
-            ScmUserModifier modifier = new ScmUserModifier();
-            modifier.addRole( role );
-            ScmFactory.User.alterUser( sessionA, scmUser, modifier );
-            ScmResource resource = ScmResourceFactory
-                    .createWorkspaceResource( wsp.getName() );
-            ScmFactory.Role.grantPrivilege( sessionA, role, resource,
-                    ScmPrivilegeType.ALL );
-            ScmAuthUtils.checkPriority( site, username, username, role,
-                    wsp.getName() );
-        } finally {
-            if ( sessionA != null ) {
-                sessionA.close();
-            }
-        }
-    }
-
-    /**
-     * 指定fileId下载文件
-     *
-     * @param fileId
-     * @param siteWorkspace
-     *
-     * @return
-     * @throws Exception
-     */
-    public static long downloadFile( ScmId fileId, ScmWorkspace siteWorkspace )
-            throws Exception {
-        long downloadBeginTime = System.nanoTime();
-        ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
-        // download file
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        file.getContent( outputStream );
-        long nanoTime = TimeUnit.MILLISECONDS.convert(
-                System.nanoTime() - downloadBeginTime, TimeUnit.NANOSECONDS );
-        return nanoTime;
-    }
-
-    /**
-     * 指定fileId下载文件失败
-     *
-     * @param fileId
-     * @param siteWorkspace
-     * @throws Exception
-     */
-    public static void downloadFileFialed( ScmId fileId,
-            ScmWorkspace siteWorkspace ) throws Exception {
-        ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
-        file.delete( true );
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            file.getContent( outputStream );
-        } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode() ) {
-                throw new Exception(
-                        "the exception not FILE_NOT_FOUND,the exception: "
-                                + e.getMessage() );
-            }
-        }
-    }
-
-    /**
-     * 上传文件
-     *
-     * @param filePath
-     * @param fileName
-     * @param fileIdList
-     * @param siteWorkspace
-     * @return
-     * @throws Exception
-     */
-    public static long uploadFile( String filePath, String fileName,
-            List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
-            throws Exception {
-        long uploadBeginTime = System.nanoTime();
-        ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
-        file.setFileName( fileName + UUID.randomUUID() );
-        file.setAuthor( fileName );
-        file.setContent( filePath );
-        fileIdList.add( file.save() );
-        long uploadTime = TimeUnit.MILLISECONDS.convert(
-                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
-        return uploadTime;
-    }
-
-    /**
-     * 上传文件失败
-     *
-     * @param filePath
-     * @param fileName
-     * @param fileIdList
-     * @param siteWorkspace
-     * @return
-     * @throws Exception
-     */
-    public static void uploadFileFialed( String filePath, String fileName,
-            List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
-            throws Exception {
-        try {
-            ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
-            file.setFileName( fileName + UUID.randomUUID() );
-            file.setAuthor( fileName );
-            file.setContent( filePath );
-            file.setClassProperties(
-                    new ScmClassProperties( UUID.randomUUID().toString() ) );
-            file.save();
-        } catch ( ScmException e ) {
-            if ( e.getErrorCode() != ScmError.METADATA_CLASS_NOT_EXIST
-                    .getErrorCode() ) {
-                throw new Exception(
-                        "the exception not METADATA_CLASS_NOT_EXIST,the exception: "
-                                + e.getMessage() );
-            }
-        }
-    }
-
-    /**
-     * 生成文件
-     *
-     * @param fileSizes
-     * @param filePathList
-     * @return
-     * @throws Exception
-     */
-    public static File createFile( int[] fileSizes,
-            List< String > filePathList ) throws Exception {
-        File localPath = new File( TestScmBase.dataDirectory + File.separator
-                + TestTools.getClassName() );
-        TestTools.LocalFile.removeFile( localPath );
-        TestTools.LocalFile.createDir( localPath.toString() );
-        for ( int i = 0; i < fileSizes.length; i++ ) {
-            String filePath = localPath + File.separator + "localFile_"
-                    + fileSizes[ i ] + ".txt";
-            TestTools.LocalFile.createFile( filePath, fileSizes[ i ] );
-            filePathList.add( filePath );
-        }
-        return localPath;
-    }
-
-    /**
-     * 创建断点文件
-     *
-     * @param BreakpointFileName
-     * @param siteWorkspace
-     * @return
-     * @throws Exception
-     */
-    public static long createAndUploadBreakpointFile( String breakpointFileName,
-            ScmWorkspace siteWorkspace, String filePath ) throws Exception {
-        long uploadBeginTime = System.nanoTime();
-        ScmChecksumType checksumType = ScmChecksumType.NONE;
-        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
-                .createInstance( siteWorkspace, breakpointFileName,
-                        checksumType );
-        FileInputStream fStream = new FileInputStream( filePath );
-        breakpointFile.upload( fStream );
-        long uploadTime = TimeUnit.MILLISECONDS.convert(
-                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
-        return uploadTime;
-    }
-
-    /**
-     * 断点文件转为文件
-     *
-     * @param breakpointFile
-     * @param fileName
-     * @param fileIdList
-     * @param siteWorkspace
-     * @return
-     * @throws Exception
-     */
-    public static long breakpointFileToFile( String breakpointFileName,
-            ScmWorkspace siteWorkspace, String fileName,
-            List< ScmId > fileIdList ) throws Exception {
-        long uploadBeginTime = System.nanoTime();
-        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
-                .getInstance( siteWorkspace, breakpointFileName );
-        ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
-        file.setFileName( fileName );
-        file.setAuthor( fileName );
-        file.setContent( breakpointFile );
-        fileIdList.add( file.save() );
-        long uploadTime = TimeUnit.MILLISECONDS.convert(
-                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
-        return uploadTime;
-    }
 }

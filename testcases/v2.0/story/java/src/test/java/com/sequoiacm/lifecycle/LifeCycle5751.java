@@ -3,7 +3,6 @@ package com.sequoiacm.lifecycle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.exception.ScmError;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -17,7 +16,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 
 /**
@@ -42,7 +41,7 @@ public class LifeCycle5751 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         lifeCycleConfig = prepareLifeCycleConfig();
         LifeCycleUtils.cleanLifeCycleConfig( session );
         ScmSystem.LifeCycleConfig.setLifeCycleConfig( session,

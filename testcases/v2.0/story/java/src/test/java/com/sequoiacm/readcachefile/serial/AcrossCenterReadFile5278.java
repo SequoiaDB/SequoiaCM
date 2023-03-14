@@ -42,7 +42,7 @@ public class AcrossCenterReadFile5278 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        sessionM = TestScmTools.createSession( ScmInfo.getRootSite() );
+        sessionM = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         wsp = ScmInfo.getWs();
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         wsM.updateSiteCacheStrategy( ScmSiteCacheStrategy.NEVER );

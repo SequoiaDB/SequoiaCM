@@ -53,7 +53,7 @@ public class BreakpointFile3923_1368 extends TestScmBase {
 
         wsp = ScmInfo.getWs();
         site = sites.get( new Random().nextInt( sites.size() ) );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();

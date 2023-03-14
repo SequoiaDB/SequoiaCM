@@ -40,7 +40,7 @@ public class Audit4295 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         contentServiceName = site.getSiteServiceName();
 
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );

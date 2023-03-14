@@ -54,7 +54,7 @@ public class UpdateContentByBreakPointFile1642 extends TestScmBase {
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -63,7 +63,7 @@ public class UpdateContentByBreakPointFile1642 extends TestScmBase {
 
     @Test(groups = { GroupTags.base })
     private void test() throws Exception {
-        fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( ws, fileName, filedata );
         updateContentByBreakPointFile();
 
         int currentVersion = 2;

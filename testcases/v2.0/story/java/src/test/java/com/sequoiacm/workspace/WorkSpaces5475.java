@@ -3,6 +3,7 @@ package com.sequoiacm.workspace;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.exception.ScmError;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -17,7 +18,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -44,7 +45,7 @@ public class WorkSpaces5475 extends TestScmBase {
     private void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
         branSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         siteList1.add( rootSite );
         siteList2.add( branSite );
         ScmWorkspaceUtil.deleteWs( wsName, session );
@@ -88,7 +89,7 @@ public class WorkSpaces5475 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {

@@ -26,7 +26,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsPool;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -51,7 +51,7 @@ public class FullText3059 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         prepareFile();
@@ -141,7 +141,7 @@ public class FullText3059 extends TestScmBase {
         private void rebuild() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 try {
@@ -170,7 +170,7 @@ public class FullText3059 extends TestScmBase {
         private void create() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -199,7 +199,7 @@ public class FullText3059 extends TestScmBase {
         private void delete() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -224,7 +224,7 @@ public class FullText3059 extends TestScmBase {
         private void update() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
@@ -248,7 +248,7 @@ public class FullText3059 extends TestScmBase {
         private void update() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );

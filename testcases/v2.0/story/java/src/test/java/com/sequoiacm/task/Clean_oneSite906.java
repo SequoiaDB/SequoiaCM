@@ -29,7 +29,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -85,10 +85,10 @@ public class Clean_oneSite906 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            sessionA = TestScmTools.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( rootSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
-            sessionB = TestScmTools.createSession( branchSite );
+            sessionB = ScmSessionUtils.createSession( branchSite );
             wsB = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionB );
 
             // ready scmfile

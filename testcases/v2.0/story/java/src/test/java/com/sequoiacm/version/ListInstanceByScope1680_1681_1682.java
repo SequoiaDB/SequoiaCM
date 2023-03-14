@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -57,14 +57,14 @@ public class ListInstanceByScope1680_1681_1682 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId1 = VersionUtils.createFileByStream( ws, fileName1, writedata,
+        fileId1 = ScmFileUtils.createFileByStream( ws, fileName1, writedata,
                 authorName );
-        fileId2 = VersionUtils.createFileByStream( ws, fileName2, writedata,
+        fileId2 = ScmFileUtils.createFileByStream( ws, fileName2, writedata,
                 authorName );
     }
 

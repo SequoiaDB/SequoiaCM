@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +53,7 @@ public class Object5018 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( session, bucketName );
 
         s3Client = S3Utils.buildS3Client();
@@ -78,7 +79,7 @@ public class Object5018 extends TestScmBase {
 
         // 开启版本控制，更新文件内容
         scmBucket.enableVersionControl();
-        S3Utils.createFile( scmBucket, keyName, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName, updatePath );
 
         // 检查更新后属性，当前版本为更新文件，原文件为历史版本
         int newCurrentVersion = createFileCount + 1;

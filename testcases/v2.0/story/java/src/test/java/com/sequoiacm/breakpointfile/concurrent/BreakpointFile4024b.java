@@ -68,7 +68,7 @@ public class BreakpointFile4024b extends TestScmBase {
         site1 = sites.get( 0 );
         site2 = sites.get( 1 );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site1 );
+        session = ScmSessionUtils.createSession( site1 );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         BSONObject cond = ScmQueryBuilder
@@ -111,7 +111,7 @@ public class BreakpointFile4024b extends TestScmBase {
                 throws ScmException, IOException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

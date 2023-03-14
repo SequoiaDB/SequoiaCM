@@ -63,10 +63,10 @@ public class ConcurrentTasks3918 extends TestScmBase {
         branchSite1 = branchSites.get( 0 );
         branchSite2 = branchSites.get( 1 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
         branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -129,7 +129,7 @@ public class ConcurrentTasks3918 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( targetSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -158,7 +158,7 @@ public class ConcurrentTasks3918 extends TestScmBase {
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( downloadSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

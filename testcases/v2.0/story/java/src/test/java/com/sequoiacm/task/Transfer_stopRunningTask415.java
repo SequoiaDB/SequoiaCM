@@ -30,7 +30,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -91,8 +91,8 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
             ws_T = ScmInfo.getWs();
 
             // login
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( authorName ).get();
@@ -260,7 +260,7 @@ public class Transfer_stopRunningTask415 extends TestScmBase {
         int randNum = 0;
         try {
             if ( ScmInfo.getSiteNum() > 2 ) {
-                ss = TestScmTools.createSession( branceSiteList.get( 1 ) );
+                ss = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), ss );
                 randNum = new Random().nextInt( fileNum );

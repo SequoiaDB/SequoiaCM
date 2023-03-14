@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
@@ -19,7 +18,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsPool;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
@@ -40,7 +39,7 @@ public class WsIndex3036 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
     }

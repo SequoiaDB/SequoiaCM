@@ -9,7 +9,6 @@ import com.sequoiacm.client.core.ScmBucket;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -66,7 +65,7 @@ public class Object4246 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         s3Client.createBucket( bucketName );
         s3Client.putObject( bucketName, key, "aaa" );

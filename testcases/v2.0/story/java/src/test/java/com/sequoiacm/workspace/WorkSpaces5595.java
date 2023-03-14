@@ -4,6 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.element.ScmContentLocation;
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiadb.base.Sequoiadb;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -63,7 +69,7 @@ public class WorkSpaces5595 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         siteList.add( rootSite );
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
 

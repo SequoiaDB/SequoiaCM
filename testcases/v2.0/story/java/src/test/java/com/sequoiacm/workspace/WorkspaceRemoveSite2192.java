@@ -13,7 +13,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -33,7 +33,7 @@ public class WorkspaceRemoveSite2192 extends TestScmBase {
     public void setUp() throws Exception {
         siteM = ScmInfo.getRootSite();
         branchSiteList = ScmInfo.getBranchSites( ScmInfo.getSiteNum() - 1 );
-        sessionM = TestScmTools.createSession( siteM );
+        sessionM = ScmSessionUtils.createSession( siteM );
         ScmWorkspaceUtil.deleteWs( wsName, sessionM );
     }
 

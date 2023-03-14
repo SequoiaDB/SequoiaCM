@@ -6,7 +6,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.testng.Assert;
@@ -38,7 +38,7 @@ public class Bucket4621 extends TestScmBase {
         s3A = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3A, bucketName );
 
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ScmAuthUtils.deleteUser( session, userName );
         ScmAuthUtils.createUser( session, userName, passWord );
 

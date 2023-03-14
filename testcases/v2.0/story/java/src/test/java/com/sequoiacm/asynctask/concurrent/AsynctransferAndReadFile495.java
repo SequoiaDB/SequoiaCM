@@ -24,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -78,7 +78,7 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_T, cond );
 
             // login in
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             writeFileFromSubCenterB();
         } catch ( ScmException | IOException e ) {
@@ -151,7 +151,7 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession sessionA = null;
             try {
-                sessionA = TestScmTools.createSession( branceSite );
+                sessionA = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionA );
                 // AsyncTransfer
@@ -173,7 +173,7 @@ public class AsynctransferAndReadFile495 extends TestScmBase {
             ScmSession sessionM = null;
             try {
                 // login
-                sessionM = TestScmTools.createSession( rootSite );
+                sessionM = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionM );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );

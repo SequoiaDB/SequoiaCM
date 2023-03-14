@@ -34,7 +34,7 @@ public class ScmFile_param_save2979 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 

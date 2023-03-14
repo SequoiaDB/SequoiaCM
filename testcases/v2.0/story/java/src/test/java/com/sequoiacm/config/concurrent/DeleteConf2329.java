@@ -19,7 +19,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 
 /**
  * @Description: SCM-2329 :: 并发删除配置和操作异步调度任务
@@ -36,7 +35,7 @@ public class DeleteConf2329 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         scheList = ScmSystem.ServiceCenter.getServiceInstanceList( session,
                 serviceName );
         ConfUtil.deleteAuditConf( serviceName );
@@ -77,7 +76,7 @@ public class DeleteConf2329 extends TestScmBase {
             ScmSession session = null;
             ScmUpdateConfResultSet actResult = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmConfigProperties confProp = ScmConfigProperties.builder()
                         .service( serviceName )
                         .deleteProperty( ConfigCommonDefind.scm_audit_mask )
@@ -111,14 +110,13 @@ public class DeleteConf2329 extends TestScmBase {
         @Override
         public void exec() throws Exception {
             WsWrapper wsp = ScmInfo.getWs();
-            List< SiteWrapper > sites = ScmNetUtils.getCleanSites( wsp );
-            SiteWrapper branSite = sites.get( 1 );
+            SiteWrapper branSite = ScmInfo.getSite();
             ScmSession session = null;
             String scheName = TestTools.getClassName() + "_"
                     + UUID.randomUUID();
             ScmId scheduleId = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmScheduleContent content = new ScmScheduleCleanFileContent(
                         branSite.getSiteName(), "0d", new BasicBSONObject() );
                 String cron = "* * * * * ?";

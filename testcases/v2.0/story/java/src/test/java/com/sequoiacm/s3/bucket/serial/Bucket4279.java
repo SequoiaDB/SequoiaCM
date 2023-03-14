@@ -46,7 +46,7 @@ public class Bucket4279 extends TestScmBase {
     public void setUp() throws Exception {
         envAdminBuckets = S3Utils.getEnvBuckets( TestScmBase.scmUserName );
         envNewUsersBuckets = S3Utils.getEnvBuckets();
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
 
         // 创建新ws、新用户并赋权
         ScmWorkspaceUtil.createS3WS( session, wsName );
@@ -60,7 +60,7 @@ public class Bucket4279 extends TestScmBase {
                 null );
         newS3Client = S3Utils.buildS3Client( accessKeys[ 0 ], accessKeys[ 1 ] );
         ScmAuthUtils.checkPriorityByS3( accessKeys, wsName );
-        newUserSession = TestScmTools.createSession( ScmInfo.getSite(),
+        newUserSession = ScmSessionUtils.createSession( ScmInfo.getSite(),
                 username, password );
         ScmAuthUtils.checkPriorityByS3( newUserSession, wsName );
 

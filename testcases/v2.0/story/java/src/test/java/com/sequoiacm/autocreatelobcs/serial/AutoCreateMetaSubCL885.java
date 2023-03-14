@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -46,7 +46,7 @@ public class AutoCreateMetaSubCL885 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         site = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         try {
             ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
         } catch ( ScmException e ) {
@@ -91,7 +91,7 @@ public class AutoCreateMetaSubCL885 extends TestScmBase {
             Calendar cal = Calendar.getInstance();
             ScmSession ss = null;
             try {
-                ss = TestScmTools.createSession( site );
+                ss = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         ss );
                 cal.set( Calendar.YEAR,

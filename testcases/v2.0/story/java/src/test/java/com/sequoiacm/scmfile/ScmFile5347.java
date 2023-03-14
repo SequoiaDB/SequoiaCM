@@ -2,7 +2,6 @@ package com.sequoiacm.scmfile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -61,7 +60,7 @@ public class ScmFile5347 extends TestScmBase {
         branchSite = ScmInfo.getBranchSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

@@ -1,10 +1,8 @@
 package com.sequoiacm.s3.object.concurrent;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -43,7 +41,7 @@ public class Object4242 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         s3Client.createBucket( bucketName );

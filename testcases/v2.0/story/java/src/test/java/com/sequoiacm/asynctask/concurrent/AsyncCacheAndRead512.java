@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -81,7 +81,7 @@ public class AsyncCacheAndRead512 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_T, cond );
 
             // login in
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
             writeFileFromMainCenter();
         } catch ( ScmException | IOException e ) {
@@ -150,7 +150,7 @@ public class AsyncCacheAndRead512 extends TestScmBase {
             ScmSession sessionA = null;
             try {
                 // login
-                sessionA = TestScmTools.createSession( branceSite );
+                sessionA = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionA );
                 // cache
@@ -174,7 +174,7 @@ public class AsyncCacheAndRead512 extends TestScmBase {
             ScmInputStream sis = null;
             try {
                 // login
-                sessionA = TestScmTools.createSession( branceSite );
+                sessionA = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), sessionA );
                 ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );

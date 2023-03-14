@@ -21,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
@@ -66,8 +66,8 @@ public class AsyncCache_fileInBranchSite506 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( branceSite );
-            sessionB = TestScmTools.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
+            sessionB = ScmSessionUtils.createSession( rootSite );
             prepareFiles( sessionA );
         } catch ( Exception e ) {
             if ( sessionA != null ) {

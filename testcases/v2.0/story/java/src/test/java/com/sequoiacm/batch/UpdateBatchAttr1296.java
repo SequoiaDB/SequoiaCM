@@ -21,7 +21,7 @@ import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1296: 更新批次所有属性
@@ -47,7 +47,7 @@ public class UpdateBatchAttr1296 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
                 session );
     }

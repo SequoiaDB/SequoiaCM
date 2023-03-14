@@ -14,7 +14,7 @@ import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
 /**
@@ -34,7 +34,7 @@ public class StatisticsFile3591 extends TestScmBase {
     private void setUp() throws Exception {
         calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         // 删除统计表中所有统计信息
         StatisticsUtils.clearStatisticalInfo();
     }

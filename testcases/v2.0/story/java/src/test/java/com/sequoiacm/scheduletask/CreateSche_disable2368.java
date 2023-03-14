@@ -1,6 +1,5 @@
 package com.sequoiacm.scheduletask;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -23,7 +22,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -44,7 +43,7 @@ public class CreateSche_disable2368 extends TestScmBase {
     private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        ssA = TestScmTools.createSession( branSite );
+        ssA = ScmSessionUtils.createSession( branSite );
     }
 
     @Test(groups = { "twoSite", "fourSite", "star" })

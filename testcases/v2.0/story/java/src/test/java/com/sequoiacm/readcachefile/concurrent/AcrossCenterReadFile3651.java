@@ -10,10 +10,8 @@ import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import javax.naming.ldap.PagedResultsControl;
 import java.io.*;
 import java.util.List;
 import java.util.UUID;
@@ -53,7 +51,7 @@ public class AcrossCenterReadFile3651 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
         branchSite1Workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
     }
@@ -118,7 +116,7 @@ public class AcrossCenterReadFile3651 extends TestScmBase {
                     Thread.currentThread().getId() );
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branchSite2 );
+                session = ScmSessionUtils.createSession( branchSite2 );
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile instance = ScmFactory.File.getInstance( workspace,
@@ -141,7 +139,7 @@ public class AcrossCenterReadFile3651 extends TestScmBase {
     private class GetContentReadFileWithNoCache {
         @ExecuteOrder(step = 1)
         private void test() throws Exception {
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
@@ -177,7 +175,7 @@ public class AcrossCenterReadFile3651 extends TestScmBase {
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

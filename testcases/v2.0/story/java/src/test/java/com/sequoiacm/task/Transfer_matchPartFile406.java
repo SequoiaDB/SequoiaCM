@@ -31,7 +31,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -100,9 +100,9 @@ public class Transfer_matchPartFile406 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_T, cond );
 
             // login
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -285,7 +285,7 @@ public class Transfer_matchPartFile406 extends TestScmBase {
         ScmSession ss = null;
         try {
             List< List< ScmFileLocation > > locationLists = new ArrayList<>();
-            ss = TestScmTools.createSession( rootSite );
+            ss = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     ss );
             for ( ScmId fileId : fileIdList ) {
@@ -306,7 +306,7 @@ public class Transfer_matchPartFile406 extends TestScmBase {
         int randNum = 0;
         try {
             if ( siteList.size() == 2 ) {
-                ss = TestScmTools.createSession( siteList.get( 1 ) );
+                ss = ScmSessionUtils.createSession( siteList.get( 1 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), ss );
                 randNum = new Random().nextInt( fileNum );

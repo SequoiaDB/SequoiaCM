@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,7 +25,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -79,7 +78,7 @@ public class Transfer_stopFinishedTask416 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
             cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

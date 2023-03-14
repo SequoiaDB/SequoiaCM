@@ -43,7 +43,7 @@ public class FullText3156 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         for ( int i = 0; i < fileNum; i++ ) {

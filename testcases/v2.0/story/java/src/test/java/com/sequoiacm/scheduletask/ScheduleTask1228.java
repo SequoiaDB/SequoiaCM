@@ -2,21 +2,16 @@ package com.sequoiacm.scheduletask;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleBasicInfo;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScheduleType;
-import com.sequoiacm.client.element.ScmScheduleCleanFileContent;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +56,7 @@ public class ScheduleTask1228 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

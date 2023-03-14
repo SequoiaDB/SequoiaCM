@@ -57,7 +57,7 @@ public class SpaceRecycle5244 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
     }
 
     @DataProvider(name = "dataProvide")

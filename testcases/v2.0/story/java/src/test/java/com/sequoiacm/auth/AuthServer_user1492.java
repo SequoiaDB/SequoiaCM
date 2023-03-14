@@ -18,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 
 /**
@@ -53,7 +53,7 @@ public class AuthServer_user1492 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
 
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
 
             // clean new user
             try {

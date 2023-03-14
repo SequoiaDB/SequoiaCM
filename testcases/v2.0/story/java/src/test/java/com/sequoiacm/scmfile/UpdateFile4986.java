@@ -1,6 +1,5 @@
 package com.sequoiacm.scmfile;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.bizconf.ScmUploadConf;
@@ -8,7 +7,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -58,7 +56,7 @@ public class UpdateFile4986 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         WsWrapper wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject query = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();

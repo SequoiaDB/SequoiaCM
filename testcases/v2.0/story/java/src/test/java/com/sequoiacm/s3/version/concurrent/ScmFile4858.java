@@ -7,6 +7,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -58,7 +59,7 @@ public class ScmFile4858 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
@@ -71,7 +72,7 @@ public class ScmFile4858 extends TestScmBase {
         List< String > expKeys = new ArrayList<>();
         for ( int i = 0; i < fileNums; i++ ) {
             String key = fileName + "_" + i;
-            ScmId fileId = S3Utils.createFile( scmBucket, key, filePath );
+            ScmId fileId = ScmFileUtils.createFile( scmBucket, key, filePath );
             fileIds.add( fileId );
             expKeys.add( key );
             expKeys.add( key );
@@ -140,7 +141,7 @@ public class ScmFile4858 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 scmBucket.deleteFile( fileName, false );

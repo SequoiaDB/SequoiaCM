@@ -23,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
@@ -55,7 +55,7 @@ public class StatisticsFileTraffic2231 extends TestScmBase {
     private void setUp() throws IOException, ScmException {
         wsp = ScmInfo.getWs();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
@@ -108,7 +108,7 @@ public class StatisticsFileTraffic2231 extends TestScmBase {
         new Random().nextBytes( fileData );
         for ( int i = 0; i < fileNums; i++ ) {
             String subfileName = fileName + "_" + i;
-            ScmId fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+            ScmId fileId = ScmFileUtils.createFileByStream( ws, subfileName,
                     fileData, authorName );
             fileIds.add( fileId );
         }

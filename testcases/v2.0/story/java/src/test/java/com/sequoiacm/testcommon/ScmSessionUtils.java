@@ -10,10 +10,13 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSessionMgr;
 import com.sequoiacm.client.exception.ScmException;
 
-public class TestScmTools extends TestScmBase {
+public class ScmSessionUtils extends TestScmBase {
 
     /**
-     * create session, by specified site
+     * @descreption create session, by specified site
+     * @param site
+     * @return
+     * @throws ScmException
      */
     public static ScmSession createSession( SiteWrapper site )
             throws ScmException {
@@ -21,7 +24,10 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create session, by specified site and user
+     * @descreption create session, by specified site and user
+     * @param site
+     * @return
+     * @throws ScmException
      */
     public static ScmSession createSession( SiteWrapper site, String username,
             String password ) throws ScmException {
@@ -29,7 +35,10 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create session by specified serviceName
+     * @descreption create session by specified serviceName
+     * @param serviceName
+     * @return
+     * @throws ScmException
      */
     public static ScmSession createSession( String serviceName )
             throws ScmException {
@@ -38,7 +47,12 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create session by specified serviceName and user
+     * @descreption create session by specified serviceName and user
+     * @param serviceName
+     * @param username
+     * @param password
+     * @return
+     * @throws ScmException
      */
     public static ScmSession createSession( String serviceName, String username,
             String password ) throws ScmException {
@@ -55,7 +69,9 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create session by random serviceName
+     * @descreption create session by random serviceName
+     * @return
+     * @throws ScmException
      */
     public static ScmSession createSession() throws ScmException {
         List< String > urlList = new ArrayList< String >();
@@ -71,7 +87,10 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create no auth session
+     * @descreption create no auth session
+     * @param site
+     * @return
+     * @throws ScmException
      */
     public static ScmSession createNoAuthSession( SiteWrapper site )
             throws ScmException {
@@ -85,7 +104,12 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create sessionMgr, by specified site and define user
+     * @descreption create sessionMgr, by specified site and define user
+     * @param site
+     * @param password
+     * @param username
+     * @return
+     * @throws ScmException
      */
     public static ScmSessionMgr createSessionMgr( SiteWrapper site,
             String username, String password ) throws ScmException {
@@ -94,18 +118,26 @@ public class TestScmTools extends TestScmBase {
     }
 
     /**
-     * create sessionMgr, by specified site and default scm user
+     * @descreption create sessionMgr, by specified site and default scm user
+     * @param site
+     * @return
+     * @throws ScmException
      */
     public static ScmSessionMgr createSessionMgr( SiteWrapper site )
             throws ScmException {
         return createSessionMgr( site.getSiteServiceName(),
-                TestScmTools.scmUserName, TestScmTools.scmPassword,
+                ScmSessionUtils.scmUserName, ScmSessionUtils.scmPassword,
                 Long.MAX_VALUE );
     }
 
     /**
-     * create sessionMgr, by specified serviceName and user and
-     * syncGateWayInterval
+     * @descreption create sessionMgr, by specified serviceName and user and syncGateWayInterval
+     * @param serviceName
+     * @param username
+     * @param password
+     * @param syncGateWayInterval
+     * @return
+     * @throws ScmException
      */
     public static ScmSessionMgr createSessionMgr( String serviceName,
             String username, String password, long syncGateWayInterval )
@@ -133,7 +165,7 @@ public class TestScmTools extends TestScmBase {
         for ( String gateway : gateWayList ) {
             urlList.add( gateway + "/" + siteName );
         }
-        return new ScmConfigOption( urlList, TestScmTools.scmUserName,
-                TestScmTools.scmPassword );
+        return new ScmConfigOption( urlList, ScmSessionUtils.scmUserName,
+                ScmSessionUtils.scmPassword );
     }
 }

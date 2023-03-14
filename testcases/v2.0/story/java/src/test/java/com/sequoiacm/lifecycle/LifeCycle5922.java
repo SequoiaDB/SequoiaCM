@@ -7,7 +7,6 @@ import java.util.List;
 import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
-import com.sequoiacm.client.element.ScmTaskConfig;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -69,7 +68,7 @@ public class LifeCycle5922 extends TestScmBase {
         site1 = ScmInfo.getBranchSite();
 
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
@@ -223,7 +222,7 @@ public class LifeCycle5922 extends TestScmBase {
     }
 
     private void testMoveFileTask() throws Exception {
-        try ( ScmSession session = TestScmTools.createSession( site1 )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site1 )) {
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
 

@@ -21,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 
 /**
@@ -46,7 +46,7 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             site = ScmInfo.getSite();
             try {
                 ScmFactory.User.deleteUser( session, username1 );
@@ -121,7 +121,7 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmSession session = TestScmTools.createSession( site,
+                ScmSession session = ScmSessionUtils.createSession( site,
                         username1, passwd1 );
                 String roleName = "LoginAndDoSomething" + UUID.randomUUID();
                 ScmRole expRole = ScmFactory.Role.createRole( session, roleName,
@@ -157,7 +157,7 @@ public class AuthServer_LoginAndLogOut1543 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmSession session = TestScmTools.createSession( site,
+                ScmSession session = ScmSessionUtils.createSession( site,
                         username2, passwd2 );
                 session.close();
                 String roleName = "LogoutAndDoSomething";

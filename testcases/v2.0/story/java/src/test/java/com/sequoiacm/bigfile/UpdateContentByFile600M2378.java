@@ -3,6 +3,7 @@ package com.sequoiacm.bigfile;
 import java.io.File;
 import java.io.IOException;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -17,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -59,13 +60,13 @@ public class UpdateContentByFile600M2378 extends TestScmBase {
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
-        fileId = VersionUtils.createFileByFile( ws, fileName, filePath );
+        fileId = ScmFileUtils.create( ws, fileName, filePath );
         // test a:updateContent by 600M file
         updateContentByFile( updateFilePath );
         // check result

@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-1563 :: hasRole参数校验
@@ -33,7 +33,7 @@ public class AuthServer_Param_HasRole1563 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {

@@ -1,33 +1,33 @@
 package com.sequoiacm.testcommon.scmutils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.element.ScmClassProperties;
 import com.sequoiacm.client.element.ScmContentLocation;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
-import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
-import com.sun.org.apache.xpath.internal.objects.XString;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 
-import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.*;
-import org.apache.log4j.Logger;
-import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScmFileUtils extends TestScmBase {
@@ -35,28 +35,38 @@ public class ScmFileUtils extends TestScmBase {
     private static AtomicInteger serial = new AtomicInteger(
             ( new Random() ).nextInt() );
 
+    /**
+     * @descreption 指定文件内容创建文件
+     * @param ws
+     * @param fileName
+     * @param filePath
+     * @return ScmId
+     * @throws Exception
+     */
     public static ScmId create( ScmWorkspace ws, String fileName,
             String filePath ) throws ScmException {
-        ScmId fileId = null;
-        try {
-            ScmFile file = ScmFactory.File.createInstance( ws );
-            file.setFileName( fileName );
-            file.setAuthor( fileName );
-            file.setContent( filePath );
-            fileId = file.save();
-        } catch ( ScmException e ) {
-            logger.error( "[test] create scmfile, fileName=" + fileName );
-            e.printStackTrace();
-            throw e;
-        }
-        return fileId;
+        return create( ws, fileName, filePath, fileName );
     }
 
+    /**
+     * @descreption 清理工作区下文件
+     * @param ws
+     * @param condition
+     * @return
+     * @throws Exception
+     */
     public static void cleanFile( WsWrapper ws, BSONObject condition )
             throws ScmException {
         cleanFile( ws.getName(), condition );
     }
 
+    /**
+     * @descreption 清理工作区下文件
+     * @param wsName
+     * @param condition
+     * @return
+     * @throws Exception
+     */
     public static void cleanFile( String wsName, BSONObject condition )
             throws ScmException {
         ScmSession session = null;
@@ -64,7 +74,7 @@ public class ScmFileUtils extends TestScmBase {
         ScmCursor< ScmFileBasicInfo > cursor = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace work = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
 
@@ -90,6 +100,13 @@ public class ScmFileUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 指定文件名清理工作区下文件
+     * @param work
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
     public static void cleanFile( ScmWorkspace work, String fileName )
             throws ScmException {
         ScmCursor< ScmFileBasicInfo > cursor = null;
@@ -120,6 +137,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param expSites
      * @param localPath
      * @param filePath
+     * @return
      * @throws Exception
      */
     public static void checkMetaAndData( WsWrapper ws, ScmId fileId,
@@ -128,6 +146,16 @@ public class ScmFileUtils extends TestScmBase {
         checkMetaAndData( ws.getName(), fileId, expSites, localPath, filePath );
     }
 
+    /**
+     * @descreption 校验单个文件元数据和数据存在的站点
+     * @param wsName
+     * @param fileId
+     * @param expSites
+     * @param localPath
+     * @param filePath
+     * @return
+     * @throws Exception
+     */
     public static void checkMetaAndData( String wsName, ScmId fileId,
             SiteWrapper[] expSites, java.io.File localPath, String filePath )
             throws Exception {
@@ -143,6 +171,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param expSites
      * @param localPath
      * @param filePath
+     * @return
      * @throws Exception
      */
     public static void checkMetaAndData( WsWrapper ws, List< ScmId > fileIdList,
@@ -159,6 +188,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param expSites
      * @param localPath
      * @param filePath
+     * @return
      * @throws Exception
      */
     public static void checkMetaAndData( String wsName,
@@ -170,7 +200,7 @@ public class ScmFileUtils extends TestScmBase {
             ScmWorkspace work = null;
             ScmId fileId = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 work = ScmFactory.Workspace.getWorkspace( wsName, session );
 
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
@@ -199,6 +229,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param filePath
      * @param majorVersion
      * @param minorVersion
+     * @return
      * @throws Exception
      */
     public static void checkHistoryFileMetaAndData( String wsName,
@@ -211,7 +242,7 @@ public class ScmFileUtils extends TestScmBase {
             ScmWorkspace work = null;
             ScmId fileId = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 work = ScmFactory.Workspace.getWorkspace( wsName, session );
 
                 for ( int i = 0; i < fileIdList.size(); i++ ) {
@@ -238,6 +269,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param ws
      * @param fileId
      * @param expSites
+     * @return
      * @throws Exception
      */
     public static void checkMeta( ScmWorkspace ws, ScmId fileId,
@@ -251,6 +283,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param ws
      * @param fileId
      * @param expSites
+     * @return
      * @throws Exception
      */
     public static void checkHistoryMeta( ScmWorkspace ws, ScmId fileId,
@@ -261,6 +294,14 @@ public class ScmFileUtils extends TestScmBase {
         checkMeta( ws, file, expSites );
     }
 
+    /**
+     * @descreption 校验文件元数据
+     * @param ws
+     * @param file
+     * @param expSites
+     * @return
+     * @throws Exception
+     */
     public static void checkMeta( ScmWorkspace ws, ScmFile file,
             SiteWrapper[] expSites ) throws Exception {
         ScmId fileId = file.getFileId();
@@ -310,7 +351,8 @@ public class ScmFileUtils extends TestScmBase {
      * @param fileId
      * @param localPath
      * @param filePath
-     * @throws ScmException
+     * @return
+     * @throws Exception
      */
     public static void checkData( ScmWorkspace ws, ScmId fileId,
             java.io.File localPath, String filePath ) throws Exception {
@@ -327,6 +369,7 @@ public class ScmFileUtils extends TestScmBase {
      * @param filePath
      * @param majorVersion
      * @param minorVersion
+     * @return
      * @throws Exception
      */
     public static void checkHistoryData( ScmWorkspace ws, ScmId fileId,
@@ -338,6 +381,15 @@ public class ScmFileUtils extends TestScmBase {
 
     }
 
+    /**
+     * @descreption 校验文件数据
+     * @param ws
+     * @param file
+     * @param localPath
+     * @param filePath
+     * @return
+     * @throws Exception
+     */
     public static void checkData( ScmWorkspace ws, ScmFile file,
             java.io.File localPath, String filePath ) throws Exception {
         String downloadPath = TestTools.LocalFile.initDownloadPath( localPath,
@@ -358,19 +410,25 @@ public class ScmFileUtils extends TestScmBase {
      * @param ws
      * @param fileIds
      * @param expSites
+     * @return
      * @throws Exception
      */
     public static void checkMeta( ScmWorkspace ws, List< ScmId > fileIds,
             SiteWrapper[] expSites ) throws Exception {
         for ( int i = 0; i < fileIds.size(); i++ ) {
-            checkMeta( ws, fileIds.get( 0 ), expSites );
+            checkMeta( ws, fileIds.get( i ), expSites );
         }
     }
 
     /**
-     * check scmfile's ContentLocation
+     * @descreption 校验文件的ContentLocationsInfo
+     * @param fileContentLocationsInfo
+     * @param site
+     * @param fileId
+     * @param ws
+     * @return
+     * @throws Exception
      */
-
     public static void checkContentLocation(
             List< ScmContentLocation > fileContentLocationsInfo,
             SiteWrapper site, ScmId fileId, ScmWorkspace ws ) throws Exception {
@@ -390,6 +448,13 @@ public class ScmFileUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验文件站点
+     * @param fileContentLocationInfo
+     * @param site
+     * @return
+     * @throws Exception
+     */
     public static void checkSiteInfo(
             ScmContentLocation fileContentLocationInfo, SiteWrapper site ) {
         Map< String, Object > actSiteInfo = new HashMap<>();
@@ -405,6 +470,15 @@ public class ScmFileUtils extends TestScmBase {
         Assert.assertEquals( actSiteInfo.toString(), expSiteInfo.toString() );
     }
 
+    /**
+     * @descreption 校验文件ContentLocationsInfo中的Fulldata信息
+     * @param fileContentLocationInfo
+     * @param site
+     * @param fileId
+     * @param ws
+     * @return
+     * @throws Exception
+     */
     public static void checkFulldata(
             ScmContentLocation fileContentLocationInfo, SiteWrapper site,
             ScmId fileId, ScmWorkspace ws ) throws Exception {
@@ -490,6 +564,13 @@ public class ScmFileUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 获取站点信息
+     * @param siteInfo
+     * @param site
+     * @return
+     * @throws Exception
+     */
     public static void getSiteInfo( Map< String, Object > siteInfo,
             SiteWrapper site ) {
         if ( site.getDataType() == ScmType.DatasourceType.HBASE ) {
@@ -507,6 +588,7 @@ public class ScmFileUtils extends TestScmBase {
     /**
      * @descreption 根据时间生成fileId
      * @param createDate
+     * @return
      * @throws Exception
      */
     public static String getFileIdByDate( Date createDate ) {
@@ -528,6 +610,12 @@ public class ScmFileUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 字节转为字符串
+     * @param b
+     * @return String
+     * @throws
+     */
     public static String byteArrayToString( byte[] b ) {
         StringBuilder buf = new StringBuilder( 24 );
 
@@ -540,5 +628,263 @@ public class ScmFileUtils extends TestScmBase {
             buf.append( s );
         }
         return buf.toString();
+    }
+
+    /**
+     * @descreption create File by stream
+     * @param ws
+     * @param fileName
+     * @param data
+     * @param authorName
+     * @return
+     * @throws ScmException
+     */
+    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
+            byte[] data, String authorName ) throws ScmException {
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        new Random().nextBytes( data );
+        file.setContent( new ByteArrayInputStream( data ) );
+        file.setFileName( fileName );
+        file.setAuthor( authorName );
+        file.setTitle( "sequoiacm" );
+        file.setMimeType( fileName + ".txt" );
+        file.setCreateTime( new Date( new Date().getTime() - 1000 * 60 * 60 ) );
+        ScmId fileId = file.save();
+        return fileId;
+    }
+
+    /**
+     * @descreption create File by stream
+     * @param ws
+     * @param fileName
+     * @param data
+     * @return
+     * @throws ScmException
+     */
+    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
+            byte[] data ) throws ScmException {
+        return createFileByStream( ws, fileName, data, fileName );
+    }
+
+    /**
+     * @descreption create File by the local file
+     * @param ws
+     * @param fileName
+     * @param filePath
+     * @param authorName
+     * @return ScmId
+     * @throws ScmException
+     */
+    public static ScmId create( ScmWorkspace ws, String fileName,
+            String filePath, String authorName ) throws ScmException {
+        ScmId fileId = null;
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName );
+            file.setAuthor( authorName );
+            file.setContent( filePath );
+            fileId = file.save();
+        } catch ( ScmException e ) {
+            logger.error( "[test] create scmfile, fileName=" + fileName );
+            e.printStackTrace();
+            throw e;
+        }
+        return fileId;
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用文件方式
+     * @param bucket
+     * @param fileName
+     * @param filePath
+     * @return fileId
+     * @throws ScmException
+     */
+    public static ScmId createFile( ScmBucket bucket, String fileName,
+            String filePath ) throws ScmException {
+        ScmFile file = bucket.createFile( fileName );
+        file.setContent( filePath );
+        file.setFileName( fileName );
+        file.setTitle( fileName );
+        ScmId fileId = file.save();
+        return fileId;
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用文件流方式
+     * @param bucket
+     * @param fileName
+     * @param data
+     * @return
+     * @throws ScmException
+     */
+    public static ScmId createFile( ScmBucket bucket, String fileName,
+            byte[] data ) throws ScmException {
+        return createFile( bucket, fileName, data, fileName );
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用文件流方式
+     * @param bucket
+     * @param fileName
+     * @param data
+     * @param authorName
+     * @return
+     * @throws ScmException
+     */
+    public static ScmId createFile( ScmBucket bucket, String fileName,
+            byte[] data, String authorName ) throws ScmException {
+        ScmFile file = bucket.createFile( fileName );
+        new Random().nextBytes( data );
+        file.setContent( new ByteArrayInputStream( data ) );
+        file.setFileName( fileName );
+        file.setAuthor( authorName );
+        file.setTitle( "sequoiacm" );
+        ScmId fileId = file.save();
+        return fileId;
+    }
+
+    /**
+     * @descreption scm桶下创建文件，使用字节流方式
+     * @param ws
+     * @param fileName
+     * @param data
+     * @param authorName
+     * @return
+     * @throws ScmException
+     */
+    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
+            byte[] data, String authorName, long timestamp )
+            throws ScmException {
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        new Random().nextBytes( data );
+        file.setContent( new ByteArrayInputStream( data ) );
+        file.setFileName( fileName );
+        file.setAuthor( authorName );
+        if ( timestamp != 0 ) {
+            Date date = new Date( timestamp );
+            file.setCreateTime( date );
+        }
+
+        ScmId fileId = file.save();
+        return fileId;
+    }
+
+    /**
+     * @descreption 指定fileId下载文件
+     * @param fileId
+     * @param siteWorkspace
+     * @return 下载时间
+     * @throws Exception
+     */
+    public static long downloadFile( ScmId fileId, ScmWorkspace siteWorkspace )
+            throws Exception {
+        long downloadBeginTime = System.nanoTime();
+        ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
+        // download file
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        file.getContent( outputStream );
+        long nanoTime = TimeUnit.MILLISECONDS.convert(
+                System.nanoTime() - downloadBeginTime, TimeUnit.NANOSECONDS );
+        return nanoTime;
+    }
+
+    /**
+     * @descreption 指定fileId下载文件失败
+     * @param fileId
+     * @param siteWorkspace
+     * @return
+     * @throws Exception
+     */
+    public static void downloadFileFialed( ScmId fileId,
+            ScmWorkspace siteWorkspace ) throws Exception {
+        ScmFile file = ScmFactory.File.getInstance( siteWorkspace, fileId );
+        file.delete( true );
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            file.getContent( outputStream );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.FILE_NOT_FOUND.getErrorCode() ) {
+                throw new Exception(
+                        "the exception not FILE_NOT_FOUND,the exception: "
+                                + e.getMessage() );
+            }
+        }
+    }
+
+    /**
+     * @descreption 上传文件
+     *
+     * @param filePath
+     * @param fileName
+     * @param fileIdList
+     * @param siteWorkspace
+     * @return 上传时间
+     * @throws Exception
+     */
+    public static long createFiles( String filePath, String fileName,
+            List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
+            throws Exception {
+        long uploadBeginTime = System.nanoTime();
+        ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
+        file.setFileName( fileName + UUID.randomUUID() );
+        file.setAuthor( fileName );
+        file.setContent( filePath );
+        fileIdList.add( file.save() );
+        long uploadTime = TimeUnit.MILLISECONDS.convert(
+                System.nanoTime() - uploadBeginTime, TimeUnit.NANOSECONDS );
+        return uploadTime;
+    }
+
+    /**
+     * @descreption 上传文件失败
+     * @param filePath
+     * @param fileName
+     * @param fileIdList
+     * @param siteWorkspace
+     * @return
+     * @throws Exception
+     */
+    public static void createFileFialed( String filePath, String fileName,
+            List< ScmId > fileIdList, ScmWorkspace siteWorkspace )
+            throws Exception {
+        try {
+            ScmFile file = ScmFactory.File.createInstance( siteWorkspace );
+            file.setFileName( fileName + UUID.randomUUID() );
+            file.setAuthor( fileName );
+            file.setContent( filePath );
+            file.setClassProperties(
+                    new ScmClassProperties( UUID.randomUUID().toString() ) );
+            file.save();
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.METADATA_CLASS_NOT_EXIST
+                    .getErrorCode() ) {
+                throw new Exception(
+                        "the exception not METADATA_CLASS_NOT_EXIST,the exception: "
+                                + e.getMessage() );
+            }
+        }
+    }
+
+    /**
+     * @descreption 根据文件大小和内容生成多个文件
+     * @param fileSizes
+     * @param filePathList
+     * @return File
+     * @throws Exception
+     */
+    public static File createFiles( int[] fileSizes,
+            List< String > filePathList ) throws Exception {
+        File localPath = new File( TestScmBase.dataDirectory + File.separator
+                + TestTools.getClassName() );
+        TestTools.LocalFile.removeFile( localPath );
+        TestTools.LocalFile.createDir( localPath.toString() );
+        for ( int i = 0; i < fileSizes.length; i++ ) {
+            String filePath = localPath + File.separator + "localFile_"
+                    + fileSizes[ i ] + ".txt";
+            TestTools.LocalFile.createFile( filePath, fileSizes[ i ] );
+            filePathList.add( filePath );
+        }
+        return localPath;
     }
 }

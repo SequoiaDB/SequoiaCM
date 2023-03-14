@@ -17,7 +17,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -34,7 +34,7 @@ public class UpdateServiceConf2292 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     // CI-779

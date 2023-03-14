@@ -15,7 +15,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
-import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
 /**
  * @descreption SCM-5762:根据阶段标签名获取Transition列表
@@ -45,7 +44,7 @@ public class LifeCycle5762 extends TestScmBase {
                 .is( fileName ).get();
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         LifeCycleUtils.cleanLifeCycleConfig( session );
         lifeCycleConfig = prepareLifeCycleConfig();

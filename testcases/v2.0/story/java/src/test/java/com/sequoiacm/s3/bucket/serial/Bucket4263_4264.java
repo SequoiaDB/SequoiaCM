@@ -1,11 +1,9 @@
 package com.sequoiacm.s3.bucket.serial;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -58,13 +56,13 @@ public class Bucket4263_4264 extends TestScmBase {
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
-        adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
+        adminSession = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
 
         // 新建ws，新建用户赋权
         ScmWorkspaceUtil.createS3WS( adminSession, wsName );
         ScmUser user = ScmAuthUtils.createUser( adminSession, username,
                 password );
-        newUserSession = TestScmTools.createSession( ScmInfo.getRootSite(),
+        newUserSession = ScmSessionUtils.createSession( ScmInfo.getRootSite(),
                 username, password );
         ScmRole role = ScmAuthUtils.createRole( adminSession, roleName );
         ScmAuthUtils.alterUser( adminSession, wsName, user, role,

@@ -20,7 +20,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 
 /**
@@ -41,7 +41,7 @@ public class AuthServer_user1555 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         try {
@@ -118,7 +118,7 @@ public class AuthServer_user1555 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
                 if ( ScmError.HTTP_NOT_FOUND != e.getError()
@@ -141,7 +141,7 @@ public class AuthServer_user1555 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
 
                 ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
                 ScmUserModifier modifier = new ScmUserModifier();

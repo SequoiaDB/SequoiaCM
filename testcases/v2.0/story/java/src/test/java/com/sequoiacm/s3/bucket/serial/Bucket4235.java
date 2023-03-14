@@ -40,7 +40,7 @@ public class Bucket4235 extends TestScmBase {
     public void setUp() throws Exception {
         envBuckets = S3Utils.getEnvBuckets();
         s3Client = S3Utils.buildS3Client();
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         clearBuckets();
     }
 
@@ -87,7 +87,7 @@ public class Bucket4235 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             try {
                 for ( int i = baseBucketNum
@@ -106,7 +106,7 @@ public class Bucket4235 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces,
                     session );

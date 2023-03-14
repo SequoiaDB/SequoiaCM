@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.bson.types.ObjectId;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -86,8 +84,8 @@ public class ScheduleTask5226 extends TestScmBase {
                 .getBranchSitesBySiteType( ScmType.DatasourceType.SEQUOIADB );
         branchSite = sites.get( 0 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
-        branSiteSession = TestScmTools.createSession( branchSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
+        branSiteSession = ScmSessionUtils.createSession( branchSite );
     }
 
     @DataProvider(name = "dataProvider")

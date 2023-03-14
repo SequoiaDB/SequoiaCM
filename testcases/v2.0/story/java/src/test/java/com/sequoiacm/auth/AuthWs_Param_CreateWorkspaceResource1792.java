@@ -21,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-1788 :: CreateWorkspaceResource参数校验
@@ -42,7 +42,7 @@ public class AuthWs_Param_CreateWorkspaceResource1792 extends TestScmBase {
     private void setUp() throws InterruptedException, IOException {
         try {
             site = ScmInfo.getBranchSite();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             cleanEnv();
             prepare();
         } catch ( ScmException e ) {

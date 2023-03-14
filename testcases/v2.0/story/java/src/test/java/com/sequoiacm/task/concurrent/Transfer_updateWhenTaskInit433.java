@@ -28,14 +28,13 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
-import com.sequoiadb.exception.BaseException;
 
 /**
  * @FileName SCM-433: “开始迁移任务”过程中修改文件属性满足迁移条件
@@ -86,8 +85,8 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
         branceSite = ScmInfo.getBranchSite();
         ws_T = ScmInfo.getWs();
 
-        sessionM = TestScmTools.createSession( rootSite );
-        sessionA = TestScmTools.createSession( branceSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
+        sessionA = ScmSessionUtils.createSession( branceSite );
         ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         prepareFiles( ws );
         bulkUpdateFileName( ws, fileNum / 2, fileNum, randauthorName );
@@ -168,7 +167,7 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
 
@@ -203,7 +202,7 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
         private ScmWorkspace ws = null;
 
         public TransferThread() throws ScmException {
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         }
 
@@ -236,7 +235,7 @@ public class Transfer_updateWhenTaskInit433 extends TestScmBase {
             this.start = start;
             this.end = end;
             this.newFileName = newFileName;
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         }
 

@@ -23,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1505:禁用其他用户，清理当前用户下会话 SCM-1506:禁用其他用户，不清理当前用户下会话
@@ -46,7 +46,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         try {
@@ -95,7 +95,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         List< ScmSession > ss = new ArrayList<>();
         int ssNum = 10;
         for ( int i = 0; i < ssNum; i++ ) {
-            ScmSession tmpSS = TestScmTools.createSession( site, NAME,
+            ScmSession tmpSS = ScmSessionUtils.createSession( site, NAME,
                     PASSWORD );
             ss.add( tmpSS );
         }
@@ -110,7 +110,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         scmUser = ScmFactory.User.getUser( session, NAME );
         Assert.assertFalse( scmUser.isEnabled() );
         try {
-            TestScmTools.createSession( site, NAME, PASSWORD );
+            ScmSessionUtils.createSession( site, NAME, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "login but the user disabled, errorMsg = ["
@@ -147,7 +147,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         List< ScmSession > ss = new ArrayList<>();
         int ssNum = 10;
         for ( int i = 0; i < ssNum; i++ ) {
-            ScmSession tmpSS = TestScmTools.createSession( site, NAME,
+            ScmSession tmpSS = ScmSessionUtils.createSession( site, NAME,
                     PASSWORD );
             ss.add( tmpSS );
         }
@@ -162,7 +162,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         scmUser = ScmFactory.User.getUser( session, NAME );
         Assert.assertFalse( scmUser.isEnabled() );
         try {
-            TestScmTools.createSession( site, NAME, PASSWORD );
+            ScmSessionUtils.createSession( site, NAME, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "login but the user disabled, errorMsg = ["
@@ -191,7 +191,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
      */
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_disabledCurrentUser() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
 
         ScmUser scmUser = ScmFactory.User.getUser( ss, NAME );
         // disabled the user
@@ -211,7 +211,7 @@ public class AuthServer_user1505_to_1508 extends TestScmBase {
         Assert.assertFalse( ss.isClosed() );
         ss.close();
 
-        TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSessionUtils.createSession( site, NAME, PASSWORD );
         ss.close();
 
         runSuccess = true;

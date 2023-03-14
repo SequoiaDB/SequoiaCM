@@ -14,7 +14,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,7 +58,7 @@ public class MoveFile5233 extends TestScmBase {
         List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
         branchSite1 = branchSites.get( 0 );
         branchSite2 = branchSites.get( 1 );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileAuthor ).get();
@@ -119,7 +118,7 @@ public class MoveFile5233 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {
@@ -144,7 +143,7 @@ public class MoveFile5233 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {

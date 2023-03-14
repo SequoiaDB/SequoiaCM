@@ -32,7 +32,7 @@ public class Audit4297 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ConfUtil.deleteAuditConf( ConfUtil.AUTH_SERVER_SERVICE_NAME );
         ScmAuthUtils.createRole( session, roleName );
     }

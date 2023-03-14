@@ -42,7 +42,7 @@ public class Object4224 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );

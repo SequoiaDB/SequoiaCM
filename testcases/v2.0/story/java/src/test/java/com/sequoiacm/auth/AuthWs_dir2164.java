@@ -26,7 +26,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
@@ -63,7 +63,7 @@ public class AuthWs_dir2164 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         // clean users and roles
@@ -121,7 +121,7 @@ public class AuthWs_dir2164 extends TestScmBase {
         // operation business
         ScmSession tSS = null;
         try {
-            tSS = TestScmTools.createSession( site, NAME, PASSWORD );
+            tSS = ScmSessionUtils.createSession( site, NAME, PASSWORD );
             ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     tSS );
 
@@ -144,7 +144,7 @@ public class AuthWs_dir2164 extends TestScmBase {
         ScmDirectory dir = null;
         ScmSession tSS = null;
         try {
-            tSS = TestScmTools.createSession( site, NAME, PASSWORD );
+            tSS = ScmSessionUtils.createSession( site, NAME, PASSWORD );
             ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     tSS );
 
@@ -174,7 +174,7 @@ public class AuthWs_dir2164 extends TestScmBase {
         // operation business
         ScmSession tSS = null;
         try {
-            tSS = TestScmTools.createSession( site, NAME, PASSWORD );
+            tSS = ScmSessionUtils.createSession( site, NAME, PASSWORD );
             ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     tSS );
 

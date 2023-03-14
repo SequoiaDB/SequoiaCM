@@ -14,8 +14,6 @@ import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTaskBasicInfo;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
@@ -67,7 +65,7 @@ public class ConcurrentTasks3904 extends TestScmBase {
         branchSite2 = branchSitesList.get( 1 );
         branchSite3 = branchSitesList.get( 2 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -133,7 +131,7 @@ public class ConcurrentTasks3904 extends TestScmBase {
         private void fileMigration() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( sourceSite );
+                session = ScmSessionUtils.createSession( sourceSite );
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 // 按匹配条件建立迁移任务：迁移分站点所有 Author 为 SequoiaCM 的文件到主站点

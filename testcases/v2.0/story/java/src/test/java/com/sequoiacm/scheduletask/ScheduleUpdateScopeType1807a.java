@@ -4,6 +4,7 @@
 package com.sequoiacm.scheduletask;
 
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -24,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -60,24 +61,24 @@ public class ScheduleUpdateScopeType1807a extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         createScheduleTask();
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 2, 2 );
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, 2, 2 );
 
         changeScheduleType();
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2 );
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2 );
 
         SiteWrapper[] expSites = { rootSite, branSite };
         VersionUtils.checkSite( wsM, fileId, 1, expSites );

@@ -24,7 +24,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -50,7 +50,7 @@ public class AuthWs_Param_GetListPrivileges1791 extends TestScmBase {
         try {
             site = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             cleanEnv();
             prepare();
         } catch ( ScmException e ) {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -61,7 +62,7 @@ public class WorkSpaces5482 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath2, fileSize );
 
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         siteList.add( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );

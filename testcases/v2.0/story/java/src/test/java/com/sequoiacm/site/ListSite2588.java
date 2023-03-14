@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-2588 :: 通过注册中心获取站点列表
@@ -37,7 +37,7 @@ public class ListSite2588 extends TestScmBase {
         ScmSession session = null;
         List< String > sites = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             sites = ScmSystem.ServiceCenter.getSiteList( session );
             Assert.assertEquals( sites.size(), siteWrappers.size() );
             for ( SiteWrapper siteWrapper : siteWrappers ) {
@@ -68,7 +68,7 @@ public class ListSite2588 extends TestScmBase {
 
     @Test(groups = { GroupTags.base })
     private void testSessionIsClosed() throws Exception {
-        ScmSession session = TestScmTools.createSession( site );
+        ScmSession session = ScmSessionUtils.createSession( site );
         session.close();
         try {
             ScmSystem.ServiceCenter.getSiteList( session );

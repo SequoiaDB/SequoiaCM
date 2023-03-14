@@ -12,7 +12,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-1562 :: getUser参数校验
@@ -28,7 +28,7 @@ public class AuthServer_Param_GetUser1562 extends TestScmBase {
     private void setUp() {
         site = ScmInfo.getSite();
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

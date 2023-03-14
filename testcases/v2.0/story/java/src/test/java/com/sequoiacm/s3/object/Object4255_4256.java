@@ -55,7 +55,7 @@ public class Object4255_4256 extends TestScmBase {
         TestTools.LocalFile.createFile( filePathA, fileSize );
         TestTools.LocalFile.createFile( filePathB, fileSize / 2 );
 
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );

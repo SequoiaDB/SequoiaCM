@@ -16,7 +16,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1504:修改password_type为LDAP的用户密码
@@ -36,7 +36,7 @@ public class AuthServer_user1504 extends TestScmBase {
     private void setUp() throws ScmException {
         ConfUtil.checkLDAPConfig();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         // clean new user
         try {
             ScmFactory.User.deleteUser( session, TestScmBase.ldapUserName );
@@ -76,13 +76,13 @@ public class AuthServer_user1504 extends TestScmBase {
         Assert.assertEquals( scmUser.getPasswordType(),
                 ScmUserPasswordType.LDAP );
         Assert.assertTrue( scmUser.isEnabled() );
-        ScmSession ss = TestScmTools.createSession( site,
+        ScmSession ss = ScmSessionUtils.createSession( site,
                 TestScmBase.ldapUserName, TestScmBase.ldapPassword );
         ss.isClosed();
         ss.close();
 
         try {
-            TestScmTools.createSession( site, TestScmBase.ldapUserName,
+            ScmSessionUtils.createSession( site, TestScmBase.ldapUserName,
                     "test" );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
@@ -109,7 +109,7 @@ public class AuthServer_user1504 extends TestScmBase {
         scmUser = ScmFactory.User.getUser( session, TestScmBase.ldapUserName );
         Assert.assertEquals( scmUser.getPasswordType(),
                 ScmUserPasswordType.LDAP );
-        ScmSession ss = TestScmTools.createSession( site,
+        ScmSession ss = ScmSessionUtils.createSession( site,
                 TestScmBase.ldapUserName, TestScmBase.ldapPassword );
         ss.isClosed();
         ss.close();
@@ -130,7 +130,7 @@ public class AuthServer_user1504 extends TestScmBase {
                 ScmUserPasswordType.LOCAL );
         Assert.assertTrue( scmUser.isEnabled() );
 
-        ScmSession ss = TestScmTools.createSession( site,
+        ScmSession ss = ScmSessionUtils.createSession( site,
                 TestScmBase.ldapUserName, PASSWORD );
         ss.isClosed();
         ss.close();

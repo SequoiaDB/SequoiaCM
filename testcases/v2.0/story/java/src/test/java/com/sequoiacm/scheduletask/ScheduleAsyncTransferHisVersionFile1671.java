@@ -3,13 +3,12 @@
  */
 package com.sequoiacm.scheduletask;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,7 +29,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -70,16 +69,16 @@ public class ScheduleAsyncTransferHisVersionFile1671 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata,
+        fileId1 = ScmFileUtils.createFileByStream( wsA, fileName1, filedata,
                 authorName );
-        fileId2 = VersionUtils.createFileByStream( wsA, fileName2, filedata,
+        fileId2 = ScmFileUtils.createFileByStream( wsA, fileName2, filedata,
                 authorName );
         VersionUtils.updateContentByStream( wsA, fileId1, updatedata );
         VersionUtils.updateContentByStream( wsA, fileId2, updatedata );
@@ -91,7 +90,7 @@ public class ScheduleAsyncTransferHisVersionFile1671 extends TestScmBase {
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         createScheduleTask();
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId2, 2, 2 );
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId2, 2, 2 );
 
         SiteWrapper[] expSites1 = { branSite };
         VersionUtils.checkSite( wsA, fileId1, 2, expSites1 );

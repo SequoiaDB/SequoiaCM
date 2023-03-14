@@ -9,6 +9,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,7 @@ public class ScmFile4758_4759 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
@@ -56,7 +57,7 @@ public class ScmFile4758_4759 extends TestScmBase {
 
         // 两次删除文件，当前版本和历史版本都存在删除标记文件
         scmBucket.deleteFile( fileName, false );
-        fileId = S3Utils.createFile( scmBucket, fileName, filePath );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filePath );
         scmBucket.deleteFile( fileName, false );
     }
 

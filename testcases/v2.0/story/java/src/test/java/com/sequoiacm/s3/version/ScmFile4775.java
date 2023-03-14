@@ -6,6 +6,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,14 +49,14 @@ public class ScmFile4775 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
-        S3Utils.createFile( scmBucket, fileName, filePath );
-        S3Utils.createFile( scmBucket, fileName, updatePath );
-        S3Utils.createFile( scmBucket, fileName, filePath );
+        ScmFileUtils.createFile( scmBucket, fileName, filePath );
+        ScmFileUtils.createFile( scmBucket, fileName, updatePath );
+        ScmFileUtils.createFile( scmBucket, fileName, filePath );
         scmBucket.suspendVersionControl();
     }
 

@@ -59,7 +59,7 @@ public class SpaceRecycle5248 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
         rootSite = ScmInfo.getRootSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, sessionM );
         wsM = ScmWorkspaceUtil.createWS( sessionM, wsName,
                 ScmInfo.getSiteNum() );
@@ -137,7 +137,7 @@ public class SpaceRecycle5248 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {

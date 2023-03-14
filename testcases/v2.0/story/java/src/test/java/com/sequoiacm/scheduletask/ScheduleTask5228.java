@@ -1,7 +1,6 @@
 package com.sequoiacm.scheduletask;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -9,17 +8,14 @@ import com.sequoiacm.client.element.ScmMoveTaskConfig;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -65,7 +61,7 @@ public class ScheduleTask5228 extends TestScmBase {
         branchSite2 = branchSites.get( 1 );
 
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -142,7 +138,7 @@ public class ScheduleTask5228 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void exec() throws Exception {
-            ScmSession session = TestScmTools.createSession( sourceSite );
+            ScmSession session = ScmSessionUtils.createSession( sourceSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {

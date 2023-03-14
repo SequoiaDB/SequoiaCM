@@ -53,7 +53,7 @@ public class AsyncTransfer3744 extends TestScmBase {
         // 最后一级分站点
         branchSite = sortBranchSites.get( sortBranchSites.size() - 1 );
         wsp = ScmInfo.getWs();
-        branchSiteSession = TestScmTools.createSession( branchSite );
+        branchSiteSession = ScmSessionUtils.createSession( branchSite );
         branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

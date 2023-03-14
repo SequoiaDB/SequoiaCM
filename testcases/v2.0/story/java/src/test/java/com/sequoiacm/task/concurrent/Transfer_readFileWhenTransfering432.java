@@ -23,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -78,7 +78,7 @@ public class Transfer_readFileWhenTransfering432 extends TestScmBase {
                     .is( authorName ).get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            sessionA = TestScmTools.createSession( branSite );
+            sessionA = ScmSessionUtils.createSession( branSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
             this.createFile();
@@ -172,7 +172,7 @@ public class Transfer_readFileWhenTransfering432 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
                 // read

@@ -46,7 +46,7 @@ public class Bucket4252 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         int siteNum = ScmInfo.getSiteNum();
 

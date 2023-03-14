@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.client.element.*;
+import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -69,7 +71,7 @@ public class WorkSpaces5490 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         siteList.add( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );

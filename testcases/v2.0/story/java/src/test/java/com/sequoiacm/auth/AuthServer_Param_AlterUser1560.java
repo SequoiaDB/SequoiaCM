@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-1560 :: alterUser参数校验
@@ -34,7 +34,7 @@ public class AuthServer_Param_AlterUser1560 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             site = ScmInfo.getSite();
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {

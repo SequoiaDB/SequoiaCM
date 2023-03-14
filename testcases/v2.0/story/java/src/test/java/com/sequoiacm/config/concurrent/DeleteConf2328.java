@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -86,7 +86,7 @@ public class DeleteConf2328 extends TestScmBase {
             ScmSession session = null;
             ScmUpdateConfResultSet result = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmConfigProperties confProp = ScmConfigProperties.builder()
                         .service( site.getSiteServiceName() )
                         .deleteProperty( ConfigCommonDefind.scm_audit_mask )
@@ -120,7 +120,7 @@ public class DeleteConf2328 extends TestScmBase {
             ScmSession session = null;
             String wsName = "ws2328_" + UUID.randomUUID();
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspaceUtil.createWS( session, wsName,
                         ScmInfo.getSiteNum() );
                 ScmWorkspaceUtil.wsSetPriority( session, wsName );

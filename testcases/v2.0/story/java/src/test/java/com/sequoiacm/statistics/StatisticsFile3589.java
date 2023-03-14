@@ -23,7 +23,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
@@ -84,7 +84,7 @@ public class StatisticsFile3589 extends TestScmBase {
         Date beginDate = calendar.getTime();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             // 查询上传接口统计信息
             for ( int i = 0; i < 260; i++ ) {
                 ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
@@ -131,7 +131,7 @@ public class StatisticsFile3589 extends TestScmBase {
         ScmSession session = null;
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 TestTools.LocalFile.removeFile( localPath );
                 ScmWorkspace ws1 = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -194,7 +194,7 @@ public class StatisticsFile3589 extends TestScmBase {
             List< ScmId > fileIdList ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             long uploadBeginTime = System.currentTimeMillis();
@@ -218,7 +218,7 @@ public class StatisticsFile3589 extends TestScmBase {
         StatisticsUtils.setGateWaySystemTime( gateWayLocalTime );
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             long downloadBeginTime = System.currentTimeMillis();

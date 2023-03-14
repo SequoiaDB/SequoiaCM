@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.List;
 
 import com.sequoiacm.client.common.ScmType;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -20,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -66,7 +64,7 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
 
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
     }
 
@@ -90,7 +88,7 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmSession sessionM = null;
         ScmSession sessionB = null;
         try {
-            sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+            sessionB = ScmSessionUtils.createSession( branSites.get( 1 ) );
             ScmWorkspace wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionB );
             ScmFileUtils.checkData( wsB, fileId, localPath, remainFilePath );
@@ -139,12 +137,12 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         ScmSession sessionM = null;
         ScmSession sessionB = null;
         try {
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionM );
             ScmFileUtils.checkData( wsM, fileId, localPath, remainFilePath );
 
-            sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+            sessionB = ScmSessionUtils.createSession( branSites.get( 1 ) );
             ScmWorkspace wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionB );
             ScmFileUtils.checkData( wsB, fileId, localPath, remainFilePath );
@@ -176,7 +174,7 @@ public class TD965_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private void readFileFrom( SiteWrapper site ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
 

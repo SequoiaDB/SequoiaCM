@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -20,7 +19,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -61,7 +60,7 @@ public class UpdateContentByBreakPointFile1643 extends TestScmBase {
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -70,7 +69,7 @@ public class UpdateContentByBreakPointFile1643 extends TestScmBase {
 
     @Test
     private void test() throws Exception {
-        fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( ws, fileName, filedata );
         updateContentByBreakPointFile();
 
         int currentVersion = 1;

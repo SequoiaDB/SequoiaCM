@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sequoiacm.client.element.bizconf.*;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -17,7 +20,6 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -40,7 +42,7 @@ public class WorkSpaces5469 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         site = ScmInfo.getSite();
     }
 

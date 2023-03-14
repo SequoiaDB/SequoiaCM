@@ -38,7 +38,7 @@ public class ScmTrace5455 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession();
+        session = ScmSessionUtils.createSession();
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 

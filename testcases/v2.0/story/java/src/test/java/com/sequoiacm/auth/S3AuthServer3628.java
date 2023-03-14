@@ -40,11 +40,11 @@ public class S3AuthServer3628 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        sessionAdmin = TestScmTools.createSession( site );
+        sessionAdmin = ScmSessionUtils.createSession( site );
         ScmAuthUtils.createNormalUser( sessionAdmin, wsp.getName(), username,
                 password, roleName, ScmPrivilegeType.ALL );
         ScmAuthUtils.refreshAccessKey( sessionAdmin, username, password, null );
-        sessionUser = TestScmTools.createSession( site, username, password );
+        sessionUser = ScmSessionUtils.createSession( site, username, password );
     }
 
     @Test(groups = { GroupTags.base })

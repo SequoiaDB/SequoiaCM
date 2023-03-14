@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -50,7 +49,7 @@ public class Object4219 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         s3Client = S3Utils.buildS3Client();

@@ -55,40 +55,64 @@ public class ScmInfo {
         logger.info( "workspaces info \n" + wsList );
     }
 
+    /**
+     * @descreption 获取所有站点数量 @return @throws
+     */
     public static List< SiteWrapper > getAllSites() {
         return siteList;
     }
 
+    /**
+     * @descreption 获取所有节点 @return @throws
+     */
     public static List< NodeWrapper > getAllNodes() {
         return nodeList;
     }
 
+    /**
+     * @descreption 获取所有工作区 @return @throws
+     */
     public static List< WsWrapper > getAllWorkspaces() {
         return wsList;
     }
 
+    /**
+     * @descreption 获取服务列表 @return @throws
+     */
     public static List< ScmServiceInstance > getScheServerList() {
         return scheServerList;
     }
 
+    /**
+     * @descreption 获取认证服务列表 @return @throws
+     */
     public static List< ScmServiceInstance > getAuthServerList() {
         return authServerList;
     }
 
+    /**
+     * @descreption 获取站点数量 @return @throws
+     */
     public static int getSiteNum() {
         return siteList.size();
     }
 
+    /**
+     * @descreption 获取所有节点数量 @return @throws
+     */
     public static int getAllNodeNum() {
         return nodeList.size();
     }
 
+    /**
+     * @descreption 获取工作区数量 @return @throws
+     */
     public static int getWsNum() {
         return wsList.size();
     }
 
     /**
-     * get a random site
+     * @descreption 获取一个随机站点 @return @throws
      */
     public static SiteWrapper getSite() {
         SiteWrapper site = siteList.get( random.nextInt( siteList.size() ) );
@@ -109,9 +133,7 @@ public class ScmInfo {
     }
 
     /**
-     * get sites by siteType
-     *
-     * @return
+     * @descreption 指定站点类型获取所有站点 @param siteType @return @throws
      */
     public static List< SiteWrapper > getSitesByType(
             ScmType.DatasourceType siteType ) {
@@ -155,7 +177,7 @@ public class ScmInfo {
     }
 
     /**
-     * get a site by siteType
+     * @descreption 指定站点类型获取一个随机站点 @param siteType @return @throws
      */
     public static SiteWrapper getSiteByType( ScmType.DatasourceType siteType ) {
         List< SiteWrapper > sites = ScmInfo.getSitesByType( siteType );
@@ -174,12 +196,15 @@ public class ScmInfo {
         return sites.get( new Random().nextInt( sites.size() ) );
     }
 
+    /**
+     * @descreption 获取主站点 @return @throws
+     */
     public static SiteWrapper getRootSite() {
         return siteList.get( 0 );
     }
 
     /**
-     * get a random branch site
+     * @descreption 获取一个随机的分站点 @return @throws
      */
     public static SiteWrapper getBranchSite() {
         return getBranchSites( 1 ).get( 0 );
@@ -197,7 +222,7 @@ public class ScmInfo {
     }
 
     /**
-     * get the specified number of branchSites
+     * @descreption 指定数量获取分站点 @param num @return @throws
      */
     public static List< SiteWrapper > getBranchSites( int num ) {
         List< SiteWrapper > allBranchSites = getBranchSites();
@@ -269,6 +294,9 @@ public class ScmInfo {
         return branchSites;
     }
 
+    /**
+     * @descreption 指定所有分站点 @return @throws
+     */
     public static List< SiteWrapper > getBranchSites() {
         List< SiteWrapper > branchSites = new ArrayList<>();
         for ( int i = 1; i < siteList.size(); i++ ) { // i=0 is rootSite
@@ -298,8 +326,9 @@ public class ScmInfo {
     }
 
     /**
-     * get all site info if there is a new site to use this function, otherwise,
-     * recommended to use getAllSites()
+     * @descreption get all site info if there is a new site to use this
+     *              function, otherwise,recommended to use getAllSites() @param
+     *              session @return @throws
      */
     public static List< ScmSiteInfo > getSiteList( ScmSession session )
             throws ScmException {
@@ -323,10 +352,9 @@ public class ScmInfo {
     }
 
     /**
-     * sort info
-     *
-     * @return List<ScmSiteInfo> [rootSiteInfo, branchSiteInfo1,
-     *         branchSiteInfo2, ......]
+     * @descreption 站点列表排序 @param siteInfoList @return List<ScmSiteInfo>
+     *              [rootSiteInfo, branchSiteInfo1,branchSiteInfo2,
+     *              ......] @throws
      */
     private static List< ScmSiteInfo > sortSiteList(
             List< ScmSiteInfo > siteInfoList ) {
@@ -346,9 +374,10 @@ public class ScmInfo {
     }
 
     /**
-     * get all server info for all site sort: {site_id:1, port:1} if there is a
-     * new node to use this function, otherwise, recommended to use
-     * getAllNodes()
+     * @descreption get all server info for all site sort: {site_id:1, port:1}
+     *              if there is a new node to use this function, otherwise,
+     *              recommended to use getAllNodes() @return List< NodeWrapper
+     *              > @throws
      */
     public static List< NodeWrapper > getNodeList() {
         Sequoiadb db = null;
@@ -387,10 +416,16 @@ public class ScmInfo {
         return allNodes;
     }
 
+    /**
+     * @descreption 获取工作区 @return @throws
+     */
     public static WsWrapper getWs() {
         return getWss( 1 ).get( 0 );
     }
 
+    /**
+     * @descreption 获取指定数量的工作区 @param num @return @throws
+     */
     public static List< WsWrapper > getWss( int num ) {
         // check parameter
         int maxWsNum = wsList.size();
@@ -455,8 +490,13 @@ public class ScmInfo {
     }
 
     /**
-     * get all serviceInstance by servicename if there is a new ws to use this
-     * function, otherwise, recommended to use getScheduleServers()
+     * @descreption get all serviceInstance by servicename if there is a new ws
+     *              to use this function, otherwise, recommended to use
+     *              getScheduleServers()
+     * @param session
+     * @param serviceName
+     * @return
+     * @throws ScmException
      */
     public static List< ScmServiceInstance > getServiceInstances(
             ScmSession session, String serviceName ) throws ScmException {
@@ -465,9 +505,7 @@ public class ScmInfo {
     }
 
     /**
-     * @descreption 指定站点类型获取站点
-     * @param dateType
-     * @return
+     * @descreption 指定站点类型获取站点 @param dateType @return @throws
      */
     public static List< SiteWrapper > getBranchSitesBySiteType(
             ScmType.DatasourceType dateType ) {
@@ -515,7 +553,7 @@ public class ScmInfo {
     public static List< SiteWrapper > getSitesForWs( String wsName )
             throws ScmException {
         List< SiteWrapper > siteListForWs = new ArrayList<>();
-        try ( ScmSession session = TestScmTools
+        try ( ScmSession session = ScmSessionUtils
                 .createSession( ScmInfo.getRootSite() )) {
             ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
                     session );

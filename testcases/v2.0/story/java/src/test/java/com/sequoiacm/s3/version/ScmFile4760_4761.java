@@ -5,6 +5,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,14 +49,14 @@ public class ScmFile4760_4761 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
 
-        fileId = S3Utils.createFile( scmBucket, fileName, filePath );
-        S3Utils.createFile( scmBucket, fileName, updatePath );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filePath );
+        ScmFileUtils.createFile( scmBucket, fileName, updatePath );
     }
 
     @Test(groups = { GroupTags.base })

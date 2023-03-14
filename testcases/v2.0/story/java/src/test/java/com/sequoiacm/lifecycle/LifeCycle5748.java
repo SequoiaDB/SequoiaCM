@@ -40,7 +40,7 @@ public class LifeCycle5748 extends TestScmBase {
     public void setUp() throws ScmException {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         WsWrapper wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         LifeCycleUtils.cleanWsLifeCycleConfig( ws );

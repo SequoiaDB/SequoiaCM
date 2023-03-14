@@ -31,12 +31,12 @@ public class Ssh {
     }
 
     /**
-     * 使用给定参数及22端口创建ssh对象
-     *
+     * @descreption 使用给定参数及22端口创建ssh对象
      * @param host
      * @param username
      * @param password
-     * @throws ReliabilityException
+     * @return
+     * @throws JSchException
      */
     public Ssh( String host, String username, String password )
             throws JSchException {
@@ -44,13 +44,13 @@ public class Ssh {
     }
 
     /**
-     * 使用给定参数创建ssh对象
-     *
+     * @descreption 使用给定参数创建ssh对象
      * @param host
      * @param username
      * @param password
      * @param port
-     * @throws ReliabilityException
+     * @return
+     * @throws JSchException
      */
     public Ssh( String host, String username, String password, int port )
             throws JSchException {
@@ -74,11 +74,11 @@ public class Ssh {
     }
 
     /**
-     * 本地发送文件至远程主机
-     *
+     * @descreption 本地发送文件至远程主机
      * @param localPath
      * @param remotePath
-     * @throws ReliabilityException
+     * @return
+     * @throws Exception
      */
     public void scpTo( String localPath, String remotePath ) throws Exception {
         ChannelSftp channel = null;
@@ -94,11 +94,11 @@ public class Ssh {
     }
 
     /**
-     * 下载远程主机文件至本地
-     *
+     * @descreption 下载远程主机文件至本地
      * @param localPath
      * @param remotePath
-     * @throws ReliabilityException
+     * @return
+     * @throws Exception
      */
     public void scpFrom( String localPath, String remotePath )
             throws Exception {
@@ -115,13 +115,10 @@ public class Ssh {
     }
 
     /**
-     * 在远程主机上执行命令，并等待其执行结果，标准输出存入stdout，标准出错存入stderr,返回值存入exitStatus(注意：
-     * 每一次调用exec都将覆盖上一次的执行结果,返回值不为零将抛出异常)
-     *
+     * @descreption 在远程主机上执行命令，并等待其执行结果，标准输出存入stdout，标准出错存入stderr,返回值存入exitStatus(注意：每一次调用exec都将覆盖上一次的执行结果,返回值不为零将抛出异常)
      * @param command
      * @return
      * @throws Exception
-     * @throws ReliabilityException
      */
     public void exec( String command ) throws Exception {
         Channel channel = null;
@@ -146,12 +143,10 @@ public class Ssh {
     }
 
     /**
-     * 将命令发送至远程主机，返回当前命令的channelId，backgroundCMD将会记录执行本条命令的ChannelId及其Channel对象，
-     * waitBackgroudCMDDown方法可以根据channelid检测命令的执行结果
-     *
+     * @descreption 将命令发送至远程主机，返回当前命令的channelId，backgroundCMD将会记录执行本条命令的ChannelId及其Channel对象，waitBackgroudCMDDown方法可以根据channelid检测命令的执行结果
      * @param command
      * @return channelID
-     * @throws JSchException
+     * @throws Exception
      */
     public int execBackground( String command ) throws Exception {
         Channel channel = null;
@@ -171,23 +166,21 @@ public class Ssh {
     }
 
     /**
-     * 等待给定channelId所执行的命令结束，覆盖stdout，stderr，exitstatus保存结果
-     *
+     * @descreption 等待给定channelId所执行的命令结束，覆盖stdout，stderr，exitstatus保存结果
      * @param channelId
      * @return
-     * @throws ReliabilityException
+     * @throws Exception
      */
     public void waitBackgroudCMDDown( int channelId ) throws Exception {
         waitBackgroudCMDDown( channelId, Integer.MAX_VALUE );
     }
 
     /**
-     * 等待给定channelId所执行的命令结束，覆盖stdout，stderr，exitstatus保存结果
-     *
+     * @descreption 等待给定channelId所执行的命令结束，覆盖stdout，stderr，exitstatus保存结果
      * @param timeOutSecond
      * @param channelId
      * @return
-     * @throws ReliabilityException
+     * @throws Exception
      */
     public void waitBackgroudCMDDown( int channelId, int timeOutSecond )
             throws Exception {
@@ -200,15 +193,13 @@ public class Ssh {
         backgroundCMD.remove( channelId );
         try {
             getResult( channel, timeOutSecond );
-        } catch ( IOException e ) {
-            throw e;
         } finally {
             channel.disconnect();
         }
     }
 
     /**
-     * 关闭Session，关闭backgroundCMD中的Channel（但这些未结束的后台命令可能仍会在远程主机正常执行）
+     * @descreption 关闭Session，关闭backgroundCMD中的Channel（但这些未结束的后台命令可能仍会在远程主机正常执行） @return @throws
      */
     public void disconnect() {
         for ( Channel channel : backgroundCMD.values() ) {
@@ -219,6 +210,11 @@ public class Ssh {
         }
     }
 
+    /**
+     * @descreption 获取scm集群安装目录
+     * @return
+     * @throws Exception
+     */
     public String getScmInstallDir() throws Exception {
         Ssh ssh = new Ssh( host, username, password );
         String dir = null;
@@ -244,6 +240,11 @@ public class Ssh {
 
     }
 
+    /**
+     * @descreption 获取sdb集群安装目录
+     * @return
+     * @throws Exception
+     */
     public String getSdbInstallDir() throws Exception {
         Ssh ssh = new Ssh( host, username, password );
         String dir = null;
@@ -263,6 +264,13 @@ public class Ssh {
         return dir;
     }
 
+    /**
+     * @descreption 获取SshResult信息
+     * @param channel
+     * @param timeOut
+     * @return
+     * @throws Exception
+     */
     private void getResult( Channel channel, long timeOut ) throws IOException {
         StringBuffer stdoutBf = new StringBuffer();
         StringBuffer stderrBf = new StringBuffer();
@@ -321,34 +329,58 @@ public class Ssh {
         exitStatus = channel.getExitStatus();
     }
 
+    /**
+     * @descreption 获取Ssh Stdout信息 @return @throws
+     */
     public String getStdout() {
         return stdout;
     }
 
+    /**
+     * @descreption 获取Ssh Stderr信息 @return @throws
+     */
     public String getStderr() {
         return stderr;
     }
 
+    /**
+     * @descreption 获取ExitStatus信息 @return @throws
+     */
     public int getExitStatus() {
         return exitStatus;
     }
 
+    /**
+     * @descreption 获取Host信息 @return @throws
+     */
     public String getHost() {
         return host;
     }
 
+    /**
+     * @descreption 获取UsersName信息 @return @throws
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * @descreption 获取Password信息 @return @throws
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * @descreption 获取port信息 @return @throws
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * @descreption 获取会话 @return @throws
+     */
     public Session getSession() {
         return session;
     }

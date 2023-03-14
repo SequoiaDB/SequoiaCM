@@ -36,6 +36,11 @@ import com.sequoiacm.testcommon.*;
 public class CephS3Utils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( CephS3Utils.class );
 
+    /**
+     * @descreption 创建CephS3连接
+     * @param site
+     * @return AmazonS3
+     */
     public static AmazonS3 createConnect(
             SiteWrapper site ) /* throws ScmCryptoException */ {
         AmazonS3 conn = null;
@@ -64,6 +69,14 @@ public class CephS3Utils extends TestScmBase {
         return conn;
     }
 
+    /**
+     * @descreption 指定cephS3站点创建Object
+     * @param site
+     * @param ws
+     * @param fileId
+     * @param filePath
+     * @return
+     */
     public static void putObject( SiteWrapper site, WsWrapper ws, ScmId fileId,
             String filePath ) throws Exception {
         AmazonS3 conn = null;
@@ -109,6 +122,15 @@ public class CephS3Utils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 从cephS3站点获取对象数据和元数据
+     * @param site
+     * @param ws
+     * @param fileId
+     * @param filePath
+     * @param downloadPath
+     * @return
+     */
     public static ObjectMetadata getObjMetadata( SiteWrapper site, WsWrapper ws,
             ScmId fileId, String filePath, String downloadPath )
             throws Exception {
@@ -144,6 +166,12 @@ public class CephS3Utils extends TestScmBase {
         return obj;
     }
 
+    /**
+     * @descreption 从cephS3站点删除桶
+     * @param site
+     * @param wsName
+     * @return
+     */
     public static void deleteBucket( SiteWrapper site, String wsName )
             throws Exception {
         AmazonS3 conn;
@@ -176,6 +204,13 @@ public class CephS3Utils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 从cephS3站点删除对象
+     * @param site
+     * @param ws
+     * @param fileId
+     * @return
+     */
     public static void deleteObject( SiteWrapper site, WsWrapper ws,
             ScmId fileId ) throws Exception {
         AmazonS3 conn = null;
@@ -198,27 +233,23 @@ public class CephS3Utils extends TestScmBase {
         }
     }
 
-    /*
-     * public static int readContent(SiteWrapper site, WsWrapper ws, ScmId
-     * fileId, String filePath) throws Exception { S3Object obj = null; int
-     * readLen = 0; long fileSize = new File(filePath).length(); try { obj =
-     * getS3Object(fileId, site, ws); ObjectMetadata objMetadata =
-     * obj.getObjectMetadata(); long objSize = objMetadata.getContentLength();
-     * if (fileSize != objSize) { throw new fileSize + "fileId = " + fileId); }
-     * S3ObjectInputStream objContent = obj.getObjectContent(); byte[] buff =
-     * new byte[204800]; int currentPosition = 0; boolean isEof = false; readLen
-     * = objContent.read(buff, 0, 204800); if (readLen == -1) { isEof = true; }
-     * currentPosition += readLen; } catch (Exception e) {
-     * logger.error("failed to read content in ceph-s3, fileId = " + fileId +
-     * ", siteUrl = " + site.getDataDsUrl() + "ws = " + ws.getName()); throw e;
-     * } return readLen; }
+    /**
+     * @descreption 从cephS3站点获取工作区对应桶名
+     * @param site
+     * @param ws
+     * @return String
      */
-
     private static String getBucketName( SiteWrapper site, WsWrapper ws )
             throws ScmException {
         return getBucketName( site, ws.getName() );
     }
 
+    /**
+     * @descreption 从cephS3站点获取工作区对应桶名
+     * @param site
+     * @param wsName
+     * @return String
+     */
     public static String getBucketName( SiteWrapper site, String wsName )
             throws ScmException {
         String bucketName = "";
@@ -250,11 +281,11 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * 获取ObjectID
-     *
+     * @descreption 获取ObjectID
      * @param wsName
      * @param objectShardingType
      * @param fileID
+     * @return String
      */
     public static String getObjectID( String wsName,
             ScmShardingType objectShardingType, ScmId fileID ) {
@@ -284,11 +315,11 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * ceph数据源创建工作区
-     *
+     * @descreption ceph数据源创建工作区
      * @param session
      * @param wsName
      * @param cephS3DataLocation
+     * @return ScmWorkspace
      */
     public static ScmWorkspace createWS( ScmSession session, String wsName,
             ScmCephS3DataLocation cephS3DataLocation )
@@ -319,11 +350,11 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * 给管理员用户赋予工作区操作权限
-     *
+     * @descreption 给管理员用户赋予工作区操作权限
      * @param session
      * @param wsName
      * @param privilege
+     * @return ScmWorkspace
      */
     public static void wsSetPriority( ScmSession session, String wsName,
             ScmPrivilegeType privilege ) throws Exception {
@@ -352,11 +383,10 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * 清理ceph数据源中桶
-     *
+     * @descreption 清理ceph数据源中桶
      * @param s3connect
      * @param bucketName
-     * @throws Exception
+     * @return
      */
     public static void deleteBucket( AmazonS3 s3connect, String bucketName ) {
         ObjectListing objects = s3connect.listObjects( bucketName );
@@ -372,13 +402,13 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * ceph数据源中创建用户和指定access_key和secret_key创建ceph_S3 key
-     *
+     * @descreption ceph数据源中创建用户和指定access_key和secret_key创建ceph_S3 key
      * @param site
      * @param userUid
      * @param access_key
      * @param secret_key
      * @param isPrimary
+     *            isPrimary为ture则链接主库创建用户，为false则链接备库创建用户
      *            isPrimary为ture则链接主库创建用户，为false则链接备库创建用户
      * @throws Exception
      */
@@ -409,8 +439,7 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * ceph数据源中删除用户
-     *
+     * @descreption ceph数据源中删除用户
      * @param site
      * @param userUid
      * @param isPrimary
@@ -445,8 +474,7 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * 根据站点dataDsUrl获取host
-     * 
+     * @descreption 根据站点dataDsUrl获取host
      * @param siteDataDsUrl
      * @throws Exception
      */
@@ -457,8 +485,7 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * 在ScmInstallDir路径下创建密码文件
-     * 
+     * @descreption 在ScmInstallDir路径下创建密码文件
      * @param site
      * @param passwdPath
      * @param filename
@@ -481,8 +508,7 @@ public class CephS3Utils extends TestScmBase {
     }
 
     /**
-     * 删除指定路径下密码文件
-     * 
+     * @descreption删除指定路径下密码文件
      * @param site
      * @param remotePath
      * @throws Exception

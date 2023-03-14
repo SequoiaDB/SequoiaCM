@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -75,7 +75,7 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
             branceSiteList = ScmInfo.getBranchSites( 2 );
             ws_T = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
+            sessionA = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
             writeFileOnA();
@@ -144,7 +144,7 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
         ScmSession sessionB = null;
         try {
             // login
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionB = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     sessionB );
 
@@ -165,7 +165,7 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
     private void checkResult() {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
             for ( int i = 0; i < fileNum; i++ ) {
@@ -196,7 +196,7 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+                session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
 
@@ -226,7 +226,7 @@ public class Clean_deleteFileWhenCleaning477 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+                session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
 

@@ -3,7 +3,6 @@ package com.sequoiacm.statistics;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -16,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -38,7 +37,7 @@ public class StatisticsFile3599 extends TestScmBase {
         calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createNoAuthSession( site );
+        session = ScmSessionUtils.createNoAuthSession( site );
     }
 
     @Test

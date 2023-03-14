@@ -31,7 +31,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -61,7 +61,7 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             cleanEnv();
             prepare();
@@ -146,7 +146,7 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
             ScmSession session = null;
             try {
                 Thread.sleep( 1000 );
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile writefile = ScmFactory.File.createInstance( ws );
@@ -215,7 +215,7 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
         @Override
         public void exec() {
             try {
-                ScmSession session = TestScmTools.createSession( site, username,
+                ScmSession session = ScmSessionUtils.createSession( site, username,
                         passwd );
                 sessionList.add( session );
                 int random = ( int ) Math.random() * 20;

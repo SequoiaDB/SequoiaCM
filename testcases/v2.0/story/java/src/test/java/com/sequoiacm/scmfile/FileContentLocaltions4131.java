@@ -54,7 +54,7 @@ public class FileContentLocaltions4131 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath2, fileSize * 2 );
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );

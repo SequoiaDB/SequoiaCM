@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -28,7 +27,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -72,7 +71,7 @@ public class AuthWs_LeafDirUseInheritPriv1745 extends TestScmBase {
             TestTools.LocalFile.createFile( filePath, fileSize );
             site = ScmInfo.getRootSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             cleanEnv();
             prepare();
@@ -91,7 +90,7 @@ public class AuthWs_LeafDirUseInheritPriv1745 extends TestScmBase {
         String newFileName = "1745_2";
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( site, username, passwd );
+            session = ScmSessionUtils.createSession( site, username, passwd );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             ScmDirectory dir = ScmFactory.Directory.getInstance( wsA,
                     testpath );

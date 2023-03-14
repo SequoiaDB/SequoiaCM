@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import com.sequoiacm.client.element.ScmFileBasicInfo;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,13 +53,13 @@ public class Object5041 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         S3Utils.clearBucket( session, bucketName );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
         s3Client = S3Utils.buildS3Client();
-        fileId = S3Utils.createFile( scmBucket, keyName, filePath );
+        fileId = ScmFileUtils.createFile( scmBucket, keyName, filePath );
     }
 
     @Test

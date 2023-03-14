@@ -16,7 +16,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM- SCM-1488:指定认证方式创建LOCAL用户 SCM-1491:重复创建用户
@@ -38,7 +38,7 @@ public class AuthServer_user1488_1491 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
 
             // clean new user
             try {

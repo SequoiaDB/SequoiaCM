@@ -16,7 +16,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-3615:fileStatistician接口参数校验
@@ -36,7 +36,7 @@ public class Param_Statistician3615 extends TestScmBase {
     private void setUp() throws ScmException {
         calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         calendar.set( Calendar.HOUR_OF_DAY,
                 calendar.get( Calendar.HOUR_OF_DAY ) + 1 );
         endDate = calendar.getTime();

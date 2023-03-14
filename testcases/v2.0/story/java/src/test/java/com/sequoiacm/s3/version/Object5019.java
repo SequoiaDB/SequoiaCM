@@ -10,6 +10,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -58,7 +59,7 @@ public class Object5019 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( session, bucketName );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
@@ -66,21 +67,21 @@ public class Object5019 extends TestScmBase {
         // keyName2：v1（null）、v2
         // keyName3: v1（null）、v2（null）
         // keyName4：v1、v2、v3、v4（null）
-        S3Utils.createFile( scmBucket, keyName2, filePath );
-        S3Utils.createFile( scmBucket, keyName3, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName2, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName3, filePath );
         scmBucket.enableVersionControl();
-        S3Utils.createFile( scmBucket, keyName1, filePath );
-        S3Utils.createFile( scmBucket, keyName1, updatePath );
-        S3Utils.createFile( scmBucket, keyName2, updatePath );
-        S3Utils.createFile( scmBucket, keyName4, filePath );
-        S3Utils.createFile( scmBucket, keyName4, filePath );
-        S3Utils.createFile( scmBucket, keyName4, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName1, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName1, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName2, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName4, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName4, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName4, updatePath );
         scmBucket.suspendVersionControl();
-        S3Utils.createFile( scmBucket, keyName1, filePath );
-        S3Utils.createFile( scmBucket, keyName3, updatePath );
-        S3Utils.createFile( scmBucket, keyName4, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName1, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName3, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName4, updatePath );
         scmBucket.enableVersionControl();
-        S3Utils.createFile( scmBucket, keyName1, updatePath );
+        ScmFileUtils.createFile( scmBucket, keyName1, updatePath );
         expKeyAndVersions = generateExpectResult();
         s3Client = S3Utils.buildS3Client();
     }

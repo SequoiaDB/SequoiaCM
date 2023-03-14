@@ -31,7 +31,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -79,9 +79,9 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            ssR = TestScmTools.createSession( rootSite );
+            ssR = ScmSessionUtils.createSession( rootSite );
             wsR = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssR );
-            ssA = TestScmTools.createSession( branSite );
+            ssA = ScmSessionUtils.createSession( branSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssA );
 
             // clean environment
@@ -210,7 +210,7 @@ public class CreateSche_maxExecTime2205 extends TestScmBase {
         ScmSession ss = null;
         String maxStayTime = "0d";
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
 
             ScmSchedule sche = ScmSystem.Schedule.get( ss, scheduleId );
             ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(

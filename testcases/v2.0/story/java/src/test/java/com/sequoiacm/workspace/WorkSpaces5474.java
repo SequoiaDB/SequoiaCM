@@ -15,7 +15,7 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -40,7 +40,7 @@ public class WorkSpaces5474 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         siteList.add( site );
         ScmWorkspaceUtil.deleteWs( wsNameA, session );
         ScmWorkspaceUtil.deleteWs( wsNameB, session );
@@ -85,7 +85,7 @@ public class WorkSpaces5474 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {

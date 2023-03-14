@@ -51,7 +51,7 @@ public class FullText3063 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         rootDirId = ScmFactory.Directory.getInstance( ws, "/" ).getId();
@@ -215,7 +215,7 @@ public class FullText3063 extends TestScmBase {
         private void rebuild() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.rebuildFileIndex( ws, fileId );

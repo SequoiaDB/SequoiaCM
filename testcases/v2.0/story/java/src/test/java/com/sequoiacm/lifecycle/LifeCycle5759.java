@@ -51,7 +51,7 @@ public class LifeCycle5759 extends TestScmBase {
 
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -82,7 +82,7 @@ public class LifeCycle5759 extends TestScmBase {
     }
 
     public void test1() throws ScmException, InterruptedException {
-        ScmSession ss = TestScmTools.createSession( site, user, user );
+        ScmSession ss = ScmSessionUtils.createSession( site, user, user );
         ScmWorkspace workspace = ScmFactory.Workspace
                 .getWorkspace( wsp.getName(), ss );
 

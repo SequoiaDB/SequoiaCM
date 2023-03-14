@@ -13,7 +13,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-2207-2208:获取服务状态,一个服务类型只有一个节点
@@ -28,7 +28,7 @@ public class ListHealth2207 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test

@@ -58,11 +58,11 @@ public class StatisticsFile4084 extends TestScmBase {
 
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
-        StatisticsUtils.createAndUploadBreakpointFile( fileName, siteWorkspace,
+        ScmBreakpointFileUtils.createAndUploadBreakpointFile( fileName, siteWorkspace,
                 filePath );
         // 更新网关和admin配置
         StatisticsUtils.configureGatewayAndAdminInfo( wsp );

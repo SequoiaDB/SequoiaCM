@@ -58,8 +58,8 @@ public class AcrossCenterReadFile3657 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite1session = TestScmTools.createSession( branchSite1 );
-        branchSite2session = TestScmTools.createSession( branchSite2 );
+        branchSite1session = ScmSessionUtils.createSession( branchSite1 );
+        branchSite2session = ScmSessionUtils.createSession( branchSite2 );
         branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1session );
         branchSite2Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -112,7 +112,7 @@ public class AcrossCenterReadFile3657 extends TestScmBase {
         OutputStream os = null;
         ScmInputStream is = null;
         ScmError exceptError = ScmError.INVALID_ARGUMENT;
-        ScmSession session = TestScmTools.createSession( branchSite );
+        ScmSession session = ScmSessionUtils.createSession( branchSite );
         try {
             ScmWorkspace workspace = ScmFactory.Workspace
                     .getWorkspace( wsp.getName(), session );

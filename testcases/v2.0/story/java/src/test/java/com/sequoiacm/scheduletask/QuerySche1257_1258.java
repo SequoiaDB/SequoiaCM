@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -28,7 +27,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
@@ -61,7 +60,7 @@ public class QuerySche1257_1258 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        ssA = TestScmTools.createSession( branSite );
+        ssA = ScmSessionUtils.createSession( branSite );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( name ).get();

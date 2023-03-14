@@ -19,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -42,7 +42,7 @@ public class AuthServer_userAndRole_nameContainDot1833 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             wsp = ScmInfo.getWs();
 
             // clean new user
@@ -91,7 +91,7 @@ public class AuthServer_userAndRole_nameContainDot1833 extends TestScmBase {
                 ScmPrivilegeType.ALL );
 
         // login and logout new user
-        ScmSession newSS = TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSession newSS = ScmSessionUtils.createSession( site, NAME, PASSWORD );
         newSS.close();
 
         // delete user and role

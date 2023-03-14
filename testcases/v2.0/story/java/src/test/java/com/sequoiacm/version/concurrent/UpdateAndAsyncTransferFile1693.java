@@ -6,6 +6,7 @@ package com.sequoiacm.version.concurrent;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -18,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -64,16 +65,16 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName,
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
+        sbFile = ScmBreakpointFileUtils.createBreakpointFileByStream( wsA, fileName,
                 updatedata );
     }
 
@@ -84,7 +85,7 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         es.addWorker( new AsyncTransferFileThread() );
         es.addWorker( new UpdateFileThread() );
         es.run();
-        int asyncFileVersion = VersionUtils.waitAsyncTaskFinished2( wsM, fileId,
+        int asyncFileVersion = ScmTaskUtils.waitAsyncTaskFinished2( wsM, fileId,
                 historyVersion, 2 );
 
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
@@ -120,7 +121,7 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.asyncTransfer( ws, fileId,
@@ -138,7 +139,7 @@ public class UpdateAndAsyncTransferFile1693 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile scmFile = ScmFactory.File.getInstance( ws, fileId );

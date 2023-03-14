@@ -24,7 +24,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -51,7 +51,7 @@ public class Batch3120 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         // 指定batch_sharding_type为NONE,设置batch_file_name_unique为true
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
@@ -103,7 +103,7 @@ public class Batch3120 extends TestScmBase {
         private void attachFile() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmBatch batch = ScmFactory.Batch.getInstance( ws,
@@ -133,7 +133,7 @@ public class Batch3120 extends TestScmBase {
         private void detachFile() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmBatch batch = ScmFactory.Batch.getInstance( ws,
@@ -164,7 +164,7 @@ public class Batch3120 extends TestScmBase {
         private void updateBatch() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmBatch batch = ScmFactory.Batch.getInstance( ws,
@@ -194,7 +194,7 @@ public class Batch3120 extends TestScmBase {
         private void deleteBatch() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Batch.deleteInstance( ws,

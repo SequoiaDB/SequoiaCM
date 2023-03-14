@@ -25,7 +25,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -65,7 +65,7 @@ public class BreakpointFile4027_1398 extends TestScmBase {
 
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         createBreakPointFile();
     }
@@ -116,7 +116,7 @@ public class BreakpointFile4027_1398 extends TestScmBase {
     private class DeleteBreakpointFileThread {
         @ExecuteOrder(step = 1)
         public void exec() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( site ) ;) {
+            try (ScmSession session = ScmSessionUtils.createSession( site );) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.BreakpointFile.deleteInstance( ws, fileName );

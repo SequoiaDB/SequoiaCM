@@ -3,7 +3,6 @@ package com.sequoiacm.s3.bucket.serial;
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -35,7 +34,7 @@ public class Bucket4257 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         envBuckets = S3Utils.getEnvBuckets();
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
             String bucketName = bucketNameBase + i;

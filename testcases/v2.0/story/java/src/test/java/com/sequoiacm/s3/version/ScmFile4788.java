@@ -4,6 +4,7 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -16,7 +17,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 
 /**
@@ -40,7 +41,7 @@ public class ScmFile4788 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -54,7 +55,7 @@ public class ScmFile4788 extends TestScmBase {
         }
         cursor.close();
 
-        fileId = VersionUtils.createFileByStream( ws, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( ws, fileName, filedata );
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
     }
 

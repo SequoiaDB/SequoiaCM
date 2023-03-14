@@ -56,7 +56,7 @@ public class Object4271 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
 
         int siteNum = ScmInfo.getSiteNum();

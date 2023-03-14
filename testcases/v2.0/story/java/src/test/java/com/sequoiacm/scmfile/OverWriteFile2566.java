@@ -70,7 +70,7 @@ public class OverWriteFile2566 extends TestScmBase {
                     "Upload BreakpointFile is not support in hdfs(hbase)" );
         }
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();

@@ -64,7 +64,7 @@ public class StatisticsFile4095 extends TestScmBase {
 
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
@@ -132,13 +132,13 @@ public class StatisticsFile4095 extends TestScmBase {
     private class UploadBreakpointFileThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void UploadFile() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
-                int createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+                int createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                         .createAndUploadBreakpointFile( fileName, ws,
                                 filePath );
-                int breakpointFileToFileTime = ( int ) StatisticsUtils
+                int breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                         .breakpointFileToFile( fileName, ws, fileName,
                                 fileIdList );
                 uploadTime.add( createAndUploadBreakpointFileTime

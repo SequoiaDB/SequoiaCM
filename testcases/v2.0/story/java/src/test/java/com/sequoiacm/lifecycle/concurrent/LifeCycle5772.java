@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.lifecycle.*;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -54,7 +53,7 @@ public class LifeCycle5772 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
@@ -163,7 +162,7 @@ public class LifeCycle5772 extends TestScmBase {
     private class AddSiteStageTagThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.addStageTag( session, stageTagName4,
                         stageTagName4 );
             } catch ( ScmException e ) {
@@ -175,7 +174,7 @@ public class LifeCycle5772 extends TestScmBase {
     private class DeleteSiteStageTagThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.removeStageTag( session,
                         stageTagName3 );
             } catch ( ScmException e ) {

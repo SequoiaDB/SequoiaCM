@@ -25,7 +25,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -71,7 +71,7 @@ public class Transfer_inRootSite410 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             ws_T = ScmInfo.getWs();
 
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
             cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

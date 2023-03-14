@@ -59,7 +59,7 @@ public class WorkSpaces5477 extends TestScmBase {
         TestTools.LocalFile.createFile( fileUpdatePath, fileSize );
 
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         siteList.add( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
@@ -115,7 +115,7 @@ public class WorkSpaces5477 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {
@@ -139,7 +139,7 @@ public class WorkSpaces5477 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {

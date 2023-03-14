@@ -15,8 +15,7 @@ import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -34,7 +33,7 @@ public class DeleteWorkspace2181 extends TestScmBase {
     private void setUp() throws Exception {
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 
@@ -75,7 +74,7 @@ public class DeleteWorkspace2181 extends TestScmBase {
                 if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
                     throw e;
                 }
-                TestSdbTools.Workspace.checkWsCs( wsName, session );
+                ScmWorkspaceUtil.checkWsCs( wsName, session );
                 return;
             }
         }

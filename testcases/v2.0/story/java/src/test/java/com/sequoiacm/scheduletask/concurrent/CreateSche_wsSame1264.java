@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,7 +30,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -79,7 +78,7 @@ public class CreateSche_wsSame1264 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            ssA = TestScmTools.createSession( branSite );
+            ssA = ScmSessionUtils.createSession( branSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), ssA );
 
             // clean environment

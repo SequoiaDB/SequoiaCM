@@ -13,7 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -36,7 +36,7 @@ public class LoginAndLogout222 extends TestScmBase {
     private void testLoginAndLogout() {
         try {
             for ( int i = 0; i < 300; i++ ) {
-                ScmSession session = TestScmTools.createSession( site );
+                ScmSession session = ScmSessionUtils.createSession( site );
                 // check result
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -53,7 +53,7 @@ public class LoginAndLogout222 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testLogoutThenOper() {
         try {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             // [bug] sequoiacm-41 重复登出不应报错
             session.close();
             session.close();

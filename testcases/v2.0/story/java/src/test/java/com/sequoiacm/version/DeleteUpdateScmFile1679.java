@@ -18,7 +18,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -65,19 +65,19 @@ public class DeleteUpdateScmFile1679 extends TestScmBase {
         branSites = ScmInfo.getBranchSites( branSitesNum );
         wsp = ScmInfo.getWs();
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+        sessionB = ScmSessionUtils.createSession( branSites.get( 1 ) );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
-        sessionC = TestScmTools.createSession( branSites.get( 2 ) );
+        sessionC = ScmSessionUtils.createSession( branSites.get( 2 ) );
         wsC = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionC );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByFile( wsA, fileName, filePath );
+        fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }
 
     @Test(groups = { "fourSite" })

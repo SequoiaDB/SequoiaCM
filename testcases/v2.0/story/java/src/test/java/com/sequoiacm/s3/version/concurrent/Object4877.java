@@ -1,17 +1,15 @@
 package com.sequoiacm.s3.version.concurrent;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.VersionListing;
 import com.sequoiacm.client.core.ScmBucket;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -24,7 +22,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @descreption SCM-4877 :: 开启版本控制，并发创建和删除相同文件
@@ -58,7 +55,7 @@ public class Object4877 extends TestScmBase {
 
         s3Client = S3Utils.buildS3Client();
         S3Utils.clearBucket( s3Client, bucketName );
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
@@ -116,7 +113,7 @@ public class Object4877 extends TestScmBase {
         public void run() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 bucket.deleteFile( keyName, false );

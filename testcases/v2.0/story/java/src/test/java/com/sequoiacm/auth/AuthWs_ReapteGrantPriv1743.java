@@ -26,7 +26,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -66,7 +66,7 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
 
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             cleanEnv();
             prepare();
@@ -91,7 +91,7 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
             ScmAuthUtils.checkPriority( site, usernameArr[ 0 ], passwd,
                     roleList.get( 0 ), wsp );
             // Thread.sleep(20000);
-            session = TestScmTools.createSession( site, usernameArr[ 0 ],
+            session = ScmSessionUtils.createSession( site, usernameArr[ 0 ],
                     passwd );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
@@ -126,7 +126,7 @@ public class AuthWs_ReapteGrantPriv1743 extends TestScmBase {
             // Thread.sleep(20000);
             ScmAuthUtils.checkPriority( site, usernameArr[ 1 ], passwd,
                     roleList.get( 1 ), wsp );
-            session = TestScmTools.createSession( site, usernameArr[ 1 ],
+            session = ScmSessionUtils.createSession( site, usernameArr[ 1 ],
                     passwd );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );

@@ -114,7 +114,7 @@ public class StatisticsFile4096 extends TestScmBase {
         }
 
         // 查询上传接口统计信息
-        try ( ScmSession session = TestScmTools.createSession( site )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site )) {
             ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
                     .fileStatistician( session ).user( TestScmBase.scmUserName )
                     .beginDate( beginDate ).endDate( endDate )
@@ -136,7 +136,7 @@ public class StatisticsFile4096 extends TestScmBase {
 
     @AfterClass()
     private void tearDown() throws Exception {
-        try ( ScmSession session = TestScmTools.createSession( site )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site )) {
             ScmWorkspace ws1 = ScmFactory.Workspace
                     .getWorkspace( wsp1.getName(), session );
             ScmWorkspace ws2 = ScmFactory.Workspace
@@ -161,13 +161,13 @@ public class StatisticsFile4096 extends TestScmBase {
         // ws1存在多个断点文件上传记录
         int createAndUploadBreakpointFileTime;
         int breakpointFileToFileTime;
-        try ( ScmSession session = TestScmTools.createSession( site )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site )) {
             ScmWorkspace ws1 = ScmFactory.Workspace
                     .getWorkspace( wsp1.getName(), session );
-            createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+            createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                     .createAndUploadBreakpointFile( fileName + 0, ws1,
                             filePath );
-            breakpointFileToFileTime = ( int ) StatisticsUtils
+            breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                     .breakpointFileToFile( fileName + 0, ws1, fileName + 0,
                             fileIdList1 );
             uploadTime.add( createAndUploadBreakpointFileTime
@@ -179,14 +179,14 @@ public class StatisticsFile4096 extends TestScmBase {
                 calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
         StatisticsUtils.setGateWaySystemTime( calendar.getTimeInMillis() );
 
-        try ( ScmSession session = TestScmTools.createSession( site )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site )) {
             ScmWorkspace ws1 = ScmFactory.Workspace
                     .getWorkspace( wsp1.getName(), session );
             for ( int i = 1; i < fileNums / 2; i++ ) {
-                createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+                createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                         .createAndUploadBreakpointFile( fileName + i, ws1,
                                 filePath );
-                breakpointFileToFileTime = ( int ) StatisticsUtils
+                breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                         .breakpointFileToFile( fileName + i, ws1, fileName + i,
                                 fileIdList1 );
                 uploadTime.add( createAndUploadBreakpointFileTime
@@ -195,13 +195,13 @@ public class StatisticsFile4096 extends TestScmBase {
         }
 
         // ws2有断点文件上传记录
-        try ( ScmSession session = TestScmTools.createSession( site )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site )) {
             ScmWorkspace ws2 = ScmFactory.Workspace
                     .getWorkspace( wsp2.getName(), session );
-            createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+            createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                     .createAndUploadBreakpointFile( fileName + fileNums / 2,
                             ws2, filePath );
-            breakpointFileToFileTime = ( int ) StatisticsUtils
+            breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                     .breakpointFileToFile( fileName + fileNums / 2, ws2,
                             fileName + fileNums / 2, fileIdList2 );
             uploadTime.add( createAndUploadBreakpointFileTime
@@ -213,14 +213,14 @@ public class StatisticsFile4096 extends TestScmBase {
                 calendar.get( Calendar.DAY_OF_YEAR ) + 1 );
         StatisticsUtils.setGateWaySystemTime( calendar.getTimeInMillis() );
 
-        try ( ScmSession session = TestScmTools.createSession( site )) {
+        try ( ScmSession session = ScmSessionUtils.createSession( site )) {
             ScmWorkspace ws2 = ScmFactory.Workspace
                     .getWorkspace( wsp2.getName(), session );
             for ( int i = fileNums / 2 + 1; i < fileNums; i++ ) {
-                createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+                createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                         .createAndUploadBreakpointFile( fileName + i, ws2,
                                 filePath );
-                breakpointFileToFileTime = ( int ) StatisticsUtils
+                breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                         .breakpointFileToFile( fileName + i, ws2, fileName + i,
                                 fileIdList2 );
                 uploadTime.add( createAndUploadBreakpointFileTime

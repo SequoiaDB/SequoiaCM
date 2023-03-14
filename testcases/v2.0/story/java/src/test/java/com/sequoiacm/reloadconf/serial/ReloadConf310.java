@@ -13,7 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-310: reloadConf无效参数校验
@@ -56,7 +56,7 @@ public class ReloadConf310 extends TestScmBase {
     private void reloadWithNullScopeType() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmSystem.Configuration.reloadBizConf( null, site.getSiteId(),
                     session );
             Assert.fail(
@@ -75,7 +75,7 @@ public class ReloadConf310 extends TestScmBase {
     private void reloadWithNotExistSiteId() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             int invalidId = -1;
             ScmSystem.Configuration.reloadBizConf( ServerScope.SITE, invalidId,
                     session );

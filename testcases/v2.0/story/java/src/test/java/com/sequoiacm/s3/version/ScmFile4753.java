@@ -1,6 +1,5 @@
 package com.sequoiacm.s3.version;
 
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
@@ -12,8 +11,6 @@ import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +56,7 @@ public class ScmFile4753 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
         ScmFileUtils.cleanFile( ws, keyName );
@@ -70,7 +67,7 @@ public class ScmFile4753 extends TestScmBase {
     @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
-        S3Utils.createFile( bucket, keyName, filePath );
+        ScmFileUtils.createFile( bucket, keyName, filePath );
         // scm create file with the same file name
         List< ScmId > keyList = new ArrayList<>();
         ScmId fileId = createScmFile( keyName, filePath );

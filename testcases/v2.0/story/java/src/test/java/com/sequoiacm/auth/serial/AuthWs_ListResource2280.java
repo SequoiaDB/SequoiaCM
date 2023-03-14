@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -51,7 +51,7 @@ public class AuthWs_ListResource2280 extends TestScmBase {
     private void setUp() throws Exception {
         try {
             site = ScmInfo.getBranchSite();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             ScmWorkspaceUtil.deleteWs( wsName1, sessionA );
             ScmWorkspaceUtil.deleteWs( wsName2, sessionA );
             ScmWorkspaceUtil.createWS( sessionA, wsName1,

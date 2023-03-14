@@ -52,7 +52,7 @@ public class AcrossCenterReadS3File5276 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        sessionM = TestScmTools.createSession( ScmInfo.getRootSite() );
+        sessionM = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         wsM = ScmFactory.Workspace.getWorkspace( TestScmBase.s3WorkSpaces,
                 sessionM );
         wsM.updateSiteCacheStrategy( ScmSiteCacheStrategy.NEVER );

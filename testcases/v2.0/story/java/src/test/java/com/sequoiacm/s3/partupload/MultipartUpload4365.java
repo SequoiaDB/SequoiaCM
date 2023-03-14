@@ -10,7 +10,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -53,7 +53,7 @@ public class MultipartUpload4365 extends TestScmBase {
         s3ClientA.createBucket( new CreateBucketRequest( bucketName ) );
 
         // 新建用户连接
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         String password = "user4365password";
         ScmAuthUtils.createUser( session, username, password );
         String[] accessKeys = ScmAuthUtils.refreshAccessKey( session, username,

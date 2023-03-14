@@ -3,6 +3,7 @@ package com.sequoiacm.version;
 import java.util.Collection;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -14,7 +15,7 @@ import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -47,14 +48,14 @@ public class AsyncTransferCurVersionFile1655 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
 
@@ -108,7 +109,7 @@ public class AsyncTransferCurVersionFile1655 extends TestScmBase {
 
         // wait task finished
         int sitenums = 2;
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
                 sitenums );
     }
 

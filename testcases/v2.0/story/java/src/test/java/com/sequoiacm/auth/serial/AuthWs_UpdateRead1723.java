@@ -40,7 +40,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -91,8 +91,8 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
             rootsite = ScmInfo.getRootSite();
             site = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            sessionM = TestScmTools.createSession( rootsite );
-            sessionA = TestScmTools.createSession( site );
+            sessionM = ScmSessionUtils.createSession( rootsite );
+            sessionA = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
             cleanEnv();
@@ -654,7 +654,7 @@ public class AuthWs_UpdateRead1723 extends TestScmBase {
                     ScmPrivilegeType.READ );
 
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
-            sessionUR = TestScmTools.createSession( site, username, passwd );
+            sessionUR = ScmSessionUtils.createSession( site, username, passwd );
             wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionUR );
         } catch ( ScmException e ) {

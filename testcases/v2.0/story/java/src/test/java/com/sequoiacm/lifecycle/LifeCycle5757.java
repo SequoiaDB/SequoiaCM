@@ -7,7 +7,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
-import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -17,7 +16,6 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.lifecycle.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
  * @descreption SCM-5757:不同用户移除工作区下Transition
@@ -53,7 +51,7 @@ public class LifeCycle5757 extends TestScmBase {
 
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -84,7 +82,7 @@ public class LifeCycle5757 extends TestScmBase {
     }
 
     public void test1() throws ScmException, InterruptedException {
-        ScmSession ss = TestScmTools.createSession( site, user, user );
+        ScmSession ss = ScmSessionUtils.createSession( site, user, user );
         ScmWorkspace workspace = ScmFactory.Workspace
                 .getWorkspace( wsp.getName(), ss );
         // 设置全局配置

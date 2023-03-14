@@ -13,7 +13,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
@@ -25,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -64,7 +63,7 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branceSite = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmSiteUtils.deleteSite( session, newSiteName );
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -109,7 +108,7 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branceSite );
+                session = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 for ( int i = 0; i < 2; i++ ) {

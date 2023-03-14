@@ -13,7 +13,6 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.*;
@@ -56,8 +55,8 @@ public class AcrossCenterReadFile3655 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
-        branchSite2Session = TestScmTools.createSession( branchSite2 );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
+        branchSite2Session = ScmSessionUtils.createSession( branchSite2 );
         branchSite1Workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
         branchSite2Workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -128,7 +127,7 @@ public class AcrossCenterReadFile3655 extends TestScmBase {
     private class CleanFile {
         @ExecuteOrder(step = 1)
         private void test() throws Exception {
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -151,7 +150,7 @@ public class AcrossCenterReadFile3655 extends TestScmBase {
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
             OutputStream os = null;
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -179,7 +178,7 @@ public class AcrossCenterReadFile3655 extends TestScmBase {
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

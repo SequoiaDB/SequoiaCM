@@ -40,7 +40,7 @@ public class Object4991 extends TestScmBase {
     public void setUp() throws Exception {
         branchSites = ScmInfo.getBranchSites( 2 );
 
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         s3WS = ScmWorkspaceUtil.createS3WS( session, wsName );
         // 设置分站点2为优先站点

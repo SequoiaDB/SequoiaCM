@@ -43,7 +43,7 @@ public class ListTrace5454 extends TestScmBase {
     public void setUp() throws Exception {
         now = System.currentTimeMillis();
         hour = 60 * 60 * 1000L * 1000L;
-        session = TestScmTools.createSession();
+        session = ScmSessionUtils.createSession();
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 

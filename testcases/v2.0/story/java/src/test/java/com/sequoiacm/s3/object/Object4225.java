@@ -1,13 +1,10 @@
 package com.sequoiacm.s3.object;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +43,7 @@ public class Object4225 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 

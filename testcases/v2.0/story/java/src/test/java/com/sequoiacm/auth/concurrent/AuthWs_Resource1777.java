@@ -24,7 +24,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -54,7 +54,7 @@ public class AuthWs_Resource1777 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             cleanEnv();
             prepare();
@@ -135,7 +135,7 @@ public class AuthWs_Resource1777 extends TestScmBase {
     private void check( String dirpath ) {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, passwd );
+            session = ScmSessionUtils.createSession( site, username, passwd );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirpath );
@@ -198,7 +198,7 @@ public class AuthWs_Resource1777 extends TestScmBase {
         public void exec() throws InterruptedException {
             ScmSession sessionA = null;
             try {
-                sessionA = TestScmTools.createSession( site );
+                sessionA = ScmSessionUtils.createSession( site );
                 grantPriAndAttachRole( sessionA, this.rs, user, this.role,
                         ScmPrivilegeType.READ );
             } catch ( ScmException e ) {

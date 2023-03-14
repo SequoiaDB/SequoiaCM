@@ -17,7 +17,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -42,7 +42,7 @@ public class CreateSche_cronError1239 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            ss = TestScmTools.createSession( rootSite );
+            ss = ScmSessionUtils.createSession( rootSite );
 
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( name ).get();

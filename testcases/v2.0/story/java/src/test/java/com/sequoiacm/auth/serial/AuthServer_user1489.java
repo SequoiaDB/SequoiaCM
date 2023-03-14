@@ -19,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM- SCM-1489:指定认证方式创建LOCAL用户
@@ -39,7 +39,8 @@ public class AuthServer_user1489 extends TestScmBase {
     private void setUp() throws ScmException {
         ConfUtil.checkLDAPConfig();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
+
         // clean new user
         try {
             ScmFactory.User.deleteUser( session, TestScmBase.ldapUserName );
@@ -94,7 +95,7 @@ public class AuthServer_user1489 extends TestScmBase {
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
         // check results
-        ScmSession ss = TestScmTools.createSession( site,
+        ScmSession ss = ScmSessionUtils.createSession( site,
                 TestScmBase.ldapUserName, TestScmBase.ldapPassword );
         ss.isClosed();
         ss.close();

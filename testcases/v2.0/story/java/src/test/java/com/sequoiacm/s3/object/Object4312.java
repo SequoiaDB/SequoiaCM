@@ -54,7 +54,7 @@ public class Object4312 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( updatePath, fileSize );
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
 
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
@@ -66,7 +66,7 @@ public class Object4312 extends TestScmBase {
         rootS3Client = S3Utils.buildS3Client( TestScmBase.s3AccessKeyID,
                 TestScmBase.s3SecretKey,
                 getS3NodeURLBySite( session, rootSite.getSiteServiceName() ) );
-        branchSiteSession = TestScmTools
+        branchSiteSession = ScmSessionUtils
                 .createSession( branchSite.getSiteName() );
         S3Utils.clearBucket( rootS3Client, bucketName );
     }

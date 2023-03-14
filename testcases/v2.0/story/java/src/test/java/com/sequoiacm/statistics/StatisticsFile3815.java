@@ -1,14 +1,10 @@
 package com.sequoiacm.statistics;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.*;
 
 import com.sequoiacm.client.element.*;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -54,11 +50,11 @@ public class StatisticsFile3815 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
@@ -122,13 +118,13 @@ public class StatisticsFile3815 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // 有多条下载信息
         for ( int i = 0; i < fileNums - failCount; i++ ) {
-            int totaluploadTime = ( int ) StatisticsUtils.uploadFile(
+            int totaluploadTime = ( int ) ScmFileUtils.createFiles(
                     filePathList.get( i ), fileName, fileIdList,
                     siteWorkspace );
             uploadTime.add( totaluploadTime );
         }
         for ( int i = fileNums - failCount; i < fileNums; i++ ) {
-            StatisticsUtils.uploadFileFialed( filePathList.get( i ), fileName,
+            ScmFileUtils.createFileFialed( filePathList.get( i ), fileName,
                     fileIdList, siteWorkspace );
         }
     }

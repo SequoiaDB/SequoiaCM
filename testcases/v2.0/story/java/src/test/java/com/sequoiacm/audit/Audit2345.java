@@ -22,7 +22,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
@@ -48,7 +48,7 @@ public class Audit2345 extends TestScmBase {
         ConfUtil.deleteUserAndRole( username, username );
         ConfUtil.createUser( wsp, username, ScmUserPasswordType.TOKEN,
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
@@ -107,7 +107,7 @@ public class Audit2345 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFile file = ScmFactory.File.createInstance( ws );

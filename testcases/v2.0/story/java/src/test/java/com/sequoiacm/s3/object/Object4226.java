@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.*;
@@ -65,7 +64,7 @@ public class Object4226 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { GroupTags.base })

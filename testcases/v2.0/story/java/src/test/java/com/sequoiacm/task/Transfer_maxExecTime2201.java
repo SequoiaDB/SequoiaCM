@@ -31,7 +31,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -74,7 +74,7 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
-            session = TestScmTools.createSession( branceSite );
+            session = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
             BSONObject cond = ScmQueryBuilder
@@ -179,7 +179,7 @@ public class Transfer_maxExecTime2201 extends TestScmBase {
 
             SiteWrapper rootSite = ScmInfo.getRootSite();
             // login
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
             for ( ScmId fileId : fileIdList ) {

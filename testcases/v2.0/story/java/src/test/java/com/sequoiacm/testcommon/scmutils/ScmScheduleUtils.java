@@ -24,23 +24,61 @@ public class ScmScheduleUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmTaskUtils.class );
     private static final int defaultTimeOut = 5 * 60; // 5min
 
+    /**
+     * @descreption 校验文件存在站点
+     * @param ws
+     * @param fileIds
+     * @param expSites
+     * @return
+     * @throws Exception
+     */
     public static void checkScmFile( ScmWorkspace ws, List< ScmId > fileIds,
             SiteWrapper[] expSites ) throws Exception {
         checkScmFile( ws, fileIds, 0, fileIds.size(), expSites,
                 defaultTimeOut );
     }
 
+    /**
+     * @descreption 校验文件存在站点
+     * @param ws
+     * @param fileIds
+     * @param expSites
+     * @param timeOutSec
+     * @return
+     * @throws Exception
+     */
     public static void checkScmFile( ScmWorkspace ws, List< ScmId > fileIds,
             SiteWrapper[] expSites, int timeOutSec ) throws Exception {
         checkScmFile( ws, fileIds, 0, fileIds.size(), expSites, timeOutSec );
     }
 
+    /**
+     * @descreption 指定范围文件校验存在站点
+     * @param ws
+     * @param fileIds
+     * @param startNum
+     * @param endNum
+     * @param expSites
+     * @return
+     * @throws Exception
+     */
     public static void checkScmFile( ScmWorkspace ws, List< ScmId > fileIds,
             int startNum, int endNum, SiteWrapper[] expSites )
             throws Exception {
         checkScmFile( ws, fileIds, startNum, endNum, expSites, defaultTimeOut );
     }
 
+    /**
+     * @descreption 指定范围内的文件校验存在站点
+     * @param ws
+     * @param fileIds
+     * @param startNum
+     * @param endNum
+     * @param expSites
+     * @param timeOutSec
+     * @return
+     * @throws Exception
+     */
     public static void checkScmFile( ScmWorkspace ws, List< ScmId > fileIds,
             int startNum, int endNum, SiteWrapper[] expSites, int timeOutSec )
             throws Exception {
@@ -74,6 +112,16 @@ public class ScmScheduleUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验文件元数据和数据
+     * @param ws
+     * @param fileIds
+     * @param expSites
+     * @param localPath
+     * @param filePath
+     * @return
+     * @throws Exception
+     */
     public static void checkFileMetaAndData( ScmWorkspace ws,
             List< ScmId > fileIds, SiteWrapper[] expSites,
             java.io.File localPath, String filePath ) throws Exception {
@@ -101,6 +149,18 @@ public class ScmScheduleUtils extends TestScmBase {
 
     }
 
+    /**
+     * @descreption 校验文件历史版本元数据和数据
+     * @param ws
+     * @param fileIds
+     * @param expSites
+     * @param localPath
+     * @param filePath
+     * @param majorVersion
+     * @param minorVersion
+     * @return
+     * @throws Exception
+     */
     public static void checkHistoryFileMetaAndData( ScmWorkspace ws,
             List< ScmId > fileIds, SiteWrapper[] expSites,
             java.io.File localPath, String filePath, int majorVersion,
@@ -131,6 +191,13 @@ public class ScmScheduleUtils extends TestScmBase {
 
     }
 
+    /**
+     * @descreption 指定调度任务id清理task列表
+     * @param session
+     * @param scheId
+     * @return
+     * @throws Exception
+     */
     public static void cleanTask( ScmSession session, ScmId scheId )
             throws Exception {
         ScmCursor< ScmTaskBasicInfo > cursor = null;
@@ -151,7 +218,11 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * judge by schedule_id
+     * @descreption 判断调度任务是否运行
+     * @param session
+     * @param scheduleId
+     * @return
+     * @throws Exception
      */
     public static boolean isRunningOfSche( ScmSession session,
             ScmId scheduleId ) throws Exception {
@@ -161,7 +232,12 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * judge by schedule_id and type of task
+     * @descreption 判断指定类型的调度任务是否运行
+     * @param session
+     * @param scheduleId
+     * @param taskType
+     * @return
+     * @throws Exception
      */
     public static boolean isRunningOfSche( ScmSession session, ScmId scheduleId,
             int taskType ) throws Exception {
@@ -171,7 +247,12 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * judge by condition
+     * @descreption 判断指定范围的调度任务是否运行
+     * @param session
+     * @param scheduleId
+     * @param condition
+     * @return
+     * @throws Exception
      */
     public static boolean isRunningOfSche( ScmSession session, ScmId scheduleId,
             BSONObject condition ) throws Exception {
@@ -201,6 +282,13 @@ public class ScmScheduleUtils extends TestScmBase {
         return isRunning;
     }
 
+    /**
+     * @descreption 输出任务信息
+     * @param session
+     * @param scheduleId
+     * @return
+     * @throws Exception
+     */
     public static void outputTaskInfo( ScmSession session, ScmId scheduleId )
             throws ScmException {
         List< String > infoList = new ArrayList<>();
@@ -224,6 +312,13 @@ public class ScmScheduleUtils extends TestScmBase {
                 + infoList );
     }
 
+    /**
+     * @descreption 输出文件信息
+     * @param ws
+     * @param fileIds
+     * @return
+     * @throws ScmException
+     */
     public static void outputScmfileInfo( ScmWorkspace ws,
             List< ScmId > fileIds ) throws ScmException {
         List< String > infoList = new ArrayList<>();
@@ -235,6 +330,13 @@ public class ScmScheduleUtils extends TestScmBase {
         logger.info( "ws = " + ws.getName() + ", file info \n" + infoList );
     }
 
+    /**
+     * @descreption 根据调度任务id获取任务id
+     * @param session
+     * @param scheduleId
+     * @return
+     * @throws
+     */
     public static ScmId getTaskId( ScmSession session, ScmId scheduleId )
             throws Exception {
         ScmCursor< ScmTaskBasicInfo > cursor = null;
@@ -254,8 +356,12 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * scheduleServer host time is not sync with SCM host time, cause may not
-     * match scmFile need to add sleep strategy
+     * @descreption scheduleServer host time is not sync with SCM host time,
+     *              cause may not match scmFile need to add sleep strategy
+     * @param session
+     * @param scheduleId
+     * @return
+     * @throws Exception
      */
     public static long sleepStrategy( ScmSession session, ScmWorkspace ws,
             ScmId scheduleId, ScmId fileId, int expEstCount ) throws Exception {
@@ -300,6 +406,12 @@ public class ScmScheduleUtils extends TestScmBase {
         return sleepTime;
     }
 
+    /**
+     * @descreption 根据字符串获取Date
+     * @param dateStr
+     * @return
+     * @throws ParseException
+     */
     public static Date getDate( String dateStr ) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd" );
@@ -327,6 +439,15 @@ public class ScmScheduleUtils extends TestScmBase {
         return branchSites;
     }
 
+    /**
+     * @descreption 创建迁移调度任务
+     * @param session
+     * @param sourceSite
+     * @param targetSite
+     * @param wsp
+     * @param cond
+     * @return
+     */
     public static ScmSchedule createCopySchedule( ScmSession session,
             SiteWrapper sourceSite, SiteWrapper targetSite, WsWrapper wsp,
             BSONObject cond ) throws ScmException {
@@ -345,6 +466,14 @@ public class ScmScheduleUtils extends TestScmBase {
         return schBuilder.build();
     }
 
+    /**
+     * @descreption 创建清理调度任务
+     * @param session
+     * @param targetSite
+     * @param wsp
+     * @param cond
+     * @return
+     */
     public static ScmSchedule createCleanSchedule( ScmSession session,
             SiteWrapper targetSite, WsWrapper wsp, BSONObject cond )
             throws ScmException {
@@ -363,7 +492,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 创建迁移任务
+     * @descreption 创建迁移调度任务
      * @param session
      * @param sourceSite
      * @param targetSite
@@ -394,7 +523,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 创建清理任务
+     * @descreption 创建清理任务
      * @param session
      * @param targetSite
      * @param wsp
@@ -423,8 +552,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * 创建清理调度任务更新为迁移任务
-     * 
+     * @descreption 创建清理调度任务更新为迁移任务
      * @param session
      * @param sourceSite
      * @param targetSite
@@ -460,8 +588,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * 创建迁移清理调度任务
-     *
+     * @descreption 创建迁移清理调度任务
      * @param session
      * @param sourceSite
      * @param targetSite
@@ -483,8 +610,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * 创建迁移清理调度任务
-     *
+     * @descreption 创建迁移清理调度任务
      * @param session
      * @param sourceSite
      * @param targetSite
@@ -519,8 +645,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * 校验db数据源lob表是否存在
-     *
+     * @descreption 校验db数据源lob表是否存在
      * @param site
      * @param csName
      * @return
@@ -547,6 +672,13 @@ public class ScmScheduleUtils extends TestScmBase {
         return isExist;
     }
 
+    /**
+     * @descreption 删除站点下的LobCS
+     * @param site
+     * @param csName
+     * @return
+     * @throws Exception
+     */
     public static void deleteLobCS( SiteWrapper site, String csName ) {
         Sequoiadb db = null;
         try {
@@ -561,10 +693,11 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 等待调度任务执行
+     * @descreption 等待调度任务执行
      * @param schedule
      * @param minTaskNum
      *            调度任务执行次数
+     * @return
      * @throws Exception
      */
     public static void waitForTask( ScmSchedule schedule, int minTaskNum )
@@ -585,10 +718,11 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 校验节点所在region
+     * @descreption 校验节点所在region
      * @param tasks
      * @param session
      * @param region
+     * @return
      * @throws Exception
      */
     public static void checkNodeRegion( List< ScmTask > tasks,
@@ -600,11 +734,12 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 校验节点所在region和zone
+     * @descreption 校验节点所在region和zone
      * @param tasks
      * @param session
      * @param region
      * @param zone
+     * @return
      * @throws Exception
      */
     public static void checkNodeRegionAndZone( List< ScmTask > tasks,
@@ -616,8 +751,9 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 获取执行调度任务的节点
+     * @descreption 获取执行调度任务的节点
      * @param tasks
+     * @return
      * @return
      */
     public static List< String > findRunNodeName( List< ScmTask > tasks ) {
@@ -650,6 +786,14 @@ public class ScmScheduleUtils extends TestScmBase {
         return runNodeNames;
     }
 
+    /**
+     * @descreption 校验节点的region和zone
+     * @param runNodeName
+     * @param session
+     * @param region
+     * @param zone
+     * @return
+     */
     private static void checkRegionAndZone( String runNodeName,
             ScmSession session, String region, String zone ) throws Exception {
         if ( runNodeName == null ) {
@@ -672,6 +816,13 @@ public class ScmScheduleUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验节点的region
+     * @param runNodeName
+     * @param session
+     * @param region
+     * @return
+     */
     private static void checkRegion( String runNodeName, ScmSession session,
             String region ) throws Exception {
         if ( runNodeName == null ) {
@@ -693,7 +844,7 @@ public class ScmScheduleUtils extends TestScmBase {
     }
 
     /**
-     * @Descrip 获取success_count值大于0的任务
+     * @descreption 获取success_count值大于0的任务
      * @param schedule
      * @return
      * @throws ScmException

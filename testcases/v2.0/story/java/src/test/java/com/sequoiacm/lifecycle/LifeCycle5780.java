@@ -50,7 +50,7 @@ public class LifeCycle5780 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
         // 指定主站点创建工作区

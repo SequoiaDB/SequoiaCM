@@ -32,7 +32,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -65,7 +65,7 @@ public class StatisticsFile3597 extends TestScmBase {
         calendar = Calendar.getInstance();
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         // 清理统计信息
         StatisticsUtils.clearStatisticalInfo();

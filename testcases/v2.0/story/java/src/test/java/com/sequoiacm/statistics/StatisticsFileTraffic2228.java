@@ -24,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
@@ -60,9 +60,9 @@ public class StatisticsFileTraffic2228 extends TestScmBase {
         List< SiteWrapper > sitelists = ScmInfo.getAllSites();
         siteA = sitelists.get( 0 );
         siteB = sitelists.get( 1 );
-        sessionA = TestScmTools.createSession( siteA );
+        sessionA = ScmSessionUtils.createSession( siteA );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( siteB );
+        sessionB = ScmSessionUtils.createSession( siteB );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
@@ -120,19 +120,19 @@ public class StatisticsFileTraffic2228 extends TestScmBase {
             if ( i < 10 ) {
                 // test a: the setCreateTime interval within one day
                 long timestamp = currentTimestamp;
-                fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                fileId = ScmFileUtils.createFileByStream( ws, subfileName,
                         fileData, authorName, timestamp );
             }
             if ( i >= 10 && i < 15 ) {
                 // test b: the setCreateTime interval within 5 days
                 long timestamp = currentTimestamp - 432000000;
-                fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                fileId = ScmFileUtils.createFileByStream( ws, subfileName,
                         fileData, authorName, timestamp );
             }
             if ( i >= 15 && i < fileNums ) {
                 // test c: the setCreateTime interval within
                 long timestamp = currentTimestamp - 2678400000L;
-                fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+                fileId = ScmFileUtils.createFileByStream( ws, subfileName,
                         fileData, authorName, timestamp );
             }
             fileIds.add( fileId );

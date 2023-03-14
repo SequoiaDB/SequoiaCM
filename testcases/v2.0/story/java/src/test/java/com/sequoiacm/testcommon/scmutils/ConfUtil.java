@@ -41,12 +41,17 @@ public class ConfUtil extends TestScmBase {
         rest = new RestTemplate( factory );
     }
 
+    /**
+     * @descreption 恢复指定服务
+     * @param serviceName
+     * @return
+     */
     public static void restore( String serviceName )
             throws ScmException, InterruptedException {
         ScmSession session = null;
         try {
             SiteWrapper site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             // restore audit configuration
             ScmConfigProperties confProp = null;
             if ( serviceName != null ) {
@@ -75,12 +80,18 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 修改指定服务节点配置
+     * @param serviceName
+     * @param confMap
+     * @return ScmUpdateConfResultSet
+     */
     public static ScmUpdateConfResultSet updateConf( String serviceName,
             Map< String, String > confMap ) throws ScmException {
         ScmSession session = null;
         try {
             SiteWrapper site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .service( serviceName ).updateProperties( confMap ).build();
             ScmUpdateConfResultSet actResults = ScmSystem.Configuration
@@ -94,12 +105,17 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 删除Audit配置
+     * @param serviceName
+     * @return
+     */
     public static void deleteAuditConf( String serviceName )
             throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             List< ScmServiceInstance > instances = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session, serviceName );
             Set< String > keySet = new HashSet< String >();
@@ -123,14 +139,14 @@ public class ConfUtil extends TestScmBase {
     /**
      * @descreption deleteAuditConf()接口的s3版本（s3端口号需要+1才能访问）
      * @param serviceName
-     * @throws ScmException
+     * @return
      */
     public static void deleteS3AuditConf( String serviceName )
             throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             List< ScmServiceInstance > instances = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session, serviceName );
             Set< String > keySet = new HashSet< String >();
@@ -154,9 +170,8 @@ public class ConfUtil extends TestScmBase {
     }
 
     /**
-     * 删除网关统计相关配置
-     * 
-     * @throws ScmException
+     * @descreption 删除网关统计相关配置
+     * @return
      */
     public static void deleteGateWayStatisticalConf() throws Exception {
         // 删除配置前清理统计表
@@ -164,7 +179,7 @@ public class ConfUtil extends TestScmBase {
         SiteWrapper site = ScmInfo.getSite();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             Set< String > confSet = new HashSet<>();
             confSet.add( "scm.statistics.types" );
             confSet.add(
@@ -214,6 +229,13 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 删除指定服务配置
+     * @param session
+     * @param serviceName
+     * @param keySet
+     * @return ScmUpdateConfResultSet
+     */
     public static ScmUpdateConfResultSet deleteConf( ScmSession session,
             String serviceName, Set< String > keySet ) throws ScmException {
         List keyList = new ArrayList< String >();
@@ -229,6 +251,11 @@ public class ConfUtil extends TestScmBase {
         return null;
     }
 
+    /**
+     * @descreption 验证服务配置未生效
+     * @param serviceName
+     * @return
+     */
     public static void checkNotTakeEffect( String serviceName )
             throws ScmException {
         switch ( serviceName ) {
@@ -263,13 +290,19 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 验证服务配置未生效
+     * @param site
+     * @param fileName
+     * @return
+     */
     public static void checkNotTakeEffect( SiteWrapper site, String fileName )
             throws ScmException {
         ScmSession session = null;
         ScmId fileId = null;
         ScmWorkspace ws = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             WsWrapper wsp = ScmInfo.getWs();
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             // create file
@@ -295,6 +328,11 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 验证服务配置已生效
+     * @param serviceName
+     * @return
+     */
     public static void checkTakeEffect( String serviceName ) throws Exception {
         switch ( serviceName ) {
         case "schedule-server":
@@ -316,13 +354,19 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 验证服务配置已生效
+     * @param site
+     * @param fileName
+     * @return
+     */
     public static void checkTakeEffect( SiteWrapper site, String fileName )
             throws Exception {
         ScmSession session = null;
         ScmId fileId = null;
         ScmWorkspace ws = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             // create file
             WsWrapper wsp = ScmInfo.getWs();
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
@@ -350,11 +394,13 @@ public class ConfUtil extends TestScmBase {
     }
 
     /**
-     * 1.successResult.getInstance() return hostname:port, but site.getUrl()
-     * from db maybe return ip:port, so just check successResult.getInstance()
-     * is not null. 2.we do not know the content of
-     * failResult.getErrorMessage(), so just check failResult.getErrorMessage()
-     * is not null.
+     * @descreption 验证UpdateConfResult返回
+     * @param actResults
+     * @param expSuccessNum
+     * @param expFailNum
+     * @param okServices
+     * @param failedSrevices
+     * @return
      */
     public static void checkResultSet( ScmUpdateConfResultSet actResults,
             int expSuccessNum, int expFailNum, List< String > okServices,
@@ -389,6 +435,12 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 验证修改后的配置
+     * @param addr
+     * @param expMap
+     * @return
+     */
     public static void checkUpdatedConf( String addr,
             Map< String, String > expMap ) {
         Map actMap = getConfByRest( addr );
@@ -404,6 +456,12 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 验证删除的配置
+     * @param addr
+     * @param keys
+     * @return
+     */
     public static void checkDeletedConf( String addr, List< String > keys ) {
         Map actMap = getConfByRest( addr );
         for ( String key : keys ) {
@@ -414,15 +472,18 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 创建并校验调度任务
+     * @return
+     */
     private static void createScheuleAndCheck() throws Exception {
         WsWrapper wsp = ScmInfo.getWs();
-        List< SiteWrapper > sites = ScmNetUtils.getCleanSites( wsp );
-        SiteWrapper branSite = sites.get( 1 );
+        SiteWrapper branSite = ScmInfo.getSite();
         ScmSession session = null;
         ScmId scheduleId = null;
         String scheName = TestTools.getClassName() + "_" + UUID.randomUUID();
         try {
-            session = TestScmTools.createSession( branSite );
+            session = ScmSessionUtils.createSession( branSite );
             ScmScheduleContent content = new ScmScheduleCleanFileContent(
                     branSite.getSiteName(), "0d", new BasicBSONObject() );
             String cron = "* * * * * ?";
@@ -452,13 +513,17 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 创建并验证用户
+     * @return
+     */
     private static void createUserAndCheck() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
         String userName = TestTools.getClassName() + "_" + UUID.randomUUID();
         ScmSession session = null;
         ScmUser user = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             user = ScmFactory.User.createUser( session, userName,
                     ScmUserPasswordType.LOCAL, TestTools.getClassName() );
             // check audit
@@ -483,6 +548,13 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验audit配置
+     * @param session
+     * @param bson
+     * @param str
+     * @return boolean
+     */
     public static boolean checkAudit( ScmSession session, BSONObject bson,
             String str ) throws ScmException {
         // check audit
@@ -505,13 +577,21 @@ public class ConfUtil extends TestScmBase {
         return isLogged;
     }
 
+    /**
+     * @descreption 创建用户并给用户赋权
+     * @param wsp
+     * @param name
+     * @param passwordType
+     * @param privileges
+     * @return
+     */
     public static void createUser( WsWrapper wsp, String name,
             ScmUserPasswordType passwordType, ScmPrivilegeType[] privileges )
             throws Exception {
         List< SiteWrapper > allSites = ScmInfo.getAllSites();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getRootSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
             ScmUser scmUser = null;
             if ( passwordType.equals( ScmUserPasswordType.LDAP ) ) {
                 scmUser = ScmFactory.User.createUser( session, name,
@@ -547,12 +627,18 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 创建用户和角色并赋权
+     * @param username
+     * @param rolename
+     * @return
+     */
     public static void deleteUserAndRole( String username, String rolename )
             throws ScmException {
         SiteWrapper site = ScmInfo.getSite();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             try {
                 ScmFactory.User.deleteUser( session, username );
             } catch ( ScmException e ) {
@@ -576,15 +662,32 @@ public class ConfUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 判断UpdateConfResult是否存在于services
+     * @param result
+     * @param services
+     * @return
+     */
     private static boolean isInSiteList( ScmUpdateConfResult result,
             List< String > services ) {
         return services.contains( result.getServiceName().toLowerCase() );
     }
 
+    /**
+     * @descreption 通过rest请求获取配置
+     * @param addr
+     * @return Map< String, String >
+     */
     private static Map< String, String > getConfByRest( String addr ) {
         return getConfByRest( addr, "" );
     }
 
+    /**
+     * @descreption 通过rest请求获取配置
+     * @param addr
+     * @param para
+     * @return Map< String, String >
+     */
     private static Map< String, String > getConfByRest( String addr,
             String para ) {
         String url = "http://" + addr + "/internal/v1/env" + para;
@@ -604,6 +707,11 @@ public class ConfUtil extends TestScmBase {
         return map;
     }
 
+    /**
+     * @descreption 打印通过rest请求获取配置
+     * @param url
+     * @return
+     */
     private static void printCurrConf( String url ) {
         Map< String, String > map = getConfByRest( url );
         for ( Map.Entry< String, String > entry : map.entrySet() ) {
@@ -618,6 +726,7 @@ public class ConfUtil extends TestScmBase {
      * @param session
      * @param type
      * @param message
+     * @return boolean
      * @throws ScmException
      */
     public static boolean checkAuditByType( ScmSession session, String type,
@@ -642,11 +751,11 @@ public class ConfUtil extends TestScmBase {
      * @throws ScmException
      */
     public static void checkLDAPConfig() throws ScmException {
-        ScmSession session = TestScmTools
+        ScmSession session = ScmSessionUtils
                 .createSession( ScmInfo.getRootSite() );
         ScmCursor< ScmHealth > scmHealthScmCursor = ScmSystem.Monitor
                 .listHealth( session, AUTH_SERVER_SERVICE_NAME );
-        try{
+        try {
             while ( scmHealthScmCursor.hasNext() ) {
                 String nodeName = scmHealthScmCursor.getNext().getNodeName();
                 Map< ? , ? > confByRest = getConfByRest( nodeName );

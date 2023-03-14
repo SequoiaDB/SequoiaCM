@@ -8,7 +8,6 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -16,7 +15,6 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.lifecycle.*;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -75,7 +73,7 @@ public class LifeCycle5754 extends TestScmBase {
         site2 = branchSites.get( 1 );
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );

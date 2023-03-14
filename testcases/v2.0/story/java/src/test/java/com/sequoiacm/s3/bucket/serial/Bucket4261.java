@@ -34,7 +34,7 @@ public class Bucket4261 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         envBuckets = S3Utils.getEnvBuckets();
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
             String buckeName = bucketNameBase + i;

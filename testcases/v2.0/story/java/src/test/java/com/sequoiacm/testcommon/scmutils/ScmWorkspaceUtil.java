@@ -21,6 +21,15 @@ import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.exception.BaseException;
+import org.apache.log4j.Logger;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.testng.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description ScmWrokspaceUtil.java
@@ -33,8 +42,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
             .getLogger( ScmWorkspaceUtil.class );
 
     /**
-     * 创建普通的工作区
-     * 
+     * @descreption 创建普通的工作区
      * @param session
      * @param wsName
      * @param siteNum
@@ -53,8 +61,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
-     * 创建工作区禁用目录
-     * 
+     * @descreption 创建工作区禁用目录
      * @param session
      * @param wsName
      * @param siteNum
@@ -74,8 +81,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
-     * 指定分区方式创建工作区
-     *
+     * @descreption 指定分区方式创建工作区
      * @param session
      * @param wsName
      * @param siteNum
@@ -96,8 +102,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
-     * 创建带批次和目录开关的工作区
-     * 
+     * @descreption 创建带批次和目录开关的工作区
      * @param session
      * @param wsName
      * @param siteNum
@@ -127,8 +132,7 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
-     * 创建带批次信息的工作区
-     * 
+     * @descreption 创建带批次信息的工作区
      * @param session
      * @param wsName
      * @param siteNum
@@ -156,6 +160,14 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return createWS( session, conf );
     }
 
+    /**
+     * @descreption 创建工作区
+     * @param session
+     * @param conf
+     * @return ScmWorkspace
+     * @throws ScmException
+     * @throws InterruptedException
+     */
     public static ScmWorkspace createWS( ScmSession session,
             ScmWorkspaceConf conf ) throws ScmException, InterruptedException {
         ScmFactory.Workspace.createWorkspace( session, conf );
@@ -175,6 +187,12 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return ws;
     }
 
+    /**
+     * @descreption 获取工作区元数据Location
+     * @param scmShardingType
+     * @return ScmMetaLocation
+     * @throws
+     */
     public static ScmMetaLocation getMetaLocation(
             ScmShardingType scmShardingType )
             throws ScmInvalidArgumentException {
@@ -184,6 +202,12 @@ public class ScmWorkspaceUtil extends TestScmBase {
                         .get( 0 ) );
     }
 
+    /**
+     * @descreption 获取工作区站点数据Location
+     * @param siteNum
+     * @return List< ScmDataLocation >
+     * @throws ScmInvalidArgumentException
+     */
     public static List< ScmDataLocation > getDataLocationList( int siteNum )
             throws ScmInvalidArgumentException {
         SiteWrapper rootSite = ScmInfo.getRootSite();
@@ -231,6 +255,13 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return scmDataLocationList;
     }
 
+    /**
+     * @descreption 准备工作区的DataLocation信息
+     * @param siteList
+     * @param ScmShardingType
+     * @return List< ScmDataLocation >
+     * @throws ScmInvalidArgumentException
+     */
     public static List< ScmDataLocation > prepareWsDataLocation(
             List< SiteWrapper > siteList, ScmShardingType ScmShardingType )
             throws ScmInvalidArgumentException {
@@ -291,6 +322,14 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return scmDataLocationList;
     }
 
+    /**
+     * @descreption 校验工作区修改
+     * @param session
+     * @param wsName
+     * @param expDataLocations
+     * @return
+     * @throws ScmException
+     */
     public static void checkWsUpdate( ScmSession session, String wsName,
             List< ScmDataLocation > expDataLocations ) throws ScmException {
         ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
@@ -306,11 +345,26 @@ public class ScmWorkspaceUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 工作区赋权
+     * @param session
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
     public static void wsSetPriority( ScmSession session, String wsName )
             throws ScmException, InterruptedException {
         wsSetPriority( session, wsName, ScmPrivilegeType.ALL );
     }
 
+    /**
+     * @descreption 工作区赋权
+     * @param session
+     * @param wsName
+     * @param privilege
+     * @return
+     * @throws ScmException
+     */
     public static void wsSetPriority( ScmSession session, String wsName,
             ScmPrivilegeType privilege )
             throws ScmException, InterruptedException {
@@ -342,6 +396,15 @@ public class ScmWorkspaceUtil extends TestScmBase {
         Assert.fail( "grantPrivilege is not done in 60 seconds" );
     }
 
+    /**
+     * @descreption 创建工作区
+     * @param session
+     * @param wsName
+     * @param metaStr
+     * @param dataStr
+     * @return
+     * @throws ScmException
+     */
     public static ScmWorkspace createWs( ScmSession session, String wsName,
             String metaStr, String dataStr ) throws Exception {
         Ssh ssh = null;
@@ -378,6 +441,13 @@ public class ScmWorkspaceUtil extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 删除工作区
+     * @param session
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
     public static void deleteWs( String wsName, ScmSession session )
             throws Exception {
         try {
@@ -396,13 +466,20 @@ public class ScmWorkspaceUtil extends TestScmBase {
                 if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
                     throw e;
                 }
-                TestSdbTools.Workspace.checkWsCs( wsName, session );
+                checkWsCs( wsName, session );
                 return;
             }
         }
         Assert.fail( "delete ws is not done in 15 seconds" );
     }
 
+    /**
+     * @descreption 工作区删除站点
+     * @param ws
+     * @param siteName
+     * @return
+     * @throws ScmException
+     */
     public static void wsRemoveSite( ScmWorkspace ws, String siteName )
             throws ScmException, InterruptedException {
         ws.removeDataLocation( siteName );
@@ -423,10 +500,11 @@ public class ScmWorkspaceUtil extends TestScmBase {
     }
 
     /**
+     * @descreption 工作区新增站点
      * @param ws
      * @param site
+     * @return
      * @throws ScmException
-     * @throws InterruptedException
      */
     public static void wsAddSite( ScmWorkspace ws, SiteWrapper site )
             throws ScmException, InterruptedException {
@@ -474,6 +552,13 @@ public class ScmWorkspaceUtil extends TestScmBase {
         Assert.fail( "ws add site is not done in 15 seconds" );
     }
 
+    /**
+     * @descreption 工作区新增站点
+     * @param ws
+     * @param dataLocation
+     * @return
+     * @throws ScmException
+     */
     public static void wsAddSite( ScmWorkspace ws,
             ScmDataLocation dataLocation )
             throws ScmException, InterruptedException {
@@ -500,8 +585,8 @@ public class ScmWorkspaceUtil extends TestScmBase {
      * @descreption 创建关闭目录的ws供s3功能使用
      * @param session
      * @param wsName
-     * @throws Exception
      * @return
+     * @throws Exception
      */
     public static ScmWorkspace createS3WS( ScmSession session, String wsName )
             throws Exception {
@@ -516,6 +601,13 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return ScmWorkspaceUtil.createWS( session, conf );
     }
 
+    /**
+     * @descreption 根据站点获取DataLocationList
+     * @param siteNum
+     * @param dataLocationShardingType
+     * @return
+     * @throws Exception
+     */
     public static List< ScmDataLocation > getDataLocationList( int siteNum,
             ScmShardingType ScmShardingType )
             throws ScmInvalidArgumentException {
@@ -589,4 +681,32 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return scmDataLocationList;
     }
 
+    /**
+     * @descreption 校验工作区下CS
+     * @param wsName
+     * @param session
+     * @return
+     * @throws ScmException
+     */
+    public static void checkWsCs( String wsName, ScmSession session )
+            throws ScmException {
+        Sequoiadb rSdb = null;
+        try {
+            rSdb = new Sequoiadb(mainSdbUrl,
+                    sdbUserName, sdbPassword);
+            // check workspace's cs
+            String metaCSName = wsName + "_META";
+            rSdb.getCollectionSpace( metaCSName );
+            Assert.fail( "ws " + wsName
+                    + " already deleted, meta cs should not exist" );
+        } catch ( BaseException e ) {
+            if ( e.getErrorCode() != -34 ) {
+                throw e;
+            }
+        } finally {
+            if ( rSdb != null ) {
+                rSdb.close();
+            }
+        }
+    }
 }

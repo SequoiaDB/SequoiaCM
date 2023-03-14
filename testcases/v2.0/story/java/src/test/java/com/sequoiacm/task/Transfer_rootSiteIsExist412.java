@@ -29,7 +29,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -84,9 +84,9 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
             branceSite = ScmInfo.getBranchSite();
             ws_T = ScmInfo.getWs();
 
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             prepareFiles( wsA );
         } catch ( Exception e ) {
@@ -197,7 +197,7 @@ public class Transfer_rootSiteIsExist412 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             // login
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
 

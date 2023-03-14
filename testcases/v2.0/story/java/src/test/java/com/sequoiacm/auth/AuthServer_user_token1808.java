@@ -24,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -47,7 +47,7 @@ public class AuthServer_user_token1808 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getRootSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             wsp = ScmInfo.getWs();
 
             // clean new user and role
@@ -91,7 +91,7 @@ public class AuthServer_user_token1808 extends TestScmBase {
         // login and operation business
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( site, NAME, "test123456" );
+            ss = ScmSessionUtils.createSession( site, NAME, "test123456" );
             Assert.assertEquals( ss.getUser(), NAME );
             // grant privilege
             ScmResource resource = ScmResourceFactory

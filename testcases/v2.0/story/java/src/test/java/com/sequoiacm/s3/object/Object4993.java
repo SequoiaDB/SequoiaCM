@@ -37,7 +37,7 @@ public class Object4993 extends TestScmBase {
     public void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         s3WS = ScmWorkspaceUtil.createS3WS( session, wsName );
 

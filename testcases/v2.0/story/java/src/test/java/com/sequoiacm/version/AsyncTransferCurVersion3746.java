@@ -5,6 +5,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
@@ -54,7 +55,7 @@ public class AsyncTransferCurVersion3746 extends TestScmBase {
         branchSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -65,8 +66,7 @@ public class AsyncTransferCurVersion3746 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
-        fileId = VersionUtils.createFileByFile( rootSiteWs, fileName,
-                filePath );
+        fileId = ScmFileUtils.create( rootSiteWs, fileName, filePath );
         for ( int i = 0; i < maxVersion - 1; i++ ) {
             VersionUtils.updateContentByFile( rootSiteWs, fileName, fileId,
                     updatefilePath );
@@ -74,7 +74,7 @@ public class AsyncTransferCurVersion3746 extends TestScmBase {
 
         ScmFactory.File.asyncTransfer( rootSiteWs, fileId, maxVersion, 0,
                 branchSite.getSiteName() );
-        VersionUtils.waitAsyncTaskFinished( rootSiteWs, fileId, maxVersion, 2 );
+        ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId, maxVersion, 2 );
         SiteWrapper[] expCurrentFileSiteList = { rootSite, branchSite };
         VersionUtils.checkSite( rootSiteWs, fileId, maxVersion,
                 expCurrentFileSiteList );

@@ -1,14 +1,12 @@
 package com.sequoiacm.audit;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
@@ -16,7 +14,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +38,7 @@ public class Audit4286 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         s3ServiceNames = S3Utils.getS3ServiceName( session );
         for ( String s3ServiceName : s3ServiceNames ) {
             ConfUtil.deleteS3AuditConf( s3ServiceName );

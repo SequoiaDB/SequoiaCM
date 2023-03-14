@@ -29,7 +29,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -81,7 +81,7 @@ public class Transfer_stopSameTask439 extends TestScmBase {
             cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( authorName ).get();
             ScmFileUtils.cleanFile( ws_T, cond );
-            session = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            session = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
             prepareFiles( session );
         } catch ( Exception e ) {
@@ -96,9 +96,9 @@ public class Transfer_stopSameTask439 extends TestScmBase {
         ScmSession sessionA = null;
         ScmSession sessionB = null;
         try {
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
+            sessionB = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
 
             StopTaskThread stopTaskThreadM = new StopTaskThread( sessionM );
             StopTaskThread stopTaskThreadA = new StopTaskThread( sessionA );
@@ -178,7 +178,7 @@ public class Transfer_stopSameTask439 extends TestScmBase {
             throws IOException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
             for ( ScmId fileId : fileIdList ) {
@@ -242,7 +242,7 @@ public class Transfer_stopSameTask439 extends TestScmBase {
         ScmSession session = null;
         List< ScmId > fileIdListed = new ArrayList< ScmId >();
         try {
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
             for ( ScmId fileId : fileIdList ) {

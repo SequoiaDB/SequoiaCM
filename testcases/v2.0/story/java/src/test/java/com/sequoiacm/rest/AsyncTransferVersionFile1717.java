@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.springframework.http.HttpMethod;
 import org.testng.Assert;
@@ -20,7 +21,7 @@ import com.sequoiacm.testcommon.RestWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -50,15 +51,15 @@ public class AsyncTransferVersionFile1717 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByStream( wsA, fileId, updatedata );
     }
 
@@ -66,7 +67,7 @@ public class AsyncTransferVersionFile1717 extends TestScmBase {
     private void test() throws Exception {
 
         restAsyncTransferVersionFile();
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2 );
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2 );
 
         VersionUtils.checkFileVersion( wsM, fileId, 1 );
         VersionUtils.CheckFileContentByStream( wsM, fileName, 1, filedata );

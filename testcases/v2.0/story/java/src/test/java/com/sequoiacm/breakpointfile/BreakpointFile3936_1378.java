@@ -16,6 +16,12 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.ScmSessionUtils;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testresource.SkipTestException;
@@ -60,9 +66,9 @@ public class BreakpointFile3936_1378 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( sites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( sites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( sites.get( 1 ) );
+        sessionB = ScmSessionUtils.createSession( sites.get( 1 ) );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
     }
 

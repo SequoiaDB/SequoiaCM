@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:listSite接口测试
@@ -54,7 +54,7 @@ public class Param_listSite957 extends TestScmBase {
     private void testSessionIsInvalid() {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             session.close();
             ScmFactory.Site.listSite( session );
             Assert.fail( "can not listsite when session was closed" );

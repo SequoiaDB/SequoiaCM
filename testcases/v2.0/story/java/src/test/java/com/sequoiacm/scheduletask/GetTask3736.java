@@ -42,7 +42,7 @@ public class GetTask3736 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         cleanSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
     }
 
     @Test(groups = { "fourSite", "star", GroupTags.base })

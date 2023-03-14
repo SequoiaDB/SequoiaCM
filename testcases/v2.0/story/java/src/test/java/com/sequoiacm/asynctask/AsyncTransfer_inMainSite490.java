@@ -9,7 +9,6 @@ import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -22,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
@@ -72,7 +71,7 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
             branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             ws_T = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             prepareFiles();
         } catch ( Exception e ) {
@@ -96,7 +95,7 @@ public class AsyncTransfer_inMainSite490 extends TestScmBase {
     private void startest() throws Exception {
         ScmSession sessionM = null;
         try {
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     sessionM );
             ScmFactory.File.asyncTransfer( ws, fileId );

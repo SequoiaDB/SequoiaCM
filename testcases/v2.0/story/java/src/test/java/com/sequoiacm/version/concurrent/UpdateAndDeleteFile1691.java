@@ -28,7 +28,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -59,12 +59,12 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
         List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, writeData,
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, writeData,
                 authorName );
     }
 
@@ -177,7 +177,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -200,7 +200,7 @@ public class UpdateAndDeleteFile1691 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );

@@ -24,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
@@ -58,7 +58,7 @@ public class Audit2354 extends TestScmBase {
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
         ConfUtil.createUser( wsp, username3, ScmUserPasswordType.LOCAL,
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -127,7 +127,7 @@ public class Audit2354 extends TestScmBase {
         ScmSession session = null;
         ScmSchedule schedule = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmScheduleContent copyContent = new ScmScheduleCopyFileContent(
                     branchSite.getSiteName(), rootSite.getSiteName(), "3650d",
                     new BasicBSONObject(), ScmType.ScopeType.SCOPE_CURRENT );

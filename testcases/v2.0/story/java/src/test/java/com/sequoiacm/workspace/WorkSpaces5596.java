@@ -4,6 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.sequoiacm.client.common.ScmType;
+import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
+import com.sequoiacm.common.ScmShardingType;
+import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -65,7 +70,7 @@ public class WorkSpaces5596 extends TestScmBase {
 
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         siteList.add( site );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
 

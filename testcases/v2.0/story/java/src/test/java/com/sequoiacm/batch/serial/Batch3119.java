@@ -18,7 +18,7 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -42,7 +42,7 @@ public class Batch3119 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         // 指定batch_sharding_type为NONE,设置batch_id_time_regexp、batch_id_time_parttern
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),
@@ -88,7 +88,7 @@ public class Batch3119 extends TestScmBase {
         private void create() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmBatch batch = ScmFactory.Batch.createInstance( ws, batchId );

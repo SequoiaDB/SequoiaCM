@@ -55,7 +55,7 @@ public class LifeCycle5775 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
@@ -269,7 +269,7 @@ public class LifeCycle5775 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 workspace.applyTransition( fowlName );
@@ -288,7 +288,7 @@ public class LifeCycle5775 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 workspace.removeTransition( fowlName );
@@ -307,7 +307,7 @@ public class LifeCycle5775 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 workspace.updateTransition( fowlName, updateTransition );

@@ -59,7 +59,7 @@ public class AuthWs_Dir5914 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         query = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();
@@ -74,7 +74,7 @@ public class AuthWs_Dir5914 extends TestScmBase {
     @Test
     private void test() throws Exception {
         // 新用户创建session和ws
-        newSession = TestScmTools.createSession( site, username, passwd );
+        newSession = ScmSessionUtils.createSession( site, username, passwd );
         newWs = ScmFactory.Workspace.getWorkspace( wsp.getName(), newSession );
 
         // 赋予工作区CREATE、UPDATE、READ

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -59,9 +58,9 @@ public class ReadFileByStreamNet247 extends TestScmBase {
         scmSite1 = siteList.get( 0 );
         scmSite2 = siteList.get( 1 );
 
-        sessionA = TestScmTools.createSession( scmSite1 );
+        sessionA = ScmSessionUtils.createSession( scmSite1 );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( scmSite2 );
+        sessionB = ScmSessionUtils.createSession( scmSite2 );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
     }
 

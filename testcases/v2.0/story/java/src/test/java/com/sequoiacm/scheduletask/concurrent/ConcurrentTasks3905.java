@@ -15,7 +15,6 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
@@ -72,11 +71,11 @@ public class ConcurrentTasks3905 extends TestScmBase {
         branchSite2 = branchSitesList.get( 1 );
         branchSite3 = branchSitesList.get( 2 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
         branchSite1Workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
 
@@ -151,7 +150,7 @@ public class ConcurrentTasks3905 extends TestScmBase {
         private void fileMigration() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( sourceSite );
+                session = ScmSessionUtils.createSession( sourceSite );
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 BSONObject queryCond = ScmQueryBuilder

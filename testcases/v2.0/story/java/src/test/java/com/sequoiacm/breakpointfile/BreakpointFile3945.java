@@ -38,7 +38,7 @@ public class BreakpointFile3945 extends TestScmBase {
         List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 

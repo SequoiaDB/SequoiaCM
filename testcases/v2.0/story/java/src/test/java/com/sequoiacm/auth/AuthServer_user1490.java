@@ -15,7 +15,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1490:普通角色创建用户
@@ -36,7 +36,7 @@ public class AuthServer_user1490 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
 
             // clean new user and role
             try {
@@ -62,7 +62,7 @@ public class AuthServer_user1490 extends TestScmBase {
         this.createUserAndRole();
 
         // login ordinary user
-        ScmSession ss = TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
 
         // create user by ordinary user
         try {

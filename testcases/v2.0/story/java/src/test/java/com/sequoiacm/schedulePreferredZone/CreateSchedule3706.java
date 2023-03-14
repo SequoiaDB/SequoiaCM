@@ -3,10 +3,8 @@ package com.sequoiacm.schedulePreferredZone;
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -16,7 +14,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,8 +64,8 @@ public class CreateSchedule3706 extends TestScmBase {
         wsp = ScmInfo.getWs();
         sourceSite = ScmInfo.getBranchSite();
         targetSite = ScmInfo.getRootSite();
-        sourceSiteSession = TestScmTools.createSession( sourceSite );
-        targetSiteSession = TestScmTools.createSession( targetSite );
+        sourceSiteSession = ScmSessionUtils.createSession( sourceSite );
+        targetSiteSession = ScmSessionUtils.createSession( targetSite );
         sourceSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 sourceSiteSession );
         targetSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -145,7 +142,7 @@ public class CreateSchedule3706 extends TestScmBase {
         BSONObject bson = new BasicBSONObject();
         bson.put( "schedule_id", cleanSchedule.getId().get() );
         bson.put( "actual_count", 1 );
-        ScmSession session = TestScmTools
+        ScmSession session = ScmSessionUtils
                 .createSession( ScmInfo.getBranchSite() );
         ScmWorkspace workspace = ScmFactory.Workspace
                 .getWorkspace( wsp.getName(), session );

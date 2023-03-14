@@ -47,7 +47,7 @@ public class StatisticsFile3604 extends TestScmBase {
         List< WsWrapper > wsList = ScmInfo.getAllWorkspaces();
         wsp1 = wsList.get( 0 );
         wsp2 = wsList.get( 1 );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp1.getName(), session );
         ws2 = ScmFactory.Workspace.getWorkspace( wsp2.getName(), session );
         ConfUtil.deleteGateWayStatisticalConf();

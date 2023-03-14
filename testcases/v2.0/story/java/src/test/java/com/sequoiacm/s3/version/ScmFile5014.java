@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,11 +35,11 @@ public class ScmFile5014 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
-        fileId = S3Utils.createFile( scmBucket, fileName, filedata );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filedata );
     }
 
     @Test
@@ -50,7 +51,7 @@ public class ScmFile5014 extends TestScmBase {
             updateSize = i * 200;
             updatedata = new byte[ updateSize ];
             new Random().nextBytes( updatedata );
-            S3Utils.createFile( scmBucket, fileName, updatedata, author );
+            ScmFileUtils.createFile( scmBucket, fileName, updatedata, author );
         }
 
         int version = -2;

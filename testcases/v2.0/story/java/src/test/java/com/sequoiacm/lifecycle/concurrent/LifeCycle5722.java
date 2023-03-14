@@ -1,6 +1,5 @@
 package com.sequoiacm.lifecycle.concurrent;
 
-import com.sequoiacm.client.core.ScmWorkspace;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -15,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -40,7 +39,7 @@ public class LifeCycle5722 extends TestScmBase {
     @BeforeClass
     public void setUp() throws ScmException {
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         config = LifeCycleUtils.getDefaultScmLifeCycleConfig();
         LifeCycleUtils.cleanLifeCycleConfig( session );
     }
@@ -77,7 +76,7 @@ public class LifeCycle5722 extends TestScmBase {
     private class SetTag extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() throws ScmException {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             try {
                 ScmFactory.Site.setSiteStageTag( session,
                         rootSite.getSiteName(), tagHot );
@@ -90,7 +89,7 @@ public class LifeCycle5722 extends TestScmBase {
     private class AlterTag extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() throws ScmException {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             try {
                 ScmFactory.Site.alterSiteStageTag( session,
                         rootSite.getSiteName(), tagWarm );

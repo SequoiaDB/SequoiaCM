@@ -63,14 +63,14 @@ public class StatisticsFile3818 extends TestScmBase {
             throw new SkipTestException( "need 2 wss!!!!" );
         }
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
 
         site = ScmInfo.getSite();
         wsp1 = ScmInfo.getAllWorkspaces().get( 0 );
         wsp2 = ScmInfo.getAllWorkspaces().get( 1 );
 
-        siteSession1 = TestScmTools.createSession( site );
-        siteSession2 = TestScmTools.createSession( site );
+        siteSession1 = ScmSessionUtils.createSession( site );
+        siteSession2 = ScmSessionUtils.createSession( site );
         siteWorkspace1 = ScmFactory.Workspace.getWorkspace( wsp1.getName(),
                 siteSession1 );
         siteWorkspace2 = ScmFactory.Workspace.getWorkspace( wsp2.getName(),
@@ -162,26 +162,26 @@ public class StatisticsFile3818 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // user1上传文件
         for ( int i = 0; i < uploadFilesSuccedNums1; i++ ) {
-            int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
+            int totalUploadTime = ( int ) ScmFileUtils.createFiles(
                     filePathList.get( i ), fileName, fileIdList,
                     siteWorkspace1 );
             uploadTime1.add( totalUploadTime );
         }
         int count = uploadFilesSuccedNums1 + uploadFilesFaidNums1;
         for ( int i = uploadFilesSuccedNums1; i < count; i++ ) {
-            StatisticsUtils.uploadFileFialed( filePathList.get( i ), fileName,
+            ScmFileUtils.createFileFialed( filePathList.get( i ), fileName,
                     fileIdList, siteWorkspace1 );
         }
         // user2上传文件
         for ( int i = count; i < count + uploadFilesSuccedNums2; i++ ) {
-            int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
+            int totalUploadTime = ( int ) ScmFileUtils.createFiles(
                     filePathList.get( i ), fileName, fileIdList,
                     siteWorkspace2 );
             uploadTime2.add( totalUploadTime );
         }
 
         for ( int i = count + uploadFilesSuccedNums2; i < fileNums; i++ ) {
-            StatisticsUtils.uploadFileFialed( filePathList.get( i ), fileName,
+            ScmFileUtils.createFileFialed( filePathList.get( i ), fileName,
                     fileIdList, siteWorkspace2 );
         }
     }

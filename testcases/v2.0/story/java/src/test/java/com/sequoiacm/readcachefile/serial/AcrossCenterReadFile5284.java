@@ -12,7 +12,7 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -39,7 +39,7 @@ public class AcrossCenterReadFile5284 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession();
+        session = ScmSessionUtils.createSession();
         ScmWorkspaceUtil.deleteWs( wsName, session );
         dataLocationList = ScmWorkspaceUtil
                 .getDataLocationList( ScmInfo.getSiteNum() );

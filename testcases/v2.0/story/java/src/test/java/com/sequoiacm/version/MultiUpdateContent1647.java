@@ -1,7 +1,6 @@
 package com.sequoiacm.version;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
@@ -18,7 +17,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -72,7 +71,7 @@ public class MultiUpdateContent1647 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -86,7 +85,7 @@ public class MultiUpdateContent1647 extends TestScmBase {
         byte[] contentdata = new byte[ dataSize ];
         // version is 1,first write to the file
         if ( version == 1 ) {
-            fileId = VersionUtils.createFileByStream( ws, fileName,
+            fileId = ScmFileUtils.createFileByStream( ws, fileName,
                     contentdata );
         } else {
             // updatecontent of the file

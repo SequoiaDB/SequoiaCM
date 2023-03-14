@@ -19,7 +19,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
@@ -45,7 +45,7 @@ public class AuthWs_Param_RevokePrivilege1789 extends TestScmBase {
         try {
             site = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             cleanEnv();
             prepare();
         } catch ( ScmException e ) {
@@ -58,7 +58,7 @@ public class AuthWs_Param_RevokePrivilege1789 extends TestScmBase {
     private void testSSInexist() {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             session.close();
             ScmFactory.Role.revokePrivilege( session, role, rs,
                     ScmPrivilegeType.READ );

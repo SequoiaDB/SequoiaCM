@@ -89,7 +89,7 @@ public class WorkSpaces5604 extends TestScmBase {
         passwdErrorFilePath = CephS3Utils.preparePasswdFile( site,
                 passwdErrorLocalPath, passwordErrorFileName );
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "twoSite", "fourSite" })

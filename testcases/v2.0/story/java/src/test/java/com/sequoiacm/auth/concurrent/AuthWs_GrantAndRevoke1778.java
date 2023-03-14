@@ -7,10 +7,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmDirectory;
 import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmPrivilege;
 import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmUser;
@@ -25,13 +23,9 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author fanyu
@@ -59,11 +53,11 @@ public class AuthWs_GrantAndRevoke1778 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( site );
+        sessionA = ScmSessionUtils.createSession( site );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         cleanEnv();
         prepare();
-        newUserSession = TestScmTools.createSession( site, username, passwd );
+        newUserSession = ScmSessionUtils.createSession( site, username, passwd );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)

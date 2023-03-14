@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 
 /**
@@ -44,7 +44,7 @@ public class AuthServer_user1557 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         try {
@@ -66,7 +66,7 @@ public class AuthServer_user1557 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws ScmException {
         for ( int i = 0; i < 30; i++ ) {
-            ScmSession ss = TestScmTools.createSession( site, NAME, PASSWORD );
+            ScmSession ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
             ssIdList.add( ss.getSessionId() );
         }
 
@@ -86,14 +86,14 @@ public class AuthServer_user1557 extends TestScmBase {
         Assert.assertFalse( cursor.hasNext() );
 
         try {
-            TestScmTools.createSession( site, NAME, PASSWORD );
+            ScmSessionUtils.createSession( site, NAME, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "login with the old password, errorMsg = ["
                     + e.getError() + "]" );
         }
 
-        ScmSession ss = TestScmTools.createSession( site, NAME,
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME,
                 "new_" + PASSWORD );
         ss.close();
 
@@ -130,7 +130,7 @@ public class AuthServer_user1557 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
 
                 ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
                 ScmUserModifier modifier = new ScmUserModifier();
@@ -150,7 +150,7 @@ public class AuthServer_user1557 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
 
                 Random random = new Random();
                 int tmpI = random.nextInt( ssIdList.size() );

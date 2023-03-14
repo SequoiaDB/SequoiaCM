@@ -1,7 +1,6 @@
 package com.sequoiacm.reloadconf.serial;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -27,10 +26,8 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.Ssh;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.base.Sequoiadb;
@@ -76,8 +73,8 @@ public class ReloadConf464 extends TestScmBase {
         branceSiteList = ScmInfo.getBranchSites( 2 );
         siteList = ScmInfo.getAllSites();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
-        TestSdbTools.Workspace.delete( wsName1, session );
+        session = ScmSessionUtils.createSession( rootSite );
+        ScmWorkspaceUtil.deleteWs( wsName1, session );
         domainNameList.add( "metaDomain1" );
         domainNameList.add( "dataDomain1" );
         domainNameList.add( "dataDomain2" );
@@ -88,8 +85,8 @@ public class ReloadConf464 extends TestScmBase {
         createws( wsName1 );
         SiteWrapper branceSite1 = branceSiteList.get( 0 );
         SiteWrapper branceSite2 = branceSiteList.get( 1 );
-        ScmSession session1 = TestScmTools.createSession( branceSite1 );
-        ScmSession session2 = TestScmTools.createSession( branceSite2 );
+        ScmSession session1 = ScmSessionUtils.createSession( branceSite1 );
+        ScmSession session2 = ScmSessionUtils.createSession( branceSite2 );
         List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
                 ServerScope.SITE, branceSite1.getSiteId(), session2 );
         System.out.println( "infoList after reloadbizconf: \n" + infoList );
@@ -130,7 +127,7 @@ public class ReloadConf464 extends TestScmBase {
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
         } finally {
-            TestSdbTools.Workspace.delete( wsName1, session );
+            ScmWorkspaceUtil.deleteWs( wsName1, session );
             for ( SiteWrapper site : siteList ) {
                 if ( site.getDataType().equals( DatasourceType.SEQUOIADB ) ) {
                     dropAllDomain( site, domainNameList, false );
@@ -161,7 +158,7 @@ public class ReloadConf464 extends TestScmBase {
                 + "\'}";
         String dataStr1 = createDataStr( domainNameList );
         try {
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspaceUtil.createWs( session, wsName, metaStr1, dataStr1 );
         } catch ( Exception e ) {
             e.printStackTrace();

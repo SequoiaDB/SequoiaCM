@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -47,7 +47,7 @@ public class AuthDir_None1727 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             try {
                 ScmFactory.User.deleteUser( sessionA, username );
             } catch ( ScmException e ) {
@@ -62,7 +62,7 @@ public class AuthDir_None1727 extends TestScmBase {
         try {
             user = ScmFactory.User.createUser( sessionA, username,
                     ScmUserPasswordType.LOCAL, passwd );
-            session = TestScmTools.createSession( site, username, passwd );
+            session = ScmSessionUtils.createSession( site, username, passwd );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         } catch ( ScmException e ) {
             e.printStackTrace();

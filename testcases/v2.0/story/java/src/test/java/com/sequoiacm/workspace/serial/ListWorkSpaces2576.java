@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ListUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -45,7 +45,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         for ( int i = 0; i < wsNum; i++ ) {
             String wsName = wsNamePrefix + "-" + i;
             ScmWorkspaceUtil.deleteWs( wsName, session );
@@ -128,7 +128,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
         double totalNum = 0;
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             while ( tmpSkip < wsList.size() ) {
                 ScmCursor< ScmWorkspaceInfo > cursor = ScmFactory.Workspace
                         .listWorkspace( session, orderby, tmpSkip, limit );
@@ -203,7 +203,7 @@ public class ListWorkSpaces2576 extends TestScmBase {
                 throw e;
             }
         }
-        ScmSession scmSession = TestScmTools.createSession( site );
+        ScmSession scmSession = ScmSessionUtils.createSession( site );
         scmSession.close();
         try {
             ScmFactory.Workspace.listWorkspace( scmSession,

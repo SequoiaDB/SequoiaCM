@@ -35,7 +35,7 @@ public class Param_setClOptions2258 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName1, session );
         ScmWorkspaceUtil.deleteWs( wsName2, session );
     }

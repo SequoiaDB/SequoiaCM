@@ -1,9 +1,7 @@
 package com.sequoiacm.scheduletask;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.bson.BSONObject;
@@ -28,7 +26,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -73,10 +71,10 @@ public class ScheduleTask1229 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
-        branchSiteSession = TestScmTools.createSession( branSite );
+        branchSiteSession = ScmSessionUtils.createSession( branSite );
         branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession );
 

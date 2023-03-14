@@ -27,7 +27,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -72,8 +72,8 @@ public class AuthWsDir_None1731 extends TestScmBase {
             rootsite = ScmInfo.getRootSite();
             branchsite = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            sessionM = TestScmTools.createSession( rootsite );
-            sessionB = TestScmTools.createSession( branchsite );
+            sessionM = ScmSessionUtils.createSession( rootsite );
+            sessionB = ScmSessionUtils.createSession( branchsite );
             wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
             try {
                 ScmFactory.User.deleteUser( sessionM, username );
@@ -89,9 +89,9 @@ public class AuthWsDir_None1731 extends TestScmBase {
         try {
             user = ScmFactory.User.createUser( sessionM, username,
                     ScmUserPasswordType.LOCAL, passwd );
-            sessionUM = TestScmTools.createSession( rootsite, username,
+            sessionUM = ScmSessionUtils.createSession( rootsite, username,
                     passwd );
-            sessionUB = TestScmTools.createSession( branchsite, username,
+            sessionUB = ScmSessionUtils.createSession( branchsite, username,
                     passwd );
             wsUM = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionUM );

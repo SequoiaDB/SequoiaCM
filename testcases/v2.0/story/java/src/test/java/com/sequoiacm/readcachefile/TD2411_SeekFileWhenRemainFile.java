@@ -58,7 +58,7 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
                     "the behavior of cephS3 is inconsistent with other data sources" );
         }
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
@@ -120,7 +120,7 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream in = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             // read content

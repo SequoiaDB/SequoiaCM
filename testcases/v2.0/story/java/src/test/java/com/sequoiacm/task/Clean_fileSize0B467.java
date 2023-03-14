@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -26,7 +25,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -81,7 +80,7 @@ public class Clean_fileSize0B467 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
             // login in
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
             writeFileFromSubCenterB();
             readFileFromMainCenter();
@@ -139,7 +138,7 @@ public class Clean_fileSize0B467 extends TestScmBase {
         ScmSession sessionM = null;
         try {
             // login
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     sessionM );
             // read content

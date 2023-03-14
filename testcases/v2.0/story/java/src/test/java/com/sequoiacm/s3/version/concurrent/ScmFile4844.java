@@ -5,10 +5,11 @@ import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -60,7 +61,7 @@ public class ScmFile4844 extends TestScmBase {
             md5List.add( TestTools.getMD5( filePath ) );
         }
 
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
@@ -69,7 +70,7 @@ public class ScmFile4844 extends TestScmBase {
         for ( int j = 0; j < objectNum; j++ ) {
             String key = keyName + "_" + j;
             for ( int i = 0; i < versionNum; i++ ) {
-                S3Utils.createFile( bucket, key, filePathList.get( i ) );
+                ScmFileUtils.createFile( bucket, key, filePathList.get( i ) );
             }
             keyList.add( key );
         }

@@ -24,7 +24,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -57,7 +57,7 @@ public class Transfer_getTaskInfo426 extends TestScmBase {
             // login
             // session = TestScmTools.createSession(TestScmBase.hostName2,
             // TestScmBase.port2);
-            session = TestScmTools.createSession( branceSite );
+            session = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
             // cleanEnv

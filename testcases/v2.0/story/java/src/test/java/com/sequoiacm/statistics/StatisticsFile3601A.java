@@ -55,7 +55,7 @@ public class StatisticsFile3601A extends TestScmBase {
         }
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         new Random().nextBytes( bytes );
         prepareEnv();

@@ -15,7 +15,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -39,7 +39,7 @@ public class UpdateConfAfterFail2294 extends TestScmBase {
         // update configuration failed
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( updatedSite );
+            session = ScmSessionUtils.createSession( updatedSite );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .acceptUnknownProperties( true )
                     .service( updatedSite.getSiteServiceName() )
@@ -62,7 +62,7 @@ public class UpdateConfAfterFail2294 extends TestScmBase {
         // update configuration again
         ScmSession session1 = null;
         try {
-            session1 = TestScmTools.createSession( updatedSite );
+            session1 = ScmSessionUtils.createSession( updatedSite );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .acceptUnknownProperties( true )
                     .service( updatedSite.getSiteServiceName() )

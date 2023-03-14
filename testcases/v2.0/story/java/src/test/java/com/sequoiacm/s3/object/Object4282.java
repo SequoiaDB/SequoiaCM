@@ -48,7 +48,7 @@ public class Object4282 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // 开启目录工作区
         WsWrapper wsp = ScmInfo.getWs();

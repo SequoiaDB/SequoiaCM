@@ -1,13 +1,8 @@
 package com.sequoiacm.s3.bucket.concurrent;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
-import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -44,7 +39,7 @@ public class Bucket4234 extends TestScmBase {
 
         site = ScmInfo.getSite();
         int siteNum = ScmInfo.getSiteNum();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.createS3WS(session, wsName);
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         createBuckets( bucketName, 1, 3 );

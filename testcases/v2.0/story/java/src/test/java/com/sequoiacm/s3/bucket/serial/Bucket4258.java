@@ -43,11 +43,11 @@ public class Bucket4258 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
+        adminSession = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         // 新建用户赋予默认s3工作区权限
         ScmAuthUtils.createAdminUserGrant( adminSession, s3WorkSpaces, username,
                 password );
-        newUserSession = TestScmTools.createSession( ScmInfo.getRootSite(),
+        newUserSession = ScmSessionUtils.createSession( ScmInfo.getRootSite(),
                 username, password );
         // 清理环境
         dropBuckets();

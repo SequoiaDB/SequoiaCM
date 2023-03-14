@@ -19,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
@@ -69,22 +69,22 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
 
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
-        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName,
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
+        sbFile = ScmBreakpointFileUtils.createBreakpointFileByStream( wsA, fileName,
                 updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         ScmFactory.File.asyncTransfer( wsA, fileId, rootSite.getSiteName() );
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2, 30 );
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, 1, 2, 30 );
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new CleanFileThread() );
         es.addWorker( new UpdateFileThread() );
@@ -137,7 +137,7 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
         private void exec() throws ScmException, InterruptedException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile scmFile = ScmFactory.File.getInstance( ws, fileId );
@@ -155,7 +155,7 @@ public class UpdateAndCleanVersionFile1699 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 BSONObject cond = ScmQueryBuilder

@@ -30,7 +30,7 @@ public class CreateScmFile3693 extends TestScmBase {
     @BeforeClass
     public void setUp() throws ScmException {
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         workspace = ScmFactory.Workspace
                 .getWorkspace( ScmInfo.getWs().getName(), session );
     }

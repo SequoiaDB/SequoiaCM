@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -67,7 +67,7 @@ public class AuthWs_UserWithNoAll1740 extends TestScmBase {
 
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             cleanEnv();
             prepare();
         } catch ( ScmException e ) {
@@ -84,7 +84,7 @@ public class AuthWs_UserWithNoAll1740 extends TestScmBase {
         ScmUser user = null;
         ScmRole role = null;
         try {
-            session = TestScmTools.createSession( site, usernameArr[ 0 ],
+            session = ScmSessionUtils.createSession( site, usernameArr[ 0 ],
                     passwd );
             user = ScmFactory.User.createUser( session, username,
                     ScmUserPasswordType.LOCAL, passwd );
@@ -120,7 +120,7 @@ public class AuthWs_UserWithNoAll1740 extends TestScmBase {
         ScmUser user = null;
         ScmRole role = null;
         try {
-            session = TestScmTools.createSession( site, usernameArr[ 1 ],
+            session = ScmSessionUtils.createSession( site, usernameArr[ 1 ],
                     passwd );
             user = ScmFactory.User.createUser( session, username,
                     ScmUserPasswordType.LOCAL, passwd );
@@ -156,7 +156,7 @@ public class AuthWs_UserWithNoAll1740 extends TestScmBase {
         ScmUser user = null;
         ScmRole role = null;
         try {
-            session = TestScmTools.createSession( site, usernameArr[ 2 ],
+            session = ScmSessionUtils.createSession( site, usernameArr[ 2 ],
                     passwd );
             user = ScmFactory.User.createUser( session, username,
                     ScmUserPasswordType.LOCAL, passwd );

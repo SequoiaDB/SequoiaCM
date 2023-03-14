@@ -1,6 +1,5 @@
 package com.sequoiacm.lifecycle;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
  * @descreption SCM-5765:一次性迁移指定目标站点阶段标签
@@ -57,7 +55,7 @@ public class LifeCycle5765 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         LifeCycleUtils.cleanLifeCycleConfig( session );

@@ -1,6 +1,5 @@
 package com.sequoiacm.lifecycle;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.lifecycle.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
@@ -53,7 +51,7 @@ public class LifeCycle5756 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         lifeCycleConfig = LifeCycleUtils.getDefaultScmLifeCycleConfig();
 
         ScmWorkspaceUtil.deleteWs( wsName, session );

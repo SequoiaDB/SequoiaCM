@@ -49,7 +49,7 @@ public class AcrossCenterReadFile5281 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        sessionM = TestScmTools.createSession( ScmInfo.getRootSite() );
+        sessionM = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         wsp = ScmInfo.getWs();
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         wsM.updateSiteCacheStrategy( ScmSiteCacheStrategy.ALWAYS );
@@ -65,7 +65,7 @@ public class AcrossCenterReadFile5281 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( updatePath, fileSize / 2 );
         branchSite = ScmInfo.getBranchSite();
-        sessionA = TestScmTools.createSession( branchSite );
+        sessionA = ScmSessionUtils.createSession( branchSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileAuthor ).get();

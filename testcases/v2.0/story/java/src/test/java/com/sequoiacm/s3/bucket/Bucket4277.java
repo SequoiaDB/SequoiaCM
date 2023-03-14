@@ -6,7 +6,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -41,11 +41,11 @@ public class Bucket4277 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
+        adminSession = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
 
         // 新建用户
         user = ScmAuthUtils.createUser( adminSession, username, password );
-        newUserSession = TestScmTools.createSession( ScmInfo.getRootSite(),
+        newUserSession = ScmSessionUtils.createSession( ScmInfo.getRootSite(),
                 username, password );
         role = ScmAuthUtils.createRole( adminSession, roleName );
 

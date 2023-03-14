@@ -11,17 +11,13 @@ import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @Descreption SCM-3273:headBucket请求查询桶（标准模式）
@@ -72,7 +68,7 @@ public class QueryBucket3273 extends TestScmBase {
     }
 
     private void checkWs( String wsName ) throws ScmException {
-        ScmSession session = TestScmTools.createSession( ScmInfo.getSite() );
+        ScmSession session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ScmCursor< ScmWorkspaceInfo > cursor = ScmFactory.Workspace
                 .listWorkspace( session );
         boolean flag = false;

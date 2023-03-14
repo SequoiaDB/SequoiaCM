@@ -34,7 +34,7 @@ public class GetWorkSpaceInfo1828 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "twoSite", "fourSite" })

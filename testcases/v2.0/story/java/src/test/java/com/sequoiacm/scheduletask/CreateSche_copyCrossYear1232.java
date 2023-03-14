@@ -12,7 +12,6 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScheduleType;
@@ -69,7 +68,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
             // get site and workspace, create session
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                     .is( name ).get();
         } catch ( Exception e ) {
@@ -129,7 +128,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
             throws ScmException, ParseException {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     ss );
 
@@ -156,7 +155,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
     private void createScheduleTask( String maxStayTime ) {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
 
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
@@ -182,7 +181,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
     private void deleteScheduleTask() {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmSystem.Schedule.delete( ss, scheduleId );
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmScheduleUtils.cleanTask( ss, scheduleId );
@@ -200,7 +199,7 @@ public class CreateSche_copyCrossYear1232 extends TestScmBase {
             SiteWrapper[] expSites ) throws Exception {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     ss );
             ScmScheduleUtils.checkScmFile( ws, fileIds, startNum, endNum,

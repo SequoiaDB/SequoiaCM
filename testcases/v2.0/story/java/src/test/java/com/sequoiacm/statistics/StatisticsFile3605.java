@@ -16,6 +16,11 @@ import com.sequoiacm.client.element.ScmUpdateConfResultSet;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.ScmSessionUtils;
+import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
@@ -48,7 +53,7 @@ public class StatisticsFile3605 extends TestScmBase {
         List< WsWrapper > wsList = ScmInfo.getAllWorkspaces();
         wsp1 = wsList.get( 0 );
         wsp2 = wsList.get( 1 );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp1.getName(), session );
         ws2 = ScmFactory.Workspace.getWorkspace( wsp2.getName(), session );
         // 清理文件

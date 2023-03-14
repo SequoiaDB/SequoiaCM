@@ -53,7 +53,7 @@ public class BucketDirectory4119 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         S3Client = CephS3Utils.createConnect( site );
     }

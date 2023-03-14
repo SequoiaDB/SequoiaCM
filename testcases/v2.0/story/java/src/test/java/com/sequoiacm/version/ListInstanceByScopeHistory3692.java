@@ -42,7 +42,7 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
     @BeforeClass
     public void setUp() throws ScmException, IOException {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         WsWrapper wsp = ScmInfo.getWs();
         workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond1 = ScmQueryBuilder
@@ -55,9 +55,9 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond2 );
 
         // 创建两个文件更新历史版本
-        fileId1 = VersionUtils.createFileByStream( workspace, fileNameBase + 1,
+        fileId1 = ScmFileUtils.createFileByStream( workspace, fileNameBase + 1,
                 writedata, fileNameBase );
-        fileId2 = VersionUtils.createFileByStream( workspace, fileNameBase + 2,
+        fileId2 = ScmFileUtils.createFileByStream( workspace, fileNameBase + 2,
                 writedata, fileNameBase );
         VersionUtils.updateContentByStream( workspace, fileId1, updatedata );
         VersionUtils.updateContentByStream( workspace, fileId2, updatedata );

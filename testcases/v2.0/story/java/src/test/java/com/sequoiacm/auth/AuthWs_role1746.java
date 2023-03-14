@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
@@ -52,7 +52,7 @@ public class AuthWs_role1746 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         // clean
         cleanEnv();
         // prepare user
@@ -69,7 +69,7 @@ public class AuthWs_role1746 extends TestScmBase {
                 wsp.getName() );
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( site, NAME, PASSWORD );
+            ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
             ScmFactory.Role.grantPrivilege( ss, roles.get( 1 ), resource,
                     ScmPrivilegeType.ALL );
             Assert.fail( "expect failed but actual succ." );

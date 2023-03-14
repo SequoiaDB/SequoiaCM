@@ -3,6 +3,9 @@ package com.sequoiacm.testcommon.dsutils;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.WsWrapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -19,6 +22,11 @@ import com.sequoiacm.testcommon.TestScmBase;
 public class HbaseUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( HbaseUtils.class );
 
+    /**
+     * @descreption 获取Hbase数据源连接
+     * @param site
+     * @return Connection
+     */
     public static Connection getConnection( SiteWrapper site )
             throws IOException {
         // get hbase's host and port
@@ -34,6 +42,12 @@ public class HbaseUtils extends TestScmBase {
         return ConnectionFactory.createConnection( config );
     }
 
+    /**
+     * @descreption Hbase数据源创建NS
+     * @param site
+     * @param nsName
+     * @return
+     */
     public static void createNS( SiteWrapper site, String nsName )
             throws IOException {
         Admin admin = null;
@@ -51,6 +65,12 @@ public class HbaseUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption Hbase数据源删除NS
+     * @param site
+     * @param nsName
+     * @return
+     */
     public static void deleteNS( SiteWrapper site, String nsName )
             throws IOException {
         Admin admin = null;
@@ -67,6 +87,12 @@ public class HbaseUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption Hbase数据源判断NS是否存在
+     * @param site
+     * @param nsName
+     * @return boolean
+     */
     private static boolean isExistNS( SiteWrapper site, String nsName )
             throws IOException {
         boolean isExist = false;
@@ -85,8 +111,15 @@ public class HbaseUtils extends TestScmBase {
         return isExist;
     }
 
+    /**
+     * @descreption Hbase数据源判断表名是否存在于NS
+     * @param site
+     * @param nsName
+     * @param tableName
+     * @return boolean
+     */
     public static boolean isInNS( SiteWrapper site, String nsName,
-            String tablename ) throws IOException {
+            String tableName ) throws IOException {
         boolean isIn = false;
         Admin admin = null;
         try {
@@ -94,7 +127,7 @@ public class HbaseUtils extends TestScmBase {
             HTableDescriptor[] tabledescs = admin
                     .listTableDescriptorsByNamespace( nsName );
             for ( HTableDescriptor descriptor : tabledescs ) {
-                if ( descriptor.getNameAsString().equals( tablename ) ) {
+                if ( descriptor.getNameAsString().equals( tableName ) ) {
                     isIn = true;
                     break;
                 }
@@ -105,6 +138,41 @@ public class HbaseUtils extends TestScmBase {
             }
         }
         return isIn;
+    }
+
+    /**
+     * @descreption Hbase数据源获取工作区对应表名
+     * @param site
+     * @param ws
+     * @return boolean
+     */
+    public static String getDataTableNameInHbase( SiteWrapper site,
+            WsWrapper ws ) throws ScmException {
+        return getDataTableNameInHbase( site.getSiteId(), ws.getName() );
+    }
+
+    /**
+     * @descreption Hbase数据源获取工作区对应表名
+     * @param siteId
+     * @param wsName
+     * @return boolean
+     */
+    public static String getDataTableNameInHbase(int siteId, String wsName )
+            throws ScmException {
+        String prefix = wsName + "_SCMFILE";
+
+        String dataShardingType = TestSdbTools.getDataShardingTypeForOtherDs( siteId,
+                wsName );
+        if ( null == dataShardingType ) {
+            dataShardingType = "month";
+        }
+        String postfix = TestSdbTools.getCsClPostfix( dataShardingType );
+
+        if ( !dataShardingType.equals( "none" ) ) {
+            prefix += "_";
+        }
+
+        return prefix + postfix;
     }
 
     public static void deleteTableInHbase( SiteWrapper site ) throws Exception {

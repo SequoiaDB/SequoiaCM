@@ -62,18 +62,18 @@ public class StatisticsFile4090 extends TestScmBase {
         uploadBreakpointFileSuccess = fileSizes.length
                 - uploadBreakpointFileFailedNums
                 - breakpointFileToFileFailedNums;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
 
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
         ConfUtil.deleteGateWayStatisticalConf();
 
         // 提前创建文件和断点文件，构造断点文件上传失败和断点文件转为文件失败
         for ( int i = 0; i < uploadBreakpointFileFailedNums; i++ ) {
-            StatisticsUtils.createAndUploadBreakpointFile( fileName + i,
+            ScmBreakpointFileUtils.createAndUploadBreakpointFile( fileName + i,
                     siteWorkspace, filePathList.get( i ) );
         }
 
@@ -179,7 +179,7 @@ public class StatisticsFile4090 extends TestScmBase {
         for ( int i = uploadBreakpointFileFailedNums; i < uploadBreakpointFileFailedNums
                 + breakpointFileToFileFailedNums; i++ ) {
             try {
-                StatisticsUtils.createAndUploadBreakpointFile( fileName + i,
+                ScmBreakpointFileUtils.createAndUploadBreakpointFile( fileName + i,
                         siteWorkspace, filePathList.get( i ) );
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
                         .getInstance( siteWorkspace, fileName + i );
@@ -201,10 +201,10 @@ public class StatisticsFile4090 extends TestScmBase {
         int breakpointFileToFileTime;
         for ( int i = uploadBreakpointFileFailedNums
                 + breakpointFileToFileFailedNums; i < fileNums; i++ ) {
-            createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+            createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                     .createAndUploadBreakpointFile( fileName + i, siteWorkspace,
                             filePathList.get( i ) );
-            breakpointFileToFileTime = ( int ) StatisticsUtils
+            breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                     .breakpointFileToFile( fileName + i, siteWorkspace,
                             fileName + i, fileIdList );
             uploadTime.add( createAndUploadBreakpointFileTime

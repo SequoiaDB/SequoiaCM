@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -67,7 +67,7 @@ public class AcrossCenterReadFile235 extends TestScmBase {
             branSites = ScmInfo.getBranchSites( branSitesNum );
             wsp = ScmInfo.getWs();
 
-            ss = TestScmTools.createSession( branSites.get( 0 ) );
+            ss = ScmSessionUtils.createSession( branSites.get( 0 ) );
             work = ScmFactory.Workspace.getWorkspace( wsp.getName(), ss );
         } catch ( BaseException | IOException e ) {
             Assert.fail( e.getMessage() );
@@ -124,7 +124,7 @@ public class AcrossCenterReadFile235 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            session = TestScmTools.createSession( branSites.get( 1 ) );
+            session = ScmSessionUtils.createSession( branSites.get( 1 ) );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
 
@@ -165,7 +165,7 @@ public class AcrossCenterReadFile235 extends TestScmBase {
         OutputStream fos = null;
         try {
             // login
-            ss = TestScmTools.createSession( rootSite );
+            ss = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     ss );
 
@@ -203,7 +203,7 @@ public class AcrossCenterReadFile235 extends TestScmBase {
     private void checkFreeSite( SiteWrapper site ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFileUtils.checkData( ws, fileId, localPath, filePath );

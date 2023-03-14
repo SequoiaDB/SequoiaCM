@@ -20,7 +20,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -45,7 +45,7 @@ public class CreateDirAndDeletePaDir1170 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             deleteDir( ws, fullPath2 );
             ScmFactory.Directory.createInstance( ws, fullPath1 );
@@ -145,7 +145,7 @@ public class CreateDirAndDeletePaDir1170 extends TestScmBase {
         public void exec() {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.Directory.deleteInstance( ws, fullPath1 );
@@ -166,7 +166,7 @@ public class CreateDirAndDeletePaDir1170 extends TestScmBase {
         public void exec() {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.Directory.createInstance( ws, fullPath2 );

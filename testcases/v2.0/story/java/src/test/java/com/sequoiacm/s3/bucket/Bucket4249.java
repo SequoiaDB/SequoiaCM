@@ -1,7 +1,6 @@
 package com.sequoiacm.s3.bucket;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.Bucket;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
@@ -48,7 +47,7 @@ public class Bucket4249 extends TestScmBase {
         S3Utils.deleteEmptyBucketsWithPrefix( s3Client, bucketName );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsNameA, session );
         ScmWorkspaceUtil.deleteWs( wsNameB, session );
 

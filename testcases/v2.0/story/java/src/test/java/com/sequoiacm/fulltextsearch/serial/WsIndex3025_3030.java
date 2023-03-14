@@ -18,7 +18,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -36,7 +36,7 @@ public class WsIndex3025_3030 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         int siteNum = ScmInfo.getSiteNum();
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ws = ScmWorkspaceUtil.createWS( session, wsName, siteNum );

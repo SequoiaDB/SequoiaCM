@@ -100,7 +100,7 @@ public class Object4238 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces,
                     session );

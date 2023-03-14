@@ -27,7 +27,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
@@ -65,7 +65,7 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         // get site and workspace, create session
         rootSite = ScmInfo.getRootSite();
         branSite = ScmInfo.getBranchSite();
-        ssA = TestScmTools.createSession( branSite );
+        ssA = ScmSessionUtils.createSession( branSite );
         ScmWorkspaceUtil.deleteWs( wsName, ssA );
         ScmWorkspaceUtil.createWS( ssA, wsName, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( ssA, wsName );

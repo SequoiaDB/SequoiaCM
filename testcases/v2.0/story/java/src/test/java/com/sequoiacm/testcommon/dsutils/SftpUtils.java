@@ -30,6 +30,11 @@ public class SftpUtils extends TestScmBase {
     private static SimpleDateFormat monthFm = new SimpleDateFormat( "MM" );
     private static SimpleDateFormat daythFm = new SimpleDateFormat( "dd" );
 
+    /**
+     * @descreption Sftp数据源指定分区规则获取路径前缀
+     * @param shardType
+     * @return String
+     */
     public static String getSftpPostfix( ScmShardingType shardType ) {
         Date currTime = new Date();
         String currY = yearFm.format( currTime );
@@ -51,6 +56,12 @@ public class SftpUtils extends TestScmBase {
         return postfix;
     }
 
+    /**
+     * @descreption 指定主机创建目录
+     * @param host
+     * @param dir
+     * @return
+     */
     public static void createDirectory( String host, String dir )
             throws Exception {
         Ssh ssh = null;
@@ -84,6 +95,12 @@ public class SftpUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 指定主机删除目录
+     * @param host
+     * @param dir
+     * @return
+     */
     public static void deleteDirectory( String host, String dir )
             throws Exception {
         Ssh ssh = null;
@@ -117,6 +134,13 @@ public class SftpUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 指定Sftp站点创建工作区
+     * @param session
+     * @param site
+     * @param wsName
+     * @return ScmWorkspace
+     */
     public static ScmWorkspace createWS( ScmSession session, SiteWrapper site,
             String wsName ) throws ScmException, InterruptedException {
         ScmWorkspace ws;

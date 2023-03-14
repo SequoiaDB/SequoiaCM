@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-1480 :: 用户名/密码错误
@@ -35,7 +35,7 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             site = ScmInfo.getSite();
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
@@ -57,7 +57,7 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
     private void test() {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username,
+            session = ScmSessionUtils.createSession( site, username,
                     passwd + "_testInfoError" );
             Assert.fail( "exp login fail but act success,session = "
                     + session.toString() );
@@ -79,7 +79,7 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
     private void testInfoError() {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username,
+            session = ScmSessionUtils.createSession( site, username,
                     passwd + "_testInfoError" );
             Assert.fail( "exp login fail but act success,session = "
                     + session.toString() );
@@ -102,7 +102,7 @@ public class AuthServer_LoginOnInfoError1480 extends TestScmBase {
         ScmSession session1 = null;
         try {
             ScmFactory.User.deleteUser( session, user );
-            session1 = TestScmTools.createSession( site, username, passwd );
+            session1 = ScmSessionUtils.createSession( site, username, passwd );
             Assert.fail( "exp login fail but act success,session1 = "
                     + session1.toString() );
         } catch ( ScmException e ) {

@@ -21,7 +21,7 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -45,7 +45,7 @@ public class Batch3115 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         // 指定batch_sharding_type,比如YEAR,设置batch_id_time_regexp、batch_id_time_parttern，设置batch_file_name_unique为false
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),

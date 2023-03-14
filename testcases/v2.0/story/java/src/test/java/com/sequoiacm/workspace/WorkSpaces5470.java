@@ -40,7 +40,7 @@ public class WorkSpaces5470 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         siteList = ScmInfo.getAllSites();
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );

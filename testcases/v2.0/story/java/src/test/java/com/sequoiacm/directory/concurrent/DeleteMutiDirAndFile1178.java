@@ -29,7 +29,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -58,7 +58,7 @@ public class DeleteMutiDirAndFile1178 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             BSONObject cond = ScmQueryBuilder
@@ -209,7 +209,7 @@ public class DeleteMutiDirAndFile1178 extends TestScmBase {
         public void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 for ( int i = 0; i < subPathList.size(); i++ ) {

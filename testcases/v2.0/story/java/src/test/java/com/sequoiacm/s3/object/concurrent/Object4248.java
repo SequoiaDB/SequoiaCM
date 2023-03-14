@@ -53,7 +53,7 @@ public class Object4248 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         s3Client = S3Utils.buildS3Client();

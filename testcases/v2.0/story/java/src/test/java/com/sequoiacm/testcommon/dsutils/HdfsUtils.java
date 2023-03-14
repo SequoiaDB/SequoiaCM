@@ -30,6 +30,11 @@ public class HdfsUtils extends TestScmBase {
     private static SimpleDateFormat monthFm = new SimpleDateFormat( "MM" );
     private static String urlKey = "fs.defaultFS";
 
+    /**
+     * @descreption HDFS数据源获取FileSystem
+     * @param site
+     * @return FileSystem
+     */
     public static FileSystem getFs( SiteWrapper site ) {
         Configuration conf = new Configuration();
         conf.set( urlKey, TestScmBase.hdfsURI );
@@ -46,6 +51,14 @@ public class HdfsUtils extends TestScmBase {
         return fs;
     }
 
+    /**
+     * @descreption HDFS数据源指定fileId下载对象
+     * @param site
+     * @param ws
+     * @param fileId
+     * @param filePath
+     * @return
+     */
     public static void download( SiteWrapper site, WsWrapper ws, ScmId fileId,
             String filePath ) throws IOException {
         FileSystem fs = null;
@@ -72,6 +85,14 @@ public class HdfsUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption HDFS数据源指定fileId上传对象
+     * @param site
+     * @param ws
+     * @param fileId
+     * @param filePath
+     * @return
+     */
     public static void upload( SiteWrapper site, WsWrapper ws, ScmId fileId,
             String filePath ) throws IOException {
         FileSystem fs = null;
@@ -99,6 +120,12 @@ public class HdfsUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption HDFS数据源创建目录
+     * @param path
+     * @param site
+     * @return
+     */
     public static void mkdir( Path path, SiteWrapper site ) throws IOException {
         FileSystem fs = null;
         boolean mkdirsFlag = false;
@@ -118,6 +145,12 @@ public class HdfsUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption HDFS数据源删除目录
+     * @param path
+     * @param site
+     * @return
+     */
     public static void deletePath( SiteWrapper site, String path )
             throws IOException {
         FileSystem fs = getFs( site );
@@ -137,6 +170,13 @@ public class HdfsUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption HDFS数据源指定fileId删除对象
+     * @param site
+     * @param ws
+     * @param fileId
+     * @return
+     */
     public static void delete( SiteWrapper site, WsWrapper ws, ScmId fileId )
             throws IOException {
         String path = null;
@@ -149,6 +189,12 @@ public class HdfsUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption HDFS数据源获取工作区对应Path
+     * @param site
+     * @param ws
+     * @return String
+     */
     private static String getPath( SiteWrapper site, WsWrapper ws ) {
         // ws.getDataLocation();
         Date currTime = new Date();
@@ -172,6 +218,12 @@ public class HdfsUtils extends TestScmBase {
         return path;
     }
 
+    /**
+     * @descreption HDFS数据源获取工作区对应路径RootPath
+     * @param site
+     * @param ws
+     * @return String
+     */
     public static String getRootPath( SiteWrapper site, WsWrapper ws ) {
         String rootPath = "/scm";
         List< BSONObject > dataLocation = ws.getDataLocation();

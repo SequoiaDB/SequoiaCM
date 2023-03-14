@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -48,8 +48,8 @@ public class WorkspaceAddSite2189_2190 extends TestScmBase {
     public void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
-        sessionB = TestScmTools.createSession( branchSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
+        sessionB = ScmSessionUtils.createSession( branchSite );
         ScmWorkspaceUtil.deleteWs( wsNameA, sessionM );
         ScmWorkspaceUtil.deleteWs( wsNameB, sessionM );
     }

@@ -20,7 +20,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1498:普通角色删除用户 SCM-1499:用户正在被使用，删除该用户
@@ -43,7 +43,7 @@ public class AuthServer_user1498_1499 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
 
             // clean new user
             for ( int i = 0; i < USER_NUM; i++ ) {
@@ -78,7 +78,7 @@ public class AuthServer_user1498_1499 extends TestScmBase {
     }
 
     private void test_delUserByOrdinaryUser() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME + "_0",
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME + "_0",
                 PASSWORD );
         try {
             ScmFactory.User.deleteUser( ss, NAME + "_1" );
@@ -95,7 +95,7 @@ public class AuthServer_user1498_1499 extends TestScmBase {
         String username = NAME + "_1";
         List< ScmSession > ss = new ArrayList<>();
         for ( int i = 0; i < 10; i++ ) {
-            ScmSession tmpSS = TestScmTools.createSession( site, username,
+            ScmSession tmpSS = ScmSessionUtils.createSession( site, username,
                     PASSWORD );
             ss.add( tmpSS );
         }

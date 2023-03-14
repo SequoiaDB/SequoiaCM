@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -21,7 +20,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -58,7 +57,7 @@ public class Scmfile940_writeByOutputStream_emptyFile extends TestScmBase {
 
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         } catch ( Exception e ) {
             e.printStackTrace();

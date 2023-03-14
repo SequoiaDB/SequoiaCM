@@ -1,9 +1,8 @@
 package com.sequoiacm.version.concurrent;
 
-import java.io.IOException;
-
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -17,8 +16,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.TestThreadBase;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -49,12 +47,12 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsM, fileName, writeData,
+        fileId = ScmFileUtils.createFileByStream( wsM, fileName, writeData,
                 authorName );
     }
 
@@ -118,7 +116,7 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 
@@ -126,7 +124,7 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
                 int currentVersion = file.getMajorVersion();
                 ScmFactory.File.asyncCache( ws, fileId, currentVersion, 0 );
-                VersionUtils.waitAsyncTaskFinished( ws, fileId, currentVersion,
+                ScmTaskUtils.waitAsyncTaskFinished( ws, fileId, currentVersion,
                         sitenums );
             } finally {
                 if ( session != null ) {
@@ -147,7 +145,7 @@ public class UpdateAndAsyncCacheFile1694 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( rootSite );
+                session = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 VersionUtils.updateContentByStream( ws, fileId, updateData );

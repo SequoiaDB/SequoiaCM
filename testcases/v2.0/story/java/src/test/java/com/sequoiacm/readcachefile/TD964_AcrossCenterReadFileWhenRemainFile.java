@@ -62,7 +62,7 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         }
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
         BSONObject cond = ScmQueryBuilder
@@ -124,7 +124,7 @@ public class TD964_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private void readFileFromB() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( branSites.get( 1 ) );
+            session = ScmSessionUtils.createSession( branSites.get( 1 ) );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
 

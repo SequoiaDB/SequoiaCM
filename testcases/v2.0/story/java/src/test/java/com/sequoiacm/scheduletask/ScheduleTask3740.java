@@ -2,7 +2,6 @@ package com.sequoiacm.scheduletask;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleContent;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
@@ -52,7 +51,7 @@ public class ScheduleTask3740 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

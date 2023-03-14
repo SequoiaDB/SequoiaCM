@@ -26,7 +26,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
@@ -51,7 +51,7 @@ public class FullText3066 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
@@ -121,7 +121,7 @@ public class FullText3066 extends TestScmBase {
         private void inspect() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.inspectIndex( ws );
@@ -143,7 +143,7 @@ public class FullText3066 extends TestScmBase {
         private void drop() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
             } finally {
                 if ( session != null ) {

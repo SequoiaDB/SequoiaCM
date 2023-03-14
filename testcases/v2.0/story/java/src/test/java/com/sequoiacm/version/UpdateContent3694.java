@@ -1,13 +1,10 @@
 package com.sequoiacm.version;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -15,7 +12,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * @description SCM-3694:创建ScmFile对象，未执行save更新文件内容
@@ -45,7 +41,7 @@ public class UpdateContent3694 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         workspace = ScmFactory.Workspace
                 .getWorkspace( ScmInfo.getWs().getName(), session );
     }

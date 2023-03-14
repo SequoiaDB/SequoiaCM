@@ -62,7 +62,7 @@ public class CopyFile5253 extends TestScmBase {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileAuthor ).get();

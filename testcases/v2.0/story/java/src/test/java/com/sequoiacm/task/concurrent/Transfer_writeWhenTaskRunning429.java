@@ -24,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -82,7 +82,7 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             prepareFiles( sessionA );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -170,7 +170,7 @@ public class Transfer_writeWhenTaskRunning429 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession ss = null;
             try {
-                ss = TestScmTools.createSession( branceSite );
+                ss = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), ss );
                 synchronized ( fileIdList ) {

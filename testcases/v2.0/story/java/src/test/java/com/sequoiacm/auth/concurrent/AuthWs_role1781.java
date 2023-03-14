@@ -25,7 +25,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -53,7 +53,7 @@ public class AuthWs_role1781 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         // clean users and roles
         cleanEnv();
@@ -161,7 +161,7 @@ public class AuthWs_role1781 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmFactory.Role.revokePrivilege( session, role, resource,
                         ScmPrivilegeType.ALL );
             } catch ( ScmException e ) {
@@ -182,7 +182,7 @@ public class AuthWs_role1781 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmFactory.Role.deleteRole( session, NAME );
             } catch ( ScmException e ) {
                 if ( ScmError.HTTP_NOT_FOUND != e.getError() ) {

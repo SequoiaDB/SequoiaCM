@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -56,7 +57,7 @@ public class WorkSpaces5479 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         siteList.add( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
@@ -112,7 +113,7 @@ public class WorkSpaces5479 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( WorkSpaces5479.this.site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
@@ -136,7 +137,7 @@ public class WorkSpaces5479 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             try {
                 // 文件校验时会下载
                 SiteWrapper[] expSites = { WorkSpaces5479.this.site };

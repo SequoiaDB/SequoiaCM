@@ -101,7 +101,7 @@ public class WsPool {
     public static void destroy() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
             ThreadExecutor threadExec = new ThreadExecutor();
             for ( String wsName : wsList ) {
                 threadExec.addWorker(
@@ -133,7 +133,7 @@ public class WsPool {
     private static void dropIndex( String wsName ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getRootSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             ScmFactory.Fulltext.dropIndex( ws );
@@ -151,7 +151,7 @@ public class WsPool {
             throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getRootSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             ScmFulltexInfo indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
@@ -166,7 +166,7 @@ public class WsPool {
     private static boolean isWsEmpty( String wsName ) throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             long count = ScmFactory.File.countInstance( ws,
@@ -184,7 +184,7 @@ public class WsPool {
         String wsName = "ws_pool" + "_new_" + count.get();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
             ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( session, wsName );
             wsList.add( wsName );
@@ -214,7 +214,7 @@ public class WsPool {
         HashMap< String, String > wsConfig = new HashMap<>( wsOptions );
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
             ScmCursor< ScmWorkspaceInfo > wsInfo = ScmFactory.Workspace
                     .listWorkspace( session );
             Set< String > keys = wsConfig.keySet();

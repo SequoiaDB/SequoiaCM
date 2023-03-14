@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -63,7 +62,7 @@ public class ScmFile5369 extends TestScmBase {
         branSite = ScmInfo.getBranchSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -121,7 +120,7 @@ public class ScmFile5369 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         public void exec() throws ScmException {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -141,7 +140,7 @@ public class ScmFile5369 extends TestScmBase {
     public class ThreadTransferFileById extends ResultStore {
         @ExecuteOrder(step = 1)
         public void exec() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( branSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( branSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.asyncCache( ws, fileID );

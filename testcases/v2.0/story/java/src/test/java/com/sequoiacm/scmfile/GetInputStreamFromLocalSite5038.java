@@ -52,8 +52,8 @@ public class GetInputStreamFromLocalSite5038 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         WsWrapper wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( ScmInfo.getRootSite() );
-        branchSiteSession = TestScmTools
+        rootSiteSession = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
+        branchSiteSession = ScmSessionUtils
                 .createSession( ScmInfo.getBranchSite() );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );

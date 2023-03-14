@@ -16,7 +16,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -35,9 +35,9 @@ public class S3Utils extends TestScmBase {
     private static String gateway = gateWayList.get( 0 );
 
     /**
+     * @descreption 创建一个S3连接
      * @return
      * @throws Exception
-     * @descreption 创建一个S3连接
      */
     public static AmazonS3 buildS3Client() throws Exception {
         return buildS3Client( TestScmBase.s3AccessKeyID,
@@ -45,11 +45,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @descreption 使用指定ACCESS_KEY和SECRET_KEY连接
      * @param ACCESS_KEY
      * @param SECRET_KEY
      * @return
      * @throws Exception
-     * @descreption 使用指定ACCESS_KEY和SECRET_KEY连接
      */
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY )
             throws Exception {
@@ -57,11 +57,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
      * @param ACCESS_KEY
      * @param SECRET_KEY
      * @param S3URL
      * @return
-     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
      */
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
             String S3URL ) {
@@ -72,11 +72,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
      * @param ACCESS_KEY
      * @param SECRET_KEY
      * @param S3URL
      * @return
-     * @descreption 使用ACCESS_KEY和SECRET_KEY连接指定站点的S3节点
      */
     public static AmazonS3 buildS3Client( String ACCESS_KEY, String SECRET_KEY,
             String S3URL, ClientConfiguration config ) {
@@ -96,18 +96,19 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @descreption 根据网关生成s3 url
      * @return
      * @throws Exception
-     * @descreption 根据网关生成s3 url
      */
     public static String getS3Url() {
         return "http://" + gateway;
     }
 
     /**
-     * delete buckets with same bucketNamePrefix
-     *
-     * @param s3Client,bucketName
+     * @descreption delete buckets with same bucketNamePrefix
+     * @param s3Client
+     * @param bucketPrefix
+     * @return
      */
     public static void deleteEmptyBucketsWithPrefix( AmazonS3 s3Client,
             String bucketPrefix ) {
@@ -121,9 +122,10 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * delete one bucket by bucketName
-     *
-     * @param s3Client,bucketName
+     * @descreption delete one bucket by bucketName
+     * @param s3Client
+     * @param bucketName
+     * @return
      */
     public static void clearBucket( AmazonS3 s3Client, String bucketName ) {
         if ( s3Client.doesBucketExist( bucketName ) ) {
@@ -139,10 +141,10 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * delete all object from the bucket
-     *
+     * @descreption delete all object from the bucket
      * @param s3Client
      * @param bucketName
+     * @return
      */
     public static void deleteAllObjects( AmazonS3 s3Client,
             String bucketName ) {
@@ -163,10 +165,10 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * delete all object versions(required for versioned buckets)
-     *
+     * @descreption delete all object versions(required for versioned buckets)
      * @param s3Client
      * @param bucketName
+     * @return
      */
     public static void deleteAllObjectVersions( AmazonS3 s3Client,
             String bucketName ) {
@@ -190,9 +192,9 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * delete all buckets
-     *
+     * @descreption delete all buckets
      * @param s3Client
+     * @return
      */
     public static void clearBuckets( AmazonS3 s3Client ) {
         List< Bucket > buckets = s3Client.listBuckets();
@@ -205,8 +207,7 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * download the object ,than get the object content md5
-     *
+     * @descreption download the object ,than get the object content md5
      * @param s3Client
      * @param localPath
      * @param bucketName
@@ -218,8 +219,7 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * download the object with versionId,than get the object content md5
-     *
+     * @descreption download the object with versionId,than get the object content md5
      * @param s3Client
      * @param localPath
      * @param bucketName
@@ -241,10 +241,10 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * input stream to file
-     *
+     * @descreption input stream to file
      * @param inputStream
      * @param downloadPath
+     * @return
      */
     public static String inputStream2File( InputStream inputStream,
             String downloadPath ) throws IOException {
@@ -265,11 +265,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * delete the object of all versions(required for versioned buckets)
-     *
+     * @descreption delete the object of all versions(required for versioned buckets)
      * @param s3Client
      * @param bucketName
      * @param keyName
+     * @return
      */
     public static void deleteObjectAllVersions( AmazonS3 s3Client,
             String bucketName, String keyName ) {
@@ -298,13 +298,13 @@ public class S3Utils extends TestScmBase {
         }
     }
 
-    public static void clearOneObject( AmazonS3 s3Client, String bucketName,
-            String key ) {
-        if ( s3Client.doesObjectExist( bucketName, key ) ) {
-            s3Client.deleteObject( bucketName, key );
-        }
-    }
-
+    /**
+     * @descreption 校验对象版本
+     * @param vsList
+     * @param expCommonPrefixes
+     * @param expMap
+     * @return
+     */
     public static void checkListVSResults( VersionListing vsList,
             List< String > expCommonPrefixes,
             MultiValueMap< String, String > expMap ) {
@@ -330,6 +330,13 @@ public class S3Utils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 获取对象公共前缀
+     * @param objectNames
+     * @param prefix
+     * @param delimiter
+     * @return
+     */
     public static List< String > getCommPrefixes( String[] objectNames,
             String prefix, String delimiter ) {
         List< String > commPrefixes = new ArrayList< String >();
@@ -348,6 +355,13 @@ public class S3Utils extends TestScmBase {
         return commPrefixes;
     }
 
+    /**
+     * @descreption 获取对象的key
+     * @param objectNames
+     * @param prefix
+     * @param delimiter
+     * @return
+     */
     public static List< String > getKeys( String[] objectNames, String prefix,
             String delimiter ) {
         List< String > keys = new ArrayList< String >();
@@ -362,6 +376,12 @@ public class S3Utils extends TestScmBase {
         return keys;
     }
 
+    /**
+     * @descreption 校验listObjectV2对象
+     * @param resultList
+     * @param expresultList
+     * @return
+     */
     public static void checkListObjectsV2Commprefixes(
             List< String > resultList, List< String > expresultList ) {
         Collections.sort( expresultList );
@@ -373,6 +393,12 @@ public class S3Utils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验listObjectV2对象的key
+     * @param objectSummaries
+     * @param expresultList
+     * @return
+     */
     public static void checkListObjectsV2KeyName(
             List< S3ObjectSummary > objectSummaries,
             List< String > expresultList ) {
@@ -386,11 +412,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @descreption objectKey映射fileName时，根据object查询映射scm文件的ID
      * @param ws
      * @param objectKey
      * @return
      * @throws ScmException
-     * @descreption objectKey映射fileName时，根据object查询映射scm文件的ID
      */
     public static ScmId queryS3Object( ScmWorkspace ws, String objectKey )
             throws ScmException {
@@ -406,6 +432,15 @@ public class S3Utils extends TestScmBase {
         return fileId;
     }
 
+    /**
+     * @descreption 校验桶列表
+     * @param scmBucketScmCursor
+     * @param expBucketNames
+     * @param sort
+     * @param ignoreBuckets
+     * @return
+     * @throws ScmException
+     */
     public static void checkBucketList(
             ScmCursor< ScmBucket > scmBucketScmCursor,
             List< String > expBucketNames, boolean sort,
@@ -433,6 +468,14 @@ public class S3Utils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验桶列表
+     * @param scmBucketScmCursor
+     * @param expBucketNames
+     * @param sort
+     * @return
+     * @throws ScmException
+     */
     public static void checkBucketList(
             ScmCursor< ScmBucket > scmBucketScmCursor,
             List< String > expBucketNames, boolean sort ) throws ScmException {
@@ -441,16 +484,25 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @descreption 使用scm api清理桶
      * @param session
      * @param bucketName
+     * @return
      * @throws ScmException
-     * @descreption 使用scm api清理桶
      */
     public static void clearBucket( ScmSession session, String bucketName )
             throws ScmException {
         clearBucket( session, s3WorkSpaces, bucketName );
     }
 
+    /**
+     * @descreption 使用scm api清理桶
+     * @param session
+     * @param wsName
+     * @param bucketName
+     * @return
+     * @throws ScmException
+     */
     public static void clearBucket( ScmSession session, String wsName,
             String bucketName ) throws ScmException {
         ScmCursor< ScmFileBasicInfo > scmFileBasicInfoScmCursor = null;
@@ -477,11 +529,11 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * set the bucket versioning status
-     *
+     * @descreption set the bucket versioning status
      * @param s3Client
      * @param bucketName
      * @param status:"null","Suspended","Enable"
+     * @return
      */
     public static void setBucketVersioning( AmazonS3 s3Client,
             String bucketName, String status ) {
@@ -494,16 +546,14 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * get the file part MD5 value
-     *
-     * @author wangkexin
+     * @descreption get the file part MD5 value
      * @param file
      * @param offset
      *            offset value.
      * @param partSize
      *            file part size.
-     * @throws IOException
      * @return md5 value
+     * @throws IOException
      */
     public static String getFilePartMD5( File file, long offset, long partSize )
             throws IOException {
@@ -529,10 +579,10 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
+     * @Descreption 获取所有s3节点名
      * @param session
      * @return
      * @throws ScmException
-     * @Descreption 获取所有s3节点名
      */
     public static List< String > getS3ServiceName( ScmSession session )
             throws ScmException {
@@ -548,14 +598,13 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * read the entire file length after the seek, to compare the read result
-     *
-     * @author wuyan
+     * @Descreption read the entire file length after the seek, to compare the read result
      * @param sourceFile
      * @param size
      *            seek size.
      * @param outputFile
      *            seek read than write file
+     * @return
      * @throws FileNotFoundException
      * @throws IOException
      */
@@ -583,6 +632,7 @@ public class S3Utils extends TestScmBase {
      * @param s3Client
      * @param bucketName
      * @param BucketVersionConf
+     * @return
      */
     public static void updateBucketVersionConfig( AmazonS3 s3Client,
             String bucketName, String BucketVersionConf ) {
@@ -593,6 +643,12 @@ public class S3Utils extends TestScmBase {
                         config ) );
     }
 
+    /**
+     * @descreption 修改桶版本控制状态
+     * @param bucketName
+     * @param BucketVersionConf
+     * @return
+     */
     public static void updateBucketVersionConfig( String bucketName,
             String BucketVersionConf ) throws Exception {
         AmazonS3 s3Client = S3Utils.buildS3Client();
@@ -605,61 +661,12 @@ public class S3Utils extends TestScmBase {
     }
 
     /**
-     * @descreption scm桶下创建文件，使用文件方式
-     * @param bucket
-     * @param fileName
-     * @param filePath
-     * @return fileId
-     * @throws ScmException
-     */
-    public static ScmId createFile( ScmBucket bucket, String fileName,
-            String filePath ) throws ScmException {
-        ScmFile file = bucket.createFile( fileName );
-        file.setContent( filePath );
-        file.setFileName( fileName );
-        file.setTitle( fileName );
-        ScmId fileId = file.save();
-        return fileId;
-    }
-
-    /**
-     * @descreption scm桶下创建文件，使用文件流方式
-     * @param bucket
-     * @param fileName
-     * @param data
-     * @throws ScmException
-     */
-    public static ScmId createFile( ScmBucket bucket, String fileName,
-            byte[] data ) throws ScmException {
-        return createFile( bucket, fileName, data, fileName );
-    }
-
-    /**
-     * @descreption scm桶下创建文件，使用文件流方式
-     * @param bucket
-     * @param fileName
-     * @param data
-     * @param authorName
-     * @throws ScmException
-     */
-    public static ScmId createFile( ScmBucket bucket, String fileName,
-            byte[] data, String authorName ) throws ScmException {
-        ScmFile file = bucket.createFile( fileName );
-        new Random().nextBytes( data );
-        file.setContent( new ByteArrayInputStream( data ) );
-        file.setFileName( fileName );
-        file.setAuthor( authorName );
-        file.setTitle( "sequoiacm" );
-        ScmId fileId = file.save();
-        return fileId;
-    }
-
-    /**
      * @descreption 校验scm桶下文件内容，通过文件流方式比较
      * @param file
      *            获取文件实例
      * @param fileDatas
      *            预期数据内容
+     * @return
      * @throws ScmException
      */
     public static void checkFileContent( ScmFile file, byte[] fileDatas )
@@ -678,6 +685,7 @@ public class S3Utils extends TestScmBase {
      *            预期对比文件路径
      * @param localPath
      *            下载文件路径
+     * @return
      * @throws ScmException
      */
     public static void checkFileContent( ScmFile file, String filePath,
@@ -708,7 +716,7 @@ public class S3Utils extends TestScmBase {
     public static List< String > getEnvBuckets( String bucketOwner )
             throws Exception {
         List< String > envBuckets = new ArrayList<>();
-        ScmSession session = TestScmTools.createSession();
+        ScmSession session = ScmSessionUtils.createSession();
         BSONObject cond = null;
         if ( bucketOwner != null ) {
             cond = ScmQueryBuilder.start( ScmAttributeName.Bucket.CREATE_USER )
@@ -727,6 +735,12 @@ public class S3Utils extends TestScmBase {
         return envBuckets;
     }
 
+    /**
+     * @descreption 指定长度获取字符
+     * @param length
+     * @return
+     * @throws Exception
+     */
     public static String getRandomString( int length ) {
         String str = "adcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random = new Random();
@@ -738,6 +752,14 @@ public class S3Utils extends TestScmBase {
         return sb.toString();
     }
 
+    /**
+     * @descreption 获取桶的版本列表
+     * @param session
+     * @param ws
+     * @param bucketName
+     * @return
+     * @throws Exception
+     */
     public static List< ScmFileBasicInfo > getVersionList( ScmSession session,
             ScmWorkspace ws, String bucketName ) throws ScmException {
         List< ScmFileBasicInfo > fileList = new ArrayList<>();
@@ -782,6 +804,7 @@ public class S3Utils extends TestScmBase {
      * @param s3
      * @param bucketName
      * @param tagSet
+     * @return
      */
     public static void setBucketTag( AmazonS3 s3, String bucketName,
             TagSet tagSet ) {
@@ -795,6 +818,14 @@ public class S3Utils extends TestScmBase {
                 setBucketTaggingConfigurationRequest );
     }
 
+    /**
+     * @descreption 设置对象标签
+     * @param s3
+     * @param bucketName
+     * @param key
+     * @param tagSet
+     * @return
+     */
     public static SetObjectTaggingResult setObjectTag( AmazonS3 s3,
             String bucketName, String key, List< Tag > tagSet ) {
         ObjectTagging objectTagging = new ObjectTagging( tagSet );
@@ -803,6 +834,15 @@ public class S3Utils extends TestScmBase {
         return s3.setObjectTagging( setObjectTaggingRequest );
     }
 
+    /**
+     * @descreption 设置对象标签
+     * @param s3
+     * @param bucketName
+     * @param version
+     * @param key
+     * @param tagSet
+     * @return
+     */
     public static SetObjectTaggingResult setObjectTag( AmazonS3 s3,
             String bucketName, String key, String version,
             List< Tag > tagSet ) {
@@ -813,6 +853,12 @@ public class S3Utils extends TestScmBase {
         return s3.setObjectTagging( setObjectTaggingRequest );
     }
 
+    /**
+     * @descreption 比较TagSet
+     * @param actTagSet
+     * @param expTagSet
+     * @return
+     */
     public static void compareTagSet( List< Tag > actTagSet,
             List< Tag > expTagSet ) {
         for ( int i = 0; i < actTagSet.size(); i++ ) {

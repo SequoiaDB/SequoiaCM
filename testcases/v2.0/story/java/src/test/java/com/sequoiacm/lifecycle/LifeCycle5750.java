@@ -3,7 +3,6 @@ package com.sequoiacm.lifecycle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -17,7 +16,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @descreption SCM-5750:查询全局Transition验证
@@ -41,7 +40,7 @@ public class LifeCycle5750 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "twoSite", "fourSite" })

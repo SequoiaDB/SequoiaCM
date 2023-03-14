@@ -1,12 +1,8 @@
 package com.sequoiacm.lifecycle;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sequoiacm.client.element.lifecycle.*;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.scmutils.*;
-import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +31,7 @@ public class LifeCycle5749 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         ScmAuthUtils.deleteUser( session, user );
 
@@ -73,7 +69,7 @@ public class LifeCycle5749 extends TestScmBase {
     }
 
     public void test1() throws ScmException {
-        ScmSession session = TestScmTools.createSession( site, user, user );
+        ScmSession session = ScmSessionUtils.createSession( site, user, user );
         // 设置全局配置
         try {
             ScmSystem.LifeCycleConfig.deleteLifeCycleConfig( session );

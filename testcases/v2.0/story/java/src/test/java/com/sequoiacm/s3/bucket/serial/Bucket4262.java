@@ -35,7 +35,7 @@ public class Bucket4262 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         envBuckets = S3Utils.getEnvBuckets( TestScmBase.scmUserName );
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         dropBuckets();
     }

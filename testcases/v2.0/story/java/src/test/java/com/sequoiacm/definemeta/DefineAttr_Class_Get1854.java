@@ -1,6 +1,5 @@
 package com.sequoiacm.definemeta;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -22,7 +21,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiadb.exception.BaseException;
@@ -56,7 +55,7 @@ public class DefineAttr_Class_Get1854 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             cleanEnv();
             prepare();
         } catch ( Exception e ) {
@@ -161,7 +160,7 @@ public class DefineAttr_Class_Get1854 extends TestScmBase {
                 ScmPrivilegeType.ALL );
         ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
-        sessionNA = TestScmTools.createSession( site, username, passwd );
+        sessionNA = ScmSessionUtils.createSession( site, username, passwd );
 
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         scmClass = ScmFactory.Class.createInstance( ws, classname, desc );

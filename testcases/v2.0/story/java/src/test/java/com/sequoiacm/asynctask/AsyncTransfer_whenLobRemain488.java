@@ -21,7 +21,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -73,8 +73,8 @@ public class AsyncTransfer_whenLobRemain488 extends TestScmBase {
         branceSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
         ws_T = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branceSite );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionA = ScmSessionUtils.createSession( branceSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
         prepareFiles( sessionA );
     }

@@ -10,7 +10,9 @@ import com.sequoiacm.client.element.ScmServiceInstance;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.TestScmBase;
+import org.testng.Assert;
 
 import java.util.List;
 
@@ -20,10 +22,10 @@ public class ScmTaskUtils extends TestScmBase {
     private static final int defaultTimeOut = 5 * 60; // 5min
 
     /**
-     * wait task finish in default timeOut, sync task
-     *
+     * @descreption wait task finish in default timeOut, sync task
      * @param session
      * @param taskId
+     * @return
      * @throws Exception
      */
     public static void waitTaskFinish( ScmSession session, ScmId taskId )
@@ -32,10 +34,11 @@ public class ScmTaskUtils extends TestScmBase {
     }
 
     /**
-     * wait task finish, specify timeOut, sync task
-     *
+     * @descreption wait task finish, specify timeOut, sync task
+     * @param session
+     * @param taskId
      * @param timeOutSec
-     *            ........
+     * @return
      */
     public static void waitTaskFinish( ScmSession session, ScmId taskId,
             int timeOutSec ) throws Exception {
@@ -69,53 +72,39 @@ public class ScmTaskUtils extends TestScmBase {
     }
 
     /**
-     * wait asynchronous task finished, default timeOutSec
-     *
+     * @descreption wait asynchronous task finished, default timeOutSec
      * @param ws
      * @param fileId
      * @param expSiteNum
+     * @return
      * @throws Exception
      */
     public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
             int expSiteNum ) throws Exception {
-        waitAsyncTaskFinished( ws, fileId, expSiteNum, defaultTimeOut );
+        waitAsyncTaskFinished( ws, fileId, 1, expSiteNum );
     }
 
     /**
-     * wait asynchronous task finished, specify timeOutSec
-     *
+     * @descreption wait asynchronous task finished, specify version
      * @param ws
      * @param fileId
      * @param expSiteNum
-     * @param timeOutSec
+     * @param version
      *            unit: seconds
+     * @return
      * @throws Exception
      */
     public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
-            int expSiteNum, int timeOutSec ) throws Exception {
-        int sleepTime = 200; // millisecond
-        int maxRetryTimes = ( timeOutSec * 1000 ) / sleepTime;
-        int retryTimes = 0;
-        while ( true ) {
-            ScmFile file = ScmFactory.File.getInstance( ws, fileId );
-            int size = file.getLocationList().size();
-            if ( size == expSiteNum ) {
-                break;
-            } else if ( retryTimes >= maxRetryTimes ) {
-                throw new Exception(
-                        "wait async task, retry failed. the file location = "
-                                + file.getLocationList() );
-            }
-            Thread.sleep( sleepTime );
-            retryTimes++;
-        }
+            int version, int expSiteNum ) throws Exception {
+        waitAsyncTaskFinished( ws, fileId, version, expSiteNum,
+                defaultTimeOut );
     }
 
     /**
-     * wait task stop
-     *
+     * @descreption wait task stop
      * @param session
      * @param taskId
+     * @return
      * @throws Exception
      */
     public static void waitTaskStop( ScmSession session, ScmId taskId )
@@ -124,11 +113,11 @@ public class ScmTaskUtils extends TestScmBase {
     }
 
     /**
-     * wait task stop
-     * 
+     * @descreption wait task stop
      * @param session
      * @param taskId
      * @param timeOutSec
+     * @return
      * @throws Exception
      */
     public static void waitTaskStop( ScmSession session, ScmId taskId,
@@ -163,7 +152,7 @@ public class ScmTaskUtils extends TestScmBase {
      */
     public static int getNodeNumOfSite( ScmSession session, String siteName )
             throws ScmException {
-        List<ScmServiceInstance> contentServerInstanceList = ScmSystem.ServiceCenter
+        List< ScmServiceInstance > contentServerInstanceList = ScmSystem.ServiceCenter
                 .getContentServerInstanceList( session );
         int nodeNumOfSite = 0;
         for ( ScmServiceInstance server : contentServerInstanceList ) {
@@ -174,4 +163,95 @@ public class ScmTaskUtils extends TestScmBase {
         return nodeNumOfSite;
     }
 
+    /**
+     * @descreption wait asynchronous task finished, specify timeOutSec
+     * @param ws
+     * @param fileId
+     * @param majorVersion
+     * @param expSiteNum
+     * @param timeOutSec
+     *            unit: seconds
+     * @return
+     * @throws Exception
+     */
+    public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
+            int majorVersion, int expSiteNum, int timeOutSec )
+            throws Exception {
+        int sleepTime = 200; // millisecond
+        int maxRetryTimes = timeOutSec * 1000 / sleepTime;
+        int retryTimes = 0;
+        while ( true ) {
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId,
+                    majorVersion, 0 );
+            int size = file.getLocationList().size();
+            if ( size == expSiteNum ) {
+                break;
+            } else if ( retryTimes >= maxRetryTimes ) {
+                throw new Exception( "wait async task, retry failed." );
+            }
+            Thread.sleep( sleepTime );
+            retryTimes++;
+        }
+    }
+
+    /**
+     * @descreption wait asynchronous task finished, default timeOutSec not sure
+     *              about migrating file versions
+     * @param ws
+     * @param fileId
+     * @param expSiteNum
+     * @return asyncTask success file version
+     * @throws Exception
+     */
+    public static int waitAsyncTaskFinished2( ScmWorkspace ws, ScmId fileId,
+            int version, int expSiteNum ) throws Exception {
+        return waitAsyncTaskFinished2( ws, fileId, version, expSiteNum,
+                defaultTimeOut );
+    }
+
+    /**
+     * @descreption wait asynchronous task finished, specify timeOutSec migrating file versions
+     * @param ws
+     * @param fileId
+     * @param majorVersion
+     * @param expSiteNum
+     * @param timeOutSec
+     *            unit: seconds
+     * @return asyncTask success file version
+     * @throws Exception
+     */
+    public static int waitAsyncTaskFinished2( ScmWorkspace ws, ScmId fileId,
+            int majorVersion, int expSiteNum, int timeOutSec )
+            throws Exception {
+        int sleepTime = 200; // millisecond
+        int maxRetryTimes = timeOutSec * 1000 / sleepTime;
+        int retryTimes = 0;
+        int asyncVersion = 1;
+        while ( true ) {
+            ScmFile file = ScmFactory.File.getInstance( ws, fileId,
+                    majorVersion, 0 );
+            int size = file.getLocationList().size();
+            if ( size == expSiteNum ) {
+                asyncVersion = majorVersion;
+                break;
+            } else if ( retryTimes >= maxRetryTimes ) {
+                throw new Exception( "wait async task, retry failed." );
+            }
+            try {
+                file = ScmFactory.File.getInstance( ws, fileId,
+                        majorVersion + 1, 0 );
+                size = file.getLocationList().size();
+                if ( size == expSiteNum ) {
+                    asyncVersion = majorVersion + 1;
+                    break;
+                }
+            } catch ( ScmException e ) {
+                Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
+                        e.getMessage() );
+            }
+            Thread.sleep( sleepTime );
+            retryTimes++;
+        }
+        return asyncVersion;
+    }
 }

@@ -26,16 +26,13 @@ import java.util.List;
  */
 public class ListUtils {
     /**
-     * 对list的元素按照多个属性名称排序,
-     * list元素的属性可以是数字（byte、short、int、long、float、double等，支持正数、负数、0）、char
-     * 、String、java.util.Date
-     *
-     *
+     * @descreption 对list的元素按照多个属性名称排序,list元素的属性可以是数字（byte、short、int、long、float、double等，支持正数、负数、0）、char、String、java.util.Date
      * @param list
      * @param sortnameArr
      *            list元素的属性名称
      * @param isAsc
      *            true升序，false降序
+     * @return
      */
     public static < E > void sort( List< E > list, final boolean isAsc,
             final String... sortnameArr ) {
@@ -60,13 +57,13 @@ public class ListUtils {
     }
 
     /**
-     * 给list的每个属性都指定是升序还是降序
-     *
+     * @descreption 给list的每个属性都指定是升序还是降序
      * @param list
      * @param sortnameArr
      *            参数数组
      * @param typeArr
      *            每个属性对应的升降序数组， true升序，false降序
+     * @return
      */
 
     public static < E > void sort( List< E > list, final String[] sortnameArr,
@@ -94,8 +91,7 @@ public class ListUtils {
     }
 
     /**
-     * 对2个对象按照指定属性名称进行排序
-     *
+     * @descreption 对2个对象按照指定属性名称进行排序
      * @param sortname
      *            属性名称
      * @param isAsc
@@ -132,10 +128,8 @@ public class ListUtils {
     }
 
     /**
-     * 给数字对象按照指定长度在左侧补0.
-     *
+     * @descreption 给数字对象按照指定长度在左侧补0.
      * 使用案例: addZero2Str(11,4) 返回 "0011", addZero2Str(-18,6)返回 "-000018"
-     *
      * @param numObj
      *            数字对象
      * @param length
@@ -154,8 +148,7 @@ public class ListUtils {
     }
 
     /**
-     * 获取指定对象的指定属性值（去除private,protected的限制）
-     *
+     * @descreption 获取指定对象的指定属性值（去除private,protected的限制）
      * @param obj
      *            属性名称所在的对象
      * @param fieldName

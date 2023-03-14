@@ -10,30 +10,45 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
+import com.sequoiacm.testcommon.dsutils.HbaseUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.ObjectId;
-import org.bson.util.JSON;
 import org.testng.Assert;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
 import com.sequoiacm.client.common.ScmType.ServerScope;
 import com.sequoiacm.client.core.*;
+import com.sequoiacm.client.core.ScmCursor;
+import com.sequoiacm.client.core.ScmFactory;
+import com.sequoiacm.client.core.ScmFile;
+import com.sequoiacm.client.core.ScmSession;
+import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmWorkspaceInfo;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import com.sequoiacm.testcommon.dsutils.CephSwiftUtils;
 import com.sequoiacm.testcommon.dsutils.HdfsUtils;
 import com.sequoiadb.base.*;
 import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.base.CollectionSpace;
+import com.sequoiadb.base.ConfigOptions;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.DBLob;
+import com.sequoiadb.base.Sequoiadb;
 
 public class TestSdbTools {
     // SCMSYSTEM
@@ -58,6 +73,12 @@ public class TestSdbTools {
     private static SimpleDateFormat monthFm = new SimpleDateFormat( "MM" );
     private static SimpleDateFormat daythFm = new SimpleDateFormat( "dd" );
 
+    /**
+     * @descreption 获取sdb连接
+     * @param sdbUrl
+     * @return
+     * @throws
+     */
     public static Sequoiadb getSdb( String sdbUrl ) {
         Sequoiadb sdb = new Sequoiadb( sdbUrl, TestScmBase.sdbUserName,
                 TestScmBase.sdbPassword );
@@ -65,6 +86,12 @@ public class TestSdbTools {
         return sdb;
     }
 
+    /**
+     * @descreption 连接db获取DomainName
+     * @param sdbUrl
+     * @return
+     * @throws
+     */
     public static List< String > getDomainNames( String sdbUrl ) {
         Sequoiadb sdb = null;
         DBCursor cursor = null;
@@ -87,6 +114,17 @@ public class TestSdbTools {
         return domainNames;
     }
 
+    /**
+     * @descreption 统计db集群下集合内文件数量
+     * @param urls
+     * @param user
+     * @param password
+     * @param clName
+     * @param csName
+     * @param match
+     * @return
+     * @throws Exception
+     */
     public static long count( String urls, String user, String password,
             String csName, String clName, Object match ) throws Exception {
         Sequoiadb db = null;
@@ -110,6 +148,16 @@ public class TestSdbTools {
         return num;
     }
 
+    /**
+     * @descreption 指定db下集合插入数据
+     * @param urls
+     * @param user
+     * @param password
+     * @param csName
+     * @param records
+     * @return
+     * @throws Exception
+     */
     public static void insert( String urls, String user, String password,
             String csName, String clName, Object records ) throws Exception {
         Sequoiadb db = null;
@@ -133,6 +181,18 @@ public class TestSdbTools {
         }
     }
 
+    /**
+     * @descreption 指定db下集合修改数据
+     * @param urls
+     * @param user
+     * @param password
+     * @param csName
+     * @param clName
+     * @param matcher
+     * @param modify
+     * @return
+     * @throws Exception
+     */
     public static void update( String urls, String user, String password,
             String csName, String clName, BSONObject matcher,
             BSONObject modify ) throws Exception {
@@ -149,6 +209,17 @@ public class TestSdbTools {
         }
     }
 
+    /**
+     * @descreption 指定db下集合删除数据
+     * @param urls
+     * @param user
+     * @param password
+     * @param csName
+     * @param clName
+     * @param matcher
+     * @return
+     * @throws
+     */
     public static void delete( String urls, String user, String password,
             String csName, String clName, BSONObject matcher )
             throws Exception {
@@ -165,6 +236,17 @@ public class TestSdbTools {
         }
     }
 
+    /**
+     * @descreption 指定db下集合查询数据
+     * @param urls
+     * @param user
+     * @param password
+     * @param csName
+     * @param clName
+     * @param matcher
+     * @return
+     * @throws
+     */
     public static List< BSONObject > query( String urls, String user,
             String password, String csName, String clName,
             BSONObject matcher ) {
@@ -190,6 +272,16 @@ public class TestSdbTools {
         return objects;
     }
 
+    /**
+     * @descreption 连接db创建集合空间和集合
+     * @param urls
+     * @param user
+     * @param password
+     * @param csName
+     * @param clName
+     * @return
+     * @throws
+     */
     public static void createCSCL( String urls, String user, String password,
             String csName, String clName ) {
         Sequoiadb db = null;
@@ -209,37 +301,29 @@ public class TestSdbTools {
         }
     }
 
-    public static Connection getHbaseConnect( SiteWrapper site )
-            throws IOException {
-        // get hbase's host and port
-        String dsUrl = ( String ) site.getDataDsConf()
-                .get( "hbase.zookeeper.quorum" );
-        String[] obj = dsUrl.split( ":" ); // e.g: suse113-2:2181
-        String host = obj[ 0 ];
-        String port = obj[ 1 ];
-        // connect hbase
-        Configuration config = HBaseConfiguration.create();
-        config.set( "hbase.zookeeper.quorum", host );
-        config.set( "hbase.zookeeper.property.clientPort", port );
-        Connection connection = ConnectionFactory.createConnection( config );
-        return connection;
-    }
-
     /**
-     * get scmFile meta csName by connect SDB
+     * @descreption get scmFile meta csName by connect SDB
+     * @param ws
+     * @return
      */
     public static String getFileMetaCsName( WsWrapper ws ) {
         return getFileMetaCsName( ws.getName() );
     }
 
+    /**
+     * @descreption get scmFile meta csName by connect SDB
+     * @param wsName
+     * @return
+     */
     public static String getFileMetaCsName( String wsName ) {
         return wsName + "_META";
     }
 
     /**
-     * get scmFile data csName by connect SDB
-     *
-     * @throws ScmException
+     * @descreption get scmFile data csName by connect SDB
+     * @param siteId
+     * @param wsName
+     * @return
      */
     public static String getFileDataCsName( int siteId, String wsName )
             throws ScmException {
@@ -265,6 +349,12 @@ public class TestSdbTools {
         return prefix + postfix;
     }
 
+    /**
+     * @descreption get scmFile data csName by connect SDB
+     * @param siteId
+     * @param wsName
+     * @return
+     */
     public static String getFileDataClName( int siteId, String wsName )
             throws ScmException {
         String prefix = "LOB_";
@@ -284,6 +374,11 @@ public class TestSdbTools {
         return prefix + postfix;
     }
 
+    /**
+     * @descreption 根据分区规则获取CS和CL后缀
+     * @param shardType
+     * @return
+     */
     public static String getCsClPostfix( String shardType ) {
         Date currTime = new Date();
         String currY = yearFm.format( currTime );
@@ -305,6 +400,12 @@ public class TestSdbTools {
         return postfix;
     }
 
+    /**
+     * @descreption 获取工作区下db数据源的分区规则
+     * @param siteId
+     * @param wsName
+     * @return
+     */
     private static BSONObject getDataShardingTypeForSdb( int siteId,
             String wsName ) throws ScmException {
         Object dataShardingType = getWsProperties( siteId, wsName,
@@ -312,6 +413,12 @@ public class TestSdbTools {
         return ( BSONObject ) dataShardingType;
     }
 
+    /**
+     * @descreption 获取工作区下其他数据源的分区规则
+     * @param siteId
+     * @param wsName
+     * @return
+     */
     public static String getDataShardingTypeForOtherDs( int siteId,
             String wsName ) throws ScmException {
         Object dataShardingType = getWsProperties( siteId, wsName,
@@ -319,18 +426,31 @@ public class TestSdbTools {
         return ( String ) dataShardingType;
     }
 
+    /**
+     * @descreption 获取工作区前缀
+     * @param siteId
+     * @param wsName
+     * @return
+     */
     public static Object getContainerPrefix( int siteId, String wsName )
             throws ScmException {
         return getWsProperties( siteId, wsName, "container_prefix" );
     }
 
+    /**
+     * @descreption 获取工作区前缀
+     * @param siteId
+     * @param wsName
+     * @param key
+     * @return
+     */
     private static Object getWsProperties( int siteId, String wsName,
             String key ) throws ScmException {
         ScmSession session = null;
         Object dataShardingType = null;
         ScmCursor< ScmWorkspaceInfo > cursor = null;
         try {
-            session = TestScmTools.createSession( ScmInfo.getRootSite() );
+            session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
             cursor = ScmFactory.Workspace.listWorkspace( session );
             while ( cursor.hasNext() ) {
                 ScmWorkspaceInfo info = cursor.getNext();
@@ -360,33 +480,14 @@ public class TestSdbTools {
         return dataShardingType;
     }
 
-    public static String getDataTableNameInHbase( SiteWrapper site,
-            WsWrapper ws ) throws ScmException {
-        return getDataTableNameInHbase( site.getSiteId(), ws.getName() );
-    }
-
-    public static String getDataTableNameInHbase( int siteId, String wsName )
-            throws ScmException {
-        String prefix = wsName + "_SCMFILE";
-
-        String dataShardingType = getDataShardingTypeForOtherDs( siteId,
-                wsName );
-        if ( null == dataShardingType ) {
-            dataShardingType = "month";
-        }
-        String postfix = getCsClPostfix( dataShardingType );
-
-        if ( !dataShardingType.equals( "none" ) ) {
-            prefix += "_";
-        }
-
-        return prefix + postfix;
-    }
-
     public static class Lob {
 
         /**
-         * special cases are used, such as analog LOB remain, by connect DB
+         * @descreption special cases are used, such as analog LOB remain, by connect DB
+         * @param site
+         * @param fileId
+         * @param filePath
+         * @return
          */
         public static void putLob( SiteWrapper site, WsWrapper ws, ScmId fileId,
                 String filePath ) throws Exception {
@@ -407,6 +508,14 @@ public class TestSdbTools {
             }
         }
 
+        /**
+         * @descreption 直连db数据源插入lob数据
+         * @param site
+         * @param ws
+         * @param fileId
+         * @param lobPath
+         * @return
+         */
         private static void putDataInSdb( SiteWrapper site, WsWrapper ws,
                 ScmId fileId, String lobPath )
                 throws IOException, ScmException {
@@ -447,12 +556,20 @@ public class TestSdbTools {
             }
         }
 
+        /**
+         * @descreption 直连Hbase数据源插入lob数据
+         * @param site
+         * @param ws
+         * @param fileId
+         * @param lobPath
+         * @return
+         */
         private static void putDataInHbase( SiteWrapper site, WsWrapper ws,
                 ScmId fileId, String lobPath ) {
             Connection conn = null;
             try {
-                conn = getHbaseConnect( site );
-                String tableName = getDataTableNameInHbase( site.getSiteId(),
+                conn = HbaseUtils.getConnection( site );
+                String tableName = HbaseUtils.getDataTableNameInHbase( site.getSiteId(),
                         ws.getName() );
                 HBaseAdmin hAdmin = ( HBaseAdmin ) conn.getAdmin();
                 if ( !hAdmin.tableExists( tableName ) ) {
@@ -516,11 +633,17 @@ public class TestSdbTools {
             }
         }
 
+        /**
+         * @descreption 工作区下写文件后删除（触发数据源LOB创建）
+         * @param site
+         * @param ws
+         * @return
+         */
         private static void writeTmpFileInScm( SiteWrapper site, WsWrapper ws )
                 throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace scmWs = ScmFactory.Workspace
                         .getWorkspace( ws.getName(), session );
                 ScmFile file = ScmFactory.File.createInstance( scmWs );
@@ -538,7 +661,11 @@ public class TestSdbTools {
         }
 
         /**
-         * remove LOB connect DB
+         * @descreption remove LOB connect DB
+         * @param site
+         * @param ws
+         * @param fileId
+         * @return
          */
         public static void removeLob( SiteWrapper site, WsWrapper ws,
                 ScmId fileId ) throws Exception {
@@ -559,6 +686,13 @@ public class TestSdbTools {
             }
         }
 
+        /**
+         * @descreption remove LOB connect DB
+         * @param site
+         * @param ws
+         * @param fileId
+         * @return
+         */
         private static void deleteDataInSdb( SiteWrapper site, WsWrapper ws,
                 ScmId fileId ) throws ScmException {
             Sequoiadb db = null;
@@ -582,12 +716,19 @@ public class TestSdbTools {
             }
         }
 
+        /**
+         * @descreption 直连Hbase数据源删除数据
+         * @param site
+         * @param ws
+         * @param fileId
+         * @return
+         */
         private static void deleteDataInHbase( SiteWrapper site, WsWrapper ws,
                 ScmId fileId ) throws Exception {
             Connection conn = null;
             try {
-                conn = getHbaseConnect( site );
-                String tableName = getDataTableNameInHbase( site.getSiteId(),
+                conn = HbaseUtils.getConnection( site );
+                String tableName = HbaseUtils.getDataTableNameInHbase( site.getSiteId(),
                         ws.getName() );
                 Table table = conn.getTable( TableName.valueOf( tableName ) );
 
@@ -609,134 +750,12 @@ public class TestSdbTools {
         }
     }
 
-    /**
-     * mainly for reloadbizconf
-     */
-    public static class Workspace {
-        // TODO createws使用scmadmin.sh工具添加
-        // FIXME: createWorkspace()是临时测试的方法，待scm实现了该接口，要替换
-        // 写死了大量信息，但我能怎么办呢？我也很绝望啊
-        // update to com.sequoiacm.testcommon.scmutils.ScmWsUtils.java
-
-        @Deprecated
-        public static ScmWorkspace create( String wsName, ScmSession ss )
-                throws ScmException {
-            Sequoiadb sdb = null;
-            try {
-                sdb = new Sequoiadb( TestScmBase.mainSdbUrl,
-                        TestScmBase.sdbUserName, TestScmBase.sdbPassword );
-                DBCollection wsCL = sdb
-                        .getCollectionSpace( TestSdbTools.SCM_CS )
-                        .getCollection( TestSdbTools.SCM_CL_WORKSPACE );
-
-                int wsId = getUniqueWsId( wsCL );
-                BSONObject newWsMeta = cloneWsMeta( wsCL.queryOne(), wsName,
-                        wsId );
-                wsCL.insert( newWsMeta );
-                createMetaCSCL( sdb, wsName );
-            } finally {
-                if ( sdb != null ) {
-                    sdb.close();
-                }
-            }
-
-            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
-                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
-                    ss );
-            logger.info( "infoList after reloadbizconf: \n" + infoList );
-            return ScmFactory.Workspace.getWorkspace( wsName, ss );
-        }
-
-        /**
-         * delete workspace by connect SDB
-         */
-        public static void delete( String wsName, ScmSession session )
-                throws Exception {
-            try {
-                ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
-                    throw e;
-                }
-            }
-            for ( int i = 0; i < 10; i++ ) {
-                Thread.sleep( 1000 );
-                try {
-                    ScmFactory.Workspace.getWorkspace( wsName, session );
-                } catch ( ScmException e ) {
-                    if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
-                        throw e;
-                    }
-                    break;
-                }
-            }
-        }
-
-        public static void checkWsCs( String wsName, ScmSession session )
-                throws ScmException {
-            Sequoiadb rSdb = null;
-            try {
-                rSdb = new Sequoiadb( TestScmBase.mainSdbUrl,
-                        TestScmBase.sdbUserName, TestScmBase.sdbPassword );
-                // check workspace's cs
-                String metaCSName = wsName + "_META";
-                rSdb.getCollectionSpace( metaCSName );
-                Assert.fail( "ws " + wsName
-                        + " already deleted, meta cs should not exist" );
-            } catch ( BaseException e ) {
-                if ( e.getErrorCode() != -34 ) {
-                    throw e;
-                }
-            } finally {
-                if ( rSdb != null ) {
-                    rSdb.close();
-                }
-            }
-        }
-
-        @Deprecated
-        private static int getUniqueWsId( DBCollection wsCL ) {
-            DBCursor cursor = wsCL.query( null, "{ id: {$include: 1} }", null,
-                    null );
-            int idMax = 0;
-            while ( cursor.hasNext() ) {
-                int currId = ( int ) cursor.getNext().get( "id" );
-                if ( currId > idMax ) {
-                    idMax = currId;
-                }
-            }
-            int uniqueId = idMax + 1;
-            return uniqueId;
-        }
-
-        @Deprecated
-        private static BSONObject cloneWsMeta( BSONObject oldWsMeta,
-                String wsName, int wsId ) {
-            BSONObject newWsMeta = oldWsMeta;
-            newWsMeta.put( "_id", new ObjectId() );
-            newWsMeta.put( "name", wsName );
-            newWsMeta.put( "id", wsId );
-            return newWsMeta;
-        }
-
-        @Deprecated
-        private static void createMetaCSCL( Sequoiadb sdb, String wsName ) {
-            CollectionSpace cs = sdb.createCollectionSpace( wsName + "_META",
-                    new BasicBSONObject( "Domain", "domain1" ) );
-            cs.createCollection( "FILE", ( BSONObject ) JSON
-                    .parse( "{ 'ShardingKey': { 'create_month': 1 }, "
-                            + "ShardingType: 'range', IsMainCL: true }" ) );
-            cs.createCollection( "FILE_HISTORY", ( BSONObject ) JSON
-                    .parse( "{ 'ShardingKey': { 'create_month': 1 }, "
-                            + "ShardingType: 'range', IsMainCL: true }" ) );
-            cs.createCollection( "TRANSACTION_LOG" );
-        }
-    }
-
     public static class Task {
 
         /**
-         * delete task related records
+         * @descreption 删除task元数据
+         * @param taskId
+         * @return
          */
         public static void deleteMeta( ScmId taskId ) {
             Sequoiadb sdb = null;
@@ -756,6 +775,10 @@ public class TestSdbTools {
             }
         }
 
+        /**
+         * @descreption 打印task元数据信息
+         * @return
+         */
         public static void printlnTaskInfos() {
             List< BSONObject > bsonObjects = TestSdbTools.query(
                     TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,

@@ -27,7 +27,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -90,9 +90,9 @@ public class Transfer_stopRunningTask440 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_TList.get( 0 ), cond );
             ScmFileUtils.cleanFile( ws_TList.get( 1 ), cond );
 
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
+            sessionB = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
             ws1 = ScmFactory.Workspace
                     .getWorkspace( ws_TList.get( 0 ).getName(), sessionA );
             ws2 = ScmFactory.Workspace

@@ -1,7 +1,6 @@
 package com.sequoiacm.s3.object.concurrent;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
@@ -40,7 +39,7 @@ public class Object4240 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketName );
 
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );

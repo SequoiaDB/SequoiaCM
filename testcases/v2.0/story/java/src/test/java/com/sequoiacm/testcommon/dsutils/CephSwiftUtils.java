@@ -19,7 +19,10 @@ import com.sequoiacm.testcommon.*;
 public class CephSwiftUtils extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CephSwiftUtils.class );
-
+    /**
+     * @descreption 获取cephSwift连接
+     * @return Account
+     */
     public static Account createAccount(
             SiteWrapper site ) /* throws ScmCryptoException */ {
         Account account = null;
@@ -44,6 +47,14 @@ public class CephSwiftUtils extends TestScmBase {
         return account;
     }
 
+    /**
+     * @descreption cephSwift数据源创建对象
+     * @param site
+     * @param site
+     * @param fileId
+     * @param filePath
+     * @return
+     */
     public static void createObject( SiteWrapper site, WsWrapper ws,
             ScmId fileId, String filePath ) throws Exception {
         Account account = null;
@@ -65,6 +76,14 @@ public class CephSwiftUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption cephSwift数据源获取ObjectSegment
+     * @param site
+     * @param ws
+     * @param fileId
+     * @param part
+     * @return StoredObject
+     */
     public static StoredObject getObjectSegment( SiteWrapper site, WsWrapper ws,
             ScmId fileId, int part ) throws Exception {
         Account account = null;
@@ -85,6 +104,15 @@ public class CephSwiftUtils extends TestScmBase {
         return objSegment;
     }
 
+    /**
+     * @descreption cephSwift数据源获取对象数据和元数据
+     * @param site
+     * @param ws
+     * @param fileId
+     * @param filePath
+     * @param downloadPath
+     * @return Map< String, Object >
+     */
     public static Map< String, Object > getObjMetadata( SiteWrapper site,
             WsWrapper ws, ScmId fileId, String filePath, String downloadPath )
             throws Exception {
@@ -123,6 +151,13 @@ public class CephSwiftUtils extends TestScmBase {
         return metadata;
     }
 
+    /**
+     * @descreption cephSwift数据源删除对象
+     * @param site
+     * @param ws
+     * @param fileId
+     * @return
+     */
     public static void deleteObject( SiteWrapper site, WsWrapper ws,
             ScmId fileId ) throws Exception {
         Account account = null;
@@ -152,6 +187,12 @@ public class CephSwiftUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption cephSwift数据源删除Container
+     * @param site
+     * @param wsName
+     * @return
+     */
     public static void deleteContainer( SiteWrapper site, String wsName )
             throws Exception {
         Account account = null;
@@ -179,6 +220,12 @@ public class CephSwiftUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption cephSwift数据源获取ContainerName
+     * @param site
+     * @param ws
+     * @return String
+     */
     private static String getContainerName( SiteWrapper site, WsWrapper ws )
             throws ScmException {
         String containerName = "";
@@ -206,6 +253,12 @@ public class CephSwiftUtils extends TestScmBase {
         return containerName;
     }
 
+    /**
+     * @descreption cephSwift数据源获取ContainerName
+     * @param site
+     * @param wsName
+     * @return String
+     */
     private static String getContainerName( SiteWrapper site, String wsName )
             throws ScmException {
         String containerName = "";

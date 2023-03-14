@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -47,7 +47,7 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         try {
             ScmFactory.Role.deleteRole( session, rolename );
         } catch ( ScmException e ) {
@@ -66,7 +66,7 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
     private void test() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, passwd );
+            session = ScmSessionUtils.createSession( site, username, passwd );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .acceptUnknownProperties( true )
                     .service( site.getSiteServiceName() )
@@ -102,7 +102,7 @@ public class DeleteConfByNoAdmin2331 extends TestScmBase {
     private void createUser() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUser scmUser = ScmFactory.User.createUser( session, username,
                     ScmUserPasswordType.LOCAL, passwd );
             ScmRole role = ScmFactory.Role.createRole( session, rolename, "" );

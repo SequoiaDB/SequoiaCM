@@ -26,7 +26,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -79,7 +79,7 @@ public class TransferTaskAndAsyncTransferSameFile2276 extends TestScmBase {
         ScmFileUtils.cleanFile( ws_T, cond );
 
         // login
-        sessionA = TestScmTools.createSession( branceSite );
+        sessionA = ScmSessionUtils.createSession( branceSite );
         wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
         // ready file
@@ -118,7 +118,7 @@ public class TransferTaskAndAsyncTransferSameFile2276 extends TestScmBase {
         ScmWorkspace wsA = null;
         String wsName = ws_T.getName();
         try {
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsName, sessionA );
 
             BSONObject condition = ScmQueryBuilder
@@ -145,7 +145,7 @@ public class TransferTaskAndAsyncTransferSameFile2276 extends TestScmBase {
         ScmWorkspace wsA = null;
         String wsName = ws_T.getName();
         try {
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsName, sessionA );
             ScmFactory.File.asyncTransfer( wsA, fileId,
                     rootSite.getSiteName() );

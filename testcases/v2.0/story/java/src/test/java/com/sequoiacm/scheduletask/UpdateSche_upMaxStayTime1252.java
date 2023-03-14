@@ -30,7 +30,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
@@ -73,7 +73,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             // get site and workspace, create session
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspaceUtil.deleteWs( wsName, session );
             ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
             ScmWorkspaceUtil.wsSetPriority( session, wsName );
@@ -152,7 +152,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             throws ScmException, ParseException {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
 
             for ( int i = startNum; i < endNum; i++ ) {
@@ -176,7 +176,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     private void createScheduleTask( String maxStayTime ) {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
 
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
                     branSite.getSiteName(), rootSite.getSiteName(), maxStayTime,
@@ -201,7 +201,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     private void deleteScheduleTask() {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmSystem.Schedule.delete( ss, scheduleId );
             if ( runSuccess || TestScmBase.forceClear ) {
                 ScmScheduleUtils.cleanTask( ss, scheduleId );
@@ -218,7 +218,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
     private void updateScheMaxStayTime( String maxStayTime ) {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
 
             ScmSchedule sche = ScmSystem.Schedule.get( ss, scheduleId );
             ScmScheduleCopyFileContent content = new ScmScheduleCopyFileContent(
@@ -244,7 +244,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
         String newName = name + "_clean";
         String newDesc = "desc_123";
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmSchedule sche = ScmSystem.Schedule.get( ss, scheduleId );
 
             ScheduleType taskType = ScheduleType.CLEAN_FILE;
@@ -267,7 +267,7 @@ public class UpdateSche_upMaxStayTime1252 extends TestScmBase {
             SiteWrapper[] expSites ) throws Exception {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( branSite );
+            ss = ScmSessionUtils.createSession( branSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
             ScmScheduleUtils.checkScmFile( ws, fileIds, startNum, endNum,
                     expSites );

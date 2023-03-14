@@ -18,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -42,7 +42,7 @@ public class Audit5670 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ConfUtil.deleteAuditConf( ConfUtil.AUTH_SERVER_SERVICE_NAME );
         ScmAuthUtils.deleteUser( session, newUserName );
         init();

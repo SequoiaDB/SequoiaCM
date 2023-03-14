@@ -5,6 +5,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
@@ -56,8 +57,8 @@ public class AsyncTransferCurVersion3747 extends TestScmBase {
         branchSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
-        branchSiteSession = TestScmTools.createSession( branchSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
+        branchSiteSession = ScmSessionUtils.createSession( branchSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
         branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -70,8 +71,7 @@ public class AsyncTransferCurVersion3747 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
-        fileId = VersionUtils.createFileByFile( branchSiteWs, fileName,
-                filePath );
+        fileId = ScmFileUtils.create( branchSiteWs, fileName, filePath );
         for ( int i = 0; i < maxVersion - 1; i++ ) {
             VersionUtils.updateContentByFile( branchSiteWs, fileName, fileId,
                     updatefilePath );
@@ -79,7 +79,7 @@ public class AsyncTransferCurVersion3747 extends TestScmBase {
 
         ScmFactory.File.asyncTransfer( branchSiteWs, fileId, maxVersion - 1, 0,
                 rootSite.getSiteName() );
-        VersionUtils.waitAsyncTaskFinished( rootSiteWs, fileId, maxVersion - 1,
+        ScmTaskUtils.waitAsyncTaskFinished( rootSiteWs, fileId, maxVersion - 1,
                 2 );
         SiteWrapper[] expSiteList = { rootSite, branchSite };
         VersionUtils.checkSite( rootSiteWs, fileId, maxVersion - 1,

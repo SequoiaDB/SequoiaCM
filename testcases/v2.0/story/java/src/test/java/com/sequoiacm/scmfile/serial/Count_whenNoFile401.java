@@ -19,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-401: ws下不存在文件，查询文件
@@ -41,7 +41,7 @@ public class Count_whenNoFile401 extends TestScmBase {
     private void setUp() throws Exception {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( ScmInfo.getWs().getName(),
                     session );
             cleanUpFiles( ws );

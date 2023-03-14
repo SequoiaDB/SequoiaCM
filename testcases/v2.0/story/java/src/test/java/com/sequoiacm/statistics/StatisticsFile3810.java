@@ -1,13 +1,11 @@
 package com.sequoiacm.statistics;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.*;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.*;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -16,11 +14,6 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.client.element.privilege.ScmResource;
-import com.sequoiacm.client.element.privilege.ScmResourceFactory;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 
 /**
@@ -57,11 +50,11 @@ public class StatisticsFile3810 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
@@ -132,7 +125,7 @@ public class StatisticsFile3810 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // 有多条下载信息
         for ( ScmId fileId : fileIdList ) {
-            int totalDownloadTime = ( int ) StatisticsUtils
+            int totalDownloadTime = ( int ) ScmFileUtils
                     .downloadFile( fileId, siteWorkspace );
             downloadTime.add( totalDownloadTime );
         }

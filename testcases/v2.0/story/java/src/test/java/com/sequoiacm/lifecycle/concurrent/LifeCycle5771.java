@@ -55,7 +55,7 @@ public class LifeCycle5771 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
 
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         addTransition = prepareTransition( fowlName3 );
@@ -326,7 +326,7 @@ public class LifeCycle5771 extends TestScmBase {
     private class SetLifeCycleConfigThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.setLifeCycleConfig( session,
                         lifeCycleConfig );
             } catch ( ScmException e ) {
@@ -338,7 +338,7 @@ public class LifeCycle5771 extends TestScmBase {
     private class AddSiteStageTagThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.addStageTag( session, stageTagName3,
                         stageTagName3 );
             } catch ( ScmException e ) {
@@ -350,7 +350,7 @@ public class LifeCycle5771 extends TestScmBase {
     private class DeleteSiteStageTagThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.removeStageTag( session,
                         stageTagName2 );
             } catch ( ScmException e ) {
@@ -362,7 +362,7 @@ public class LifeCycle5771 extends TestScmBase {
     private class AddTransitionThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.addTransition( session,
                         addTransition );
             } catch ( ScmException e ) {
@@ -374,7 +374,7 @@ public class LifeCycle5771 extends TestScmBase {
     private class RemoveTransitionThread extends ResultStore {
         @ExecuteOrder(step = 1)
         private void run() {
-            try ( ScmSession session = TestScmTools.createSession( site )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( site )) {
                 ScmSystem.LifeCycleConfig.removeTransition( session,
                         fowlName1 );
             } catch ( ScmException e ) {

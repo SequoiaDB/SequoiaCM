@@ -3,12 +3,10 @@ package com.sequoiacm.s3.object.concurrent;
 import com.amazonaws.services.s3.AmazonS3;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.ScmUploadConf;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -51,7 +49,7 @@ public class Object4245 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         s3Client = S3Utils.buildS3Client();
@@ -116,7 +114,7 @@ public class Object4245 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             try {
                 ScmFactory.Bucket.attachFile( session, bucketName, fileID );
@@ -130,7 +128,7 @@ public class Object4245 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             try {
                 ScmFactory.Bucket.detachFile( session, bucketName, objectKey );

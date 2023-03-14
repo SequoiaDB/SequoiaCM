@@ -67,7 +67,7 @@ public class StatisticsFileTraffic2233 extends TestScmBase {
                     "no site are connected to sequoiadb datasourse, skip!" );
         }
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();

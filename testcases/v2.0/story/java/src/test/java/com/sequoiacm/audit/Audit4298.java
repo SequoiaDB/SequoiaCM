@@ -40,7 +40,7 @@ public class Audit4298 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         WsWrapper wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );

@@ -1,14 +1,12 @@
 package com.sequoiacm.scheduletask;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
-import com.sequoiacm.client.element.ScmTaskBasicInfo;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -62,8 +60,8 @@ public class QuerySche3748 extends TestScmBase {
         branchSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        branchSiteSession = TestScmTools.createSession( branchSite );
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        branchSiteSession = ScmSessionUtils.createSession( branchSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         branchSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

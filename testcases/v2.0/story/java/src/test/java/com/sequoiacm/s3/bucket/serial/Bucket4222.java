@@ -36,7 +36,7 @@ public class Bucket4222 extends TestScmBase {
     public void setUp() throws Exception {
         envBuckets = S3Utils.getEnvBuckets( TestScmBase.scmUserName );
         SiteWrapper rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < bucketNum; i++ ) {
             S3Utils.clearBucket( s3Client, bucketName + i );

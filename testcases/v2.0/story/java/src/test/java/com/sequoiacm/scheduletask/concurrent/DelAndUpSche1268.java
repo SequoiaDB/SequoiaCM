@@ -30,7 +30,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -80,7 +80,7 @@ public class DelAndUpSche1268 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
             wss = ScmInfo.getWss( 2 );
-            ssA = TestScmTools.createSession( branSite );
+            ssA = ScmSessionUtils.createSession( branSite );
             wsA = ScmFactory.Workspace.getWorkspace( wss.get( 0 ).getName(),
                     ssA );
             wsB = ScmFactory.Workspace.getWorkspace( wss.get( 1 ).getName(),

@@ -13,7 +13,6 @@ import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -26,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -72,7 +71,7 @@ public class DiffCenterWriteFile256 extends TestScmBase {
             branSites = ScmInfo.getBranchSites( branSitesNum );
             wsp = ScmInfo.getWs();
 
-            session = TestScmTools.createSession( branSites.get( 0 ) );
+            session = ScmSessionUtils.createSession( branSites.get( 0 ) );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         } catch ( IOException e ) {
             Assert.fail( e.getMessage() );
@@ -158,7 +157,7 @@ public class DiffCenterWriteFile256 extends TestScmBase {
         ScmSession ss = null;
         ScmId fileId = null;
         try {
-            ss = TestScmTools.createSession( site );
+            ss = ScmSessionUtils.createSession( site );
             ScmWorkspace wks = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     ss );
 
@@ -180,7 +179,7 @@ public class DiffCenterWriteFile256 extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream sis = null;
         try {
-            ss = TestScmTools.createSession( site );
+            ss = ScmSessionUtils.createSession( site );
             ScmWorkspace wks = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     ss );
 

@@ -65,7 +65,7 @@ public class LifeCycle5758 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         lifeCycleConfig = prepareLifeCycleConfig();
 
         ScmWorkspaceUtil.deleteWs( wsName, session );

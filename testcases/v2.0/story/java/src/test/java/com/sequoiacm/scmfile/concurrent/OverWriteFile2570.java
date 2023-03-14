@@ -78,7 +78,7 @@ public class OverWriteFile2570 extends TestScmBase {
                     "Upload BreakpointFile is not support in hdfs(hbase)" );
         }
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
                 .is( batchName ).get();
@@ -212,7 +212,7 @@ public class OverWriteFile2570 extends TestScmBase {
         private void overwriteScmFile() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile scmFile = ScmFactory.File.createInstance( ws );
@@ -252,7 +252,7 @@ public class OverWriteFile2570 extends TestScmBase {
         private void breakpointFile2ScmFile() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile scmFile = ScmFactory.File.createInstance( ws );

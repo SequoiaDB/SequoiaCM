@@ -27,7 +27,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -80,7 +80,7 @@ public class Transfer_readProgressAndStop442 extends TestScmBase {
                     .is( authorName ).get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            session = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            session = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
             prepareFiles( session );
         } catch ( Exception e ) {
@@ -200,7 +200,7 @@ public class Transfer_readProgressAndStop442 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession ss = null;
             try {
-                ss = TestScmTools.createSession( site );
+                ss = ScmSessionUtils.createSession( site );
                 ScmSystem.Task.stopTask( ss, taskId );
                 ScmSystem.Task.getTask( ss, taskId ).getProgress();
             } catch ( ScmException e ) {

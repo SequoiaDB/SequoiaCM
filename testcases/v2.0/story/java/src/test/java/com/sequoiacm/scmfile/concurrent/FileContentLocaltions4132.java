@@ -3,10 +3,6 @@ package com.sequoiacm.scmfile.concurrent;
 import java.io.File;
 import java.util.List;
 
-import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -58,7 +54,7 @@ public class FileContentLocaltions4132 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
@@ -97,7 +93,7 @@ public class FileContentLocaltions4132 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 System.out
                         .println( "----sessionId = " + session.getSessionId() );
                 ScmWorkspace ws = ScmFactory.Workspace

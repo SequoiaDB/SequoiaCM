@@ -1,24 +1,20 @@
 package com.sequoiacm.scheduletask;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
 import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -67,15 +63,15 @@ public class ScheduleTask5229 extends TestScmBase {
         branchSite2 = branchSites.get( 1 );
 
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
-        branSession1 = TestScmTools.createSession( branchSite1 );
+        branSession1 = ScmSessionUtils.createSession( branchSite1 );
         branSiteWs1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branSession1 );
 
-        branSession2 = TestScmTools.createSession( branchSite2 );
+        branSession2 = ScmSessionUtils.createSession( branchSite2 );
         branSiteWs2 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branSession2 );
 
@@ -173,7 +169,7 @@ public class ScheduleTask5229 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void exec() throws Exception {
-            ScmSession session = TestScmTools.createSession( sourceSite );
+            ScmSession session = ScmSessionUtils.createSession( sourceSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {

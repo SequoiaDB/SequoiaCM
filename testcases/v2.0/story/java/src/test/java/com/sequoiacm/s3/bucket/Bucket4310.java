@@ -28,7 +28,7 @@ public class Bucket4310 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         s3Client = S3Utils.buildS3Client();
     }
 

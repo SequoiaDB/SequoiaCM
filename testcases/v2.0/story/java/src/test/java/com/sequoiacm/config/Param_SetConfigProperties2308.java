@@ -13,7 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @author fanyu
@@ -49,7 +49,7 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testClosedSS() throws ScmException {
-        ScmSession session = TestScmTools.createSession( site );
+        ScmSession session = ScmSessionUtils.createSession( site );
         session.close();
         try {
             ScmSystem.Configuration.setConfigProperties( session,
@@ -72,7 +72,7 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
     private void testNull() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmSystem.Configuration.setConfigProperties( session, null );
             Assert.fail(
                     "  ScmSystem.Configuration.setConfigProperties must be "
@@ -92,7 +92,7 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
     private void testProperties1() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmSystem.Configuration.setConfigProperties( session,
                     ScmConfigProperties.builder()
                             .updateProperty( ConfigCommonDefind.scm_audit_mask,
@@ -116,7 +116,7 @@ public class Param_SetConfigProperties2308 extends TestScmBase {
     private void testProperties2() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmSystem.Configuration.setConfigProperties( session,
                     ScmConfigProperties.builder()
                             .service( site.getSiteServiceName() ).build() );

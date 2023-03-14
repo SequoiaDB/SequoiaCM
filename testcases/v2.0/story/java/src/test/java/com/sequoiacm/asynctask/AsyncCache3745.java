@@ -19,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -60,10 +60,10 @@ public class AsyncCache3745 extends TestScmBase {
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
-        branchSiteSession = TestScmTools.createSession( branchSite );
+        branchSiteSession = ScmSessionUtils.createSession( branchSite );
         branchSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession );
 

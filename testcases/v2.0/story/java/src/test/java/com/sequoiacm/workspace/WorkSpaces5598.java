@@ -61,7 +61,7 @@ public class WorkSpaces5598 extends TestScmBase {
 
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.HDFS );
         siteList.add( site );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
 

@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @author fanyu
@@ -35,7 +35,7 @@ public class Param_ListService2307 extends TestScmBase {
     private void test() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             List< String > services = ScmSystem.ServiceCenter
                     .getServiceList( session );
             Boolean flag = false;
@@ -73,7 +73,7 @@ public class Param_ListService2307 extends TestScmBase {
     private void test1() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             List< ScmServiceInstance > instances = ScmSystem.ServiceCenter
                     .getServiceInstanceList( session,
                             site.getSiteServiceName() );
@@ -102,7 +102,7 @@ public class Param_ListService2307 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testClosedSS() throws ScmException {
-        ScmSession session = TestScmTools.createSession( site );
+        ScmSession session = ScmSessionUtils.createSession( site );
         session.close();
         try {
             ScmSystem.ServiceCenter.getServiceInstanceList( session,
@@ -121,7 +121,7 @@ public class Param_ListService2307 extends TestScmBase {
     private void testServiceNameNoExist() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmSystem.ServiceCenter.getServiceInstanceList( session,
                     site.getSiteServiceName() + "_inexistence" );
             Assert.fail(

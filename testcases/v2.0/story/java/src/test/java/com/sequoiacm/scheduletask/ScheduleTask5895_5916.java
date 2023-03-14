@@ -38,7 +38,7 @@ public class ScheduleTask5895_5916 extends TestScmBase {
     public void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( filename ).get();
     }

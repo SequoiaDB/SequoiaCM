@@ -3,6 +3,7 @@
  */
 package com.sequoiacm.workspace;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -17,9 +18,8 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
-import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
 /**
  * test content:delete workspace ,the user dose not have permission to delete
@@ -40,7 +40,7 @@ public class DeleteWorkSpace1821 extends TestScmBase {
     @BeforeClass
     private void setUp() throws ScmException, InterruptedException {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         try {
             ScmFactory.Workspace.deleteWorkspace( session, wsName );
             for ( int i = 0; i < 10; i++ ) {
@@ -105,7 +105,7 @@ public class DeleteWorkSpace1821 extends TestScmBase {
         modifier.addRole( role );
         ScmFactory.User.alterUser( session, user, modifier );
 
-        ScmSession newSession = TestScmTools.createSession( site, newUsername,
+        ScmSession newSession = ScmSessionUtils.createSession( site, newUsername,
                 newPassword );
 
         // delete ws fail by no privilege user
@@ -121,6 +121,6 @@ public class DeleteWorkSpace1821 extends TestScmBase {
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                 newSession );
         byte[] writeData = new byte[ 1024 * 200 ];
-        VersionUtils.createFileByStream( ws, "file1821", writeData );
+        ScmFileUtils.createFileByStream( ws, "file1821", writeData );
     }
 }

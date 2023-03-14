@@ -24,6 +24,12 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiacm.testresource.SkipTestException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.ScmSessionUtils;
+import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.WsWrapper;
 
 /**
  * @descreption SCM-3935:跨站点断点续传文件 SCM-1377:跨站点断点续传文件 SCM-1386:跨站点获取断点文件信息
@@ -65,10 +71,10 @@ public class BreakpointFile3935_1377_1386 extends TestScmBase {
             throw new SkipTestException( "指定类型站点数量不足！" );
         }
         wsp = ScmInfo.getWs();
-        session1 = TestScmTools.createSession( siteList.get( 0 ) );
+        session1 = ScmSessionUtils.createSession( siteList.get( 0 ) );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );
 
-        session2 = TestScmTools.createSession( siteList.get( 1 ) );
+        session2 = ScmSessionUtils.createSession( siteList.get( 1 ) );
         ws2 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session2 );
     }
 

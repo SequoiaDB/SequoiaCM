@@ -56,7 +56,7 @@ public class FullText3056 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName1 = WsPool.get();
         wsName2 = WsPool.get();
         wsName3 = WsPool.get();
@@ -168,7 +168,7 @@ public class FullText3056 extends TestScmBase {
         private void create() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.createIndex( ws,
@@ -186,7 +186,7 @@ public class FullText3056 extends TestScmBase {
         private void check() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 // 检查工作区索引信息
@@ -235,7 +235,7 @@ public class FullText3056 extends TestScmBase {
         private void update() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.alterIndex( ws, new ScmFulltextModifiler()
@@ -253,7 +253,7 @@ public class FullText3056 extends TestScmBase {
         private void check() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 // 检查工作区索引信息
@@ -295,7 +295,7 @@ public class FullText3056 extends TestScmBase {
         private void drop() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.dropIndex( ws );
@@ -312,7 +312,7 @@ public class FullText3056 extends TestScmBase {
         private void check() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 // 检查工作区索引信息

@@ -58,7 +58,7 @@ public class ScmFile5197 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -110,7 +110,7 @@ public class ScmFile5197 extends TestScmBase {
     private class DeleteFile {
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 // 等待一段时间，等待创建文件线程执行
                 Thread.sleep( 70 );
                 ScmWorkspace ws = ScmFactory.Workspace
@@ -129,7 +129,7 @@ public class ScmFile5197 extends TestScmBase {
     private class CreateFile {
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 fileIdList.add( ScmFileUtils.create( ws, fileName, filePath ) );

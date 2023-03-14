@@ -1,7 +1,6 @@
 package com.sequoiacm.task.concurrent;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,7 +28,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -81,7 +80,7 @@ public class Transfer_getTaskList443 extends TestScmBase {
         cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( ws_T, cond );
-        session = TestScmTools.createSession( branceSiteList.get( 1 ) );
+        session = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
         ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
         prepareFiles( session );
     }
@@ -180,7 +179,7 @@ public class Transfer_getTaskList443 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession ss = null;
             try {
-                ss = TestScmTools.createSession( site );
+                ss = ScmSessionUtils.createSession( site );
                 cursor = ScmSystem.Task.listTask( ss, cond );
             } catch ( ScmException e ) {
                 e.printStackTrace();

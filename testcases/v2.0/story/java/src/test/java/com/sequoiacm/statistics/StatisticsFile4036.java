@@ -1,14 +1,9 @@
 package com.sequoiacm.statistics;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.*;
 
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.*;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -60,10 +55,10 @@ public class StatisticsFile4036 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
         wsp = ScmInfo.getWs();
         site = ScmInfo.getSite();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
@@ -192,7 +187,7 @@ public class StatisticsFile4036 extends TestScmBase {
         filesList = batch2.listFiles();
         for ( int i = 0; i < filesList.size(); i++ ) {
             ScmId fileId = filesList.get( i ).getFileId();
-            int totalDownloadTime = ( int ) StatisticsUtils
+            int totalDownloadTime = ( int ) ScmFileUtils
                     .downloadFile( fileId, siteWorkspace );
             downloadTime.add( totalDownloadTime );
         }

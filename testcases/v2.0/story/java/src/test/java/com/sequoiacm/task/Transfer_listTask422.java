@@ -28,7 +28,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -86,7 +86,7 @@ public class Transfer_listTask422 extends TestScmBase {
 
             // session = TestScmTools.createSession(TestScmBase.hostName2,
             // TestScmBase.port2);
-            session = TestScmTools.createSession( branceSite );
+            session = ScmSessionUtils.createSession( branceSite );
 
             ScmWorkspace ws1 = ScmFactory.Workspace
                     .getWorkspace( wsList_T.get( 0 ).getName(), session );
@@ -200,7 +200,7 @@ public class Transfer_listTask422 extends TestScmBase {
         ScmSession mainSession = null;
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                mainSession = TestScmTools
+                mainSession = ScmSessionUtils
                         .createSession( ScmInfo.getRootSite() );
                 ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace(
                         wsList_T.get( 0 ).getName(), mainSession );

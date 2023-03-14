@@ -6,6 +6,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,10 +46,10 @@ public class ScmFile4748 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
         SiteWrapper site = ScmInfo.getSite();
-        sessionA = TestScmTools.createSession( site );
+        sessionA = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( sessionA, bucketName );
         ScmAuthUtils.createUser( sessionA, userName, passWord );
-        sessionB = TestScmTools.createSession( ScmInfo.getSite(), userName,
+        sessionB = ScmSessionUtils.createSession( ScmInfo.getSite(), userName,
                 passWord );
         wsA = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionA );
         ScmBucket bucket = ScmFactory.Bucket.createBucket( wsA, bucketName );
@@ -98,7 +99,7 @@ public class ScmFile4748 extends TestScmBase {
     private void createScmFile( ScmSession session, String path )
             throws ScmException {
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
-        S3Utils.createFile( bucket, key, path );
+        ScmFileUtils.createFile( bucket, key, path );
     }
 
 }

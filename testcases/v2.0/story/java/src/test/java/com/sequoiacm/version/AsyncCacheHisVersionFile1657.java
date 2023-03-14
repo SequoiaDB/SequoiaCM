@@ -2,8 +2,8 @@ package com.sequoiacm.version;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -13,7 +13,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -46,14 +46,14 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsM, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsM, fileName, filedata );
         VersionUtils.updateContentByStream( wsM, fileId, updatedata );
     }
 
@@ -65,7 +65,7 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
 
         // check the history file data and siteinfo
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, historyVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, historyVersion,
                 expHisSiteList.length );
         VersionUtils.checkSite( wsM, fileId, historyVersion, expHisSiteList );
         VersionUtils.CheckFileContentByStream( wsA, fileName, historyVersion,
@@ -97,7 +97,7 @@ public class AsyncCacheHisVersionFile1657 extends TestScmBase {
             throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId, majorVersion, 0 );
         SiteWrapper[] expHisSiteList = { rootSite, branSite };
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
                 expHisSiteList.length );
     }
 }

@@ -58,7 +58,7 @@ public class WorkSpaces5491 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath2, fileSize );
 
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         siteList.add( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );

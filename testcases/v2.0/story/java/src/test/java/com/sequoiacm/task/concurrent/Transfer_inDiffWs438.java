@@ -28,7 +28,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -86,7 +86,7 @@ public class Transfer_inDiffWs438 extends TestScmBase {
         ScmFileUtils.cleanFile( ws_TList.get( 0 ), cond );
         ScmFileUtils.cleanFile( ws_TList.get( 1 ), cond );
 
-        session = TestScmTools.createSession( branceSite );
+        session = ScmSessionUtils.createSession( branceSite );
         ws = ScmFactory.Workspace.getWorkspace( ws_TList.get( 0 ).getName(),
                 session );
         newWs = ScmFactory.Workspace.getWorkspace( ws_TList.get( 1 ).getName(),
@@ -173,7 +173,7 @@ public class Transfer_inDiffWs438 extends TestScmBase {
             ScmSession ss = null;
             try {
                 // login
-                ss = TestScmTools.createSession( branceSite );
+                ss = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws1 = ScmFactory.Workspace
                         .getWorkspace( ws_TList.get( 0 ).getName(), ss );
 
@@ -214,7 +214,7 @@ public class Transfer_inDiffWs438 extends TestScmBase {
             ScmSession ss = null;
             try {
                 // login
-                ss = TestScmTools.createSession( branceSite );
+                ss = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws2 = ScmFactory.Workspace
                         .getWorkspace( ws_TList.get( 1 ).getName(), ss );
 

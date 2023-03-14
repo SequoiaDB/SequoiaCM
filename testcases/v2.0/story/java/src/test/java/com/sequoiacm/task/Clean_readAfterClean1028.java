@@ -1,14 +1,12 @@
 package com.sequoiacm.task;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -75,7 +73,7 @@ public class Clean_readAfterClean1028 extends TestScmBase {
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( ws_T, cond );
 
-        session = TestScmTools.createSession( branceSites.get( 0 ) );
+        session = ScmSessionUtils.createSession( branceSites.get( 0 ) );
         ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
         writeFileFromSubCenterA();
@@ -128,7 +126,7 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( branceSite );
+            session = ScmSessionUtils.createSession( branceSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
 
@@ -158,7 +156,7 @@ public class Clean_readAfterClean1028 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
 

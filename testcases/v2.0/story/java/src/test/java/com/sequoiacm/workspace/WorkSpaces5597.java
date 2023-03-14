@@ -61,7 +61,7 @@ public class WorkSpaces5597 extends TestScmBase {
 
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.SFTP );
         siteList.add( site );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         ScmWorkspaceUtil.deleteWs( wsName, session );
 

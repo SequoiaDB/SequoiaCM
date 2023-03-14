@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-1479 :: 用户被禁用
@@ -35,7 +35,7 @@ public class AuthServer_LoginOnDisableUser1479 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             site = ScmInfo.getSite();
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
@@ -63,7 +63,7 @@ public class AuthServer_LoginOnDisableUser1479 extends TestScmBase {
             modifier.setEnabled( false );
             ScmFactory.User.alterUser( session, user, modifier );
             // login
-            session1 = TestScmTools.createSession( site, user.getUsername(),
+            session1 = ScmSessionUtils.createSession( site, user.getUsername(),
                     passwd );
             Assert.fail(
                     "expect disable user login fail but act success.session1 "
@@ -84,7 +84,7 @@ public class AuthServer_LoginOnDisableUser1479 extends TestScmBase {
             // enable user and login
             modifier.setEnabled( true );
             ScmFactory.User.alterUser( session, user, modifier );
-            session2 = TestScmTools.createSession( site, username, passwd );
+            session2 = ScmSessionUtils.createSession( site, username, passwd );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

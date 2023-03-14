@@ -25,7 +25,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -72,7 +72,7 @@ public class DeleteScmFile285 extends TestScmBase {
                 ScmFileUtils.cleanFile( wsp, cond );
             }
             pubSite = sites.get( new Random().nextInt( sites.size() ) );
-            session = TestScmTools.createSession( pubSite );
+            session = ScmSessionUtils.createSession( pubSite );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             this.writeFile();
@@ -166,7 +166,7 @@ public class DeleteScmFile285 extends TestScmBase {
         public void exec() {
             ScmSession ss = null;
             try {
-                ss = TestScmTools.createSession( site );
+                ss = ScmSessionUtils.createSession( site );
                 ScmWorkspace sws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), ss );
 

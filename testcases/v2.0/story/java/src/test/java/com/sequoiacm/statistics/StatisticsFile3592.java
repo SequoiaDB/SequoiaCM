@@ -37,7 +37,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
@@ -108,7 +108,7 @@ public class StatisticsFile3592 extends TestScmBase {
         // 查询上传接口统计信息
         ScmSession sessionB = null;
         try {
-            sessionB = TestScmTools.createSession( site, username, username );
+            sessionB = ScmSessionUtils.createSession( site, username, username );
             ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
                     .fileStatistician( sessionB ).user( username )
                     .beginDate( beginDate ).endDate( endDate ).upload().get();
@@ -128,7 +128,7 @@ public class StatisticsFile3592 extends TestScmBase {
         // 查询下载接口统计信息
         ScmSession sessionA = null;
         try {
-            sessionA = TestScmTools.createSession( site, username, username );
+            sessionA = ScmSessionUtils.createSession( site, username, username );
             ScmFileStatisticInfo downloadInfo = ScmSystem.Statistics
                     .fileStatistician( sessionA ).user( username )
                     .beginDate( beginDate ).endDate( endDate ).download().get();
@@ -152,7 +152,7 @@ public class StatisticsFile3592 extends TestScmBase {
         ScmSession sessionA = null;
         try {
             if ( runSuccess || TestScmBase.forceClear ) {
-                sessionA = TestScmTools.createSession( site );
+                sessionA = ScmSessionUtils.createSession( site );
                 ScmWorkspace wsA = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
                 TestTools.LocalFile.removeFile( localPath );
@@ -235,7 +235,7 @@ public class StatisticsFile3592 extends TestScmBase {
         StatisticsUtils.setGateWaySystemTime( gateWayLocalTime );
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             long uploadBeginTime = System.currentTimeMillis();
@@ -257,7 +257,7 @@ public class StatisticsFile3592 extends TestScmBase {
         StatisticsUtils.setGateWaySystemTime( gateWayLocalTime );
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             long downloadBeginTime = System.currentTimeMillis();
@@ -276,7 +276,7 @@ public class StatisticsFile3592 extends TestScmBase {
     private void createUserAndRole() throws Exception {
         ScmSession sessionA = null;
         try {
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             // 清理环境
             try {
                 ScmFactory.Role.deleteRole( sessionA, rolename );

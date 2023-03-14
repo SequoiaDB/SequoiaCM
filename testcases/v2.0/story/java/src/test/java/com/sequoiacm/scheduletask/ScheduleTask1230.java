@@ -60,8 +60,8 @@ public class ScheduleTask1230 extends TestScmBase {
         branchBSite = branchSites.get( 1 );
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        branchSiteASession = TestScmTools.createSession( branchASite );
-        branchSiteBSession = TestScmTools.createSession( branchBSite );
+        branchSiteASession = ScmSessionUtils.createSession( branchASite );
+        branchSiteBSession = ScmSessionUtils.createSession( branchBSite );
         branchSiteAWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteASession );
         branchSiteBWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),

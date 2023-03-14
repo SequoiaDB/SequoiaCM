@@ -1,19 +1,16 @@
 package com.sequoiacm.statistics;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.*;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
-import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
@@ -53,11 +50,11 @@ public class StatisticsFile3817 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 

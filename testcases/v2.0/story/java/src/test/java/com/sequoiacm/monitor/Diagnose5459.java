@@ -19,7 +19,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @descreption SCM-5459:ScmCheckConnTarget驱动测试
@@ -39,7 +39,7 @@ public class Diagnose5459 extends TestScmBase {
     @BeforeClass
     private void setUp() throws ScmException {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         nodes = listNodes( session );
         if ( nodes.size() < 3 ) {
             Assert.fail( "the num of nodes less than 3," + nodes );

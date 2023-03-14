@@ -4,13 +4,10 @@
 package com.sequoiacm.breakpointfile.concurrent;
 
 import java.io.*;
-import java.util.List;
-import java.util.Random;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -20,7 +17,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.breakpointfile.BreakpointUtil;
-import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
@@ -65,7 +61,7 @@ public class BreakpointFile4044 extends TestScmBase {
 
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         createBreakpointFile();
     }
@@ -101,7 +97,7 @@ public class BreakpointFile4044 extends TestScmBase {
                 throws ScmException, FileNotFoundException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

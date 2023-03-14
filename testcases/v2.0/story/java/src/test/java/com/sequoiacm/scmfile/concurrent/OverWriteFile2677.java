@@ -31,7 +31,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
@@ -81,7 +81,7 @@ public class OverWriteFile2677 extends TestScmBase {
                 new Random().nextInt( 1024 * 1024 ) );
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         // clean batch
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
@@ -204,7 +204,7 @@ public class OverWriteFile2677 extends TestScmBase {
         private void overwriteScmFile() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile scmFile = ScmFactory.File.createInstance( ws );
@@ -238,7 +238,7 @@ public class OverWriteFile2677 extends TestScmBase {
                 throws ScmException, FileNotFoundException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile scmFile = ScmFactory.File.createInstance( ws );

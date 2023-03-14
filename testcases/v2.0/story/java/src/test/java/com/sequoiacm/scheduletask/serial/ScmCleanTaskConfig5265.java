@@ -64,8 +64,8 @@ public class ScmCleanTaskConfig5265 extends TestScmBase {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
-        sessionB = TestScmTools.createSession( branchSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
+        sessionB = ScmSessionUtils.createSession( branchSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

@@ -28,7 +28,7 @@ import com.sequoiacm.common.ScmUpdateContentOption;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -52,7 +52,7 @@ public class ScmFileMD5Calc2978 extends TestScmBase {
         List< SiteWrapper > sites = ScmBreakpointFileUtils.checkDBAndCephS3DataSource();
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         new Random().nextBytes( bytes );
     }

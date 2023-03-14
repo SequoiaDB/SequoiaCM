@@ -21,7 +21,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1509:查询所有用户 SCM-1511:指定filter条件过滤查询 SCM-1513:指定的角色不存在，查询该角色下的用户
@@ -48,7 +48,7 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         for ( int i = 0; i < userNum; i++ ) {

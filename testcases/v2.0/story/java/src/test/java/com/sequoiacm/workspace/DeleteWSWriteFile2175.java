@@ -19,6 +19,10 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -40,8 +44,8 @@ public class DeleteWSWriteFile2175 extends TestScmBase {
     private void setUp() throws Exception {
         siteA = ScmInfo.getRootSite();
         siteB = ScmInfo.getBranchSite();
-        sessionA = TestScmTools.createSession( siteA );
-        sessionB = TestScmTools.createSession( siteB );
+        sessionA = ScmSessionUtils.createSession( siteA );
+        sessionB = ScmSessionUtils.createSession( siteB );
         ScmWorkspaceUtil.deleteWs( wsName, sessionA );
     }
 
@@ -90,7 +94,7 @@ public class DeleteWSWriteFile2175 extends TestScmBase {
                 if ( e.getError() != ScmError.WORKSPACE_NOT_EXIST ) {
                     throw e;
                 }
-                TestSdbTools.Workspace.checkWsCs( wsName, session );
+                ScmWorkspaceUtil.checkWsCs( wsName, session );
                 return;
             }
         }

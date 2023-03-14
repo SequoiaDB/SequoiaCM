@@ -17,7 +17,7 @@ import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
@@ -47,10 +47,10 @@ public class S3AuthServer3633 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        adminSession = TestScmTools.createSession( site );
+        adminSession = ScmSessionUtils.createSession( site );
         ScmAuthUtils.createAdminUser( adminSession, wsp.getName(), username,
                 password );
-        session = TestScmTools.createSession( site, username, password );
+        session = ScmSessionUtils.createSession( site, username, password );
         cryptPassword = ScmPasswordMgr.getInstance()
                 .encrypt( ScmPasswordMgr.SCM_CRYPT_TYPE_DES, password );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username,

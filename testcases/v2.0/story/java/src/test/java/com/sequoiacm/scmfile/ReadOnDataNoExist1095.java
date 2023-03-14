@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -63,8 +63,8 @@ public class ReadOnDataNoExist1095 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         siteList = ScmInfo.getBranchSites( 2 );
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( siteList.get( 0 ) );
-        sessionB = TestScmTools.createSession( siteList.get( 1 ) );
+        sessionA = ScmSessionUtils.createSession( siteList.get( 0 ) );
+        sessionB = ScmSessionUtils.createSession( siteList.get( 1 ) );
         ScmWorkspace wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 sessionA );
         ScmWorkspace wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -163,7 +163,7 @@ public class ReadOnDataNoExist1095 extends TestScmBase {
         }
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             read( ws, fileId );

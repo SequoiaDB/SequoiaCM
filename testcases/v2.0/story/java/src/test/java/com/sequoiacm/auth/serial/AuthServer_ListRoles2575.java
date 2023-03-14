@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ListUtils;
 
 /**
@@ -45,7 +45,7 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         for ( int i = 0; i < roleNum; i++ ) {
             String roleName = roleNamePrefix + "-" + i;
             try {
@@ -175,7 +175,7 @@ public class AuthServer_ListRoles2575 extends TestScmBase {
                 throw e;
             }
         }
-        ScmSession scmSession = TestScmTools.createSession( site );
+        ScmSession scmSession = ScmSessionUtils.createSession( site );
         scmSession.close();
         try {
             ScmFactory.User.listUsers( scmSession, new BasicBSONObject(), 0,

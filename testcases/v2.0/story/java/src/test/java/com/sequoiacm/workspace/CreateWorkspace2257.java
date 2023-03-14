@@ -39,7 +39,7 @@ public class CreateWorkspace2257 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         db = TestSdbTools.getSdb( site.getMetaDsUrl() );
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }

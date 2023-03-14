@@ -5,7 +5,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -32,7 +32,7 @@ public class SessionMgr4577 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        ScmConfigOption scmConfigOption = TestScmTools
+        ScmConfigOption scmConfigOption = ScmSessionUtils
                 .getScmConfigOption( ScmInfo.getRootSite().getSiteName() );
         scmSessionPoolConf = ScmSessionPoolConf.builder()
                 .setSessionConfig( scmConfigOption ).get();

@@ -11,6 +11,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -64,7 +65,7 @@ public class Object4872 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
@@ -72,8 +73,8 @@ public class Object4872 extends TestScmBase {
         s3Client = S3Utils.buildS3Client();
         for ( int i = 0; i < fileNums; i++ ) {
             String key = keyName + "_" + i;
-            ScmId fileId = S3Utils.createFile( scmBucket, key, filePath );
-            S3Utils.createFile( scmBucket, key, updatePath );
+            ScmId fileId = ScmFileUtils.createFile( scmBucket, key, filePath );
+            ScmFileUtils.createFile( scmBucket, key, updatePath );
             fileIds.add( fileId );
             expKeys.add( key );
         }

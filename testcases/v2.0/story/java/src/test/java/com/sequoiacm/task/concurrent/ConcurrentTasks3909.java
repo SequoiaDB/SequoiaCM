@@ -5,7 +5,6 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
@@ -64,10 +63,10 @@ public class ConcurrentTasks3909 extends TestScmBase {
         branchSite1 = branchSites.get( 0 );
         branchSite2 = branchSites.get( 1 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
         branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
 
@@ -136,7 +135,7 @@ public class ConcurrentTasks3909 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( targetSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -165,7 +164,7 @@ public class ConcurrentTasks3909 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( sourceSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

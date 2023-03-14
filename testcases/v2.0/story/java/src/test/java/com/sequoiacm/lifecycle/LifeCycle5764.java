@@ -21,7 +21,6 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
  * @descreption SCM-5764:一次性迁移指定源站点阶段标签
@@ -70,7 +69,7 @@ public class LifeCycle5764 extends TestScmBase {
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         // 创建文件至site

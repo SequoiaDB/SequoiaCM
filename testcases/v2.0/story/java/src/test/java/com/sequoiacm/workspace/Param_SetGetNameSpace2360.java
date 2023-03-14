@@ -64,7 +64,7 @@ public class Param_SetGetNameSpace2360 extends TestScmBase {
         if ( site == null ) {
             throw new SkipTestException( "the site of hbase is not existed" );
         }
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 

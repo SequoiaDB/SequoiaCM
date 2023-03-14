@@ -4,18 +4,14 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,8 +54,8 @@ public class AcrossCenterReadFile3646 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite1session = TestScmTools.createSession( branchSite1 );
-        branchSite2session = TestScmTools.createSession( branchSite2 );
+        branchSite1session = ScmSessionUtils.createSession( branchSite1 );
+        branchSite2session = ScmSessionUtils.createSession( branchSite2 );
         branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1session );
         branchSite2Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),

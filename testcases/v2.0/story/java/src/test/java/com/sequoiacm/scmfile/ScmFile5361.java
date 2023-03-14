@@ -58,7 +58,7 @@ public class ScmFile5361 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

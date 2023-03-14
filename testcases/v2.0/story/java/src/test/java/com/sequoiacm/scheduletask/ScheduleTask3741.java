@@ -51,7 +51,7 @@ public class ScheduleTask3741 extends TestScmBase {
                 .getSortBranchSites();
         branchSite = sortBranchSites.get( sortBranchSites.size() - 1 );
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

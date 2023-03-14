@@ -18,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiadb.exception.BaseException;
 
@@ -41,7 +41,7 @@ public class Param_readByStream274 extends TestScmBase {
     private void setUp() throws IOException {
         try {
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession();
+            session = ScmSessionUtils.createSession();
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             // write file

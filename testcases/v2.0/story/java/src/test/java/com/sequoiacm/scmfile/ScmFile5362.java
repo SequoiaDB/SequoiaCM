@@ -2,10 +2,7 @@ package com.sequoiacm.scmfile;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import com.sequoiacm.exception.ScmError;
 import org.bson.BSONObject;
@@ -58,7 +55,7 @@ public class ScmFile5362 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

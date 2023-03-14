@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 
 import java.io.*;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @descreption SCM-3653:跨站点读不缓存和指定UNSEEKABLE至本地操作并发
@@ -60,8 +59,8 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite1session = TestScmTools.createSession( branchSite1 );
-        branchSite2session = TestScmTools.createSession( branchSite2 );
+        branchSite1session = ScmSessionUtils.createSession( branchSite1 );
+        branchSite2session = ScmSessionUtils.createSession( branchSite2 );
         branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1session );
         branchSite2Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
@@ -108,7 +107,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
     private class SeekFile {
         @ExecuteOrder(step = 1)
         private void test() throws Exception {
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             OutputStream os = null;
             ScmInputStream is = null;
             String downloadPath = TestTools.LocalFile.initDownloadPath(
@@ -156,7 +155,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
             OutputStream os = null;
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -184,7 +183,7 @@ public class AcrossCenterReadFile3653 extends TestScmBase {
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

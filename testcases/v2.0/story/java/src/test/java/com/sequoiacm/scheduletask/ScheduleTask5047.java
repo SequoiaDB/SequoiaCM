@@ -4,18 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.bson.BSONObject;
-import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSchedule;
 import com.sequoiacm.client.core.ScmSession;
@@ -25,7 +20,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
@@ -59,7 +54,7 @@ public class ScheduleTask5047 extends TestScmBase {
         List< WsWrapper > wsList = ScmInfo.getWss( 2 );
         wsp1 = wsList.get( 0 );
         wsp2 = wsList.get( 1 );
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.AUTHOR ).is( authorName ).get();
         String maxStayTime = "0d";

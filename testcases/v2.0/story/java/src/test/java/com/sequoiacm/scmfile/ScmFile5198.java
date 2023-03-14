@@ -3,7 +3,6 @@ package com.sequoiacm.scmfile;
 import java.io.File;
 import java.io.IOException;
 
-import com.sequoiacm.task.concurrent.ConcurrentTasks3917;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -12,15 +11,12 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
  * @descreption SCM-5198:修改文件和按路径删除文件并发
@@ -61,7 +57,7 @@ public class ScmFile5198 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -107,7 +103,7 @@ public class ScmFile5198 extends TestScmBase {
     private class DeleteFile {
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFactory.File.deleteInstanceByPath( ws, "/" + fileName,
@@ -119,7 +115,7 @@ public class ScmFile5198 extends TestScmBase {
     private class UpdateFile {
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstanceByPath( ws,

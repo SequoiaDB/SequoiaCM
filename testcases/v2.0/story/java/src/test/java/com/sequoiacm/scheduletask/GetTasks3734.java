@@ -24,7 +24,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -72,8 +72,8 @@ public class GetTasks3734 extends TestScmBase {
         branchSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
-        branchSiteSession = TestScmTools.createSession( branchSite );
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        branchSiteSession = ScmSessionUtils.createSession( branchSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         branchSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

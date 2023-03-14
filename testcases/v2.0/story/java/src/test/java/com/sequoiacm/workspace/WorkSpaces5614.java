@@ -64,7 +64,7 @@ public class WorkSpaces5614 extends TestScmBase {
         passwdFilePath = site.getDataPasswd();
         access_key = site.getDataUser();
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "twoSite", "fourSite" })

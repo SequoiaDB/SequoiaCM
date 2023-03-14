@@ -78,7 +78,7 @@ public class WorkSpaces5926 extends TestScmBase {
         // 准备初始用户和修改的用户
         prepareCephS3User();
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
@@ -152,7 +152,7 @@ public class WorkSpaces5926 extends TestScmBase {
     }
 
     public void updateFile() throws Exception {
-        ScmSession session = TestScmTools.createSession( site );
+        ScmSession session = ScmSessionUtils.createSession( site );
         ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         try {
             ScmFile file = ScmFactory.File.getInstance( ws, updateFileId );

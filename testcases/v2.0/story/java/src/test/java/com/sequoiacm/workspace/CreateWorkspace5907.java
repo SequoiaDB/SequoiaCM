@@ -59,7 +59,7 @@ public class CreateWorkspace5907 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         TestTools.LocalFile.createFile( updatePath, fileSize / 2 );
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ScmWorkspaceUtil.deleteWs( ws1Name, session );
         ScmWorkspaceUtil.deleteWs( ws2Name, session );
     }

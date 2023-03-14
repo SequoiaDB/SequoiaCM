@@ -58,7 +58,7 @@ public class MoveFile5235 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, sessionM );
         wsM = ScmWorkspaceUtil.createWS( sessionM, wsName,
                 ScmInfo.getSiteNum() );
@@ -128,7 +128,7 @@ public class MoveFile5235 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( rootSite );
+            ScmSession session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             try {

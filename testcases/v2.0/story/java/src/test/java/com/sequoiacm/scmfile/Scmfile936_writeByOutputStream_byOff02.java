@@ -52,7 +52,7 @@ public class Scmfile936_writeByOutputStream_byOff02 extends TestScmBase {
 
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         } catch ( Exception e ) {
             e.printStackTrace();

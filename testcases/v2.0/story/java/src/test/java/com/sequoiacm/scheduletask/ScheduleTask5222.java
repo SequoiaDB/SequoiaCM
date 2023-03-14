@@ -4,11 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.exception.ScmException;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -68,11 +65,11 @@ public class ScheduleTask5222 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
-        branSiteSession = TestScmTools.createSession( branchSite );
+        branSiteSession = ScmSessionUtils.createSession( branchSite );
         branSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branSiteSession );
 

@@ -13,14 +13,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.metadata.ScmAttributeConf;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
@@ -49,7 +47,7 @@ public class Audit2343 extends TestScmBase {
         ConfUtil.deleteUserAndRole( name, name );
         ConfUtil.createUser( wsp, name, ScmUserPasswordType.LOCAL,
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -146,7 +144,7 @@ public class Audit2343 extends TestScmBase {
             String dirName, String fileName ) throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFactory.Directory.createInstance( ws, dirName );

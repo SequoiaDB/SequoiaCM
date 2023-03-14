@@ -19,7 +19,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -53,15 +53,15 @@ public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSiteA );
+        sessionA = ScmSessionUtils.createSession( branSiteA );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( rootSite );
+        sessionB = ScmSessionUtils.createSession( rootSite );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
 
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -95,7 +95,7 @@ public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
         private void exec() throws ScmException, IOException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( rootSite );
+                session = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
@@ -120,7 +120,7 @@ public class UpdateAndDownloadVersionFile1701 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSiteA );
+                session = ScmSessionUtils.createSession( branSiteA );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 VersionUtils.updateContentByStream( ws, fileId, updatedata );

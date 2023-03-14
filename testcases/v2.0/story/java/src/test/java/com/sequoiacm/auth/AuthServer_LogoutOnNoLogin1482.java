@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-1482 :: 用户未登录，登出
@@ -34,7 +34,7 @@ public class AuthServer_LogoutOnNoLogin1482 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             site = ScmInfo.getSite();
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
@@ -56,7 +56,7 @@ public class AuthServer_LogoutOnNoLogin1482 extends TestScmBase {
     private void test() {
         ScmSession session1 = null;
         try {
-            session1 = TestScmTools.createSession( site, username, passwd );
+            session1 = ScmSessionUtils.createSession( site, username, passwd );
             ScmFactory.Session.deleteSession( session,
                     session1.getSessionId() );
             session1.close();

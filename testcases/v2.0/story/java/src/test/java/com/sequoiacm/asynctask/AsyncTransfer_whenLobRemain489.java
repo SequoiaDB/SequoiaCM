@@ -1,7 +1,6 @@
 package com.sequoiacm.asynctask;
 
 import java.io.File;
-import java.io.IOException;
 
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
@@ -15,11 +14,10 @@ import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -72,9 +70,9 @@ public class AsyncTransfer_whenLobRemain489 extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( ws_T, cond );
 
-        sessionA = TestScmTools.createSession( branceSite );
+        sessionA = ScmSessionUtils.createSession( branceSite );
         wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }

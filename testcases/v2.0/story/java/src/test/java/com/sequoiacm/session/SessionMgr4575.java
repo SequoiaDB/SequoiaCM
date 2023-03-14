@@ -4,7 +4,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -32,7 +32,7 @@ public class SessionMgr4575 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws ScmException {
-        sessionMgr = TestScmTools.createSessionMgr( ScmInfo.getRootSite() );
+        sessionMgr = ScmSessionUtils.createSessionMgr( ScmInfo.getRootSite() );
         ScmSessionPoolConf scmSessionPoolConf = ScmSessionPoolConf.builder()
                 .get();
         maxCacheSize = scmSessionPoolConf.getMaxCacheSize();

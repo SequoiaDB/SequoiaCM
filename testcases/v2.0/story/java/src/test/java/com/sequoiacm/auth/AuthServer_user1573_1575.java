@@ -22,7 +22,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1573:修改用户，添加admin角色和普通角色，并删除角色和用户
@@ -45,7 +45,7 @@ public class AuthServer_user1573_1575 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         try {
@@ -104,7 +104,7 @@ public class AuthServer_user1573_1575 extends TestScmBase {
     }
 
     private void test_delCurrentAdminRole() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
         // alter user, delete current AUTH_ADMIN role
         ScmUser scmUser = ScmFactory.User.getUser( ss, NAME );
         ScmUserModifier modifier = new ScmUserModifier();

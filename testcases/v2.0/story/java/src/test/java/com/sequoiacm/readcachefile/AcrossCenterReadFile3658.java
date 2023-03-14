@@ -10,7 +10,6 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.*;
@@ -58,8 +57,8 @@ public class AcrossCenterReadFile3658 extends TestScmBase {
         wsp = ScmInfo.getWs();
         branchSite1 = branSites.get( 0 );
         branchSite2 = branSites.get( 1 );
-        branchSite1session = TestScmTools.createSession( branchSite1 );
-        branchSite2session = TestScmTools.createSession( branchSite2 );
+        branchSite1session = ScmSessionUtils.createSession( branchSite1 );
+        branchSite2session = ScmSessionUtils.createSession( branchSite2 );
         branchSite1Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1session );
         branchSite2Ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),

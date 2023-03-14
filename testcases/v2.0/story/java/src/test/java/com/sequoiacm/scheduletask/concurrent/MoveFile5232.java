@@ -62,9 +62,9 @@ public class MoveFile5232 extends TestScmBase {
         List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
         branchSite1 = branchSites.get( 0 );
         branchSite2 = branchSites.get( 1 );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-        sessionB1 = TestScmTools.createSession( branchSite1 );
+        sessionB1 = ScmSessionUtils.createSession( branchSite1 );
         wsB1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB1 );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileAuthor ).get();
@@ -128,7 +128,7 @@ public class MoveFile5232 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( branchSite1 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite1 );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {
@@ -153,7 +153,7 @@ public class MoveFile5232 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools.createSession( branchSite2 );
+            ScmSession session = ScmSessionUtils.createSession( branchSite2 );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {

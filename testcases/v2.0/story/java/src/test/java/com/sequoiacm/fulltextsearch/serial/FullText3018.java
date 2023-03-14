@@ -59,7 +59,7 @@ public class FullText3018 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName1 = WsPool.get();
         wsName2 = WsPool.get();
         wsName3 = WsPool.get();

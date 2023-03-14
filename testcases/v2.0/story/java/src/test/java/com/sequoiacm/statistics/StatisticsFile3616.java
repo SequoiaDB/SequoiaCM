@@ -39,7 +39,7 @@ import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
@@ -109,7 +109,7 @@ public class StatisticsFile3616 extends TestScmBase {
 
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             // 查询上传接口统计信息
             ScmFileStatisticInfo uploadInfo = ScmSystem.Statistics
                     .fileStatistician( session ).beginDate( beginDate )
@@ -148,7 +148,7 @@ public class StatisticsFile3616 extends TestScmBase {
     private void tearDown() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             if ( runSuccess || TestScmBase.forceClear ) {
@@ -227,7 +227,7 @@ public class StatisticsFile3616 extends TestScmBase {
         long uploadBeginTime = System.currentTimeMillis();
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             for ( int i = 0; i < filePathList.size(); i++ ) {
@@ -255,7 +255,7 @@ public class StatisticsFile3616 extends TestScmBase {
         StatisticsUtils.setGateWaySystemTime( gateWayLocalTime );
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             long downloadBeginTime = System.currentTimeMillis();
@@ -285,7 +285,7 @@ public class StatisticsFile3616 extends TestScmBase {
     private void createUserAndRole() throws Exception {
         ScmSession sessionA = null;
         try {
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             // 清理环境
             try {
                 ScmFactory.Role.deleteRole( sessionA, rolename );

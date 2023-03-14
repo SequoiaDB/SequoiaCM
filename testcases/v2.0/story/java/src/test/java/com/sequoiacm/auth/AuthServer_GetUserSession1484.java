@@ -19,7 +19,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-1484 :: 查询指定用户下所有会话
@@ -41,7 +41,7 @@ public class AuthServer_GetUserSession1484 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             site = ScmInfo.getSite();
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
@@ -54,7 +54,7 @@ public class AuthServer_GetUserSession1484 extends TestScmBase {
             user = ScmFactory.User.createUser( session, username,
                     ScmUserPasswordType.LOCAL, passwd );
             for ( int i = 0; i < ssNum; i++ ) {
-                ScmSession session = TestScmTools.createSession( site, username,
+                ScmSession session = ScmSessionUtils.createSession( site, username,
                         passwd );
                 ssList.add( session );
             }

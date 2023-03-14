@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -44,7 +44,7 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -54,7 +54,7 @@ public class GetUpdateFileAttr1651 extends TestScmBase {
     @Test(groups = { GroupTags.base })
     private void test() throws Exception {
         // write /update the file
-        fileId = VersionUtils.createFileByStream( ws, fileName, writeData );
+        fileId = ScmFileUtils.createFileByStream( ws, fileName, writeData );
         VersionUtils.updateContentByStream( ws, fileId, updateData );
 
         // get the file attribute

@@ -70,7 +70,7 @@ public class WorkSpaces5487 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         siteList.add( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );

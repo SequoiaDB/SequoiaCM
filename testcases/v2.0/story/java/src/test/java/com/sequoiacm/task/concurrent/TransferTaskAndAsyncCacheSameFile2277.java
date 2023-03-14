@@ -2,7 +2,6 @@ package com.sequoiacm.task.concurrent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
@@ -27,12 +26,11 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
@@ -71,16 +69,15 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         ws_T = ScmInfo.getWs();
-        List< SiteWrapper > siteList = ScmNetUtils.getSortSites( ws_T );
-        rootSite = siteList.get( 0 );
-        branceSite = siteList.get( 1 );
+        rootSite = ScmInfo.getRootSite();
+        branceSite = ScmInfo.getBranchSite();
 
         BSONObject cond = ScmQueryBuilder.start()
                 .put( ScmAttributeName.File.AUTHOR ).is( author ).get();
         ScmFileUtils.cleanFile( ws_T, cond );
 
         // login
-        sessionA = TestScmTools.createSession( rootSite );
+        sessionA = ScmSessionUtils.createSession( rootSite );
         wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
         // ready file
@@ -119,7 +116,7 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
         ScmWorkspace wsA = null;
         String wsName = ws_T.getName();
         try {
-            sessionA = TestScmTools.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( rootSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsName, sessionA );
 
             BSONObject condition = ScmQueryBuilder
@@ -150,7 +147,7 @@ public class TransferTaskAndAsyncCacheSameFile2277 extends TestScmBase {
         ScmWorkspace wsA = null;
         String wsName = ws_T.getName();
         try {
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsName, sessionA );
             ScmFactory.File.asyncCache( wsA, fileId );
             SiteWrapper[] expSiteList = { rootSite, branceSite };

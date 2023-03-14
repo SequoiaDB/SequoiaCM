@@ -58,7 +58,7 @@ public class StatisticsFile4082 extends TestScmBase {
 
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
         // 更新网关和admin配置
@@ -72,10 +72,10 @@ public class StatisticsFile4082 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     public void test() throws Exception {
-        int createAndUploadBreakpointFileTime = ( int ) StatisticsUtils
+        int createAndUploadBreakpointFileTime = ( int ) ScmBreakpointFileUtils
                 .createAndUploadBreakpointFile( fileName, siteWorkspace,
                         filePath );
-        int breakpointFileToFileTime = ( int ) StatisticsUtils
+        int breakpointFileToFileTime = ( int ) ScmBreakpointFileUtils
                 .breakpointFileToFile( fileName, siteWorkspace, fileName,
                         fileIdList );
         uploadTime.add(

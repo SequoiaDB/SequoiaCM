@@ -8,6 +8,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -54,13 +55,13 @@ public class ScmFile4853 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
-        fileId = S3Utils.createFile( scmBucket, fileName, filePath );
-        S3Utils.createFile( scmBucket, fileName, updatePath );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filePath );
+        ScmFileUtils.createFile( scmBucket, fileName, updatePath );
     }
 
     @Test
@@ -106,7 +107,7 @@ public class ScmFile4853 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 ScmFile file = scmBucket.getFile( fileName );
@@ -130,7 +131,7 @@ public class ScmFile4853 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 scmBucket.deleteFileVersion( fileName, deleteVersion, 0 );

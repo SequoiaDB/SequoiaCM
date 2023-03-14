@@ -11,7 +11,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.breakpointfile.BreakpointUtil;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmAttributeName;
 import com.sequoiacm.client.core.ScmBatch;
@@ -29,7 +28,7 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -54,7 +53,7 @@ public class EnableDir3134 extends TestScmBase {
     private void setUp() throws Exception {
         SiteWrapper site = ScmInfo
                 .getSiteByType( ScmType.DatasourceType.SEQUOIADB );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         // 打开目录功能
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum(),

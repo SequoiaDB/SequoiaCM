@@ -1,6 +1,5 @@
 package com.sequoiacm.definemeta;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -26,7 +25,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiadb.exception.BaseException;
@@ -62,7 +61,7 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
         try {
             site = ScmInfo.getSite();
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
             cleanEnv();
             prepare();
@@ -197,7 +196,7 @@ public class DefineAttr_Class_ClassAttachAttr1872 extends TestScmBase {
                 ScmPrivilegeType.ALL );
         ScmAuthUtils.checkPriority( site, name, passwd, role, wsp );
 
-        sessionu = TestScmTools.createSession( site, name, passwd );
+        sessionu = ScmSessionUtils.createSession( site, name, passwd );
         wsu = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionu );
     }
 }

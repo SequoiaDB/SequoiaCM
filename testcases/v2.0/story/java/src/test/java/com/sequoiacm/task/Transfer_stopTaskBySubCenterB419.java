@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -77,10 +77,10 @@ public class Transfer_stopTaskBySubCenterB419 extends TestScmBase {
             ws_T = ScmInfo.getWs();
 
             // login
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionB = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
 
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( authorName )

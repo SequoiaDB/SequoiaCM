@@ -56,7 +56,7 @@ public class MoveFile5219 extends TestScmBase {
         List< SiteWrapper > branchSites = ScmInfo.getBranchSites( 2 );
         branchSite1 = branchSites.get( 0 );
         branchSite2 = branchSites.get( 1 );
-        session = TestScmTools.createSession( branchSite1 );
+        session = ScmSessionUtils.createSession( branchSite1 );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();

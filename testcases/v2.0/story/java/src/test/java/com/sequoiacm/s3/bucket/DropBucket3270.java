@@ -6,7 +6,7 @@ import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.testng.Assert;
@@ -33,7 +33,7 @@ public class DropBucket3270 extends TestScmBase {
         // 默认用户连接
         s3A = S3Utils.buildS3Client();
         // 新建用户连接
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ScmAuthUtils.createUser( session, username, password );
         accessKeys = ScmAuthUtils.refreshAccessKey( session, username, password,
                 null );

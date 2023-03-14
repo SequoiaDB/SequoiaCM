@@ -57,7 +57,7 @@ public class MoveFile5216 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, sessionM );
         wsM = ScmWorkspaceUtil.createWS( sessionM, wsName,
                 ScmInfo.getSiteNum() );

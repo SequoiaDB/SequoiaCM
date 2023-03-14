@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
-import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -37,7 +36,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -86,7 +85,7 @@ public class AuthDir_All1728 extends TestScmBase {
             rootsite = ScmInfo.getRootSite();
             branchsite = ScmScheduleUtils.getSortBranchSites().get( 0 );
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( rootsite );
+            sessionA = ScmSessionUtils.createSession( rootsite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
             cleanEnv();
@@ -278,7 +277,7 @@ public class AuthDir_All1728 extends TestScmBase {
         ScmDirectory dir = null;
         String dirPath = path;
         try {
-            session = TestScmTools.createSession( branchsite );
+            session = ScmSessionUtils.createSession( branchsite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             // get dir
@@ -313,7 +312,7 @@ public class AuthDir_All1728 extends TestScmBase {
         ScmDirectory dir = null;
         String dirPath = path;
         try {
-            session = TestScmTools.createSession( branchsite );
+            session = ScmSessionUtils.createSession( branchsite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session ); // get
             // dir
@@ -648,7 +647,7 @@ public class AuthDir_All1728 extends TestScmBase {
 
             ScmAuthUtils.checkPriority( rootsite, username, passwd, role, wsp );
 
-            sessionALL = TestScmTools.createSession( branchsite, username,
+            sessionALL = ScmSessionUtils.createSession( branchsite, username,
                     passwd );
             wsALL = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionALL );

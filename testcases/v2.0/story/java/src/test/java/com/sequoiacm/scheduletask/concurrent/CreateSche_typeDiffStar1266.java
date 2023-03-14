@@ -7,12 +7,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScheduleType;
@@ -34,7 +32,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -82,8 +80,8 @@ public class CreateSche_typeDiffStar1266 extends TestScmBase {
             rootSite = ScmInfo.getRootSite();
             branSite = ScmInfo.getBranchSite();
             wss = ScmInfo.getWss( 2 );
-            ssR = TestScmTools.createSession( rootSite );
-            ssA = TestScmTools.createSession( branSite );
+            ssR = ScmSessionUtils.createSession( rootSite );
+            ssA = ScmSessionUtils.createSession( branSite );
             wsR = ScmFactory.Workspace.getWorkspace( wss.get( 1 ).getName(),
                     ssR );
             wsA = ScmFactory.Workspace.getWorkspace( wss.get( 0 ).getName(),

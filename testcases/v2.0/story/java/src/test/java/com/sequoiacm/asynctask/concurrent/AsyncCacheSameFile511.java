@@ -23,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -76,7 +76,7 @@ public class AsyncCacheSameFile511 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
             // login in
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
             writeFileFromMainCenter();
         } catch ( ScmException | IOException e ) {
@@ -145,7 +145,7 @@ public class AsyncCacheSameFile511 extends TestScmBase {
             ScmWorkspace ws = null;
             try {
                 // login
-                sessionA = TestScmTools.createSession( branceSite );
+                sessionA = ScmSessionUtils.createSession( branceSite );
                 ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                         sessionA );
                 // cache

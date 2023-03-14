@@ -18,7 +18,7 @@ import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextMode;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsPool;
 import com.sequoiacm.testcommon.scmutils.FullTextUtils;
@@ -56,8 +56,8 @@ public class CreateFile2980 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        sessionM = TestScmTools.createSession( ScmInfo.getRootSite() );
-        sessionB = TestScmTools.createSession( ScmInfo.getBranchSite() );
+        sessionM = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
+        sessionB = ScmSessionUtils.createSession( ScmInfo.getBranchSite() );
         wsName = WsPool.get();
         wsM = ScmFactory.Workspace.getWorkspace( wsName, sessionM );
         wsB = ScmFactory.Workspace.getWorkspace( wsName, sessionB );

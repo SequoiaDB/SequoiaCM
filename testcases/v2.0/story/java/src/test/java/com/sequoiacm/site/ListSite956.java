@@ -21,7 +21,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
@@ -69,7 +69,7 @@ public class ListSite956 extends TestScmBase {
         ScmSession session = null;
         ScmCursor< ScmSiteInfo > siteInfo = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             siteInfo = ScmFactory.Site.listSite( session );
             while ( siteInfo.hasNext() ) {
                 ScmSiteInfo obj = siteInfo.getNext();

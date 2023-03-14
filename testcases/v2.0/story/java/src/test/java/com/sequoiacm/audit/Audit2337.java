@@ -23,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
@@ -44,7 +44,7 @@ public class Audit2337 extends TestScmBase {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { GroupTags.base })
@@ -76,7 +76,7 @@ public class Audit2337 extends TestScmBase {
         ScmSession session = null;
         ScmWorkspace ws = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             fileId = createFile( fileName + "_" + UUID.randomUUID() );
             // check audit is logged by new configuration
             Assert.assertEquals( ConfUtil.checkAudit( session,
@@ -110,7 +110,7 @@ public class Audit2337 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFile file = ScmFactory.File.createInstance( ws );

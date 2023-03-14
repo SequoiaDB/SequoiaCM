@@ -58,7 +58,7 @@ public class ScmFile5368 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
@@ -110,7 +110,7 @@ public class ScmFile5368 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         public void exec() throws ScmException {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -130,7 +130,7 @@ public class ScmFile5368 extends TestScmBase {
     public class ThreadReadFileById extends ResultStore {
         @ExecuteOrder(step = 1)
         public void exec() throws ScmException {
-            try ( ScmSession session = TestScmTools.createSession( rootSite )) {
+            try ( ScmSession session = ScmSessionUtils.createSession( rootSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileID );

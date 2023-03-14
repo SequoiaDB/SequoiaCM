@@ -25,7 +25,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
@@ -63,7 +63,7 @@ public class DiffWsInDiffDomain1075 extends TestScmBase {
         if ( siteList == null || siteList.size() == 0 ) {
             throw new Exception( "no site!" );
         }
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         domainNameList.add( "metaDomain1" );
         domainNameList.add( "dataDomain1" );
         domainNameList.add( "dataDomain2" );

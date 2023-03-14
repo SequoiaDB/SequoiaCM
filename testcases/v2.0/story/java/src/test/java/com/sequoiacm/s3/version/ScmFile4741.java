@@ -55,7 +55,7 @@ public class ScmFile4741 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( session, s3WorkSpaces, bucketName );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         ScmFactory.Bucket.createBucket( ws, bucketName );

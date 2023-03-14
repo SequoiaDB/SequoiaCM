@@ -15,7 +15,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -41,7 +41,7 @@ public class CreateBucket3262 extends TestScmBase {
         // 默认用户连接
         s3A = S3Utils.buildS3Client();
         // 新建用户连接
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ScmRole role = ScmAuthUtils.createRole( session, roleName );
         ScmUser user = ScmAuthUtils.createUser( session, username, password );
         ScmAuthUtils.alterUser( session, s3WorkSpaces, user, role,

@@ -31,7 +31,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -88,7 +88,7 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+            session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
             writeFileFromSubCenterA();
         } catch ( Exception e ) {
@@ -179,7 +179,7 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+                session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
 
@@ -221,7 +221,7 @@ public class Transfer_runningTaskAndReadFileB430 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSiteList.get( 1 ) );
+                session = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
 

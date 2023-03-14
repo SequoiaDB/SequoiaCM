@@ -7,7 +7,6 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmContentLocation;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.*;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.dsutils.SftpUtils;
@@ -22,7 +21,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,7 +62,7 @@ public class CreateWorkspaceOnSftp4907 extends TestScmBase {
         site = sites.get( 0 );
 
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmWorkspaceUtil.deleteWs( wsName, session );
     }
 

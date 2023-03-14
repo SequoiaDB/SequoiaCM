@@ -61,7 +61,7 @@ public class Object4463 extends TestScmBase {
         S3Utils.clearBucket( s3Client, bucketNameB );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
     }
 

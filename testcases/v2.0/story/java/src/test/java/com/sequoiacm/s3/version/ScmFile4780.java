@@ -9,9 +9,9 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
-import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -43,16 +43,16 @@ public class ScmFile4780 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
         new Random().nextBytes( filedata );
         new Random().nextBytes( updatedata );
-        fileId = S3Utils.createFile( scmBucket, fileName, filedata );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filedata );
         scmBucket.suspendVersionControl();
-        S3Utils.createFile( scmBucket, fileName, updatedata );
+        ScmFileUtils.createFile( scmBucket, fileName, updatedata );
     }
 
     @Test

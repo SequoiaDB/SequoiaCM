@@ -8,7 +8,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.testng.Assert;
@@ -35,10 +35,10 @@ public class Bucket4735 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        sessionA = TestScmTools.createSession( site );
+        sessionA = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( sessionA, bucketName );
         ScmAuthUtils.createUser( sessionA, username, password );
-        sessionB = TestScmTools.createSession( ScmInfo.getSite(), username,
+        sessionB = ScmSessionUtils.createSession( ScmInfo.getSite(), username,
                 password );
         wsA = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionA );
     }

@@ -58,7 +58,7 @@ public class AuthWs5161 extends TestScmBase {
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         cleanEnv();
         prepare();
     }

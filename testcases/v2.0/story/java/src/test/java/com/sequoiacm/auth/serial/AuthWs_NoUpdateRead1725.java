@@ -35,7 +35,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -81,7 +81,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
 
             site = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( site );
+            sessionA = ScmSessionUtils.createSession( site );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             cleanEnv();
             prepare();
@@ -231,7 +231,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -261,7 +261,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -290,7 +290,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -319,7 +319,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
         ScmSession session = null;
         ScmId fileId = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             ScmFile expfile = ScmFactory.File.createInstance( ws );
@@ -584,7 +584,7 @@ public class AuthWs_NoUpdateRead1725 extends TestScmBase {
 
             ScmAuthUtils.checkPriority( site, username, passwd, role, wsp );
 
-            sessionUR = TestScmTools.createSession( site, username, passwd );
+            sessionUR = ScmSessionUtils.createSession( site, username, passwd );
             wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionUR );
         } catch ( ScmException e ) {

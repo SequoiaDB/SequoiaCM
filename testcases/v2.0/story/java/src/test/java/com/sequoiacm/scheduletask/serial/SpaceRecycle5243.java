@@ -57,7 +57,7 @@ public class SpaceRecycle5243 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, session );
         ws = ScmWorkspaceUtil.createWS( session, wsName, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );

@@ -16,7 +16,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:有效参数：ss存在（基本功能已覆盖） 无效参数：ss不存在、null
@@ -51,7 +51,7 @@ public class Param_listWorkSpace924 extends TestScmBase {
     private void testSSNoExist() {
         ScmSession session;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             session.close();
             ScmFactory.Workspace.listWorkspace( session );
             Assert.fail( "expect result is fail but actual is success, when "

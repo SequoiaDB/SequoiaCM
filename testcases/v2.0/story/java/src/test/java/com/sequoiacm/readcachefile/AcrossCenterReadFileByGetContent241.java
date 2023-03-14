@@ -11,7 +11,6 @@ import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmFactory;
@@ -24,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -65,7 +64,7 @@ public class AcrossCenterReadFileByGetContent241 extends TestScmBase {
             branSites = ScmInfo.getBranchSites( branSitesNum );
             wsp = ScmInfo.getWs();
 
-            session = TestScmTools.createSession( branSites.get( 0 ) );
+            session = ScmSessionUtils.createSession( branSites.get( 0 ) );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         } catch ( Exception e ) {
             Assert.fail( e.getMessage() );
@@ -119,7 +118,7 @@ public class AcrossCenterReadFileByGetContent241 extends TestScmBase {
         ScmInputStream sis = null;
         try {
             // login
-            session = TestScmTools.createSession( branSites.get( 1 ) );
+            session = ScmSessionUtils.createSession( branSites.get( 1 ) );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
 

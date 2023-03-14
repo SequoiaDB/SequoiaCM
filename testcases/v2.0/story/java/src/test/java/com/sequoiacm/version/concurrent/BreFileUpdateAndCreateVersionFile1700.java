@@ -63,14 +63,14 @@ public class BreFileUpdateAndCreateVersionFile1700 extends TestScmBase {
         branSite = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileAuthor ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        fileId1 = VersionUtils.createFileByStream( wsA, fileName1, filedata,
+        fileId1 = ScmFileUtils.createFileByStream( wsA, fileName1, filedata,
                 fileAuthor );
-        sbFile = VersionUtils.createBreakpointFileByStream( wsA, fileName1,
+        sbFile = ScmBreakpointFileUtils.createBreakpointFileByStream( wsA, fileName1,
                 updatedata );
     }
 
@@ -113,7 +113,7 @@ public class BreFileUpdateAndCreateVersionFile1700 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId1 );
@@ -140,7 +140,7 @@ public class BreFileUpdateAndCreateVersionFile1700 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.createInstance( ws );

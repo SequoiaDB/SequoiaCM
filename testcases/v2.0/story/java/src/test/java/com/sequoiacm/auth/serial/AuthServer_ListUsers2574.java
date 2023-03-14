@@ -27,7 +27,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-2574:分页列取用户列表
@@ -48,7 +48,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws IOException, ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ScmRole scmRole = null;
         try {
             ScmFactory.Role.deleteRole( session, roleName );
@@ -174,7 +174,7 @@ public class AuthServer_ListUsers2574 extends TestScmBase {
                 throw e;
             }
         }
-        ScmSession scmSession = TestScmTools.createSession( site );
+        ScmSession scmSession = ScmSessionUtils.createSession( site );
         scmSession.close();
         try {
             ScmFactory.User.listUsers( scmSession, new BasicBSONObject(), 0,

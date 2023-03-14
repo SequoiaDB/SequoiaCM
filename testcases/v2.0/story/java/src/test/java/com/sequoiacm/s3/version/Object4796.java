@@ -11,6 +11,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,14 +55,14 @@ public class Object4796 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( session, bucketName );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
-        fileId = S3Utils.createFile( scmBucket, keyName, filePath );
-        S3Utils.createFile( scmBucket, keyName, updatePath );
+        fileId = ScmFileUtils.createFile( scmBucket, keyName, filePath );
+        ScmFileUtils.createFile( scmBucket, keyName, updatePath );
         s3Client = S3Utils.buildS3Client();
     }
 

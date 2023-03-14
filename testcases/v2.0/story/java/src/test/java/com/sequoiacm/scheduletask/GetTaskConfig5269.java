@@ -36,7 +36,7 @@ public class GetTaskConfig5269 extends TestScmBase {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         querycond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();

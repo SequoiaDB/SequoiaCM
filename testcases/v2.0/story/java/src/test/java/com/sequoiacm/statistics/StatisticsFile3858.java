@@ -1,14 +1,9 @@
 package com.sequoiacm.statistics;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.*;
 
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
-import com.sequoiadb.base.CollectionSpace;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -60,11 +55,11 @@ public class StatisticsFile3858 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
 
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
@@ -153,7 +148,7 @@ public class StatisticsFile3858 extends TestScmBase {
         @ExecuteOrder(step = 1)
         private void UploadFile() throws Exception {
             for ( int i = fileNums / 2; i < fileNums; i++ ) {
-                int totaluploadTime = ( int ) StatisticsUtils.uploadFile(
+                int totaluploadTime = ( int ) ScmFileUtils.createFiles(
                         filePathList.get( i ), fileName, fileIdList,
                         siteWorkspace );
                 uploadTime.add( totaluploadTime );
@@ -165,7 +160,7 @@ public class StatisticsFile3858 extends TestScmBase {
         @ExecuteOrder(step = 1)
         private void DownloadFile() throws Exception {
             for ( int i = 0; i < fileNums / 2; i++ ) {
-                int totalDownloadTime = ( int ) StatisticsUtils
+                int totalDownloadTime = ( int ) ScmFileUtils
                         .downloadFile( fileIdList.get( i ), siteWorkspace );
                 downloadTime.add( totalDownloadTime );
             }

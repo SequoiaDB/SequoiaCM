@@ -58,7 +58,7 @@ public class SpaceRecycle5245 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsp = ScmInfo.getWs();
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

@@ -26,7 +26,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -80,7 +80,7 @@ public class Transfer_readTaskProgress441 extends TestScmBase {
                     .is( authorName ).get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+            session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
             prepareFiles( session );
         } catch ( Exception e ) {
@@ -95,9 +95,9 @@ public class Transfer_readTaskProgress441 extends TestScmBase {
         ScmSession sessionA = null;
         ScmSession sessionB = null;
         try {
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
+            sessionB = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
 
             ReadTaskProgressThread TaskThreadM = new ReadTaskProgressThread(
                     sessionM );

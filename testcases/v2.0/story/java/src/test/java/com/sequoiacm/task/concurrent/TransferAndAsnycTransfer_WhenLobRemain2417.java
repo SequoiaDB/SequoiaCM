@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -78,7 +78,7 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        session = TestScmTools.createSession( branchSite );
+        session = ScmSessionUtils.createSession( branchSite );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         writeFileFromSubCenterA();
         // make remain in rootsite and branchSite
@@ -141,7 +141,7 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branchSite );
+                session = ScmSessionUtils.createSession( branchSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 // start task
@@ -165,7 +165,7 @@ public class TransferAndAsnycTransfer_WhenLobRemain2417 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession sessionA = null;
             try {
-                sessionA = TestScmTools.createSession( branchSite );
+                sessionA = ScmSessionUtils.createSession( branchSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), sessionA );
                 ScmFactory.File.asyncTransfer( ws, randomId,

@@ -23,9 +23,7 @@ public class PartUploadUtils extends TestScmBase {
     public static final int partLimitMinSize = 1024 * 1024 * 5;
 
     /**
-     * initiate multipart upload *
-     *
-     * @author wuyan
+     * @Description initiate multipart upload
      * @param s3Client
      * @param bucketName
      * @param key
@@ -44,9 +42,7 @@ public class PartUploadUtils extends TestScmBase {
     }
 
     /**
-     * upload mulitpart*
-     *
-     * @author wuyan
+     * @Description upload mulitpart
      * @param s3Client
      * @param bucketName
      * @param key
@@ -61,6 +57,17 @@ public class PartUploadUtils extends TestScmBase {
                 file, PartUploadUtils.partLimitMinSize );
     }
 
+    /**
+     * @Description upload mulitpart
+     * @param s3Client
+     * @param bucketName
+     * @param key
+     * @param uploadId
+     * @param file
+     *            upload object file
+     * @param partSize
+     * @return the list of part number and Etag
+     */
     public static List< PartETag > partUpload( AmazonS3 s3Client,
             String bucketName, String key, String uploadId, File file,
             long partSize ) {
@@ -82,6 +89,17 @@ public class PartUploadUtils extends TestScmBase {
         return partEtags;
     }
 
+    /**
+     * @Description 复制分段上传
+     * @param s3Client
+     * @param sourceBucketName
+     * @param sourceKey
+     * @param targetBucketName
+     * @param targetKey
+     * @param uploadId
+     * @param sourceObjectSize
+     * @return the list of part number and Etag
+     */
     public static List< PartETag > partUploadCopy( AmazonS3 s3Client,
             String sourceBucketName, String sourceKey, String targetBucketName,
             String targetKey, String uploadId, long sourceObjectSize ) {
@@ -90,6 +108,18 @@ public class PartUploadUtils extends TestScmBase {
                 PartUploadUtils.partLimitMinSize, sourceObjectSize );
     }
 
+    /**
+     * @Description 复制分段上传
+     * @param s3Client
+     * @param sourceBucketName
+     * @param sourceKey
+     * @param targetBucketName
+     * @param targetKey
+     * @param uploadId
+     * @param partSize
+     * @param sourceObjectSize
+     * @return the list of part number and Etag
+     */
     public static List< PartETag > partUploadCopy( AmazonS3 s3Client,
             String sourceBucketName, String sourceKey, String targetBucketName,
             String targetKey, String uploadId, long partSize,
@@ -116,9 +146,7 @@ public class PartUploadUtils extends TestScmBase {
     }
 
     /**
-     * complete multipart upload *
-     *
-     * @author wuyan
+     * @Description complete multipart upload
      * @param s3Client
      * @param bucketName
      * @param key
@@ -139,13 +167,11 @@ public class PartUploadUtils extends TestScmBase {
     }
 
     /**
-     * check the part upload info after abort multipartUpload,than check the
-     * key.
-     *
-     * @author wuyan
+     * @Description check the part upload info after abort multipartUpload,than check the key.
      * @param s3Client
      * @param bucketName
      * @param uploadId
+     * @return
      */
     public static void checkAbortMultipartUploadResult( AmazonS3 s3Client,
             String bucketName, String keyName, String uploadId ) {
@@ -170,15 +196,13 @@ public class PartUploadUtils extends TestScmBase {
     }
 
     /**
-     * list Parts,than check the partNumber of the returned result
-     *
-     * @author wuyan
+     * @Description list Parts,than check the partNumber of the returned result
      * @param s3Client
      * @param bucketName
      * @param keyName
      * @param partEtags
      * @param uploadId
-     *            *
+     * @return
      */
     public static void listPartsAndCheckPartNumbers( AmazonS3 s3Client,
             String bucketName, String keyName, List< PartETag > partEtags,
@@ -208,15 +232,13 @@ public class PartUploadUtils extends TestScmBase {
     }
 
     /**
-     * list MultipartUploads,than check the upload and CommonPrefixes of the
-     * returned result
-     *
-     * @author wuyan
+     * @Description list MultipartUploads,than check the upload and CommonPrefixes of the returned result
      * @param result
      *            the result by listMultipartUploads
      * @param expCommonPrefixes
      * @param expUploads
      *            include key and uploadId.
+     * @return
      */
     public static void checkListMultipartUploadsResults(
             MultipartUploadListing result, List< String > expCommonPrefixes,

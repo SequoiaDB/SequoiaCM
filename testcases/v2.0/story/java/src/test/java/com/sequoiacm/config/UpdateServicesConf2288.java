@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -48,7 +48,7 @@ public class UpdateServicesConf2288 extends TestScmBase {
         // update configuration and check results
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( updatedSites.get( 0 ) );
+            session = ScmSessionUtils.createSession( updatedSites.get( 0 ) );
             int expOkNum = 0;
             ScmConfigProperties.Builder builder = ScmConfigProperties.builder();
             List< String > serviceNames = new ArrayList< String >();

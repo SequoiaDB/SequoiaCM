@@ -7,6 +7,7 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
@@ -47,7 +48,7 @@ public class ScmFile4851 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
@@ -93,10 +94,10 @@ public class ScmFile4851 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
-                fileId = S3Utils.createFile( scmBucket, fileName, filePath );
+                fileId = ScmFileUtils.createFile( scmBucket, fileName, filePath );
             } finally {
                 session.close();
             }
@@ -114,7 +115,7 @@ public class ScmFile4851 extends TestScmBase {
         private void exec() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 scmBucket.deleteFile( fileName, false );

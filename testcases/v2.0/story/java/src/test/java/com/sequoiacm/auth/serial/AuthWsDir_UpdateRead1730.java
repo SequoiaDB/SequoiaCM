@@ -31,7 +31,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -81,7 +81,7 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
             branchsite = ScmInfo.getBranchSite();
             rootsite = ScmInfo.getRootSite();
             wsp = ScmInfo.getWs();
-            sessionA = TestScmTools.createSession( rootsite );
+            sessionA = ScmSessionUtils.createSession( rootsite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             cleanEnv();
             prepare();
@@ -234,7 +234,7 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
         ScmDirectory dir = null;
         String dirPath = path;
         try {
-            session = TestScmTools.createSession( branchsite );
+            session = ScmSessionUtils.createSession( branchsite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             // get dir
@@ -275,7 +275,7 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
         ScmDirectory dir = null;
         String dirPath = path;
         try {
-            session = TestScmTools.createSession( branchsite );
+            session = ScmSessionUtils.createSession( branchsite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             // get dir
@@ -438,7 +438,7 @@ public class AuthWsDir_UpdateRead1730 extends TestScmBase {
                     ScmPrivilegeType.UPDATE );
 
             ScmAuthUtils.checkPriority( rootsite, username, passwd, role, wsp );
-            sessionUR = TestScmTools.createSession( branchsite, username,
+            sessionUR = ScmSessionUtils.createSession( branchsite, username,
                     passwd );
             wsUR = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     sessionUR );

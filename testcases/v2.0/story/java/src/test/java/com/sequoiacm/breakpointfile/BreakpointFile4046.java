@@ -1,24 +1,17 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
@@ -52,7 +45,7 @@ public class BreakpointFile4046 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         data = new byte[ fileSize ];
         new Random().nextBytes( data );

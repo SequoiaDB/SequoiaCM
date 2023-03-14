@@ -17,7 +17,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -49,7 +49,7 @@ public class UpdateInstancesConf2287 extends TestScmBase {
         // update configuration and check results
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( siteList.get( 0 ) );
+            session = ScmSessionUtils.createSession( siteList.get( 0 ) );
             ScmConfigProperties confProp = ScmConfigProperties.builder()
                     .instances( instances )
                     .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )

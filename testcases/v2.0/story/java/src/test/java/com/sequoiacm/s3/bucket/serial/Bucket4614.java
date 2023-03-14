@@ -31,7 +31,7 @@ public class Bucket4614 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getRootSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
         // 创建新ws赋权
         createWs( wsName );
         ScmAuthUtils.alterUser( session, wsName,

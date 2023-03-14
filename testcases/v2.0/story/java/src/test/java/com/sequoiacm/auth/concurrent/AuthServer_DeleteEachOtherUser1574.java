@@ -20,7 +20,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 
 /**
@@ -42,7 +42,7 @@ public class AuthServer_DeleteEachOtherUser1574 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             for ( int i = 0; i < userNum; i++ ) {
                 try {
                     ScmFactory.User.deleteUser( session, username + "_" + i );
@@ -135,7 +135,7 @@ public class AuthServer_DeleteEachOtherUser1574 extends TestScmBase {
         public void exec() {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site,
+                session = ScmSessionUtils.createSession( site,
                         this.srcUser.getUsername(), passwd );
                 ScmFactory.User.deleteUser( session, dstUser.getUsername() );
                 check( dstUser );

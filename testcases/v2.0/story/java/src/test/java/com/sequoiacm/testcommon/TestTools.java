@@ -26,16 +26,19 @@ public class TestTools {
     private static final ClassLoader loader = TestTools.class.getClassLoader();
 
     /**
-     * get file's md5
-     *
+     * @descreption get file's md5
      * @param pathName
      * @return
-     * @throws IOException
      */
     public static String getMD5( String pathName ) throws IOException {
         return getMD5( new FileInputStream( new File( pathName ) ) );
     }
 
+    /**
+     * @descreption get file's md5
+     * @param inputStream
+     * @return
+     */
     public static String getMD5( InputStream inputStream ) throws IOException {
         try {
             MessageDigest md5 = MessageDigest.getInstance( "MD5" );
@@ -55,6 +58,11 @@ public class TestTools {
         }
     }
 
+    /**
+     * @descreption get file's md5
+     * @param buffer
+     * @return
+     */
     public static String getMD5( Object buffer ) {
         try {
             MessageDigest md5 = MessageDigest.getInstance( "MD5" );
@@ -78,38 +86,49 @@ public class TestTools {
     }
 
     /**
-     * Returns the MD5 in base64 for the given filePath.
+     * @descreption Returns the MD5 in base64 for the given filePath.
+     * @param filePath
+     * @return
      */
     public static String getMD5AsBase64( String filePath ) throws IOException {
         return Base64.encodeAsString( computeMD5Hash( new File( filePath ) ) );
     }
 
     /**
-     * Returns the MD5 in base64 for the data from the given input stream. Note
-     * this method closes the given input stream upon completion.
+     * @descreption Returns the MD5 in base64 for the data from the given input
+     *              stream. Note this method closes the given input stream upon
+     *              completion.
+     * @param is
+     * @return
      */
     public static String getMD5AsBase64( InputStream is ) throws IOException {
         return Base64.encodeAsString( computeMD5Hash( is ) );
     }
 
     /**
-     * Returns the MD5 in base64 for the given file.
+     * @descreption Returns the MD5 in base64 for the given file.
+     * @param file
+     * @return
      */
     public static String getMD5AsBase64( File file ) throws IOException {
         return Base64.encodeAsString( computeMD5Hash( file ) );
     }
 
     /**
-     * Computes the MD5 of the given file.
+     * @descreption Computes the MD5 of the given file.
+     * @param file
+     * @return
      */
     public static byte[] computeMD5Hash( File file ) throws IOException {
         return computeMD5Hash( new FileInputStream( file ) );
     }
 
     /**
-     * Computes the MD5 hash of the data in the given input stream and returns
-     * it as an array of bytes. Note this method closes the given input stream
-     * upon completion.
+     * @descreption Computes the MD5 hash of the data in the given input stream
+     *              and returns it as an array of bytes. Note this method closes
+     *              the given input stream upon completion.
+     * @param is
+     * @return
      */
     public static byte[] computeMD5Hash( InputStream is ) throws IOException {
         BufferedInputStream bis = new BufferedInputStream( is );
@@ -137,8 +156,7 @@ public class TestTools {
     }
 
     /**
-     * random generate string
-     *
+     * @descreption random generate string
      * @param length
      * @return character string
      */
@@ -154,11 +172,9 @@ public class TestTools {
     }
 
     /**
-     * get buffer
-     *
+     * @descreption get buffer
      * @param filePath
      * @return byte[]
-     * @throws IOException
      */
     public static byte[] getBuffer( String filePath ) throws IOException {
         File file = new File( filePath );
@@ -183,17 +199,27 @@ public class TestTools {
         return buffer;
     }
 
+    /**
+     * @descreption get file buffer
+     * @param file
+     * @return
+     */
     private static void extracted( File file ) throws IOException {
         throw new IOException( "failed to get buffer, file=" + file.getName() );
     }
 
     /**
-     * get method... name
+     * @descreption get method... name
+     * @return
      */
     public static String getMethodName() {
         return Thread.currentThread().getStackTrace()[ 2 ].getMethodName();
     }
 
+    /**
+     * @descreption 获取当前线程类名
+     * @return
+     */
     public static String getClassName() {
         String fullClassName = Thread.currentThread().getStackTrace()[ 2 ]
                 .getClassName();
@@ -201,6 +227,12 @@ public class TestTools {
         return fullClassName.substring( index + 1 );
     }
 
+    /**
+     * @descreption 设置系统当前时间
+     * @param host
+     * @param date
+     * @return
+     */
     public static void setSystemTime( String host, Long date )
             throws Exception {
         String time = new SimpleDateFormat( "\"yyyy-MM-dd HH:mm:ss\"" )
@@ -209,12 +241,10 @@ public class TestTools {
     }
 
     /**
-     * set the system time for the host
-     *
+     * @descreption set the system time for the host
      * @param host
-     * @param dateStr,
-     *            e.g: yyyyMMdd
-     * @throws Exception
+     * @param dateStr
+     * @return
      */
     public static void setSystemTime( String host, String dateStr )
             throws Exception {
@@ -239,10 +269,9 @@ public class TestTools {
     }
 
     /**
-     * restore the system time for the host
-     *
+     * @descreption restore the system time for the host
      * @param host
-     * @throws Exception
+     * @return
      */
     public static void restoreSystemTime( String host ) throws Exception {
         Ssh ssh = null;
@@ -288,13 +317,13 @@ public class TestTools {
         };
 
         /**
-         * read the specify file length after seek, to compare the read results
-         * with SCM
-         *
+         * @descreption read the specify file length after seek, to compare the
+         *              read results with SCM
          * @param filePath
          * @param size
          * @param len
          * @param downloadPath
+         * @return
          * @throws FileNotFoundException
          * @throws IOException
          */
@@ -320,12 +349,12 @@ public class TestTools {
         }
 
         /**
-         * read the entire file length after the seek, to compare the read
-         * results with SCM
-         *
+         * @descreption read the entire file length after the seek, to compare
+         *              the read results with SCM
          * @param sourceFile
          * @param size
          * @param outputFile
+         * @return
          * @throws FileNotFoundException
          * @throws IOException
          */
@@ -357,14 +386,19 @@ public class TestTools {
         }
 
         /**
-         * create local directory
-         *
+         * @descreption create local directory
          * @param dir
+         * @return
          */
         public static void createDir( String dir ) {
             mkdir( new File( dir ) );
         }
 
+        /**
+         * @descreption create file's directory
+         * @param filePath
+         * @return
+         */
         private static void mkdir( File filePath ) {
             if ( !filePath.getParentFile().exists() ) {
                 mkdir( filePath.getParentFile() );
@@ -373,9 +407,9 @@ public class TestTools {
         }
 
         /**
-         * remove directory including directories and sub files
-         *
+         * @descreption remove directory including directories and sub files
          * @param filePath
+         * @return
          */
         public static void removeFile( String filePath ) {
             File file = new File( filePath );
@@ -385,9 +419,9 @@ public class TestTools {
         }
 
         /**
-         * remove file
-         * 
+         * @descreption remove file
          * @param file
+         * @return
          */
         public static void removeFile( File file ) {
             if ( file.exists() ) {
@@ -405,10 +439,9 @@ public class TestTools {
         }
 
         /**
-         * create empty file
-         *
+         * @descreption create empty file
          * @param filePath
-         * @throws IOException
+         * @return
          */
         public static void createFile( String filePath ) throws IOException {
             File file = new File( filePath );
@@ -420,14 +453,13 @@ public class TestTools {
         }
 
         /**
-         * 指定文件内容创建文件
-         *
+         * @descreption 指定文件内容创建文件
          * @param filePath
          * @param fileContent
-         * @throws Exception
+         * @return
          */
         public static void createFileSpecifiedContent( String filePath,
-                                                       String fileContent ) throws IOException {
+                String fileContent ) throws IOException {
             FileOutputStream fos = null;
             try {
                 TestTools.LocalFile.createFile( filePath );
@@ -446,11 +478,11 @@ public class TestTools {
         }
 
         /**
-         * create file, the file content are randomly generated character
-         *
+         * @descreption create file, the file content are randomly generated
+         *              character
          * @param filePath
          * @param size
-         * @throws IOException
+         * @return
          */
         public static void createFile( String filePath, long size )
                 throws IOException {
@@ -480,12 +512,11 @@ public class TestTools {
         }
 
         /**
-         * create file, the file content are specify characters
-         *
+         * @descreption create file, the file content are specify characters
          * @param filePath
          * @param content
          * @param size
-         * @throws IOException
+         * @return
          */
         public static void createFile( String filePath, String content,
                 int size ) throws IOException {
@@ -513,7 +544,12 @@ public class TestTools {
         }
 
         /**
-         * create download path and file, by methodName and threadId
+         * @descreption create download path and file, by methodName and
+         *              threadId
+         * @param localPath
+         * @param methodName
+         * @param threadId
+         * @return
          */
         public static String initDownloadPath( File localPath,
                 String methodName, long threadId ) throws Exception {
@@ -532,30 +568,39 @@ public class TestTools {
             return downloadPath;
         }
 
+        /**
+         * @descreption 指定类型获取文件
+         * @param fileType
+         * @return
+         */
         public static String getFileByType( FileType fileType )
                 throws Exception {
             switch ( fileType ) {
-                case DOC:
-                    return TestScmBase.resourceFilePath + "file_doc.doc";
-                case DOCX:
-                    return TestScmBase.resourceFilePath + "file_docx.docx";
-                case TEXT:
-                    return TestScmBase.resourceFilePath + "file_txt.txt";
-                case XLS:
-                    return TestScmBase.resourceFilePath + "file_xls.xls";
-                case XLSX:
-                    return TestScmBase.resourceFilePath + "file_xlsx.xlsx";
-                case BMP:
-                    return TestScmBase.resourceFilePath + "file_bmp.bmp";
-                case JPEG:
-                    return TestScmBase.resourceFilePath + "file_jpeg.JPG";
-                case PNG:
-                    return TestScmBase.resourceFilePath + "file_png.PNG";
-                default:
-                    throw new Exception("file is not found!!!!");
+            case DOC:
+                return TestScmBase.resourceFilePath + "file_doc.doc";
+            case DOCX:
+                return TestScmBase.resourceFilePath + "file_docx.docx";
+            case TEXT:
+                return TestScmBase.resourceFilePath + "file_txt.txt";
+            case XLS:
+                return TestScmBase.resourceFilePath + "file_xls.xls";
+            case XLSX:
+                return TestScmBase.resourceFilePath + "file_xlsx.xlsx";
+            case BMP:
+                return TestScmBase.resourceFilePath + "file_bmp.bmp";
+            case JPEG:
+                return TestScmBase.resourceFilePath + "file_jpeg.JPG";
+            case PNG:
+                return TestScmBase.resourceFilePath + "file_png.PNG";
+            default:
+                throw new Exception( "file is not found!!!!" );
             }
         }
 
+        /**
+         * @descreption 获取随机长度文件
+         * @return
+         */
         public static String getRandomFile() throws Exception {
             FileType[] fileTypes = FileType.values();
             int index = new Random().nextInt( fileTypes.length );
@@ -564,15 +609,11 @@ public class TestTools {
     }
 
     /**
-     * get part of the MD5 value for large files(file size more than 50M)
-     *
-     * @author wangkexin
+     * @descreption get part of the MD5 value for large files(file size more
+     *              than 50M)
      * @param file
      * @param offset
-     *            offset value.
      * @param partsize
-     *            file part size.
-     * @throws IOException
      * @return md5 value
      */
     public static String getLargeFilePartMD5( File file, long offset,

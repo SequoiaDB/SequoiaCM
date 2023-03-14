@@ -63,7 +63,7 @@ public class ConcurrentTasks3902 extends TestScmBase {
         branchSite2 = branchSitesList.get( 1 );
         branchSite3 = branchSitesList.get( 2 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 

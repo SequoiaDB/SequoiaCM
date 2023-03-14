@@ -1,17 +1,11 @@
 package com.sequoiacm.breakpointfile;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
-import com.alibaba.fastjson.JSONObject;
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmBreakpointFileOption;
 import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import com.sun.org.apache.xpath.internal.objects.XObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -19,10 +13,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
-import com.sequoiadb.exception.BaseException;
 
 /**
  * @Description SCM-4039:创建可缓存断点文件，以输入流方式上传数据
@@ -49,7 +41,7 @@ public class BreakpointFile4039 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         site = ScmInfo.getSiteByType( ScmType.DatasourceType.CEPH_S3 );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 

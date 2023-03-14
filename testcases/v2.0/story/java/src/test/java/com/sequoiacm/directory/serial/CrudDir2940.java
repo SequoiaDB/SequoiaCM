@@ -17,7 +17,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -37,7 +37,7 @@ public class CrudDir2940 extends TestScmBase {
     private void setUp() throws IOException, ScmException {
         sites = ScmInfo.getAllSites();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( sites.get( 0 ) );
+        session = ScmSessionUtils.createSession( sites.get( 0 ) );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         // 清理环境
         String dirPath = fullPath;
@@ -58,8 +58,8 @@ public class CrudDir2940 extends TestScmBase {
         ScmSession session1 = null;
         ScmSession session2 = null;
         try {
-            session1 = TestScmTools.createSession( sites.get( 0 ) );
-            session2 = TestScmTools.createSession( sites.get( 1 ) );
+            session1 = ScmSessionUtils.createSession( sites.get( 0 ) );
+            session2 = ScmSessionUtils.createSession( sites.get( 1 ) );
             ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session1 );
             ScmWorkspace ws2 = ScmFactory.Workspace.getWorkspace( wsp.getName(),

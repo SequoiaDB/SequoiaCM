@@ -7,6 +7,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
@@ -52,12 +53,12 @@ public class ScmFile4854 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
         scmBucket.enableVersionControl();
-        fileId = S3Utils.createFile( scmBucket, fileName, filePath );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filePath );
     }
 
     @Test
@@ -93,7 +94,7 @@ public class ScmFile4854 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 ScmFile file = scmBucket.getFile( fileName );
@@ -111,7 +112,7 @@ public class ScmFile4854 extends TestScmBase {
         @ExecuteOrder(step = 1)
         private void exec() throws Exception {
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket scmBucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 file = scmBucket.getFile( fileName );

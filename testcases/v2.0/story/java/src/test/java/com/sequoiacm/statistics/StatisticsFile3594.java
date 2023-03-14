@@ -70,7 +70,7 @@ public class StatisticsFile3594 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         // 清理环境和更新配置

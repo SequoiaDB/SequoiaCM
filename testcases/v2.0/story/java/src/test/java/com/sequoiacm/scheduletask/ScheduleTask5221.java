@@ -1,16 +1,10 @@
 package com.sequoiacm.scheduletask;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmDataCheckLevel;
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
-import com.sequoiacm.client.element.ScmScheduleMoveFileContent;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
@@ -21,7 +15,6 @@ import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
@@ -68,11 +61,11 @@ public class ScheduleTask5221 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
-        branSiteSession = TestScmTools.createSession( branchSite );
+        branSiteSession = ScmSessionUtils.createSession( branchSite );
         branSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branSiteSession );
 

@@ -1,5 +1,7 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,15 +40,15 @@ public class ScmFile5045 extends TestScmBase {
     private void setUp() throws ScmException {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionM );
         S3Utils.clearBucket( sessionM, s3WorkSpaces, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( wsM, bucketName );
         scmBucket.enableVersionControl();
-        fileId = S3Utils.createFile( scmBucket, fileName, filedata );
-        S3Utils.createFile( scmBucket, fileName, updatedata );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filedata );
+        ScmFileUtils.createFile( scmBucket, fileName, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -66,7 +68,7 @@ public class ScmFile5045 extends TestScmBase {
 
         // 再次创建文件执行异步缓存
         int newCurrentVersion = 3;
-        S3Utils.createFile( scmBucket, fileName, updatedata1 );
+        ScmFileUtils.createFile( scmBucket, fileName, updatedata1 );
         asyncCacheVersionFile( newCurrentVersion );
         VersionUtils.checkSite( wsM, fileId, newCurrentVersion,
                 expCurSiteList );
@@ -96,14 +98,14 @@ public class ScmFile5045 extends TestScmBase {
 
         // wait task finished
         int sitenums = 2;
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
                 sitenums );
     }
 
     private void asyncCacheVersionFile( int majorVersion ) throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId );
         int sitenums = 2;
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
                 sitenums );
     }
 

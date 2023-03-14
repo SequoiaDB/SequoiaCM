@@ -2,24 +2,21 @@ package com.sequoiacm.asynctask;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -65,9 +62,9 @@ public class AsyncCache504 extends TestScmBase {
         branchSiteA = ScmInfo.getBranchSite();
         ws_T = ScmInfo.getWs();
 
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
-        sessionA = TestScmTools.createSession( branchSiteA );
+        sessionA = ScmSessionUtils.createSession( branchSiteA );
         wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();

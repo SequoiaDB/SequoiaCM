@@ -30,7 +30,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -83,8 +83,8 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
         branceSite = ScmInfo.getBranchSite();
         ws_T = ScmInfo.getWs();
 
-        sessionM = TestScmTools.createSession( rootSite );
-        sessionA = TestScmTools.createSession( branceSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
+        sessionA = ScmSessionUtils.createSession( branceSite );
         ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
         this.prepareFiles( ws );
@@ -158,7 +158,7 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
 
@@ -198,7 +198,7 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
         private ScmWorkspace ws = null;
 
         public TransferThread() throws ScmException {
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         }
 
@@ -232,7 +232,7 @@ public class Transfer_deleteWhenTaskInit435 extends TestScmBase {
         private ScmWorkspace ws = null;
 
         public DeleteThread() throws ScmException {
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
         }
 

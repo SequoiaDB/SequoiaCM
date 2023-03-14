@@ -27,7 +27,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -91,9 +91,9 @@ public class Transfer_rootSiteRemainLob2396 extends TestScmBase {
         ScmFileUtils.cleanFile( ws_T, cond );
 
         // login
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionM );
-        sessionA = TestScmTools.createSession( branceSite );
+        sessionA = ScmSessionUtils.createSession( branceSite );
     }
 
     @Test(groups = { "fourSite" })

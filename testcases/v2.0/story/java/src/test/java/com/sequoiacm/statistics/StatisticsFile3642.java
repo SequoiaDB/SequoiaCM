@@ -57,7 +57,7 @@ public class StatisticsFile3642 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ScmWorkspaceUtil.deleteWs( ws1Name, session );
         ScmWorkspaceUtil.deleteWs( ws2Name, session );
         ScmWorkspaceUtil.deleteWs( ws3Name, session );

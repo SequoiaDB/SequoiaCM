@@ -20,7 +20,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
@@ -85,7 +85,7 @@ public class UpdateConf2296 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmConfigProperties confProp = ScmConfigProperties.builder()
                         .instance( url )
                         .updateProperty( ConfigCommonDefind.scm_audit_mask,

@@ -26,7 +26,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -86,9 +86,9 @@ public class Clean_inOtherSite469 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSiteList.get( 0 ) );
-            sessionB = TestScmTools.createSession( branceSiteList.get( 1 ) );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
+            sessionB = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
             prepareFiles( sessionA );
         } catch ( Exception e ) {
             if ( sessionM != null ) {

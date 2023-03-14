@@ -25,7 +25,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -96,7 +96,7 @@ public class ReloadConfFromSubCenter308 extends TestScmBase {
         ScmSession session = null;
         ScmWorkspace ws = null;
         try {
-            session = TestScmTools.createSession( branSite );
+            session = ScmSessionUtils.createSession( branSite );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             ScmFile file = ScmFactory.File.createInstance( ws );

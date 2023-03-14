@@ -55,7 +55,7 @@ public class MoveFile5214 extends TestScmBase {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         // 匹配空文件
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();

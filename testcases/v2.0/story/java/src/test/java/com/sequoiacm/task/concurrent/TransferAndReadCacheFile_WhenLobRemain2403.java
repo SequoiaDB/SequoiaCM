@@ -26,7 +26,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -75,7 +75,7 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
-        session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+        session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         writeFileFromSubCenterA();
         // make remain in rootsite and branchSite
@@ -131,7 +131,7 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSiteList.get( 0 ) );
+                session = ScmSessionUtils.createSession( branceSiteList.get( 0 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 // start task
@@ -158,7 +158,7 @@ public class TransferAndReadCacheFile_WhenLobRemain2403 extends TestScmBase {
             ScmInputStream sis = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSiteList.get( 1 ) );
+                session = ScmSessionUtils.createSession( branceSiteList.get( 1 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );

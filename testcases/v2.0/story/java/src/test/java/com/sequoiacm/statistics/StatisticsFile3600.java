@@ -15,7 +15,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 /**
@@ -44,7 +44,7 @@ public class StatisticsFile3600 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test1() throws Exception {
-        ScmSession session = TestScmTools.createSession( site );
+        ScmSession session = ScmSessionUtils.createSession( site );
         session.close();
         // 查询上传接口统计信息
         try {

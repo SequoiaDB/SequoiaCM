@@ -6,11 +6,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -18,8 +16,6 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
@@ -68,7 +64,7 @@ public class ConcurrentTasks3916 extends TestScmBase {
         branchSite1 = branchSitesList.get( 0 );
         branchSite2 = branchSitesList.get( 1 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -148,7 +144,7 @@ public class ConcurrentTasks3916 extends TestScmBase {
             ScmSession session = null;
             OutputStream os = null;
             try {
-                session = TestScmTools.createSession( branchSite );
+                session = ScmSessionUtils.createSession( branchSite );
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( workspace,

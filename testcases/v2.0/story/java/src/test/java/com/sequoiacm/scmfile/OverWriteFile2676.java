@@ -35,7 +35,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -79,7 +79,7 @@ public class OverWriteFile2676 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         // prepare user
         prepareUser();
@@ -145,7 +145,7 @@ public class OverWriteFile2676 extends TestScmBase {
     private void overwriteFile() throws ScmException, FileNotFoundException {
         ScmSession session1 = null;
         try {
-            session1 = TestScmTools.createSession( site, username, passwd );
+            session1 = ScmSessionUtils.createSession( site, username, passwd );
             ScmWorkspace ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session1 );
             ScmFile scmFile = ScmFactory.File.createInstance( ws1 );

@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
@@ -67,7 +67,7 @@ public class AuthWs_dir1732 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         // clean users and roles
@@ -136,7 +136,7 @@ public class AuthWs_dir1732 extends TestScmBase {
         // operation business
         ScmSession tSS = null;
         try {
-            tSS = TestScmTools.createSession( site, NAME, PASSWORD );
+            tSS = ScmSessionUtils.createSession( site, NAME, PASSWORD );
             ScmWorkspace tWS = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     tSS );
 

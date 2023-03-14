@@ -61,8 +61,8 @@ public class CreateSchedule3738 extends TestScmBase {
         wsp = ScmInfo.getWs();
         sourceSite = ScmInfo.getBranchSite();
         targetSite = ScmInfo.getRootSite();
-        sourceSiteSession = TestScmTools.createSession( sourceSite );
-        targetSiteSession = TestScmTools.createSession( targetSite );
+        sourceSiteSession = ScmSessionUtils.createSession( sourceSite );
+        targetSiteSession = ScmSessionUtils.createSession( targetSite );
         sourceSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 sourceSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )

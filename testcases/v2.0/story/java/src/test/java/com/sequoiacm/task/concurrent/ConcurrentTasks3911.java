@@ -70,7 +70,7 @@ public class ConcurrentTasks3911 extends TestScmBase {
 
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         int nodeNumOfSite = ScmTaskUtils.getNodeNumOfSite( session,
                 branchSite.getSiteName() );
         // 默认配置每个节点下最多可执行10个并发调度任务
@@ -146,7 +146,7 @@ public class ConcurrentTasks3911 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( sourceSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

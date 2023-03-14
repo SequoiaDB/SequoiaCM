@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -69,7 +69,7 @@ public class DeleteConf2316 extends TestScmBase {
                     .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                     .deleteProperty( ConfigCommonDefind.scm_audit_userMask )
                     .build();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             Assert.assertTrue( actResult.getFailures().size() >= 0,
@@ -117,7 +117,7 @@ public class DeleteConf2316 extends TestScmBase {
                     .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                     .deleteProperty( ConfigCommonDefind.scm_audit_userMask )
                     .build();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             List< String > okServices = new ArrayList< String >();
@@ -148,7 +148,7 @@ public class DeleteConf2316 extends TestScmBase {
                     .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                     .deleteProperty( ConfigCommonDefind.scm_audit_userMask )
                     .build();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             List< String > okServices = new ArrayList< String >();
@@ -181,7 +181,7 @@ public class DeleteConf2316 extends TestScmBase {
                     .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                     .deleteProperty( ConfigCommonDefind.scm_audit_userMask )
                     .build();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             List< String > okServices = new ArrayList< String >();
@@ -211,7 +211,7 @@ public class DeleteConf2316 extends TestScmBase {
                     .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                     .deleteProperty( ConfigCommonDefind.scm_audit_userMask )
                     .build();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             List< String > okServices = new ArrayList< String >();

@@ -7,7 +7,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 
 import java.io.File;
@@ -158,7 +158,7 @@ public class AcrossCenterReadFileUtils {
         List< SiteWrapper > allSites = ScmInfo.getAllSites();
         String expMd5 = TestTools.getMD5( filePath );
         for ( SiteWrapper site : allSites ) {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
             ScmFile file = ScmFactory.File.getInstance( workspace, fileId );

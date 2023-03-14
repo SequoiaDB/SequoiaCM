@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
@@ -43,9 +43,9 @@ public class LifeCycle5711 extends TestScmBase {
     public void setUp() throws ScmException {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         ScmAuthUtils.createUser( session, username, passwd );
-        normalUserSession = TestScmTools.createSession( rootSite, username,
+        normalUserSession = ScmSessionUtils.createSession( rootSite, username,
                 passwd );
         config = LifeCycleUtils.getDefaultScmLifeCycleConfig();
         LifeCycleUtils.cleanLifeCycleConfig( session );

@@ -62,7 +62,7 @@ public class FullText3031 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath2, content2, 200 * 1024 );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         // 获取根目录id

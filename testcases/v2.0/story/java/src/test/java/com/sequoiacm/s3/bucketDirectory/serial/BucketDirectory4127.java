@@ -60,7 +60,7 @@ public class BucketDirectory4127 extends TestScmBase {
         filePath = localPath + File.separator + "localFile_" + fileSize
                 + ".txt";
         TestTools.LocalFile.createFile( filePath, fileSize );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         S3Client = CephS3Utils.createConnect( site );
         S3Client.createBucket( bucketName );
@@ -119,7 +119,7 @@ public class BucketDirectory4127 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmCephS3DataLocation cephS3DataLocation = new ScmCephS3DataLocation(
                         site.getSiteName(), bucketName, objectIDShardingType );
                 CephS3Utils.createWS( session, wsName, cephS3DataLocation );

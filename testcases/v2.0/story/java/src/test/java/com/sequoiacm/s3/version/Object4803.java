@@ -49,7 +49,7 @@ public class Object4803 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         S3Utils.clearBucket( session, bucketName );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 

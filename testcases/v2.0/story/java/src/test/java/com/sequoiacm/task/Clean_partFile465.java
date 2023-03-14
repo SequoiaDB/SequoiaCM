@@ -28,7 +28,7 @@ import com.sequoiacm.common.ScmFileLocation;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -89,8 +89,8 @@ public class Clean_partFile465 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
             // login
-            sessionM = TestScmTools.createSession( rootSite );
-            sessionA = TestScmTools.createSession( branceSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
+            sessionA = ScmSessionUtils.createSession( branceSite );
             wsA = ScmFactory.Workspace.getWorkspace( ws_T.getName(), sessionA );
 
             // ready scm file
@@ -254,7 +254,7 @@ public class Clean_partFile465 extends TestScmBase {
         ScmSession ss = null;
         try {
             List< List< ScmFileLocation > > locationLists = new ArrayList<>();
-            ss = TestScmTools.createSession( rootSite );
+            ss = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     ss );
             for ( ScmId fileId : fileIdList ) {

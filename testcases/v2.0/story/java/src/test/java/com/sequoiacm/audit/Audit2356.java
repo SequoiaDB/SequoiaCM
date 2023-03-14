@@ -3,7 +3,6 @@ package com.sequoiacm.audit;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -11,20 +10,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmAttributeName;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmRole;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmUserModifier;
 import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.client.element.privilege.ScmResource;
-import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
@@ -61,7 +54,7 @@ public class Audit2356 extends TestScmBase {
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
         ConfUtil.createUser( wsp, username3, ScmUserPasswordType.LDAP,
                 new ScmPrivilegeType[] { ScmPrivilegeType.ALL } );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     // bug:442
@@ -96,7 +89,7 @@ public class Audit2356 extends TestScmBase {
             throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, password );
+            session = ScmSessionUtils.createSession( site, username, password );
             BasicBSONObject except = new BasicBSONObject()
                     .append( ScmAttributeName.Audit.TYPE, "LOGIN" )
                     .append( ScmAttributeName.Audit.USERNAME, username );

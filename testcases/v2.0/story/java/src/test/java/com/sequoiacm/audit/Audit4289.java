@@ -37,7 +37,7 @@ public class Audit4289 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         SiteWrapper site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         serviceName = site.getSiteServiceName();
         ConfUtil.deleteAuditConf( serviceName );
 

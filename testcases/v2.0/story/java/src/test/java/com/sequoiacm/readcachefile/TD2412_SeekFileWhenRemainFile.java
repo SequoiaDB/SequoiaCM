@@ -61,7 +61,7 @@ public class TD2412_SeekFileWhenRemainFile extends TestScmBase {
             throw new SkipTestException( "源站点不能为ceph S3数据源" );
         }
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
@@ -121,7 +121,7 @@ public class TD2412_SeekFileWhenRemainFile extends TestScmBase {
         OutputStream fos = null;
         ScmInputStream in = null;
         try {
-            session = TestScmTools.createSession( branSites.get( 1 ) );
+            session = ScmSessionUtils.createSession( branSites.get( 1 ) );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             // read content

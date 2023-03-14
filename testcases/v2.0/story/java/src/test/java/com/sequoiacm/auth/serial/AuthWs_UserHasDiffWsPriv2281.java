@@ -24,7 +24,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -51,7 +51,7 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        sessionA = TestScmTools.createSession( site );
+        sessionA = ScmSessionUtils.createSession( site );
         cleanEnv();
         ScmWorkspaceUtil.createWS( sessionA, wsName1, ScmInfo.getSiteNum() );
         ScmWorkspaceUtil.wsSetPriority( sessionA, wsName1 );
@@ -82,7 +82,7 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
     private void testCreateDirInWs1() {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site, username, passwd );
+            session = ScmSessionUtils.createSession( site, username, passwd );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName1,
                     session );
             ScmFactory.Directory.createInstance( ws, dirpath );
@@ -103,7 +103,7 @@ public class AuthWs_UserHasDiffWsPriv2281 extends TestScmBase {
         ScmSession session = null;
         String fileName = "2281";
         try {
-            session = TestScmTools.createSession( site, username, passwd );
+            session = ScmSessionUtils.createSession( site, username, passwd );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName1,
                     session );
 

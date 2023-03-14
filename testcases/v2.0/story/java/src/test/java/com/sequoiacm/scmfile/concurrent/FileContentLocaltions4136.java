@@ -62,7 +62,7 @@ public class FileContentLocaltions4136 extends TestScmBase {
 
         wsp = ScmInfo.getWs();
 
-        session = TestScmTools.createSession( rootSite );
+        session = ScmSessionUtils.createSession( rootSite );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
@@ -118,7 +118,7 @@ public class FileContentLocaltions4136 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( rootSite );
+                session = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );

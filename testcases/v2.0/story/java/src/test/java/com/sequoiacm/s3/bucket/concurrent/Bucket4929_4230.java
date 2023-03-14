@@ -33,7 +33,7 @@ public class Bucket4929_4230 extends TestScmBase {
     @BeforeClass
     public void setUp() throws Exception {
         s3Client = S3Utils.buildS3Client();
-        session = TestScmTools.createSession();
+        session = ScmSessionUtils.createSession();
         S3Utils.clearBucket( s3Client, bucketName );
     }
 
@@ -71,7 +71,7 @@ public class Bucket4929_4230 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws ScmException {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             try {
                 for ( int i = 0; i < 20; i++ ) {

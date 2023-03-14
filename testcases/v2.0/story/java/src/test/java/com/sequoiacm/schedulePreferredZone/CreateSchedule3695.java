@@ -1,12 +1,9 @@
 package com.sequoiacm.schedulePreferredZone;
 
-import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
@@ -15,7 +12,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,9 +67,9 @@ public class CreateSchedule3695 extends TestScmBase {
                 .getSortBranchSites();
         branchSite1 = sortBranchSites.get( 0 );
         branchSite2 = sortBranchSites.get( 1 );
-        rootStieSession = TestScmTools.createSession( rootStie );
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
-        branchSite2Session = TestScmTools.createSession( branchSite2 );
+        rootStieSession = ScmSessionUtils.createSession( rootStie );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
+        branchSite2Session = ScmSessionUtils.createSession( branchSite2 );
 
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )
                 .is( fileName ).get();

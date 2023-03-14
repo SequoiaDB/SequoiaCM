@@ -1,7 +1,5 @@
 package com.sequoiacm.version;
 
-import java.io.IOException;
-
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -18,7 +16,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
 
@@ -51,7 +49,7 @@ public class UpdateContent1648 extends TestScmBase {
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session1 = TestScmTools.createSession( site );
+        session1 = ScmSessionUtils.createSession( site );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -61,7 +59,7 @@ public class UpdateContent1648 extends TestScmBase {
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         createScmUser();
-        fileId = VersionUtils.createFileByStream( ws1, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( ws1, fileName, filedata );
         updateContent( ws2, updatedata );
 
         // check result
@@ -101,7 +99,7 @@ public class UpdateContent1648 extends TestScmBase {
                 ScmPrivilegeType.ALL );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
-        session2 = TestScmTools.createSession( site, newUsername, newPassword );
+        session2 = ScmSessionUtils.createSession( site, newUsername, newPassword );
         ws2 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session2 );
     }
 
@@ -132,7 +130,7 @@ public class UpdateContent1648 extends TestScmBase {
         ScmFile hisVersionFile = ScmFactory.File.getInstance( ws1, fileId,
                 histroyVersion, 0 );
         Assert.assertEquals( hisVersionFile.getUser(),
-                TestScmTools.scmUserName );
+                ScmSessionUtils.scmUserName );
         Assert.assertEquals( hisVersionFile.getSize(), filedata.length );
     }
 }

@@ -1,6 +1,5 @@
 package com.sequoiacm.statistics;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +21,9 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiacm.testcommon.scmutils.StatisticsUtils;
 
@@ -58,7 +56,7 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
         sourceSite = ScmInfo.getBranchSite();
         targetSite = ScmInfo.getRootSite();
 
-        sessionA = TestScmTools.createSession( sourceSite );
+        sessionA = ScmSessionUtils.createSession( sourceSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( authorName ).get();
@@ -106,7 +104,7 @@ public class StatisticsFileTraffic2229 extends TestScmBase {
         new Random().nextBytes( fileData );
         for ( int i = 0; i < fileNums; i++ ) {
             String subfileName = fileName + "_" + i;
-            ScmId fileId = StatisticsUtils.createFileByStream( ws, subfileName,
+            ScmId fileId = ScmFileUtils.createFileByStream( ws, subfileName,
                     fileData, authorName );
             fileIds.add( fileId );
         }

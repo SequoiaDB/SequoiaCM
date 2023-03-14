@@ -63,7 +63,7 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
             throw new SkipTestException( "源站点不能为ceph S3数据源" );
         }
         wsp = ScmInfo.getWs();
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
@@ -135,7 +135,7 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private void readFile( ScmId fileId, SiteWrapper site ) throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
 

@@ -18,7 +18,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1517:admin角色创建角色，角色名以“ROLE_”开头 ............
@@ -42,7 +42,7 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         try {
@@ -86,7 +86,7 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_CDQRole() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
         String roleName = NAME + "_0";
 
         // create role
@@ -112,7 +112,7 @@ public class AuthServer_role1517_to_1528 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test_CDQRoleByROLE_() throws ScmException {
-        ScmSession ss = TestScmTools.createSession( site, NAME, PASSWORD );
+        ScmSession ss = ScmSessionUtils.createSession( site, NAME, PASSWORD );
         String roleName = "ROLE_" + NAME + "_1";
 
         // create role

@@ -61,8 +61,8 @@ public class GetInputStream5344 extends TestScmBase {
         wsp = ScmInfo.getWs();
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
-        sessionM = TestScmTools.createSession( rootSite );
-        sessionB = TestScmTools.createSession( branchSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
+        sessionB = ScmSessionUtils.createSession( branchSite );
         wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
         query = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )

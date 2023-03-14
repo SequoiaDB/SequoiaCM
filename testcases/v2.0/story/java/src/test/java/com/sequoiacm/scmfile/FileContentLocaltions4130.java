@@ -2,31 +2,17 @@ package com.sequoiacm.scmfile;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmContentLocation;
-import com.sequoiacm.client.element.ScmSdbLobLocation;
-import com.sequoiacm.client.element.ScmSiteInfo;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.bizconf.ScmCephS3DataLocation;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 
 /**
@@ -63,7 +49,7 @@ public class FileContentLocaltions4130 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );

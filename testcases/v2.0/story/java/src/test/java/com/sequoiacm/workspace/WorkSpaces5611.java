@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,7 +84,7 @@ public class WorkSpaces5611 extends TestScmBase {
         passwdFilePath = CephS3Utils.preparePasswdFile( site, passwdLocalPath,
                 passwordFileName );
 
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "twoSite", "fourSite" })

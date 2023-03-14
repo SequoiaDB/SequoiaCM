@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @author fanyu
@@ -65,7 +65,7 @@ public class Param_Property2313 extends TestScmBase {
     private void testKeyIsEmptyStr() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmConfigProperties conf = ScmConfigProperties.builder()
                     .service( site.getSiteServiceName() )
                     .updateProperty( "", ConfigCommonDefind.scm_audit_mask )

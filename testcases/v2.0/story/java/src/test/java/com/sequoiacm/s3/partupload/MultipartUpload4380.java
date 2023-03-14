@@ -9,7 +9,7 @@ import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.PartUploadUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
@@ -53,7 +53,7 @@ public class MultipartUpload4380 extends TestScmBase {
         file = new File( filePath );
 
         // 新建用户连接
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         String password = "user4380password";
         ScmAuthUtils.createUser( session, userName, password );
         String[] accessKeys = ScmAuthUtils.refreshAccessKey( session, userName,

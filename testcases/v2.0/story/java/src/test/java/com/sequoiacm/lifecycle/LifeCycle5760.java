@@ -15,7 +15,6 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
-import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 
 /**
  * @descreption SCM-5760:工作区查询配置的Transition信息
@@ -50,7 +49,7 @@ public class LifeCycle5760 extends TestScmBase {
 
         site = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );

@@ -11,6 +11,7 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.testng.Assert;
@@ -56,7 +57,7 @@ public class Object4875 extends TestScmBase {
         TestTools.LocalFile.createFile( updatePath, updateSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket( session, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( ws, bucketName );
@@ -69,7 +70,7 @@ public class Object4875 extends TestScmBase {
         int versionNum = 10;
         for ( int i = 0; i < versionNum; i++ ) {
             if ( i % 2 == 0 ) {
-                S3Utils.createFile( scmBucket, keyName, filePath );
+                ScmFileUtils.createFile( scmBucket, keyName, filePath );
             } else {
                 s3Client.putObject( bucketName, keyName,
                         new File( updatePath ) );
@@ -146,7 +147,7 @@ public class Object4875 extends TestScmBase {
         private void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( ScmInfo.getSite() );
+                session = ScmSessionUtils.createSession( ScmInfo.getSite() );
                 ScmBucket bucket = ScmFactory.Bucket.getBucket( session,
                         bucketName );
                 bucket.deleteFileVersion( keyName, versionId, 0 );

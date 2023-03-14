@@ -6,25 +6,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmFileStatisticsType;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmTaskBasicInfo;
-import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.statistics.StatisticsFile3858;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.*;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 
 /**
@@ -57,7 +51,7 @@ public class ConcurrentTasks3901 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmScheduleUtils.getSortBranchSites().get( 0 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -122,7 +116,7 @@ public class ConcurrentTasks3901 extends TestScmBase {
         private void fileMigration() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( rootSite );
+                session = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace workSpacesp = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 BSONObject condition = ScmQueryBuilder

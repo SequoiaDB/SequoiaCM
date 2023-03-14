@@ -25,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -83,13 +83,13 @@ public class DiffCenterReadFile260 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( wsp, cond );
 
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
 
-            sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+            sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-            sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+            sessionB = ScmSessionUtils.createSession( branSites.get( 1 ) );
             wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
 
             mFileId = ScmFileUtils.create( wsM,
@@ -178,7 +178,7 @@ public class DiffCenterReadFile260 extends TestScmBase {
             OutputStream fos = null;
             ScmInputStream sis = null;
             try {
-                session = TestScmTools.createSession( rootSite );
+                session = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 
@@ -215,7 +215,7 @@ public class DiffCenterReadFile260 extends TestScmBase {
             OutputStream fos = null;
             ScmInputStream sis = null;
             try {
-                session = TestScmTools.createSession( branSites.get( 0 ) );
+                session = ScmSessionUtils.createSession( branSites.get( 0 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 
@@ -250,7 +250,7 @@ public class DiffCenterReadFile260 extends TestScmBase {
             OutputStream fos = null;
             ScmInputStream sis = null;
             try {
-                session = TestScmTools.createSession( branSites.get( 1 ) );
+                session = ScmSessionUtils.createSession( branSites.get( 1 ) );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 

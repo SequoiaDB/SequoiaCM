@@ -54,7 +54,7 @@ public class FullText3058 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         wsName = WsPool.get();
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
         rootDirId = ScmFactory.Directory.createInstance( ws, rootDirName ).getId();
@@ -184,7 +184,7 @@ public class FullText3058 extends TestScmBase {
         private void search() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmCursor< ScmFulltextSearchResult > cursor = ScmFactory.Fulltext
@@ -225,7 +225,7 @@ public class FullText3058 extends TestScmBase {
         private void create() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFile file = ScmFactory.File.createInstance( ws );
@@ -255,7 +255,7 @@ public class FullText3058 extends TestScmBase {
         private void delete() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.File.deleteInstance( ws, fileId, true );
@@ -280,7 +280,7 @@ public class FullText3058 extends TestScmBase {
         private void update() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFile file = ScmFactory.File.getInstance( ws, fileId );
@@ -307,7 +307,7 @@ public class FullText3058 extends TestScmBase {
         private void query() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File

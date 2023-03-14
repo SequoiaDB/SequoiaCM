@@ -62,7 +62,7 @@ public class StatisticsFile4085 extends TestScmBase {
 
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
-        siteSession = TestScmTools.createSession( site );
+        siteSession = ScmSessionUtils.createSession( site );
         siteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession );
 
@@ -79,7 +79,7 @@ public class StatisticsFile4085 extends TestScmBase {
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
     public void test() throws Exception {
-        StatisticsUtils.createAndUploadBreakpointFile( fileName, siteWorkspace,
+        ScmBreakpointFileUtils.createAndUploadBreakpointFile( fileName, siteWorkspace,
                 filePath );
         try {
             ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

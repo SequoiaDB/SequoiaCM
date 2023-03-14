@@ -2,12 +2,10 @@ package com.sequoiacm.version;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -17,7 +15,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.VersionUtils;
@@ -63,9 +61,9 @@ public class UpdateContent1650 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         wsp = ScmInfo.getWs();
 
-        sessionA = TestScmTools.createSession( rootSite );
+        sessionA = ScmSessionUtils.createSession( rootSite );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( branSite );
+        sessionB = ScmSessionUtils.createSession( branSite );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
         BSONObject cond = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
@@ -75,7 +73,7 @@ public class UpdateContent1650 extends TestScmBase {
     @Test(groups = { "fourSite" })
     private void test() throws Exception {
         // write and updateContent from siteA
-        fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
+        fileId = ScmFileUtils.createFileByStream( wsA, fileName, filedata );
         VersionUtils.updateContentByFile( wsA, fileName, fileId, filePath );
 
         // download file from siteB and check result

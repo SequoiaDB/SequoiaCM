@@ -23,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -71,10 +71,10 @@ public class Delete_crossSite281 extends TestScmBase {
             branSites = ScmInfo.getBranchSites( branSitesNum );
             wsp = ScmInfo.getWs();
 
-            sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+            sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
 
-            sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+            sessionB = ScmSessionUtils.createSession( branSites.get( 1 ) );
             wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
 
             BSONObject cond = ScmQueryBuilder

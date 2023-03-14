@@ -2,7 +2,6 @@ package com.sequoiacm.schedulePreferredZone;
 
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.*;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
@@ -64,8 +63,8 @@ public class CreateSchedule3739 extends TestScmBase {
         wsp = ScmInfo.getWs();
         sourceSite = ScmInfo.getBranchSite();
         targetSite = ScmInfo.getRootSite();
-        sourceSiteSession = TestScmTools.createSession( sourceSite );
-        targetSiteSession = TestScmTools.createSession( targetSite );
+        sourceSiteSession = ScmSessionUtils.createSession( sourceSite );
+        targetSiteSession = ScmSessionUtils.createSession( targetSite );
         sourceSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 sourceSiteSession );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.FILE_NAME )

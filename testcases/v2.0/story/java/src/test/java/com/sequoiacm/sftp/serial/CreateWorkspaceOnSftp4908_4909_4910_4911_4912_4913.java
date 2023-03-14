@@ -4,9 +4,7 @@
 package com.sequoiacm.sftp.serial;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -85,7 +83,7 @@ public class CreateWorkspaceOnSftp4908_4909_4910_4911_4912_4913
         site = sites.get( 0 );
 
         rootSite = ScmInfo.getRootSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         SftpUtils.deleteDirectory( site.getDataDsUrl().split( ":" )[ 0 ],
                 dataPath );
     }

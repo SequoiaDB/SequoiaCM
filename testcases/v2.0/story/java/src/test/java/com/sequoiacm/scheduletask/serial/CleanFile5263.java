@@ -71,7 +71,7 @@ public class CleanFile5263 extends TestScmBase {
                 .getBranchSitesBySiteType( ScmType.DatasourceType.SEQUOIADB );
         branchSite = branchSites.get( 0 );
         rootSite = ScmInfo.getRootSite();
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileAuthor ).get();
     }

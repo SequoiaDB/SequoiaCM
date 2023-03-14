@@ -9,8 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sequoiacm.client.element.bizconf.*;
-import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.base.DBCollection;
@@ -24,20 +22,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScheduleType;
 import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.element.ScmScheduleMoveFileContent;
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 import static com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil.getDataLocationList;
-import static com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil.getMetaLocation;
 
 /**
  * @Description SCM-5225:迁移并清理多个文件，开启空间回收
@@ -91,8 +83,8 @@ public class ScheduleTask5225 extends TestScmBase {
         queryCond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )
                 .is( fileName ).get();
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
-        branSiteSession = TestScmTools.createSession( branchSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
+        branSiteSession = ScmSessionUtils.createSession( branchSite );
     }
 
     @DataProvider(name = "dataProvider")

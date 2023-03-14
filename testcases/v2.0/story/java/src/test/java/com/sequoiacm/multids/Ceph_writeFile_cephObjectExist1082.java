@@ -72,7 +72,7 @@ public class Ceph_writeFile_cephObjectExist1082 extends TestScmBase {
             }
 
             wsp = ScmInfo.getWs();
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
             fileId = ScmFileUtils.create( ws, fileName, filePath );
@@ -108,7 +108,7 @@ public class Ceph_writeFile_cephObjectExist1082 extends TestScmBase {
     private void readScmFile( SiteWrapper site ) {
         ScmSession ss = null;
         try {
-            ss = TestScmTools.createSession( site );
+            ss = ScmSessionUtils.createSession( site );
             ScmWorkspace wss = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     ss );
 

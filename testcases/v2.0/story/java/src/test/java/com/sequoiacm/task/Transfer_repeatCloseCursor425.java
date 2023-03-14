@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import com.sequoiacm.client.common.ScmType;
 import org.bson.BSONObject;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,7 +25,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -73,7 +72,7 @@ public class Transfer_repeatCloseCursor425 extends TestScmBase {
         branceSite = ScmInfo.getBranchSite();
         ws_T = ScmInfo.getWs();
 
-        session = TestScmTools.createSession( branceSite );
+        session = ScmSessionUtils.createSession( branceSite );
         ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
         cond = ScmQueryBuilder.start( ScmAttributeName.File.AUTHOR )

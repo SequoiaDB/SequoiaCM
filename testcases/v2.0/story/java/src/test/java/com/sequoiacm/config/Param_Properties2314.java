@@ -3,7 +3,6 @@ package com.sequoiacm.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -18,7 +17,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -77,7 +76,7 @@ public class Param_Properties2314 extends TestScmBase {
     private void testHybrid1() throws Exception {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmConfigProperties conf = ScmConfigProperties.builder()
                     .service( site.getSiteServiceName() )
                     .updateProperties( new HashMap< String, String >() )
@@ -99,7 +98,7 @@ public class Param_Properties2314 extends TestScmBase {
     private void testHybrid2() throws ScmException {
         ScmSession session = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmConfigProperties conf = ScmConfigProperties.builder()
                     .service( site.getSiteServiceName() )
                     .updateProperties( new HashMap< String, String >() )

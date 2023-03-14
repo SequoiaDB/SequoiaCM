@@ -9,8 +9,9 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.testng.Assert;
@@ -54,7 +55,7 @@ public class ScmFile5866_5867 extends TestScmBase {
     @BeforeClass
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
 
         S3Utils.clearBucket( session, bucketName );
@@ -63,7 +64,7 @@ public class ScmFile5866_5867 extends TestScmBase {
 
         // scmfile5866_1 ~ scmfile5866_10版本：v1
         for ( int i = 0; i < 10; i++ ) {
-            ScmId fileId = S3Utils.createFile( scmBucket,
+            ScmId fileId = ScmFileUtils.createFile( scmBucket,
                     "scmfile5866_" + ( i + 1 ), filedata, authorName );
             ScmFile file = ScmFactory.File.getInstance( ws, fileId );
             /*
@@ -91,9 +92,9 @@ public class ScmFile5866_5867 extends TestScmBase {
         scmBucket.deleteFile( fileName2, false );
         // 其他文件(scmfile5866_3~scmfile5866_10)分别创建多个版本，如v1,v2,v3
         for ( int i = 2; i < 10; i++ ) {
-            S3Utils.createFile( scmBucket, "scmfile5866_" + ( i + 1 ),
+            ScmFileUtils.createFile( scmBucket, "scmfile5866_" + ( i + 1 ),
                     updatedataV2, authorName );
-            S3Utils.createFile( scmBucket, "scmfile5866_" + ( i + 1 ),
+            ScmFileUtils.createFile( scmBucket, "scmfile5866_" + ( i + 1 ),
                     updatedataV3, authorName );
         }
     }

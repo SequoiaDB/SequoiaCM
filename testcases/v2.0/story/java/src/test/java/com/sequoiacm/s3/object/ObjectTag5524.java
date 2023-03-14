@@ -64,7 +64,7 @@ public class ObjectTag5524 extends TestScmBase {
 
         s3Client = S3Utils.buildS3Client();
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( TestScmBase.s3WorkSpaces,
                 session );
         initTag();

@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description: SCM-2587:查询注册中心内容服务节点
@@ -44,7 +44,7 @@ public class ListContentServer2587 extends TestScmBase {
         ScmSession session = null;
         List< ScmServiceInstance > contentServers = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             contentServers = ScmSystem.ServiceCenter
                     .getContentServerInstanceList( session );
             Assert.assertEquals( contentServers.size(), nodes.size() );
@@ -82,7 +82,7 @@ public class ListContentServer2587 extends TestScmBase {
 
     @Test(groups = { GroupTags.base })
     private void testSessionIsClosed() throws Exception {
-        ScmSession session = TestScmTools.createSession( site );
+        ScmSession session = ScmSessionUtils.createSession( site );
         session.close();
         try {
             ScmSystem.ServiceCenter.getContentServerInstanceList( session );

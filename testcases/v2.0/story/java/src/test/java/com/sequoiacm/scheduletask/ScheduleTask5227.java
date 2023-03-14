@@ -1,29 +1,21 @@
 package com.sequoiacm.scheduletask;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
-import com.sequoiacm.client.element.ScmTransferTaskConfig;
-import com.sequoiacm.scheduletask.concurrent.ConcurrentTasks3914;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmDataCheckLevel;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 
 /**
@@ -62,7 +54,7 @@ public class ScheduleTask5227 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
         wsp = ScmInfo.getWs();
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -137,7 +129,7 @@ public class ScheduleTask5227 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void exec() throws Exception {
-            ScmSession session = TestScmTools.createSession( sourceSite );
+            ScmSession session = ScmSessionUtils.createSession( sourceSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             try {

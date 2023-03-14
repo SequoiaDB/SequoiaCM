@@ -4,11 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import com.sequoiacm.client.element.ScmFileStatisticsType;
-import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
-import com.sequoiacm.client.element.privilege.ScmResource;
-import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
-import org.apache.directory.shared.kerberos.codec.apRep.actions.ApRepInit;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -16,11 +12,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.*;
-import com.sequoiacm.client.element.ScmClassProperties;
 import com.sequoiacm.client.element.ScmFileStatisticInfo;
 import com.sequoiacm.client.element.ScmId;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -72,17 +65,17 @@ public class StatisticsFile3819 extends TestScmBase {
     public void setUp() throws Exception {
         calendar = Calendar.getInstance();
         fileNums = fileSizes.length;
-        localPath = StatisticsUtils.createFile( fileSizes, filePathList );
+        localPath = ScmFileUtils.createFiles( fileSizes, filePathList );
         wsp = ScmInfo.getWs();
         site = ScmInfo.getSite();
 
         // 创建用户
-        StatisticsUtils.createUserAndRole( rolename1, username1, wsp, site );
-        StatisticsUtils.createUserAndRole( rolename2, username2, wsp, site );
+        ScmAuthUtils.createUserAndRole( rolename1, username1, wsp, site );
+        ScmAuthUtils.createUserAndRole( rolename2, username2, wsp, site );
 
-        siteSession = TestScmTools.createSession( site );
-        siteSession1 = TestScmTools.createSession( site, username1, username1 );
-        siteSession2 = TestScmTools.createSession( site, username2, username2 );
+        siteSession = ScmSessionUtils.createSession( site );
+        siteSession1 = ScmSessionUtils.createSession( site, username1, username1 );
+        siteSession2 = ScmSessionUtils.createSession( site, username2, username2 );
 
         siteWorkspace1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 siteSession1 );
@@ -171,25 +164,25 @@ public class StatisticsFile3819 extends TestScmBase {
     public void constructStatisticsInfo() throws Exception {
         // user1上传文件
         for ( int i = 0; i < uploadFilesSuccedNums1; i++ ) {
-            int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
+            int totalUploadTime = ( int ) ScmFileUtils.createFiles(
                     filePathList.get( i ), fileName, fileIdList,
                     siteWorkspace1 );
             uploadTime1.add( totalUploadTime );
         }
         int count = uploadFilesSuccedNums1 + uploadFilesFaidNums1;
         for ( int i = uploadFilesSuccedNums1; i < count; i++ ) {
-            StatisticsUtils.uploadFileFialed( filePathList.get( i ), fileName,
+            ScmFileUtils.createFileFialed( filePathList.get( i ), fileName,
                     fileIdList, siteWorkspace1 );
         }
         // user2上传文件
         for ( int i = count; i < count + uploadFilesSuccedNums2; i++ ) {
-            int totalUploadTime = ( int ) StatisticsUtils.uploadFile(
+            int totalUploadTime = ( int ) ScmFileUtils.createFiles(
                     filePathList.get( i ), fileName, fileIdList,
                     siteWorkspace2 );
             uploadTime2.add( totalUploadTime );
         }
         for ( int i = count + uploadFilesSuccedNums2; i < fileNums; i++ ) {
-            StatisticsUtils.uploadFileFialed( filePathList.get( i ), fileName,
+            ScmFileUtils.createFileFialed( filePathList.get( i ), fileName,
                     fileIdList, siteWorkspace2 );
         }
     }

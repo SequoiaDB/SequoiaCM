@@ -60,7 +60,7 @@ public class BreakpointFile4024a extends TestScmBase {
 
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
@@ -94,7 +94,7 @@ public class BreakpointFile4024a extends TestScmBase {
         private void uploadBreakpointFileThread() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

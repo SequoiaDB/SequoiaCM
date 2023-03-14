@@ -1,5 +1,7 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,15 +41,15 @@ public class ScmFile5031 extends TestScmBase {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionM );
         S3Utils.clearBucket( sessionM, s3WorkSpaces, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( wsM, bucketName );
         scmBucket.enableVersionControl();
-        fileId = S3Utils.createFile( scmBucket, fileName, filedata );
-        S3Utils.createFile( scmBucket, fileName, updatedata );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filedata );
+        ScmFileUtils.createFile( scmBucket, fileName, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -87,7 +89,7 @@ public class ScmFile5031 extends TestScmBase {
             throws Exception {
         ScmFactory.File.asyncCache( wsA, fileId, majorVersion, 0 );
         int sitenums = 2;
-        VersionUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsM, fileId, majorVersion,
                 sitenums );
     }
 

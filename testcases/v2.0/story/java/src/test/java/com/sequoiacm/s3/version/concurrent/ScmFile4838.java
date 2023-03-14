@@ -30,7 +30,7 @@ public class ScmFile4838 extends TestScmBase {
 
     @BeforeClass
     private void setUp() throws Exception {
-        session = TestScmTools.createSession( ScmInfo.getSite() );
+        session = ScmSessionUtils.createSession( ScmInfo.getSite() );
         ws = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, session );
         S3Utils.clearBucket(session, s3WorkSpaces, bucketName);
     }

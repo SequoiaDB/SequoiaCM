@@ -40,7 +40,7 @@ public class ListTrace5452 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        session = TestScmTools.createSession();
+        session = ScmSessionUtils.createSession();
         wsp = ScmInfo.getWs();
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
@@ -81,7 +81,7 @@ public class ListTrace5452 extends TestScmBase {
     private class ListTrace {
         @ExecuteOrder(step = 1)
         private void run() throws ScmException {
-            ScmSession session = TestScmTools.createSession();
+            ScmSession session = ScmSessionUtils.createSession();
             try {
                 List< ScmTrace > scmTraces = ScmSystem.ServiceTrace
                         .listTrace( session, 10 );

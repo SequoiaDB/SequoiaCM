@@ -17,7 +17,6 @@ import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
@@ -66,7 +65,7 @@ public class ConcurrentTasks3915 extends TestScmBase {
         branchSite1 = branchSitesList.get( 0 );
         branchSite2 = branchSitesList.get( 1 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -142,7 +141,7 @@ public class ConcurrentTasks3915 extends TestScmBase {
             ScmSession session = null;
             OutputStream os = null;
             try {
-                session = TestScmTools.createSession( branchSite );
+                session = ScmSessionUtils.createSession( branchSite );
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( workspace,

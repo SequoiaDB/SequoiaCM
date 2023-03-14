@@ -31,7 +31,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestSdbTools;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
@@ -90,7 +90,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
                     .get();
             ScmFileUtils.cleanFile( ws_T, cond );
 
-            session = TestScmTools.createSession( branceSite );
+            session = ScmSessionUtils.createSession( branceSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
             writeFileFromSubCenterA();
@@ -148,7 +148,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( branceSite );
+            session = ScmSessionUtils.createSession( branceSite );
             while ( true ) {
                 Thread.sleep( 50 );
                 if ( taskId != null ) {
@@ -181,7 +181,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
 
@@ -221,7 +221,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
         ScmSession session = null;
         try {
             // login
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
                     session );
             for ( int i = 0; i < fileNum; i++ ) {
@@ -246,7 +246,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSite );
+                session = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
 
@@ -307,7 +307,7 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
             ScmSession session = null;
             try {
                 // login
-                session = TestScmTools.createSession( branceSite );
+                session = ScmSessionUtils.createSession( branceSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( ws_T.getName(), session );
 

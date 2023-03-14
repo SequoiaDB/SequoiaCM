@@ -33,7 +33,7 @@ import com.sequoiacm.common.AttributeType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -62,7 +62,7 @@ public class DefineAttr_prop_addAndSetProp1618 extends TestScmBase {
     private void setUp() throws IOException, ScmException {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
 
         class1 = ScmFactory.Class.createInstance( ws, NAME, NAME + "_desc" );
@@ -187,7 +187,7 @@ public class DefineAttr_prop_addAndSetProp1618 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace tmpws = ScmFactory.Workspace
                         .getWorkspace( ws.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( tmpws, fileId );
@@ -214,7 +214,7 @@ public class DefineAttr_prop_addAndSetProp1618 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace tmpws = ScmFactory.Workspace
                         .getWorkspace( ws.getName(), session );
                 ScmFile file = ScmFactory.File.getInstance( tmpws, fileId );

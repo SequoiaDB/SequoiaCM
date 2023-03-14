@@ -45,7 +45,7 @@ public class CreateDirFileInMultiWs1338 extends TestScmBase {
         }
         site = ScmInfo.getSite();
         wspList = ScmInfo.getWss( wsNum );
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws1 = ScmFactory.Workspace.getWorkspace( wspList.get( 0 ).getName(),
                 session );
         ws2 = ScmFactory.Workspace.getWorkspace( wspList.get( 1 ).getName(),

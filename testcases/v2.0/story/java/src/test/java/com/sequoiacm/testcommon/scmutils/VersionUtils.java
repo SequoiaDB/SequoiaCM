@@ -5,11 +5,21 @@ package com.sequoiacm.testcommon.scmutils;
 
 import java.io.*;
 import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import org.testng.Assert;
 
 import com.sequoiacm.client.common.ScmType.DatasourceType;
-import com.sequoiacm.client.core.ScmBreakpointFile;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
 import com.sequoiacm.client.core.ScmWorkspace;
@@ -18,6 +28,11 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testresource.SkipTestException;
+import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.TestSdbTools;
+import com.sequoiacm.testcommon.TestTools;
 
 /**
  * @Description VersionUtil.java
@@ -28,6 +43,11 @@ public class VersionUtils extends TestScmBase {
     // 5min
     private static final int defaultTimeOut = 5 * 60;
 
+    /**
+     * @descreption 校验是否存在db数据源
+     * @return
+     * @throws Exception
+     */
     public static void checkDBDataSource() {
         List< SiteWrapper > sites = ScmInfo.getAllSites();
         for ( SiteWrapper site : sites ) {
@@ -41,117 +61,13 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * create file, the file content are randomly generated character
-     *
+     * @descreption updateContent File by the local file
+     * @param ws
+     * @param fileName
+     * @param fileId
      * @param filePath
-     * @param size
-     * @throws IOException
-     */
-    public static void createFile( String filePath, int size )
-            throws IOException {
-        FileOutputStream fos = null;
-        try {
-            TestTools.LocalFile.createFile( filePath );
-            File file = new File( filePath );
-            fos = new FileOutputStream( file );
-
-            byte[] fileBlock = new byte[ size ];
-            new Random().nextBytes( fileBlock );
-            fos.write( fileBlock );
-        } catch ( IOException e ) {
-            System.out.println( "create file failed, file=" + filePath );
-            throw e;
-        } finally {
-            if ( fos != null ) {
-                fos.close();
-            }
-        }
-    }
-
-    /**
-     * create File by stream
-     *
-     * @param ws
-     * @param fileName
-     * @param data
-     * @param authorName
-     * @throws ScmException
-     */
-    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
-            byte[] data, String authorName ) throws ScmException {
-        ScmFile file = ScmFactory.File.createInstance( ws );
-        new Random().nextBytes( data );
-        file.setContent( new ByteArrayInputStream( data ) );
-        file.setFileName( fileName );
-        file.setAuthor( authorName );
-        file.setTitle( "sequoiacm" );
-        file.setMimeType( fileName + ".txt" );
-        file.setCreateTime( new Date( new Date().getTime() - 1000 * 60 * 60 ) );
-        ScmId fileId = file.save();
-        return fileId;
-    }
-
-    /**
-     * create File by stream
-     *
-     * @param ws
-     * @param fileName
-     * @param data
-     * @throws ScmException
-     */
-    public static ScmId createFileByStream( ScmWorkspace ws, String fileName,
-            byte[] data ) throws ScmException {
-        return createFileByStream( ws, fileName, data, fileName );
-    }
-
-    /**
-     * create File by the local file *
-     *
-     * @param ws
-     * @param fileName
-     * @param filePath
-     * @throws ScmException
-     */
-    public static ScmId createFileByFile( ScmWorkspace ws, String fileName,
-            String filePath ) throws ScmException {
-        return createFileByFile( ws, fileName, filePath, fileName );
-    }
-
-    /**
-     * create File by the local file *
-     *
-     * @param ws
-     * @param fileName
-     * @param filePath
-     * @param authorName
-     * @throws ScmException
-     */
-    public static ScmId createFileByFile( ScmWorkspace ws, String fileName,
-            String filePath, String authorName ) throws ScmException {
-        ScmFile file = ScmFactory.File.createInstance( ws );
-        file.setContent( filePath );
-        file.setFileName( fileName );
-        file.setAuthor( authorName );
-        file.setTitle( "sequoiacm" );
-        file.setMimeType( fileName + ".txt" );
-        ScmId fileId = file.save();
-        return fileId;
-    }
-
-    /*
-     * 
-     */
-    public static ScmBreakpointFile createBreakpointFileByStream(
-            ScmWorkspace ws, String fileName, byte[] data )
-            throws ScmException {
-        ScmBreakpointFile sbFile = ScmFactory.BreakpointFile.createInstance( ws,
-                fileName );
-        sbFile.upload( new ByteArrayInputStream( data ) );
-        return sbFile;
-    }
-
-    /**
-     * updateContent File by the local file
+     * @return
+     * @throws Exception
      */
     public static void updateContentByFile( ScmWorkspace ws, String fileName,
             ScmId fileId, String filePath ) throws ScmException {
@@ -160,8 +76,14 @@ public class VersionUtils extends TestScmBase {
         file.setFileName( fileName );
     }
 
+
     /**
-     * updateContent File by stream
+     * @descreption updateContent File by stream
+     * @param ws
+     * @param fileId
+     * @param updateData
+     * @return
+     * @throws ScmException
      */
     public static void updateContentByStream( ScmWorkspace ws, ScmId fileId,
             byte[] updateData ) throws ScmException {
@@ -170,8 +92,15 @@ public class VersionUtils extends TestScmBase {
         file.updateContent( new ByteArrayInputStream( updateData ) );
     }
 
+
     /**
-     * check the file context by stream
+     * @descreption check the file context by stream
+     * @param ws
+     * @param fileName
+     * @param version
+     * @param filedata
+     * @return
+     * @throws ScmException
      */
     public static void CheckFileContentByStream( ScmWorkspace ws,
             String fileName, int version, byte[] filedata ) throws Exception {
@@ -188,10 +117,25 @@ public class VersionUtils extends TestScmBase {
         assertByteArrayEqual( downloadData, filedata );
     }
 
+    /**
+     * @descreption 断言两字节数组相等
+     * @param actual
+     * @param expect
+     * @return
+     * @throws ScmException
+     */
     public static void assertByteArrayEqual( byte[] actual, byte[] expect ) {
         assertByteArrayEqual( actual, expect, "" );
     }
 
+    /**
+     * @descreption 断言两字节数组相等
+     * @param actual
+     * @param expect
+     * @param msg
+     * @return
+     * @throws ScmException
+     */
     public static void assertByteArrayEqual( byte[] actual, byte[] expect,
             String msg ) {
         if ( !Arrays.equals( actual, expect ) ) {
@@ -237,6 +181,11 @@ public class VersionUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 获取CallerName
+     * @return
+     * @throws ScmException
+     */
     private static String getCallerName() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         String thisClassName = stackTrace[ 1 ].getClassName();
@@ -254,7 +203,14 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * check the file context by file,, use fileName
+     * @descreption check the file context by file,, use fileName
+     * @param ws
+     * @param fileName
+     * @param version
+     * @param filePath
+     * @param localPath
+     * @return
+     * @throws Exception
      */
     public static void CheckFileContentByFile( ScmWorkspace ws, String fileName,
             int version, String filePath, File localPath ) throws Exception {
@@ -272,7 +228,14 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * check the file context by file, use fileId
+     * @descreption check the file context by file, use fileId
+     * @param ws
+     * @param fileId
+     * @param version
+     * @param filePath
+     * @param localPath
+     * @return
+     * @throws Exception
      */
     public static void CheckFileContentByFile( ScmWorkspace ws, ScmId fileId,
             int version, String filePath, File localPath ) throws Exception {
@@ -289,42 +252,12 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * @param ws
-     * @param fileName
-     * @param filePath
-     * @param checkFilePath
-     * @throws ScmException
-     * @throws IOException
-     */
-    public static void checkScmFile( ScmWorkspace ws, String fileName,
-            String filePath, String checkFilePath )
-            throws ScmException, IOException {
-        TestTools.LocalFile.removeFile( checkFilePath );
-        ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile
-                .getInstance( ws, fileName );
-        ScmFile file = ScmFactory.File.createInstance( ws );
-        file.setContent( breakpointFile );
-        file.setFileName( fileName );
-        file.setTitle( fileName );
-        ScmId fielId = file.save();
-
-        ScmFile file1 = ScmFactory.File.getInstance( ws, fielId );
-        file1.getContent( checkFilePath );
-        Assert.assertEquals( TestTools.getMD5( checkFilePath ),
-                TestTools.getMD5( filePath ),
-                "check breakpointFile to ScmFile" );
-
-        ScmFactory.File.deleteInstance( ws, fielId, true );
-        TestTools.LocalFile.removeFile( checkFilePath );
-    }
-
-    /**
-     * check scmfile's meta of sitelist
-     *
+     * @descreption check scmfile's meta of sitelist
      * @param ws
      * @param fileId
      * @param major_version
      * @param expSites
+     * @return
      * @throws ScmException
      */
     public static void checkSite( ScmWorkspace ws, ScmId fileId,
@@ -356,6 +289,15 @@ public class VersionUtils extends TestScmBase {
 
     }
 
+    /**
+     * @descreption 校验调度任务相关的站点信息
+     * @param ws
+     * @param fileIds
+     * @param major_version
+     * @param expSites
+     * @return
+     * @throws ScmException
+     */
     public static void checkScheTaskFileSites( ScmWorkspace ws,
             List< ScmId > fileIds, int major_version, SiteWrapper[] expSites )
             throws Exception {
@@ -363,6 +305,16 @@ public class VersionUtils extends TestScmBase {
                 expSites, defaultTimeOut );
     }
 
+    /**
+     * @descreption 校验调度任务相关的站点信息
+     * @param ws
+     * @param fileIds
+     * @param major_version
+     * @param expSites
+     * @param timeOutSec
+     * @return
+     * @throws Exception
+     */
     public static void checkScheTaskFileSites( ScmWorkspace ws,
             List< ScmId > fileIds, int major_version, SiteWrapper[] expSites,
             int timeOutSec ) throws Exception {
@@ -370,6 +322,17 @@ public class VersionUtils extends TestScmBase {
                 expSites, timeOutSec );
     }
 
+    /**
+     * @descreption 校验调度任务相关的站点信息
+     * @param ws
+     * @param fileIds
+     * @param major_version
+     * @param startNum
+     * @param endNum
+     * @param expSites
+     * @return
+     * @throws
+     */
     public static void checkScheTaskFileSites( ScmWorkspace ws,
             List< ScmId > fileIds, int major_version, int startNum, int endNum,
             SiteWrapper[] expSites ) throws Exception {
@@ -377,6 +340,18 @@ public class VersionUtils extends TestScmBase {
                 expSites, defaultTimeOut );
     }
 
+    /**
+     * @descreption 校验调度任务相关的站点信息
+     * @param ws
+     * @param fileIds
+     * @param major_version
+     * @param startNum
+     * @param endNum
+     * @param expSites
+     * @param timeOutSec
+     * @return
+     * @throws
+     */
     public static void checkScheTaskFileSites( ScmWorkspace ws,
             List< ScmId > fileIds, int major_version, int startNum, int endNum,
             SiteWrapper[] expSites, int timeOutSec ) throws Exception {
@@ -410,12 +385,12 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * check the scedule scmfile's meta of sitelist
-     *
+     * @descreption check the scedule scmfile's meta of sitelist
      * @param ws
      * @param fileId
      * @param major_version
      * @param expSites
+     * @return
      * @throws Exception
      */
     public static void checkScheduleFileSite( ScmWorkspace ws, ScmId fileId,
@@ -453,11 +428,11 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * check scmfile's meta of major_version
-     *
+     * @descreption check scmfile's meta of major_version
      * @param ws
      * @param fileId
      * @param majorVersion
+     * @return
      * @throws ScmException
      */
     public static void checkFileCurrentVersion( ScmWorkspace ws, ScmId fileId,
@@ -468,11 +443,11 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * check scmfile's meta of major_version
-     *
+     * @descreption check scmfile's meta of major_version
      * @param ws
      * @param fileId
      * @param majorVersion
+     * @return
      * @throws ScmException
      */
     public static void checkFileVersion( ScmWorkspace ws, ScmId fileId,
@@ -484,8 +459,7 @@ public class VersionUtils extends TestScmBase {
     }
 
     /**
-     * check scmfile's meta of size
-     *
+     * @descreption check scmfile's meta of size
      * @param ws
      * @param fileId
      * @param version
@@ -498,115 +472,6 @@ public class VersionUtils extends TestScmBase {
         Assert.assertEquals( file.getSize(), expSize );
         Assert.assertEquals( file.getMajorVersion(), version );
 
-    }
-
-    /**
-     * wait asynchronous task finished, default timeOutSec
-     *
-     * @param ws
-     * @param fileId
-     * @param expSiteNum
-     * @throws Exception
-     */
-    public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
-            int version, int expSiteNum ) throws Exception {
-        waitAsyncTaskFinished( ws, fileId, version, expSiteNum,
-                defaultTimeOut );
-    }
-
-    /**
-     * wait asynchronous task finished, specify timeOutSec
-     *
-     * @param ws
-     * @param fileId
-     * @param majorVersion
-     * @param expSiteNum
-     * @param timeOutSec
-     *            unit: seconds
-     * @throws Exception
-     */
-    public static void waitAsyncTaskFinished( ScmWorkspace ws, ScmId fileId,
-            int majorVersion, int expSiteNum, int timeOutSec )
-            throws Exception {
-        int sleepTime = 200; // millisecond
-        int maxRetryTimes = timeOutSec * 1000 / sleepTime;
-        int retryTimes = 0;
-        while ( true ) {
-            ScmFile file = ScmFactory.File.getInstance( ws, fileId,
-                    majorVersion, 0 );
-            int size = file.getLocationList().size();
-            if ( size == expSiteNum ) {
-                break;
-            } else if ( retryTimes >= maxRetryTimes ) {
-                throw new Exception( "wait async task, retry failed." );
-            }
-            Thread.sleep( sleepTime );
-            retryTimes++;
-        }
-    }
-
-    /**
-     * wait asynchronous task finished, default timeOutSec not sure about
-     * migrating file versions
-     *
-     * @param ws
-     * @param fileId
-     * @param expSiteNum
-     * @throws Exception
-     * @return asyncTask success file version
-     */
-    public static int waitAsyncTaskFinished2( ScmWorkspace ws, ScmId fileId,
-            int version, int expSiteNum ) throws Exception {
-        return waitAsyncTaskFinished2( ws, fileId, version, expSiteNum,
-                defaultTimeOut );
-    }
-
-    /**
-     * wait asynchronous task finished, specify timeOutSec migrating file
-     * versions
-     *
-     * @param ws
-     * @param fileId
-     * @param majorVersion
-     * @param expSiteNum
-     * @param timeOutSec
-     *            unit: seconds
-     * @throws Exception
-     * @return asyncTask success file version
-     */
-    public static int waitAsyncTaskFinished2( ScmWorkspace ws, ScmId fileId,
-            int majorVersion, int expSiteNum, int timeOutSec )
-            throws Exception {
-        int sleepTime = 200; // millisecond
-        int maxRetryTimes = timeOutSec * 1000 / sleepTime;
-        int retryTimes = 0;
-        int asyncVersion = 1;
-        while ( true ) {
-            ScmFile file = ScmFactory.File.getInstance( ws, fileId,
-                    majorVersion, 0 );
-            int size = file.getLocationList().size();
-            if ( size == expSiteNum ) {
-                asyncVersion = majorVersion;
-                break;
-            } else if ( retryTimes >= maxRetryTimes ) {
-                throw new Exception( "wait async task, retry failed." );
-            }
-            try {
-                file = ScmFactory.File.getInstance( ws, fileId,
-                        majorVersion + 1, 0 );
-                size = file.getLocationList().size();
-                if ( size == expSiteNum ) {
-                    asyncVersion = majorVersion + 1;
-                    break;
-                }
-            } catch ( ScmException e ) {
-                Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND,
-                        e.getMessage() );
-            }
-            Thread.sleep( sleepTime );
-            retryTimes++;
-        }
-        return asyncVersion;
     }
 
 }

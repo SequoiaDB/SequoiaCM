@@ -1,8 +1,6 @@
 package com.sequoiacm.scheduletask.concurrent;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +12,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.ScmTask;
@@ -72,11 +69,11 @@ public class ConcurrentTasks3919 extends TestScmBase {
         branchSite2 = branchSitesList.get( 1 );
         branchSite3 = branchSitesList.get( 2 );
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWorkspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
-        branchSiteSession1 = TestScmTools.createSession( branchSite1 );
+        branchSiteSession1 = ScmSessionUtils.createSession( branchSite1 );
         branchSiteWorkspace1 = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSiteSession1 );
 

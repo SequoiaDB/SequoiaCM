@@ -13,7 +13,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:SCM-2209::查询节点的主机状态,节点分布在同一台机器
@@ -29,7 +29,7 @@ public class ListHostInfo2209 extends TestScmBase {
     private void setUp() {
         site = ScmInfo.getRootSite();
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

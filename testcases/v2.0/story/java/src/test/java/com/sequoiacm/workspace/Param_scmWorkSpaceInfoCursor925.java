@@ -3,7 +3,6 @@
  */
 package com.sequoiacm.workspace;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -17,7 +16,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @Description:1、不存在ws,游标为空(手工测)； 2、getNext()之前游标已关闭，执行getNext()获取ws信息；
@@ -37,7 +36,7 @@ public class Param_scmWorkSpaceInfoCursor925 extends TestScmBase {
     private void setUp() {
         try {
             site = ScmInfo.getSite();
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
         } catch ( ScmException e ) {
             Assert.fail( e.getMessage() );
         }
@@ -61,7 +60,7 @@ public class Param_scmWorkSpaceInfoCursor925 extends TestScmBase {
         ScmSession session = null;
         ScmCursor< ScmWorkspaceInfo > cursor = null;
         try {
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             cursor = ScmFactory.Workspace.listWorkspace( session );
             session.close();
             cursor.close();

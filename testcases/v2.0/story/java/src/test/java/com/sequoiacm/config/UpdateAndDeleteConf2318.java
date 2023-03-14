@@ -18,7 +18,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -48,7 +48,7 @@ public class UpdateAndDeleteConf2318 extends TestScmBase {
                     .deleteProperty( ConfigCommonDefind.scm_audit_mask )
                     .build();
 
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmUpdateConfResultSet actResult = ScmSystem.Configuration
                     .setConfigProperties( session, confProp );
             List< String > okServices = new ArrayList< String >();
@@ -75,7 +75,7 @@ public class UpdateAndDeleteConf2318 extends TestScmBase {
         // update
         ScmSession session1 = null;
         try {
-            session1 = TestScmTools.createSession( site );
+            session1 = ScmSessionUtils.createSession( site );
             ScmSystem.Configuration.setConfigProperties( session1,
                     ScmConfigProperties.builder()
                             .service( site.getSiteServiceName() )

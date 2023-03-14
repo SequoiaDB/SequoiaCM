@@ -35,11 +35,11 @@ public class Bucket4276 extends TestScmBase {
 
     @BeforeClass
     public void setUp() throws Exception {
-        adminSession = TestScmTools.createSession( ScmInfo.getRootSite() );
+        adminSession = ScmSessionUtils.createSession( ScmInfo.getRootSite() );
 
         // 新建用户
         user = ScmAuthUtils.createUser( adminSession, username, password );
-        newUserSession = TestScmTools.createSession( ScmInfo.getRootSite(),
+        newUserSession = ScmSessionUtils.createSession( ScmInfo.getRootSite(),
                 username, password );
         role = ScmAuthUtils.createRole( adminSession, roleName );
 

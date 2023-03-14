@@ -59,7 +59,7 @@ public class ConcurrentTasks3907 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         branchSite = ScmInfo.getBranchSite();
 
-        rootSiteSession = TestScmTools.createSession( rootSite );
+        rootSiteSession = ScmSessionUtils.createSession( rootSite );
         rootSiteWs = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 rootSiteSession );
 
@@ -127,7 +127,7 @@ public class ConcurrentTasks3907 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( targetSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -159,7 +159,7 @@ public class ConcurrentTasks3907 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            try ( ScmSession session = TestScmTools
+            try ( ScmSession session = ScmSessionUtils
                     .createSession( sourceSite )) {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

@@ -76,7 +76,7 @@ public class AsyncTransfer3743 extends TestScmBase {
     public void test( SiteWrapper sourceSite, SiteWrapper targetSite )
             throws Exception {
         ScmFileUtils.cleanFile( wsp, queryCond );
-        ScmSession sourceSiteSession = TestScmTools.createSession( sourceSite );
+        ScmSession sourceSiteSession = ScmSessionUtils.createSession( sourceSite );
         sessions.add( sourceSiteSession );
         ScmWorkspace sourceSiteWs = ScmFactory.Workspace
                 .getWorkspace( wsp.getName(), sourceSiteSession );

@@ -37,7 +37,7 @@ public class S3AuthServer3629 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
     }
 
     @Test(groups = { "oneSite", "twoSite", "fourSite" })
@@ -63,7 +63,7 @@ public class S3AuthServer3629 extends TestScmBase {
         checkSign();
 
         // 刷新自己
-        sessionAdmin = TestScmTools.createSession( site, username1, password1 );
+        sessionAdmin = ScmSessionUtils.createSession( site, username1, password1 );
         accessKeys = ScmAuthUtils.refreshAccessKey( sessionAdmin, username1,
                 cryptPassword, null );
         checkSign();

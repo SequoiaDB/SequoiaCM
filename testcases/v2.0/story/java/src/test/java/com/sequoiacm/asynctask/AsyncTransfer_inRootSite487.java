@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.core.ScmAttributeName;
@@ -25,7 +23,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -81,7 +79,7 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
             ScmFileUtils.cleanFile( ws_T, cond );
 
             // login in
-            session = TestScmTools.createSession( rootSite );
+            session = ScmSessionUtils.createSession( rootSite );
             ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(), session );
 
             writeFileFromMainCenter( ws, filePath );
@@ -137,7 +135,7 @@ public class AsyncTransfer_inRootSite487 extends TestScmBase {
     private void asyncTransferFromSubCenterAStar() throws ScmException {
         ScmSession sessionB = null;
         try {
-            sessionB = TestScmTools.createSession( branceSite );
+            sessionB = ScmSessionUtils.createSession( branceSite );
             ScmWorkspace wsB = ScmFactory.Workspace
                     .getWorkspace( ws_T.getName(), sessionB );
             ScmFactory.File.asyncTransfer( wsB, fileId );

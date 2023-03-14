@@ -23,7 +23,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
@@ -57,7 +57,7 @@ public class WsFlow2212 extends TestScmBase {
             TestTools.LocalFile.createDir( localPath.toString() );
             TestTools.LocalFile.createFile( filePath, fileSize );
 
-            session = TestScmTools.createSession( site );
+            session = ScmSessionUtils.createSession( site );
             ScmWorkspaceUtil.deleteWs( "ws2", session );
             ScmWorkspaceUtil.deleteWs( "ws3", session );
 
@@ -99,7 +99,7 @@ public class WsFlow2212 extends TestScmBase {
 
         // upload file in wsNames[2] in branchsite
         SiteWrapper siteA = ScmInfo.getBranchSite();
-        ScmSession sessionA = TestScmTools.createSession( siteA );
+        ScmSession sessionA = ScmSessionUtils.createSession( siteA );
         ScmWorkspace ws2 = ScmFactory.Workspace.getWorkspace( wsNames[ 2 ],
                 sessionA );
         ScmId fileId1 = ScmFileUtils.create( ws2,

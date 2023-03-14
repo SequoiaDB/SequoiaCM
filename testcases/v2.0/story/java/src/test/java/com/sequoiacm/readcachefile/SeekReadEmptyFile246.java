@@ -11,7 +11,6 @@ import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.InputStreamType;
@@ -28,7 +27,7 @@ import com.sequoiacm.common.CommonDefine.SeekType;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
@@ -79,9 +78,9 @@ public class SeekReadEmptyFile246 extends TestScmBase {
                 .start( ScmAttributeName.File.FILE_NAME ).is( fileName ).get();
         ScmFileUtils.cleanFile( wsp, cond );
 
-        sessionA = TestScmTools.createSession( branSites.get( 0 ) );
+        sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
-        sessionB = TestScmTools.createSession( branSites.get( 1 ) );
+        sessionB = ScmSessionUtils.createSession( branSites.get( 1 ) );
         wsB = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionB );
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
     }

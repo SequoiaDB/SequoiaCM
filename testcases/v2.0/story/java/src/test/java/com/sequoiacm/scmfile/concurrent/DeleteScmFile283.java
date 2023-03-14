@@ -22,7 +22,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
@@ -66,9 +66,9 @@ public class DeleteScmFile283 extends TestScmBase {
             branSite = ScmInfo.getBranchSite();
             wsp = ScmInfo.getWs();
 
-            sessionM = TestScmTools.createSession( rootSite );
+            sessionM = ScmSessionUtils.createSession( rootSite );
             wsM = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionM );
-            sessionA = TestScmTools.createSession( branSite );
+            sessionA = ScmSessionUtils.createSession( branSite );
             wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
             BSONObject cond = ScmQueryBuilder
                     .start( ScmAttributeName.File.AUTHOR ).is( fileName + "_1" )
@@ -147,7 +147,7 @@ public class DeleteScmFile283 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( rootSite );
+                session = ScmSessionUtils.createSession( rootSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 
@@ -168,7 +168,7 @@ public class DeleteScmFile283 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( branSite );
+                session = ScmSessionUtils.createSession( branSite );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
 

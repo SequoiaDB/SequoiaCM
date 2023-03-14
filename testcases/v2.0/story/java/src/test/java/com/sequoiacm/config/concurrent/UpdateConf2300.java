@@ -24,7 +24,7 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
@@ -87,7 +87,7 @@ public class UpdateConf2300 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmConfigProperties confProp = ScmConfigProperties.builder()
                         .service( site.getSiteServiceName() )
                         .updateProperty( ConfigCommonDefind.scm_audit_mask,
@@ -112,7 +112,7 @@ public class UpdateConf2300 extends TestScmBase {
             ScmSession session = null;
             String wsName = "ws2300_" + UUID.randomUUID();
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspaceUtil.createWS( session, wsName,
                         ScmInfo.getSiteNum() );
                 ScmWorkspaceUtil.wsSetPriority( session, wsName );

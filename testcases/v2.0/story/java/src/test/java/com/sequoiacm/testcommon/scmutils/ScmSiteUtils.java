@@ -24,17 +24,15 @@ public class ScmSiteUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmSiteUtils.class );
 
     /**
-     *
+     * @descreption 创建站点
      * @param session
      *            for reloadbizconf
      * @param siteName
-     * @param -n
-     *            e.g: -n tsite
-     * @param --dstype
-     *            e.g: --dstype 1
-     * @param--dsurl e.g:ZB-7:11810
-     * @param--dsuser e.g:--dsuser sdbadmin
-     * @param--dspasswd e.g:--dspsswd sequoiadb
+     * @param gatewayurl
+     * @param dstype
+     * @param dsurl e.g:ZB-7:11810
+     * @param user e.g:--dsuser sdbadmin
+     * @param passwd e.g:--dspsswd sequoiadb
      * @return
      * @throws Exception
      */
@@ -71,6 +69,13 @@ public class ScmSiteUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 删除站点
+     * @param session
+     * @param siteName
+     * @return
+     * @throws ScmException
+     */
     public static void deleteSite( ScmSession session, String siteName )
             throws ScmException {
         Sequoiadb db = null;

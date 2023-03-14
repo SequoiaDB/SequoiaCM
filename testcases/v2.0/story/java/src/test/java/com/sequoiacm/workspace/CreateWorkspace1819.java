@@ -17,7 +17,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -39,7 +39,7 @@ public class CreateWorkspace1819 extends TestScmBase {
     private void setUp() throws Exception {
 
         rootSite = ScmInfo.getRootSite();
-        session1 = TestScmTools.createSession( rootSite );
+        session1 = ScmSessionUtils.createSession( rootSite );
         ScmWorkspaceUtil.deleteWs( wsName, session1 );
         try {
             ScmFactory.User.deleteUser( session1, username );
@@ -87,6 +87,6 @@ public class CreateWorkspace1819 extends TestScmBase {
                 ScmPrivilegeType.READ );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
-        session2 = TestScmTools.createSession( rootSite, username, password );
+        session2 = ScmSessionUtils.createSession( rootSite, username, password );
     }
 }

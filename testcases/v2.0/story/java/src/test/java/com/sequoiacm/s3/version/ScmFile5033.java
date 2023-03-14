@@ -1,5 +1,7 @@
 package com.sequoiacm.s3.version;
 
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,15 +41,15 @@ public class ScmFile5033 extends TestScmBase {
         branSite = ScmInfo.getBranchSite();
         rootSite = ScmInfo.getRootSite();
 
-        sessionA = TestScmTools.createSession( branSite );
+        sessionA = ScmSessionUtils.createSession( branSite );
         wsA = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionA );
-        sessionM = TestScmTools.createSession( rootSite );
+        sessionM = ScmSessionUtils.createSession( rootSite );
         wsM = ScmFactory.Workspace.getWorkspace( s3WorkSpaces, sessionM );
         S3Utils.clearBucket( sessionM, s3WorkSpaces, bucketName );
         scmBucket = ScmFactory.Bucket.createBucket( wsA, bucketName );
-        fileId = S3Utils.createFile( scmBucket, fileName, filedata );
+        fileId = ScmFileUtils.createFile( scmBucket, fileName, filedata );
         scmBucket.enableVersionControl();
-        S3Utils.createFile( scmBucket, fileName, updatedata );
+        ScmFileUtils.createFile( scmBucket, fileName, updatedata );
     }
 
     @Test(groups = { "twoSite", "fourSite" })
@@ -66,7 +68,7 @@ public class ScmFile5033 extends TestScmBase {
         VersionUtils.checkSite( wsM, fileId, currentVersion, expCurSiteList );
 
         scmBucket.suspendVersionControl();
-        S3Utils.createFile( scmBucket, fileName, updatedata1 );
+        ScmFileUtils.createFile( scmBucket, fileName, updatedata1 );
         int newCurrentVersion = -2;
         asyncTransferCurrentVersionFile( newCurrentVersion );
         // 检查最新null版本迁移到主中心
@@ -102,7 +104,7 @@ public class ScmFile5033 extends TestScmBase {
 
         // wait task finished
         int sitenums = 2;
-        VersionUtils.waitAsyncTaskFinished( wsA, fileId, majorVersion,
+        ScmTaskUtils.waitAsyncTaskFinished( wsA, fileId, majorVersion,
                 sitenums );
     }
 

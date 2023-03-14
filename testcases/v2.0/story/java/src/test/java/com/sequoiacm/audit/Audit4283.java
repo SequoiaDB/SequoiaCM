@@ -51,7 +51,7 @@ public class Audit4283 extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, fileSize );
 
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         s3ServiceNames = S3Utils.getS3ServiceName( session );
         for ( String s3ServiceName : s3ServiceNames ) {
             ConfUtil.deleteS3AuditConf( s3ServiceName );

@@ -39,12 +39,12 @@ import com.sequoiacm.testcommon.NodeWrapper;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.WsWrapper;
 
 public class ScmAuthUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmAuthUtils.class );
-    private static final int defaultTimeOut = 30 * 1000; // 10s
+    private static final int defaultTimeOut = 30 * 1000; // 30s
     private static final int sleepTime = 1000; // 1s
     private static RestTemplate rest;
 
@@ -58,7 +58,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * @Description: 检查主站点和传进来site的节点权限
+     * @Description 检查主站点和传进来site的节点权限
      * @param site
      *            站点对象
      * @param username
@@ -69,6 +69,7 @@ public class ScmAuthUtils extends TestScmBase {
      *            scm角色
      * @param wsp
      *            工作区对象
+     * @return
      * @throws Exception
      */
     public static void checkPriority( SiteWrapper site, String username,
@@ -77,7 +78,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * @Description: 检查主站点和传进来site的节点权限
+     * @Description 检查主站点和传进来site的节点权限
      * @param site
      *            站点对象
      * @param username
@@ -88,6 +89,7 @@ public class ScmAuthUtils extends TestScmBase {
      *            scm角色
      * @param wsName
      *            工作区名
+     * @return
      * @throws Exception
      */
     public static void checkPriority( SiteWrapper site, String username,
@@ -101,7 +103,7 @@ public class ScmAuthUtils extends TestScmBase {
         ScmSession ss = null;
         List< ScmDirectory > scmDirs = new ArrayList<>();
         try {
-            ss = TestScmTools.createSession( site );
+            ss = ScmSessionUtils.createSession( site );
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName, ss );
             for ( int i = 0; i < nodeWrappers.size(); i++ ) {
                 String dirPath = "/ScmAuthUtils" + "_" + username + "_"
@@ -127,7 +129,7 @@ public class ScmAuthUtils extends TestScmBase {
         try {
             // login
             // the newSS used to check privilege come into effect
-            newSS = TestScmTools.createSession( site, username, password );
+            newSS = ScmSessionUtils.createSession( site, username, password );
             for ( int i = 0; i < nodeWrappers.size(); i++ ) {
                 checkNodePriority( newSS, wsName, nodeWrappers.get( i ),
                         scmDirs.get( i ) );
@@ -140,7 +142,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * @Description: 检查单个节点权限
+     * @Description 检查单个节点权限
      * @param ss
      *            scm会话
      * @param wsName
@@ -149,6 +151,7 @@ public class ScmAuthUtils extends TestScmBase {
      *            需要检测的节点对象
      * @param scmDirectory
      *            文件夹
+     * @return
      * @throws Exception
      */
     private static void checkNodePriority( ScmSession ss, String wsName,
@@ -190,7 +193,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * @Description: 为了检查权限，连接rest删除文件夹
+     * @Description 为了检查权限，连接rest删除文件夹
      * @param session
      *            scm会话
      * @param node
@@ -199,6 +202,7 @@ public class ScmAuthUtils extends TestScmBase {
      *            工作区名
      * @param scmDirectory
      *            文件夹
+     * @return
      * @throws ScmException
      */
     private static void deleteScmDirByRest( ScmSession session,
@@ -221,8 +225,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 登录接口，先检测用户名和密码，如果正确则登录成功；没有用户名和密码时，使用签名进行登录
-     * 
+     * @Description 登录接口，先检测用户名和密码，如果正确则登录成功；没有用户名和密码时，使用签名进行登录
      * @param username
      * @param password
      * @param signatureInfo
@@ -249,9 +252,9 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 调用rest接口进行登录，必须使用这个接口进行登出，否则session会残留
-     * 
+     * @Description 调用rest接口进行登录，必须使用这个接口进行登出，否则session会残留
      * @param sessionId
+     * @return
      */
     public static void logout( String sessionId ) {
         HttpHeaders requestHeaders = new HttpHeaders();
@@ -265,9 +268,10 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 做简单的业务操作,用户必须有read权限
-     * 
+     * @Description 做简单的业务操作,用户必须有read权限
      * @param sessionId
+     * @param wsName
+     * @return
      * @throws UnsupportedEncodingException
      */
     public static void getRootDir( String sessionId, String wsName )
@@ -287,8 +291,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 刷新AccessKey
-     * 
+     * @Description 刷新AccessKey
      * @param session
      * @param username
      * @param password
@@ -324,8 +327,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 创建管理员用户
-     * 
+     * @Description 创建管理员用户
      * @param session
      * @param wsName
      * @param username
@@ -350,6 +352,7 @@ public class ScmAuthUtils extends TestScmBase {
      * @param wsName
      * @param username
      * @param password
+     * @return
      * @throws Exception
      */
     public static void createAdminUserGrant( ScmSession session, String wsName,
@@ -363,11 +366,12 @@ public class ScmAuthUtils extends TestScmBase {
      * @descreption S3需要关闭目录，无法使用原有的校验权限方法，新增S3使用的方法
      * @param accessKeys
      * @param wsName
+     * @return
      * @throws Exception
      */
     public static void checkPriorityByS3( String[] accessKeys, String wsName )
             throws Exception {
-        ScmSession session = TestScmTools.createSession();
+        ScmSession session = ScmSessionUtils.createSession();
         try {
             ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace( wsName,
                     session );
@@ -404,6 +408,13 @@ public class ScmAuthUtils extends TestScmBase {
         }
     }
 
+    /**
+     * @descreption 校验权限后创建桶
+     * @param s3Client
+     * @param wsName
+     * @return
+     * @throws Exception
+     */
     private static String checkPriorityByCreateBucket( AmazonS3 s3Client,
             String wsName ) throws Exception {
         String bucketName = UUID.randomUUID().toString();
@@ -428,6 +439,13 @@ public class ScmAuthUtils extends TestScmBase {
         return bucketName;
     }
 
+    /**
+     * @descreption 校验权限后创建对象
+     * @param s3Client
+     * @param bucketName
+     * @return
+     * @throws Exception
+     */
     private static void checkPriorityByPutObject( AmazonS3 s3Client,
             String bucketName ) throws Exception {
         int times = 0;
@@ -455,6 +473,7 @@ public class ScmAuthUtils extends TestScmBase {
      * @descreption 校验桶级别的权限
      * @param accessKeys
      * @param bucketName
+     * @return
      * @throws Exception
      */
     public static void checkBucketPriorityByS3( String[] accessKeys,
@@ -494,6 +513,7 @@ public class ScmAuthUtils extends TestScmBase {
      * @descreption 使用SCM API校验ws权限
      * @param session
      * @param wsName
+     * @return
      * @throws Exception
      */
     public static void checkPriorityByS3( ScmSession session, String wsName )
@@ -529,14 +549,14 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 创建普通用户
-     * 
+     * @descreption 创建普通用户
      * @param session
      * @param wsName
      * @param username
      * @param password
      * @param roleName
      * @param privilege
+     * @return
      * @throws Exception
      */
     public static void createNormalUser( ScmSession session, String wsName,
@@ -549,8 +569,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 创建用户
-     * 
+     * @descreption 创建用户
      * @param session
      * @param username
      * @param password
@@ -571,8 +590,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 删除用户
-     *
+     * @descreption 删除用户
      * @param session
      * @param username
      * @return
@@ -590,8 +608,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 创建角色
-     * 
+     * @descreption 创建角色
      * @param session
      * @param roleName
      * @return
@@ -610,8 +627,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 更新的用户，比如：授权
-     * 
+     * @descreption 更新的用户，比如：授权
      * @param session
      * @param wsName
      * @param user
@@ -631,8 +647,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 16进制编码
-     * 
+     * @descreption 返回data的16进制编码
      * @param data
      * @return
      */
@@ -653,8 +668,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 64进制编码
-     * 
+     * @descreption 返回data的64进制编码
      * @param data
      * @return
      */
@@ -663,8 +677,7 @@ public class ScmAuthUtils extends TestScmBase {
     }
 
     /**
-     * 计算签名
-     * 
+     * @descreption 计算签名
      * @param stringData
      * @param key
      * @param algorithm
@@ -682,6 +695,55 @@ public class ScmAuthUtils extends TestScmBase {
                     "Unable to calculate a request signature: "
                             + e.getMessage(),
                     e );
+        }
+    }
+
+    /**
+     * @descreption 创建用户和角色
+     * @param rolename
+     * @param username
+     * @param wsp
+     * @param site
+     * @throws Exception
+     */
+    public static void createUserAndRole( String rolename, String username,
+            WsWrapper wsp, SiteWrapper site ) throws Exception {
+        ScmSession sessionA = null;
+        try {
+            sessionA = ScmSessionUtils.createSession( site,
+                    TestScmBase.scmUserName, TestScmBase.scmPassword );
+            // 清理环境
+            try {
+                ScmFactory.Role.deleteRole( sessionA, rolename );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                    throw e;
+                }
+            }
+            try {
+                ScmFactory.User.deleteUser( sessionA, username );
+            } catch ( ScmException e ) {
+                if ( e.getError() != ScmError.HTTP_NOT_FOUND ) {
+                    throw e;
+                }
+            }
+            // 创建用户、角色和授权
+            ScmUser scmUser = ScmFactory.User.createUser( sessionA, username,
+                    ScmUserPasswordType.LOCAL, username );
+            ScmRole role = ScmFactory.Role.createRole( sessionA, rolename, "" );
+            ScmUserModifier modifier = new ScmUserModifier();
+            modifier.addRole( role );
+            ScmFactory.User.alterUser( sessionA, scmUser, modifier );
+            ScmResource resource = ScmResourceFactory
+                    .createWorkspaceResource( wsp.getName() );
+            ScmFactory.Role.grantPrivilege( sessionA, role, resource,
+                    ScmPrivilegeType.ALL );
+            checkPriority( site, username, username, role,
+                    wsp.getName() );
+        } finally {
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
         }
     }
 }

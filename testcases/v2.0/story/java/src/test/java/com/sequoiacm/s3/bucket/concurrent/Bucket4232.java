@@ -77,7 +77,7 @@ public class Bucket4232 extends TestScmBase {
 
     @AfterClass
     public void tearDown() throws ScmException {
-        ScmSession session = TestScmTools.createSession();
+        ScmSession session = ScmSessionUtils.createSession();
         try {
             if ( runSuccess ) {
                 S3Utils.clearBucket( s3Client, bucketName );
@@ -98,7 +98,7 @@ public class Bucket4232 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void run() throws Exception {
-            ScmSession session = TestScmTools
+            ScmSession session = ScmSessionUtils
                     .createSession( ScmInfo.getRootSite() );
             try {
                 ScmFactory.Bucket.deleteBucket( session, bucketName );

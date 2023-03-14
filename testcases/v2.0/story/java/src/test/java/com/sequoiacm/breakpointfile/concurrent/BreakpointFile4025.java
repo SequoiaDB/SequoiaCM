@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sequoiacm.client.common.ScmChecksumType;
 import com.sequoiacm.testcommon.scmutils.ScmBreakpointFileUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -64,7 +63,7 @@ public class BreakpointFile4025 extends TestScmBase {
 
         site = sites.get( new Random().nextInt( sites.size() ) );
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
@@ -107,7 +106,7 @@ public class BreakpointFile4025 extends TestScmBase {
                 throws ScmException, FileNotFoundException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
                 ScmBreakpointFile breakpointFile = ScmFactory.BreakpointFile

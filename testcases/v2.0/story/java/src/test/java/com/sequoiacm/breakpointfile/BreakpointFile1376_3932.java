@@ -33,7 +33,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.WsWrapper;
 
@@ -76,7 +76,7 @@ public class BreakpointFile1376_3932 extends TestScmBase {
 
         site = DBSites.get( new Random().nextInt( DBSites.size() ) );
         wsp = ScmInfo.getWs();
-        session1 = TestScmTools.createSession( site );
+        session1 = ScmSessionUtils.createSession( site );
         ws1 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session1 );
     }
 
@@ -120,7 +120,7 @@ public class BreakpointFile1376_3932 extends TestScmBase {
                 ScmPrivilegeType.ALL );
         modifier.addRole( role );
         ScmFactory.User.alterUser( session1, user, modifier );
-        session2 = TestScmTools.createSession( site, newUsername, newPassword );
+        session2 = ScmSessionUtils.createSession( site, newUsername, newPassword );
         ws2 = ScmFactory.Workspace.getWorkspace( wsp.getName(), session2 );
     }
 

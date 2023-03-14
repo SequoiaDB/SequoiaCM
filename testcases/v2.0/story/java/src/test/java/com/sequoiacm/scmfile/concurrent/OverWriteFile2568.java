@@ -62,7 +62,7 @@ public class OverWriteFile2568 extends TestScmBase {
         TestTools.LocalFile.createFile( updateFilePath, updateFileSize );
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
         BSONObject cond = ScmQueryBuilder.start( ScmAttributeName.Batch.NAME )
                 .is( batchName ).get();
@@ -169,7 +169,7 @@ public class OverWriteFile2568 extends TestScmBase {
 
         public OverWriteFile( String filName ) throws ScmException {
             this.fileName = filName;
-            this.session = TestScmTools.createSession( site );
+            this.session = ScmSessionUtils.createSession( site );
             this.ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                     session );
             this.scmFile = ScmFactory.File.createInstance( ws );
@@ -200,7 +200,7 @@ public class OverWriteFile2568 extends TestScmBase {
 
         @ExecuteOrder(step = 1)
         private void detachFile() throws ScmException {
-            ScmSession session = TestScmTools.createSession( site );
+            ScmSession session = ScmSessionUtils.createSession( site );
             try {
                 ScmWorkspace ws = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

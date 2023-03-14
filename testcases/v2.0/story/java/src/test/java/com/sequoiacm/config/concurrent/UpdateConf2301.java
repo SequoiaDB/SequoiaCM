@@ -27,7 +27,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.TestThreadBase;
 import com.sequoiacm.testcommon.WsWrapper;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
@@ -52,7 +52,7 @@ public class UpdateConf2301 extends TestScmBase {
     private void setUp() throws Exception {
         site = ScmInfo.getSite();
         wsp = ScmInfo.getWs();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
         try {
             ScmFactory.User.deleteUser( session, username );
         } catch ( ScmException e ) {
@@ -102,7 +102,7 @@ public class UpdateConf2301 extends TestScmBase {
         public void exec() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmConfigProperties confProp = ScmConfigProperties.builder()
                         .service( serviceName )
                         .updateProperty( ConfigCommonDefind.scm_audit_mask,
@@ -132,7 +132,7 @@ public class UpdateConf2301 extends TestScmBase {
         private void createUser() throws Exception {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmUser scmUser = ScmFactory.User.createUser( session, username,
                         ScmUserPasswordType.LOCAL, passwd );
                 ScmRole role = ScmFactory.Role.createRole( session, rolename,
@@ -154,7 +154,7 @@ public class UpdateConf2301 extends TestScmBase {
         private void getUser() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmUser user = ScmFactory.User.getUser( session, username );
                 Assert.assertEquals( user.getUsername(), username );
                 ScmRole role = ScmFactory.Role.getRole( session, rolename );
@@ -169,7 +169,7 @@ public class UpdateConf2301 extends TestScmBase {
         private void updateUser() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmUser user = ScmFactory.User.getUser( session, username );
                 ScmUserModifier modifier = new ScmUserModifier();
                 modifier.delRole( rolename );
@@ -187,7 +187,7 @@ public class UpdateConf2301 extends TestScmBase {
         private void deleteUser() throws ScmException {
             ScmSession session = null;
             try {
-                session = TestScmTools.createSession( site );
+                session = ScmSessionUtils.createSession( site );
                 ScmFactory.User.deleteUser( session, username );
                 try {
                     ScmFactory.User.getUser( session, username );

@@ -23,7 +23,6 @@ import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testcommon.scmutils.ScmNetUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
@@ -69,19 +68,17 @@ public class CreateSche_typeDiffNet1266 extends TestScmBase {
 
             // get site and workspace, create session
             wss = ScmInfo.getWss( 2 );
-            List< SiteWrapper > sites = ScmNetUtils
-                    .getCleanSites( wss.get( 0 ) );
+            List< SiteWrapper > sites = ScmInfo.getAllSites();
             rootSite = sites.get( 1 );
             branSite = sites.get( 0 );
 
-            List< SiteWrapper > sites1 = ScmNetUtils
-                    .getCleanSites( wss.get( 1 ) );
+            List< SiteWrapper > sites1 = ScmInfo.getAllSites();
             rootSite1 = sites1.get( 1 );
             branSite1 = sites1.get( 0 );
 
-            ssA = TestScmTools.createSession( branSite );
-            ssR = TestScmTools.createSession( rootSite1 );
-            ssA1 = TestScmTools.createSession( branSite1 );
+            ssA = ScmSessionUtils.createSession( branSite );
+            ssR = ScmSessionUtils.createSession( rootSite1 );
+            ssA1 = ScmSessionUtils.createSession( branSite1 );
 
             wsA = ScmFactory.Workspace.getWorkspace( wss.get( 0 ).getName(),
                     ssA );

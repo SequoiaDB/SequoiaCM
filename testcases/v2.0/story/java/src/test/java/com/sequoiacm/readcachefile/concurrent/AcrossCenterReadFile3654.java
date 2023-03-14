@@ -54,7 +54,7 @@ public class AcrossCenterReadFile3654 extends TestScmBase {
         branchSite2 = branSites.get( 1 );
         // branchSite3 = branSites.get( 2 );
         branchSite3 = ScmInfo.getRootSite();
-        branchSite1Session = TestScmTools.createSession( branchSite1 );
+        branchSite1Session = ScmSessionUtils.createSession( branchSite1 );
         branchSite1Workspace = ScmFactory.Workspace.getWorkspace( wsp.getName(),
                 branchSite1Session );
     }
@@ -105,7 +105,7 @@ public class AcrossCenterReadFile3654 extends TestScmBase {
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
             OutputStream os = null;
-            ScmSession session = TestScmTools.createSession( siteWrapper );
+            ScmSession session = ScmSessionUtils.createSession( siteWrapper );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );
@@ -143,7 +143,7 @@ public class AcrossCenterReadFile3654 extends TestScmBase {
             String downloadPath = TestTools.LocalFile.initDownloadPath(
                     localPath, TestTools.getMethodName(),
                     Thread.currentThread().getId() );
-            ScmSession session = TestScmTools.createSession( siteWrapper );
+            ScmSession session = ScmSessionUtils.createSession( siteWrapper );
             try {
                 ScmWorkspace workspace = ScmFactory.Workspace
                         .getWorkspace( wsp.getName(), session );

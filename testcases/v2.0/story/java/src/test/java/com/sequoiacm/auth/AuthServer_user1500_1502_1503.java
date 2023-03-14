@@ -21,7 +21,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.TestScmTools;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1500:修改admin角色的用户密码，password_type为LOCAL，并清理该用户会话
@@ -45,7 +45,7 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException {
         site = ScmInfo.getSite();
-        session = TestScmTools.createSession( site );
+        session = ScmSessionUtils.createSession( site );
 
         // clean new user
         for ( int i = 0; i < USER_NUM; i++ ) {
@@ -92,7 +92,7 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
         ScmFactory.User.alterUser( session, scmUser, modifier );
 
         // check results
-        ScmSession newSS = TestScmTools.createSession( site, username,
+        ScmSession newSS = ScmSessionUtils.createSession( site, username,
                 PASSWORD );
         newSS.close();
     }
@@ -107,7 +107,7 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
         // ready sessions for clean sessions
         List< ScmSession > ss = new ArrayList<>();
         for ( int i = 0; i < 10; i++ ) {
-            ScmSession tmpSS = TestScmTools.createSession( site, username,
+            ScmSession tmpSS = ScmSessionUtils.createSession( site, username,
                     PASSWORD );
             ss.add( tmpSS );
         }
@@ -121,14 +121,14 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
 
         // check results for alter password
         try {
-            TestScmTools.createSession( site, username, PASSWORD );
+            ScmSessionUtils.createSession( site, username, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "login with the old password, errorMsg = ["
                     + e.getError() + "]" );
         }
 
-        ScmSession newSS = TestScmTools.createSession( site, username,
+        ScmSession newSS = ScmSessionUtils.createSession( site, username,
                 newPassword );
         newSS.close();
 
@@ -165,7 +165,7 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
         List< ScmSession > ss = new ArrayList<>();
         int ssNum = 10;
         for ( int i = 0; i < ssNum; i++ ) {
-            ScmSession tmpSS = TestScmTools.createSession( site, username,
+            ScmSession tmpSS = ScmSessionUtils.createSession( site, username,
                     PASSWORD );
             ss.add( tmpSS );
         }
@@ -179,14 +179,14 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
 
         // check results for alter password
         try {
-            TestScmTools.createSession( site, username, PASSWORD );
+            ScmSessionUtils.createSession( site, username, PASSWORD );
             Assert.fail( "expect failed but actual succ." );
         } catch ( ScmException e ) {
             logger.info( "login with the old password, errorMsg = ["
                     + e.getError() + "]" );
         }
 
-        ScmSession newSS = TestScmTools.createSession( site, username,
+        ScmSession newSS = ScmSessionUtils.createSession( site, username,
                 newPassword );
         newSS.close();
 
