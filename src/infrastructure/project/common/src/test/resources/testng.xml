@@ -3,13 +3,9 @@
 <!--testcase for function test, which can be excuted concurrently-->
 <suite name="driver" verbose="1">
 
-    <parameter name="MAINSDBURL" value="${MAINSDBURL}"/>
-    <parameter name="SDBUSER" value="${SDBUSER}"/>
-    <parameter name="SDBPASSWD" value="${SDBPASSWD}"/>
-
     <test name="parralclass">
         <packages>
-            <package name="com.sequoiacm.contentserver.pipeline.file"/>
+            <package name="com.sequoiacm.infrastructure.common"/>
         </packages>
     </test>
 </suite>

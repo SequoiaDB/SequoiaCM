@@ -20,8 +20,8 @@ import org.testng.annotations.Test;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.common.ScmTestBase;
-import com.sequoiacm.common.TestFactory;
+import com.sequoiacm.contentserver.ScmTestBase;
+import com.sequoiacm.contentserver.TestFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.CreateFileMetaResult;

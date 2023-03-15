@@ -1,9 +1,12 @@
+# -*- coding:utf-8 -*-
 import paramiko
 import sys
 import os
-rootDir = sys.path[0]+os.sep
+
+rootDir = sys.path[0] + os.sep
 sys.path.append(rootDir + "localbuild" + os.sep + "bin")
 paramiko.util.log_to_file(rootDir + ".." + os.sep + "tmp" + os.sep + "paramiko.log")
+
 
 class SSHConnection:
 
@@ -13,7 +16,7 @@ class SSHConnection:
         self.user = user
         self.pwd = pwd
         self.__transport = paramiko.Transport((self.host, self.port))
-        self.__transport.connect(username = self.user, password = self.pwd)
+        self.__transport.connect(username=self.user, password=self.pwd)
         self.sftp = paramiko.SFTPClient.from_transport(self.__transport)
 
     def close(self):
@@ -26,8 +29,25 @@ class SSHConnection:
     def download(self, local_path, remote_path):
         self.sftp.get(local_path, remote_path)
 
-    def mkdir(self ,target_path, mode='0777'):
-        self.sftp.mkdir(target_path, mode)
+    def mkdir(self, target_path):
+        self.sftp.mkdir(target_path)
+
+    # 递归创建目录
+    def makedirs(self, target_path):
+        path_components = target_path.split('/')
+        path = ''
+        for component in path_components:
+            if component == '':
+                continue
+            path += '/' + component
+            try:
+                self.sftp.stat(path)
+            except IOError as e:
+                # 目录不存在，需要创建
+                if e.errno == 2:
+                    self.mkdir(path)
+                else:
+                    raise e
 
     def rmdir(self, target_path):
         self.sftp.rmdir(target_path)
@@ -38,19 +58,13 @@ class SSHConnection:
     def remove(self, target_path):
         self.sftp.remove(target_path)
 
-    def cmd(self,command):
+    def cmd(self, command):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.load_system_host_keys()
         try:
             ssh._transport = self.__transport
-        except BadHostKeyException as e:
-            print(e)
-            sys.exit()
-        except AuthenticationException as e:
-            print(e)
-            sys.exit()
-        except SSHExpection as e:
+        except Exception as e:
             print(e)
             sys.exit()
         print("exec cmd:" + command)

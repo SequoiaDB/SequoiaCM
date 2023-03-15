@@ -46,7 +46,7 @@ bash start.sh
 ### 2.3填写配置信息和安装包存放位置
 
 * ./localbuild/conf/localbuild.conf ssh主机配置文件
-* ./localbuild/temp_package/sequoiadb-xx-installer.run SDB安装包存放位置
+* ./localbuild/tmp/sequoiadb-xx-installer.run SDB安装包存放位置
 
 ### 2.4主脚本:localbuild.py参数解析
 
@@ -58,22 +58,24 @@ bash start.sh
 --installsdb --force                 |强制安装SDB集群
 --installscm                         |安装部署SCM集群
 --installscm --force                 |强制安装SCM集群
---runtest                            |执行基本测试用例
+--runtest                            |执行集成测试用例
+--runut                              |执行单元测试用例
+--statistical-cov                    |统计代码覆盖率
 -h | --help                          |使用帮助
 --host <arg>                         |后面配置主机号,逗号分隔 
 --cleanscm                           |卸载SCM集群
 --site                               |站点数，支持两站点，四站点 (适用于installsdb, installscm, runtest)
 --project                            |测试工程，支持story, tdd, sdv, all (仅适用于runtest)
---runbase                            |是否跑基本测试用例 (仅适用于runtest)
+--runbase                            |仅执行基本测试用例 (仅适用于runtest)
 ```
 
 ### 2.5操作命令
 * 一键编译测试部署安装：
    ```shell
-   python localbuild.py --compile --installsdb --installscm  --runtest  --host  192.168.XX.XX,192.168.XX.XX  --site twoSite --runbase  
+   python localbuild.py --compile --installsdb --installscm  --runtest --runut --statistical-cov --host  192.168.XX.XX,192.168.XX.XX  --site twoSite --runbase  
    ```
 
-***需在./localbuild/temp_package/下放置SDB安装包文件***
+***需在./localbuild/tmp/下放置SDB安装包文件***
 
 * 仅编译
 
@@ -85,7 +87,7 @@ bash start.sh
     python localbuild.py --installsdb  --host 192.168.XX.XX --site twoSite 
    ```
 
-***需在./localbuild/temp_package/下放置SDB安装包文件，twoSite代表安装两套单组单节点SDB集群***
+***需在./localbuild/tmp/下放置SDB安装包文件，twoSite代表安装两套单组单节点SDB集群***
 
 * 强制安装sdb集群
    ```shell
@@ -104,7 +106,7 @@ bash start.sh
    python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX --site twoSite --force      
    ```
 
-***安装SCM集群后其安装包解压位置位于./localbuild/temp_package/sequoiacm***
+***安装SCM集群后其安装包解压位置位于./localbuild/tmp/sequoiacm***
 * 安装scm集群(4站点集群)
    ```shell
    python localbuild.py  --installscm  --host 192.168.XX.XX,192.168.XX.XX --site fourSite    
@@ -130,6 +132,7 @@ bash start.sh
                           |--localbuild.conf  #填写主机ssh相关信息（必填）
                           |-- deployscmHostX_template #部署SCM模板文件（可根据实际需求修改）
               |--tmp #主要存放脚本生成文件和必要安装包
+                          |--statistical_cov  #执行覆盖率统计的中间产物、报告存放位置
                           |sequoiadb-3.2.4-linux_x86_64-installer.run #SDB安装包存放位置
                           |deployscmHostX_template.cfg #实际部署SCM文件
                           |paramiko.log # paramiko 连接日志
@@ -171,7 +174,7 @@ python deploy_scm.py  --package-file <arg> --host <arg> --template <arg>  --sdb-
 # ssh-file <arg>     # 填写主机ssh相关信 具体参考./localbuild/conf/localbuild.conf
 # force              # 是否强制安装
 ```   
-### 3.4 run_test_tool.py
+### 3.4 run_test.py
 执行测试用例
 ```shell
 python run_test_tool.py --scm-info <arg>  ssh-file <arg> --project all --site fourSite 
@@ -192,7 +195,24 @@ python run_test_tool.py --scm-info <arg>  ssh-file <arg> --project sotry --site 
 # conf                        # 工具配置文件路径，默认从模板中读取(./localbuild/test_executor), 用户可自定义调整文件路径
 ```   
 
-### 3.5 clean_scm.py
+### 3.5 run_unit_test.py
+执行单元测试用例
+```shell
+python run_unit_test.py --scm-info <arg> --output <arg> 
+# 执行 SCM 中的所有单元测试用例
+```   
+
+### 3.6 statistical_cov.py
+统计代码覆盖率
+```shell
+python statistical_cov.py -work-path <arg> --scm-deploy-info <arg> --scm-ut-info <arg> 
+# 执行 SCM 中的所有单元测试用例
+# work-path                   # 工作目录，本次覆盖率统计的中间产物归档在该目录下
+# scm-deploy-info             # 部署完 scm 集群节点信息存放位置,.info文件 具体参考scm_deploy.info文件
+# scm-ut-info                 # 执行完单元测试后各个测试单元的描述信息,.info文件 具体参考scm_ut.info文件
+```   
+
+### 3.7 clean_scm.py
 清理SCM集群环境
 ```shell
 python clean_scm.py --host <arg>  --ssh-file <arg>
@@ -210,7 +230,7 @@ coord = XX.XX.XX.XX:XX,
 coord = XX.XX.XX.XX:XX,
 # 第一个SDB集群作为SCM主站点,部署SCM会根据部署模板替换掉[metasource]与[datasource]中信息;
 ```
-### 4.1 scm.info
+### 4.2 scm.info
 ```shell
 mainSdbUrl=XX.XX.XX.XX:XX  # 元数据服务Url
 sdbuser=XX                 # 元数据服务账号
@@ -219,4 +239,18 @@ gateWayUrl=XX.XX.XX.XX:XX  # 网关Url
 sshuser=XX                 # 网关所在机器ssh 用户 
 sshpassword=XX             # 网关所在机器ssh 密码
 omUrl=XX.XX.XX.XX:XX       # Om服务信息
+```
+### 4.3 scm_deploy.info
+```shell
+# 服务/站点名，主机IP，端口，覆盖率代理端口
+serviceName,hostname,port,coveragePort
+rootSite,192.168.31.71,15000,15002
+branchSite1,192.168.31.71,15100,15102
+```
+### 4.4 scm_ut.info
+```shell
+# 模块名，模块路径
+moduleName,modulePath
+sequoiacm-content-server,/opt/git/sequoiacm/src/content-server/project/server/contentserver/
+sequoiacm-infrastructure-common,/opt/git/sequoiacm/src/infrastructure/project/common/
 ```

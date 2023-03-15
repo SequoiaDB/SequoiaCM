@@ -19,6 +19,8 @@ COMPILE = False
 IS_INSTALL_SDB = False
 IS_INSTALL_SCM = False
 IS_RUN_TEST = False
+IS_RUN_UNIT_TEST = False
+IS_STATISTICAL_COV = False
 IS_FORCE = False
 IS_CLEAN_SCM = False
 IS_CLEAN_WS = False
@@ -33,6 +35,9 @@ CONF_FILE = CONF_DIR + 'localbuild.conf'
 WORKSPACE_FILE = CONF_DIR + 'workspace_template.json'
 SDB_INFO_FILE = TMP_DIR + 'sdb.info'
 SCM_INFO_FILE = TMP_DIR + 'scm.info'
+SCM_DEPLOY_INFO_FILE = TMP_DIR + 'scm_deploy.info'
+SCM_UT_INFO_FILE = TMP_DIR + 'scm_ut.info'
+TMP_STATISTICAL_COV_DIR = TMP_DIR + 'statistical_cov' + os.sep
 
 
 def display(exit_code):
@@ -42,6 +47,8 @@ def display(exit_code):
     print(" --installscm      : install SCM cluster ")
     print(" --cleanscm        : clean SCM cluster ")
     print(" --runtest         : execute basic test cases")
+    print(" --runut           : execute unit test cases")
+    print(" --statistical-cov : execute statistical coverage rate")
     print(" --host <arg>      : hostname : required, ',' separate ")
     print(" --force           : force to install SCM or SDB ")
     print(" --site <arg>      : the number of site: twoSite, fourSite ")
@@ -51,9 +58,9 @@ def display(exit_code):
 
 
 def parse_command():
-    global IS_INSTALL_SCM, IS_INSTALL_SDB, COMPILE, IS_RUN_TEST, HOST_LIST, IS_FORCE, IS_CLEAN_SCM, IS_CLEAN_WS, SITE, PROJECT, RUN_BASE
+    global IS_INSTALL_SCM, IS_INSTALL_SDB, COMPILE, IS_RUN_TEST, IS_RUN_UNIT_TEST, IS_STATISTICAL_COV, HOST_LIST, IS_FORCE, IS_CLEAN_SCM, IS_CLEAN_WS, SITE, PROJECT, RUN_BASE
     try:
-        options, args = getopt.getopt(sys.argv[1:], "hc", ["help", "compile", "installsdb", "installscm", "cleanscm", "runtest", "host=", "force", "cleanws", "site=", "project=", "runbase"])
+        options, args = getopt.getopt(sys.argv[1:], "hc", ["help", "compile", "installsdb", "installscm", "cleanscm", "runtest", "runut", "statistical-cov", "host=", "force", "cleanws", "site=", "project=", "runbase"])
     except getopt.GetoptError, e:
         log.error("Error:", e)
         sys.exit(-1)
@@ -73,6 +80,10 @@ def parse_command():
             IS_CLEAN_WS = True
         elif name in ("--runtest"):
             IS_RUN_TEST = True
+        elif name in ("--runut"):
+            IS_RUN_UNIT_TEST = True
+        elif name in ("--statistical-cov"):
+            IS_STATISTICAL_COV = True
         elif name in ("--host"):
             HOST_LIST = value
         elif name in ("--force"):
@@ -128,7 +139,7 @@ def installScm():
     if int(len(tarPath)) == 0 or int(len(tarPath)) != 1:
         raise Exception("Missing SCM installation package or more than two SCM installation package!")
     tarPathStr = str(tarPath[0]).replace(' ', '\ ').replace('(', '\(').replace(')', '\)')
-    cmd = "python "+ BIN_DIR +"deploy_scm.py --package-file " + tarPathStr + " --host " + str(HOST_LIST) + " --template " + cfgPath + " --sdb-info " + SDB_INFO_FILE + " --output " + SCM_INFO_FILE + " --ssh-file " + CONF_FILE
+    cmd = "python " + BIN_DIR +"deploy_scm.py --package-file " + tarPathStr + " --host " + str(HOST_LIST) + " --template " + cfgPath + " --sdb-info " + SDB_INFO_FILE + " --output " + TMP_DIR + " --ssh-file " + CONF_FILE
     if IS_FORCE:
         log.info('exec installscm: ' + cmd + " --force")
         cmdExecutor.command(cmd + " --force")
@@ -166,6 +177,18 @@ def runTest():
         cmdExecutor.command(cmdStr + " --runbase")
     else:
         cmdExecutor.command(cmdStr)
+
+
+def runUnitTest():
+    cmdStr = "python " + BIN_DIR + "run_unit_test.py --scm-info " + SCM_INFO_FILE + " --output " + SCM_UT_INFO_FILE
+    log.info('exec runut: ' + cmdStr)
+    cmdExecutor.command(cmdStr)
+
+
+def statisticalCov():
+    cmdStr = "python " + BIN_DIR + "statistical_cov.py --work-path " + TMP_STATISTICAL_COV_DIR + " --scm-deploy-info " + SCM_DEPLOY_INFO_FILE + " --scm-ut-info " + SCM_UT_INFO_FILE
+    log.info('exec statistical-cov: ' + cmdStr)
+    cmdExecutor.command(cmdStr)
 
 
 def formatTime(sum):
@@ -243,7 +266,25 @@ if __name__ == '__main__':
             total += int((end_time - start_time).seconds)
             doSomething = True
 
-        if doSomething == False:
+        if IS_RUN_UNIT_TEST:
+            start_time = datetime.datetime.now()
+            runUnitTest()
+            end_time = datetime.datetime.now()
+            modules.append('runut')
+            costs.append(int((end_time - start_time).seconds))
+            total += int((end_time - start_time).seconds)
+            doSomething = True
+
+        if IS_STATISTICAL_COV:
+            start_time = datetime.datetime.now()
+            statisticalCov()
+            end_time = datetime.datetime.now()
+            modules.append('statistical-cov')
+            costs.append(int((end_time - start_time).seconds))
+            total += int((end_time - start_time).seconds)
+            doSomething = True
+
+        if not doSomething:
             display(0)
         else:
             print("==============================COST SUMMARY:======================================")
