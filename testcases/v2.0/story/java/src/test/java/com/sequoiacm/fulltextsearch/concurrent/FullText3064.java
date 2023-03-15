@@ -45,7 +45,7 @@ public class FullText3064 extends TestScmBase {
     private String fileNameBase = "file3064-";
     private String authorName1 = "auth3064A";
     private String authorName2 = "auth3064B";
-    private int fileNum = 20;
+    private int fileNum = 40;
     byte[] bytes = new byte[ 1024 * 200 ];
 
     @BeforeClass
@@ -72,21 +72,17 @@ public class FullText3064 extends TestScmBase {
         threadExec.addWorker( new Inspect() );
 
         // 增加文件符合和不符合索引条件
-        for ( int i = 0; i < 10; i++ ) {
+        for ( int i = 0; i < fileNum / 8; i++ ) {
+            threadExec.addWorker( new DeleteFile( fileIdList1.remove( 0 ) ) );
+            threadExec.addWorker( new DeleteFile( fileIdList2.remove( 0 ) ) );
             threadExec.addWorker( new CreateFile( authorName1, fileIdList1 ) );
             threadExec.addWorker( new CreateFile( authorName2, fileIdList2 ) );
         }
 
-        // 删除文件符合和不符合条件
-        for ( int i = 0; i < 10; i++ ) {
-            threadExec.addWorker( new DeleteFile( fileIdList1.remove( 0 ) ) );
-            threadExec.addWorker( new DeleteFile( fileIdList2.remove( 0 ) ) );
-        }
-
         // 更新文件符合和不符合条件
-        for ( int i = 10; i < 20; i++ ) {
-            ScmId fileId1 = fileIdList1.remove( i );
-            ScmId fileId2 = fileIdList2.remove( i );
+        for ( int i = 0; i < fileNum / 8; i++ ) {
+            ScmId fileId1 = fileIdList1.remove( 0 );
+            ScmId fileId2 = fileIdList2.remove( 0 );
             fileIdList1.add( fileId2 );
             fileIdList2.add( fileId1 );
             threadExec.addWorker( new UpdateFile( fileId1, authorName2 ) );
@@ -94,7 +90,7 @@ public class FullText3064 extends TestScmBase {
         }
 
         // 更新文件内容
-        for ( int i = 20; i < 30; i++ ) {
+        for ( int i = fileNum / 8; i < fileNum / 4; i++ ) {
             threadExec.addWorker( new UpdateContent( fileIdList1.get( i ) ) );
         }
         threadExec.run();
@@ -193,7 +189,8 @@ public class FullText3064 extends TestScmBase {
                 ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,
                         session );
                 ScmFactory.Fulltext.inspectIndex( ws );
-                FullTextUtils.waitWorkSpaceIndexStatus( ws, ScmFulltextStatus.CREATED );
+                FullTextUtils.waitWorkSpaceIndexStatus( ws,
+                        ScmFulltextStatus.CREATED );
             } finally {
                 if ( session != null ) {
                     session.close();

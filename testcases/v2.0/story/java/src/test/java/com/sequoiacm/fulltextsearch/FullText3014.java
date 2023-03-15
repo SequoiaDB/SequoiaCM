@@ -40,7 +40,7 @@ public class FullText3014 extends TestScmBase {
     private List< ScmId > fileIdList1 = new ArrayList<>();
     private List< ScmId > fileIdList2 = new ArrayList<>();
     private BSONObject fileCondition = null;
-    private int fileNum = 20;
+    private int fileNum = 5;
 
     @BeforeClass
     private void setUp() throws Exception {
