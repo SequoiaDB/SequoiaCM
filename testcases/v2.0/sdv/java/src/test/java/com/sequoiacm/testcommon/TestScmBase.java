@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Properties;
 
 import com.sequoiacm.testresource.CheckResource;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.Sequoiadb;
 import org.apache.log4j.Logger;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -111,6 +113,18 @@ public class TestScmBase {
             CheckResource.checkRemain();
         } finally {
             WsPool.destroy();
+            // SEQUOIACM-1316
+            Sequoiadb sdb = null;
+            try {
+                sdb = TestSdbTools.getSdb( mainSdbUrl );
+                DBCollection cl = sdb.getCollectionSpace( "SCMSYSTEM" )
+                        .getCollection( "DATA_TABLE_NAME_HISTORY" );
+                cl.truncate();
+            } finally {
+                if ( sdb != null ) {
+                    sdb.close();
+                }
+            }
         }
     }
 

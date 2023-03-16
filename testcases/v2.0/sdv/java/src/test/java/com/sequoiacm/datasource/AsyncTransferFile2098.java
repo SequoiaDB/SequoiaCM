@@ -86,7 +86,7 @@ public class AsyncTransferFile2098 extends TestScmBase {
         fileId = VersionUtils.createFileByStream( wsA, fileName, filedata );
     }
 
-    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
+    @Test(groups = { GroupTags.fourSite })
     private void test() throws Exception {
         asyncTransferFile( wsA );
 
