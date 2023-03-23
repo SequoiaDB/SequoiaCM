@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
+import org.testng.annotations.Test;
 
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestSdbTools;
@@ -22,6 +23,7 @@ public class CheckResource extends TestScmBase {
             .getLogger( CheckResource.class );
     private static final int fileNum = 500;
 
+    @Test
     public static void checkRemain() throws Exception {
         Sequoiadb db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
         try {

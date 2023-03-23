@@ -29,6 +29,7 @@ public class CheckResource extends TestScmBase {
     private static final Logger logger = Logger
             .getLogger( CheckResource.class );
 
+    @Test
     public static void checkRemain() throws Exception {
         Sequoiadb db = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
         try {

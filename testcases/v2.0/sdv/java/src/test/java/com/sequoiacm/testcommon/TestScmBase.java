@@ -109,21 +109,17 @@ public class TestScmBase {
 
     @AfterSuite(alwaysRun = true)
     public static void finiSuite() throws Exception {
+        WsPool.destroy();
+        // SEQUOIACM-1316
+        Sequoiadb sdb = null;
         try {
-            CheckResource.checkRemain();
+            sdb = TestSdbTools.getSdb( mainSdbUrl );
+            DBCollection cl = sdb.getCollectionSpace( "SCMSYSTEM" )
+                    .getCollection( "DATA_TABLE_NAME_HISTORY" );
+            cl.truncate();
         } finally {
-            WsPool.destroy();
-            // SEQUOIACM-1316
-            Sequoiadb sdb = null;
-            try {
-                sdb = TestSdbTools.getSdb( mainSdbUrl );
-                DBCollection cl = sdb.getCollectionSpace( "SCMSYSTEM" )
-                        .getCollection( "DATA_TABLE_NAME_HISTORY" );
-                cl.truncate();
-            } finally {
-                if ( sdb != null ) {
-                    sdb.close();
-                }
+            if ( sdb != null ) {
+                sdb.close();
             }
         }
     }

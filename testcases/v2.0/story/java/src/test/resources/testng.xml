@@ -108,4 +108,9 @@
         </packages>
     </test>
 
+    <test name="checkRemain">
+        <packages>
+            <package name="com.sequoiacm.testresource"/>
+        </packages>
+    </test>
 </suite>
