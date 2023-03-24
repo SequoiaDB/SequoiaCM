@@ -504,19 +504,21 @@ public class ScmFileUtils extends TestScmBase {
 
         // 数据源类型为SEQUOIADB
         if ( site.getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
-            String csType = null;
-            String clType = null;
+            String csType = "year";
+            String clType = "month";
             for ( ScmDataLocation siteLocation : dataLocations ) {
 
                 if ( siteLocation.getSiteName().equals( site.getSiteName() ) ) {
                     Object data_sharding_type = siteLocation.getBSONObject()
                             .get( "data_sharding_type" );
-                    if ( data_sharding_type == null ) {
-                        csType = "year";
-                        clType = "month";
-                    } else {
+                    if ( ( ( BSONObject ) data_sharding_type )
+                            .containsField( "collection_space" ) ) {
                         csType = ( ( BSONObject ) data_sharding_type )
                                 .get( "collection_space" ).toString();
+                    }
+
+                    if ( ( ( BSONObject ) data_sharding_type )
+                            .containsField( "collection" ) ) {
                         clType = ( ( BSONObject ) data_sharding_type )
                                 .get( "collection" ).toString();
                     }
