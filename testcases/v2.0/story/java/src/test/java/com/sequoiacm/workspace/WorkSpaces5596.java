@@ -82,7 +82,7 @@ public class WorkSpaces5596 extends TestScmBase {
         S3Client.createBucket( bucketName );
     }
 
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         List< ScmDataLocation > dataLocation = prepareExpWsDataLocation();
         ws.updateDataLocation( dataLocation, true );

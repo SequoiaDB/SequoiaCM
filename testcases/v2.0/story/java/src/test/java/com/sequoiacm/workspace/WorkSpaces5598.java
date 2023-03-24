@@ -70,7 +70,7 @@ public class WorkSpaces5598 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, session );
     }
 
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         List< ScmDataLocation > dataLocation = prepareExpWsDataLocation();
         ws.updateDataLocation( dataLocation, true );
