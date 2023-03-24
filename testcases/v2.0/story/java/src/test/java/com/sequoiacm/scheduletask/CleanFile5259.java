@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Descreption SCM-5259:创建清理任务，设置快速启动
+ * @Descreption SCM-5259:创建清理任务，设置快速启动，关闭快速启动，等待任务触发
  * @Author YiPan
  * @CreateDate 2022/9/26
  * @UpdateUser
@@ -36,7 +36,7 @@ public class CleanFile5259 extends TestScmBase {
     private String fileAuthor = "author5259";
     private SiteWrapper rootSite = null;
     private SiteWrapper branchSite = null;
-    private List< ScmId > fileIds = new ArrayList<>();
+    private List< ScmId > fileIds = null;
     private ScmSession sessionM = null;
     private WsWrapper wsp;
     private ScmWorkspace wsM;
@@ -47,6 +47,7 @@ public class CleanFile5259 extends TestScmBase {
     private String filePath = null;
     private int fileNum = 10;
     private boolean runSuccess = false;
+    private ScmScheduleCleanFileContent content = null;
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -71,10 +72,31 @@ public class CleanFile5259 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
+
+        // 创建清理任务，设置快速启动
+        cleanFileQuickStart();
+        // 关闭快速启动，创建文件，等待调度任务触发
+        modifyNoQuickStart();
+        runSuccess = true;
+    }
+
+    private void modifyNoQuickStart() throws Exception {
+        // 修改任务，关闭快速启动
+        content.setQuickStart( false );
+        sche.updateSchedule( ScheduleType.CLEAN_FILE, content );
+
+        createFile();
+        sche.enable();
+
+        // 检查结果
+        checkResult( content.isQuickStart() );
+    }
+
+    private void cleanFileQuickStart() throws Exception {
+
         // 创建清理任务
-        ScmScheduleCleanFileContent content = new ScmScheduleCleanFileContent(
-                rootSite.getSiteName(), "0d", queryCond,
-                ScmType.ScopeType.SCOPE_CURRENT, 1200000,
+        content = new ScmScheduleCleanFileContent( rootSite.getSiteName(), "0d",
+                queryCond, ScmType.ScopeType.SCOPE_CURRENT, 1200000,
                 ScmDataCheckLevel.WEEK, true, false );
 
         // 启动迁移并清理调度任务
@@ -82,6 +104,14 @@ public class CleanFile5259 extends TestScmBase {
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.CLEAN_FILE, taskName, "", content, cron );
 
+        checkResult( content.isQuickStart() );
+
+        sche.disable();
+        ScmScheduleUtils.cleanTask( sessionM, sche.getId() );
+        ScmFileUtils.cleanFile( wsp, queryCond );
+    }
+
+    private void checkResult( boolean isQuickStart ) throws Exception {
         // 校验任务执行结果
         ScmScheduleUtils.waitForTask( sche, 2 );
         SiteWrapper[] expSites = { branchSite };
@@ -91,12 +121,15 @@ public class CleanFile5259 extends TestScmBase {
         // 校验统计记录
         List< ScmTask > successTasks = ScmScheduleUtils.getSuccessTasks( sche );
         ScmTask task = successTasks.get( 0 );
-        Assert.assertEquals( task.getEstimateCount(), -1 );
+        if ( isQuickStart ) {
+            Assert.assertEquals( task.getEstimateCount(), -1 );
+        } else {
+            Assert.assertEquals( task.getEstimateCount(), fileNum );
+        }
         Assert.assertEquals( task.getActualCount(), fileNum );
         Assert.assertEquals( task.getSuccessCount(), fileNum );
         Assert.assertEquals( task.getFailCount(), 0 );
         Assert.assertEquals( task.getProgress(), 100 );
-        runSuccess = true;
     }
 
     @AfterClass
@@ -114,6 +147,7 @@ public class CleanFile5259 extends TestScmBase {
     }
 
     private void createFile() throws Exception {
+        fileIds = new ArrayList<>();
         for ( int i = 0; i < fileNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( wsM );
             file.setFileName( fileName + i );

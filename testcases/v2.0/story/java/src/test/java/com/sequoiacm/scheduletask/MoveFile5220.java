@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Descreption SCM-5220:创建迁移并清理任务，设置快速启动
+ * @Descreption SCM-5220:创建迁移并清理任务，设置快速启动，关闭快速启动，等待任务触发
  * @Author YiPan
  * @CreateDate 2022/9/21
  * @UpdateUser
@@ -38,7 +38,7 @@ public class MoveFile5220 extends TestScmBase {
     private String fileAuthor = "author5220";
     private SiteWrapper rootSite = null;
     private SiteWrapper branchSite = null;
-    private List< ScmId > fileIds = new ArrayList<>();
+    private List< ScmId > fileIds = null;
     private ScmSession sessionM = null;
     private WsWrapper wsp;
     private ScmWorkspace wsM;
@@ -49,6 +49,7 @@ public class MoveFile5220 extends TestScmBase {
     private String filePath = null;
     private int fileNum = 10;
     private boolean runSuccess = false;
+    private ScmScheduleMoveFileContent content = null;
 
     @BeforeClass
     public void setUp() throws IOException, ScmException, InterruptedException {
@@ -73,17 +74,46 @@ public class MoveFile5220 extends TestScmBase {
 
     @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     public void test() throws Exception {
+        // 创建迁移并清理任务，设置快速启动
+        moveFileQuickStart();
+        // 关闭快速启动，创建文件，等待调度任务触发
+        modifyNoQuickStart();
+        runSuccess = true;
+    }
+
+    public void moveFileQuickStart() throws Exception {
         // 创建迁移并清理任务
-        ScmScheduleMoveFileContent content = new ScmScheduleMoveFileContent(
-                rootSite.getSiteName(), branchSite.getSiteName(), "0d",
-                queryCond, ScmType.ScopeType.SCOPE_CURRENT, 120000,
-                ScmDataCheckLevel.WEEK, false, true );
+        content = new ScmScheduleMoveFileContent( rootSite.getSiteName(),
+                branchSite.getSiteName(), "0d", queryCond,
+                ScmType.ScopeType.SCOPE_CURRENT, 120000, ScmDataCheckLevel.WEEK,
+                false, true );
 
         // 启动迁移并清理调度任务
         String cron = "0/1 * * * * ?";
         sche = ScmSystem.Schedule.create( sessionM, wsp.getName(),
                 ScheduleType.MOVE_FILE, taskName, "", content, cron );
 
+        checkResult( content.isQuickStart() );
+
+        sche.disable();
+        ScmScheduleUtils.cleanTask( sessionM, sche.getId() );
+        ScmFileUtils.cleanFile( wsp, queryCond );
+    }
+
+    public void modifyNoQuickStart() throws Exception {
+        // 修改任务，关闭快速启动
+        content.setQuickStart( false );
+        sche.updateSchedule( ScheduleType.MOVE_FILE, content );
+
+        createFile( wsM );
+        sche.enable();
+
+        // 检查结果
+        checkResult( content.isQuickStart() );
+
+    }
+
+    public void checkResult( boolean isQuickStart ) throws Exception {
         // 校验任务执行结果
         ScmScheduleUtils.waitForTask( sche, 2 );
         SiteWrapper[] expSites = { branchSite };
@@ -93,8 +123,12 @@ public class MoveFile5220 extends TestScmBase {
         // 校验统计记录
         List< ScmTask > successTasks = ScmScheduleUtils.getSuccessTasks( sche );
         ScmTask task = successTasks.get( 0 );
-        Assert.assertEquals( task.getEstimateCount(), -1 );
-        Assert.assertEquals( task.getActualCount(), 10 );
+        if ( isQuickStart ) {
+            Assert.assertEquals( task.getEstimateCount(), -1 );
+        } else {
+            Assert.assertEquals( task.getEstimateCount(), fileNum );
+        }
+        Assert.assertEquals( task.getActualCount(), fileNum );
         Assert.assertEquals( task.getSuccessCount(), fileNum );
         Assert.assertEquals( task.getFailCount(), 0 );
         Assert.assertEquals( task.getProgress(), 100 );
@@ -117,6 +151,7 @@ public class MoveFile5220 extends TestScmBase {
 
     private void createFile( ScmWorkspace ws )
             throws ScmException, InterruptedException {
+        fileIds = new ArrayList<>();
         for ( int i = 0; i < fileNum; i++ ) {
             ScmFile file = ScmFactory.File.createInstance( ws );
             file.setFileName( fileName + i );
