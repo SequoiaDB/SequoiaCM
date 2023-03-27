@@ -21,7 +21,7 @@ public class ScmTestNgListener implements ITestListener {
     private static String testProgressFilePath = tmpDirPath + "test-progress.json";
     private static String errorDetailFilePath = tmpDirPath + "error.detail";
 
-    private long total;
+    private AtomicLong total = new AtomicLong();
     private AtomicLong startAndSkipTestCount = new AtomicLong(0);
     private AtomicLong successCount = new AtomicLong(0);
     private AtomicLong failedCount = new AtomicLong(0);
@@ -29,22 +29,29 @@ public class ScmTestNgListener implements ITestListener {
     private Set<String> runningTestcase = ConcurrentHashMap.newKeySet();
     private Queue<ErrorTestCase> errorTestCaseQueue = new ConcurrentLinkedQueue<>();
     private Timer timer = new Timer(true);
+    private boolean isSchedule = false;
 
     @Override
     public void onStart(ITestContext iTestContext) {
-        total = iTestContext.getAllTestMethods().length;
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                refreshResultFile();
-            }
-        };
-        timer.schedule(timerTask, 0, 2000);
+        total.addAndGet(iTestContext.getAllTestMethods().length);
+        startSchedule();
+    }
+
+    private void startSchedule() {
+        if (!isSchedule) {
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    refreshResultFile();
+                }
+            };
+            timer.schedule(timerTask, 0, 2000);
+            isSchedule = true;
+        }
     }
 
     @Override
     public void onFinish(ITestContext iTestContext) {
-        timer.cancel();
         refreshResultFile();
     }
 
@@ -101,7 +108,7 @@ public class ScmTestNgListener implements ITestListener {
         }
         // 2. 更新执行进度
         JSONObject testProgress = new JSONObject();
-        testProgress.put("total", Math.max(total, startAndSkipTestCount.get()));
+        testProgress.put("total", Math.max(total.get(), startAndSkipTestCount.get()));
         testProgress.put("success", successCount);
         testProgress.put("failed", failedCount);
         testProgress.put("skipped", skippedCount);
