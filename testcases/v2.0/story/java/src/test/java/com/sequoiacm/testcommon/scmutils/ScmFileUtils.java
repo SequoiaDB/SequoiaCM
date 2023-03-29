@@ -511,16 +511,18 @@ public class ScmFileUtils extends TestScmBase {
                 if ( siteLocation.getSiteName().equals( site.getSiteName() ) ) {
                     Object data_sharding_type = siteLocation.getBSONObject()
                             .get( "data_sharding_type" );
-                    if ( ( ( BSONObject ) data_sharding_type )
-                            .containsField( "collection_space" ) ) {
-                        csType = ( ( BSONObject ) data_sharding_type )
-                                .get( "collection_space" ).toString();
-                    }
+                    if ( data_sharding_type != null ) {
+                        if ( ( ( BSONObject ) data_sharding_type )
+                                .containsField( "collection_space" ) ) {
+                            csType = ( ( BSONObject ) data_sharding_type )
+                                    .get( "collection_space" ).toString();
+                        }
 
-                    if ( ( ( BSONObject ) data_sharding_type )
-                            .containsField( "collection" ) ) {
-                        clType = ( ( BSONObject ) data_sharding_type )
-                                .get( "collection" ).toString();
+                        if ( ( ( BSONObject ) data_sharding_type )
+                                .containsField( "collection" ) ) {
+                            clType = ( ( BSONObject ) data_sharding_type )
+                                    .get( "collection" ).toString();
+                        }
                     }
                 }
             }
