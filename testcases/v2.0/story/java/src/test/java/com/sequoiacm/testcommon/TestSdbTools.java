@@ -535,6 +535,10 @@ public class TestSdbTools {
                     writeTmpFileInScm( site, ws );
                 }
 
+                if (!db.getCollectionSpace(csName).isCollectionExist(clName)){
+                    writeTmpFileInScm( site, ws );
+                }
+
                 if ( db.isCollectionSpaceExist( csName ) ) {
                     DBCollection clDB = db.getCollectionSpace( csName )
                             .getCollection( clName );
