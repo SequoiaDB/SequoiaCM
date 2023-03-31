@@ -403,7 +403,10 @@ public class TestTools {
             if ( !filePath.getParentFile().exists() ) {
                 mkdir( filePath.getParentFile() );
             }
-            filePath.mkdir();
+            boolean mkSuccess = filePath.mkdir();
+            if ( !mkSuccess && !filePath.exists() ) {
+                mkdir( filePath );
+            }
         }
 
         /**
