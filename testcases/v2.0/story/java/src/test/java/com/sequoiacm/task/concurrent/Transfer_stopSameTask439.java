@@ -91,7 +91,7 @@ public class Transfer_stopSameTask439 extends TestScmBase {
     }
 
     @Test(groups = { "fourSite" })
-    private void test() {
+    private void test() throws ScmException, IOException {
         ScmSession sessionM = null;
         ScmSession sessionA = null;
         ScmSession sessionB = null;
@@ -120,14 +120,18 @@ public class Transfer_stopSameTask439 extends TestScmBase {
 
             waitTaskStop( taskId );
 
-            checkTaskAttribute( session );
             List< ScmId > fileIdList = transferedFile();
             if ( fileIdList != null ) {
                 checkTransContent( fileIdList );
             }
 
-        } catch ( Exception e ) {
-            Assert.fail( e.getMessage() );
+            if ( fileIdList.size() == fileNum ) {
+                checkTaskAttribute( session,
+                        CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
+            } else {
+                checkTaskAttribute( session,
+                        CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
+            }
         } finally {
             if ( sessionM != null ) {
                 sessionM.close();
@@ -226,11 +230,11 @@ public class Transfer_stopSameTask439 extends TestScmBase {
         }
     }
 
-    private void checkTaskAttribute( ScmSession session ) throws ScmException {
+    private void checkTaskAttribute( ScmSession session, int type )
+            throws ScmException {
         ScmTask task = ScmSystem.Task.getTask( session, taskId );
         Assert.assertEquals( task.getId(), taskId );
-        Assert.assertEquals( task.getRunningFlag(),
-                CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
+        Assert.assertEquals( task.getRunningFlag(), type );
         Assert.assertEquals( task.getType(),
                 CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE );
         Assert.assertEquals( task.getWorkspaceName(), ws_T.getName() );
