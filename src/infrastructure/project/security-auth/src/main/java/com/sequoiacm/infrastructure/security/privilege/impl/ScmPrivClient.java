@@ -60,7 +60,7 @@ public class ScmPrivClient {
         }
     }
 
-    public void loadAuth() {
+    public synchronized void loadAuth() {
         try {
             reload();
             logger.info("privielege version={}", getVersion());

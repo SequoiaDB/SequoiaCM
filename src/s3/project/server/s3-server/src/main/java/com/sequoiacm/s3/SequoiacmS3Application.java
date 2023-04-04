@@ -18,6 +18,8 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import com.sequoiacm.contentserver.contentmodule.EnableContentModule;
 import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import com.sequoiacm.metasource.MetaAccessor;
@@ -30,6 +32,8 @@ import com.sequoiadb.infrastructure.map.client.EnableMapClient;
 @EnableScmLock
 @EnableDiscoveryClient
 @EnableMapClient
+@EnableUserSubscriber
+@EnableRoleSubscriber
 @SpringBootApplication
 @EnableHystrix
 @EnableContentModule

@@ -47,6 +47,16 @@
 
         <dependency>
             <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-config-user</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-config-role</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-config-core</artifactId>
         </dependency>
         <dependency>

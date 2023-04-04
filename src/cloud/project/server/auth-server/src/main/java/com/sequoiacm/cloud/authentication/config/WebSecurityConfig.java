@@ -141,6 +141,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/**").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
                 .antMatchers(HttpMethod.GET, "/api/**").authenticated().anyRequest().permitAll();
 
+        http.securityContext().securityContextRepository(new ScmSessionSecurityContextRepository());
         http.addFilterAfter(new ActuatorRoleFilter(), SwitchUserFilter.class);
     }
 }

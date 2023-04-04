@@ -150,7 +150,14 @@ public class ScmUser implements UserDetails, CredentialsContainer {
     @Override
     public boolean equals(Object rhs) {
         if (rhs instanceof ScmUser) {
-            return userId.equals(((ScmUser) rhs).userId);
+            if (!userId.equals(((ScmUser) rhs).userId)) {
+                return false;
+            }
+            Set<ScmRole> rhsRoles = ((ScmUser) rhs).roles;
+            if (this.roles == null) {
+                return rhsRoles == null;
+            }
+            return this.roles.equals(rhsRoles);
         }
         return false;
     }

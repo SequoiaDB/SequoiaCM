@@ -89,7 +89,7 @@ public class AuthenticationServer implements ApplicationRunner {
                 .password(passwordEncoder.encodePassword(DEFAULT_MONITOR_USER, null)).build();
         initDefaultUser(monitorUser);
 
-        privService.grantPrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, monitorRole.getRoleId(),
+        privService.grantPrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, monitorRole,
                 ScmResourceTypeDefine.TYPE_WS_ALL, ScmResourceTypeDefine.TYPE_WS_ALL,
                 ScmPrivilegeDefine.LOW_LEVEL_READ.getName());
     }

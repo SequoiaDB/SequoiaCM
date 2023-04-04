@@ -50,8 +50,8 @@ public class InternalRoleController {
             throw new NotFoundException("Role is not found: " + roleName);
         }
 
-        privService.grantPrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, role.getRoleId(),
-                resourceType, resource, privilege);
+        privService.grantPrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, role, resourceType,
+                resource, privilege);
         audit.info(ScmAuditType.GRANT, auth, null, 0, "grant role, roleName=" + roleName
                 + ",resource_type=" + resourceType + ",resource=" + resource + ",privilege=" + privilege);
     }
@@ -76,8 +76,8 @@ public class InternalRoleController {
             throw new NotFoundException("Role is not found: " + roleName);
         }
 
-        privService.revokePrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, role.getRoleId(),
-                resourceType, resource, privilege);
+        privService.revokePrivilege(ScmPrivilege.JSON_VALUE_ROLE_TYPE_ROLE, role, resourceType,
+                resource, privilege);
 
         audit.info(ScmAuditType.REVOKE, auth, null, 0, "grant role, roleName=" + roleName
                 + ",resourceType=" + resourceType + ",resource=" + resource + ",privilege=" + privilege);

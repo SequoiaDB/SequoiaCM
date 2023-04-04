@@ -1,15 +1,9 @@
 package com.sequoiacm.cloud.authentication.controller;
 
 import java.util.List;
-import java.util.Map;
 
-import com.sequoiacm.cloud.authentication.service.IUserService;
-import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.dao.SaltSource;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.session.data.sequoiadb.SequoiadbSessionRepository;
 import org.springframework.util.StringUtils;
@@ -19,13 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.sequoiacm.cloud.authentication.dao.IPrivVersionDao;
 import com.sequoiacm.cloud.authentication.exception.BadRequestException;
-import com.sequoiacm.cloud.authentication.exception.ForbiddenException;
 import com.sequoiacm.cloud.authentication.exception.NotFoundException;
+import com.sequoiacm.cloud.authentication.service.IUserService;
 import com.sequoiacm.infrastructrue.security.core.ITransaction;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
@@ -77,44 +71,7 @@ public class UserController {
         if (!StringUtils.hasText(username)) {
             throw new BadRequestException("Invalid username");
         }
-
-        ScmUser currentUser = (ScmUser) authentication.getPrincipal();
-        if (username.equals(currentUser.getUsername())) {
-            throw new ForbiddenException("Cannot delete current user");
-        }
-
-        ScmUser user = userRoleRepository.findUserByName(username);
-        if (user == null) {
-            throw new NotFoundException("User is not found: " + username);
-        }
-
-        if (user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            List<ScmUser> users = userRoleRepository
-                    .findUsersByRoleName(ScmRole.AUTH_ADMIN_ROLE_NAME);
-            if (users.size() <= 1) {
-                throw new ForbiddenException("Cannot delete the last AUTH_ADMIN user");
-            }
-        }
-
-        deleteUser(user);
-
-        audit.info(ScmAuditType.DELETE_USER, authentication, null, 0, "delete user: userName=" + username);
-    }
-
-    private void deleteUser(ScmUser user) throws Exception {
-        ITransaction t = transactionFactory.createTransation();
-        try {
-            t.begin();
-            userRoleRepository.deleteUser(user, t);
-            sessionRepository.deleteSessions(user.getUsername());
-            versionDao.incVersion(t);
-
-            t.commit();
-        }
-        catch (Exception e) {
-            t.rollback();
-            throw e;
-        }
+        userService.deleteUser(username, authentication);
     }
 
     @PutMapping("/v1/users/{username:.+}")

@@ -1,5 +1,7 @@
 package com.sequoiacm.infrastructure.config.core.common;
 
+import com.sequoiacm.common.FieldName;
+
 public class ScmRestArgDefine {
     public static final String CONFIG_RESP_BODY = "config_resp_body";
 
@@ -41,6 +43,10 @@ public class ScmRestArgDefine {
     public static final String NODE_CONF_NODEHOSTNAME = "host_name";
     public static final String NODE_CONF_NODEPORT = "port";
     public static final String NODE_CONF_NODEVERSION = "node_version";
+
+    public static final String USER_CONF_USERNAME = FieldName.User.FIELD_USERNAME;
+
+    public static final String ROLE_CONF_ROLENAME = FieldName.Role.FIELD_ROLE_NAME;
 
     public static final String META_DATA_CONF_TYPE_CLASS = "config_class";
     public static final String META_DATA_CONF_TYPE_ATTRIBUTE = "config_attribute";

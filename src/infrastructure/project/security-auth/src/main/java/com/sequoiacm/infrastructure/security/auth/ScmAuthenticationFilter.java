@@ -1,13 +1,9 @@
 package com.sequoiacm.infrastructure.security.auth;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserJsonDeserializer;
+import com.sequoiacm.infrastructure.feign.ScmFeignClient;
+import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
@@ -22,9 +18,11 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructure.feign.ScmFeignClient;
-import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Component
 @ConditionalOnProperty(prefix = "scm.authFilter", name = "headerFirst", havingValue = "false", matchIfMissing = false)
@@ -133,6 +131,17 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
             this.sessionMgr.close();
         }
         this.sessionMgr = new ScmSessionMgrWithSessionCache(feignClient, cacheTimeToLive);
+    }
+
+    public void removeCache(String userName) {
+        try {
+            if (sessionMgr instanceof ScmSessionMgrWithSessionCache) {
+                ((ScmSessionMgrWithSessionCache) sessionMgr).removeUserCache(userName);
+            }
+        }
+        catch (Exception e) {
+            logger.warn("Failed to remove cache, user = " + userName, e);
+        }
     }
 
     public void disableCache() {

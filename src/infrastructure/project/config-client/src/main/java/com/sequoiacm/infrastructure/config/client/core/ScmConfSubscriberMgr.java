@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PreDestroy;
 
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
@@ -48,6 +48,10 @@ public class ScmConfSubscriberMgr {
             throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
                     "subscriber already exist for config: " + subscriber.subscribeConfigName()
                             + ", can not subscribe twice");
+        }
+        if (subscriber.getHeartbeatIterval() == -1) {
+            // 不需要用定时器，即允许发生通知丢失问题
+            return;
         }
         addTempChecker(subscriber, client);
         ConfVersionChecker checker = new ConfVersionChecker(subscriber, client, notifyLock);
@@ -171,6 +175,7 @@ class ConfVersionChecker extends ScmTimerTask {
 
                 notifyLock.lock();
                 try {
+                    // 3. 更新 myVersion
                     isNotifySuccess = processNotify(notifyOption);
                     if (isNotifySuccess) {
                         myVersions.put(latestVersion.getBussinessName(), latestVersion);

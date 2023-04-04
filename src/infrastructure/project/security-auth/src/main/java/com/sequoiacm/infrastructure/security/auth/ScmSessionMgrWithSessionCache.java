@@ -1,5 +1,14 @@
 package com.sequoiacm.infrastructure.security.auth;
 
+import com.sequoiacm.infrastructrue.security.core.ScmUser;
+import com.sequoiacm.infrastructure.common.timer.ScmTimer;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import com.sequoiacm.infrastructure.feign.ScmFeignClient;
+import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,16 +16,6 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructure.common.timer.ScmTimer;
-import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
-import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
-import com.sequoiacm.infrastructure.feign.ScmFeignClient;
-import com.sequoiacm.infrastructure.feign.ScmFeignException;
 
 public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmSessionMgrWithSessionCache.class);
@@ -40,26 +39,14 @@ public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
         WriteLock wLock = rwLock.writeLock();
         wLock.lock();
         try {
-            SessionCache oldSessionCache = sessionIdMapSessionCache.put(sessionId, sessionCache);
+            sessionIdMapSessionCache.put(sessionId, sessionCache);
             UserCache userCache = userNameMapUserCache.get(scmUser.getUsername());
-            if (oldSessionCache == null && userCache == null) {
-                userCache = new UserCache(userWrapper);
-                userCache.increaseRef();
+            if (userCache == null) {
+                userCache = new UserCache(userWrapper, cacheTimeToLive);
                 userNameMapUserCache.put(scmUser.getUsername(), userCache);
-            }
-            else if (oldSessionCache == null && userCache != null) {
-                userCache.refresh(userWrapper);
-                userCache.increaseRef();
-            }
-            else if (oldSessionCache != null && userCache != null) {
-                userCache.refresh(userWrapper);
             }
             else {
-                // oldSession != null && userCache == null
-                logger.error("should not come here");
-                userCache = new UserCache(userWrapper);
-                userCache.increaseRef();
-                userNameMapUserCache.put(scmUser.getUsername(), userCache);
+                userCache.refresh(userWrapper);
             }
         }
         finally {
@@ -71,10 +58,7 @@ public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
         WriteLock wLock = rwLock.writeLock();
         wLock.lock();
         try {
-            SessionCache sessionCache = sessionIdMapSessionCache.remove(sessionId);
-            if (sessionCache != null) {
-                removeUserCache(sessionCache.getUserName());
-            }
+            sessionIdMapSessionCache.remove(sessionId);
         }
         finally {
             wLock.unlock();
@@ -86,13 +70,14 @@ public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
         rLock.lock();
         try {
             SessionCache sessionCache = sessionIdMapSessionCache.get(sessionId);
-            if (sessionCache == null) {
+            if (sessionCache == null || sessionCache.isCacheTimeout()) {
                 return null;
             }
-            if (sessionCache.isCacheTimeout()) {
+            UserCache userCache = userNameMapUserCache.get(sessionCache.getUserName());
+            if (userCache == null || userCache.isCacheTimeout()) {
                 return null;
             }
-            return userNameMapUserCache.get(sessionCache.getUserName()).getUser();
+            return userCache.getUser();
         }
         finally {
             rLock.unlock();
@@ -100,48 +85,57 @@ public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
     }
 
     public void purgeTimeoutCache() {
-        Set<String> keys = null;
+        Set<String> sessionIdSet;
+        Set<String> userNameSet;
         ReadLock rLock = rwLock.readLock();
         rLock.lock();
         try {
-            keys = new HashSet<>(sessionIdMapSessionCache.keySet());
+            sessionIdSet = new HashSet<>(sessionIdMapSessionCache.keySet());
+            userNameSet = new HashSet<>(userNameMapUserCache.keySet());
         }
         finally {
             rLock.unlock();
         }
 
-        WriteLock wLock = rwLock.writeLock();
-        for (String key : keys) {
-            SessionCache sessionCache = null;
+        for (String sessionId : sessionIdSet) {
+            SessionCache sessionCache;
             rLock.lock();
             try {
-                sessionCache = sessionIdMapSessionCache.get(key);
+                sessionCache = sessionIdMapSessionCache.get(sessionId);
             }
             finally {
                 rLock.unlock();
             }
 
             if (sessionCache != null && sessionCache.isCacheTimeout()) {
-                wLock.lock();
-                try {
-                    sessionCache = sessionIdMapSessionCache.get(key);
-                    if (sessionCache != null && sessionCache.isCacheTimeout()) {
-                        sessionIdMapSessionCache.remove(key);
-                        removeUserCache(sessionCache.getUserName());
-                    }
-                }
-                finally {
-                    wLock.unlock();
-                }
+                removeCache(sessionId);
+            }
+        }
 
+        for (String userName : userNameSet) {
+            UserCache userCache;
+            rLock.lock();
+            try {
+                userCache = userNameMapUserCache.get(userName);
+            }
+            finally {
+                rLock.unlock();
+            }
+
+            if (userCache != null && userCache.isCacheTimeout()) {
+                removeUserCache(userName);
             }
         }
     }
 
-    private void removeUserCache(String userName) {
-        UserCache userCache = userNameMapUserCache.get(userName);
-        if (userCache.decreaseRef() <= 0) {
+    public void removeUserCache(String userName) {
+        WriteLock wLock = rwLock.writeLock();
+        wLock.lock();
+        try {
             userNameMapUserCache.remove(userName);
+        }
+        finally {
+            wLock.unlock();
         }
     }
 
@@ -174,25 +168,23 @@ public class ScmSessionMgrWithSessionCache extends ScmSessionMgr {
 }
 
 class UserCache {
-    private long refCount;
+    private long cacheTimeout;
+    private long updateTime;
     private ScmUserWrapper userWrapper;
 
-    public UserCache(ScmUserWrapper userWrapper) {
+    public UserCache(ScmUserWrapper userWrapper, long cacheTimeout) {
         this.userWrapper = userWrapper;
-    }
-
-    public long increaseRef() {
-        this.refCount++;
-        return refCount;
-    }
-
-    public long decreaseRef() {
-        this.refCount--;
-        return refCount;
+        this.updateTime = System.currentTimeMillis();
+        this.cacheTimeout = cacheTimeout;
     }
 
     public void refresh(ScmUserWrapper userWrapper) {
         this.userWrapper = userWrapper;
+        this.updateTime = System.currentTimeMillis();
+    }
+
+    public boolean isCacheTimeout() {
+        return System.currentTimeMillis() - updateTime > cacheTimeout;
     }
 
     public ScmUserWrapper getUser() {

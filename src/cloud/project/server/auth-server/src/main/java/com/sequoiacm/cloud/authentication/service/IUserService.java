@@ -18,4 +18,6 @@ public interface IUserService {
             boolean needToDecrypt) throws Exception;
 
     BSONObject findUserSalt(String username) throws Exception;
+
+    void deleteUser(String username, Authentication authentication) throws Exception;
 }

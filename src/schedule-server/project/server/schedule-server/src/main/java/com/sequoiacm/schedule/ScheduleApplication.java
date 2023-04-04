@@ -1,13 +1,11 @@
 package com.sequoiacm.schedule;
 
+import java.util.Date;
 import java.util.List;
 
-import com.sequoiacm.infrastructure.lock.ScmLock;
-import com.sequoiacm.infrastructure.lock.ScmLockManager;
-import com.sequoiacm.infrastructure.lock.ScmLockPath;
-import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
-import com.sequoiacm.schedule.core.ScmCheckCorrectionTools;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +25,15 @@ import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
+import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.infrastructure.lock.ScmLockPath;
+import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
@@ -44,23 +48,22 @@ import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.common.model.LifeCycleConfigFullEntity;
 import com.sequoiacm.schedule.core.ScheduleMgrWrapper;
 import com.sequoiacm.schedule.core.ScheduleServer;
+import com.sequoiacm.schedule.core.ScmCheckCorrectionTools;
 import com.sequoiacm.schedule.core.elect.ScheduleElector;
 import com.sequoiacm.schedule.dao.FileServerDao;
+import com.sequoiacm.schedule.dao.LifeCycleConfigDao;
+import com.sequoiacm.schedule.dao.LifeCycleScheduleDao;
 import com.sequoiacm.schedule.dao.ScheduleDao;
 import com.sequoiacm.schedule.dao.SiteDao;
 import com.sequoiacm.schedule.dao.StrategyDao;
 import com.sequoiacm.schedule.dao.TaskDao;
+import com.sequoiacm.schedule.dao.TransactionFactory;
 import com.sequoiacm.schedule.dao.WorkspaceDao;
+import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
 import com.sequoiacm.schedule.privilege.ScmSchedulePriv;
 import com.sequoiacm.schedule.remote.ScheduleClientFactory;
-import com.sequoiacm.schedule.dao.*;
-import com.sequoiacm.schedule.entity.ScmBSONObjectCursor;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
-import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
-
-import java.util.Date;
 
 @SpringBootApplication
 @EnableScmPrivClient
@@ -69,6 +72,8 @@ import java.util.Date;
 @EnableScmServiceDiscoveryClient
 @EnableAudit
 @EnableConfClient
+@EnableUserSubscriber
+@EnableRoleSubscriber
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
         "com.sequoiacm.schedule" })
 @EnableHystrix

@@ -21,6 +21,11 @@ import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.msg.role.RoleFilter;
+import com.sequoiacm.infrastructure.config.core.msg.role.RoleUpdator;
 
 @Service
 public class ScmPrivilegeService implements IPrivilegeService {
@@ -41,8 +46,11 @@ public class ScmPrivilegeService implements IPrivilegeService {
     @Autowired
     private ITransaction transactionFactory;
 
+    @Autowired
+    private ScmConfClient confClient;
+
     @Override
-    public void grantPrivilege(String roleType, String roleId, String resourceType,
+    public void grantPrivilege(String roleType, ScmRole role, String resourceType,
             String resource, String privilege) throws Exception {
         ITransaction t = transactionFactory.createTransation();
         boolean isModified = false;
@@ -55,10 +63,10 @@ public class ScmPrivilegeService implements IPrivilegeService {
                 isModified = true;
             }
 
-            ScmPrivilege p = resourcePrivRelDao.getPrivilege(roleType, roleId, r.getId());
+            ScmPrivilege p = resourcePrivRelDao.getPrivilege(roleType, role.getRoleId(), r.getId());
             if (null == p) {
-                p = new ScmPrivilege(resourcePrivRelDao.generatePrivilegeId(), roleType, roleId,
-                        r.getId(), privilege);
+                p = new ScmPrivilege(resourcePrivRelDao.generatePrivilegeId(), roleType,
+                        role.getRoleId(), r.getId(), privilege);
                 resourcePrivRelDao.insertPrivilege(p, t);
                 isModified = true;
             }
@@ -92,10 +100,11 @@ public class ScmPrivilegeService implements IPrivilegeService {
             t.commit();
         }
         catch (Exception e) {
+            t.rollback();
             throw e;
         }
-        finally {
-            t.rollback();
+        if (isModified) {
+            sendRoleChangeEvents(role.getRoleName(), EventType.UPDATE);
         }
     }
 
@@ -137,14 +146,14 @@ public class ScmPrivilegeService implements IPrivilegeService {
     }
 
     @Override
-    public void revokePrivilege(String roleType, String roleId, String resourceType,
+    public void revokePrivilege(String roleType, ScmRole role, String resourceType,
             String resource, String privilege) throws Exception {
         ScmResource r = resourceDao.getResource(resourceType, resource);
         if (null == r) {
             return;
         }
 
-        ScmPrivilege p = resourcePrivRelDao.getPrivilege(roleType, roleId, r.getId());
+        ScmPrivilege p = resourcePrivRelDao.getPrivilege(roleType, role.getRoleId(), r.getId());
         if (null == p) {
             return;
         }
@@ -164,32 +173,31 @@ public class ScmPrivilegeService implements IPrivilegeService {
                 resourcePrivRelDao.deletePrivilege(p, t);
                 removeResourceIfNoRelation(r, t);
                 versionDao.incVersion(t);
-                t.commit();
-                return;
-            }
-
-            String newPrivilege = getDifferentSet(p.getPrivilege(), privilege);
-            if (null == newPrivilege) {
-                // privilege is empty, delete the privilege
-                resourcePrivRelDao.deletePrivilege(p, t);
-                removeResourceIfNoRelation(r, t);
-                versionDao.incVersion(t);
-            }
-            else if (!p.getPrivilege().equals(newPrivilege)) {
-                resourcePrivRelDao.updatePrivilegeValue(p.getId(), newPrivilege, t);
-                versionDao.incVersion(t);
             }
             else {
-                // p.getPrivilege().equals(newPrivilege)
-                // revoke not-exist privilege, do nothing
+                String newPrivilege = getDifferentSet(p.getPrivilege(), privilege);
+                if (null == newPrivilege) {
+                    // privilege is empty, delete the privilege
+                    resourcePrivRelDao.deletePrivilege(p, t);
+                    removeResourceIfNoRelation(r, t);
+                    versionDao.incVersion(t);
+                }
+                else if (!p.getPrivilege().equals(newPrivilege)) {
+                    resourcePrivRelDao.updatePrivilegeValue(p.getId(), newPrivilege, t);
+                    versionDao.incVersion(t);
+                }
+                else {
+                    // p.getPrivilege().equals(newPrivilege)
+                    // revoke not-exist privilege, do nothing
+                }
             }
-
             t.commit();
         }
         catch (Exception e) {
             t.rollback();
             throw e;
         }
+        sendRoleChangeEvents(role.getRoleName(), EventType.UPDATE);
     }
 
     private void removeResourceIfNoRelation(ScmResource r, ITransaction t) {
@@ -297,6 +305,21 @@ public class ScmPrivilegeService implements IPrivilegeService {
         catch (Exception e) {
             t.rollback();
             throw e;
+        }
+        sendRoleChangeEvents(role.getRoleName(), EventType.DELTE);
+    }
+
+    private void sendRoleChangeEvents(String roleName, EventType eventType) {
+        try {
+            if (eventType == EventType.UPDATE) {
+                confClient.updateConfig(ScmConfigNameDefine.ROLE, new RoleUpdator(roleName), false);
+            }
+            else if (eventType == EventType.DELTE) {
+                confClient.deleteConf(ScmConfigNameDefine.ROLE, new RoleFilter(roleName), false);
+            }
+        }
+        catch (Exception e) {
+            logger.warn("Failed to send to the config server of role " + eventType + " event", e);
         }
     }
 }

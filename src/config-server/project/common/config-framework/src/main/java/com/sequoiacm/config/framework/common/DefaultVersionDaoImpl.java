@@ -111,7 +111,8 @@ public class DefaultVersionDaoImpl implements DefaultVersionDao {
     @Override
     public Integer updateVersion(String businessType, String businessName, int newVersion,
             Transaction transaction) throws MetasourceException {
-        TableDao table = metasource.getConfVersionTableDao(transaction);
+        TableDao table = transaction == null ? metasource.getConfVersionTableDao()
+                : metasource.getConfVersionTableDao(transaction);
         BSONObject matcher = new BasicBSONObject();
         matcher.put(FieldName.FIELD_CLVERSION_BUSINESS_NAME, businessName);
         matcher.put(FieldName.FIELD_CLVERSION_BUSINESS_TYPE, businessType);

@@ -27,6 +27,8 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
@@ -39,6 +41,8 @@ import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
 @EnableFeignClients("com.sequoiacm.cloud.security.privilege.impl")
 @EnableDiscoveryClient
 @EnableConfClient
+@EnableUserSubscriber
+@EnableRoleSubscriber
 @EnableMapServerWithoutDataSource
 @EnableAudit
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",

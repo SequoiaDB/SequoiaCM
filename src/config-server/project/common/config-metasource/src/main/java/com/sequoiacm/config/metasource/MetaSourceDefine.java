@@ -13,6 +13,7 @@ public class MetaSourceDefine {
         public static final String CL_CONF_VERSION = "CONF_VERSION";
         public static final String CL_SUBSCRIBERS = "SUBSCRIBERS";
         public static final String CL_LIFE_CYCLE_CONFIG= "LIFE_CYCLE_CONFIG";
+        public static final String CL_PRIV_VERSION= "PRIV_VERSION";
 
         public static final String CL_FILE = "FILE";
         public static final String CL_FILE_HISTORY = "FILE_HISTORY";

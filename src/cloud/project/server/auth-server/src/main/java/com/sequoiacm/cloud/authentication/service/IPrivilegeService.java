@@ -11,10 +11,10 @@ public interface IPrivilegeService {
 
     ScmPrivMeta getMeta();
 
-    void grantPrivilege(String roleType, String roleId, String resourceType, String resource,
+    void grantPrivilege(String roleType, ScmRole role, String resourceType, String resource,
             String privilege) throws Exception;
 
-    void revokePrivilege(String roleType, String roleId, String resourceType, String resource,
+    void revokePrivilege(String roleType, ScmRole role, String resourceType, String resource,
             String privilege) throws Exception;
 
     List<ScmResource> getResourceList();

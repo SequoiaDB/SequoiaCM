@@ -1,5 +1,27 @@
 package com.sequoiacm.cloud.authentication.serviceimpl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SimpleTimeZone;
+
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.session.data.sequoiadb.SequoiadbSessionRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import com.sequoiacm.cloud.authentication.config.TokenConfig;
 import com.sequoiacm.cloud.authentication.dao.IPrivVersionDao;
 import com.sequoiacm.cloud.authentication.exception.BadRequestException;
@@ -17,28 +39,13 @@ import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.Bcrypt;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.msg.user.UserConfig;
+import com.sequoiacm.infrastructure.config.core.msg.user.UserFilter;
+import com.sequoiacm.infrastructure.config.core.msg.user.UserUpdator;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.dao.SaltSource;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.core.Authentication;
-import org.springframework.session.data.sequoiadb.SequoiadbSessionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.SimpleTimeZone;
 
 @Service
 public class ScmUserService implements IUserService {
@@ -67,6 +74,9 @@ public class ScmUserService implements IUserService {
 
     @Autowired
     private TokenConfig tokenConfig;
+
+    @Autowired
+    private ScmConfClient confClient;
 
     private static final int MAX_ROLES_SIZE = 60;
 
@@ -302,8 +312,9 @@ public class ScmUserService implements IUserService {
         ScmUser user = ScmUser.withUsername(username).userId(userRoleRepository.generateUserId())
                 .passwordType(passwordType).password(passwd).build();
         userRoleRepository.insertUser(user);
-        audit.info(ScmAuditType.CREATE_USER, auth, null, 0, "create user: userName=" + username);
 
+        sendUserChangeEvents(username, EventType.CREATE);
+        audit.info(ScmAuditType.CREATE_USER, auth, null, 0, "create user: userName=" + username);
         return user;
     }
 
@@ -328,6 +339,44 @@ public class ScmUserService implements IUserService {
         saltAndDate.put("Salt", salt);
         saltAndDate.put("Date", parseDateToISO8601Date(new Date()));
         return saltAndDate;
+    }
+
+    @Override
+    public void deleteUser(String username, Authentication authentication) throws Exception {
+        ScmUser currentUser = (ScmUser) authentication.getPrincipal();
+        if (username.equals(currentUser.getUsername())) {
+            throw new ForbiddenException("Cannot delete current user");
+        }
+
+        ScmUser user = userRoleRepository.findUserByName(username);
+        if (user == null) {
+            throw new NotFoundException("User is not found: " + username);
+        }
+
+        if (user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            List<ScmUser> users = userRoleRepository
+                    .findUsersByRoleName(ScmRole.AUTH_ADMIN_ROLE_NAME);
+            if (users.size() <= 1) {
+                throw new ForbiddenException("Cannot delete the last AUTH_ADMIN user");
+            }
+        }
+
+        ITransaction t = transactionFactory.createTransation();
+        try {
+            t.begin();
+            userRoleRepository.deleteUser(user, t);
+            sessionRepository.deleteSessions(user.getUsername());
+            versionDao.incVersion(t);
+
+            t.commit();
+        }
+        catch (Exception e) {
+            t.rollback();
+            throw e;
+        }
+        sendUserChangeEvents(username, EventType.DELTE);
+        audit.info(ScmAuditType.DELETE_USER, authentication, null, 0,
+                "delete user: userName=" + username);
     }
 
     private void checkPermission(boolean isModifyMyself, boolean IMAdmin, ScmUser currentUser,
@@ -377,6 +426,24 @@ public class ScmUserService implements IUserService {
         catch (Exception e) {
             t.rollback();
             throw e;
+        }
+        sendUserChangeEvents(newUser.getUsername(), EventType.UPDATE);
+    }
+
+    private void sendUserChangeEvents(String username, EventType eventType) {
+        try {
+            if (eventType == EventType.CREATE) {
+                confClient.createConf(ScmConfigNameDefine.USER, new UserConfig(username), false);
+            }
+            else if (eventType == EventType.UPDATE) {
+                confClient.updateConfig(ScmConfigNameDefine.USER, new UserUpdator(username), false);
+            }
+            else if (eventType == EventType.DELTE) {
+                confClient.deleteConf(ScmConfigNameDefine.USER, new UserFilter(username), false);
+            }
+        }
+        catch (Exception e) {
+            logger.warn("Failed to send to the config server of user " + eventType + " event", e);
         }
     }
 
