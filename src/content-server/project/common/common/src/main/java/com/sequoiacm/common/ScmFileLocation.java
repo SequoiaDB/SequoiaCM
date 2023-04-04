@@ -12,7 +12,6 @@ public class ScmFileLocation {
     private Date createDate;
     private int wsVersion;
     private String tableName;
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     public ScmFileLocation(BSONObject location) {
         Object temp = location.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID);
@@ -76,6 +75,7 @@ public class ScmFileLocation {
 
     @Override
     public String toString() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         StringBuilder sb = new StringBuilder();
         sb.append("siteId:").append(siteId).append(",");
         sb.append("lastAccessDate:").append(dateFormat.format(date)).append(",");

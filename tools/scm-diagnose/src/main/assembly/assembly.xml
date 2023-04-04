@@ -27,6 +27,60 @@
             <directory>${project.basedir}/conf</directory>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
+        <!-- copy lib/hbase -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../src/content-server/project/common/datasources/hbase/target/sequoiacm-content-datasource-hbase-${project.version}-release/sequoiacm-content-datasource-hbase-${project.version}/hbase
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/hbase</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/ceph_s3 -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../src/content-server/project/common/datasources/ceph_s3/target/sequoiacm-content-datasource-ceph-s3-${project.version}-release/sequoiacm-content-datasource-ceph-s3-${project.version}/ceph_s3
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/ceph_s3</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/ceph_swift -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../src/content-server/project/common/datasources/ceph_swift/target/sequoiacm-content-datasource-ceph-swift-${project.version}-release/sequoiacm-content-datasource-ceph-swift-${project.version}/ceph_swift
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/ceph_swift</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/hdfs -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../src/content-server/project/common/datasources/hdfs/target/sequoiacm-content-datasource-hdfs-${project.version}-release/sequoiacm-content-datasource-hdfs-${project.version}/hdfs
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/hdfs</outputDirectory>
+        </fileSet>
+
+        <!-- copy lib/sftp -->
+        <fileSet>
+            <directory>
+                ${project.basedir}/../../src/content-server/project/common/datasources/sftp/target/sequoiacm-content-datasource-sftp-${project.version}-release/sequoiacm-content-datasource-sftp-${project.version}/sftp
+            </directory>
+            <excludes>
+                <exclude>slf4j-log4j*.jar</exclude>
+            </excludes>
+            <outputDirectory>jars/sftp</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

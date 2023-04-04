@@ -18,7 +18,6 @@ public class DiagnoseEntry {
     private static Map<String, SubCommand> commands = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
-
         String logbackPath = ScmHelper.getPwd() + File.separator + "conf" + File.separator
                 + "logback.xml";
         ScmHelper.configToolsLog(new FileInputStream(logbackPath));
@@ -54,9 +53,14 @@ public class DiagnoseEntry {
             System.exit(1);
         }
         catch (Exception e) {
-            System.err.println(
-                    "[ERROR] Execution failed," + e.getMessage() + ",detail:" + ScmHelper.getPwd()
-                            + "/log/scm-diagnose.log");
+            if (commands.get(args[0]).getName().equals("residue") || commands.get(args[0]).getName().equals("compare")){
+                System.err.println("[ERROR] Execution failed," + e.getMessage());
+            }
+            else {
+                System.err.println(
+                        "[ERROR] Execution failed," + e.getMessage() + ",detail:" + ScmHelper.getPwd()
+                                + "/log/scm-diagnose.log");
+            }
             logger.error("Execution failed, detail:{}", e.getMessage(), e);
             System.exit(1);
         }

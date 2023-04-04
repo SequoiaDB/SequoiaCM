@@ -7,10 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
+import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -18,13 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,5 +78,27 @@ public class SiteController {
         Map<String, Object> result = new HashMap<>(1);
         result.put(CommonDefine.RestArg.SITE_STRATEGY, strategyType.getName());
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/sites", params = "action=" + CommonDefine.RestArg.ACTION_GET_META_SECRET)
+    public void getMetaSecret(HttpServletResponse response, Authentication auth)
+            throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            throw new ScmOperationUnauthorizedException(
+                    "permission denied:user=" + user.getUsername());
+        }
+        siteService.getSecretFile(response, true);
+    }
+
+    @GetMapping(value = "/sites", params = "action=" + CommonDefine.RestArg.ACTION_GET_DATA_SECRET)
+    public void getDataSecret(HttpServletResponse response, Authentication auth)
+            throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+            throw new ScmOperationUnauthorizedException(
+                    "permission denied:user=" + user.getUsername());
+        }
+        siteService.getSecretFile(response, false);
     }
 }

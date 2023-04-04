@@ -62,6 +62,11 @@
         </dependency>
         <dependency>
             <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-content-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-content-tools</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

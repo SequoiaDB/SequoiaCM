@@ -249,7 +249,7 @@ public class ScmCommandUtil {
         return readPasswdFromStdIn();
     }
 
-    private static String readPasswdFromStdIn() {
+    public static String readPasswdFromStdIn() {
         return new String(System.console().readPassword());
     }
 

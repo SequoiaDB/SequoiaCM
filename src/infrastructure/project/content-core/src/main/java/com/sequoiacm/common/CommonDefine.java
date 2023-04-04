@@ -407,6 +407,8 @@ public class CommonDefine {
 
         public static final String ACTION_CALC_MD5 = "calc_md5";
         public static final String ACTION_GET_SITE_STRATEGY = "get_site_strategy";
+        public static final String ACTION_GET_META_SECRET = "get_metasource_secret";
+        public static final String ACTION_GET_DATA_SECRET = "get_datasource_secret";
         public static final String ACTION_GET_CONTENT_LOCATION = "get_content_location";
         public static final String ACTION_DELETE_VERSION = "delete_version";
         public static final String ACTION_DELETE_FILE_BY_PATH = "delete_file_by_path";
