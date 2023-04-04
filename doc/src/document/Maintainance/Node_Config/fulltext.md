@@ -12,6 +12,8 @@ SequoiaCM 配置
 |scm.privilege.heartbeat.interval|num|权限版本号校验间隔时间，当版本号不一致时会刷新版本信息。默认值：10000，单位：毫秒|重启生效|
 |scm.conf.version.siteHeartbeat|num|配置站点版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.workspaceHeartbeat|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.version.user.heartbeatInterval|num|配置用户版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.version.role.heartbeatInterval|num|配置角色版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.zookeeper.urls|str|zookeeper服务地址(ip1:port1,ip2:port2)|重启生效|
 |scm.zookeeper.cleanJobPeriod|num|配置服务节点全量清理zookeeper无效节点的周期，默认值：1800000 (30分钟)，单位：毫秒|重启生效|
 |scm.zookeeper.maxBuffer|num|配置服务节点全量清理zookeeper无效节点时所使用的最大buffer大小，默认使用 JVM 最大堆内存的 1/5，单位：字节|重启生效|

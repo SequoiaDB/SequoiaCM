@@ -31,6 +31,8 @@ SequoiaCM 配置
 |scm.conf.version.siteHeartbeat|num|配置站点版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.nodeHeartbeat|num|配置节点版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.workspaceHeartbeat|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.version.user.heartbeatInterval|num|配置用户版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.version.role.heartbeatInterval|num|配置角色版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.zookeeper.urls|str|调度服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|重启生效|
 |scm.revote.initialInterval|num|节点当选主节点后初始化失败时，起始静默时间，默认值：100，单位：毫秒|重启生效|
 |scm.revote.intervalMultiplier|num|节点连续当选主节点后初始化失败时，静默时间递增倍数，默认值：2|重启生效|
