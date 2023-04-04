@@ -1,0 +1,16 @@
+{
+    "sdbpath":"/opt/sequoiadb",
+    "coordhost":"server1",
+    "coordport":"11810",
+    "sdbuser":"",
+    "sdbpassword":"",
+    "rootsite":{
+        "meta.url":"server1:11810,server2:11810,server3:11810",
+        "data.url":"server1:11810,server2:11810,server3:11810"
+    },
+    "scmpath":"/opt/sequoiacm",
+    "config":{
+        "sdburls": "server1:11810,server2:11810,server3:11810",
+        "zkurls": "server1:2981,server2:2981,server3:2981"
+    }
+}
