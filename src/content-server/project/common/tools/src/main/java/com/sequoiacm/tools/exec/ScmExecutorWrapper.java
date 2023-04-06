@@ -20,7 +20,6 @@ import com.sequoiacm.tools.element.ScmNodeStatus;
 import com.sequoiacm.tools.element.ScmSdbInfo;
 import com.sequoiacm.tools.element.ServerInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
-import org.springframework.util.StringUtils;
 
 public class ScmExecutorWrapper {
     private final String installPath;
@@ -96,15 +95,16 @@ public class ScmExecutorWrapper {
             try {
                 Properties prop = PropertiesUtil
                         .loadProperties(conf + ScmContentCommon.APPLICATION_PROPERTIES);
-                String sdb = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW);
-                if (StringUtils.isEmpty(sdb)){
-                    sdb = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_URL);
-                }
-
+                String sdb = PropertiesUtil.getProperty(prop,
+                        PropertiesDefine.PROPERTY_ROOTSITE_URL_NEW,
+                        PropertiesDefine.PROPERTY_ROOTSITE_URL);
                 if (sdb != null && sdb.length() != 0) {
-                    String sdbUser = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_USER, "");
-                    String passwdFile = prop.getProperty(PropertiesDefine.PROPERTY_ROOTSITE_PASSWD,
-                            "");
+                    String sdbUser = PropertiesUtil.getProperty(prop,
+                            PropertiesDefine.PROPERTY_ROOTSITE_USER_NEW,
+                            PropertiesDefine.PROPERTY_ROOTSITE_USER);
+                    String passwdFile = PropertiesUtil.getProperty(prop,
+                            PropertiesDefine.PROPERTY_ROOTSITE_PASSWD_NEW,
+                            PropertiesDefine.PROPERTY_ROOTSITE_PASSWD);
                     return new ScmSdbInfo(sdb, sdbUser, passwdFile);
                 }
                 logger.warn("server's conf file have no root site url:" + conf

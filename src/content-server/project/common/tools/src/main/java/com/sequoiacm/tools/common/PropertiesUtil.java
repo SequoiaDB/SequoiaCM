@@ -7,10 +7,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
+import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.exception.ScmExitCode;
 
 public class PropertiesUtil {
@@ -61,5 +62,13 @@ public class PropertiesUtil {
         return loadProperties(toolLog4j);
     }
 
-
+    public static String getProperty(Properties prop, String... keyNames) {
+        for (String key : keyNames) {
+            String value = prop.getProperty(key);
+            if (!StringUtils.isEmpty(value)) {
+                return value;
+            }
+        }
+        return "";
+    }
 }
