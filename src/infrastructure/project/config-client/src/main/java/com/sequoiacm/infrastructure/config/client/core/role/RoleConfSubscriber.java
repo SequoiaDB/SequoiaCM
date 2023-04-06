@@ -36,7 +36,7 @@ public class RoleConfSubscriber implements ScmConfSubscriber {
     public RoleConfSubscriber(RoleConfSubscriberConfig config, ScmConfClient confClient) {
         this.confClient = confClient;
         this.versionFilter = new DefaultVersionFilter(ScmConfigNameDefine.ROLE);
-        this.heartbeatInterval = config.getRoleHeartbeat();
+        this.heartbeatInterval = config.getHeartbeatInterval();
     }
 
     @PostConstruct

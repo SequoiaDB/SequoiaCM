@@ -36,7 +36,7 @@ public class UserConfSubscriber implements ScmConfSubscriber {
     public UserConfSubscriber(UserConfSubscriberConfig config, ScmConfClient confClient) {
         this.confClient = confClient;
         this.versionFilter = new DefaultVersionFilter(ScmConfigNameDefine.USER);
-        this.heartbeatInterval = config.getUserHeartbeat();
+        this.heartbeatInterval = config.getHeartbeatInterval();
     }
 
     @PostConstruct
