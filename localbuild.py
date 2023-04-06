@@ -186,7 +186,11 @@ def runUnitTest():
 
 
 def statisticalCov():
-    cmdStr = "python " + BIN_DIR + "statistical_cov.py --work-path " + TMP_STATISTICAL_COV_DIR + " --scm-deploy-info " + SCM_DEPLOY_INFO_FILE + " --scm-ut-info " + SCM_UT_INFO_FILE
+    cmdStr = "python " + BIN_DIR + "statistical_cov.py --work-path " + TMP_STATISTICAL_COV_DIR
+    if os.path.exists(SCM_DEPLOY_INFO_FILE):
+        cmdStr += " --scm-deploy-info " + SCM_DEPLOY_INFO_FILE
+    if os.path.exists(SCM_UT_INFO_FILE):
+        cmdStr += " --scm-ut-info " + SCM_UT_INFO_FILE
     log.info('exec statistical-cov: ' + cmdStr)
     cmdExecutor.command(cmdStr)
 

@@ -62,8 +62,12 @@ def parse_command():
             REPORT_DIR = WORK_PATH + 'report' + os.sep
         elif name in "--scm-deploy-info":
             SCM_DEPLOY_INFO_FILE = value
+            if not os.path.exists(SCM_DEPLOY_INFO_FILE):
+                raise Exception("File not exist! arg=scm-deploy-info, path=" + SCM_DEPLOY_INFO_FILE)
         elif name in "--scm-ut-info":
             SCM_UT_FILE = value
+            if not os.path.exists(SCM_UT_FILE):
+                raise Exception("File not exist! arg=scm-ut-info, path=" + SCM_UT_FILE)
 
 
 def collectScmSrcAndClasses(scmSrcDir, classesPath, sourcePath):
@@ -113,8 +117,7 @@ def generateReport(workPath, execMergeFile, classesDir, sourceDir, reportDir):
     log.info("generate jacoco report success! \nDownload and see detail in: " + reportTarFile)
 
 
-def dumpAndMergeExecFile(scmDeployInfoFile, scmUtFile, execDir, execMergeFile):
-    # 下载集群测试覆盖率文件
+def dumpRemoteJacocoFile(scmDeployInfoFile, execDir):
     log.info("dump remote jacoco file...")
     nodeList = []
     with open(scmDeployInfoFile, 'r') as f:
@@ -136,7 +139,8 @@ def dumpAndMergeExecFile(scmDeployInfoFile, scmUtFile, execDir, execMergeFile):
         dumpCmd = 'java -jar ' + JACOCO_CLI_PATH + ' dump --address=' + hostname + " --port=" + coveragePort + ' --destfile=' + destFile
         cmdExecutor.command(dumpCmd)
 
-    # 拷贝单元测试覆盖率文件
+
+def collectUnitTestJacocoFile(scmUtFile, execDir):
     log.info("collect unittest jacoco file...")
     moduleList = []
     with open(scmUtFile, 'r') as f:
@@ -157,6 +161,14 @@ def dumpAndMergeExecFile(scmDeployInfoFile, scmUtFile, execDir, execMergeFile):
         if os.path.exists(srcFile):
             shutil.copy(srcFile, destFile)
 
+
+def dumpAndMergeExecFile(scmDeployInfoFile, scmUtFile, execDir, execMergeFile):
+    # 下载集群测试覆盖率文件
+    if scmDeployInfoFile != "":
+        dumpRemoteJacocoFile(scmDeployInfoFile, execDir)
+    # 拷贝单元测试覆盖率文件
+    if scmUtFile != "":
+        collectUnitTestJacocoFile(scmUtFile, execDir)
     # 合并覆盖率文件
     log.info("merge jacoco file...")
     mergeCmd = 'java -jar ' + JACOCO_CLI_PATH + ' merge '
@@ -191,13 +203,14 @@ def statisticsCov(scmDeployInfoFile, scmUtFile, workPath, execDir, execMergeFile
 if __name__ == '__main__':
     try:
         parse_command()
-        if len(SCM_DEPLOY_INFO_FILE.strip()) and len(SCM_UT_FILE.strip()) == 0:
+        if len(SCM_DEPLOY_INFO_FILE.strip()) == 0 and len(SCM_UT_FILE.strip()) == 0:
             raise Exception("At least on of --scm-deploy-info and --scm-ut-info is required!")
         if len(WORK_PATH.strip()) == 0:
             raise Exception("Missing --work-path!")
         if not os.path.exists(WORK_PATH):
             os.makedirs(WORK_PATH)
-        statisticsCov(SCM_DEPLOY_INFO_FILE, SCM_UT_FILE, WORK_PATH, EXEC_DIR, EXEC_MERGE_FILE, CLASSES_DIR, SOURCE_DIR, REPORT_DIR, SCM_SRC_DIR)
+        statisticsCov(SCM_DEPLOY_INFO_FILE, SCM_UT_FILE, WORK_PATH, EXEC_DIR, EXEC_MERGE_FILE, CLASSES_DIR, SOURCE_DIR,
+                      REPORT_DIR, SCM_SRC_DIR)
     except Exception as e:
         log.error(e, exc_info=True)
         raise e
