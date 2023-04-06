@@ -227,8 +227,8 @@ public interface MessageDispatcher extends Closeable {
     BSONObject updateSchedule(String scheduleId, BSONObject newValue) throws ScmException;
 
     BSONObject createBreakpointFile(String workspaceName, String fileName, long createTime,
-                                    ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
-                                    boolean isNeedMd5) throws ScmException;
+            ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
+            boolean isNeedMd5, boolean hasSetTime) throws ScmException;
 
     BSONObject uploadBreakpointFile(String workspaceName, String fileName, InputStream fileStream,
             long offset, boolean isLastContent) throws ScmException;

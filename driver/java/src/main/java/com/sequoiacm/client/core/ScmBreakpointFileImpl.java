@@ -38,6 +38,7 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
     private int breakpointSize;
     private String md5;
     private Boolean isNeedMd5;
+    private boolean hasSetTime;
 
     ScmBreakpointFileImpl(ScmWorkspace workspace, BSONObject obj, int breakpointSize)
             throws ScmException {
@@ -160,6 +161,7 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         }
 
         this.createTime = createTime.getTime();
+        this.hasSetTime = true;
     }
 
     @Override
@@ -253,7 +255,7 @@ class ScmBreakpointFileImpl implements ScmBreakpointFile {
         if (isNew) {
             BSONObject obj = workspace.getSession().getDispatcher().createBreakpointFile(
                     workspace.getName(), fileName, createTime, checksumType, null, false,
-                    isNeedMd5);
+                    isNeedMd5, hasSetTime);
             fromBSONObj(obj);
             isNew = false;
         }

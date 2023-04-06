@@ -95,6 +95,7 @@ public class BreakpointFileController {
             @RequestParam(value = "checksum_type", required = false) ChecksumType checksumType,
             @RequestParam(value = "is_last_content", required = false) Boolean isLastContent,
             @RequestParam(value = "is_need_md5", required = false, defaultValue = "false") boolean isNeedMd5,
+            @RequestParam(value = "has_set_time", required = false) Boolean hasSetTime,
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException, IOException {
@@ -110,8 +111,15 @@ public class BreakpointFileController {
                 throw new ScmMissingArgumentException("Missing is_last_content");
             }
 
-            if (null == createTime) {
-                createTime = System.currentTimeMillis();
+            if (null == hasSetTime || !hasSetTime) {
+                if (null == createTime || 0 == createTime) {
+                    createTime = System.currentTimeMillis();
+                }
+            }
+            else {
+                if (null == createTime) {
+                    throw new ScmMissingArgumentException("Missing create_time");
+                }
             }
 
             BreakpointFile breakpointFile = breakpointFileService.createBreakpointFile(

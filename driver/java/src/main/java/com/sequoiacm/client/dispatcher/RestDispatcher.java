@@ -1667,11 +1667,12 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public BSONObject createBreakpointFile(String workspaceName, String fileName, long createTime,
             ScmChecksumType checksumType, InputStream fileStream, boolean isLastContent,
-            boolean isNeedMd5) throws ScmException {
+            boolean isNeedMd5, boolean hasSetTime) throws ScmException {
         String uri = String.format(
-                "%s%s%s%s%s?workspace_name=%s&create_time=%d&checksum_type=%s&is_last_content=%b&is_need_md5=%b",
+                "%s%s%s%s%s?workspace_name=%s&create_time=%d&checksum_type=%s&is_last_content=%b&is_need_md5=%b&has_set_time=%b",
                 URL_PREFIX, url, API_VERSION, BREAKPOINT_FILES, encode(fileName),
-                encode(workspaceName), createTime, checksumType.name(), isLastContent, isNeedMd5);
+                encode(workspaceName), createTime, checksumType.name(), isLastContent, isNeedMd5,
+                hasSetTime);
         HttpPost request = new HttpPost(uri);
 
         if (fileStream != null) {
