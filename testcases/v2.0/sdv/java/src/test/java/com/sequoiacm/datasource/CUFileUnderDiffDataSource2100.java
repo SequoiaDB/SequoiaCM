@@ -96,7 +96,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
+    @Test(groups = { GroupTags.fourSite })
     private void testCreateInHbase() throws Exception {
         ScmId fileId = createFile( ws, name, filePath1 );
         updateFile( ws1, fileId, filePath2 );
@@ -105,7 +105,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
         runSuccess1 = true;
     }
 
-    @Test(groups = { GroupTags.twoSite, GroupTags.fourSite })
+    @Test(groups = { GroupTags.fourSite })
     private void testCreateInHdfs() throws Exception {
         ScmId fileId = createFile( ws1, name, filePath1 );
         updateFile( ws, fileId, filePath2 );
@@ -115,7 +115,7 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
     }
 
     @AfterClass
-    private void tearDown() {
+    private void tearDown() throws ScmException {
         try {
             if ( !runSuccess1 || !runSuccess2 || TestScmBase.forceClear ) {
                 for ( ScmId fileId : fileIdList ) {
@@ -126,12 +126,12 @@ public class CUFileUnderDiffDataSource2100 extends TestScmBase {
                 ScmFactory.File.deleteInstance( ws, fileId, true );
             }
             TestTools.LocalFile.removeFile( localPath );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
         } finally {
             if ( session != null ) {
                 session.close();
+            }
+            if ( session1 != null ) {
+                session1.close();
             }
         }
     }
