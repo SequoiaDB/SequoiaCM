@@ -259,12 +259,11 @@ public class SetCreateTimeByFileAndBreakpointFile1816 extends TestScmBase {
         createBreakpointFile( name, filedata, date );
         checkBreakpointResult( date, name );
 
-        // 已经提单：SEQUOIACM-1305
         // Date(0) 1970
         date = new Date( 0 );
         name = fileName + "breakpointFileSetCreateTime" + date.getTime();
         createBreakpointFile( name, filedata, date );
-        // checkBreakpointResult( date, name );
+        checkBreakpointResult( date, name );
 
         // Date new Date(-1)
         date = new Date( -1 );
