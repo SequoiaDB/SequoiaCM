@@ -119,18 +119,20 @@ public class Transfer_stopSameTask439 extends TestScmBase {
                     stopTaskThreadB.getErrorMsg() );
 
             waitTaskStop( taskId );
-
             List< ScmId > fileIdList = transferedFile();
-            if ( fileIdList != null ) {
+            int runningFlag = ScmSystem.Task.getTask( session, taskId )
+                    .getRunningFlag();
+            if ( runningFlag == CommonDefine.TaskRunningFlag.SCM_TASK_FINISH ) {
+                Assert.assertEquals( fileIdList.size(), fileNum );
                 checkTransContent( fileIdList );
-            }
-
-            if ( fileIdList.size() == fileNum ) {
                 checkTaskAttribute( session,
                         CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
-            } else {
+            } else if ( runningFlag == CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL ) {
+                checkTransContent( fileIdList );
                 checkTaskAttribute( session,
                         CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
+            } else {
+                Assert.fail( "非预期的runningFlag，runningFlag = " + runningFlag );
             }
         } finally {
             if ( sessionM != null ) {
