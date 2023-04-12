@@ -61,31 +61,30 @@ public class CompareCommand extends SubCommand {
     protected Options addParam() {
         Options ops = new Options();
         ops.addOption(Option.builder().longOpt(WORK_PATH).desc("compare check work path")
-                .optionalArg(true).hasArg(true).required(true).build());
-        ops.addOption(Option.builder().longOpt(WORKSPACE).desc("workspace name").optionalArg(true)
                 .hasArg(true).required(true).build());
+        ops.addOption(Option.builder().longOpt(WORKSPACE).desc("workspace name").hasArg(true)
+                .required(true).build());
         ops.addOption(Option.builder().longOpt(BEGIN_TIME)
-                .desc("file's meta create_time of begin time to filter,eg: <yyyyMMdd>")
-                .optionalArg(true).hasArg(true).required(true).build());
+                .desc("file's meta create_time of begin time to filter,eg: <yyyyMMdd>").hasArg(true)
+                .required(true).build());
         ops.addOption(Option.builder().longOpt(END_TIME)
-                .desc("file's meta create_time of end time to filter,eg: <yyyyMMdd>")
-                .optionalArg(true).hasArg(true).required(true).build());
-        ops.addOption(
-                Option.builder().longOpt(GATEWAY_URL).desc("gateway url,eg:<ip>:<port>/<siteName>")
-                        .optionalArg(true).hasArg(true).required(true).build());
-        ops.addOption(Option.builder().longOpt(ADMIN_USER).desc("admin user name").optionalArg(true)
-                .hasArg(true).required(true).build());
+                .desc("file's meta create_time of end time to filter,eg: <yyyyMMdd>").hasArg(true)
+                .required(true).build());
+        ops.addOption(Option.builder().longOpt(GATEWAY_URL)
+                .desc("gateway url,eg:<ip>:<port>/<siteName>").hasArg(true).required(true).build());
+        ops.addOption(Option.builder().longOpt(ADMIN_USER).desc("admin user name").hasArg(true)
+                .required(true).build());
         ops.addOption(Option.builder().longOpt(ADMIN_USER_PASSWD).desc("admin user password")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .optionalArg(true).hasArg(true).required(true).build());
         ops.addOption(Option.builder().longOpt(LEVEL)
                 .desc("data check level:1(size:compare data size)，2（md5:compare data size and md5）")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .hasArg(true).required(false).build());
         ops.addOption(Option.builder().longOpt(FULL)
                 .desc("compare record output same result,false:no output,true:output,default:false")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .hasArg(true).required(false).build());
         ops.addOption(Option.builder().longOpt(WORKER_COUNT)
                 .desc("number of threads for concurrent compare check, default: 1,max: 100")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .hasArg(true).required(false).build());
         return ops;
     }
 

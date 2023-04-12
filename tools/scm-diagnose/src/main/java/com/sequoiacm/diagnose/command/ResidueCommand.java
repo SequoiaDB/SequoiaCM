@@ -62,31 +62,30 @@ public class ResidueCommand extends SubCommand {
     protected Options addParam() {
         Options ops = new Options();
         ops.addOption(Option.builder().longOpt(WORK_PATH).desc("residue check work path")
-                .optionalArg(true).hasArg(true).required(true).build());
-        ops.addOption(Option.builder().longOpt(WORKSPACE).desc("workspace name").optionalArg(true)
                 .hasArg(true).required(true).build());
-        ops.addOption(Option.builder().longOpt(SITE_NAME)
-                .desc("site name, only support sequoiadb datasource").optionalArg(true).hasArg(true)
+        ops.addOption(Option.builder().longOpt(WORKSPACE).desc("workspace name").hasArg(true)
                 .required(true).build());
-        ops.addOption(
-                Option.builder().longOpt(GATEWAY_URL).desc("gateway url,eg:<ip>:<port>/<siteName>")
-                        .optionalArg(true).hasArg(true).required(true).build());
-        ops.addOption(Option.builder().longOpt(ADMIN_USER).desc("admin user name").optionalArg(true)
-                .hasArg(true).required(true).build());
+        ops.addOption(Option.builder().longOpt(SITE_NAME)
+                .desc("site name, only support sequoiadb datasource").hasArg(true).required(true)
+                .build());
+        ops.addOption(Option.builder().longOpt(GATEWAY_URL)
+                .desc("gateway url,eg:<ip>:<port>/<siteName>").hasArg(true).required(true).build());
+        ops.addOption(Option.builder().longOpt(ADMIN_USER).desc("admin user name").hasArg(true)
+                .required(true).build());
         ops.addOption(Option.builder().longOpt(ADMIN_USER_PASSWD).desc("admin user password")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .optionalArg(true).hasArg(true).required(true).build());
         ops.addOption(Option.builder().longOpt(DATA_TABLE)
                 .desc("data table name to be residue check, only support lob table name")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .hasArg(true).required(false).build());
         ops.addOption(Option.builder().longOpt(DATA_ID_FILE_PATH)
-                .desc("data id list file path to be residue check").optionalArg(true).hasArg(true)
-                .required(false).build());
+                .desc("data id list file path to be residue check").hasArg(true).required(false)
+                .build());
         ops.addOption(Option.builder().longOpt(MAX_COUNT)
                 .desc("max count of rejected residue check, default:10000, max: 1000000")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .hasArg(true).required(false).build());
         ops.addOption(Option.builder().longOpt(WORKER_COUNT)
                 .desc("number of threads for concurrent residue check, default: 1,max: 100")
-                .optionalArg(true).hasArg(true).required(false).build());
+                .hasArg(true).required(false).build());
         return ops;
     }
 
