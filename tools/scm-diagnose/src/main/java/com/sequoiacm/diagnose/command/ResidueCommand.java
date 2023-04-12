@@ -152,7 +152,7 @@ public class ResidueCommand extends SubCommand {
             if (dataIdCount > maxCount) {
                 throw new ScmToolsException(
                         "Reject this residue check,because data id count bigger than max count, dataIdCount:"
-                                + dataIdCount + "maxCount:" + maxCount,
+                                + dataIdCount + ", maxCount:" + maxCount,
                         ScmExitCode.SYSTEM_ERROR);
             }
             FileOperator operator = FileOperator.getInstance();
@@ -283,9 +283,6 @@ public class ResidueCommand extends SubCommand {
             String csName = split[0];
             String clName = split[1];
             if (csName.length() == 0 || clName.length() == 0) {
-                throw new ScmToolsException("Invalid data table name", ScmExitCode.INVALID_ARG);
-            }
-            if (!csName.contains(cl.getOptionValue(WORKSPACE))) {
                 throw new ScmToolsException("Invalid data table name", ScmExitCode.INVALID_ARG);
             }
             this.dataTable = dataTable;

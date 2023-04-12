@@ -10,6 +10,7 @@ import com.sequoiacm.client.dispatcher.CloseableFileDataEntity;
 import com.sequoiacm.client.element.ScmSiteInfo;
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
+import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonUtils;
 import com.sequoiacm.client.util.Strings;
 import com.sequoiacm.datasource.ScmDatasourceException;
@@ -22,6 +23,7 @@ import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.diagnose.config.WorkPathConfig;
 import com.sequoiacm.diagnose.utils.CommonUtils;
 import com.sequoiacm.diagnose.utils.ScmDataSourceUtils;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
@@ -76,7 +78,7 @@ public class ScmDataSourceMgr {
 
     // 初始化数据源管理类，需要初始化工作区和站点缓存以及数据源操作工厂
     public void init(String wsName, String url, String user, String passwd)
-            throws ScmToolsException {
+            throws Exception {
         ScmWorkspace workspace = getWs(wsName, url, user, passwd);
         loadSite(workspace, url, user, passwd);
         loadWorkspaceInfo(workspace.getName());
@@ -117,6 +119,14 @@ public class ScmDataSourceMgr {
             }
         }
         catch (Exception e) {
+            if (e instanceof ScmException) {
+                ScmException scmException = (ScmException) e;
+                if (scmException.getError() == ScmError.OPERATION_UNAUTHORIZED) {
+                    throw new ScmToolsException(
+                            "Permission denied,do not have priority,userName: " + user,
+                            ScmExitCode.INVALID_ARG, scmException);
+                }
+            }
             throw new ScmToolsException("Failed to load site", ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
@@ -125,16 +135,19 @@ public class ScmDataSourceMgr {
     }
 
     private ScmWorkspace getWs(String ws, String url, String user, String passwd)
-            throws ScmToolsException {
-        ScmSession session = null;
+            throws Exception {
+        ScmSession session = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
+                new ScmConfigOption(url, user, passwd));
         try {
-            session = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
-                    new ScmConfigOption(url, user, passwd));
             return ScmFactory.Workspace.getWorkspace(ws, session);
         }
-        catch (Exception e) {
-            throw new ScmToolsException("Failed to get workspace info", ScmExitCode.SYSTEM_ERROR,
-                    e);
+        catch (ScmException e) {
+            if (e.getError() == ScmError.WORKSPACE_NOT_EXIST) {
+                throw new ScmToolsException("workspace is not exist, workspace: " + ws,
+                        ScmExitCode.INVALID_ARG, e);
+            }
+            throw new ScmToolsException("Failed to get workspace info, workspace: " + ws,
+                    ScmExitCode.SYSTEM_ERROR, e);
         }
         finally {
             ScmCommon.closeResource(session);
@@ -207,19 +220,19 @@ public class ScmDataSourceMgr {
     }
 
     private String downloadDataSecretFile(String siteName, String url, String sessionId)
-            throws ScmToolsException {
+            throws Exception {
         return downloadSecretFile("http://" + replaceUrl(url, siteName)
                 + "/api/v1/sites?action=get_datasource_secret", sessionId);
     }
 
     private String downloadMetaSecretFile(String siteName, String url, String sessionId)
-            throws ScmToolsException {
+            throws Exception {
         return downloadSecretFile("http://" + replaceUrl(url, siteName)
                 + "/api/v1/sites?action=get_metasource_secret", sessionId);
     }
 
     private String downloadSecretFile(String requestUri, String sessionId)
-            throws ScmToolsException {
+            throws Exception {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
             HttpGet request = new HttpGet(requestUri);
@@ -227,10 +240,6 @@ public class ScmDataSourceMgr {
             CloseableHttpResponse response = httpClient.execute(request);
             handlerException(response);
             return save(response);
-        }
-        catch (Exception e) {
-            throw new ScmToolsException("Failed to download secret file", ScmExitCode.SYSTEM_ERROR,
-                    e);
         }
         finally {
             ScmCommon.closeResource(httpClient);
@@ -343,7 +352,7 @@ public class ScmDataSourceMgr {
         return opFactory.createReader(siteId, wsName, location, dataService, dataInfo);
     }
 
-    private void handlerException(CloseableHttpResponse response) throws ScmToolsException {
+    private void handlerException(CloseableHttpResponse response) throws Exception {
         int httpStatusCode = response.getStatusLine().getStatusCode();
 
         // 2xx Success
@@ -363,9 +372,7 @@ public class ScmDataSourceMgr {
                 message = BsonUtils.getString(error, "message");
             }
         }
-
-        throw new ScmToolsException("error code=" + errcode + ", message: " + message,
-                ScmExitCode.SYSTEM_ERROR);
+        throw new ScmException(errcode, message);
     }
 
     private String getErrorResponse(CloseableHttpResponse response) throws ScmToolsException {
