@@ -1,11 +1,10 @@
 package com.sequoiacm.diagnose.config;
 
+import com.sequoiacm.diagnose.utils.CommonUtils;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -40,10 +39,7 @@ public class WorkPathConfig {
         path = getStandardFilePath(path);
         File workPathDir = new File(path);
         if (!workPathDir.isAbsolute()) {
-            path = this.userWorkDir + path;
-            // 规范化路径如 /opt/sequoiacm/tools/../../xx.sh -> /opt/xx.sh
-            Path p = Paths.get(path);
-            path = p.normalize().toString();
+            path = CommonUtils.getNormalizationPath(this.userWorkDir + path);
         }
         this.workPath = path + File.separator;
         this.secretPath = workPath + "secret" + File.separator;

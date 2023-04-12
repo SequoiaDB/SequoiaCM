@@ -130,11 +130,13 @@ public class ResidueCommand extends SubCommand {
             if (isHasDataIdFilePath(cl)) {
                 File file = new File(dataIdFilePath);
                 if (!file.isAbsolute()) {
-                    dataIdFilePath = workPathConfig.getUserWorkDir();
+                    dataIdFilePath = CommonUtils
+                            .getNormalizationPath(workPathConfig.getUserWorkDir() + dataIdFilePath);
                     file = new File(dataIdFilePath);
                 }
                 if (!file.exists()) {
-                    throw new ScmToolsException("data id file not exist,filePath" + dataIdFilePath,
+                    throw new ScmToolsException(
+                            "data id file not exist,filePath: " + dataIdFilePath,
                             ScmExitCode.SYSTEM_ERROR);
                 }
                 dataIdCount = CommonUtils.getLineCount(dataIdFilePath);

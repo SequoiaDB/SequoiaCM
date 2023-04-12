@@ -19,6 +19,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -171,5 +173,11 @@ public class CommonUtils {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public static String getNormalizationPath(String filePath) {
+        // 规范化路径如 /opt/sequoiacm/tools/../../xx.sh -> /opt/xx.sh
+        Path p = Paths.get(filePath);
+        return p.normalize().toString();
     }
 }
