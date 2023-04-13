@@ -252,8 +252,8 @@ public class Clean_runningTaskAndReadFile476 extends TestScmBase {
 
                 // start task
                 BSONObject condition = ScmQueryBuilder
-                        .start( ScmAttributeName.File.AUTHOR )
-                        .greaterThanEquals( authorName ).get();
+                        .start( ScmAttributeName.File.AUTHOR ).is( authorName )
+                        .get();
                 taskId = ScmSystem.Task.startCleanTask( ws, condition );
 
                 // check result
