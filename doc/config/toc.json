@@ -1207,6 +1207,18 @@
                     "file": "clusterinfo",
                     "cn": "cluster-info",
                     "en": "cluster-info"    
+                },
+                {
+                    "id": 1679884709,
+                    "file": "compare",
+                    "cn": "compare",
+                    "en": "compare"
+                },
+                {
+                    "id": 1679884783,
+                    "file": "residue",
+                    "cn": "residue",
+                    "en": "residue"
                 }]
             }]
         },
