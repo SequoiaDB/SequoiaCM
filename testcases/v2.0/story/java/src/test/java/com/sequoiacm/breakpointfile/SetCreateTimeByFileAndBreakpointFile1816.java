@@ -68,9 +68,8 @@ public class SetCreateTimeByFileAndBreakpointFile1816 extends TestScmBase {
                 .is( fileAuthor ).get();
         ScmFileUtils.cleanFile( wsp, queryCond );
     }
-
-    // 问题单SEQUOIACM-1321未修改，用例暂时屏蔽
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    
+    @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         testFileSetCreateTime();
         runTestFileSuccess = true;

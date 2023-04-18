@@ -54,8 +54,7 @@ public class GetBreakpointFileAttr1382 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsp.getName(), session );
     }
 
-    // 问题单http://jira.web:8080/browse/SEQUOIACM-1321未修改，暂时屏蔽用例
-    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void test() throws Exception {
         createBreakpointFile();
         getFileAttrInfo();
