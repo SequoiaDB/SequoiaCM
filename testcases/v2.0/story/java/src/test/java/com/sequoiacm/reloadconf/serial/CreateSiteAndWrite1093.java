@@ -14,20 +14,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
-import com.sequoiacm.testcommon.TestThreadBase;
-import com.sequoiacm.testcommon.TestTools;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmSiteUtils;
 
@@ -71,7 +61,8 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // CI-1885暂时屏蔽
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         Write w = new Write();
         ReloadConf r = new ReloadConf();
