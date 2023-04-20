@@ -1,5 +1,6 @@
 package com.sequoiacm.config.framework.workspace.metasource;
 
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -14,7 +15,6 @@ import com.sequoiacm.config.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbMetasource;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
 
-import java.util.List;
 
 public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements SysWorkspaceTableDao {
 
@@ -152,6 +152,31 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, isEnableDirectory);
         BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
 
+        return updateAndReturnNew(matcher, updater);
+    }
+
+    @Override
+    public BSONObject updateMetaDomain(BSONObject oldWsRecord, String newDomain,
+            BSONObject versionSet) throws ScmConfigException {
+        if (!isDomainExist(newDomain)) {
+            throw new ScmConfigException(ScmConfError.INVALID_ARG,
+                    "Domain does not exist,domainName: " + newDomain);
+        }
+        // { $set: { "meta_location.domain": newDomain } }
+        BasicBSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_META_LOCATION
+                + "." + FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN, newDomain);
+        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
+
+        return updateAndReturnNew(oldWsRecord, updater);
+
+    }
+
+    @Override
+    public BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject versionSet)
+            throws ScmConfigException {
+        BSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXTRA_META_CS,
+                newCs);
+        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_PUSH, setUpdater);
         return updateAndReturnNew(matcher, updater);
     }
 

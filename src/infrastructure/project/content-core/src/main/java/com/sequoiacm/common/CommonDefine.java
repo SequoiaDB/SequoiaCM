@@ -309,6 +309,7 @@ public class CommonDefine {
         public static final String WORKSPACE_UPDATOR_DESCRIPTION = "description";
         public static final String WORKSPACE_UPDATOR_PREFERRED = "preferred";
         public static final String WORKSPACE_UPDATOR_SITE_CACHE_STRATEGY = "site_cache_strategy";
+        public static final String WORKSPACE_UPDATOR_META_DOMAIN = "meta_domain";
         public static final String WORKSPACE_UPDATOR_ENABLE_DIRECTORY = "enable_directory";
         public static final String WORKSPACE_FILTER = "filter";
         public static final String WORKSPACE_ORDERBY = "orderby";

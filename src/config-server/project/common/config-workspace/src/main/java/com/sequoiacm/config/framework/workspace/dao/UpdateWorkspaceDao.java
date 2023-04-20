@@ -13,6 +13,7 @@ import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.types.BasicBSONList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -147,6 +148,20 @@ public class UpdateWorkspaceDao {
                                     + updator.getWsName());
                 }
 
+            }
+            else if (updator.getUpdateDomain() != null) {
+                newWsRecord = table.updateMetaDomain(matcher, updator.getUpdateDomain(),
+                        versionSet);
+            }
+            else if (updator.getAddExtraMetaCs() != null) {
+                BasicBSONList extraMetaCs = (BasicBSONList) matcher
+                        .get(FieldName.FIELD_CLWORKSPACE_EXTRA_META_CS);
+                if (null != extraMetaCs && extraMetaCs.containsField(updator.getAddExtraMetaCs())) {
+                    throw new ScmConfigException(ScmConfError.METASOURCE_RECORD_EXIST,
+                            "new extra meta cs record exist");
+                }
+                newWsRecord = table.addExtraMetaCs(matcher, updator.getAddExtraMetaCs(),
+                        versionSet);
             }
             else {
                 throw new ScmConfigException(ScmConfError.INVALID_ARG, "update nothing:" + updator);

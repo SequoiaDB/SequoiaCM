@@ -31,8 +31,6 @@ public interface MetaFileHistoryAccessor {
     public boolean deleteFromSiteList(String fileId, int majorVersion, int minorVersion, int siteId)
             throws ScmMetasourceException;
 
-    public void createFileTable(BSONObject file) throws ScmMetasourceException;
-    
     // update and return new
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
             BSONObject newFileInfo) throws ScmMetasourceException;

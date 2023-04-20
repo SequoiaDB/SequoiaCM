@@ -451,4 +451,15 @@ class ScmWorkspaceImpl extends ScmWorkspace {
                 newSiteCacheStrategy.name());
         _update(updator);
     }
+
+    @Override
+    public void updateMetaDomain(String domainName) throws ScmException {
+        if (null == domainName) {
+            throw new ScmInvalidArgumentException("new domain name is null");
+        }
+
+        BasicBSONObject updator = new BasicBSONObject(
+                CommonDefine.RestArg.WORKSPACE_UPDATOR_META_DOMAIN, domainName);
+        _update(updator);
+    }
 }

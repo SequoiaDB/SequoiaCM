@@ -132,6 +132,10 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_PREFERRED));
         configUpdator.setEnableDirectory(BsonUtils.getBoolean(wsUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_UPDATOR_ENABLE_DIRECTORY));
+        configUpdator.setUpdateDomain(
+                BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_UPDATOR_META_DOMAIN));
+        configUpdator.setAddExtraMetaCs(BsonUtils.getString(wsUpdatorObj,
+                ScmRestArgDefine.WORKSPACE_UPDATOR_ADD_EXTRA_META_CS));
         return configUpdator;
     }
 

@@ -10,7 +10,6 @@ import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaCursor;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;

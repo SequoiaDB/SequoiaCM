@@ -3,13 +3,18 @@ package com.sequoiacm.config.framework.bucket.dao;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.framework.bucket.metasource.BucketMetaService;
 import com.sequoiacm.config.framework.common.DefaultVersionDao;
+import com.sequoiacm.config.framework.event.ScmConfEvent;
 import com.sequoiacm.config.framework.event.ScmConfEventBase;
 import com.sequoiacm.config.framework.operator.ScmConfOperateResult;
+import com.sequoiacm.config.framework.workspace.dao.UpdateWorkspaceDao;
+import com.sequoiacm.config.framework.workspace.metasource.SysWorkspaceTableDao;
+import com.sequoiacm.config.framework.workspace.metasource.WorkspaceMetaServiceSdbImpl;
 import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
+import com.sequoiacm.infrastructure.common.TableCreatedResult;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
@@ -23,6 +28,7 @@ import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilterType;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketNotifyOption;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -52,6 +58,12 @@ public class BucketDao {
 
     @Autowired
     private DefaultVersionDao versionDao;
+
+    @Autowired
+    private UpdateWorkspaceDao updateWorkspaceDao;
+
+    @Autowired
+    private WorkspaceMetaServiceSdbImpl workspaceMetaService;
 
     @PostConstruct
     public void initBucketVersion() throws ScmConfigException {
@@ -146,13 +158,57 @@ public class BucketDao {
                     "bucket exist:" + config.getName());
         }
 
+        // 新版3.6.1创桶操作是在内容服务中，新版内容服务发送的 BucketConfig 携带了完整的建好的集合名
+        // 旧版内容服务发送的 BucketConfig 不带集合名，因为还没建桶
+        String tableName = config.getFileTable();
+        if (null == tableName) {
+            return createBucketV1(config);
+        }
+        return createBucketV2(config);
+    }
+
+    // 旧版创建桶
+    private ScmConfOperateResult createBucketV1(BucketConfig config) throws ScmConfigException {
+        ScmConfOperateResult addExtraCsResult = null;
         Date createTime = new Date();
         long bucketId = metaService.genBucketId();
-        String tableName = metaService.createBucketFileTable(config.getWorkspace(), bucketId);
+        TableCreatedResult opResult = metaService.createBucketFileTable(config.getWorkspace(),
+                bucketId);
+        String tableName = opResult.getFullClName();
+        if (!opResult.isInExtraCs()) {
+            // cs 不在 extra_meta_cs 里，需要添加到工作区的 extra_meta_cs 列表里
+            addExtraCsResult = addToExtraCsListSilence(config.getWorkspace(),
+                    opResult.getCsName());
+        }
         config.setId(bucketId);
         config.setCreateTime(createTime.getTime());
         config.setUpdateTime(createTime.getTime());
         config.setFileTable(tableName);
+        insertBucketMeta(config);
+        BucketNotifyOption notifyOption = new BucketNotifyOption(config.getName(), 1,
+                EventType.CREATE, -1);
+        ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.BUCKET, notifyOption);
+        ScmConfOperateResult ops = new ScmConfOperateResult(config, event);
+        if (null != addExtraCsResult) {
+            // 加上工作区通知事件
+            for (ScmConfEvent item : addExtraCsResult.getEvent()) {
+                ops.addEvent(item);
+            }
+        }
+        return ops;
+    }
+
+    // 新版创建桶（集合已经在内容服务建好）
+    private ScmConfOperateResult createBucketV2(BucketConfig config) throws ScmConfigException {
+        insertBucketMeta(config);
+        BucketNotifyOption notifyOption = new BucketNotifyOption(config.getName(), 1,
+                EventType.CREATE, -1);
+        ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.BUCKET, notifyOption);
+        return new ScmConfOperateResult(config, event);
+    }
+
+    private void insertBucketMeta(BucketConfig config) throws ScmConfigException {
+        String tableName = config.getFileTable();
         Transaction trans = metasource.createTransaction();
         try {
             trans.begin();
@@ -176,11 +232,24 @@ public class BucketDao {
         finally {
             trans.close();
         }
-        // 创建 bucket，不需要递增全局版本，所以通知给一个 -1 无效的全局版本
-        BucketNotifyOption notifyOption = new BucketNotifyOption(config.getName(), 1,
-                EventType.CREATE, -1);
-        ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.BUCKET, notifyOption);
-        return new ScmConfOperateResult(config, event);
+    }
+
+    private ScmConfOperateResult addToExtraCsListSilence(String wsName, String newCs) {
+        try {
+            SysWorkspaceTableDao wsTable = workspaceMetaService.getSysWorkspaceTable(null);
+            BSONObject wsRecord = wsTable.queryOne(
+                    new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME, wsName), null, null);
+            WorkspaceUpdator updator = new WorkspaceUpdator(wsName, wsRecord);
+            updator.setAddExtraMetaCs(newCs);
+            return updateWorkspaceDao.update(updator);
+        }
+        catch (Exception e) {
+            // 通知更新工作区新cs失败，忽略，下一次创桶再通知
+            logger.warn(
+                    "Failed to update workspace extra meta cs list,workspace: {}, extraMetaCS: {}",
+                    wsName, newCs, e);
+        }
+        return null;
     }
 
     private boolean isBucketExist(String name) throws ScmConfigException {

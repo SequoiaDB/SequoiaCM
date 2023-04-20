@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.metasource.MetaFileAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;

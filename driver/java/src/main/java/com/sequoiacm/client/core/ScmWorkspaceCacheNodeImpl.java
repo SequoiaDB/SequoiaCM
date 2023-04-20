@@ -263,6 +263,12 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
     }
 
     @Override
+    public void updateMetaDomain(String domainName) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.updateMetaDomain(domainName);
+    }
+
+    @Override
     public String getPreferred() {
         checkScmWorkspace();
         return scmWorkspace.getPreferred();

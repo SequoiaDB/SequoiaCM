@@ -303,6 +303,16 @@ public class SequoiadbTableDao extends TableDaoBase {
         }
     }
 
+    protected boolean isDomainExist(String domainName) throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            return db.isDomainExist(domainName);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
     protected void ensureIndex(String idxName, BSONObject indexDefinition, boolean isUnique)
             throws MetasourceException {
         Sequoiadb db = getConnection();

@@ -7,8 +7,6 @@ import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdator;
 import org.bson.types.BasicBSONList;
 
-import java.util.List;
-
 public class WorkspaceUpdator implements ConfigUpdator {
     private String wsName;
     private Integer removeDataLocationId;
@@ -20,6 +18,8 @@ public class WorkspaceUpdator implements ConfigUpdator {
     private BSONObject matcher;
     private String preferred;
     private String newSiteCacheStrategy;
+    private String updateDomain;
+    private String addExtraMetaCs;
 
     private Boolean enableDirectory;
 
@@ -69,6 +69,12 @@ public class WorkspaceUpdator implements ConfigUpdator {
         }
         if (enableDirectory != null){
             updator.put(ScmRestArgDefine.WORKSPACE_UPDATOR_ENABLE_DIRECTORY, enableDirectory);
+        }
+        if (updateDomain != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_UPDATOR_META_DOMAIN, updateDomain);
+        }
+        if (addExtraMetaCs != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_UPDATOR_ADD_EXTRA_META_CS, addExtraMetaCs);
         }
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_MATCHER, matcher);
@@ -153,5 +159,21 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     public void setEnableDirectory(Boolean enableDirectory) {
         this.enableDirectory = enableDirectory;
+    }
+
+    public String getUpdateDomain() {
+        return updateDomain;
+    }
+
+    public void setUpdateDomain(String updateDomain) {
+        this.updateDomain = updateDomain;
+    }
+
+    public String getAddExtraMetaCs() {
+        return addExtraMetaCs;
+    }
+
+    public void setAddExtraMetaCs(String addExtraMetaCs) {
+        this.addExtraMetaCs = addExtraMetaCs;
     }
 }

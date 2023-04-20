@@ -345,6 +345,16 @@ public abstract class ScmWorkspace {
     public abstract void updateSiteCacheStrategy(ScmSiteCacheStrategy scmSiteCacheStrategy)
             throws ScmException;
 
+    /**
+     * Updates the meta location domain of workspace.
+     *
+     * @param domainName
+     *            domain name
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void updateMetaDomain(String domainName) throws ScmException;
+
     abstract ScmSession getSession();
 
     abstract int getId();

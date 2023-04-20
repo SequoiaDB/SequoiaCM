@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.dao;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.common.FileTableCreator;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.ScmVersion;
@@ -15,6 +16,7 @@ import com.sequoiacm.metasource.MetaFileAccessor;
 import com.sequoiacm.metasource.MetaFileHistoryAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.TransactionContext;
+import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -191,9 +193,9 @@ public class ScmFileVersionHelper {
             if (e.getScmError() == ScmError.FILE_TABLE_NOT_FOUND) {
 
                 try {
-                    contentModule.getMetaService().getMetaSource()
-                            .getFileAccessor(ws.getMetaLocation(), ws.getName(), null)
-                            .createFileTable(latestFileVersion.toBSONObject());
+                    FileTableCreator.createSubFileTable(
+                            (SdbMetaSource) contentModule.getMetaService().getMetaSource(), ws,
+                            latestFileVersion.toBSONObject());
                 }
                 catch (Exception ex) {
                     throw new ScmServerException(ScmError.METASOURCE_ERROR,

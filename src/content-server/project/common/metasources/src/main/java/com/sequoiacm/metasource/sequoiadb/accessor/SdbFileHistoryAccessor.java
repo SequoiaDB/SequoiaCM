@@ -127,11 +127,6 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
     }
 
     @Override
-    public void createFileTable(BSONObject file) throws ScmMetasourceException {
-        baseAccesor.createFileTable(file);
-    }
-
-    @Override
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
             BSONObject newFileInfo) throws ScmMetasourceException {
         try {

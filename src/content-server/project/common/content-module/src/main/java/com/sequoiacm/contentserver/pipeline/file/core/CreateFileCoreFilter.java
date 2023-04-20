@@ -1,5 +1,6 @@
 package com.sequoiacm.contentserver.pipeline.file.core;
 
+import com.sequoiacm.contentserver.common.FileTableCreator;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.CreateFileContext;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
@@ -10,6 +11,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaFileAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
+import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +36,9 @@ public class CreateFileCoreFilter implements Filter<CreateFileContext> {
         catch (ScmMetasourceException e) {
             if (e.getScmError() == ScmError.FILE_TABLE_NOT_FOUND) {
                 try {
-                    contentModule.getMetaService().getMetaSource()
-                            .getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), null)
-                            .createFileTable(fileRecord);
+                    FileTableCreator.createSubFileTable(
+                            (SdbMetaSource) contentModule.getMetaService().getMetaSource(), wsInfo,
+                            fileRecord);
                 }
                 catch (Exception ex) {
                     throw new ScmServerException(ScmError.METASOURCE_ERROR,

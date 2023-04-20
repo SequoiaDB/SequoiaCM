@@ -46,6 +46,9 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         if (toolName.equals("disable-directory")) {
             instance = new ScmDisableDirectoryWsToolImpl();
         }
+        if (toolName.equals("update-metadomain")) {
+            instance = new ScmUpdateMetaDomainWsToolImpl();
+        }
         return instance;
     }
 

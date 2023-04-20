@@ -3,8 +3,9 @@ package com.sequoiacm.contentserver.bizconfig;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.common.FileTableCreator;
 import com.sequoiacm.contentserver.model.ScmBucket;
-import com.sequoiacm.contentserver.site.ScmSite;
+import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmJsonInputStreamCursor;
@@ -21,16 +22,14 @@ import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import com.sequoiacm.infrastructure.config.core.msg.metadata.*;
-import com.sequoiacm.infrastructure.config.core.msg.site.SiteConfig;
-import com.sequoiacm.infrastructure.config.core.msg.site.SiteUpdator;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -296,14 +295,12 @@ public class ContenserverConfClient {
 
     public ScmBucket createBucket(String user, String ws, String bucketName)
             throws ScmServerException {
-        BucketConfig bucketConfig = new BucketConfig();
-        bucketConfig.setCreateUser(user);
-        bucketConfig.setWorkspace(ws);
-        bucketConfig.setName(bucketName);
-        bucketConfig.setVersionStatus(ScmBucketVersionStatus.Disabled.name());
-        bucketConfig.setCustomTag(new HashMap<>());
-        bucketConfig.setUpdateUser(user);
         try {
+            // 在本地先创建桶相关的集合，再发送给配置服务做配置变更。 但旧版本是在配置服务创建桶相关的集合，
+            // 因此新版本内容对接旧版本配置服务时会出现创建两次集合的问题(表名根据递增id生成，因此内容服务创建的集合会残留)
+            BucketConfig bucketConfig = FileTableCreator.createBucketTable(
+                    (SdbMetaSource) ScmContentModule.getInstance().getMetaService().getMetaSource(),
+                    user, ws, bucketName);
             BucketConfig ret = (BucketConfig) client.createConf(ScmConfigNameDefine.BUCKET,
                     bucketConfig, false);
             return convertBucketConf(ret);
@@ -314,6 +311,10 @@ public class ContenserverConfClient {
                         "bucket is exists: ws=" + ws + ", bucketName=" + bucketName, e);
             }
             throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
+                    "failed to create bucket:ws=" + ws + ", bucket=" + bucketName, e);
+        }
+        catch (Exception e) {
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
                     "failed to create bucket:ws=" + ws + ", bucket=" + bucketName, e);
         }
     }

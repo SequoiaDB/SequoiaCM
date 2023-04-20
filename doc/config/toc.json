@@ -1238,6 +1238,12 @@
                 "file": "add_node",
                 "cn": "增加节点",
                 "en": "Add Node"
+            },
+            {
+                "id": 1551230888,
+                "file": "meta_expand",
+                "cn": "元数据扩容",
+                "en": "Meta Expand"
             }]
         },
         {

@@ -11,6 +11,8 @@ import com.sequoiacm.config.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbMetasource;
 import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.TableCreatedResult;
+import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import org.bson.BSONObject;
@@ -67,26 +69,25 @@ public class BucketMetaServiceSdbImpl implements BucketMetaService {
     }
 
     @Override
-    public String createBucketFileTable(String wsName, long bucketId) throws ScmConfigException {
-        BSONObject clOption = new BasicBSONObject();
-        clOption.put("ShardingType", "hash");
-        clOption.put("AutoSplit", true);
-        BSONObject clShardingKey = new BasicBSONObject(FieldName.BucketFile.FILE_NAME, 1);
-        clOption.put("ShardingKey", clShardingKey);
-        String csClName = workspaceMetaService.createClInWorkspaceMetaCs(wsName,
-                "BUCKET_FILE_" + bucketId, clOption);
-        String[] csCLArr = csClName.split("\\.");
+    public TableCreatedResult createBucketFileTable(String wsName, long bucketId)
+            throws ScmConfigException {
+        BSONObject clOption = TableMetaCommon.genBucketTableOption();
+        String clName = "BUCKET_FILE_" + bucketId;
+        // 创建桶集合，由于桶集合名由bucketId拼接生成，理论上唯一，因此这里如果出现集合存在的异常，不能忽略
+        TableCreatedResult opResult = workspaceMetaService.createClInWorkspaceMetaCs(wsName, clName,
+                clOption, false);
+        String csName = opResult.getCsName();
 
         try {
-            sdbMetaSource.ensureIndex(csCLArr[0], csCLArr[1],
+            sdbMetaSource.ensureIndex(csName, clName,
                     IndexName.BucketFile.FILE_NAME_UNIQUE_IDX,
                     new BasicBSONObject(FieldName.BucketFile.FILE_NAME, 1), true);
         }
         catch (Exception e) {
-            dropBucketFileTableSilence(csClName);
+            dropBucketFileTableSilence(csName + "." + clName);
             throw e;
         }
-        return csClName;
+        return opResult;
     }
 
     @Override

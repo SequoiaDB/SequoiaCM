@@ -32,4 +32,10 @@ public interface SysWorkspaceTableDao extends TableDao {
 
     BSONObject updateDirectory(BSONObject matcher, Boolean isEnableDirectory, BSONObject versionSet)
             throws ScmConfigException;
+
+    BSONObject updateMetaDomain(BSONObject matcher, String newDomain, BSONObject versionSet)
+            throws ScmConfigException;
+
+    BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject versionSet)
+            throws ScmConfigException;
 }

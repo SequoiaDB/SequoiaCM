@@ -121,3 +121,37 @@ disable-directory 设置工作区目录为禁用状态。
 ```lang-javascript
    $  scmadmin.sh alterws disable-directory --name ws --url localhost:8080/rootsite --user admin --password
 ```
+
+###（5）update-metadomain###
+
+update-metadomain 支持更新工作区元数据存储的 domain 属性。
+
+####子命令选项####
+
+| 选项                  |缩写 |描述                                                         |是否必填|
+|---------------------|---|-------------------------------------------------------------|--------|
+| --name              |-n |工作区的名字                                                 |是      |
+|--metadomain |-md   |指定工作区元数据 meta_location 的 domain 属性     |是      |
+| --url               |   |(gateway)网关地址，eg:'localhost:8080/rootsite',rootsite是站点服务名（小写） |是      |
+| --user              |   |管理员用户名                                                 |是      |
+| --password          |   |管理员密码，指定值则使用明文输入，不指定值则命令行提示输入   |否      |
+| --password-file     |   |管理员密码文件，与 password 互斥                         |否      |
+
+>  **Note:**
+>
+>  * 参数 --password、--password-file 两者填写其一
+
+####示例####
+
+修改工作区 ws 的元数据域为 domain2。
+
+```lang-javascript
+   $  scmadmin.sh alterws update-metadomain --name ws --metadomain domain2 --url localhost:8080/rootsite --user admin --password
+```
+
+>  **Note:**
+>
+>  * 工作区变更元数据域后，数据不会马上落到新的数据域上，待下一个分区周期到了，数据才会落到新的数据域上。如工作区元数据的 Sharding 策略为 year，当前年份为 2023 年，则变更工作区元数据域后，2024 年的文件元数据才会落到新的数据域上。更多操作见[元数据扩容][meta_expand]
+
+
+[meta_expand]:Maintainance/Expand/meta_expand.md

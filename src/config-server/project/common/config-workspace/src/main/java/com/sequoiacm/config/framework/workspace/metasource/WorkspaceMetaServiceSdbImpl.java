@@ -1,12 +1,11 @@
 package com.sequoiacm.config.framework.workspace.metasource;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.config.metasource.sequoiadb.SequoiadbTableDao;
+import com.sequoiacm.infrastructure.common.TableCreatedResult;
+import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.config.framework.lock.ScmLockManager;
-import com.sequoiacm.config.framework.lock.ScmLockPathFactory;
 import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.Transaction;
@@ -26,12 +23,9 @@ import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
-import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.exception.BaseException;
-import com.sequoiadb.exception.SDBError;
 
 import javax.annotation.PostConstruct;
 
@@ -289,7 +283,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
 
     @Override
     public void deleteWorkspaceMetaTable(BSONObject wsRecord) throws MetasourceException {
-        List<String> extraMetaList = getExtraCsList(wsRecord);
+        List<String> extraMetaList = TableMetaCommon.getExtraCsList(wsRecord);
         extraMetaList.add(BsonUtils.getStringChecked(wsRecord, FieldName.FIELD_CLWORKSPACE_NAME)
                 + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL);
         Sequoiadb sdb = sdbMetasource.getConnection();
@@ -329,8 +323,8 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         }
     }
 
-    public String createClInWorkspaceMetaCs(String wsName, String clName, BSONObject clOption)
-            throws ScmConfigException {
+    public TableCreatedResult createClInWorkspaceMetaCs(String wsName, String clName,
+            BSONObject clOption, boolean isIgnoreClExistErr) throws ScmConfigException {
         SysWorkspaceTableDao wsTable = getSysWorkspaceTable(null);
         BSONObject wsRecord = wsTable.queryOne(
                 new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME, wsName), null, null);
@@ -338,172 +332,20 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             throw new ScmConfigException(ScmConfError.WORKSPACE_NOT_EXIST,
                     "workspace not exist:" + wsName);
         }
-
-        List<String> extraCsList = getExtraCsList(wsRecord);
-        // 逆序遍历，最后一个CS是最近建立，先在它上面尝试
-        for(int i = extraCsList.size() - 1; i >= 0; i--){
-            if (createCL(extraCsList.get(i), maxClInExtraMetaCs, clName, clOption)) {
-                return extraCsList.get(i) + "." + clName;
-            }
-        }
-
-        String wsMetaCsName = wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL;
-        if (createCL(wsMetaCsName, maxClInMetaCs, clName, clOption)) {
-            return wsMetaCsName + "." + clName;
-        }
-
-        ScmLock lock = ScmLockManager.getInstance()
-                .acquiresLock(ScmLockPathFactory.createWorkspaceExtraCsLockPath());
-        try {
-            wsRecord = wsTable.queryOne(
-                    new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME, wsName), null, null);
-            if (wsRecord == null) {
-                throw new ScmConfigException(ScmConfError.WORKSPACE_NOT_EXIST,
-                        "workspace not exist:" + wsName);
-            }
-            List<String> extraCsListInLock = getExtraCsList(wsRecord);
-            if (!extraCsListInLock.equals(extraCsList)) {
-                // 锁后有人建立了新的CS，再这个CS上先试下能不能建立CL
-                String latestCsName = extraCsListInLock.get(extraCsListInLock.size() - 1);
-                if (createCL(latestCsName, maxClInExtraMetaCs, clName, clOption)) {
-                    return latestCsName + "." + clName;
-                }
-            }
-            String newExtraCsName = getNextExtraCsName(wsName, extraCsListInLock);
-            boolean isCreateCs = createExtraMetaCs(wsRecord, newExtraCsName);
-            boolean isUpdateWsExtCsList = false;
-            try {
-                extraCsListInLock.add(newExtraCsName);
-                if (!createCL(newExtraCsName, maxClInExtraMetaCs, clName, clOption)) {
-                    // 在刚刚创建的 CS 下建立 CL，发生了超出CL个数限制异常，逻辑上是不可能的，因为这个 CS 还没有登记到工作区元数据上
-                    // 其它人还看不到这个 CS，所以这里抛个系统异常
-                    wsTable.update(new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME, wsName),
-                            new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXTRA_META_CS,
-                                    extraCsListInLock));
-                    isUpdateWsExtCsList = true;
-                    throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                            "failed to create cl in extra meta cs:" + newExtraCsName + ", cl="
-                                    + clName + ", clOption=" + clOption);
-                }
-                wsTable.update(new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_NAME, wsName),
-                        new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXTRA_META_CS,
-                                extraCsListInLock));
-
-                isUpdateWsExtCsList = true;
-                return newExtraCsName + "." + clName;
-            }
-            catch (Exception e) {
-                if (isCreateCs && !isUpdateWsExtCsList) {
-                    dropCSSilence(newExtraCsName);
-                }
-                throw e;
-            }
-        }
-        finally {
-            lock.unlock();
-        }
-
-    }
-
-    private void dropCSSilence(String cs) {
         Sequoiadb db = null;
         try {
             db = sdbMetasource.getConnection();
-            db.dropCollectionSpace(cs);
+            TableCreatedResult tableCreatedResult = TableMetaCommon.createTable(db,
+                    wsRecord, wsName, clName, clOption, isIgnoreClExistErr);
+            return tableCreatedResult;
         }
         catch (Exception e) {
-            logger.warn("failed to drop cs:{}", cs, e);
-        }
-        finally {
-            if (db != null) {
-                sdbMetasource.releaseConnection(db);
-            }
-        }
-
-    }
-
-    // 返回 false 表示 cs 存在
-    private boolean createExtraMetaCs(BSONObject ws, String csName) throws MetasourceException {
-        BSONObject metaLocation = BsonUtils.getBSONChecked(ws,
-                FieldName.FIELD_CLWORKSPACE_META_LOCATION);
-        String domain = BsonUtils.getStringChecked(metaLocation,
-                FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN);
-        BSONObject csOption = new BasicBSONObject("Domain", domain);
-        BSONObject metaOptions = BsonUtils.getBSON(metaLocation,
-                FieldName.FIELD_CLWORKSPACE_META_OPTIONS);
-        if (metaOptions != null) {
-            BSONObject customCsOptions = BsonUtils.getBSON(metaOptions,
-                    FieldName.FIELD_CLWORKSPACE_META_CS);
-            if (customCsOptions != null) {
-                csOption.putAll(customCsOptions);
-            }
-        }
-        Sequoiadb db = sdbMetasource.getConnection();
-        try {
-            db.createCollectionSpace(csName, csOption);
-            return true;
-        }
-        catch (BaseException e) {
-            if (e.getErrorCode() != SDBError.SDB_DMS_CS_EXIST.getErrorCode()) {
-                throw e;
-            }
-            return false;
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
+                    "failed to create cl, cl=" + clName + ", clOption=" + clOption);
         }
         finally {
             sdbMetasource.releaseConnection(db);
         }
 
-    }
-
-    private String getNextExtraCsName(String wsName, List<String> extraCsListInLock) {
-        if (extraCsListInLock.size() <= 0) {
-            return wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL + "_" + 1;
-        }
-        String latestExtraCS = extraCsListInLock.get(extraCsListInLock.size() - 1);
-        String numStr = latestExtraCS.substring(latestExtraCS.lastIndexOf("_") + 1);
-        int newExtraCsNum = Integer.parseInt(numStr) + 1;
-        return wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL + "_"
-                + newExtraCsNum;
-    }
-
-    // maxClInCs <= -1 表示不限制CS下有多少集合
-    // 返回 false 表示 CS 下已经超过 maxClInCs 个集合，无法创建集合
-    private boolean createCL(String csName, int maxClInCs, String clName, BSONObject clOption)
-            throws MetasourceException {
-        Sequoiadb db = sdbMetasource.getConnection();
-        try {
-            CollectionSpace cs = db.getCollectionSpace(csName);
-            if (maxClInCs <= -1) {
-                cs.createCollection(clName, clOption);
-                return true;
-            }
-            if (cs.getCollectionNames().size() >= maxClInCs) {
-                return false;
-            }
-            cs.createCollection(clName, clOption);
-        }
-        catch (BaseException e) {
-            if (e.getErrorCode() == SDBError.SDB_DMS_NOSPC.getErrorCode()) {
-                return false;
-            }
-            throw e;
-        }
-        finally {
-            sdbMetasource.releaseConnection(db);
-        }
-        return true;
-    }
-
-    private List<String> getExtraCsList(BSONObject wsRecord) {
-        List<String> ret = new ArrayList<>();
-        BasicBSONList extraMetaCS = BsonUtils.getArray(wsRecord,
-                FieldName.FIELD_CLWORKSPACE_EXTRA_META_CS);
-        if (extraMetaCS == null) {
-            return ret;
-        }
-        for (Object csName : extraMetaCS) {
-            ret.add((String) csName);
-        }
-        return ret;
     }
 }

@@ -333,6 +333,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         confUpdator.setNewDesc(updator.getDescription());
         confUpdator.setNewSiteCacheStrategy(updator.getSiteCacheStrategy() == null ? null
                 : updator.getSiteCacheStrategy().name());
+        confUpdator.setUpdateDomain(updator.getDomainName());
 
         Map<Integer, ScmLocation> oldDataLocations = wsInfo.getDataLocations();
         ClientLocationOutline addDataLocation = updator.getAddDataLocation();

@@ -41,8 +41,6 @@ public interface MetaFileAccessor extends MetaAccessor {
     public void unmarkTransId(String fileId, int majorVersion, int minorVersion, int status)
             throws ScmMetasourceException;
 
-    public void createFileTable(BSONObject file) throws ScmMetasourceException;
-
     // return new
     public BSONObject updateFileExternalData(BSONObject matcher, BSONObject externalData)
             throws ScmMetasourceException;

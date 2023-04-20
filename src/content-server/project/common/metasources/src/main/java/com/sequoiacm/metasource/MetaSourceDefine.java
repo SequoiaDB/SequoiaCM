@@ -25,6 +25,7 @@ public class MetaSourceDefine {
         public static final String CL_SITE = "SITE";
         public static final String CL_CONTENTSERVER = "CONTENTSERVER";
         public static final String CL_WORKSPACE = "WORKSPACE";
+        public static final String CL_BUCKET = "BUCKET";
         public static final String CL_WORKSPACE_HISTORY = "WORKSPACE_HISTORY";
         public static final String CL_USER = "USER";
         public static final String CL_SESSION = "SESSION";
@@ -34,6 +35,7 @@ public class MetaSourceDefine {
         public static final String CL_DATA_TABLE_NAME_HISTORY = "DATA_TABLE_NAME_HISTORY";
         public static final String CL_SPACE_RECYCLING_LOG = "SPACE_RECYCLING_LOG";
         public static final String CL_DATA_TABLE_NAME_ACTIVE = "DATA_TABLE_NAME_ACTIVE";
+        public static final String CL_ID_GEN = "ID_GENERATOR";
     }
 
     public static class WorkspaceCLName {

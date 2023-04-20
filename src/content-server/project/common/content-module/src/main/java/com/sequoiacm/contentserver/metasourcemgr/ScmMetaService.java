@@ -5,6 +5,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.checksum.ChecksumType;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.cache.ScmDirPath;
+import com.sequoiacm.contentserver.common.FileTableCreator;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
@@ -88,8 +89,7 @@ public class ScmMetaService {
             if (e.getError() == ScmError.FILE_TABLE_NOT_FOUND) {
                 logger.debug("create table", e);
                 try {
-                    metasource.getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), context)
-                            .createFileTable(file);
+                    FileTableCreator.createSubFileTable((SdbMetaSource) metasource, wsInfo, file);
                 }
                 catch (Exception ex) {
                     throw new ScmServerException(ScmError.METASOURCE_ERROR,
@@ -1498,8 +1498,8 @@ public class ScmMetaService {
             if (e.getError() == ScmError.FILE_TABLE_NOT_FOUND) {
                 logger.debug("create table", e);
                 try {
-                    metasource.getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), context)
-                            .createFileTable(fileInfo);
+                    FileTableCreator.createSubFileTable((SdbMetaSource) metasource, wsInfo,
+                            fileInfo);
                 }
                 catch (ScmMetasourceException ex) {
                     throw new ScmServerException(ex.getScmError(),

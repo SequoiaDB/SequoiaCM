@@ -19,6 +19,7 @@ public class ClientWorkspaceUpdator {
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
     private Boolean updateMerge = true;
+    private String domainName;
     
     private Boolean enableDirectory;
 
@@ -89,13 +90,22 @@ public class ClientWorkspaceUpdator {
         this.enableDirectory = enableDirectory;
     }
 
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
     @Override
     public String toString() {
         return "ClientWorkspaceUpdator{" + "description='" + description + '\''
                 + ", removeDataLocation='" + removeDataLocation + '\'' + ", addDataLocation="
                 + addDataLocation + ", updateDataLocation=" + updateDataLocation + ", preferred='"
-                + preferred + '\'' + ", siteCacheStrategy=" + siteCacheStrategy + '\''
-                + ", enableDirectory=" + enableDirectory + '}';
+                + preferred + '\'' + ", siteCacheStrategy=" + siteCacheStrategy + ", updateMerge="
+                + updateMerge + ", domainName='" + domainName + '\'' + ", enableDirectory="
+                + enableDirectory + '}';
     }
 
     public static ClientWorkspaceUpdator fromBSONObject(BSONObject obj)
@@ -106,6 +116,8 @@ public class ClientWorkspaceUpdator {
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_DESCRIPTION);
         String siteCacheStrategyStr = (String) objCopy
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_SITE_CACHE_STRATEGY);
+        String domain = (String) objCopy
+                .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_META_DOMAIN);
         if (siteCacheStrategyStr != null) {
             ScmSiteCacheStrategy siteCacheStrategyEnum = ScmSiteCacheStrategy
                     .getStrategy(siteCacheStrategyStr);
@@ -117,6 +129,7 @@ public class ClientWorkspaceUpdator {
             updator.setSiteCacheStrategy(siteCacheStrategyEnum);
         }
         updator.setDescription(desc);
+        updator.setDomainName(domain);
         String removeDataLocation = (String) objCopy
                 .removeField(CommonDefine.RestArg.WORKSPACE_UPDATOR_REMOVE_DATA_LOCATION);
         updator.setRemoveDataLocation(removeDataLocation);
