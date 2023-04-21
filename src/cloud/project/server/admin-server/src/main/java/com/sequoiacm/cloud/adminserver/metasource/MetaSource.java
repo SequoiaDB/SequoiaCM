@@ -13,8 +13,13 @@ public interface MetaSource {
     public MetaAccessor getTrafficAccessor() throws ScmMetasourceException;
 
     public MetaAccessor getFileDeltaAccessor() throws ScmMetasourceException;
+    public MetaAccessor getObjectDeltaAccessor() throws ScmMetasourceException;
 
     public MetaAccessor getFileStatisticsAccessor() throws ScmMetasourceException;
 
     public MetaAccessor getBreakpointFileStatisticsAccessor() throws ScmMetasourceException;
+
+    public MetaAccessor getQuotaSyncAccessor() throws ScmMetasourceException;
+
+    public MetaAccessor getQuotaConfigAccessor() throws ScmMetasourceException;
 }

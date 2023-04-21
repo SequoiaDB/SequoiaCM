@@ -11,6 +11,9 @@ import java.util.Objects;
 
 import javax.servlet.ServletOutputStream;
 
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.quota.BucketQuotaManager;
+import com.sequoiacm.contentserver.quota.QuotaInfo;
 import org.apache.commons.codec.binary.Hex;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -97,6 +100,9 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
     @Autowired
     OutStreamFlushQueue outStreamFlushQueue;
+
+    @Autowired
+    private BucketQuotaManager quotaManager;
 
     @Override
     public void initMultipartUpload(String wsName, long uploadId, UploadMeta meta)
@@ -256,6 +262,11 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             String bucketName, UploadMeta upload, List<CompletePart> reqPartList,
             ServletOutputStream outputStream) throws S3ServerException, ScmServerException,
             ScmMetasourceException, ScmDatasourceException {
+
+        BSONObject file = buildFileInfoFromUpload(upload);
+        file.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, System.currentTimeMillis());
+        FileMeta fileMeta = FileMeta.fromUser(upload.getWsName(), file,
+                session.getUser().getUsername());
         List<Part> allPartArray = new ArrayList<>();
 
         // 获取本地的part列表(不包括reserved part和废弃的part)
@@ -266,6 +277,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
         // 合并策略选择
         CopyAction copyAction = generateAction(completeList, allPartArray);
+        QuotaInfo quotaInfo = null;
         String destDataId;
         long dataCreateTime;
         if (copyAction.getBaseDataId() != null) {
@@ -286,6 +298,8 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
         ScmSeekableDataWriter writer = null;
         try {
+            quotaInfo = quotaManager.acquireQuota(bucketName, copyAction.getCompleteSize(),
+                    fileMeta.getCreateTime());
             writer = datasourceService.getScmSeekableDataWriter(wsName, destDataId,
                     DEFAULT_DATA_TYPE, dataCreateTime, upload.getWsVersion(), upload.getTableName());
             for (int i = 0; i < copyAction.getCopyList().size(); i++) {
@@ -325,9 +339,6 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             response.seteTag(completeEtag);
 
             // update uploadMeta and write object meta
-            BSONObject file = buildFileInfoFromUpload(upload);
-            FileMeta fileMeta = FileMeta.fromUser(upload.getWsName(), file,
-                    session.getUser().getUsername());
             fileMeta.resetDataInfo(destDataId, dataCreateTime, DEFAULT_DATA_TYPE,
                     copyAction.getCompleteSize(), null, upload.getSiteId(), upload.getWsVersion(), upload.getTableName());
             fileMeta.setEtag(completeEtag);
@@ -340,6 +351,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
             return response;
         }
         catch (Exception e) {
+            quotaManager.releaseQuota(quotaInfo);
             if (copyAction.getBaseDataId() == null) {
                 deleteData(wsName, destDataId, dataCreateTime, upload.getWsVersion(), upload.getTableName());
             }

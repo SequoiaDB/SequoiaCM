@@ -1,15 +1,19 @@
 package com.sequoiacm.infrastructure.config.client.core.bucket;
 
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMap;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMapFactory;
 import com.sequoiacm.infrastructure.common.Pair;
+import com.sequoiacm.infrastructure.common.ScmJsonInputStreamCursor;
+import com.sequoiacm.infrastructure.common.ScmObjectCursor;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
+import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +27,11 @@ import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigDefine;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketNotifyOption;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -40,11 +43,13 @@ public class BucketConfSubscriber implements ScmConfSubscriber {
     private ScmConfClient confClient;
 
     private DefaultVersionFilter versionFilter;
+    private ApplicationContext applicationContext;
 
     private final ConcurrentLruMap<String, BucketConfig> bucketCacheNameMap;
     private final ConcurrentLruMap<Long, BucketConfig> bucketCacheIdMap;
 
-    public BucketConfSubscriber(BucketSubscriberConfig config, ScmConfClient confClient) throws ScmConfigException {
+    public BucketConfSubscriber(BucketSubscriberConfig config, ScmConfClient confClient,
+            ApplicationContext applicationContext) throws ScmConfigException {
         this.confClient = confClient;
 
         // client 的版本心跳线程只查询一条全局版本，服务端任意bucket被更新都会修改这个版本号
@@ -55,6 +60,7 @@ public class BucketConfSubscriber implements ScmConfSubscriber {
         bucketCacheNameMap = ConcurrentLruMapFactory.create(config.getCacheLimit());
         bucketCacheIdMap = ConcurrentLruMapFactory.create(config.getCacheLimit());
         this.heartbeatInterval = config.getHeartbeatInterval();
+        this.applicationContext = applicationContext;
     }
 
     @PostConstruct
@@ -107,12 +113,45 @@ public class BucketConfSubscriber implements ScmConfSubscriber {
         bucketCacheNameMap.clear();
     }
 
+    public ScmObjectCursor<BucketConfig> listBucket(BSONObject matcher, BSONObject orderby,
+            long skip, long limit) throws ScmServerException {
+        BucketConfigFilter filter = new BucketConfigFilter(matcher, orderby, limit, skip);
+        try {
+            final ScmJsonInputStreamCursor<Config> cursor = confClient
+                    .listConf(ScmConfigNameDefine.BUCKET, filter);
+            return new ScmObjectCursor<BucketConfig>() {
+                @Override
+                public boolean hasNext() throws IOException {
+                    return cursor.hasNext();
+                }
+
+                @Override
+                public BucketConfig getNext() throws IOException {
+                    return (BucketConfig) cursor.getNext();
+                }
+
+                @Override
+                public void close() {
+                    cursor.close();
+                }
+            };
+        }
+        catch (ScmConfigException e) {
+            throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
+                    "failed to list bucket: matcher=" + matcher + ", orderby=" + orderby + ", skip="
+                            + skip + ", limit=" + limit,
+                    e);
+        }
+    }
+
     @Override
     public void processNotify(NotifyOption notification) throws Exception {
         logger.info("receive bucket notification: {}", notification);
         BucketNotifyOption bucketNotifyOption = (BucketNotifyOption) notification;
         if (notification.getEventType() == EventType.DELTE) {
             invalidateBucketCache(bucketNotifyOption.getBucketName());
+            applicationContext
+                    .publishEvent(new BucketDeletedEvent(bucketNotifyOption.getBucketName()));
             return;
         }
         else if (notification.getEventType() == EventType.CREATE) {

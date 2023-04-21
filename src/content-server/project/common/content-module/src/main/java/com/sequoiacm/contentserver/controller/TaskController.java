@@ -67,7 +67,7 @@ public class TaskController {
             HttpServletResponse response) throws ScmServerException {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = taskService.getTaskList(filter, orderby, selector, skip, limit);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     @RequestMapping(value = "/api/v1/tasks", method = { RequestMethod.POST, RequestMethod.PUT })

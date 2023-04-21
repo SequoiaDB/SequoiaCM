@@ -82,6 +82,24 @@ public class ServerUtils {
         }
     }
 
+    public static void putCursorToResponse(MetaCursor cursor, HttpServletResponse response,
+            int listInstanceCheckInterval) throws ScmMapServerException {
+        PrintWriter writer = null;
+        try {
+            writer = getWriter(response);
+        }
+        catch (Exception e) {
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (e instanceof ScmMapServerException) {
+                throw e;
+            }
+            throw new ScmSystemException("Failed to get writer", e);
+        }
+        putCursorToWriter(cursor, writer, listInstanceCheckInterval);
+    }
+
     public static PrintWriter getWriter(HttpServletResponse response) throws ScmMapServerException {
         try {
             return response.getWriter();

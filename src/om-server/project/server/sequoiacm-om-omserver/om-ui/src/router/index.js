@@ -179,6 +179,13 @@ export const constantRoutes = [
         name: 'Object',
         component: () => import('@/views/object/index'),
         meta: { title: '桶对象管理', icon: 'el-icon-s-help', keepAlive:true }
+      },
+      {
+        path: 'traffic/:name',
+        name: 'Traffic',
+        hidden: true,
+        component: () => import('@/views/bucket/ObjectTraffic'),
+        meta: { title: '桶对象增量', icon: 'el-icon-collection' }
       }
     ]
   },

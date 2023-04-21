@@ -439,6 +439,27 @@ public class CommonDefine {
         public static final String SITE_SKIP = "skip";
         public static final String SITE_LIMIT = "limit";
 
+        public static final String QUOTA_AGREEMENT_TIME = "agreement_time";
+        public static final String QUOTA_SYNC_ROUND_NUMBER = "sync_round_number";
+        public static final String QUOTA_EXPIRE_TIME = "expire_time";
+        public static final String QUOTA_SYNC_CURRENT_TIME = "current_time";
+        public static final String ACTION_GET_OBJECT_DELTA = "get_object_delta";
+        public static final String ACTION_REFRESH_OBJECT_DELTA = "refresh_object_delta";
+        public static final String QUOTA_ACTION_ENABLE_QUOTA = "enable_quota";
+        public static final String QUOTA_ACTION_DISABLE_QUOTA = "disable_quota";;
+        public static final String QUOTA_ACTION_UPDATE_QUOTA = "update_quota";
+        public static final String QUOTA_ACTION_SYNC = "sync";
+        public static final String QUOTA_ACTION_UPDATE_QUOTA_USED_INFO = "update_quota_used_info";;
+        public static final String QUOTA_USED_SIZE = "used_size";
+        public static final String QUOTA_MAX_SIZE = "max_size";
+        public static final String QUOTA_USED_OBJECTS = "used_objects";
+        public static final String QUOTA_MAX_OBJECTS = "max_objects";
+        public static final String QUOTA_ACTION_STATISTICS = "statistics";
+        public static final String QUOTA_ACTION_BEGIN_SYNC = "begin_sync";
+        public static final String QUOTA_ACTION_SET_AGREEMENT_TIME = "set_agreement_time";
+        public static final String QUOTA_ACTION_CANCEL_SYNC = "cancel_sync";
+        public static final String QUOTA_ACTION_FINISH_SYNC = "finish_sync";
+        public static final String QUOTA_ACTION_GET_QUOTA_INNER_DETAIL = "get_quota_inner_detail";
     }
 
     public static class Directory {
@@ -493,5 +514,12 @@ public class CommonDefine {
     public static class DataCheckLevel {
         public static final String WEEK = "week";
         public static final String STRICT = "strict";
+    }
+
+    public static class QuotaStatisticsStatus {
+        public static final String RUNNING = "running";
+        public static final String FINISH = "finish";
+        public static final String FAILED = "failed";
+
     }
 }

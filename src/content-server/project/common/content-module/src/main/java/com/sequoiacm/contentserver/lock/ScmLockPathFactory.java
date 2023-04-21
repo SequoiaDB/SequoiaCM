@@ -38,4 +38,9 @@ public class ScmLockPathFactory {
                 ScmLockPathDefine.GLOBAL_DIRECTORIES_MUTEX };
         return new ScmLockPath(lockPath);
     }
+
+    public static ScmLockPath createQuotaUsedLockPath(String type, String name) {
+        String[] lockPath = { ScmLockPathDefine.QUOTA_USED, type, name };
+        return new ScmLockPath(lockPath);
+    }
 }

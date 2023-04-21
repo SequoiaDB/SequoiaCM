@@ -57,6 +57,11 @@
 
         <dependency>
             <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-config-quota</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-config-core</artifactId>
         </dependency>
         <dependency>

@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,14 @@ public class BucketController {
         ScmUser user = (ScmUser) auth.getPrincipal();
         final ScmObjectCursor<ScmBucket> cursor = service.listBucket(user, condition, orderBy, skip,
                 limit);
+        PrintWriter writer = null;
+        try {
+            writer = ServiceUtils.getWriter(resp);
+        }
+        catch (Exception e) {
+            cursor.close();
+            throw e;
+        }
         ServiceUtils.putCursorToWriter(cursor, new Converter<ScmBucket>() {
             @Override
             public String toJSON(ScmBucket b) {
@@ -113,7 +122,7 @@ public class BucketController {
                 ret.put(FieldName.Bucket.UPDATE_USER, b.getUpdateUser());
                 return ret.toString();
             }
-        }, ServiceUtils.getWriter(resp));
+        }, writer);
     }
 
     @PostMapping(value = "/buckets/{bucket_name}/files", params = "action=create_file")
@@ -206,7 +215,7 @@ public class BucketController {
         MetaCursor cursor = service.listFile(user, bucketName, scope, condition, null, orderby,
                 skip, limit, isResContainsDeleteMarker);
         resp.setHeader("Content-Type", "application/json;charset=utf-8");
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(resp));
+        ServiceUtils.putCursorToResponse(cursor, resp);
     }
 
     @GetMapping(path = "/buckets/{name}/files", params = "action=count_file")

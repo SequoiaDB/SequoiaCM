@@ -111,6 +111,12 @@ public class SequoiadbMetaSource implements MetaSource {
     }
 
     @Override
+    public MetaAccessor getObjectDeltaAccessor() throws ScmMetasourceException {
+        return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_OBJECT_DELTA);
+    }
+
+    @Override
     public MetaAccessor getFileStatisticsAccessor() throws ScmMetasourceException {
         return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
                 MetaSourceDefine.SystemClName.CL_STATISTICS_DATA);
@@ -120,6 +126,18 @@ public class SequoiadbMetaSource implements MetaSource {
     public MetaAccessor getBreakpointFileStatisticsAccessor() throws ScmMetasourceException {
         return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
                 MetaSourceDefine.SystemClName.CL_STATISTICS_BREAKPOINT_FILE);
+    }
+
+    @Override
+    public MetaAccessor getQuotaSyncAccessor() {
+        return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_QUOTA_SYNC);
+    }
+
+    @Override
+    public MetaAccessor getQuotaConfigAccessor() {
+        return new SequoiadbMetaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_QUOTA_CONFIG);
     }
 
 }

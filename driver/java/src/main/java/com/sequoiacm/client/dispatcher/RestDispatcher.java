@@ -17,11 +17,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
-import com.sequoiacm.client.element.lifecycle.ScmLifeCycleConfig;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.infrastructure.common.ExceptionChecksUtils;
-import com.sequoiacm.infrastructure.common.RestCommonDefine;
 import com.sequoiacm.infrastructure.common.SignatureUtils;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 import org.apache.http.Consts;
@@ -30,7 +28,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.NoHttpResponseException;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
-import org.apache.http.*;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
@@ -44,7 +41,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.HttpContext;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -123,6 +119,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String FULLTEXT = "fulltext";
     private static final String ACCESSKEY = "accesskey";
     private static final String BUCKETS = "buckets/";
+    private static final String QUOTAS = "quotas/";
 
     private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
 
@@ -2043,9 +2040,30 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public void refreshObjectDeltaStatistics(String bucketName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + STATISTICS
+                + "refresh?action=" + CommonDefine.RestArg.ACTION_REFRESH_OBJECT_DELTA;
+        HttpPost request = new HttpPost(uri);
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.BUCKET_NAME, bucketName));
+
+        RestClient.sendRequest(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
     public BsonReader getStatisticsFileDeltaList(BSONObject condition) throws ScmException {
         String s = encodeCondition(condition);
         String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + STATISTICS + "delta/file"
+                + "?filter=" + s;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BsonReader getStatisticsObjectDeltaList(BSONObject condition) throws ScmException {
+        String s = encodeCondition(condition);
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + STATISTICS + "delta/object"
                 + "?filter=" + s;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
@@ -2948,6 +2966,94 @@ public class RestDispatcher implements MessageDispatcher {
     public void deleteBucketTag(String bucketName) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + BUCKETS + encode(bucketName) + "/tags";
         HttpDelete request = new HttpDelete(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject enableBucketQuota(String bucketName, long maxObjects, long maxSize,
+            Long usedObjects, Long usedSize)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_ENABLE_QUOTA;
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_MAX_OBJECTS,
+                String.valueOf(maxObjects)));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_MAX_SIZE,
+                String.valueOf(maxSize)));
+        if (usedSize != null) {
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_USED_SIZE,
+                    String.valueOf(usedSize)));
+        }
+        if (usedObjects != null) {
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_USED_OBJECTS,
+                    String.valueOf(usedObjects)));
+        }
+        HttpPut request = new HttpPut(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public BSONObject updateBucketQuota(String bucketName, long maxObjects, long maxSize)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_UPDATE_QUOTA;
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_MAX_OBJECTS,
+                String.valueOf(maxObjects)));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_MAX_SIZE,
+                String.valueOf(maxSize)));
+        HttpPut request = new HttpPut(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public BSONObject updateBucketUsedQuota(String bucketName, Long usedObjects, Long usedSize)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName + "?action="
+                + CommonDefine.RestArg.QUOTA_ACTION_UPDATE_QUOTA_USED_INFO;
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        if (usedSize != null) {
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_USED_SIZE,
+                    String.valueOf(usedSize)));
+        }
+        if (usedObjects != null) {
+            params.add(new BasicNameValuePair(CommonDefine.RestArg.QUOTA_USED_OBJECTS,
+                    String.valueOf(usedObjects)));
+        }
+        HttpPut request = new HttpPut(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request, params);
+    }
+
+    @Override
+    public void disableBucketQuota(String bucketName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_DISABLE_QUOTA;
+        HttpPut request = new HttpPut(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getBucketQuota(String bucketName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName;
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void syncBucketQuota(String bucketName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_SYNC;
+        HttpPost request = new HttpPost(uri);
+        RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public void cancelSyncBucketQuota(String bucketName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
+                + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_CANCEL_SYNC;
+        HttpPost request = new HttpPost(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }
 }

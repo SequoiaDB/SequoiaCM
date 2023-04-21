@@ -1,7 +1,14 @@
 package com.sequoiacm.cloud.adminserver.core;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.cloud.adminserver.lock.LockPathFactory;
+import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
+import com.sequoiacm.infrastructure.common.ScmObjectCursor;
+import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
+import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +29,9 @@ public class StatisticsServer {
     private ContentServerDao contentServerDao;
     private StatisticsDao statisticsDao;
     private WorkspaceDao workspaceDao;
+    private BucketConfSubscriber bucketConfSubscriber;
+    private ScmLockManager lockManager;
+    private LockPathFactory lockPathFactory;
 //    private List<ContentServerInfo> contentServerList = new ArrayList<>();
     
 //    private SiteDao siteDao;
@@ -35,10 +45,15 @@ public class StatisticsServer {
     }
 
     public void init(ContentServerDao contentServerDao, StatisticsDao statisticsDao,
-            WorkspaceDao workspaceDao) throws StatisticsException {
+            WorkspaceDao workspaceDao, BucketConfSubscriber bucketConfSubscriber,
+            ScmLockManager lockManager, LockPathFactory lockPathFactory)
+            throws StatisticsException {
         this.contentServerDao = contentServerDao;
         this.statisticsDao = statisticsDao;
         this.workspaceDao = workspaceDao;
+        this.bucketConfSubscriber = bucketConfSubscriber;
+        this.lockManager = lockManager;
+        this.lockPathFactory = lockPathFactory;
     }
     
     public List<ContentServerInfo> getContentServers() throws StatisticsException {
@@ -58,6 +73,27 @@ public class StatisticsServer {
     
     public List<WorkspaceInfo> getWorkspaces() throws StatisticsException {
         return workspaceDao.query();
+    }
+
+    public List<String> getBuckets() throws StatisticsException {
+        ScmObjectCursor<BucketConfig> cursor = null;
+        try {
+            List<String> bucketConfigs = new ArrayList<>();
+            cursor = bucketConfSubscriber.listBucket(null, null, 0, -1);
+            while (cursor.hasNext()) {
+                bucketConfigs.add(cursor.getNext().getName());
+            }
+            return bucketConfigs;
+        }
+        catch (Exception e) {
+            throw new StatisticsException(StatisticsError.INTERNAL_ERROR, "failed to get buckets",
+                    e);
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
     
     public WorkspaceInfo getWorkspaceChecked(String wsName) throws StatisticsException {
@@ -83,6 +119,10 @@ public class StatisticsServer {
             throws StatisticsException {
         return statisticsDao.queryLastFileDeltaRecord(workspace);
     }
+
+    public ObjectDeltaInfo getLastObjectDeltaRecord(String bucketName) throws StatisticsException {
+        return statisticsDao.queryLastObjectDeltaRecord(bucketName);
+    }
     
     public void upsertTrafficRecord(String type, String workspace, long recordTime, long newTraffic)
             throws StatisticsException {
@@ -92,6 +132,19 @@ public class StatisticsServer {
     public void upsertFileDeltaRecord(String workspace, long recordTime, long newCount, long newSize)
             throws StatisticsException {
         this.statisticsDao.upsertFileDelta(workspace, recordTime, newCount, newSize);
+    }
+
+    public void upsertObjectDeltaRecord(String bucketName, long recordTime, long newCount,
+            long newSize) throws StatisticsException {
+        this.statisticsDao.upsertObjectDelta(bucketName, recordTime, newCount, newSize);
+    }
+
+    public ScmLockManager getLockManager() {
+        return lockManager;
+    }
+
+    public LockPathFactory getLockPathFactory() {
+        return lockPathFactory;
     }
     
     /*

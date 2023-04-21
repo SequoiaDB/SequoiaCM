@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.netflix.appinfo.InstanceInfo;
 import com.sequoiacm.cloud.adminserver.common.DiscoveryUtils;
 import com.sequoiacm.cloud.adminserver.common.MonitorDefine;
+import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class ContentServerClientFactory {
     private static final Map<String, ContentServerClient> nodeMapFeignClient = new ConcurrentHashMap<String, ContentServerClient>();
     private static final Map<String, ContentServerClient> siteMapFeignClient = new ConcurrentHashMap<String, ContentServerClient>();
     private static final FileDeltaInfoDecoder fileDeltaDecoder = new FileDeltaInfoDecoder();
+    private static final ObjectDeltaInfoDecoder objectDeltaInfoDecoder = new ObjectDeltaInfoDecoder();
     private static final ContentServerFeignExceptionConverter exceptionConverter = new ContentServerFeignExceptionConverter();
 
     private static ScmFeignClient feignClient;
@@ -42,6 +44,7 @@ public class ContentServerClientFactory {
         }
         ContentServerClient client = feignClient.builder()
                 .typeDecoder(FileDeltaInfo.class, fileDeltaDecoder)
+                .typeDecoder(ObjectDeltaInfo.class, objectDeltaInfoDecoder)
                 .exceptionConverter(exceptionConverter).instanceTarget(clazz, nodeURl);
         nodeMapFeignClient.put(nodeURl, client);
         return client;

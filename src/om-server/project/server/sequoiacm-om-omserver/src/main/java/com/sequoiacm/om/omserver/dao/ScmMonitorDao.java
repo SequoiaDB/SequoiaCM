@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
-import com.sequoiacm.om.omserver.module.OmFileDeltaStatistics;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
 import com.sequoiacm.om.omserver.module.OmServiceInstanceInfo;
 
@@ -16,10 +16,12 @@ public interface ScmMonitorDao {
     OmFileTrafficStatistics getFileTraffic(String workspaceName, Long beginTime, Long endTime)
             throws ScmInternalException;
 
-    OmFileDeltaStatistics getFileDelta(String workspaceName, Long beginTime, Long endTime)
+    OmDeltaStatistics getFileDelta(String workspaceName, Long beginTime, Long endTime)
             throws ScmInternalException;
 
     List<OmServiceInstanceInfo> getServiceInstance(String serviceName) throws ScmInternalException;
 
     List<OmServiceInstanceInfo> getContentServerInstance() throws ScmInternalException;
+
+    OmDeltaStatistics getObjectDelta(String bucketName, Long beginTime, Long endTime) throws ScmInternalException;
 }

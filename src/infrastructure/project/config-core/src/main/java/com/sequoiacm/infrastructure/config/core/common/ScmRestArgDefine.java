@@ -94,5 +94,9 @@ public class ScmRestArgDefine {
     public static final String BUCKET_CONF_FILTER_SKIP = "skip";
     public static final String BUCKET_CONF_FILTER_LIMIT = "limit";
 
+    public static final String QUOTA_CONF_VERSION = "quota_version";
+    public static final String QUOTA_CONF_UPDATOR = "updator";
+    public static final String QUOTA_CONF_MATCHER = "matcher";
+
     public static final String COUNT_HEADER = "X-SCM-Count";
 }

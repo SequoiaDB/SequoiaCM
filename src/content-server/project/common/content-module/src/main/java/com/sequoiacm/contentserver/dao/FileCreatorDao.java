@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
+import com.sequoiacm.contentserver.quota.BucketQuotaManager;
+import com.sequoiacm.contentserver.quota.QuotaInfo;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,9 @@ public class FileCreatorDao {
     private FileOperationListenerMgr listenerMgr;
     @Autowired
     private FileAddVersionDao addVersionDao;
+
+    @Autowired
+    private BucketQuotaManager quotaManager;
 
     private FileMeta createMeta(FileUploadConf uploadConf, ScmWorkspaceInfo ws, FileMeta meta,
             TransactionCallback transactionCallback, boolean allowRetry) throws ScmServerException {
@@ -241,6 +246,7 @@ public class FileCreatorDao {
     @SlowLog(operation = "createFile", extras = @SlowLogExtra(name = "breakpointFileName", data = "breakpointFileName"))
     public FileMeta createFile(String workspaceName, FileMeta fileMeta, FileUploadConf uploadConf,
             String breakpointFileName) throws ScmServerException {
+        QuotaInfo quotaInfo = null;
         IdInfo idInfo = generateFileId(fileMeta);
         fileMeta.resetFileIdAndFileTime(idInfo.fileId, idInfo.fileCreateDate);
 
@@ -279,6 +285,10 @@ public class FileCreatorDao {
             if (fileMeta.getName() == null) {
                 fileMeta.setName(breakpointFileName);
             }
+            if (fileMeta.getBucketId() != null) {
+                quotaInfo = quotaManager.acquireQuota(fileMeta.getBucketId(),
+                        breakpointFile.getUploadSize(), fileMeta.getCreateTime());
+            }
 
             fileMeta.resetDataInfo(breakpointFile.getDataId(), breakpointFile.getCreateTime(),
                     ENDataType.Normal.getValue(), breakpointFile.getUploadSize(),
@@ -289,6 +299,10 @@ public class FileCreatorDao {
                         .deleteBreakpointFile(wsInfo.getName(), breakpointFileName, context);
             }, true);
             callback = listenerMgr.postCreate(wsInfo, res.getId());
+        }
+        catch (Exception e) {
+            quotaManager.releaseQuota(quotaInfo);
+            throw e;
         }
         finally {
             lock.unlock();
@@ -337,6 +351,7 @@ public class FileCreatorDao {
     @SlowLog(operation = "createFile")
     public FileMeta createFile(String ws, FileMeta fileMeta, FileUploadConf conf, InputStream is)
             throws ScmServerException {
+        QuotaInfo quotaInfo = null;
         IdInfo idInfo = generateFileId(fileMeta);
         fileMeta.resetFileIdAndFileTime(idInfo.fileId, idInfo.fileCreateDate);
         ScmContentModule contentModule = ScmContentModule.getInstance();
@@ -382,9 +397,14 @@ public class FileCreatorDao {
                     ScmContentModule.getInstance().getLocalSite(), dataInfo.getWsVersion(),
                     tableName);
             hasCreateData = true;
+            if (fileMeta.getBucketId() != null) {
+                quotaInfo = quotaManager.acquireQuota(fileMeta.getBucketId(), fileMeta.getSize(),
+                        fileMeta.getCreateTime());
+            }
             return createMeta(conf, wsInfo, fileMeta, null, true);
         }
         catch (Exception e) {
+            quotaManager.releaseQuota(quotaInfo);
             if (!hasCreateData) {
                 cancelWriter(fileWriter, ws);
             }

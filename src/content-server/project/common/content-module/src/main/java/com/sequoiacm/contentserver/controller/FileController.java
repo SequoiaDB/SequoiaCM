@@ -201,7 +201,7 @@ public class FileController {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = fileService.getFileList(user, workspace_name, condition, scope, orderby,
                 skip, limit, select, isResContainsDeleteMarker);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     // 文件上传接口在网关 UploadFileStatisticsDeciderImpl 中对其进行了捕获，修改下载接口需要考虑网关

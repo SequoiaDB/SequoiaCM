@@ -133,7 +133,7 @@ public class InternalMapController {
         ServerUtils.checkMapName(mapName);
         MetaCursor cursor = mapService.list(mapGroupName, mapName, condition, null, orderby, skip,
                 limit);
-        ServerUtils.putCursorToWriter(cursor, ServerUtils.getWriter(response),
+        ServerUtils.putCursorToResponse(cursor, response,
                 serverConfig.getListInstanceCheckInterval());
     }
 
@@ -149,7 +149,7 @@ public class InternalMapController {
         BSONObject selector = new BasicBSONObject(CommonDefine.FieldName.KEY, null);
         MetaCursor cursor = mapService.list(mapGroupName, mapName, condition, selector, orderby,
                 skip, limit);
-        ServerUtils.putCursorToWriter(cursor, ServerUtils.getWriter(response),
+        ServerUtils.putCursorToResponse(cursor, response,
                 serverConfig.getListInstanceCheckInterval());
     }
 

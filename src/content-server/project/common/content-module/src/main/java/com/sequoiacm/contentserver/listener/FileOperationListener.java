@@ -25,7 +25,8 @@ public interface FileOperationListener {
     public void postDeleteVersion(ScmWorkspaceInfo ws, FileMeta deletedVersion) throws ScmServerException;
 
     public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws,
-            FileMeta latestVersionAfterUpdate) throws ScmServerException;
+            FileMeta latestVersionBeforeUpdate, FileMeta latestVersionAfterUpdate)
+            throws ScmServerException;
 
     // 同 preCreate ，注意幂等性、不做要做存储相关的动作
     public void preAddVersion(ScmWorkspaceInfo ws, FileMeta newVersionFile)

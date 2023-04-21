@@ -127,6 +127,7 @@ public enum ScmError {
     BUCKET_INVALID_CUSTOMTAG(-853, "Bucket customTag is invalid"),
     BUCKET_CUSTOMTAG_TOO_LARGE(-854, "Bucket customTag too large"),
     BUCKET_CUSTOMTAG_NOT_EXIST(-855, "Bucket customTag not exist"),
+    BUCKET_QUOTA_EXCEEDED(-856, "Bucket quota exceeded"),
 
     FULL_TEXT_INDEX_ALREADY_CREATED(-900, "full text index already created"),
     FULL_TEXT_INDEX_IS_DELETING(-901, "full text index is deleting"),

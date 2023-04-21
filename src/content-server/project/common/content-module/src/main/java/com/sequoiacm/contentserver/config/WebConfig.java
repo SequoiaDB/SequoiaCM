@@ -8,6 +8,7 @@ import com.sequoiacm.contentserver.model.BreakpointFile;
 import com.sequoiacm.contentserver.model.DataTableDeleteOption;
 import com.sequoiacm.contentserver.model.MetadataAttr;
 import com.sequoiacm.contentserver.model.MetadataClass;
+import com.sequoiacm.contentserver.model.ObjectDeltaInfo;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.serial.gson.*;
 import com.sequoiacm.infrastructrue.security.core.serial.gson.ScmGsonHttpMessageConverter;
@@ -74,6 +75,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 .registerTypeAdapter(ScmFileLocation.class, new ScmFileLocationGsonTypeAdapter())
                 .registerTypeAdapter(Map.class, new MapGsonTypeAdapter())
                 .registerTypeAdapter(DataTableDeleteOption.class, new DataTableDeleteOptionGsonTypeAdapter())
+                .registerTypeAdapter(ObjectDeltaInfo.class, new ObjectDeltaInfoGsonTypeAdapter())
                 .build();
 
         converters.add(converter);

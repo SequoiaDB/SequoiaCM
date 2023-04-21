@@ -72,7 +72,7 @@ public class InternalFileController {
         boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
         MetaCursor cursor = fileService.getFileList(workspace_name, condition, scope, orderby,
                 skip, limit, selector, isResContainsDeleteMarker);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     @PostMapping(value = "/files/{file_id}", params = "action=updateExternalData")

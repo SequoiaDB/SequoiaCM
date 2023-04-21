@@ -1,5 +1,7 @@
 package com.sequoiacm.cloud.adminserver.dao;
 
+import com.sequoiacm.cloud.adminserver.exception.ScmMetasourceException;
+import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
 import org.bson.BSONObject;
 
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
@@ -22,4 +24,11 @@ public interface StatisticsDao {
     MetaCursor getTrafficList(BSONObject filter) throws StatisticsException;
     
     MetaCursor getFileDeltaList(BSONObject filter) throws StatisticsException;
+
+    ObjectDeltaInfo queryLastObjectDeltaRecord(String bucketName) throws StatisticsException;
+
+    void upsertObjectDelta(String bucketName, long recordTime, long newCount, long newSize)
+            throws ScmMetasourceException;
+
+    MetaCursor getObjectDeltaList(BSONObject filter) throws ScmMetasourceException;
 }

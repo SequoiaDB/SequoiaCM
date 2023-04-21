@@ -4,13 +4,13 @@ const BASE_API = '/api/v1'
 
 /**
   * 查询桶列表
-  * @param {number} page 
-  * @param {number} size 
-  * @param {object} filter 
-  * @param {object} orderby 
-  * @returns 
+  * @param {number} page
+  * @param {number} size
+  * @param {object} filter
+  * @param {object} orderby
+  * @returns
   */
- export function queryBucketList(page, size, filter, orderby, isStrictMode=false) {
+ export function queryBucketList(page, size, filter, orderby, isStrictMode=false, quotaLevel) {
   return request({
     url: BASE_API+'/buckets',
     method: 'get',
@@ -19,14 +19,15 @@ const BASE_API = '/api/v1'
       limit: size,
       filter: filter,
       orderby: orderby,
-      strict_mode: isStrictMode
+      strict_mode: isStrictMode,
+      quota_level: quotaLevel
     }
   })
 }
 
 /**
  * 查询用户拥有操作权限的桶
- * @returns 
+ * @returns
  */
  export function queryUserRelatedBucket() {
   return request({
@@ -37,8 +38,8 @@ const BASE_API = '/api/v1'
 
 /**
  * 查看桶详情
- * @param {string} bucketName 
- * @returns 
+ * @param {string} bucketName
+ * @returns
  */
  export function queryBucketDetail(bucketName) {
   return request({
@@ -49,12 +50,12 @@ const BASE_API = '/api/v1'
 
 /**
  * 查看桶下的文件列表
- * @param {string} bucketName 
- * @param {object} filter 
- * @param {object} orderby 
- * @param {int} page 
- * @param {int} size 
- * @returns 
+ * @param {string} bucketName
+ * @param {object} filter
+ * @param {object} orderby
+ * @param {int} page
+ * @param {int} size
+ * @returns
  */
  export function queryFileInBucket(bucketName, filter, orderby, page, size) {
   return request({
@@ -71,12 +72,12 @@ const BASE_API = '/api/v1'
 
 /**
  * 桶内上传文件
- * @param {string} bucketName 
- * @param {string} site 
- * @param {string} fileInfo 
+ * @param {string} bucketName
+ * @param {string} site
+ * @param {string} fileInfo
  * @param {object} uploadConf
- * @param {object} param 
- * @returns 
+ * @param {object} param
+ * @returns
  */
  export function createFileInBucket(bucketName, site, fileInfo, uploadConf, param) {
   return request({
@@ -103,8 +104,8 @@ const BASE_API = '/api/v1'
 
 /**
  * 创建桶
- * @param {object} data 
- * @returns 
+ * @param {object} data
+ * @returns
  */
  export function createBucket(data) {
   return request({
@@ -113,14 +114,15 @@ const BASE_API = '/api/v1'
     headers: {
       "Content-Type" : "application/json;charset=UTF-8",
     },
-    data: data
+    data: data,
+    timeout: -1
   })
 }
 
 /**
  * 更新桶
- * @param {object} data 
- * @returns 
+ * @param {object} data
+ * @returns
  */
  export function updateBucket(bucketName, data) {
   return request({
@@ -135,8 +137,8 @@ const BASE_API = '/api/v1'
 
 /**
  * 删除桶
- * @param {array} bucketNames 
- * @returns 
+ * @param {array} bucketNames
+ * @returns
  */
  export function deleteBucket(bucketNames) {
   return request({
@@ -146,5 +148,24 @@ const BASE_API = '/api/v1'
       "Content-Type" : "application/json;charset=UTF-8",
     },
     data: bucketNames
+  })
+}
+
+/**
+ * 获取桶对象增量数据
+ * @param {string} bucketName
+ * @param {number} beginTime
+ * @param {number} endTime
+ * @returns
+ */
+ export function queryBucketObjectDelta(bucketName, beginTime, endTime) {
+  return request({
+    url: BASE_API + '/buckets/' + bucketName + "?action=getObjectDelta",
+    method: 'get',
+    params: {
+      workspace: bucketName,
+      begin_time: beginTime,
+      end_time: endTime
+    }
   })
 }

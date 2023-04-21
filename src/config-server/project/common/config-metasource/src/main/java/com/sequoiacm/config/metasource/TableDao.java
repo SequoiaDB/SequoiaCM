@@ -1,5 +1,6 @@
 package com.sequoiacm.config.metasource;
 
+import com.sequoiacm.config.metasource.sequoiadb.IndexDef;
 import org.bson.BSONObject;
 
 import com.sequoiacm.config.metasource.exception.MetasourceException;
@@ -37,4 +38,6 @@ public interface TableDao {
     public int generateId() throws MetasourceException;
 
     public void ensureTable(List<String> indexFields, List<String> uniqueIndexField) throws MetasourceException;
+
+    public void ensureTable(List<IndexDef> indexes) throws MetasourceException;
 }

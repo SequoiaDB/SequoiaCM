@@ -27,5 +27,6 @@ public class MetaSourceDefine {
         public static final String CL_CLASS_ATTR_REL = "CLASS_ATTR_REL";
         public static final String CL_BUCKET = "BUCKET";
         public static final String CL_ID_GEN = "ID_GENERATOR";
+        public static final String CL_QUOTA = "QUOTA";
     }
 }

@@ -1,5 +1,15 @@
 package com.sequoiacm.cloud.adminserver;
 
+import com.sequoiacm.cloud.adminserver.config.PrivilegeHeartBeatConfig;
+import com.sequoiacm.cloud.adminserver.lock.LockPathFactory;
+import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.bucket.EnableBucketSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
+import com.sequoiacm.infrastructure.config.client.core.workspace.EnableWorkspaceSubscriber;
+import com.sequoiacm.infrastructure.lock.ScmLockManager;
+import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
+import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +45,11 @@ import de.codecentric.boot.admin.config.EnableAdminServer;
 @EnableScmLock
 @ComponentScan(basePackages = { "com.sequoiacm.cloud.adminserver" })
 @EnableHystrix
+@EnableBucketSubscriber
+@EnableWorkspaceSubscriber
+@EnableScmPrivClient
+@EnableUserSubscriber
+@EnableRoleSubscriber
 public class AdminServer implements ApplicationRunner {
 
     private final static Logger logger = LoggerFactory.getLogger(AdminServer.class);
@@ -56,6 +71,21 @@ public class AdminServer implements ApplicationRunner {
 
     @Autowired
     private ScmConfClient confClient;
+
+    @Autowired
+    private BucketConfSubscriber bucketConfSubscriber;
+
+    @Autowired
+    private ScmLockManager lockManager;
+
+    @Autowired
+    private LockPathFactory lockPathFactory;
+
+    @Autowired
+    private ScmPrivClient privClient;
+
+    @Autowired
+    private PrivilegeHeartBeatConfig privilegeHeartBeatConfig;
     
     public static void main(String[] args) {
         new SpringApplicationBuilder(AdminServer.class).bannerMode(Banner.Mode.OFF).run(
@@ -79,15 +109,22 @@ public class AdminServer implements ApplicationRunner {
         }
 
         initSystem(config);
+        privClient.updateHeartbeatInterval(privilegeHeartBeatConfig.getInterval());
     }
 
    private void initSystem(AdminServerConfig config) throws Exception {
-        StatisticsServer.getInstance().init(contentServerDao, statisticsDao, workspaceDao);
-
+       StatisticsServer.getInstance().init(contentServerDao, statisticsDao, workspaceDao,
+               bucketConfSubscriber, lockManager, lockPathFactory);
         StatisticsJobManager.getInstance().startTrafficJob(config.getJobFirstTime(),
                 config.getJobPeriod());
-        StatisticsJobManager.getInstance().startFileDeltaJob(config.getJobFirstTime(),
-                config.getJobPeriod());
+        if (config.isFileDeltaEnabled()) {
+            StatisticsJobManager.getInstance().startFileDeltaJob(config.getJobFirstTime(),
+                    config.getJobPeriod());
+        }
+        if (config.isObjectDeltaEnabled()) {
+            StatisticsJobManager.getInstance().startObjectDeltaJob(config.getJobFirstTime(),
+                    config.getJobPeriod());
+        }
         BreakpointFileCleanJobManager.getInstance().startCleanJob(breakpointFileStatisticsDao,
                 config.getBreakpointFileCleanPeriod(), config.getBreakpointFileStayDays());
    }

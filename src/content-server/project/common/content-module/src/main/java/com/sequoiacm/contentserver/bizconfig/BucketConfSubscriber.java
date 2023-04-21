@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.bizconfig;
 
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.infrastructure.config.client.core.bucket.BucketDeletedEvent;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigDefine;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketNotifyOption;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import com.sequoiacm.infrastructure.config.core.msg.DefaultVersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
+import org.springframework.context.ApplicationContext;
 
 public class BucketConfSubscriber implements ScmConfSubscriber {
     private static final Logger logger = LoggerFactory.getLogger(BucketConfSubscriber.class);
@@ -20,9 +22,10 @@ public class BucketConfSubscriber implements ScmConfSubscriber {
     private long heartbeatInterval;
     private String myServiceName;
     private DefaultVersionFilter versionFilter;
+    private ApplicationContext applicationContext;
 
     public BucketConfSubscriber(BucketInfoManager bucketInfoManager, String myServiceName,
-            long heartbeatInterval) {
+            long heartbeatInterval, ApplicationContext applicationContext) {
         this.myServiceName = myServiceName;
         this.heartbeatInterval = heartbeatInterval;
         this.bucketInfoMgr = bucketInfoManager;
@@ -32,6 +35,7 @@ public class BucketConfSubscriber implements ScmConfSubscriber {
         // client 的版本心跳线程会从bucket通知中拿到全局版本，更新自己的版本号
         this.versionFilter = new DefaultVersionFilter(ScmConfigNameDefine.BUCKET);
         this.versionFilter.addBussinessName(BucketConfigDefine.ALL_BUCKET_VERSION);
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -49,6 +53,8 @@ public class BucketConfSubscriber implements ScmConfSubscriber {
         BucketNotifyOption bucketNotifyOption = (BucketNotifyOption) notification;
         if (notification.getEventType() == EventType.DELTE) {
             bucketInfoMgr.invalidateBucketCache(bucketNotifyOption.getBucketName());
+            applicationContext
+                    .publishEvent(new BucketDeletedEvent(bucketNotifyOption.getBucketName()));
             return;
         }
         else if (notification.getEventType() == EventType.CREATE) {

@@ -21,6 +21,7 @@ import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -29,6 +30,8 @@ public class ScmBucketConfOperator implements ScmConfOperator {
     private BucketDao bucketDao;
     @Autowired
     private DefaultVersionDao versionDao;
+
+    private List<ScmBucketListener> bucketListeners = new ArrayList<>();
 
     private ScmBucketConfOperator(ScmWorkspaceConfOperator wsOp, final BucketDao bucketDao) {
         wsOp.registerWorkspaceListener(new ScmWorkspaceListener() {
@@ -53,7 +56,12 @@ public class ScmBucketConfOperator implements ScmConfOperator {
 
     @Override
     public ScmConfOperateResult deleteConf(ConfigFilter filter) throws ScmConfigException {
-        return bucketDao.deleteBucket((BucketConfigFilter) filter);
+        BucketConfigFilter bucketConfigFilter = (BucketConfigFilter) filter;
+        ScmConfOperateResult operateResult = bucketDao.deleteBucket(bucketConfigFilter);
+        for (ScmBucketListener bucketListener : bucketListeners) {
+            bucketListener.afterBucketDelete(bucketConfigFilter.getBucketName());
+        }
+        return operateResult;
     }
 
     @Override
@@ -74,6 +82,10 @@ public class ScmBucketConfOperator implements ScmConfOperator {
     @Override
     public ScmConfOperateResult updateConf(ConfigUpdator updator) throws ScmConfigException {
         return  bucketDao.updateBucket((BucketConfigUpdater) updator);
+    }
+
+    public void registerBucketListener(ScmBucketListener listener) {
+        bucketListeners.add(listener);
     }
 
 }

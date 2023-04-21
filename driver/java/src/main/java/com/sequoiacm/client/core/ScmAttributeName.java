@@ -871,6 +871,40 @@ public class ScmAttributeName {
     }
 
     /**
+     * Attribute of object delta.
+     *
+     */
+    public static final class ObjectDelta {
+        private ObjectDelta() {
+        }
+
+        /**
+         * Bucket name.
+         */
+        public static final String BUCKET_NAME = FieldName.ObjectDelta.FIELD_BUCKET_NAME;
+
+        /**
+         * Count delta
+         */
+        public static final String COUNT_DELTA = FieldName.ObjectDelta.FIELD_COUNT_DELTA;
+
+        /**
+         * Size delta.
+         */
+        public static final String SIZE_DELTA = FieldName.ObjectDelta.FIELD_SIZE_DELTA;
+
+        /**
+         * Record time.
+         */
+        public static final String RECORD_TIME = FieldName.ObjectDelta.FIELD_RECORD_TIME;
+
+        /**
+         * Update time
+         */
+        public static final String UPDATE_TIME = FieldName.ObjectDelta.FIELD_UPDATE_TIME;
+    }
+
+    /**
      * Attribute of bucket.
      *
      */

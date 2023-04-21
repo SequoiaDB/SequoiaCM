@@ -1,7 +1,5 @@
 package com.sequoiacm.common;
 
-import java.lang.reflect.Field;
-
 public class FieldName {
     public static final String FIELD_ALL_OBJECTID = "_id"; // objectid
 
@@ -508,6 +506,18 @@ public class FieldName {
         public static final String FIELD_RECORD_TIME = "record_time";
     }
 
+    public static final class ObjectDelta {
+        private ObjectDelta() {
+        }
+
+        public static final String FIELD_BUCKET_NAME = "bucket_name";
+        public static final String FIELD_COUNT_DELTA = "count_delta";
+        public static final String FIELD_SIZE_DELTA = "size_delta";
+        public static final String FIELD_RECORD_TIME = "record_time";
+        public static final String FIELD_UPDATE_TIME = "update_time";
+
+    }
+
     public static final class ContentLocation {
         private ContentLocation(){}
         public static final String FIELD_TYPE = "type";
@@ -630,4 +640,49 @@ public class FieldName {
         public static final String FIELD_LIFE_CYCLE_CONFIG = "life_cycle_config";
 
     }
+
+    public static final class Quota {
+        public static final String TYPE = "type";
+        public static final String NAME = "name";
+        public static final String ENABLE = "enable";
+        public static final String MAX_SIZE = "max_size";
+        public static final String MAX_OBJECTS = "max_objects";
+        public static final String USED_SIZE = "used_size";
+        public static final String USED_OBJECTS = "used_objects";
+        public static final String UPDATE_TIME = "update_time";
+        public static final String QUOTA_ROUND_NUMBER = "quota_round_number";
+        public static final String EXTRA_INFO = "extra_info";
+        public static final String EXTRA_INFO_WORKSPACE = "workspace";
+        public static final String VERSION = "version";
+    }
+
+    public static final class QuotaSync {
+        public static final String TYPE = "type";
+        public static final String NAME = "name";
+        public static final String STATISTICS_SIZE = "statistics_size";
+        public static final String STATISTICS_OBJECTS = "statistics_objects";
+        public static final String STATUS = "status";
+        public static final String ERROR_MSG = "error_msg";
+        public static final String EXPIRE_TIME = "expire_time";
+        public static final String SYNC_ROUND_NUMBER = "sync_round_number";
+        public static final String QUOTA_ROUND_NUMBER = "quota_round_number";
+        public static final String IS_FIRST_SYNC = "is_first_sync";
+        public static final String BEGIN_TIME = "begin_time";
+        public static final String END_TIME = "end_time";
+        public static final String AGREEMENT_TIME = "agreement_time";
+        public static final String STATISTICS_DETAIL = "statistics_detail";
+        public static final String EXTRA_INFO = "extra_info";
+        public static final String EXTRA_INFO_WORKSPACE = "workspace";
+        public static final String UPDATE_TIME = "update_time";
+    }
+
+    public static final class QuotaStatisticsProgress {
+        public static final String ESTIMATED_TIME = "estimated_time";
+        public static final String PROCESS_NODE = "process_node";
+        public static final String PROCESS_TIME = "process_time";
+        public static final String UPDATE_TIME = "update_time";
+        public static final String STATUS = "status";
+        public static final String ERROR_MSG = "error_msg";
+    }
+
 }

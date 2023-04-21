@@ -72,9 +72,8 @@ public class FileOperationFulltextListener implements FileOperationListener {
     }
 
     @Override
-    public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws,
-            FileMeta latestVersionAfterUpdate)
-            throws ScmServerException {
+    public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws, FileMeta currentLatestVersion,
+            FileMeta latestVersionAfterUpdate) throws ScmServerException {
         ScmWorkspaceFulltextExtData wsFulltextExt = ws.getFulltextExtData();
         if (!wsFulltextExt.isEnabled()) {
             return OperationCompleteCallback.EMPTY_CALLBACK;

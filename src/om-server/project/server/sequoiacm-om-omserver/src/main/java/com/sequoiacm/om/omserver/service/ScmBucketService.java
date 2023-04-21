@@ -6,6 +6,7 @@ import com.sequoiacm.om.omserver.module.OmBatchOpResult;
 import com.sequoiacm.om.omserver.module.OmBucketCreateInfo;
 import com.sequoiacm.om.omserver.module.OmBucketDetail;
 import com.sequoiacm.om.omserver.module.OmBucketUpdateInfo;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileBasic;
 import com.sequoiacm.om.omserver.module.OmFileInfo;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
@@ -45,5 +46,13 @@ public interface ScmBucketService {
     void updateBucket(ScmOmSession session, String bucketName, OmBucketUpdateInfo bucketUpdateInfo)
             throws ScmOmServerException, ScmInternalException;
 
-    long countBucket(ScmOmSession session, BSONObject filter, Boolean isStrictMode) throws ScmOmServerException, ScmInternalException;
+    long countBucket(ScmOmSession session, BSONObject filter, Boolean isStrictMode)
+            throws ScmOmServerException, ScmInternalException;
+
+    OmDeltaStatistics getObjectDelta(ScmOmSession session, String bucketName, Long beginTime,
+            Long endTime) throws ScmOmServerException, ScmInternalException;
+
+    List<OmBucketDetail> listBucketFilterQuotaLevel(ScmOmSession session, BSONObject filter,
+            BSONObject orderBy, Boolean isStrictMode, String quotaLevel)
+            throws ScmOmServerException, ScmInternalException;
 }

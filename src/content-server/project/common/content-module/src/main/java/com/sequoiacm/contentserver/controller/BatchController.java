@@ -96,7 +96,7 @@ public class BatchController {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = batchService.getList(user, workspace_name, filter, orderBy, skip,
                 limit);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     @GetMapping(value = "/batches/{batch_id}")

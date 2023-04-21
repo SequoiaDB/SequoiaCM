@@ -1,7 +1,8 @@
 package com.sequoiacm.cloud.adminserver.service.impl;
 
-import com.sequoiacm.cloud.adminserver.AdminServerConfig;
 import com.sequoiacm.cloud.adminserver.StatisticsConfig;
+import com.sequoiacm.cloud.adminserver.common.FieldMatchChecker;
+import com.sequoiacm.cloud.adminserver.core.StatisticsObjectDelta;
 import com.sequoiacm.cloud.adminserver.dao.FileStatisticsDao;
 import com.sequoiacm.infrastructure.statistics.common.ScmTimeAccuracy;
 import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsData;
@@ -57,6 +58,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
+    public void refreshObjectDelta(String bucketName) throws StatisticsException {
+        new StatisticsObjectDelta().refresh(bucketName);
+    }
+
+    @Override
     public MetaCursor getTrafficList(BSONObject filter) throws StatisticsException {
         return statisticsDao.getTrafficList(filter);
     }
@@ -64,6 +70,12 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public MetaCursor getFileDeltaList(BSONObject filter) throws StatisticsException {
         return statisticsDao.getFileDeltaList(filter);
+    }
+
+    @Override
+    public MetaCursor getObjectDeltaList(BSONObject filter) throws StatisticsException {
+        FieldMatchChecker.checkFields(filter, FieldMatchChecker.CheckType.OBJECT_DELTA);
+        return statisticsDao.getObjectDeltaList(filter);
     }
 
     @Override

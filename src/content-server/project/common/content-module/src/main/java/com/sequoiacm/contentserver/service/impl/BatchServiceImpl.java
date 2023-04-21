@@ -333,10 +333,12 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // attach
+            FileMeta fileMeta = FileMeta.fromRecord(fileInfo);
             UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(workspaceName, fileId,
                     Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID, batchId)),
-                    user.getUsername(), new Date(), FileMeta.fromRecord(fileInfo), null);
-            callback = fileOpListenerMgr.postUpdate(wsInfo, ret.getLatestVersionAfterUpdate());
+                    user.getUsername(), new Date(), fileMeta, null);
+            callback = fileOpListenerMgr.postUpdate(wsInfo, fileMeta,
+                    ret.getLatestVersionAfterUpdate());
             audit.info(ScmAuditType.UPDATE_BATCH, user, workspaceName, 0,
                     "attach batch's file batchId=" + batchId + ", fileId=" + fileId);
         }
@@ -439,10 +441,12 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // detach
+            FileMeta fileMeta = FileMeta.fromRecord(fileInfo);
             UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId,
                     Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID, null)),
-                    user.getUsername(), new Date(), FileMeta.fromRecord(fileInfo), null);
-            callback = fileOpListenerMgr.postUpdate(wsInfo, ret.getLatestVersionAfterUpdate());
+                    user.getUsername(), new Date(), fileMeta, null);
+            callback = fileOpListenerMgr.postUpdate(wsInfo, fileMeta,
+                    ret.getLatestVersionAfterUpdate());
         }
         finally {
             if (fileLock != null) {

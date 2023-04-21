@@ -30,6 +30,9 @@ public class OmBucketDetail {
     @JsonProperty("update_time")
     private Date updateTime;
 
+    @JsonProperty("quota_info")
+    private OmBucketQuotaInfo quotaInfo;
+
     public long getId() {
         return id;
     }
@@ -92,5 +95,13 @@ public class OmBucketDetail {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public OmBucketQuotaInfo getQuotaInfo() {
+        return quotaInfo;
+    }
+
+    public void setQuotaInfo(OmBucketQuotaInfo quotaInfo) {
+        this.quotaInfo = quotaInfo;
     }
 }

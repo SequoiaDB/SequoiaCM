@@ -445,12 +445,12 @@ export default {
 
     async queryFileSizeDeltaChart() {
       let res = await queryWorkspaceFileDelta(this.wsName, this.fileSizeDeltaQueryCondition.beginTime, this.fileSizeDeltaQueryCondition.endTime)
-      this.$refs['fileSizeDeltaChart'].init(res.data['file_size_delta'])
+      this.$refs['fileSizeDeltaChart'].init(res.data['size_delta'])
     },
 
     async queryFileCountDeltaChart() {
       let res = await queryWorkspaceFileDelta(this.wsName, this.fileCountDeltaQueryCondition.beginTime, this.fileCountDeltaQueryCondition.endTime)
-      this.$refs['fileCountDeltaChart'].init(res.data['file_count_delta'])
+      this.$refs['fileCountDeltaChart'].init(res.data['count_delta'])
     },
 
     // 检查数据流下调度任务的状态是否正常

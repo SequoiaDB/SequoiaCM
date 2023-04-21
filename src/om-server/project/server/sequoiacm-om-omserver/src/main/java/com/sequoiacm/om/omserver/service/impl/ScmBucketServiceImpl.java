@@ -6,25 +6,32 @@ import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
+import com.sequoiacm.om.omserver.common.QuotaLevel;
 import com.sequoiacm.om.omserver.config.ScmOmServerConfig;
 import com.sequoiacm.om.omserver.core.ScmSiteChooser;
 import com.sequoiacm.om.omserver.dao.ScmBucketDao;
+import com.sequoiacm.om.omserver.dao.ScmMonitorDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.factory.ScmBucketDaoFactory;
+import com.sequoiacm.om.omserver.factory.ScmMonitorDaoFactory;
 import com.sequoiacm.om.omserver.factory.ScmUserDaoFactory;
 import com.sequoiacm.om.omserver.factory.ScmWorkSpaceDaoFactory;
 import com.sequoiacm.om.omserver.module.OmBatchOpResult;
 import com.sequoiacm.om.omserver.module.OmBucketCreateInfo;
 import com.sequoiacm.om.omserver.module.OmBucketDetail;
+import com.sequoiacm.om.omserver.module.OmBucketQuotaInfo;
 import com.sequoiacm.om.omserver.module.OmBucketUpdateInfo;
 import com.sequoiacm.om.omserver.module.OmCacheWrapper;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileBasic;
 import com.sequoiacm.om.omserver.module.OmFileInfo;
 import com.sequoiacm.om.omserver.module.OmUserInfo;
 import com.sequoiacm.om.omserver.service.ScmBucketService;
+import com.sequoiacm.om.omserver.service.ScmQuotaService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -34,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +66,12 @@ public class ScmBucketServiceImpl implements ScmBucketService {
 
     @Autowired
     private ScmWorkSpaceDaoFactory workSpaceDaoFactory;
+
+    @Autowired
+    private ScmQuotaService quotaService;
+
+    @Autowired
+    private ScmMonitorDaoFactory monitorDaoFactory;
 
     @Autowired
     public ScmBucketServiceImpl(ScmOmServerConfig config) {
@@ -97,7 +111,19 @@ public class ScmBucketServiceImpl implements ScmBucketService {
         ScmBucketDao bucketDao = scmBucketDaoFactory.createScmBucketDao(session);
         try {
             session.resetServiceEndpoint(preferSite);
-            return bucketDao.getBucketDetail(bucketName);
+            OmBucketDetail bucketDetail = bucketDao.getBucketDetail(bucketName);
+            try {
+                bucketDetail.setQuotaInfo(quotaService.getBucketQuota(session, bucketName));
+            }
+            catch (ScmInternalException e) {
+                // 获取配额失败，不影响桶详情的展示
+                if (e.getErrorCode() != ScmError.HTTP_NOT_FOUND.getErrorCode()) {
+                    // 不部署 admin-server 的情况下，不打印告警信息
+                    logger.warn("get bucket quota failed, bucketName: {}", bucketName, e);
+                }
+
+            }
+            return bucketDetail;
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -160,7 +186,22 @@ public class ScmBucketServiceImpl implements ScmBucketService {
         try {
             filter = processFilter(session, filter, isStrictMode);
             session.resetServiceEndpoint(preferSite);
-            return bucketDao.listBucket(filter, orderBy, skip, limit);
+            List<OmBucketDetail> omBucketDetails = bucketDao.listBucket(filter, orderBy, skip,
+                    limit);
+            try {
+                for (OmBucketDetail omBucketDetail : omBucketDetails) {
+                    omBucketDetail.setQuotaInfo(
+                            quotaService.getBucketQuota(session, omBucketDetail.getName()));
+                }
+            }
+            catch (ScmInternalException e) {
+                // 填充配额失败，不影响桶的列取
+                if (e.getErrorCode() != ScmError.HTTP_NOT_FOUND.getErrorCode()) {
+                    // 不部署 admin-server 的情况下，不打印告警信息
+                    logger.warn("get buckets quota failed", e);
+                }
+            }
+            return omBucketDetails;
         }
         catch (ScmInternalException e) {
             siteChooser.onException(e);
@@ -169,7 +210,30 @@ public class ScmBucketServiceImpl implements ScmBucketService {
     }
 
     @Override
-    public long countBucket(ScmOmSession session, BSONObject filter, Boolean isStrictMode) throws ScmOmServerException, ScmInternalException {
+    public List<OmBucketDetail> listBucketFilterQuotaLevel(ScmOmSession session, BSONObject filter,
+            BSONObject orderBy, Boolean isStrictMode, String quotaLevel)
+            throws ScmOmServerException, ScmInternalException {
+        QuotaLevel level = QuotaLevel.getByName(quotaLevel);
+        if (level == null) {
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                    "invalid quota level:" + quotaLevel);
+        }
+        List<OmBucketDetail> omBucketDetails = listBucket(session, filter, orderBy, 0, -1,
+                isStrictMode);
+        Iterator<OmBucketDetail> iterator = omBucketDetails.iterator();
+        while (iterator.hasNext()) {
+            OmBucketDetail next = iterator.next();
+            OmBucketQuotaInfo quotaInfo = next.getQuotaInfo();
+            if (quotaInfo == null || !quotaLevel.equals(quotaInfo.getQuotaLevel())) {
+                iterator.remove();
+            }
+        }
+        return omBucketDetails;
+    }
+
+    @Override
+    public long countBucket(ScmOmSession session, BSONObject filter, Boolean isStrictMode)
+            throws ScmOmServerException, ScmInternalException {
         String preferSite = siteChooser.getRootSite();
         ScmBucketDao bucketDao = scmBucketDaoFactory.createScmBucketDao(session);
         try {
@@ -184,8 +248,23 @@ public class ScmBucketServiceImpl implements ScmBucketService {
     }
 
     @Override
-    public void updateBucket(ScmOmSession session, String bucketName, OmBucketUpdateInfo bucketUpdateInfo)
-            throws ScmOmServerException, ScmInternalException {
+    public OmDeltaStatistics getObjectDelta(ScmOmSession session, String bucketName, Long beginTime,
+            Long endTime) throws ScmOmServerException, ScmInternalException {
+        String preferSite = siteChooser.chooseFromAllSite();
+        try {
+            session.resetServiceEndpoint(preferSite);
+            ScmMonitorDao monitorDao = monitorDaoFactory.createMonitorDao(session);
+            return monitorDao.getObjectDelta(bucketName, beginTime, endTime);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void updateBucket(ScmOmSession session, String bucketName,
+            OmBucketUpdateInfo bucketUpdateInfo) throws ScmOmServerException, ScmInternalException {
         String preferSite = siteChooser.getRootSite();
         ScmBucketDao bucketDao = scmBucketDaoFactory.createScmBucketDao(session);
         try {
@@ -233,6 +312,20 @@ public class ScmBucketServiceImpl implements ScmBucketService {
                                     + e.getMessage();
                             logger.error(message + ", bucket={}, versionStatus={}", bucketName,
                                     bucketCreateInfo.getVersionStatus(), e);
+                        }
+                    }
+                    if (bucketCreateInfo.getEnableQuota() != null
+                            && bucketCreateInfo.getEnableQuota()) {
+                        try {
+                            quotaService.enableBucketQuota(session, bucketName,
+                                    bucketCreateInfo.getMaxObjects(),
+                                    bucketCreateInfo.getMaxSize());
+                        }
+                        catch (Exception e) {
+                            message = "create bucket success but enable quota failed:"
+                                    + e.getMessage();
+                            logger.error(message + ", bucket={}, quotaStatus={}", bucketName,
+                                    bucketCreateInfo.getEnableQuota(), e);
                         }
                     }
                     res.add(new OmBatchOpResult(bucketName, true, message));

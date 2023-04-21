@@ -239,7 +239,7 @@ public class DirController {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = dirService.getDirList(user, workspaceName, condition, orderby, skip,
                 limit);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     @RequestMapping(value = "/directories/id/{directory_id}/listfiles", method = RequestMethod.GET)
@@ -256,7 +256,7 @@ public class DirController {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = fileService.getDirSubFileList(user, workspaceName, directoryId, condition,
                 CommonDefine.Scope.SCOPE_CURRENT, orderby, skip, limit, selector);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     @RequestMapping(value = "/directories", method = RequestMethod.HEAD)

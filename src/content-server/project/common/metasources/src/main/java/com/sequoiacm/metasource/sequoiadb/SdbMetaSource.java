@@ -2,8 +2,12 @@ package com.sequoiacm.metasource.sequoiadb;
 
 import java.util.List;
 
+import com.sequoiacm.metasource.MetaQuotaAccessor;
+import com.sequoiacm.metasource.MetaQuotaSyncAccessor;
 import com.sequoiacm.metasource.MetaSpaceRecyclingLogAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbMetaAccessor;
+import com.sequoiacm.metasource.sequoiadb.accessor.SdbMetaQuotaAccessor;
+import com.sequoiacm.metasource.sequoiadb.accessor.SdbQuotaSyncAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbSpaceRecyclingLogAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbWorkspaceHistoryAccessor;
 import com.sequoiadb.base.CollectionSpace;
@@ -150,8 +154,7 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     public MetaFileHistoryAccessor getFileHistoryAccessor(MetaSourceLocation location,
             String wsName, TransactionContext context) {
         return new SdbFileHistoryAccessor((SdbMetaSourceLocation) location, wsName, this,
-                wsName + "_META",
-                MetaSourceDefine.WorkspaceCLName.CL_FILE_HISTORY, context);
+                wsName + "_META", MetaSourceDefine.WorkspaceCLName.CL_FILE_HISTORY, context);
     }
 
     @Override
@@ -271,6 +274,18 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     public MetaSpaceRecyclingLogAccessor getSpaceRecyclingLogAccessor() {
         return new SdbSpaceRecyclingLogAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
                 MetaSourceDefine.SystemClName.CL_SPACE_RECYCLING_LOG);
+    }
+
+    @Override
+    public MetaQuotaSyncAccessor getQuotaSyncAccessor() {
+        return new SdbQuotaSyncAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_QUOTA_SYNC);
+    }
+
+    @Override
+    public MetaQuotaAccessor getQuotaAccessor() {
+        return new SdbMetaQuotaAccessor(this, MetaSourceDefine.CsName.CS_SCMSYSTEM,
+                MetaSourceDefine.SystemClName.CL_QUOTA);
     }
 
     public void ensureCollection(String csName, String clName, BSONObject clOption)

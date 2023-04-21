@@ -1147,6 +1147,23 @@ public class ScmSystem {
         }
 
         /**
+         * Refresh the object delta statistics with specified args.
+         *
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static void refreshObjectDelta(ScmSession ss, String bucketName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("bucketName", bucketName);
+            ss.getDispatcher().refreshObjectDeltaStatistics( bucketName);
+        }
+
+        /**
          * List files delta.
          *
          * @param ss
@@ -1166,6 +1183,32 @@ public class ScmSystem {
                         @Override
                         public ScmStatisticsFileDelta convert(BSONObject obj) throws ScmException {
                             return new ScmStatisticsFileDelta(obj);
+                        }
+                    });
+            return cursor;
+        }
+
+        /**
+         * List object delta of bucket.
+         *
+         * @param ss
+         *            session.
+         * @param condition
+         *            filter.
+         * @return cursor.
+         * @throws ScmException
+         *             if error happens.
+         */
+        public static ScmCursor<ScmStatisticsObjectDelta> listObjectDelta(ScmSession ss,
+                BSONObject condition) throws ScmException {
+            checkArgNotNull("session", ss);
+            BsonReader reader = ss.getDispatcher().getStatisticsObjectDeltaList(condition);
+            ScmCursor<ScmStatisticsObjectDelta> cursor = new ScmBsonCursor<ScmStatisticsObjectDelta>(
+                    reader, new BsonConverter<ScmStatisticsObjectDelta>() {
+                        @Override
+                        public ScmStatisticsObjectDelta convert(BSONObject obj)
+                                throws ScmException {
+                            return new ScmStatisticsObjectDelta(obj);
                         }
                     });
             return cursor;

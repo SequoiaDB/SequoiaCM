@@ -118,6 +118,10 @@ public class ScmServiceDiscoveryClient {
         return null;
     }
 
+    public ScmServiceInstance choseInstance(String service) {
+        return choseInstance(localRegion, localZone, service);
+    }
+
     public String getServiceNameByUrl(String url) {
         String hostAndPort = NetUtil.getHostAndPort(url);
         List<String> services = discoveryClient.getServices();

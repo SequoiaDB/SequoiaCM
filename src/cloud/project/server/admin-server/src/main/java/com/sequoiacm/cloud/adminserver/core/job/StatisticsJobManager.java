@@ -19,6 +19,7 @@ public class StatisticsJobManager {
     private ScmTimer jobTimer = ScmTimerFactory.createScmTimer();
     private StatisticsTrafficJob trafficJob = new StatisticsTrafficJob();
     private StatisticsFileDeltaJob fileDeltaJob = new StatisticsFileDeltaJob();
+    private StatisticsObjectDeltaJob objectDeltaJob = new StatisticsObjectDeltaJob();
 
     private StatisticsJobManager() {
     }
@@ -33,6 +34,10 @@ public class StatisticsJobManager {
 
     public void startFileDeltaJob(Date firstTime, long period) throws StatisticsException {
         schedule(fileDeltaJob, firstTime, period);
+    }
+
+    public void startObjectDeltaJob(Date firstTime, long period) throws StatisticsException {
+        schedule(objectDeltaJob, firstTime, period);
     }
 
     /*

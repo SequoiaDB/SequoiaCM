@@ -419,7 +419,7 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     }
 
     @Override
-    public OmFileDeltaStatistics getWorkspaceFileDelta(ScmOmSession session, String workspaceName,
+    public OmDeltaStatistics getWorkspaceFileDelta(ScmOmSession session, String workspaceName,
             Long beginTime, Long endTime) throws ScmOmServerException, ScmInternalException {
         String preferSite = siteChooser.chooseFromAllSite();
         try {

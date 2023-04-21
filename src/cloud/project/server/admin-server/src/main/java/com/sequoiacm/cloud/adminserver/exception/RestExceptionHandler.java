@@ -1,5 +1,6 @@
 package com.sequoiacm.cloud.adminserver.exception;
 
+import com.sequoiacm.exception.ScmError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
@@ -16,6 +17,10 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
 
         StatisticsException e = (StatisticsException) srcException;
 
+        ScmError scmError = null;
+        if (e.getCode().equals(StatisticsError.UNAUTHORIZED_OPERATION)) {
+            scmError = ScmError.OPERATION_UNSUPPORTED;
+        }
         HttpStatus status;
         switch (e.getCode()) {
             case StatisticsError.MISSING_ARGUMENT:
@@ -28,6 +33,10 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
                 break;
             default:
                 status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        if (scmError != null) {
+            return new ExceptionBody(status, scmError.getErrorCode(),
+                    scmError.getErrorDescription(), e.getMessage());
         }
         return new ExceptionBody(status, status.value(), e.getCode(), e.getMessage());
     }

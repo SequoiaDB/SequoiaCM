@@ -77,7 +77,7 @@ public class WorkspaceController {
 
         ScmUser user = (ScmUser) auth.getPrincipal();
         MetaCursor cursor = workspaceService.getWorkspaceList(user, filter, orderBy, skip, limit);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
 
     }
 

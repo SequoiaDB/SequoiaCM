@@ -27,6 +27,7 @@ import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 import com.sequoiacm.metasource.sequoiadb.IMetaSourceHandler;
+import org.springframework.context.ApplicationContext;
 
 public class ContentModuleInitializer {
     private static final Logger logger = LoggerFactory.getLogger(ContentModuleInitializer.class);
@@ -40,9 +41,13 @@ public class ContentModuleInitializer {
 
     private ScmConfClient confClient;
 
-    public ContentModuleInitializer(ScmPrivClient privClient, ScmConfClient confClient,
+    private ApplicationContext applicationContext;
+
+    public ContentModuleInitializer(ApplicationContext applicationContext, ScmPrivClient privClient,
+            ScmConfClient confClient,
             String serviceName, String bindingSite, IMetaSourceHandler metaSourceHandler,
             BucketInfoManager bucketMgr, IDirService dirService) {
+        this.applicationContext = applicationContext;
         this.privClient = privClient;
         this.confClient = confClient;
         this.serviceName = serviceName;
@@ -82,7 +87,7 @@ public class ContentModuleInitializer {
                 new NodeConfSubscriber(serviceName, PropertiesUtils.getNodeVersionHeartbeat()));
 
         contentserverConfClient.subscribeWithAsyncRetry(new BucketConfSubscriber(bucketInfoMgr,
-                serviceName, PropertiesUtils.getSiteVersionHeartbeat()));
+                serviceName, PropertiesUtils.getSiteVersionHeartbeat(), applicationContext));
 
         logger.info("init strategy");
         ScmContentModule contentModule = ScmContentModule.getInstance();

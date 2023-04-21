@@ -42,7 +42,12 @@ public enum ScmConfError {
 
     BUCKET_EXIST(-900, "bucket exist"),
 
-    BUCKET_NOT_EXIST(-901, "bucket not exist");
+    BUCKET_NOT_EXIST(-901, "bucket not exist"),
+
+    // quota related
+    QUOTA_EXIST(-1000, "quota exist"),
+    QUOTA_NOT_EXIST(-1001, "quota not exist");
+
     private int errorCode;
     private String desc;
 

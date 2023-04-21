@@ -4,6 +4,7 @@ import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
 import com.sequoiacm.infrastructure.config.client.core.bucket.BucketSubscriberConfig;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
@@ -29,8 +30,9 @@ class BucketConfSubscriberAutoConfig {
 
     @Bean
     public BucketConfSubscriber bucketConfSubscriber(BucketSubscriberConfig config,
-            ScmConfClient confClient) throws ScmConfigException {
-        return new BucketConfSubscriber(config, confClient);
+            ScmConfClient confClient, ApplicationContext applicationContext)
+            throws ScmConfigException {
+        return new BucketConfSubscriber(config, confClient, applicationContext);
     }
 
 }

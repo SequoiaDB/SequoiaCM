@@ -9,7 +9,8 @@ import com.sequoiacm.cloud.adminserver.core.StatisticalFileDelta;
 public final class StatisticsFileDeltaJob extends StatisticsJob {
     private static final Logger logger = LoggerFactory.getLogger(StatisticsFileDeltaJob.class);
 
-    private boolean needBacktrace = true;
+    // 避免对数据库造成太大压力，定时任务在统计时，不需要修复之前的数据；用户可通过 refresh 接口手动修复
+    private boolean needBacktrace = false;
     
     private StatisticalFileDelta statisFileDelta = new StatisticalFileDelta();
     
@@ -31,11 +32,9 @@ public final class StatisticsFileDeltaJob extends StatisticsJob {
     public void run() {
         try {
             this.statisFileDelta.doStatistics(needBacktrace);
-            needBacktrace = false;
         }
         catch (Exception e) {
             logger.error("do file delta job failed", e);
-            needBacktrace = true;
         }
     }
 

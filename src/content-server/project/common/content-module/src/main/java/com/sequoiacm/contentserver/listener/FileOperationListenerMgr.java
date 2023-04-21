@@ -50,12 +50,12 @@ public class FileOperationListenerMgr implements FileOperationListener {
 
     @Override
     public OperationCompleteCallback postUpdate(ScmWorkspaceInfo ws,
-            FileMeta latestVersionAfterUpdate)
+            FileMeta latestVersionBeforeUpdate, FileMeta latestVersionAfterUpdate)
             throws ScmServerException {
         try {
             CallbackList ret = new CallbackList();
             for (FileOperationListener l : listeners) {
-                ret.add(l.postUpdate(ws, latestVersionAfterUpdate));
+                ret.add(l.postUpdate(ws, latestVersionBeforeUpdate, latestVersionAfterUpdate));
             }
             return ret;
         }

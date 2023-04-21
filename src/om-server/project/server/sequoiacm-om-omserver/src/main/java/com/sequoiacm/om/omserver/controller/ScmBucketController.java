@@ -3,6 +3,7 @@ package com.sequoiacm.om.omserver.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.om.omserver.common.CommonUtil;
+import com.sequoiacm.om.omserver.common.PageUtil;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
 import com.sequoiacm.om.omserver.common.ScmOmInputStream;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
@@ -12,6 +13,7 @@ import com.sequoiacm.om.omserver.module.OmBucketCreateInfo;
 import com.sequoiacm.om.omserver.module.OmBucketDetail;
 import com.sequoiacm.om.omserver.module.OmBucketUpdateInfo;
 import com.sequoiacm.om.omserver.module.OmFileBasic;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileInfo;
 import com.sequoiacm.om.omserver.service.ScmBucketService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
@@ -80,15 +82,24 @@ public class ScmBucketController {
             @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
             @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy,
             @RequestParam(value = RestParamDefine.STRICT_MODE, required = false, defaultValue = "false") Boolean isStrictMode,
+            @RequestParam(value = RestParamDefine.QUOTA_LEVEL, required = false) String quotaLevel,
             HttpServletResponse response)
             throws ScmInternalException, ScmOmServerException {
-
-        long count = bucketService.countBucket(session, filter, isStrictMode);
-        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(count));
-        if (count <= 0) {
-            return Collections.emptyList();
+        if (quotaLevel == null) {
+            long count = bucketService.countBucket(session, filter, isStrictMode);
+            response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(count));
+            if (count <= 0) {
+                return Collections.emptyList();
+            }
+            return bucketService.listBucket(session, filter, orderBy, skip, limit, isStrictMode);
         }
-        return bucketService.listBucket(session, filter, orderBy, skip, limit, isStrictMode);
+        else {
+            List<OmBucketDetail> list = bucketService.listBucketFilterQuotaLevel(session, filter,
+                    orderBy, isStrictMode, quotaLevel);
+            response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(list.size()));
+            return PageUtil.getPageOfResult(list, skip, limit);
+        }
+
     }
 
     @RequestMapping(value = "/buckets/{bucket_name:.+}", method = RequestMethod.HEAD)
@@ -131,5 +142,13 @@ public class ScmBucketController {
         finally {
             CommonUtil.consumeAndCloseResource(is);
         }
+    }
+
+    @GetMapping(value = "/buckets/{bucket_name}", params = "action=getObjectDelta")
+    public OmDeltaStatistics getObjectDelta(@PathVariable("bucket_name") String bucketName,
+            @RequestParam(value = RestParamDefine.BEGIN_TIME, required = false) Long beginTime,
+            @RequestParam(value = RestParamDefine.END_TIME, required = false) Long endTime,
+            ScmOmSession session) throws ScmInternalException, ScmOmServerException {
+        return bucketService.getObjectDelta(session, bucketName, beginTime, endTime);
     }
 }

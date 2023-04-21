@@ -23,6 +23,7 @@ public class RestParamDefine {
     public static final String FILTER = "filter";
     public static final String ORDERBY = "orderby";
     public static final String STRICT_MODE = "strict_mode";
+    public static final String QUOTA_LEVEL = "quota_level";
 
     // workspace
     public static final String BEGIN_TIME = "begin_time";
@@ -94,4 +95,6 @@ public class RestParamDefine {
 
     public static final String IP_ADDR = "ip_addr";
     public static final String PORT = "port";
+    public static final String QUOTA_MAX_OBJECTS = "max_objects";
+    public static final String QUOTA_MAX_SIZE = "max_size";
 }

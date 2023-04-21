@@ -3,7 +3,6 @@ package com.sequoiacm.contentserver.service.impl;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmArgChecker;
-import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.DirCreatorDao;
 import com.sequoiacm.contentserver.dao.DirOperator;
@@ -619,12 +618,13 @@ public class DirServiceImpl implements IDirService {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "parent directory not exist:id=" + moveToDirId);
             }
+            FileMeta fileMeta = FileMeta.fromRecord(currentLatestVersionBSON);
             ret = fileMetaOperator.updateFileMeta(ws, fileId,
                     Collections.singletonList(
                             new FileMetaUpdater(FieldName.FIELD_CLFILE_DIRECTORY_ID, moveToDirId)),
-                    user.getUsername(), new Date(), FileMeta.fromRecord(currentLatestVersionBSON),
+                    user.getUsername(), new Date(), fileMeta,
                     returnVersion);
-            callback = listenerMgr.postUpdate(wsInfo, ret.getLatestVersionAfterUpdate());
+            callback = listenerMgr.postUpdate(wsInfo, fileMeta, ret.getLatestVersionAfterUpdate());
         }
         finally {
             unlock(dirLock);

@@ -21,6 +21,7 @@ import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -73,9 +74,12 @@ public class ScmServer {
                 contentServerInfo.getPort(), contentServerInfo.getSite().getName());
     }
 
-    public void init(ScmPrivClient privClient, ScmConfClient confClient, String siteName, BucketInfoManager bucketInfoManager, IDirService dirService)
+    public void init(ApplicationContext applicationContext, ScmPrivClient privClient,
+            ScmConfClient confClient, String siteName, BucketInfoManager bucketInfoManager,
+            IDirService dirService)
             throws Exception {
-        ContentModuleInitializer initializer = new ContentModuleInitializer(privClient, confClient,
+        ContentModuleInitializer initializer = new ContentModuleInitializer(applicationContext,
+                privClient, confClient,
                 siteName, siteName, new MapServerHandlerAdapter(), bucketInfoManager, dirService);
 
         // 先执行 content-module 第一阶段的初始化

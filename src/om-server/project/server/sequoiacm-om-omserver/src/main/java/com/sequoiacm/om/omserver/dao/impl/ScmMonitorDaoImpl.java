@@ -10,6 +10,7 @@ import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmStatisticsFileDelta;
+import com.sequoiacm.client.core.ScmStatisticsObjectDelta;
 import com.sequoiacm.client.core.ScmStatisticsTraffic;
 import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.element.ScmServiceInstance;
@@ -18,7 +19,7 @@ import com.sequoiacm.om.omserver.dao.ScmMonitorDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
-import com.sequoiacm.om.omserver.module.OmFileDeltaStatistics;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
 import com.sequoiacm.om.omserver.module.OmServiceInstanceInfo;
 import com.sequoiacm.om.omserver.module.OmStatisticsInfo;
@@ -113,9 +114,9 @@ public class ScmMonitorDaoImpl implements ScmMonitorDao {
     }
 
     @Override
-    public OmFileDeltaStatistics getFileDelta(String workspaceName, Long beginTime, Long endTime)
+    public OmDeltaStatistics getFileDelta(String workspaceName, Long beginTime, Long endTime)
             throws ScmInternalException {
-        OmFileDeltaStatistics deltaInfo = new OmFileDeltaStatistics();
+        OmDeltaStatistics deltaInfo = new OmDeltaStatistics();
         List<OmStatisticsInfo> sizeDeltaList = new ArrayList<>();
         List<OmStatisticsInfo> countDeltaList = new ArrayList<>();
         ScmCursor<ScmStatisticsFileDelta> deltaCursor = null;
@@ -152,6 +153,54 @@ public class ScmMonitorDaoImpl implements ScmMonitorDao {
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(),
                     "failed to get file delta, " + e.getMessage(), e);
+        }
+        finally {
+            if (deltaCursor != null) {
+                deltaCursor.close();
+            }
+        }
+    }
+
+    @Override
+    public OmDeltaStatistics getObjectDelta(String bucketName, Long beginTime, Long endTime)
+            throws ScmInternalException {
+        OmDeltaStatistics deltaInfo = new OmDeltaStatistics();
+        List<OmStatisticsInfo> sizeDeltaList = new ArrayList<>();
+        List<OmStatisticsInfo> countDeltaList = new ArrayList<>();
+        ScmCursor<ScmStatisticsObjectDelta> deltaCursor = null;
+        int maxRecordCount = 30;
+        if (beginTime != null || endTime != null) {
+            maxRecordCount = Integer.MAX_VALUE;
+        }
+        try {
+            ScmQueryBuilder queryBuilder = ScmQueryBuilder
+                    .start(ScmAttributeName.ObjectDelta.BUCKET_NAME).is(bucketName);
+            if (beginTime != null) {
+                queryBuilder.and(ScmAttributeName.Traffic.RECORD_TIME).greaterThanEquals(beginTime);
+            }
+            if (endTime != null) {
+                queryBuilder.and(ScmAttributeName.Traffic.RECORD_TIME).lessThanEquals(endTime);
+            }
+            deltaCursor = ScmSystem.Statistics.listObjectDelta(connection, queryBuilder.get());
+            while (deltaCursor.hasNext()) {
+                if (sizeDeltaList.size() > maxRecordCount) {
+                    break;
+                }
+                ScmStatisticsObjectDelta fileDelta = deltaCursor.getNext();
+                OmStatisticsInfo countDeltaInfo = new OmStatisticsInfo(fileDelta.getCountDelta(),
+                        fileDelta.getRecordTime());
+                OmStatisticsInfo sizeDeltaInfo = new OmStatisticsInfo(fileDelta.getSizeDelta(),
+                        fileDelta.getRecordTime());
+                sizeDeltaList.add(sizeDeltaInfo);
+                countDeltaList.add(countDeltaInfo);
+            }
+            deltaInfo.setCountDelta(countDeltaList);
+            deltaInfo.setSizeDelta(sizeDeltaList);
+            return deltaInfo;
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(),
+                    "failed to get object delta, " + e.getMessage(), e);
         }
         finally {
             if (deltaCursor != null) {

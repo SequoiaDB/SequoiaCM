@@ -195,6 +195,12 @@ public class AdminServerConfig {
             + StatisticsDefine.DefaultValue.JOB_BREAKPOINT_FILE_STAY_DAYS + "}")
     private String breakpointFileStayDays;
 
+    @Value("${scm.statistics.job.fileDeltaEnabled:true}")
+    private boolean fileDeltaEnabled = true;
+
+    @Value("${scm.statistics.job.objectDeltaEnabled:true}")
+    private boolean objectDeltaEnabled = true;
+
     public Date getJobFirstTime() throws Exception {
         SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm:ss");
         Date parseDate = timeFmt.parse(jobFirstTime);
@@ -285,5 +291,13 @@ public class AdminServerConfig {
 
     public int getListInstanceCheckInterval() {
         return serverConfig.getListInstanceCheckInterval();
+    }
+
+    public boolean isFileDeltaEnabled() {
+        return fileDeltaEnabled;
+    }
+
+    public boolean isObjectDeltaEnabled() {
+        return objectDeltaEnabled;
     }
 }

@@ -32,6 +32,24 @@ public class ServiceUtils {
         }, writer);
     }
 
+    public static void putCursorToResponse(MetaCursor cursor, HttpServletResponse response)
+            throws ScmServerException {
+        PrintWriter writer = null;
+        try {
+            writer = getWriter(response);
+        }
+        catch (Exception e) {
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (e instanceof ScmServerException) {
+                throw e;
+            }
+            throw new ScmSystemException("Failed to get writer", e);
+        }
+        putCursorToWriter(cursor, writer);
+    }
+
     public static <T> void putCursorToWriter(ScmObjectCursor<T> cursor, Converter<T> c,
             PrintWriter writer) throws ScmServerException {
         int count = 0;

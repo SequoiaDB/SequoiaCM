@@ -27,6 +27,9 @@ import com.sequoiacm.client.element.privilege.ScmPrivilegeMeta;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.element.privilege.ScmResource;
 import com.sequoiacm.client.element.privilege.ScmResourceFactory;
+import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
+import com.sequoiacm.client.element.quota.ScmBucketQuotaInfo;
+import com.sequoiacm.client.element.quota.ScmUpdateBucketQuotaConfig;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.client.exception.ScmSystemException;
@@ -3746,6 +3749,138 @@ public class ScmFactory {
         if (skip < 0) {
             throw new ScmInvalidArgumentException("skip can not be less than 0");
         }
+    }
+
+    /**
+     * Utility for operating Quota.
+     */
+    public static class Quota {
+
+        /**
+         * Enable bucket quota limit. Throw exception if bucket quota is already
+         * enabled.
+         * 
+         * @param ss
+         *            session.
+         * @param config
+         *            quota config.
+         * @return quota info.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static ScmBucketQuotaInfo enableBucketQuota(ScmSession ss,
+                ScmEnableBucketQuotaConfig config) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("config", config);
+            BSONObject resp = ss.getDispatcher().enableBucketQuota(config.getBucketName(),
+                    config.getMaxObjects(), config.getMaxSizeBytes(), config.getUsedObjects(),
+                    config.getUsedSizeBytes());
+            return new ScmBucketQuotaInfo(resp);
+        }
+
+        /**
+         * Update bucket quota limit. Throw exception if bucket quota is not enabled.
+         * 
+         * @param ss
+         *            session.
+         * @param config
+         *            quota config.
+         * @return quota info.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static ScmBucketQuotaInfo updateBucketQuota(ScmSession ss,
+                ScmUpdateBucketQuotaConfig config) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkArgNotNull("config", config);
+            BSONObject resp = ss.getDispatcher().updateBucketQuota(config.getBucketName(),
+                    config.getMaxObjects(), config.getMaxSizeBytes());
+            return new ScmBucketQuotaInfo(resp);
+        }
+
+        /**
+         * Disable bucket quota limit. Throw exception if bucket quota is already
+         * disabled.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static void disableBucketQuota(ScmSession ss, String bucketName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkStringArgNotEmpty("bucketName", bucketName);
+            ss.getDispatcher().disableBucketQuota(bucketName);
+        }
+
+        /**
+         * Gets bucket quota info.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @return quota info.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static ScmBucketQuotaInfo getBucketQuota(ScmSession ss, String bucketName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkStringArgNotEmpty("bucketName", bucketName);
+            BSONObject resp = ss.getDispatcher().getBucketQuota(bucketName);
+            return new ScmBucketQuotaInfo(resp);
+        }
+
+        public static ScmBucketQuotaInfo updateBucketUsedQuota(ScmSession ss, String bucketName,
+                Long usedObjects, Long usedSizeBytes) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkStringArgNotEmpty("bucketName", bucketName);
+            if (usedObjects == null && usedSizeBytes == null) {
+                throw new ScmInvalidArgumentException(
+                        "usedObjects and usedSizeBytes can not be null at the same time");
+            }
+            BSONObject resp = ss.getDispatcher().updateBucketUsedQuota(bucketName, usedObjects,
+                    usedSizeBytes);
+            return new ScmBucketQuotaInfo(resp);
+        }
+
+        /**
+         * Sync bucket quota info.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static void syncBucketQuota(ScmSession ss, String bucketName) throws ScmException {
+            checkArgNotNull("session", ss);
+            checkStringArgNotEmpty("bucketName", bucketName);
+            ss.getDispatcher().syncBucketQuota(bucketName);
+        }
+
+        /**
+         * Cancel sync bucket quota info.
+         * 
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static void cancelSyncBucketQuota(ScmSession ss, String bucketName)
+                throws ScmException {
+            checkArgNotNull("session", ss);
+            checkStringArgNotEmpty("bucketName", bucketName);
+            ss.getDispatcher().cancelSyncBucketQuota(bucketName);
+        }
+
     }
 }
 

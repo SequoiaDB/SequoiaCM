@@ -6,12 +6,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class OmFileDeltaStatistics {
+public class OmDeltaStatistics {
 
-    @JsonProperty("file_count_delta")
+    @JsonProperty("count_delta")
     private List<OmStatisticsInfo> countDelta;
 
-    @JsonProperty("file_size_delta")
+    @JsonProperty("size_delta")
     private List<OmStatisticsInfo> sizeDelta;
 
     public List<OmStatisticsInfo> getCountDelta() {

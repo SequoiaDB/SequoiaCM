@@ -460,4 +460,25 @@ public interface MessageDispatcher extends Closeable {
                               long maxExecTime, String source, String dest, String dataCheckLevel, boolean quickStart,
                               boolean isRecycleSpace, String type, String preferredRegion,
                               String preferredZone) throws ScmException;
+
+    BSONObject enableBucketQuota(String bucketName, long maxObjects, long maxSize, Long usedObjects,
+            Long usedSize)
+            throws ScmException;
+
+    BSONObject updateBucketQuota(String bucketName, long maxObjects, long maxSize)
+            throws ScmException;
+
+    void disableBucketQuota(String bucketName) throws ScmException;
+
+    BSONObject getBucketQuota(String bucketName) throws ScmException;
+
+    void syncBucketQuota(String bucketName) throws ScmException;
+
+    void cancelSyncBucketQuota(String bucketName) throws ScmException;
+
+    BsonReader getStatisticsObjectDeltaList(BSONObject condition) throws ScmException;
+
+    void refreshObjectDeltaStatistics(String bucketName) throws ScmException;
+
+    BSONObject updateBucketUsedQuota(String bucketName, Long usedObjects, Long usedSize) throws ScmException;
 }

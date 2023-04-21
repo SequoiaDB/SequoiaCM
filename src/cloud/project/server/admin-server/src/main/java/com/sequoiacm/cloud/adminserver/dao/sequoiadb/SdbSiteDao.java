@@ -1,6 +1,10 @@
 package com.sequoiacm.cloud.adminserver.dao.sequoiadb;
 
+import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +22,19 @@ public class SdbSiteDao implements SiteDao {
     
     @Override
     public MetaCursor query(BSONObject matcher) throws StatisticsException {
-        MetaAccessor wsAccessor = metasource.getWorkspaceAccessor();
-        return wsAccessor.query(matcher, null, null);
+        MetaAccessor siteAccessor = metasource.getSiteAccessor();
+        return siteAccessor.query(matcher, null, null);
+    }
+
+    @Override
+    public int getRootSiteId() throws StatisticsException {
+        MetaAccessor siteAccessor = metasource.getSiteAccessor();
+        BSONObject matcher = new BasicBSONObject();
+        matcher.put(FieldName.FIELD_CLSITE_MAINFLAG, true);
+        BSONObject bsonObject = siteAccessor.queryOne(matcher);
+        if (bsonObject == null) {
+            throw new StatisticsException(StatisticsError.INTERNAL_ERROR, "root site not exists");
+        }
+        return BsonUtils.getNumberChecked(bsonObject, FieldName.FIELD_CLSITE_ID).intValue();
     }
 }

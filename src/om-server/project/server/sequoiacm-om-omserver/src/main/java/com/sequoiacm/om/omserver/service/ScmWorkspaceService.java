@@ -5,7 +5,7 @@ import java.util.List;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.module.OmBatchOpResult;
-import com.sequoiacm.om.omserver.module.OmFileDeltaStatistics;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
 import com.sequoiacm.om.omserver.module.OmWorkspaceBasicInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceCreateInfo;
@@ -37,7 +37,7 @@ public interface ScmWorkspaceService {
     OmFileTrafficStatistics getWorkspaceTraffic(ScmOmSession session, String workspaceName,
             Long beginTime, Long endTime) throws ScmInternalException, ScmOmServerException;
 
-    OmFileDeltaStatistics getWorkspaceFileDelta(ScmOmSession session, String workspaceName,
+    OmDeltaStatistics getWorkspaceFileDelta(ScmOmSession session, String workspaceName,
             Long beginTime, Long endTime) throws ScmOmServerException, ScmInternalException;
 
     List<OmWorkspaceBasicInfo> getCreatePrivilegeWsList(ScmOmSession session)

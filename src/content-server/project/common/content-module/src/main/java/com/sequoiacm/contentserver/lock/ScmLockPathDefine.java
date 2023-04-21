@@ -14,4 +14,5 @@ public class ScmLockPathDefine {
 
     public static final String WORKSPACES_CONF_OP_MUTEX = "workspaces_conf_op_mutex";
     public static final String GLOBAL_METADATA_MUTEX = "global_METADATA_mutex";
+    public static final String QUOTA_USED = "quota_used";
 }

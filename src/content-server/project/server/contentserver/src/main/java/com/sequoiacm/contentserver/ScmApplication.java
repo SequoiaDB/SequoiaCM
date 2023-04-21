@@ -16,6 +16,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -72,6 +73,9 @@ public class ScmApplication implements ApplicationRunner {
     @Autowired
     ApplicationInfoManager applicationInfoManager;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         start(args);
@@ -95,7 +99,8 @@ public class ScmApplication implements ApplicationRunner {
                     "eureka.instance.metadata-map.siteId"));
 
             ScmServer ss = ScmServer.getInstance();
-            ss.init(privClient, confClient, siteName, bucketInfoManager, dirService);
+            ss.init(applicationContext, privClient, confClient, siteName, bucketInfoManager,
+                    dirService);
             eurekaRegisterServiceId(ss);
         }
         catch (Exception e) {

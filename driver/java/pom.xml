@@ -166,6 +166,7 @@
                         <sourceFileInclude>com/sequoiacm/client/element/metadata/*.java</sourceFileInclude>
                         <sourceFileInclude>com/sequoiacm/client/element/trace/*.java</sourceFileInclude>
                         <sourceFileInclude>com/sequoiacm/client/element/lifecycle/*.java</sourceFileInclude>
+                        <sourceFileInclude>com/sequoiacm/client/element/quota/*.java</sourceFileInclude>
                         <sourceFileInclude>com/sequoiacm/client/common/*.java</sourceFileInclude>
                         <sourceFileInclude>com/sequoiacm/client/exception/*.java</sourceFileInclude>
                         <sourceFileInclude>com/sequoiacm/exception/ScmError.java</sourceFileInclude>

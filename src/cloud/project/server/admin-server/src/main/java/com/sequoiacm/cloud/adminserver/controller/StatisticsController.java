@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsData;
 import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataForClient;
 import com.sequoiacm.cloud.adminserver.model.statistics.FileStatisticsDataQueryCondition;
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import org.bson.BSONObject;
@@ -41,6 +42,15 @@ public class StatisticsController {
                 workspaceName);
     }
 
+    @PostMapping(value = "/statistics/refresh", params = "action="
+            + CommonDefine.RestArg.ACTION_REFRESH_OBJECT_DELTA)
+    public void refreshObjectDelta(
+            @RequestParam(CommonDefine.RestArg.BUCKET_NAME) String bucketName)
+            throws StatisticsException {
+        statisticsService.refreshObjectDelta(bucketName);
+        logger.debug("refresh object statistics success:bucketName={}", bucketName);
+    }
+
     @GetMapping("/statistics/traffic/file")
     public void listFileTraffic(
             @RequestParam(value = RestCommonDefine.RestArg.QUERY_FILTER, required = false) BSONObject filter,
@@ -49,7 +59,7 @@ public class StatisticsController {
         response.reset();
         response.setHeader(RestCommonDefine.CONTENT_TYPE, RestCommonDefine.APPLICATION_JSON_UTF8);
         MetaCursor cursor = statisticsService.getTrafficList(filter);
-        RestUtils.putCursorToWriter(cursor, RestUtils.getWriter(response));
+        RestUtils.putCursorToResponse(cursor, response);
     }
 
     @GetMapping("/statistics/delta/file")
@@ -60,7 +70,18 @@ public class StatisticsController {
         response.reset();
         response.setHeader(RestCommonDefine.CONTENT_TYPE, RestCommonDefine.APPLICATION_JSON_UTF8);
         MetaCursor cursor = statisticsService.getFileDeltaList(filter);
-        RestUtils.putCursorToWriter(cursor, RestUtils.getWriter(response));
+        RestUtils.putCursorToResponse(cursor, response);
+    }
+
+    @GetMapping("/statistics/delta/object")
+    public void listObjectDelta(
+            @RequestParam(value = RestCommonDefine.RestArg.QUERY_FILTER, required = false) BSONObject filter,
+            HttpServletResponse response) throws StatisticsException {
+        logger.debug("list object delta,{}:{}", RestCommonDefine.RestArg.QUERY_FILTER, filter);
+        response.reset();
+        response.setHeader(RestCommonDefine.CONTENT_TYPE, RestCommonDefine.APPLICATION_JSON_UTF8);
+        MetaCursor cursor = statisticsService.getObjectDeltaList(filter);
+        RestUtils.putCursorToResponse(cursor, response);
     }
 
     @GetMapping("/statistics/types/" + ScmStatisticsType.FILE_UPLOAD)

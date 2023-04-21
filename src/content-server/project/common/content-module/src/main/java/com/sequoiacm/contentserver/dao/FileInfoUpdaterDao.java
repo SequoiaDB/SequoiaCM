@@ -89,7 +89,8 @@ public class FileInfoUpdaterDao {
                     fileMetaUpdaterList, user, updateDate, currentLatestVersion,
                     new ScmVersion(majorVersion, minorVersion));
 
-            callback = listenerMgr.postUpdate(ws, res.getLatestVersionAfterUpdate());
+            callback = listenerMgr.postUpdate(ws, currentLatestVersion,
+                    res.getLatestVersionAfterUpdate());
             updatedFileMeta = res.getSpecifiedReturnVersion();
         }
         finally {

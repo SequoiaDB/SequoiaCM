@@ -15,6 +15,15 @@ public class OmBucketCreateInfo {
     @JsonProperty("workspace")
     private String workspace;
 
+    @JsonProperty("enable_quota")
+    private Boolean enableQuota;
+
+    @JsonProperty("max_objects")
+    private Long maxObjects;
+
+    @JsonProperty("max_size")
+    private String maxSize;
+
     public List<String> getBucketNames() {
         return bucketNames;
     }
@@ -39,9 +48,34 @@ public class OmBucketCreateInfo {
         this.workspace = workspace;
     }
 
+    public Boolean getEnableQuota() {
+        return enableQuota;
+    }
+
+    public void setEnableQuota(Boolean enableQuota) {
+        this.enableQuota = enableQuota;
+    }
+
+    public Long getMaxObjects() {
+        return maxObjects;
+    }
+
+    public void setMaxObjects(Long maxObjects) {
+        this.maxObjects = maxObjects;
+    }
+
+    public String getMaxSize() {
+        return maxSize;
+    }
+
+    public void setMaxSize(String maxSize) {
+        this.maxSize = maxSize;
+    }
+
     @Override
     public String toString() {
         return "OmBucketCreateInfo{" + "bucketNames=" + bucketNames + ", versionStatus='"
-                + versionStatus + '\'' + ", workspace='" + workspace + '\'' + '}';
+                + versionStatus + '\'' + ", workspace='" + workspace + '\'' + ", enableQuota="
+                + enableQuota + ", maxObjects=" + maxObjects + ", maxSize='" + maxSize + '\'' + '}';
     }
 }

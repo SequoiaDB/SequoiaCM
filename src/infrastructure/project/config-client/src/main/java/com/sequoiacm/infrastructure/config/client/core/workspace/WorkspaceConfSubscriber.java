@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -35,6 +36,9 @@ public class WorkspaceConfSubscriber implements ScmConfSubscriber {
     private Map<String, WorkspaceConfig> wsCache = new ConcurrentHashMap<>();
     private long heartbeatInterval;
     private DefaultVersionFilter versionFilter;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @PostConstruct
     private void postConstruct() throws ScmConfigException {
@@ -77,6 +81,7 @@ public class WorkspaceConfSubscriber implements ScmConfSubscriber {
             if (bucketConfSubscriber != null) {
                 bucketConfSubscriber.invalidateBucketCacheByWs(wsName);
             }
+            applicationContext.publishEvent(new WorkspaceDeletedEvent(wsName));
             return;
         }
         refreshWorkspaceCache(wsName);

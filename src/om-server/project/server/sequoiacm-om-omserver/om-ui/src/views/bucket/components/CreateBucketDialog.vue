@@ -60,6 +60,28 @@
                     <el-radio-button label="Enabled"></el-radio-button>
                 </el-radio-group>
             </el-form-item>
+            <el-form-item label="开启限额">
+              <el-switch v-model="form.quotaEnable"></el-switch>
+            </el-form-item>
+            <template v-if="form.quotaEnable">
+              <el-form-item label="最大存储容量" prop="maxSize">
+                <el-row>
+                  <el-col :span="20">
+                    <el-input v-model="form.maxSize" placeholder="请输入桶最大存储容量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-select v-model="sizeUnit">
+                      <el-option label="M" value="M"></el-option>
+                      <el-option label="G" value="G"></el-option>
+                    </el-select>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+              <el-form-item label="最大对象个数" prop="maxObjects">
+                <el-input v-model="form.maxObjects" placeholder="请输入桶最大对象数量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
+              </el-form-item>
+            </template>
+
         </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="close" size="mini">关 闭</el-button>
@@ -72,7 +94,12 @@
 <script>
 import {queryCreatePrivilegeWsList} from '@/api/workspace'
 import {createBucket} from '@/api/bucket'
+import numberOnly from '@/directives/numberOnly'
+
 export default {
+   directives: {
+    numberOnly
+  },
   data() {
     let bucketNamesValidation = (rule, value, callback) => {
       if (this.form.bucketNames.length === 0 && !this.bucketNameInputValue) {
@@ -83,17 +110,23 @@ export default {
     }
     return{
       saveBtnDisabled: false,
+      sizeUnit: 'G',
       visible: false,
       bucketNameInputValue: '',
       rules: {
        bucketNames: {required: true, trigger: 'blur', validator: bucketNamesValidation},
-       workspace: {required: true, trigger: 'blur', message: '请选择region'}
+       workspace: {required: true, trigger: 'blur', message: '请选择region'},
+       maxSize: {required: true, trigger: 'blur', message: '请输入最大容量限制'},
+       maxObjects: {required: true, trigger: 'blur', message: '请输入最大对象数量限制'}
       },
       workspaces: [],
       form: {
         workspace:'',
         bucketNames: [],
-        versionStatus: 'Disabled'
+        versionStatus: 'Disabled',
+        maxSize: '',
+        maxObjects: '',
+        quotaEnable: false
       },
     }
   },
@@ -151,7 +184,10 @@ export default {
           let formData = {
             bucket_names: bucketNames,
             workspace: this.form.workspace,
-            version_status: this.form.versionStatus
+            version_status: this.form.versionStatus,
+            enable_quota: this.form.quotaEnable,
+            max_objects: this.form.maxObjects,
+            max_size: this.form.maxSize + this.sizeUnit
           }
           createBucket(formData).then(res => {
             let resList = res.data
@@ -175,7 +211,10 @@ export default {
       this.form = {
         workspace:'',
         bucketNames: [],
-        versionStatus: 'Disabled'
+        versionStatus: 'Disabled',
+        maxSize: '',
+        maxObjects: '',
+        quotaEnable: false
       }
       this.bucketNameInputValue = ''
     },

@@ -2,7 +2,6 @@ package com.sequoiacm.contentserver.service.impl;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.common.InvalidArgumentException;
 import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
@@ -21,6 +20,7 @@ import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
+import com.sequoiacm.contentserver.model.ObjectDeltaInfo;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
@@ -32,6 +32,8 @@ import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
+import com.sequoiacm.contentserver.quota.BucketQuotaManager;
+import com.sequoiacm.contentserver.quota.QuotaInfo;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.IScmBucketService;
@@ -96,6 +98,9 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
     @Autowired
     private FileMetaOperator fileMetaOperator;
+
+    @Autowired
+    private BucketQuotaManager quotaManager;
 
     @Override
     public ScmBucket createBucket(ScmUser user, String ws, String name) throws ScmServerException {
@@ -190,7 +195,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 wsInfo.getMetaLocation(), wsInfo.getName(), matcher, isResContainsDeleteMarker);
     }
 
-    private long getAllBucketFileCount(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
+    @Override
+    public long getAllBucketFileCount(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
             BSONObject condition, boolean isResContainsDeleteMarker)
             throws ScmServerException, ScmMetasourceException {
         long currentFileCount = getCurrentBucketFileCount(bucket, condition,
@@ -432,6 +438,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 isResContainsDeleteMarker);
     }
 
+    @Override
     public MetaCursor queryAllBucketFile(ScmWorkspaceInfo wsInfo, ScmBucket bucket,
             BSONObject matcher, BSONObject selector, BSONObject orderBy,
             boolean isResContainsDeleteMarker) throws ScmServerException, ScmMetasourceException {
@@ -564,7 +571,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                     Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null)),
                     user.getUsername(), new Date(), fileMeta, null);
             operationCompleteCallback = listenerMgr.postUpdate(wsInfo,
-                    res.getLatestVersionAfterUpdate());
+                    fileMeta, res.getLatestVersionAfterUpdate());
             audit.info(ScmAuditType.UPDATE_FILE, user, bucket.getWorkspace(), 0,
                     "bucket detach file: bucketName=" + bucketName + ", fileName=" + fileName
                             + ", fileId=" + fileId);
@@ -680,6 +687,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             String username) {
 
         ScmLock lock = null;
+        QuotaInfo quotaInfo = null;
         OperationCompleteCallback operationCompleteCallback = null;
         try {
             lock = ScmLockManager.getInstance().acquiresWriteLock(
@@ -728,14 +736,16 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                                 + FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH,
                         latestVersionMeta.getName()));
             }
-
+            quotaInfo = quotaManager.acquireQuota(attachToBucket.getName(),
+                    latestVersionMeta.getSize(), latestVersionMeta.getCreateTime());
             UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId,
                     fileMetaUpdaters, username, new Date(), latestVersionMeta, null);
             operationCompleteCallback = listenerMgr.postUpdate(wsInfo,
-                    ret.getLatestVersionAfterUpdate());
+                    latestVersionMeta, ret.getLatestVersionAfterUpdate());
             return null;
         }
         catch (Exception e) {
+            quotaManager.releaseQuota(quotaInfo);
             ScmError scmError = getScmErrorFromException(e);
             ScmBucketAttachFailure failure = new ScmBucketAttachFailure(fileId, scmError,
                     e.getMessage(), null);
@@ -845,6 +855,36 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 bucketName, customTag);
         audit.info(ScmAuditType.UPDATE_SCM_BUCKET, user, bucket.getWorkspace(), 0,
                 "delete bucket tag : bucketName=" + bucketName + ", ws=" + bucket.getWorkspace());
+    }
+
+    @Override
+    public ObjectDeltaInfo getObjectDelta(String bucketName, BSONObject condition)
+            throws ScmServerException {
+        ScmBucket bucket = getBucket(bucketName);
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
+                .getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
+        BSONObject selector = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_SIZE, null);
+        MetaCursor cursor = null;
+        long count = 0;
+        long size = 0;
+        try {
+            cursor = queryAllBucketFile(wsInfo, bucket, condition, selector, null, false);
+            while (cursor.hasNext()) {
+                BSONObject file = cursor.getNext();
+                count++;
+                size += BsonUtils.getNumber(file, FieldName.FIELD_CLFILE_FILE_SIZE).longValue();
+            }
+        }
+        catch (Exception e) {
+            throw new ScmServerException(ScmError.SYSTEM_ERROR, "failed to calculate object delta",
+                    e);
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return new ObjectDeltaInfo(bucketName, count, size);
     }
 
     private void transactionRollback(TransactionContext transactionContext) {

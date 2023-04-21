@@ -36,6 +36,9 @@ public class MetaSourceDefine {
         public static final String CL_SPACE_RECYCLING_LOG = "SPACE_RECYCLING_LOG";
         public static final String CL_DATA_TABLE_NAME_ACTIVE = "DATA_TABLE_NAME_ACTIVE";
         public static final String CL_ID_GEN = "ID_GENERATOR";
+        public static final String CL_QUOTA_STATISTICS = "QUOTA_STATISTICS";
+        public static final String CL_QUOTA_SYNC = "QUOTA_SYNC";
+        public static final String CL_QUOTA = "QUOTA";
     }
 
     public static class WorkspaceCLName {

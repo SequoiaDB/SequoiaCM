@@ -18,6 +18,12 @@ import com.sequoiacm.s3.tools.command.ScmCreateNodeToolImplS3;
 import com.sequoiacm.s3.tools.command.SetDefaultRegionToolImpl;
 import com.sequoiacm.s3.tools.command.ShowDefaultRegionToolImpl;
 import com.sequoiacm.infrastructure.tool.operator.ScmS3NodeOperator;
+import com.sequoiacm.s3.tools.command.quota.CancelSyncQuotaToolImpl;
+import com.sequoiacm.s3.tools.command.quota.DisableQuotaToolImpl;
+import com.sequoiacm.s3.tools.command.quota.EnableQuotaToolImpl;
+import com.sequoiacm.s3.tools.command.quota.QuotaStatusToolImpl;
+import com.sequoiacm.s3.tools.command.quota.SyncQuotaToolImpl;
+import com.sequoiacm.s3.tools.command.quota.UpdateQuotaToolImpl;
 
 public class S3Admin {
     public static void main(String[] args) {
@@ -43,6 +49,12 @@ public class S3Admin {
             cmd.addTool(new SetDefaultRegionToolImpl());
             cmd.addTool(new ShowDefaultRegionToolImpl());
             cmd.addTool(new RefreshAccesskeyToolImpl());
+            cmd.addTool(new EnableQuotaToolImpl());
+            cmd.addTool(new DisableQuotaToolImpl());
+            cmd.addTool(new UpdateQuotaToolImpl());
+            cmd.addTool(new QuotaStatusToolImpl());
+            cmd.addTool(new SyncQuotaToolImpl());
+            cmd.addTool(new CancelSyncQuotaToolImpl());
 
         }
         catch (ScmToolsException e) {

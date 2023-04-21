@@ -4,6 +4,8 @@ import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
+import com.sequoiacm.contentserver.model.ObjectDeltaInfo;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
@@ -11,6 +13,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
 import com.sequoiacm.metasource.MetaCursor;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 
 import java.io.InputStream;
@@ -87,4 +90,14 @@ public interface IScmBucketService {
     Map<String, String> getBucketTag(ScmUser user, String bucketName) throws ScmServerException;
 
     void deleteBucketTag(ScmUser user, String bucketName) throws ScmServerException;
+
+    ObjectDeltaInfo getObjectDelta(String bucketName, BSONObject condition)
+            throws ScmServerException;
+
+    long getAllBucketFileCount(ScmWorkspaceInfo wsInfo, ScmBucket bucket, BSONObject condition,
+            boolean isResContainsDeleteMarker) throws ScmServerException, ScmMetasourceException;
+
+    MetaCursor queryAllBucketFile(ScmWorkspaceInfo wsInfo, ScmBucket bucket, BSONObject matcher,
+            BSONObject selector, BSONObject orderBy, boolean isResContainsDeleteMarker)
+            throws ScmServerException, ScmMetasourceException;
 }

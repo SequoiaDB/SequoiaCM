@@ -1,5 +1,6 @@
 package com.sequoiacm.cloud.adminserver.model;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.cloud.adminserver.common.FieldName;
@@ -36,6 +37,23 @@ public class BsonTranslator {
             fileDelta.setSizeDelta((long) obj.get(FieldName.FileDelta.FIELD_SIZE_DELTA));
             fileDelta.setRecordTime((long) obj.get(FieldName.FileDelta.FIELD_RECORD_TIME));
             return fileDelta;
+        }
+    }
+
+    public static final class ObjectDelta {
+        public static ObjectDeltaInfo fromBSONObject(BSONObject obj) {
+            ObjectDeltaInfo objectDelta = new ObjectDeltaInfo();
+            objectDelta.setBucketName(
+                    BsonUtils.getStringChecked(obj, FieldName.ObjectDelta.FIELD_BUCKET_NAME));
+            objectDelta.setCountDelta((BsonUtils
+                    .getNumberChecked(obj, FieldName.ObjectDelta.FIELD_COUNT_DELTA).longValue()));
+            objectDelta.setSizeDelta(BsonUtils
+                    .getNumberChecked(obj, FieldName.ObjectDelta.FIELD_SIZE_DELTA).longValue());
+            objectDelta.setRecordTime(BsonUtils
+                    .getNumberChecked(obj, FieldName.ObjectDelta.FIELD_RECORD_TIME).longValue());
+            objectDelta.setUpdateTime(BsonUtils
+                    .getNumberChecked(obj, FieldName.ObjectDelta.FIELD_UPDATE_TIME).longValue());
+            return objectDelta;
         }
     }
 

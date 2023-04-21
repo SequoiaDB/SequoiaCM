@@ -60,7 +60,7 @@ public class SiteController {
             HttpServletResponse response) throws ScmServerException {
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = siteService.getSiteList(filter, skip, limit);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
 
     @RequestMapping(value = "/sites", method = RequestMethod.HEAD)

@@ -3,16 +3,14 @@ package com.sequoiacm.om.omserver.controller;
 import java.util.Collections;
 import java.util.List;
 
-import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.om.omserver.module.OmBatchOpResult;
-import com.sequoiacm.om.omserver.module.OmFileDeltaStatistics;
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
 import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
 import com.sequoiacm.om.omserver.module.OmWorkspaceCreateInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,7 +61,7 @@ public class ScmWorkspaceController {
     }
 
     @GetMapping(value = "/workspaces/{workspace_name:.+}", params = "action=getFileDelta")
-    public OmFileDeltaStatistics getWorkspaceFileDelta(
+    public OmDeltaStatistics getWorkspaceFileDelta(
             @PathVariable("workspace_name") String workspaceName,
             @RequestParam(value = RestParamDefine.BEGIN_TIME, required = false) Long beginTime,
             @RequestParam(value = RestParamDefine.END_TIME, required = false) Long endTime,

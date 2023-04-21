@@ -4,6 +4,7 @@ public class StatisticsDefine {
     public static class StatisticsType {
         public static final int TRAFFIC = 1;
         public static final int FILE_DELTA = 2;
+        public static final int OBJECT_DELTA = 3;
     }
     
     public static class InterfaceType {
@@ -46,5 +47,12 @@ public class StatisticsDefine {
         public static final int SCOPE_CURRENT = 1;
         public static final int SCOPE_HISTORY = 2;
         public static final int SCOPE_ALL = 3;
+    }
+
+    public static final class QuotaType {
+        private QuotaType() {
+        }
+
+        public static final String BUCKET = "bucket";
     }
 }

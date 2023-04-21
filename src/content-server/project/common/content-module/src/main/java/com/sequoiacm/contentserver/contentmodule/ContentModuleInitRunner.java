@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -35,13 +36,17 @@ public class ContentModuleInitRunner {
     @Autowired
     private IDirService dirService;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @PostConstruct
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public synchronized void init() throws Exception {
         if (isInit) {
             return;
         }
-        ContentModuleInitializer initializer = new ContentModuleInitializer(privClient, confClient,
+        ContentModuleInitializer initializer = new ContentModuleInitializer(applicationContext,
+                privClient, confClient,
                 localService.getServiceId(), config.getSite(), null, bucketInfoMgr, dirService);
         initializer.initBizComponent();
         String instance = localService.getHost() + localService.getPort();

@@ -102,9 +102,9 @@ export function param2Obj(url) {
   }
   const obj = {}
   const searchArr = search.split('&')
-  searchArr.forEach(v => { 
+  searchArr.forEach(v => {
     const index = v.indexOf('=')
-    if (index !== -1) { 
+    if (index !== -1) {
       const name = v.substring(0, index)
       const val = v.substring(index + 1, v.length)
       obj[name] = val
@@ -128,8 +128,8 @@ export function randomStr(len) {
 }
 
 /**
- * @param {Map} map 
- * @returns {Object} 
+ * @param {Map} map
+ * @returns {Object}
  */
 export function mapToObject(map) {
   let obj = Object.create(null)
@@ -216,8 +216,8 @@ export function isArray(arr){
 
 /**
  * Convert file size
- * @param {long} fileSize 
- * @returns 
+ * @param {long} fileSize
+ * @returns
  */
 export function convertFileSize(val) {
   if (val == 0) return "0 B"
@@ -293,9 +293,9 @@ export function showBatchOpMessage(opType, resList) {
 
 /**
  * 获取分区字符串
- * @param {string} shardingType 
- * @param {string} sep 
- * @returns 
+ * @param {string} shardingType
+ * @param {string} sep
+ * @returns
  */
 export function getShardingStr(shardingType, sep = '') {
   const date = new Date()
@@ -318,11 +318,44 @@ export function getShardingStr(shardingType, sep = '') {
 
 /**
  * 获取指定时间戳当天的最大时间
- * @param {number} timestamp 
- * @returns 
+ * @param {number} timestamp
+ * @returns
  */
 export function getMaxTimestampForDay(timestamp) {
   const date = new Date(timestamp)
   date.setHours(23, 59, 59, 999)
   return date.getTime()
 }
+
+
+/**
+ * 格式化字节数，转化为 GB 或 MB
+ * @param {*} bytes
+ * @returns
+ */
+export function formatBytes(bytes) {
+  const units = ["B", "KB", "M", "G"]
+  let unitIndex = 0
+  let size = Math.abs(bytes)
+  let isNegative = bytes < 0
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024
+      unitIndex++
+  }
+
+  size = parseFloat(size.toFixed(2))
+  
+  if(isNegative) {
+    size = -size
+  }
+
+  return {
+      value: size,
+      unit: units[unitIndex],
+      text: size + units[unitIndex]
+  }
+}
+
+
+

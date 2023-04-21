@@ -3,6 +3,7 @@ package com.sequoiacm.s3;
 import java.io.File;
 import java.util.Arrays;
 
+import com.sequoiacm.contentserver.quota.EnableQuotaMsgClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import com.sequoiadb.infrastructure.map.client.EnableMapClient;
 @SpringBootApplication
 @EnableHystrix
 @EnableContentModule
+@EnableQuotaMsgClient
 public class SequoiacmS3Application implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(SequoiacmS3Application.class);
 

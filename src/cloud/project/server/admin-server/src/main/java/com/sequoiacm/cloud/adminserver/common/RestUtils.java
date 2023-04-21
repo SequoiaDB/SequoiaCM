@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.exception.ScmServerException;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
@@ -58,6 +59,25 @@ public class RestUtils {
             cursor.close();
             writer.flush();
         }
+    }
+
+    public static void putCursorToResponse(MetaCursor cursor, HttpServletResponse response)
+            throws StatisticsException {
+        PrintWriter writer = null;
+        try {
+            writer = getWriter(response);
+        }
+        catch (Exception e) {
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (e instanceof StatisticsException) {
+                throw e;
+            }
+            throw new StatisticsException(StatisticsError.INTERNAL_ERROR, "Failed to get writer",
+                    e);
+        }
+        putCursorToWriter(cursor, writer);
     }
 
     public static PrintWriter getWriter(HttpServletResponse response) throws StatisticsException {

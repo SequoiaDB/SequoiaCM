@@ -12,6 +12,8 @@ import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.quota.BucketQuotaManager;
+import com.sequoiacm.contentserver.quota.QuotaInfo;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.IScmBucketService;
@@ -108,6 +110,9 @@ public class ObjServiceImpl implements ObjectService {
     @Autowired
     private MetaSourceService metaSourceService;
 
+    @Autowired
+    private BucketQuotaManager quotaManager;
+
     private final int MAX_KEYS = 1000;
 
     @Override
@@ -115,12 +120,26 @@ public class ObjServiceImpl implements ObjectService {
             throws S3ServerException {
         ScmDataInfoDetail dataDetail = null;
         Bucket s3Bucket = null;
+        QuotaInfo quotaInfo = null;
+        boolean isFileMetaCreated = false;
         try {
             s3Bucket = bucketService.getBucket(session, req.getObjectMeta().getBucket());
             long objCreateTime = req.getObjectCreateTime() <= -1 ? System.currentTimeMillis()
                     : req.getObjectCreateTime();
+            long size = req.getObjectMeta().getSize();
+            if (size != -1) {
+                // 如果可以拿到文件大小，则在写数据之前进行额度申请，否则在写数据完成后进行额度申请
+                quotaInfo = quotaManager.acquireQuota(s3Bucket.getBucketName(), size,
+                        objCreateTime);
+            }
+
             dataDetail = datasourceService.createData(s3Bucket.getRegion(), req.getObjectData(),
                     objCreateTime);
+
+            if (quotaInfo == null) {
+                quotaInfo = quotaManager.acquireQuota(s3Bucket.getBucketName(),
+                        dataDetail.getSize(), objCreateTime);
+            }
 
             if (req.getMd5() != null) {
                 if (req.getMd5().length() % 4 != 0) {
@@ -151,6 +170,7 @@ public class ObjServiceImpl implements ObjectService {
 
             FileMeta createdFile = scmBucketService.createFile(session.getUser(),
                     s3Bucket.getBucketName(), fileMeta, (TransactionCallback) null, false);
+            isFileMetaCreated = true;
             audit.info(ScmAuditType.CREATE_S3_OBJECT, session.getUser(), s3Bucket.getRegion(), 0,
                     "create s3 object meta: bucketName=" + s3Bucket.getBucketName() + ", key="
                             + req.getObjectMeta().getKey());
@@ -165,6 +185,7 @@ public class ObjServiceImpl implements ObjectService {
             return res;
         }
         catch (ScmServerException e) {
+            quotaManager.releaseQuota(quotaInfo);
             if (e.getError() != ScmError.COMMIT_UNCERTAIN_STATE) {
                 deleteDataSilence(s3Bucket, dataDetail);
             }
@@ -178,13 +199,19 @@ public class ObjServiceImpl implements ObjectService {
                                 + req.getObjectMeta().getBucket(),
                         e);
             }
+            if (e.getError() == ScmError.BUCKET_QUOTA_EXCEEDED) {
+                throw new S3ServerException(S3Error.BUCKET_QUOTA_EXCEEDED, e.getMessage(), e);
+            }
             throw new S3ServerException(S3Error.OBJECT_PUT_FAILED,
                     "failed to put object: bucket=" + req.getObjectMeta().getBucket()
                             + ", objectKey=" + req.getObjectMeta().getKey(),
                     e);
         }
         catch (Exception e) {
-            deleteDataSilence(s3Bucket, dataDetail);
+            if (!isFileMetaCreated) {
+                quotaManager.releaseQuota(quotaInfo);
+                deleteDataSilence(s3Bucket, dataDetail);
+            }
             throw e;
         }
     }

@@ -282,6 +282,24 @@ public class SequoiadbTableDao extends TableDaoBase {
         }
     }
 
+    @Override
+    public void ensureTable(List<IndexDef> indexes) throws MetasourceException {
+        ensureCollection();
+        if (indexes != null) {
+            for (IndexDef idxDef : indexes) {
+                StringBuilder idxName = new StringBuilder();
+                idxName.append("idx");
+                BSONObject indexKeys = new BasicBSONObject();
+                for (String idxField : idxDef.getUnionKeys()) {
+                    indexKeys.put(idxField, 1);
+                    idxName.append("_").append(idxField);
+                }
+
+                ensureIndex(idxName.toString(), indexKeys, idxDef.isUnique());
+            }
+        }
+    }
+
     protected void ensureCollection() throws MetasourceException {
         Sequoiadb db = getConnection();
         try {

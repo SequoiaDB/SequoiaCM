@@ -53,4 +53,16 @@ public class FieldName {
         public static final String FIELD_SIZE_DELTA     = "size_delta";
         public static final String FIELD_RECORD_TIME    = "record_time";
     }
+
+    public static final class ObjectDelta {
+        private ObjectDelta() {
+        }
+
+        public static final String FIELD_BUCKET_NAME = "bucket_name";
+        public static final String FIELD_COUNT_DELTA = "count_delta";
+        public static final String FIELD_SIZE_DELTA = "size_delta";
+        public static final String FIELD_RECORD_TIME = "record_time";
+        public static final String FIELD_UPDATE_TIME = "update_time";
+    }
+
 }

@@ -47,7 +47,7 @@ public class AuditController {
         
         response.setHeader("Content-Type", "application/json;charset=utf-8");
         MetaCursor cursor = auditService.getList(condition);
-        ServiceUtils.putCursorToWriter(cursor, ServiceUtils.getWriter(response));
+        ServiceUtils.putCursorToResponse(cursor, response);
     }
             
 }
