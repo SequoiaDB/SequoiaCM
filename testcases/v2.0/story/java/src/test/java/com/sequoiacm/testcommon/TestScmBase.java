@@ -41,6 +41,7 @@ public class TestScmBase {
     protected static String mainSdbUrl;
     protected static String sdbUserName;
     protected static String sdbPassword;
+    protected static String newSiteSdbUrl;
 
     protected static List< String > gateWayList;
 
@@ -71,19 +72,21 @@ public class TestScmBase {
 
     @Parameters({ "FORCECLEAR", "NTPSERVER", "DATADIR", "LOCALHOSTNAME",
             "SSHUSER", "SSHPASSWD", "MAINSDBURL", "SDBUSER", "SDBPASSWD",
-            "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER", "SCMPASSWD",
-            "SCMPASSWDPATH", "OMSERVERURL", "LDAPUSER", "LDAPPASSWD",
-            "CEPHS3SECRETKEY", "CEPHSWIFTSECRETKEY", "HDFSURL", "COMMONWS" })
+            "NEWSITESDBURL", "GATEWAYS", "ROOTSITESVCNAME", "SCMUSER",
+            "SCMPASSWD", "SCMPASSWDPATH", "OMSERVERURL", "LDAPUSER",
+            "LDAPPASSWD", "CEPHS3SECRETKEY", "CEPHSWIFTSECRETKEY", "HDFSURL",
+            "COMMONWS" })
 
     @BeforeSuite(alwaysRun = true)
     public static void initSuite( boolean FORCECLEAR, String NTPSERVER,
             String DATADIR, String LOCALHOSTNAME, String SSHUSER,
             String SSHPASSWD, String MAINSDBURL, String SDBUSER,
-            String SDBPASSWD, String GATEWAYS, String ROOTSITESVCNAME,
-            String SCMUSER, String SCMPASSWD, String SCMPASSWDPATH,
-            String OMSERVERURL, String LDAPUSER, String LDAPPASSWD,
-            String CEPHS3SECRETKEY, String CEPHSWIFTSECRETKEY, String HDFSURL,
-            String COMMONWS ) throws Exception {
+            String SDBPASSWD, String NEWSITESDBURL, String GATEWAYS,
+            String ROOTSITESVCNAME, String SCMUSER, String SCMPASSWD,
+            String SCMPASSWDPATH, String OMSERVERURL, String LDAPUSER,
+            String LDAPPASSWD, String CEPHS3SECRETKEY,
+            String CEPHSWIFTSECRETKEY, String HDFSURL, String COMMONWS )
+            throws Exception {
 
         // 加载xml配置
         forceClear = FORCECLEAR;
@@ -96,6 +99,7 @@ public class TestScmBase {
         mainSdbUrl = MAINSDBURL;
         sdbUserName = SDBUSER;
         sdbPassword = SDBPASSWD;
+        newSiteSdbUrl = NEWSITESDBURL;
 
         gateWayList = parseInfo( GATEWAYS );
 

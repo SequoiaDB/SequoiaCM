@@ -12,6 +12,8 @@
     <parameter name="MAINSDBURL" value="mainSiteHostName:11810"/>
     <parameter name="SDBUSER" value="sdbadmin"/>
     <parameter name="SDBPASSWD" value="sequoiadb"/>
+    <!--  测试用例1093新建站点使用的SDB,用户密码都是sdbadmin  -->
+    <parameter name="NEWSITESDBURL" value="192.168.28.134:11810"/>
     <!--  SCM配置  -->
     <parameter name="SITES" value="XXXX"/>
     <parameter name="RUNBASETEST" value="false"/>
