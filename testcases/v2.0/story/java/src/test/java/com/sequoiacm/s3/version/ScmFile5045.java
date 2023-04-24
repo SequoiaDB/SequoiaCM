@@ -90,6 +90,9 @@ public class ScmFile5045 extends TestScmBase {
             if ( sessionM != null ) {
                 sessionM.close();
             }
+            if ( sessionA != null ) {
+                sessionA.close();
+            }
         }
     }
 

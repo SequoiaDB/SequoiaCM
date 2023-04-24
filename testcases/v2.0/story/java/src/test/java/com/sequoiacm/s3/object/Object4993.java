@@ -77,6 +77,7 @@ public class Object4993 extends TestScmBase {
             }
         } finally {
             s3Client.shutdown();
+            session.close();
         }
     }
 
