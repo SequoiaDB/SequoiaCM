@@ -32,7 +32,8 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_TYPE) int taskType,
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_SERVER_ID) int serverId,
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_TARGET_SITE) String targetSite,
-            @RequestParam(CommonDefine.RestArg.CREATE_TASK_OPTIONS) String options)
+            @RequestParam(CommonDefine.RestArg.CREATE_TASK_OPTIONS) String options,
+            @RequestParam(value = CommonDefine.RestArg.IS_ASYNC_COUNT_FILE, required = false) Boolean isAsyncCountFile)
             throws ScmServerException;
 
     @PostMapping(value = "/api/v1/tasks/{taskId}/stop")
@@ -42,7 +43,8 @@ public interface ContentServerClient {
 
     @PostMapping(value = "/internal/v1/tasks/{taskId}/notify")
     public void notifyTask(@PathVariable("taskId") String taskId,
-            @RequestParam(CommonDefine.RestArg.TASK_NOTIFY_TYPE) int notifyType);
+            @RequestParam(CommonDefine.RestArg.TASK_NOTIFY_TYPE) int notifyType,
+            @RequestParam(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE) Boolean isAsyncCountFile);
 
     // **************file******************//
     @GetMapping(value = "/api/v1/files/{fileId}")
@@ -54,7 +56,7 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.FILE_MINOR_VERSION) int minorVersion,
             @RequestParam(CommonDefine.RestArg.FILE_READ_FLAG) int readFlag)
             throws ScmServerException;
-    
+
     // **************file******************//
     @GetMapping(value = "/internal/v1/files/{fileId}")
     public Response downloadFileInternal(
@@ -76,7 +78,8 @@ public interface ContentServerClient {
             throws ScmServerException;
 
     @DeleteMapping(value = "/api/v1/buckets/{name}/files?action=delete_file")
-    public BSONObject deleteFileInBucket(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public BSONObject deleteFileInBucket(
+            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(RestField.USER_ATTRIBUTE) String userDetailJson,
             @PathVariable("name") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,

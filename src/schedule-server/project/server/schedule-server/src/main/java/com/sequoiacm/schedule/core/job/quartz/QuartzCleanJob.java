@@ -1,6 +1,5 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
@@ -21,15 +20,17 @@ import java.util.Date;
 public class QuartzCleanJob extends QuartzContentserverJob {
 
     @Override
-    protected TaskEntity createTaskEntity(FileServerEntity runTaskServer, ScheduleJobInfo info) throws ScheduleException {
+    protected TaskEntity createTaskEntity(FileServerEntity runTaskServer, ScheduleJobInfo info)
+            throws ScheduleException {
         CleanJobInfo cInfo = (CleanJobInfo) info;
         Date d = new Date();
         String taskId = ScmIdGenerator.TaskId.get();
         BSONObject taskCondition = createTaskContent(cInfo);
         BSONObject taskOption = createTaskOption(cInfo);
         return QuartzScheduleTools.createTask(ScheduleDefine.TaskType.SCM_TASK_CLEAN_FILE, taskId,
-                taskCondition, runTaskServer.getId(), cInfo.getCheckSiteId(), d.getTime(), info.getWorkspace(),
-                info.getId(), cInfo.getScope(), cInfo.getMaxExecTime(), taskOption, null);
+                taskCondition, runTaskServer.getId(), cInfo.getCheckSiteId(), d.getTime(),
+                info.getWorkspace(), info.getId(), cInfo.getScope(), cInfo.getMaxExecTime(),
+                taskOption, null);
     }
 
     @Override
@@ -61,10 +62,15 @@ public class QuartzCleanJob extends QuartzContentserverJob {
         }
 
         BSONObject cleanTriggersObj = cInfo.getCleanTriggers();
-        if (null != cleanTriggersObj && !cleanTriggersObj.isEmpty()){
+        if (null != cleanTriggersObj && !cleanTriggersObj.isEmpty()) {
             array.add(ScheduleCommonTools.jointTriggerCondition(
                     ScheduleDefine.ScheduleType.CLEAN_FILE, cleanTriggersObj, cInfo.getSiteId(),
                     cInfo.getCheckSiteId(), d));
+        }
+
+        // -1 表示没有配置 existenceTime
+        if (cInfo.getExistenceDays() != -1) {
+            array.add(ScheduleCommonTools.joinCreateTimeCondition(d, cInfo.getExistenceDays()));
         }
         return new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);
     }

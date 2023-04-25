@@ -79,8 +79,9 @@ public class TaskController {
             @RequestParam(value = CommonDefine.RestArg.CREATE_TASK_SERVER_ID, required = false) Integer serverId,
             @RequestParam(value = CommonDefine.RestArg.CREATE_TASK_TARGET_SITE, required = false) String targetSite,
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestParam(value = CommonDefine.RestArg.IS_ASYNC_COUNT_FILE, required = false) Boolean isAsyncCountFile,
+            Authentication auth) throws ScmServerException {
         if (serverId == null) {
             logger.debug("lunch a task in local site:wsName={},type={}", workspaceName, taskType);
             serverId = ScmServer.getInstance().getContentServerInfo().getId();
@@ -107,7 +108,7 @@ public class TaskController {
         ScmUser user = (ScmUser) auth.getPrincipal();
 
         String taskId = taskService.startTask(sessionId, userDetail, user, workspaceName, taskType,
-                serverId, targetSite, optionsBSON);
+                serverId, targetSite, optionsBSON, isAsyncCountFile);
 
         Map<String, Object> result = new HashMap<>(1);
         Map<String, String> taskBasicInfo = new HashMap<>(1);
@@ -136,9 +137,10 @@ public class TaskController {
 
     @PostMapping(value = "/internal/v1/tasks/{task_id}/notify")
     public void notifyTask(@PathVariable("task_id") String taskId,
-            @RequestParam(CommonDefine.RestArg.TASK_NOTIFY_TYPE) int notifyType)
+            @RequestParam(CommonDefine.RestArg.TASK_NOTIFY_TYPE) int notifyType,
+            @RequestParam(value = CommonDefine.RestArg.IS_ASYNC_COUNT_FILE, defaultValue = "false") boolean isAsyncCountFile)
             throws ScmServerException {
-        taskService.notifyTask(taskId, notifyType);
+        taskService.notifyTask(taskId, notifyType, isAsyncCountFile);
     }
 
     @RequestMapping(value = "/api/v1/tasks", method = RequestMethod.HEAD)

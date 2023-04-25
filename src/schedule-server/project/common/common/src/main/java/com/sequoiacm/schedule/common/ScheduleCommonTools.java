@@ -140,7 +140,7 @@ public class ScheduleCommonTools {
         if (null == urlElems) {
             return null;
         }
-        
+
         return StringUtils.join(urlElems, ",");
     }
 
@@ -162,6 +162,14 @@ public class ScheduleCommonTools {
 
     public static String joinUrlElems(String[] urlElems) throws Exception {
         return _joinUrlElems(urlElems, "api");
+    }
+
+    public static BSONObject joinCreateTimeCondition(Date d, int existenceDays) {
+        BSONObject ltCreateTimes = new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_LT,
+                d.getTime() - existenceDays * 24L * 3600L * 1000L);
+        BSONObject fileCreateTimeLtTimes = new BasicBSONObject(
+                FieldName.File.FIELD_CLFILE_FILE_CREATE_TIME, ltCreateTimes);
+        return fileCreateTimeLtTimes;
     }
 
     public static BSONObject jointTriggerCondition(String scheduleType, BSONObject triggers,

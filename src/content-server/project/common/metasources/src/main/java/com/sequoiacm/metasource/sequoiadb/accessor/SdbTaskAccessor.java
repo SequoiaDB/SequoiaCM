@@ -2,6 +2,7 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 
 import java.util.Date;
 
+import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -324,6 +325,31 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "start task failed:table=" + getCsName() + "." + getClName()
                     + ",taskId=" + taskId, e);
+        }
+    }
+
+    @Override
+    public void updateTaskFileCount(String taskId, long estimateCount, long actualCount)
+            throws ScmMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
+            BSONObject newValue = new BasicBSONObject();
+            newValue.put(FieldName.Task.FIELD_ESTIMATE_COUNT, estimateCount);
+            newValue.put(FieldName.Task.FIELD_ACTUAL_COUNT, actualCount);
+            BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET,
+                    newValue);
+            update(matcher, updator);
+        }
+        catch (ScmMetasourceException e) {
+            logger.error("update task file count failed:table=" + getCsName() + "." + getClName()
+                    + ",taskId=" + taskId);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update task file count failed:table=" + getCsName() + "." + getClName()
+                            + ",taskId=" + taskId,
+                    e);
         }
     }
 

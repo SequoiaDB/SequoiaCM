@@ -4,5 +4,6 @@ public enum ScmDoFileRes {
     SUCCESS,
     FAIL,
     SKIP,
-    INTERRUPT;
+    INTERRUPT,
+    ABORT;
 }

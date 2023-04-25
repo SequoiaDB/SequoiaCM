@@ -10,16 +10,19 @@ public class FieldName {
         public static final String FIELD_CLFILE_FILE_SITE_LIST_TIME = "last_access_time";
         // long
         public static final String FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME = "create_time";
+        public static final String FIELD_CLFILE_FILE_CREATE_TIME = "create_time";
 
         public static final String FIELD_CLFILE_FILE_DATA_ID = "data_id";
         public static final String FIELD_CLFILE_FILE_DATA_TYPE = "data_type";
-        public static final String FIELD_CLFILE_FILE_SIZE = "size"; //long,  1
-        public static final String FIELD_CLFILE_FILE_DATA_CREATE_TIME = "data_create_time"; //long, 1485239715515(ms)
+        public static final String FIELD_CLFILE_FILE_SIZE = "size"; // long, 1
+        public static final String FIELD_CLFILE_FILE_DATA_CREATE_TIME = "data_create_time"; // long,
+                                                                                            // 1485239715515(ms)
 
-        public static final String FIELD_CLFILE_ID = "id"; //string, fileid
-        public static final String FIELD_CLFILE_MAJOR_VERSION = "major_version"; //int, 1
-        public static final String FIELD_CLFILE_MINOR_VERSION = "minor_version"; //int, 0
-        public static final String FIELD_CLFILE_INNER_CREATE_MONTH = "create_month"; //string 201701
+        public static final String FIELD_CLFILE_ID = "id"; // string, fileid
+        public static final String FIELD_CLFILE_MAJOR_VERSION = "major_version"; // int, 1
+        public static final String FIELD_CLFILE_MINOR_VERSION = "minor_version"; // int, 0
+        public static final String FIELD_CLFILE_INNER_CREATE_MONTH = "create_month"; // string
+                                                                                     // 201701
 
     }
 
@@ -73,13 +76,14 @@ public class FieldName {
         // boolean
         public static final String FIELD_ENABLE = "enable";
 
-        //int scope type
+        // int scope type
         public static final String FIELD_SCOPE = "scope";
 
         public static final String FIELD_MAX_EXEC_TIME = "max_exec_time";
 
         // string (ex. '3d')
         public static final String FIELD_MAX_STAY_TIME = "max_stay_time";
+        public static final String FIELD_EXISTENCE_TIME = "existence_time";
         // bson
         public static final String FIELD_EXTRA_CONDITION = "extra_condition";
 
@@ -208,7 +212,7 @@ public class FieldName {
         public static final String FIELD_CLEAN_TRIGGERS_RULE = "rule";
         public static final String FIELD_CLEAN_TRIGGERS_TRIGGER_LIST = ScheduleDefine.TRIGGER_LIST;
         public static final String FIELD_TRANSITION_WORKSPACES = "workspaces";
-        public static final String FIELD_TRANSITION_ID= "id";
+        public static final String FIELD_TRANSITION_ID = "id";
         public static final String FIELD_WORKSPACE_NAME = "workspace";
         public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_ID = "id";
         public static final String FIELD_LIFE_CYCLE_CONFIG_SCHEDULE_TRANSITION = "transition";

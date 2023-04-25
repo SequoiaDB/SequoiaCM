@@ -15,4 +15,6 @@ public interface TaskDao {
     public TaskEntity queryOne(BSONObject matcher, BSONObject orderBy) throws Exception;
 
     public void delete(String taskId) throws Exception;
+
+    public void update(BSONObject matcher, BSONObject updator) throws Exception;
 }

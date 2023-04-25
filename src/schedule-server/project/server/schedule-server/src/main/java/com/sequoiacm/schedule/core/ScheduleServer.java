@@ -212,6 +212,10 @@ public class ScheduleServer {
         taskDao.delete(taskId);
     }
 
+    public void updateTask(BSONObject matcher, BSONObject modifier) throws Exception {
+        taskDao.update(matcher, modifier);
+    }
+
     public TaskEntity queryLatestTask(BSONObject condition) throws Exception {
         BasicBSONObject orderBy = new BasicBSONObject();
         orderBy.put(FieldName.Task.FIELD_START_TIME, -1);

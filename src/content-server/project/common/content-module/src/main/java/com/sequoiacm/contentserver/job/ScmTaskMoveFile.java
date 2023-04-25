@@ -15,8 +15,9 @@ public class ScmTaskMoveFile extends ScmTaskFileSpaceRecyclable {
 
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskMoveFile.class);
 
-    public ScmTaskMoveFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
-        super(mgr, info);
+    public ScmTaskMoveFile(ScmTaskManager mgr, BSONObject info, boolean isAsyncCountFile)
+            throws ScmServerException {
+        super(mgr, info, isAsyncCountFile);
     }
 
     @Override

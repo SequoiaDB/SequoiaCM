@@ -20,6 +20,7 @@ public abstract class ScmFileSubTask implements Runnable {
     private ScmWorkspaceInfo wsInfo;
     private volatile boolean isSubmitted;
     private volatile boolean isDestroyed;
+    private static final int TASK_MAX_RETRY_COUNT = 3;
 
     public ScmFileSubTask(BSONObject fileInfo, ScmWorkspaceInfo wsInfo,
             ScmTaskInfoContext taskInfoContext) {
@@ -44,28 +45,84 @@ public abstract class ScmFileSubTask implements Runnable {
 
     @Override
     public void run() {
-        ScmLock fileReadLock = null;
-        String fileId = null;
+        String fileId = (String) fileInfo.get(FieldName.FIELD_CLFILE_ID);
         try {
-            fileId = (String) fileInfo.get(FieldName.FIELD_CLFILE_ID);
+            DoTaskRes res = runTask(fileId);
+            if (res.getRes() != ScmDoFileRes.ABORT) {
+                taskInfoContext.subTaskFinish(res.getRes());
+                return;
+            }
+            // abort 结果的需要进行重试
+            int retryCount = 1;
+            while (retryCount <= TASK_MAX_RETRY_COUNT) {
+                try {
+                    Thread.sleep(2000);
+                }
+                catch (InterruptedException e) {
+                    // ignore
+                }
+                logger.info("Starting to retry the task, taskId={}, fileId={}, ({}/{})",
+                        getTaskId(), fileId, retryCount, TASK_MAX_RETRY_COUNT);
+                res = runTask(fileId);
+                if (res.getRes() != ScmDoFileRes.ABORT) {
+                    taskInfoContext.subTaskFinish(res.getRes());
+                    return;
+                }
+                logger.error("Execute task failed, taskId={}, fileId={}", getTaskId(), fileId,
+                        res.getE());
+                if (retryCount == TASK_MAX_RETRY_COUNT) {
+                    // 三次都失败，设置状态为 abort
+                    taskInfoContext.subTaskAbort(res.getE());
+                    return;
+                }
+                ++retryCount;
+            }
+        }
+        catch (Throwable e) {
+            // 有异常，直接失败
+            logger.error("failed execute subTask, taskId={}, fileId={}", getTaskId(),
+                    fileId, e);
+            taskInfoContext.subTaskAbort(e);
+        }
+        finally {
+            taskDestroyed();
+        }
+    }
+
+    private DoTaskRes runTask(String fileId) throws Exception {
+        ScmLock fileReadLock = null;
+        try {
             ScmLockPath lockPath = ScmLockPathFactory
                     .createFileLockPath(getWorkspaceInfo().getName(), fileId);
             fileReadLock = ScmLockManager.getInstance().acquiresReadLock(lockPath);
-            doTask();
-        }
-        catch (Throwable e) {
-            taskInfoContext.subTaskAbort(e);
-            logger.error("failed execute subTask, taskId={}, fileId={}", getTaskId(), fileId, e);
+            return doTask();
         }
         finally {
             if (fileReadLock != null) {
                 fileReadLock.unlock();
             }
-            taskDestroyed();
         }
     }
 
-    protected abstract void doTask() throws ScmServerException;
+    class DoTaskRes {
+        private Throwable e;
+        private ScmDoFileRes res;
+
+        public DoTaskRes(Throwable e, ScmDoFileRes res) {
+            this.e = e;
+            this.res = res;
+        }
+
+        public Throwable getE() {
+            return e;
+        }
+
+        public ScmDoFileRes getRes() {
+            return res;
+        }
+    }
+
+    protected abstract DoTaskRes doTask() throws ScmServerException;
 
     public String getTaskId() {
         return taskInfoContext.getTask().getTaskId();

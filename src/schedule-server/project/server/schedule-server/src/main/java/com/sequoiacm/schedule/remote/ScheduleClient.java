@@ -51,7 +51,8 @@ public interface ScheduleClient {
 
     @PostMapping(value = "/tasks/{taskId}/notify")
     public void notifyTask(@PathVariable("taskId") String taskId,
-            @RequestParam(RestCommonDefine.RestParam.KEY_NOTIFY_TYPE) int notifyType);
+            @RequestParam(RestCommonDefine.RestParam.KEY_NOTIFY_TYPE) int notifyType,
+            @RequestParam(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE) boolean isAsyncCountFile);
 
     @PostMapping(value = "/lifeCycleConfig")
     public void setLifeCycleConfig(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
@@ -138,16 +139,19 @@ public interface ScheduleClient {
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.PREFERRED_REGION) String preferredRegion,
-            @RequestParam(RestCommonField.PREFERRED_ZONE) String preferredZone)
+            @RequestParam(RestCommonField.PREFERRED_ZONE) String preferredZone,
+            @RequestParam(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE) boolean isAsyncCountFile)
             throws ScheduleException;
 
     @PostMapping(value = "/tasks")
-    public BSONObject createMoveCopyTask(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public BSONObject createMoveCopyTask(
+            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(RestField.USER_ATTRIBUTE) String user,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_TYPE) int taskType,
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_TARGET_SITE) String targetSite,
-            @RequestParam(CommonDefine.RestArg.CREATE_TASK_OPTIONS) String options)
+            @RequestParam(CommonDefine.RestArg.CREATE_TASK_OPTIONS) String options,
+            @RequestParam(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE) boolean isAsyncCountFile)
             throws ScheduleException;
 
     @DeleteMapping("/lifeCycleConfig")

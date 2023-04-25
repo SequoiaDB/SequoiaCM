@@ -405,6 +405,7 @@ public class CommonDefine {
 
         public static final String CONFIG = "config";
         public static final String IS_ASYNC_NOTIFY = "is_async_notify";
+        public static final String IS_ASYNC_COUNT_FILE = "is_async_count_file";
 
         public static final String ACTION_CALC_MD5 = "calc_md5";
         public static final String ACTION_GET_SITE_STRATEGY = "get_site_strategy";

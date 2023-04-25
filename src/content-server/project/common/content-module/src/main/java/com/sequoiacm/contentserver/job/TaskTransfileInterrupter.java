@@ -38,7 +38,7 @@ public class TaskTransfileInterrupter implements FileTransferInterrupter {
 
             if (task.getMaxExecTime() > 0) {
                 Date now = new Date();
-                if (now.getTime() - task.getTaskStartTime().getTime() > task.getMaxExecTime()) {
+                if (now.getTime() - task.getTaskStartTime() > task.getMaxExecTime()) {
                     logger.warn("task timeout:taskId={}", task.getTaskId());
                     return true;
                 }

@@ -105,7 +105,7 @@
             <el-button-group>
               <el-button id="btn_schedule_showDetailDialog" size="mini" @click="handleShowBtnClick(scope.row)">查看</el-button>
               <el-button id="btn_schedule_showEditdeleteDialog" size="mini" @click="handleEditBtnClick(scope.row)">编辑</el-button></span>
-              <el-button id="btn_schedule_showTasks" size="mini" @click="handleShowTasksBtnClick(scope.row)">运行记录</el-button>             
+              <el-button id="btn_schedule_showTasks" size="mini" @click="handleShowTasksBtnClick(scope.row)">运行记录</el-button>
               <el-tooltip content="该调度任务为工作区应用数据流生成，无法删除" :disabled="!(scope.row.transition && true)" placement="top">
                 <span><el-button id="btn_schedule_showDeleteDialog" size="mini" type="danger" :disabled="scope.row.transition && true" @click="handleDeleteBtnClick(scope.row)">删除任务</el-button></span>
               </el-tooltip>
@@ -261,6 +261,19 @@
                 :value="item.value">
               </el-option>
             </el-select>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="20">
+            <el-form-item label="文件存在时间" prop="existenceTime"  v-if="form.type && form.type !== 'recycle_space'">
+              <el-input id="input_schedule_existenceTime" v-model.number="form.existenceTime" maxlength="9"   placeholder="单位：天">
+                <template #suffix>
+                  <el-tooltip class="item" effect="dark" content="文件的创建时间超过指定时间才会被调度" placement="top">
+                  <i class="el-icon-question pointer-cursor"></i>
+                  </el-tooltip>
+                </template>
+              </el-input>
+            </el-form-item>
           </el-col>
         </el-row>
         <el-collapse>
@@ -459,6 +472,7 @@ export default {
         sourceSite: '',
         targetSite: '',
         maxStayTime: '',
+        existenceTime: '',
         quickStart: true,
         dataCheckLevel: 'week',
         isRecycleSpace: true,
@@ -657,7 +671,8 @@ export default {
           dataCheckLevel: 'week',
           isRecycleSpace: true,
           recycleScope: '',
-          maxStayTime: ''
+          maxStayTime: '',
+          existenceTime: ''
         }
         if(detail.content.max_exec_time % this.timeTypes[0].value === 0){
           this.form.timeScale = TIME_TYPES[0].value
@@ -673,6 +688,7 @@ export default {
           this.form['condition'] = this.$util.toPrettyJson(detail.content.extra_condition),
           this.form['scope'] = detail.content.scope,
           this.form['maxStayTime'] = Number(detail.content.max_stay_time.slice(0, detail.content.max_stay_time.length - 1))
+          this.form['existenceTime'] = Number(detail.content.existence_time.slice(0, detail.content.existence_time.length - 1))
           this.form['quickStart'] = detail.content.quick_start
           this.form['dataCheckLevel'] = detail.content.data_check_level
           if (this.form.type !== 'copy_file') {
@@ -845,6 +861,9 @@ export default {
             content['scope'] = form.scope
             content['data_check_level'] = form.dataCheckLevel
             content['max_stay_time'] = form.maxStayTime + 'd'
+            if (form.existenceTime !== undefined && form.existenceTime !== '') {
+              content['existence_time'] = form.existenceTime + 'd'
+            }
             content['quick_start'] = form.quickStart
             if (form.condition === '') {
               form.condition = '{}'

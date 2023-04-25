@@ -4,11 +4,13 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.config.ScmJobManagerConfig;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -40,7 +42,7 @@ public class ScmJobManager {
     /**
      * 该线程池适合执行时间较长的任务，如调度任务（ScmTaskCleanFile、ScmTaskMoveFile等）
      */
-    private final ThreadPoolExecutor longTimeTaskThreadPool;
+    private final ThreadPoolExecutor scheduleTaskThreadPool;
 
     private ScmTimer scmTimer = ScmTimerFactory.createScmTimer(2);
     private ScmLogResourceJob logResourceJob = new ScmLogResourceJob();
@@ -51,8 +53,7 @@ public class ScmJobManager {
         this.shortTimeTaskThreadPool = new ThreadPoolExecutor(jobManagerConfig.getCoreSize(),
                 jobManagerConfig.getMaxSize(), 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(jobManagerConfig.getQueueSize()),
-                new ScmThreadFactory("shortTimeTaskThreadPool"),
-                new ShortTimeTaskRejectedHandler(
+                new ScmThreadFactory("shortTimeTaskThreadPool"), new ShortTimeTaskRejectedHandler(
                         jobManagerConfig.getDefaultTaskWaitingTimeOnReject()));
         logger.info(
                 "shortTimeTaskThreadPool initialized, coreSize={}, maxSize={}, queueSize={}, rejectedHandler={}",
@@ -61,18 +62,17 @@ public class ScmJobManager {
                 shortTimeTaskThreadPool.getQueue().remainingCapacity(),
                 shortTimeTaskThreadPool.getRejectedExecutionHandler());
 
-        this.longTimeTaskThreadPool = new ThreadPoolExecutor(
-                jobManagerConfig.getLongTimeThreadPoolCoreSize(),
-                jobManagerConfig.getLongTimeThreadPoolMaxSize(), 60, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(jobManagerConfig.getLongTimeThreadPoolQueueSize()),
-                new ScmThreadFactory("longTimeTaskThreadPool"),
-                new ThreadPoolExecutor.AbortPolicy());
+        this.scheduleTaskThreadPool = new ThreadPoolExecutor(
+                jobManagerConfig.getScheduleTaskThreadPoolCoreSize(),
+                jobManagerConfig.getScheduleTaskThreadPoolMaxSize(), 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(jobManagerConfig.getScheduleTaskThreadPoolQueueSize()),
+                new ScmThreadFactory("scheduleTaskThreadPool"), new ScheduleTaskRejectHandler());
         logger.info(
-                "longTimeTaskThreadPool initialized, coreSize={}, maxSize={}, queueSize={}, rejectedHandler={}",
-                longTimeTaskThreadPool.getCorePoolSize(),
-                longTimeTaskThreadPool.getMaximumPoolSize(),
-                longTimeTaskThreadPool.getQueue().remainingCapacity(),
-                longTimeTaskThreadPool.getRejectedExecutionHandler());
+                "scheduleTaskThreadPool initialized, coreSize={}, maxSize={}, queueSize={}, rejectedHandler={}",
+                scheduleTaskThreadPool.getCorePoolSize(),
+                scheduleTaskThreadPool.getMaximumPoolSize(),
+                scheduleTaskThreadPool.getQueue().remainingCapacity(),
+                scheduleTaskThreadPool.getRejectedExecutionHandler());
 
         ScmJobManager.jobManager = this;
     }
@@ -99,9 +99,9 @@ public class ScmJobManager {
                 shortTimeTaskThreadPool.awaitTermination(10, TimeUnit.SECONDS);
             }
 
-            if (longTimeTaskThreadPool != null && !longTimeTaskThreadPool.isShutdown()) {
-                longTimeTaskThreadPool.shutdown();
-                longTimeTaskThreadPool.awaitTermination(10, TimeUnit.SECONDS);
+            if (scheduleTaskThreadPool != null && !scheduleTaskThreadPool.isShutdown()) {
+                scheduleTaskThreadPool.shutdown();
+                scheduleTaskThreadPool.awaitTermination(10, TimeUnit.SECONDS);
             }
         }
         catch (Exception e) {
@@ -164,8 +164,7 @@ public class ScmJobManager {
                     + task.getName() + ",period=" + task.getPeriod());
         }
         catch (Exception e) {
-            throw new ScmSystemException(
-                    "start background job failed:type=" + task.getType()
+            throw new ScmSystemException("start background job failed:type=" + task.getType()
                     + ",name=" + task.getName(), e);
         }
     }
@@ -184,10 +183,10 @@ public class ScmJobManager {
         }
     }
 
-    public void executeLongTimeTask(Runnable task) throws ScmSystemException {
+    public void executeScheduleTask(Runnable task) throws ScmSystemException {
         checkState();
         try {
-            longTimeTaskThreadPool.execute(task);
+            scheduleTaskThreadPool.execute(task);
         }
         catch (Exception e) {
             if (task instanceof ScmTaskBase) {
@@ -218,8 +217,7 @@ public class ScmJobManager {
                         long waitingTime = backgroundJob.waitingTimeOnReject() > 0
                                 ? backgroundJob.waitingTimeOnReject()
                                 : defaultTaskWaitingTimeOnReject;
-                        boolean success = executor.getQueue().offer(r,
-                                waitingTime,
+                        boolean success = executor.getQueue().offer(r, waitingTime,
                                 TimeUnit.MILLISECONDS);
                         if (!success) {
                             throw new RejectedExecutionException(
@@ -237,7 +235,22 @@ public class ScmJobManager {
         }
     }
 
-    public static void main(String[] args) throws ScmServerException, InterruptedException, UnknownHostException {
+    static class ScheduleTaskRejectHandler implements RejectedExecutionHandler {
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            if (executor.isShutdown()) {
+                return;
+            }
+            BlockingQueue<Runnable> queue = executor.getQueue();
+            if (!queue.offer(r)) {
+                throw new RejectedExecutionException("Failed to add task to queue, queue is full");
+            }
+        }
+    }
+
+    public static void main(String[] args)
+            throws ScmServerException, InterruptedException, UnknownHostException {
         ScmJobManager sjm = ScmJobManager.getInstance();
         ScmBackgroundJob job1 = new ScmBackgroundJob() {
             @Override

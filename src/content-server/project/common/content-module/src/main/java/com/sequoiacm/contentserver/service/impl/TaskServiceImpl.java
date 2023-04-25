@@ -90,8 +90,8 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public String startTask(String serssionId, String userDetail, ScmUser user, String wsName,
-            int taskType, int serverId, String targetSite, BSONObject options)
-            throws ScmServerException {
+            int taskType, int serverId, String targetSite, BSONObject options,
+            Boolean isAsyncCountFile) throws ScmServerException {
 
         ScmFileServicePriv.getInstance().checkWsPriority(user, wsName, ScmPrivilegeDefine.UPDATE,
                 "start task");
@@ -136,19 +136,21 @@ public class TaskServiceImpl implements ITaskService {
         }
 
         if (contentModule.isInMainSite()) {
-            taskId = initAndNotifyTask(wsInfo, taskType, options, serverId, targetSiteId);
+            taskId = initAndNotifyTask(wsInfo, taskType, options, serverId, targetSiteId,
+                    isAsyncCountFile);
         }
         else {
             // transfer to the main site
             taskId = forwardStartToMainSite(serssionId, userDetail, wsName, taskType, options,
-                    serverId, targetSite);
+                    serverId, targetSite, isAsyncCountFile);
         }
 
         return taskId;
     }
 
     private String initAndNotifyTask(ScmWorkspaceInfo wsInfo, int taskType, BSONObject options,
-            int serverId, Integer targetSiteId) throws ScmServerException {
+            int serverId, Integer targetSiteId, Boolean isAsyncCountFile)
+            throws ScmServerException {
         if (taskType != CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE
                 && taskType != CommonDefine.TaskType.SCM_TASK_CLEAN_FILE
                 && taskType != CommonDefine.TaskType.SCM_TASK_MOVE_FILE
@@ -172,7 +174,8 @@ public class TaskServiceImpl implements ITaskService {
         createTask(taskType, taskId, wsInfo.getName(), taskContent, serverId, targetSiteId,
                 taskScope, maxExecTime, createOption(options, taskType));
         try {
-            notifyTask(serverId, taskId, CommonDefine.TaskNotifyType.SCM_TASK_CREATE);
+            notifyTask(serverId, taskId, CommonDefine.TaskNotifyType.SCM_TASK_CREATE,
+                    isAsyncCountFile);
             logger.info("start task success:taskId=" + taskId);
         }
         catch (ScmServerException e) {
@@ -213,7 +216,8 @@ public class TaskServiceImpl implements ITaskService {
         return option;
     }
 
-    private void notifyTask(int serverId, String taskId, int notifyType) throws ScmServerException {
+    private void notifyTask(int serverId, String taskId, int notifyType, Boolean isAsyncCountFile)
+            throws ScmServerException {
 
         ScmContentServerInfo serverInfo = ScmContentModule.getInstance().getServerInfo(serverId);
         if (null == serverInfo) {
@@ -224,7 +228,7 @@ public class TaskServiceImpl implements ITaskService {
         String hostPort = serverInfo.getHostName() + ":" + serverInfo.getPort();
 
         ContentServerClient client = ContentServerClientFactory.getFeignClientByNodeUrl(hostPort);
-        client.notifyTask(taskId, notifyType);
+        client.notifyTask(taskId, notifyType, isAsyncCountFile);
     }
 
     private void removeTaskAndAsyncRedo(String taskId) {
@@ -293,14 +297,14 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     private String forwardStartToMainSite(String sessionId, String userDetail, String wsName,
-            int taskType, BSONObject options, int serverId, String targetSite)
-            throws ScmServerException {
+            int taskType, BSONObject options, int serverId, String targetSite,
+            Boolean isAsyncCountFile) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         int remoteSiteId = contentModule.getMainSite();
         ContentServerClient client = ContentServerClientFactory
                 .getFeignClientByServiceName(contentModule.getSiteInfo(remoteSiteId).getName());
         BSONObject res = client.startTask(sessionId, userDetail, wsName, taskType, serverId,
-                targetSite, options.toString());
+                targetSite, options.toString(), isAsyncCountFile);
         BSONObject task = (BSONObject) res.get(CommonDefine.RestArg.TASK_INFO_RESP);
         String id = (String) task.get(CommonDefine.RestArg.TASK_ID);
         if (id == null) {
@@ -326,9 +330,10 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public void notifyTask(String taskId, int notifyType) throws ScmServerException {
+    public void notifyTask(String taskId, int notifyType, boolean isAsyncCountFile)
+            throws ScmServerException {
         if (notifyType == CommonDefine.TaskNotifyType.SCM_TASK_CREATE) {
-            startTask(taskId);
+            startTask(taskId, isAsyncCountFile);
         }
         else if (notifyType == CommonDefine.TaskNotifyType.SCM_TASK_STOP) {
             stopTask(taskId);
@@ -371,7 +376,7 @@ public class TaskServiceImpl implements ITaskService {
         ScmTaskBase.startCancelTask(taskId, "user canceled");
 
         int serverId = (int) taskInfo.get(FieldName.Task.FIELD_SERVER_ID);
-        notifyTask(serverId, taskId, CommonDefine.TaskNotifyType.SCM_TASK_STOP);
+        notifyTask(serverId, taskId, CommonDefine.TaskNotifyType.SCM_TASK_STOP, null);
         logger.info("stop task:taskId=" + taskId);
     }
 
@@ -392,7 +397,7 @@ public class TaskServiceImpl implements ITaskService {
         }
     }
 
-    private void startTask(String taskId) throws ScmServerException {
+    private void startTask(String taskId, boolean isAsyncCountFile) throws ScmServerException {
         ScmTaskBase task = null;
         try {
             // 1. get task info
@@ -416,7 +421,7 @@ public class TaskServiceImpl implements ITaskService {
             }
 
             // 2. create task instance
-            task = ScmTaskManager.getInstance().createTask(taskInfo);
+            task = ScmTaskManager.getInstance().createTask(taskInfo, isAsyncCountFile);
 
             // change task status in table
             boolean isFirstStartTask = task.checkAndStartTask();

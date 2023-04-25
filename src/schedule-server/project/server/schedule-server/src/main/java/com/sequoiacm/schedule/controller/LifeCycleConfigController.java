@@ -106,8 +106,7 @@ public class LifeCycleConfigController {
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.STAGE_TAG_NAME) String stageTagName,
             @RequestParam(value = RestCommonField.STAGE_TAG_DESC, required = false) String stageTagDesc,
-            Authentication auth)
-            throws Exception {
+            Authentication auth) throws Exception {
         if (!StringUtils.hasText(stageTagName)) {
             throw new ScheduleException(
                     com.sequoiacm.schedule.common.RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
@@ -128,8 +127,7 @@ public class LifeCycleConfigController {
     @DeleteMapping("/lifeCycleConfig/stageTag/{stage_tag_name}")
     public void removeGlobalStageTag(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @PathVariable("stage_tag_name") String stageTagName,
-            Authentication auth)
+            @PathVariable("stage_tag_name") String stageTagName, Authentication auth)
             throws Exception {
         if (!StringUtils.hasText(stageTagName)) {
             throw new ScheduleException(
@@ -194,8 +192,7 @@ public class LifeCycleConfigController {
     public void removeGlobalTransition(
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @PathVariable("transition_name") String transitionName,
-            Authentication auth)
+            @PathVariable("transition_name") String transitionName, Authentication auth)
             throws Exception {
         if (!StringUtils.hasText(transitionName)) {
             throw new ScheduleException(
@@ -215,8 +212,7 @@ public class LifeCycleConfigController {
 
     @GetMapping(path = "/lifeCycleConfig/transition/{transition_name}", params = "action=find_transition")
     public TransitionUserEntity getGlobalTransition(
-            @PathVariable("transition_name") String transitionName,
-            Authentication auth)
+            @PathVariable("transition_name") String transitionName, Authentication auth)
             throws Exception {
         if (!StringUtils.hasText(transitionName)) {
             throw new ScheduleException(
@@ -263,8 +259,7 @@ public class LifeCycleConfigController {
             @RequestParam(RestCommonField.TRANSITION) String transition,
             @RequestParam(value = RestCommonField.PREFERRED_REGION, required = false) String preferredRegion,
             @RequestParam(value = RestCommonField.PREFERRED_ZONE, required = false) String preferredZone,
-            Authentication auth)
-            throws Exception {
+            Authentication auth) throws Exception {
         checkWsPriority(auth.getName(), workspace, ScmPrivilegeDefine.UPDATE,
                 "alter workspace transition");
         ScmUser user = (ScmUser) auth.getPrincipal();
@@ -368,8 +363,7 @@ public class LifeCycleConfigController {
     }
 
     @GetMapping(path = "/lifeCycleConfig/transition/{transition_name}", params = "action=list_workspace")
-    public BSONObject listWsApplyTransition(
-            @PathVariable("transition_name") String transitionName,
+    public BSONObject listWsApplyTransition(@PathVariable("transition_name") String transitionName,
             Authentication auth) throws Exception {
         if (!StringUtils.hasText(transitionName)) {
             throw new ScheduleException(
@@ -389,18 +383,21 @@ public class LifeCycleConfigController {
             @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
             @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.PREFERRED_REGION) String preferredRegion,
-            @RequestParam(RestCommonField.PREFERRED_ZONE) String preferredZone, Authentication auth)
-            throws Exception {
+            @RequestParam(RestCommonField.PREFERRED_ZONE) String preferredZone,
+            @RequestParam(value = CommonDefine.RestArg.IS_ASYNC_COUNT_FILE, required = false) boolean isAsyncCountFile,
+            Authentication auth) throws Exception {
         checkWsPriority(auth.getName(), workspaceName, ScmPrivilegeDefine.CREATE,
                 "start once transition");
         if (!ScheduleElector.getInstance().isLeader()) {
             ScheduleClient client = getScheduleClient();
             return client.startOnceTransition(taskType, workspaceName, options, sourceStageTag,
-                    destStageTag, userDetail, sessionId, preferredRegion, preferredZone);
+                    destStageTag, userDetail, sessionId, preferredRegion, preferredZone,
+                    isAsyncCountFile);
         }
         else {
             return service.startOnceTransition(workspaceName, options, sourceStageTag, destStageTag,
-                    userDetail, sessionId, preferredRegion, preferredZone, taskType);
+                    userDetail, sessionId, preferredRegion, preferredZone, taskType,
+                    isAsyncCountFile);
         }
 
     }

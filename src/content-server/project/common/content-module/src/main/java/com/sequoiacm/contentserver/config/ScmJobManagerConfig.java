@@ -43,9 +43,15 @@ public class ScmJobManagerConfig {
     @ScmRewritableConfMarker
     private int longTimeThreadPoolCoreSize = 10;
     @ScmRewritableConfMarker
-    private int longTimeThreadPoolMaxSize = 20;
+    private int longTimeThreadPoolMaxSize = 10;
     @ScmRewritableConfMarker
     private int longTimeThreadPoolQueueSize = 100;
+    @ScmRewritableConfMarker
+    private int scheduleTaskThreadPoolCoreSize = 10;
+    @ScmRewritableConfMarker
+    private int scheduleTaskThreadPoolMaxSize = 10;
+    @ScmRewritableConfMarker
+    private int scheduleTaskThreadPoolQueueSize = 100;
 
     @PostConstruct
     public void onRefresh() {
@@ -138,6 +144,27 @@ public class ScmJobManagerConfig {
             return;
         }
         this.longTimeThreadPoolQueueSize = longTimeThreadPoolQueueSize;
+    }
+
+    public int getScheduleTaskThreadPoolCoreSize() {
+        return scheduleTaskThreadPoolCoreSize;
+    }
+
+    public int getScheduleTaskThreadPoolMaxSize() {
+        return scheduleTaskThreadPoolMaxSize;
+    }
+
+    public int getScheduleTaskThreadPoolQueueSize() {
+        return scheduleTaskThreadPoolQueueSize;
+    }
+
+    public void setScheduleTaskThreadPoolQueueSize(int scheduleTaskThreadPoolQueueSize) {
+        if (scheduleTaskThreadPoolQueueSize <= 0 || scheduleTaskThreadPoolQueueSize > 100) {
+            logger.warn("Invalid scheduleTaskThreadPoolQueueSize value: "
+                    + scheduleTaskThreadPoolQueueSize + ", set to default value: "
+                    + this.scheduleTaskThreadPoolQueueSize);
+        }
+        this.scheduleTaskThreadPoolQueueSize = scheduleTaskThreadPoolQueueSize;
     }
 
     public long getDefaultTaskWaitingTimeOnReject() {

@@ -23,6 +23,7 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
     private long maxExecTime = 0;
     private ScmDataCheckLevel dataCheckLevel = ScmDataCheckLevel.WEEK;
     private boolean quickStart;
+    private String existenceTime;
 
     /**
      * Create an instance of ScmScheduleCopyFileContent with specified args.
@@ -41,6 +42,29 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
     public ScmScheduleCopyFileContent(String sourceSiteName, String targetSiteName,
             String maxStayTime, BSONObject extraCondition) throws ScmException {
         this(sourceSiteName, targetSiteName, maxStayTime, extraCondition, ScopeType.SCOPE_CURRENT);
+    }
+
+    /**
+     * Create an instance of ScmScheduleCopyFileContent with specified args.
+     *
+     * @param sourceSiteName
+     *            source site name.
+     * @param targetSiteName
+     *            target site name.
+     * @param maxStayTime
+     *            file max stay time.
+     * @param extraCondition
+     *            extra file condition.
+     * @param existenceTime
+     *            file existence time.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public ScmScheduleCopyFileContent(String sourceSiteName, String targetSiteName,
+            String maxStayTime, BSONObject extraCondition, String existenceTime)
+            throws ScmException {
+        this(sourceSiteName, targetSiteName, maxStayTime, extraCondition, ScopeType.SCOPE_CURRENT);
+        this.existenceTime = existenceTime;
     }
 
     /**
@@ -96,7 +120,7 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
      */
     public ScmScheduleCopyFileContent(String sourceSiteName, String targetSiteName,
             String maxStayTime, BSONObject extraCondition, ScopeType scope, long maxExecTime)
-                    throws ScmException {
+            throws ScmException {
         this(sourceSiteName, targetSiteName, maxStayTime, extraCondition, scope);
         this.maxExecTime = maxExecTime;
     }
@@ -139,8 +163,7 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
      * Create a instance of ScmScheduleCopyFileContent.
      *
      * @param content
-     *            a bson containing information about
-     *            ScmScheduleCopyFileContent.
+     *            a bson containing information about ScmScheduleCopyFileContent.
      * @throws ScmException
      *             if error happens.
      */
@@ -184,7 +207,10 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
         if (null != temp) {
             setDataCheckLevel(ScmDataCheckLevel.getType((String) temp));
         }
-
+        temp = content.get(ScmAttributeName.Schedule.CONTENT_EXISTENCE_TIME);
+        if (null != temp) {
+            setExistenceTime((String) temp);
+        }
     }
 
     /**
@@ -261,6 +287,25 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
      */
     public void setMaxStayTime(String maxStayTime) {
         this.maxStayTime = maxStayTime;
+    }
+
+    /**
+     * Sets file existence time.
+     *
+     * @param existenceTime
+     *            file existence time.
+     */
+    public void setExistenceTime(String existenceTime) {
+        this.existenceTime = existenceTime;
+    }
+
+    /**
+     * Gets file existence time.
+     *
+     * @return file existence time.
+     */
+    public String getExistenceTime() {
+        return existenceTime;
     }
 
     /**
@@ -350,6 +395,9 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
         obj.put(ScmAttributeName.Schedule.CONTENT_MAX_EXEC_TIME, maxExecTime);
         obj.put(ScmAttributeName.Schedule.CONTENT_DATA_CHECK_LEVEL, dataCheckLevel.getName());
         obj.put(ScmAttributeName.Schedule.CONTENT_QUICK_START, quickStart);
+        if (null != existenceTime) {
+            obj.put(ScmAttributeName.Schedule.CONTENT_EXISTENCE_TIME, existenceTime);
+        }
         return obj;
     }
 

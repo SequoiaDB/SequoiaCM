@@ -38,7 +38,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
     }
 
     @Override
-    protected void doTask() throws ScmServerException {
+    protected DoTaskRes doTask() {
         String fileId = (String) fileInfo.get(FieldName.FIELD_CLFILE_ID);
         String dataId = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         int majorVersion = (int) fileInfo.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
@@ -60,8 +60,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     "skip, file data not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
                     fileDataSiteIdList);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
 
         if (fileDataSiteIdList.size() < 2) {
@@ -69,8 +68,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     "skip, file data only in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
                     fileDataSiteIdList);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
 
         int otherSiteId;
@@ -91,18 +89,16 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                 logger.warn(
                         "try lock local data failed, skip this file: workspace={}, fileId={},version={}.{}, dataId={}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, dataId);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             otherSiteFileContentLock = tryLockFileContent(otherSiteId, dataId);
             if (otherSiteFileContentLock == null) {
                 logger.warn(
                         "try lock remote data failed, skip this file: workspace={}, fileId={},version={}.{},dataId={}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, dataId);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
-            cleanFile(fileId, majorVersion, minorVersion, otherSiteId);
+            return cleanFile(fileId, majorVersion, minorVersion, otherSiteId);
         }
         catch (ScmServerException e) {
             // skip exception
@@ -110,8 +106,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     || e.getError() == ScmError.DATA_NOT_EXIST) {
                 logger.warn("skip, clean file failed: workspace={}, fileId={}, version={}.{}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, e);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
 
             // failed exception
@@ -119,12 +114,11 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     || e.getError() == ScmError.DATA_CORRUPTED) {
                 logger.warn("clean file failed: workspace={}, fileId={}, version={}.{}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, e);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.FAIL);
             }
 
             // abort exception
-            throw e;
+            return new DoTaskRes(e, ScmDoFileRes.ABORT);
         }
         finally {
             unlock(otherSiteFileContentLock);
@@ -133,7 +127,8 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
 
     }
 
-    private void cleanFile(String fileId, int majorVersion, int minorVersion, int dataInOtherSiteId)
+    private DoTaskRes cleanFile(String fileId, int majorVersion, int minorVersion,
+            int dataInOtherSiteId)
             throws ScmServerException {
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo();
         BSONObject file = ScmContentModule.getInstance().getMetaService().getFileInfo(
@@ -141,8 +136,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
         if (file == null) {
             logger.warn("skip, file is not exist: workspace={}, fileId={},version={}.{}",
                     wsInfo.getName(), fileId, majorVersion, minorVersion);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
 
         int localSiteId = ScmContentModule.getInstance().getLocalSite();
@@ -157,8 +151,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     "skip, file data is not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
                     fileDataSiteIdList);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
 
         if (otherFileLocation == null) {
@@ -167,8 +160,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     "skip, file data is not in locking remote site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}, lockingRemoteSite={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
                     fileDataSiteIdList, dataInOtherSiteId);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
         ScmWorkspaceInfo ws = getWorkspaceInfo();
         ScmDataInfo localDataInfo = ScmDataInfo.forOpenExistData(file,
@@ -200,13 +192,11 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                     throw new ScmServerException(scmError, "Failed to delete file", e);
                 }
             }
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SUCCESS);
         }
         logger.error("file data is not exist in the remote locking site:siteId=" + dataInOtherSiteId
                 + ",fileId=" + fileId + ",workspace=" + ws.getName());
-        taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
-        return;
+        return new DoTaskRes(null, ScmDoFileRes.FAIL);
     }
 
     private boolean checkRemoteDataIsSame(String fileId, int dataInOtherSiteId, ScmWorkspaceInfo ws,

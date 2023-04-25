@@ -944,8 +944,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
     }
 
     @Override
-    public BSONObject listWsApplyTransition(String transitionName)
-            throws Exception {
+    public BSONObject listWsApplyTransition(String transitionName) throws Exception {
         BSONObject result = new BasicBSONObject();
         BSONObject globalLifeCycleConfig = getGlobalLifeCycleConfig();
         if (globalLifeCycleConfig == null) {
@@ -1043,7 +1042,8 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
     @Override
     public BSONObject startOnceTransition(String workspaceName, String options,
             String sourceStageTag, String destStageTag, String userDetail, String sessionId,
-            String preferredRegion, String preferredZone, int type) throws Exception {
+            String preferredRegion, String preferredZone, int type, boolean isAsyncCountFile)
+            throws Exception {
         SiteInfo sourceSiteInfo = getSiteByStageTag(workspaceName, sourceStageTag);
         if (sourceSiteInfo == null) {
             throw new ScheduleException(RestCommonDefine.ErrorCode.SITE_NOT_EXISTS,
@@ -1062,7 +1062,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
         if (server != null) {
             ScheduleClient contentServerClient = createContentServerClient(server);
             BSONObject res = contentServerClient.createMoveCopyTask(sessionId, userDetail,
-                    workspaceName, type, destSiteInfo.getName(), options);
+                    workspaceName, type, destSiteInfo.getName(), options, isAsyncCountFile);
             return res;
         }
         else {
@@ -1547,8 +1547,8 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
                     date);
 
             try {
-                ScheduleFullEntity moveFileScheduleFullInfo = scheduleService
-                        .createSchedule(user, moveFileSchedule);
+                ScheduleFullEntity moveFileScheduleFullInfo = scheduleService.createSchedule(user,
+                        moveFileSchedule);
                 scheduleIds.add(moveFileScheduleFullInfo.getId());
             }
             catch (Exception e) {
@@ -1570,11 +1570,11 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
             ScheduleUserEntity copyFileSchedule = LifeCycleCommonTools.createScheduleUserEntity(
                     ScheduleDefine.ScheduleType.COPY_FILE, transitionSchedule,
                     sourceSiteInfo.getName(), destSiteInfo.getName(),
-                    transitionSchedule.getPreferredRegion(),
-                    transitionSchedule.getPreferredZone(), date);
+                    transitionSchedule.getPreferredRegion(), transitionSchedule.getPreferredZone(),
+                    date);
             try {
-                ScheduleFullEntity copyFileScheduleFullInfo = scheduleService
-                        .createSchedule(user, copyFileSchedule);
+                ScheduleFullEntity copyFileScheduleFullInfo = scheduleService.createSchedule(user,
+                        copyFileSchedule);
                 scheduleIds.add(copyFileScheduleFullInfo.getId());
             }
             catch (Exception e) {
@@ -1593,12 +1593,12 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
             ScheduleUserEntity cleanFileSchedule = LifeCycleCommonTools.createScheduleUserEntity(
                     ScheduleDefine.ScheduleType.CLEAN_FILE, transitionSchedule,
                     sourceSiteInfo.getName(), destSiteInfo.getName(),
-                    transitionSchedule.getPreferredRegion(),
-                    transitionSchedule.getPreferredZone(), date);
+                    transitionSchedule.getPreferredRegion(), transitionSchedule.getPreferredZone(),
+                    date);
 
             try {
-                ScheduleFullEntity cleanFileScheduleFullInfo = scheduleService
-                        .createSchedule(user, cleanFileSchedule);
+                ScheduleFullEntity cleanFileScheduleFullInfo = scheduleService.createSchedule(user,
+                        cleanFileSchedule);
                 scheduleIds.add(cleanFileScheduleFullInfo.getId());
             }
             catch (Exception e) {
@@ -2234,8 +2234,7 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
     private LifeCycleConfigFullEntity createConfigFullEntity(String username,
             LifeCycleConfigUserEntity userInfo) {
         Date date = new Date();
-        return LifeCycleEntityTranslator.FullInfo.fromUserInfo(userInfo, username,
-                date.getTime());
+        return LifeCycleEntityTranslator.FullInfo.fromUserInfo(userInfo, username, date.getTime());
     }
 
     private ScmLock lockGlobal() throws ScmLockException {

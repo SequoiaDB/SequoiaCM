@@ -21,8 +21,6 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
-import com.sequoiacm.infrastructure.lock.ScmLock;
-import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.metasource.*;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
@@ -984,6 +982,26 @@ public class ScmMetaService {
         catch (Exception e) {
             throw new ScmSystemException("startTask failed:siteId=" + siteId + ",taskId=" + taskId
                     + ",startTime=" + startTime, e);
+        }
+    }
+
+    public void updateTaskFileCount(String taskId, long estimateCount, long actualCount)
+            throws ScmServerException {
+        try {
+            MetaTaskAccessor taskAccessor = metasource.getTaskAccessor();
+            taskAccessor.updateTaskFileCount(taskId, estimateCount, actualCount);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update task file count failed:siteId=" + siteId + ",taskId=" + taskId
+                            + ",estimateCount=" + estimateCount + ",actualCount=" + actualCount,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException(
+                    "update task file count failed:siteId=" + siteId + ",taskId=" + taskId
+                            + ",estimateCount=" + estimateCount + ",actualCount=" + actualCount,
+                    e);
         }
     }
 

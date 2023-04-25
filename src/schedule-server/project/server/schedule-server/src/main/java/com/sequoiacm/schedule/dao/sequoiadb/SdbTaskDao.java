@@ -101,4 +101,23 @@ public class SdbTaskDao implements TaskDao {
             datasource.releaseConnection(sdb);
         }
     }
+
+    @Override
+    public void update(BSONObject matcher, BSONObject modifier) throws Exception {
+        Sequoiadb sdb = null;
+        try {
+            BSONObject updator = new BasicBSONObject("$set", modifier);
+            sdb = datasource.getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            cl.update(matcher, updator, null);
+        }
+        catch (Exception e) {
+            logger.error("update task failed[cs={},cl={}]:matcher={}", csName, clName, matcher);
+            throw e;
+        }
+        finally {
+            datasource.releaseConnection(sdb);
+        }
+    }
 }

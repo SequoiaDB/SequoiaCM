@@ -1,13 +1,11 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.common.model.ScheduleException;
-import com.sequoiacm.schedule.common.model.ScheduleNewUserInfo;
 import com.sequoiacm.schedule.core.ScheduleServer;
 import com.sequoiacm.schedule.core.job.MoveFileJobInfo;
 import com.sequoiacm.schedule.core.job.ScheduleJobInfo;
@@ -70,6 +68,11 @@ public class QuartzMoveJob extends QuartzContentserverJob {
             array.add(ScheduleCommonTools.jointTriggerCondition(
                     ScheduleDefine.ScheduleType.MOVE_FILE, transitionTriggersObj,
                     cInfo.getSourceSiteId(), cInfo.getTargetSiteId(), d));
+        }
+
+        // -1 表示没有配置 existenceTime
+        if (cInfo.getExistenceDays() != -1) {
+            array.add(ScheduleCommonTools.joinCreateTimeCondition(d, cInfo.getExistenceDays()));
         }
 
         return new BasicBSONObject(ScmQueryDefine.SEQUOIADB_MATCHER_AND, array);

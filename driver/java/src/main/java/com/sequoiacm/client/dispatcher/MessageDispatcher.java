@@ -82,7 +82,6 @@ public interface MessageDispatcher extends Closeable {
     BsonReader getFileList(String workspaceName, int scope, BSONObject condition,
             BSONObject orderby, long skip, long limit, BSONObject selector) throws ScmException;
 
-
     BsonReader getSiteList(BSONObject condition, long skip, long limit) throws ScmException;
 
     long countSite(BSONObject condition) throws ScmException;
@@ -124,16 +123,16 @@ public interface MessageDispatcher extends Closeable {
             long limit) throws ScmException;
 
     ScmId MsgStartTransferTask(String workspaceName, BSONObject condition, int scope,
-            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart)
-            throws ScmException;
+            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart,
+            boolean isAsyncCountFile) throws ScmException;
 
     ScmId MsgStartCleanTask(String workspaceName, BSONObject condition, int scope, long maxExecTime,
-            String dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
-            throws ScmException;
+            String dataCheckLevel, boolean quickStart, boolean isRecycleSpace,
+            boolean isAsyncCountFile) throws ScmException;
 
     ScmId MsgStartMoveTask(String workspaceName, BSONObject condition, int scope, long maxExecTime,
-            String targetSite, String dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
-            throws ScmException;
+            String targetSite, String dataCheckLevel, boolean quickStart, boolean isRecycleSpace,
+            boolean isAsyncCountFile) throws ScmException;
 
     ScmId MsgStartSpaceRecyclingTask(String workspaceName, long maxExecTime, String recycleScope)
             throws ScmException;
@@ -214,8 +213,8 @@ public interface MessageDispatcher extends Closeable {
     String getPath(String workspaceName, String dirId) throws ScmException;
 
     BSONObject createSchedule(String workspace, ScheduleType type, String name, String desc,
-                              BSONObject content, String cron, boolean enable, String preferredRegion,
-                              String preferredZone) throws ScmException;
+            BSONObject content, String cron, boolean enable, String preferredRegion,
+            String preferredZone) throws ScmException;
 
     BsonReader getScheduleList(BSONObject condition, BSONObject orderby, long skip, long limit)
             throws ScmException;
@@ -371,8 +370,7 @@ public interface MessageDispatcher extends Closeable {
     BSONObject bucketGetFile(String bucketName, String fileName, int majorVersion, int minorVersion)
             throws ScmException;
 
-    BSONObject bucketGetFileNullVersion(String bucketName, String fileName)
-            throws ScmException;
+    BSONObject bucketGetFileNullVersion(String bucketName, String fileName) throws ScmException;
 
     BsonReader bucketListFile(String bucketName, ScopeType scope, BSONObject condition,
             BSONObject orderby, long skip, long limit) throws ScmException;
@@ -393,6 +391,7 @@ public interface MessageDispatcher extends Closeable {
             throws ScmException;
 
     void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException;
+
     String getDefaultRegion(String s3ServiceName) throws ScmException;
 
     BSONObject refreshAccesskey(String targetUser, String targetPassword, String accesskey,
@@ -408,17 +407,19 @@ public interface MessageDispatcher extends Closeable {
     void setBucketTag(String bucketName, Map<String, String> customTag) throws ScmException;
 
     void deleteBucketTag(String bucketName) throws ScmException;
+
     void setGlobalLifeCycleConfig(BSONObject lifeCycleConfigBSON) throws ScmException;
 
     void deleteGlobalLifeCycleConfig() throws ScmException;
 
     BSONObject getGlobalLifeCycleConfig() throws ScmException;
 
-    void addGlobalStageTag(String stageTagName,String stageTagDesc) throws ScmException;
+    void addGlobalStageTag(String stageTagName, String stageTagDesc) throws ScmException;
 
     void removeGlobalStageTag(String stageTagName) throws ScmException;
 
-    void updateGlobalTransition(String transitionName, BSONObject transitionBSON) throws ScmException;
+    void updateGlobalTransition(String transitionName, BSONObject transitionBSON)
+            throws ScmException;
 
     void addGlobalTransition(BSONObject transitionBSON) throws ScmException;
 
@@ -432,7 +433,7 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject listStageTag() throws ScmException;
 
-    void setSiteStageTag(String siteName,String stageTagName) throws ScmException;
+    void setSiteStageTag(String siteName, String stageTagName) throws ScmException;
 
     void alterSiteStageTag(String siteName, String stageTagName) throws ScmException;
 
@@ -452,18 +453,18 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject getWsTransition(String workspace, String transitionName) throws ScmException;
 
-    void updateWsTransitionStatus(String workspace, String transitionName, Boolean status) throws ScmException;
+    void updateWsTransitionStatus(String workspace, String transitionName, Boolean status)
+            throws ScmException;
 
     BSONObject listWsTransition(String workspace) throws ScmException;
 
     ScmId startOnceTransition(String workspaceName, BSONObject condition, int scope,
-                              long maxExecTime, String source, String dest, String dataCheckLevel, boolean quickStart,
-                              boolean isRecycleSpace, String type, String preferredRegion,
-                              String preferredZone) throws ScmException;
+            long maxExecTime, String source, String dest, String dataCheckLevel, boolean quickStart,
+            boolean isRecycleSpace, String type, String preferredRegion, String preferredZone,
+            boolean isAsyncCountFile) throws ScmException;
 
     BSONObject enableBucketQuota(String bucketName, long maxObjects, long maxSize, Long usedObjects,
-            Long usedSize)
-            throws ScmException;
+            Long usedSize) throws ScmException;
 
     BSONObject updateBucketQuota(String bucketName, long maxObjects, long maxSize)
             throws ScmException;
@@ -480,5 +481,6 @@ public interface MessageDispatcher extends Closeable {
 
     void refreshObjectDeltaStatistics(String bucketName) throws ScmException;
 
-    BSONObject updateBucketUsedQuota(String bucketName, Long usedObjects, Long usedSize) throws ScmException;
+    BSONObject updateBucketUsedQuota(String bucketName, Long usedObjects, Long usedSize)
+            throws ScmException;
 }

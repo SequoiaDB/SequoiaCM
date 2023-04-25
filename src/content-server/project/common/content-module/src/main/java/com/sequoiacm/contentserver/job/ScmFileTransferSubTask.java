@@ -28,7 +28,7 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
     }
 
     @Override
-    protected void doTask() throws ScmServerException {
+    protected DoTaskRes doTask() throws ScmServerException {
         String fileId = (String) fileInfo.get(FieldName.FIELD_CLFILE_ID);
         String dataId = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         int majorVersion = (int) fileInfo.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
@@ -43,8 +43,7 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
         if (fileContentLock == null) {
             logger.warn("try lock failed, skip this file:fileId={},version={}.{},dataId={}", fileId,
                     majorVersion, minorVersion, dataId);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
         BSONObject file;
         try {
@@ -54,21 +53,20 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
             if (file == null) {
                 logger.warn("file not exist, skip this file:fileId={},version={}.{},dataId={}",
                         fileId, majorVersion, minorVersion, dataId);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             FileTransferInterrupter interrupter = new TaskTransfileInterrupter(parent);
             FileTransferDao fileTrans = new FileTransferDao(getWorkspaceInfo(), remoteSiteId,
                     interrupter, getTask().getDataCheckLevel());
             FileTransferDao.FileTransferResult transferResult = fileTrans.doTransfer(file);
             if (transferResult == FileTransferDao.FileTransferResult.SUCCESS) {
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
+                return new DoTaskRes(null, ScmDoFileRes.SUCCESS);
             }
             else if (transferResult == FileTransferDao.FileTransferResult.DATA_INCORRECT) {
-                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
+                return new DoTaskRes(null, ScmDoFileRes.FAIL);
             }
             else {
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
         }
         catch (ScmServerException e) {
@@ -76,8 +74,7 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
             if (e.getError() == ScmError.DATA_TYPE_ERROR || e.getError() == ScmError.FILE_NOT_FOUND
                     || e.getError() == ScmError.DATA_NOT_EXIST) {
                 logger.warn("transfer file failed", e);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             // failed exception
             if (e.getError() == ScmError.DATA_UNAVAILABLE || e.getError() == ScmError.DATA_CORRUPTED
@@ -86,11 +83,10 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
                     || e.getError() == ScmError.DATA_IS_IN_USE
                     || e.getError() == ScmError.DATA_EXIST) {
                 logger.warn("transfer file failed", e);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.FAIL);
             }
             // abort exception
-            throw e;
+            return new DoTaskRes(e, ScmDoFileRes.ABORT);
         }
         finally {
             fileContentLock.unlock();

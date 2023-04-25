@@ -25,8 +25,8 @@ public class ScmTaskInfoContext {
     private static final int DATE_STEP = 20; // seconds
     private int preProgress = 0;
     private static final int PROGRESS_STEP = 10;
-    private long estimateCount = 0;
-    private long actualCount = 0;
+    private long estimateCount = -1;
+    private long actualCount = -1;
 
     private boolean aborted;
     private Throwable abortException;

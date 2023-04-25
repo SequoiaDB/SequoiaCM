@@ -23,6 +23,7 @@ public class ScmScheduleMoveFileContent implements ScmScheduleContent {
     private BSONObject extraCondition;
     private ScmType.ScopeType scope = ScmType.ScopeType.SCOPE_CURRENT;
     private long maxExecTime = 0;
+    private String existenceTime;
 
     /**
      * 
@@ -54,6 +55,29 @@ public class ScmScheduleMoveFileContent implements ScmScheduleContent {
             }
         }
         this.maxStayTime = maxStayTime;
+    }
+
+    /**
+     *
+     * @param sourceSiteName
+     *            source site name.
+     * @param targetSiteName
+     *            target site name.
+     * @param maxStayTime
+     *            file max stay time.
+     * @param extraCondition
+     *            file extra condition.
+     * @param scope
+     *            file scope.
+     * @param existenceTime
+     *            file existence time.
+     *
+     */
+    public ScmScheduleMoveFileContent(String sourceSiteName, String targetSiteName,
+            String maxStayTime, BSONObject extraCondition, ScmType.ScopeType scope,
+            String existenceTime) throws ScmException {
+        this(sourceSiteName, targetSiteName, maxStayTime, extraCondition, scope);
+        this.existenceTime = existenceTime;
     }
 
     /**
@@ -134,6 +158,10 @@ public class ScmScheduleMoveFileContent implements ScmScheduleContent {
         if (null != temp) {
             setDataCheckLevel(ScmDataCheckLevel.getType((String) temp));
         }
+        temp = content.get(ScmAttributeName.Schedule.CONTENT_EXISTENCE_TIME);
+        if (null != temp) {
+            setExistenceTime((String) temp);
+        }
     }
 
     /**
@@ -191,6 +219,25 @@ public class ScmScheduleMoveFileContent implements ScmScheduleContent {
      */
     public void setMaxStayTime(String maxStayTime) {
         this.maxStayTime = maxStayTime;
+    }
+
+    /**
+     * Get file existence time.
+     *
+     * @return file existence time.
+     */
+    public String getExistenceTime() {
+        return existenceTime;
+    }
+
+    /**
+     * Set file existence time.
+     *
+     * @param existenceTime
+     *            file existence time.
+     */
+    public void setExistenceTime(String existenceTime) {
+        this.existenceTime = existenceTime;
     }
 
     /**
@@ -319,6 +366,9 @@ public class ScmScheduleMoveFileContent implements ScmScheduleContent {
         obj.put(ScmAttributeName.Schedule.CONTENT_DATA_CHECK_LEVEL, dataCheckLevel.getName());
         obj.put(ScmAttributeName.Schedule.CONTENT_IS_RECYCLE_SPACE, isRecycleSpace);
         obj.put(ScmAttributeName.Schedule.CONTENT_QUICK_START, quickStart);
+        if (null != existenceTime) {
+            obj.put(ScmAttributeName.Schedule.CONTENT_EXISTENCE_TIME, existenceTime);
+        }
         return obj;
     }
 }

@@ -64,6 +64,15 @@ public class ScheduleJobInfo {
         return ScheduleCommonTools.checkAndParseTime("maxStayTime", maxStayTime);
     }
 
+    int parseExistenceTime(String existenceTime) throws ScheduleException {
+        int val = ScheduleCommonTools.checkAndParseTime("existenceTime", existenceTime);
+        if (val < 0) {
+            throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
+                    "existenceTime cannot be less than 0:existenceTime=" + existenceTime);
+        }
+        return val;
+    }
+
     void checkCondition(int scope, BSONObject condition) throws ScheduleException {
         if (scope == ScheduleDefine.ScopeType.CURRENT) {
             // no check for current scope

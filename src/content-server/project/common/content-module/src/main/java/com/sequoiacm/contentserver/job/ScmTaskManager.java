@@ -51,7 +51,8 @@ public class ScmTaskManager {
         }
     }
 
-    public ScmTaskBase createTask(BSONObject info) throws ScmServerException {
+    public ScmTaskBase createTask(BSONObject info, boolean isAsyncCountFile)
+            throws ScmServerException {
         checkState();
         ScmTaskBase task = null;
 
@@ -60,15 +61,15 @@ public class ScmTaskManager {
         int type = (int) info.get(FieldName.Task.FIELD_TYPE);
         switch (type) {
             case CommonDefine.TaskType.SCM_TASK_TRANSFER_FILE:
-                task = new ScmTaskTransferFile(this, info);
+                task = new ScmTaskTransferFile(this, info, isAsyncCountFile);
                 break;
 
             case CommonDefine.TaskType.SCM_TASK_CLEAN_FILE:
-                task = new ScmTaskCleanFile(this, info);
+                task = new ScmTaskCleanFile(this, info, isAsyncCountFile);
                 break;
 
             case CommonDefine.TaskType.SCM_TASK_MOVE_FILE:
-                task = new ScmTaskMoveFile(this, info);
+                task = new ScmTaskMoveFile(this, info, isAsyncCountFile);
                 break;
 
             case CommonDefine.TaskType.SCM_TASK_RECYCLE_SPACE:

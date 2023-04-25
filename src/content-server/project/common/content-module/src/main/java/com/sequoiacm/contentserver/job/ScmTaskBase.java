@@ -2,10 +2,8 @@ package com.sequoiacm.contentserver.job;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.common.ServiceDefine;
-import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.site.ScmContentModule;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -39,8 +37,14 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
     }
 
     public boolean checkAndStartTask() throws ScmServerException {
-        return ScmContentModule.getInstance().getMetaService().checkAndStartTask(getTaskId(), new Date(),
-                getEstimateCount(), getActualCount());
+        return ScmContentModule.getInstance().getMetaService().checkAndStartTask(getTaskId(),
+                new Date(), getEstimateCount(), getActualCount());
+    }
+
+    public void updateTaskFileCount(String taskId, long estimateCount, long actualCount)
+            throws ScmServerException {
+        ScmContentModule.getInstance().getMetaService().updateTaskFileCount(taskId, estimateCount,
+                actualCount);
     }
 
     public void updateTaskStopTimeAndAsyncRedo(String taskId, long successCount, long failedCount,
@@ -72,13 +76,8 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
 
     public final void start() throws ScmServerException {
         try {
-            if (mgr.getTaskCount() > PropertiesUtils.getServerConfig().getMaxConcurrentTask()) {
-                throw new ScmServerException(ScmError.EXCEED_MAX_CONCURRENT_TASK,
-                        "start job failed, exceed max concurrent task count:taskId=" + getTaskId()
-                                + ", maxCount="
-                                + PropertiesUtils.getServerConfig().getMaxConcurrentTask());
-            }
-            ScmJobManager.getInstance().executeLongTimeTask(this);
+            // 任务添加进等待队列，若队列满了，则添加失败
+            ScmJobManager.getInstance().executeScheduleTask(this);
             mgr.addTask(this);
         }
         catch (ScmServerException e) {

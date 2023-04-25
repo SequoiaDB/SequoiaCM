@@ -72,10 +72,12 @@ public abstract class QuartzContentserverJob extends QuartzScheduleJob {
 
         try {
             notifyTask(runTaskServer, task.getId());
+            logger.info("task has successfully started on server, taskId={}, server={}",
+                    task.getId(), runTaskServer);
         }
         catch (Exception e) {
-            logger.error("notify task failed, delete the task: task={}", task, e);
-            QuartzScheduleTools.deleteTask(task.getId());
+            logger.error("notify task failed, alter task running flag to abort: task={}", task, e);
+            QuartzScheduleTools.setTaskAbort(task.getId(), e.toString());
         }
     }
 
@@ -110,6 +112,6 @@ public abstract class QuartzContentserverJob extends QuartzScheduleJob {
                 server.getPort());
         ScheduleClientFactory clientFactory = ScheduleMgrWrapper.getInstance().getClientFactory();
         ScheduleClient client = clientFactory.getFeignClientByNodeUrl(targetUrl);
-        client.notifyTask(taskId, RestCommonDefine.RestParam.VALUE_NOTIFY_TYPE_START);
+        client.notifyTask(taskId, RestCommonDefine.RestParam.VALUE_NOTIFY_TYPE_START, true);
     }
 }

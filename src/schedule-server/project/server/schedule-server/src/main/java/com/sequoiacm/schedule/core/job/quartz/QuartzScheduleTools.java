@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleDefine;
@@ -10,6 +11,7 @@ import com.sequoiacm.schedule.core.job.CopyJobInfo;
 import com.sequoiacm.schedule.core.job.InternalScheduleInfo;
 import com.sequoiacm.schedule.entity.TaskEntity;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,12 +127,18 @@ class QuartzScheduleTools {
         }
     }
 
-    public static void deleteTask(String taskId) {
+    public static void setTaskAbort(String taskId, String msg) {
         try {
-            ScheduleServer.getInstance().deleteTask(taskId);
+            BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
+            BSONObject modifier = new BasicBSONObject();
+            modifier.put(FieldName.Task.FIELD_RUNNING_FLAG,
+                    CommonDefine.TaskRunningFlag.SCM_TASK_ABORT);
+            modifier.put(FieldName.Task.FIELD_DETAIL, msg);
+            ScheduleServer.getInstance().updateTask(matcher, modifier);
         }
         catch (Exception e) {
-            logger.warn("delete task failed:taskId=" + taskId, e);
+            logger.warn("Failed to update task running flag to abort:taskId={}, runningFlag={}, detail={}", taskId,
+                    CommonDefine.TaskRunningFlag.SCM_TASK_ABORT, msg, e);
         }
     }
 }

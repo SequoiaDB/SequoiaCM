@@ -16,9 +16,9 @@ public abstract class ScmTaskFileSpaceRecyclable extends ScmTaskFile {
     private ScmDataRemovingSpaceRecycler dataRemovingSpaceRecycler;
     private boolean isRecycleSpace;
 
-    public ScmTaskFileSpaceRecyclable(ScmTaskManager mgr, BSONObject info)
+    public ScmTaskFileSpaceRecyclable(ScmTaskManager mgr, BSONObject info, boolean isAsyncCountFile)
             throws ScmServerException {
-        super(mgr, info);
+        super(mgr, info, isAsyncCountFile);
         BSONObject option = BsonUtils.getBSON(info, FieldName.Task.FIELD_OPTION);
         if (option != null) {
             isRecycleSpace = BsonUtils.getBooleanOrElse(option,
@@ -28,8 +28,7 @@ public abstract class ScmTaskFileSpaceRecyclable extends ScmTaskFile {
             try {
                 ScmContentModule contentModule = ScmContentModule.getInstance();
                 this.dataRemovingSpaceRecycler = ScmDataOpFactoryAssit.getFactory()
-                        .createDataRemovingSpaceRecycler(
-                                getWorkspaceInfo().getName(),
+                        .createDataRemovingSpaceRecycler(getWorkspaceInfo().getName(),
                                 contentModule.getLocalSiteInfo().getName(),
                                 getWorkspaceInfo().getDataLocationAllVersions(),
                                 contentModule.getDataService());

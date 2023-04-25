@@ -30,9 +30,9 @@ public interface LifeCycleConfigService {
 
     TransitionFullEntity getGlobalTransitionByName(String transitionName) throws Exception;
 
-    TransitionScheduleEntity wsApplyTransition(String user, String workspace,
-            String transitionName, TransitionUserEntity info, String preferredRegion,
-            String preferredZone) throws Exception;
+    TransitionScheduleEntity wsApplyTransition(String user, String workspace, String transitionName,
+            TransitionUserEntity info, String preferredRegion, String preferredZone)
+            throws Exception;
 
     TransitionScheduleEntity wsUpdateTransition(String user, String workspace,
             String transitionName, TransitionUserEntity info, String preferredRegion,
@@ -56,7 +56,7 @@ public interface LifeCycleConfigService {
 
     BSONObject startOnceTransition(String workspaceName, String options, String sourceStageTag,
             String destStageTag, String userDetail, String sessionId, String preferredRegion,
-            String preferredZone, int type) throws Exception;
+            String preferredZone, int type, boolean isAsyncCountFile) throws Exception;
 
     void setSiteStageTag(String siteName, String stageTag) throws Exception;
 

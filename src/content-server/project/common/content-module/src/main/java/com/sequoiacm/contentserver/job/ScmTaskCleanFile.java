@@ -14,9 +14,11 @@ import org.slf4j.LoggerFactory;
 public class ScmTaskCleanFile extends ScmTaskFileSpaceRecyclable {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskCleanFile.class);
 
-    public ScmTaskCleanFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
-        super(mgr, info);
+    public ScmTaskCleanFile(ScmTaskManager mgr, BSONObject info, boolean isAsyncCountFile)
+            throws ScmServerException {
+        super(mgr, info, isAsyncCountFile);
     }
+
     @Override
     protected void doFile(BSONObject fileInfo) throws ScmServerException {
         super.doFile(fileInfo);

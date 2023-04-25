@@ -13,7 +13,6 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaCursor;
-import com.sequoiacm.metasource.MetaSource;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import com.sequoiacm.sequoiadb.dataopertion.SdbDataReaderImpl;
 import org.bson.BSONObject;
@@ -22,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-
 
 public abstract class ScmTaskFile extends ScmTaskBase {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskFile.class);
@@ -39,16 +37,20 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     private int scope = CommonDefine.Scope.SCOPE_CURRENT;
     private long maxExecTime = 0; // 0 means unlimited
 
-    private Date taskStartTime;
+    private long taskStartTime;
 
     private boolean isQuickStart;
     private String dataCheckLevel = CommonDefine.DataCheckLevel.WEEK;
 
+    private boolean isAsyncCountFile;
+
     // private int realTimeProgress = 0;
 
-    public ScmTaskFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
+    public ScmTaskFile(ScmTaskManager mgr, BSONObject info, boolean isAsyncCountFile)
+            throws ScmServerException {
         super(mgr);
         try {
+            this.isAsyncCountFile = isAsyncCountFile;
             taskInfo = info;
             taskId = (String) info.get(FieldName.Task.FIELD_ID);
             taskMatcher = (BSONObject) info.get(FieldName.Task.FIELD_CONTENT);
@@ -70,9 +72,13 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             localSiteId = contentModule.getLocalSite();
 
             actualMatcher = buildActualMatcher();
-            initTaskFileCount();
             maxExecTime = BsonUtils.getLongOrElse(info, FieldName.Task.FIELD_MAX_EXEC_TIME,
                     maxExecTime);
+            // isQuickStart 决定是否统计文件数量，!isQuickStart：统计
+            // isAsyncCountFile 决定是否同步统计文件数量。!isAsyncCountFile：同步
+            if (!isQuickStart && !isAsyncCountFile) {
+                countTaskFile();
+            }
         }
         catch (ScmServerException e) {
             throw e;
@@ -210,46 +216,38 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         }
     }
 
-
-    private void initTaskFileCount() throws ScmServerException {
+    private void countTaskFile() throws ScmServerException {
         long actualCount = 0;
         long estimateCount = 0;
-        if (isQuickStart) {
-            actualCount = -1;
-            estimateCount = -1;
+        ScmMetaService sms = ScmContentModule.getInstance().getMetaService();
+        try {
+            switch (scope) {
+                case CommonDefine.Scope.SCOPE_CURRENT:
+                    actualCount = sms.getCurrentFileCount(wsInfo, actualMatcher);
+                    estimateCount = sms.getCurrentFileCount(wsInfo, taskMatcher);
+                    break;
+                case CommonDefine.Scope.SCOPE_ALL:
+                    actualCount = sms.getAllFileCount(wsInfo.getMetaLocation(), wsInfo.getName(),
+                            actualMatcher);
+                    estimateCount = sms.getAllFileCount(wsInfo.getMetaLocation(), wsInfo.getName(),
+                            taskMatcher);
+                    break;
+                case CommonDefine.Scope.SCOPE_HISTORY:
+                    actualCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
+                            wsInfo.getName(), actualMatcher);
+                    estimateCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
+                            wsInfo.getName(), taskMatcher);
+                    break;
+                default:
+                    throw new ScmInvalidArgumentException("runtask failed,unknow scope type:taskId="
+                            + taskId + ",scope=" + scope);
+            }
         }
-        else {
-            ScmMetaService sms = ScmContentModule.getInstance().getMetaService();
-            try {
-                switch (scope) {
-                    case CommonDefine.Scope.SCOPE_CURRENT:
-                        actualCount = sms.getCurrentFileCount(wsInfo, actualMatcher);
-                        estimateCount = sms.getCurrentFileCount(wsInfo, taskMatcher);
-                        break;
-                    case CommonDefine.Scope.SCOPE_ALL:
-                        actualCount = sms.getAllFileCount(wsInfo.getMetaLocation(),
-                                wsInfo.getName(), actualMatcher);
-                        estimateCount = sms.getAllFileCount(wsInfo.getMetaLocation(),
-                                wsInfo.getName(), taskMatcher);
-                        break;
-                    case CommonDefine.Scope.SCOPE_HISTORY:
-                        actualCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
-                                wsInfo.getName(), actualMatcher);
-                        estimateCount = sms.getHistoryFileCount(wsInfo.getMetaLocation(),
-                                wsInfo.getName(), taskMatcher);
-                        break;
-                    default:
-                        throw new ScmInvalidArgumentException(
-                                "runtask failed,unknow scope type:taskId=" + taskId + ",scope="
-                                        + scope);
-                }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.INVALID_ARGUMENT) {
+                throw e;
             }
-            catch (ScmServerException e) {
-                if (e.getError() == ScmError.INVALID_ARGUMENT) {
-                    throw e;
-                }
-                logger.warn("count file failed:taskId={},wsName={}", taskId, wsInfo.getName(), e);
-            }
+            logger.warn("count file failed:taskId={},wsName={}", taskId, wsInfo.getName(), e);
         }
         taskInfoContext.setEstimateCount(estimateCount);
         taskInfoContext.setActualCount(actualCount);
@@ -263,6 +261,31 @@ public abstract class ScmTaskFile extends ScmTaskBase {
 
     @Override
     public final void _runTask() {
+        // for interrupt task if exceed maxExecTime
+        taskStartTime = getStartTime();
+        // 任务可能在等待队列等待了很久，等待的时间可能超过了任务最大执行时间，这里需要先判断是否已经超时
+        if (isTimeOut()) {
+            logger.warn("task timeout:taskId={},startTime={},now={},maxExecTime={}ms", getTaskId(),
+                    taskStartTime, new Date(), maxExecTime);
+            abortTaskAndAsyncRedo(getTaskId(), CommonDefine.TaskRunningFlag.SCM_TASK_TIMEOUT,
+                    "timeout", 0, 0, 0);
+            return;
+        }
+
+        try {
+            if (!isQuickStart && isAsyncCountFile) {
+                countTaskFile();
+                updateTaskFileCount(getTaskId(), taskInfoContext.getEstimateCount(),
+                        taskInfoContext.getActualCount());
+            }
+        }
+        catch (Exception e) {
+            logger.error("failed to init task file count,taskId={}", getTaskId(), e);
+            abortTaskAndAsyncRedo(getTaskId(), CommonDefine.TaskRunningFlag.SCM_TASK_ABORT,
+                    e.toString(), 0, 0, 0);
+            return;
+        }
+
         logger.info("running task:task=" + toString());
         // 1. get total count
         // totalCount = queryMatchingCount();
@@ -278,12 +301,10 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             logger.warn("do task failed:taskId=" + getTaskId(), e);
             abortTaskAndAsyncRedo(getTaskId(), CommonDefine.TaskRunningFlag.SCM_TASK_ABORT,
                     e.toString(), 0, 0, 0);
+            return;
         }
 
         try {
-            // for interrupt task if exceed maxExecTime
-            taskStartTime = new Date();
-
             cursor = getCursor(sms);
 
             // loop begin
@@ -300,12 +321,9 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                     taskCancel();
                     return;
                 }
-                if (maxExecTime > 0) {
-                    Date now = new Date();
-                    if (now.getTime() - taskStartTime.getTime() > maxExecTime) {
-                        taskTimeout();
-                        return;
-                    }
+                if (isTimeOut()) {
+                    taskTimeout();
+                    return;
                 }
             }
             // loop end
@@ -347,6 +365,19 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         finally {
             closeCursor(cursor);
         }
+    }
+
+    private long getStartTime() {
+        Number startTime = (Number) taskInfo.get(FieldName.Task.FIELD_START_TIME);
+        return startTime.longValue();
+    }
+
+    private boolean isTimeOut() {
+        if (maxExecTime > 0) {
+            Date now = new Date();
+            return now.getTime() - taskStartTime > maxExecTime;
+        }
+        return false;
     }
 
     private void taskFinished() throws Exception {
@@ -392,7 +423,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                             return false;
                         }
                         if (maxExecTime > 0
-                                && (new Date().getTime() - taskStartTime.getTime()) > maxExecTime) {
+                                && (new Date().getTime() - taskStartTime) > maxExecTime) {
                             waitResult.setTimeout(true);
                             return false;
                         }
@@ -436,7 +467,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         return taskInfoContext.getActualCount();
     }
 
-    public Date getTaskStartTime() {
+    public long getTaskStartTime() {
         return taskStartTime;
     }
 

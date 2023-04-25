@@ -47,10 +47,13 @@
         <el-row v-if="taskDetail.type === 'clean_file' || taskDetail.type === 'move_file'">
           <el-col :span="24"><span class="key" style="width:20%">回收空间：</span> <span class="value">{{taskDetail.content.is_recycle_space?'开启':'关闭'}}</span></el-col>
         </el-row>
+        <el-row v-if="taskDetail.type === 'clean_file' || taskDetail.type === 'move_file' || taskDetail.type === 'copy_file'">
+          <el-col :span="12"><span class="key">文件停留时间：</span> <span class="value">{{taskDetail.content.max_stay_time == null? 0 : taskDetail.content.max_stay_time.slice(0, taskDetail.content.max_stay_time.length-1)}}天</span></el-col>
+          <el-col :span="12" v-if="taskDetail.content.existence_time != null"><span class="key">文件存在时间：</span> <span class="value">{{taskDetail.content.existence_time == null? 0 : taskDetail.content.existence_time.slice(0, taskDetail.content.existence_time.length-1)}}天</span></el-col>
+        </el-row>
         <el-row>
-          <el-col  v-if="taskDetail.max_stay_time" :span="12"><span class="key">文件停留时间：</span> <span class="value">{{taskDetail.max_stay_time.slice(0, taskDetail.max_stay_time.length-1)}}天</span></el-col>
           <el-col :span="12">
-            <span class="key">最大执行时间：</span> 
+            <span class="key">最大执行时间：</span>
             <span class="value" v-if="taskDetail.content.max_exec_time % timeTypes[0].value === 0">{{taskDetail.content.max_exec_time/timeTypes[0].value}}{{timeTypes[0].label}}</span>
             <span class="value" v-else-if="taskDetail.content.max_exec_time % timeTypes[1].value === 0">{{taskDetail.content.max_exec_time/timeTypes[1].value}}{{timeTypes[1].label}}</span>
             <span class="value" v-else-if="taskDetail.content.max_exec_time % timeTypes[2].value === 0">{{taskDetail.content.max_exec_time/timeTypes[2].value}}{{timeTypes[2].label}}</span>

@@ -1,6 +1,5 @@
 package com.sequoiacm.schedule.core.job;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
@@ -12,7 +11,6 @@ import com.sequoiacm.schedule.core.meta.WorkspaceInfo;
 import com.sequoiacm.schedule.entity.SiteEntity;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
-import org.bson.types.BasicBSONList;
 
 public class MoveFileJobInfo extends ScheduleJobInfo {
 
@@ -33,6 +31,7 @@ public class MoveFileJobInfo extends ScheduleJobInfo {
     private String dataCheckLevel;
 
     private BSONObject transitionTriggers;
+    private int existenceDays = -1;
 
     public MoveFileJobInfo(String id, String type, String workspace, BSONObject content,
             String cron, String preferredRegion, String preferredZone) throws ScheduleException {
@@ -105,13 +104,22 @@ public class MoveFileJobInfo extends ScheduleJobInfo {
 
         transitionTriggers = ScheduleCommonTools.getBSONObjectValue(content,
                 FieldName.LifeCycleConfig.FIELD_TRANSITION_TRANSITION_TRIGGERS);
-        if (null == transitionTriggers){
+        if (null == transitionTriggers) {
             transitionTriggers = new BasicBSONObject();
+        }
+
+        if (content.containsField(FieldName.Schedule.FIELD_EXISTENCE_TIME)) {
+            String existenceTime = (String) content.get(FieldName.Schedule.FIELD_EXISTENCE_TIME);
+            existenceDays = parseExistenceTime(existenceTime);
         }
     }
 
     public int getDays() {
         return days;
+    }
+
+    public int getExistenceDays() {
+        return existenceDays;
     }
 
     public BSONObject getExtraCondition() {

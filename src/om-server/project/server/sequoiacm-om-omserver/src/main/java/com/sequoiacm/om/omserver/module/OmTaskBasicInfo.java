@@ -42,6 +42,9 @@ public class OmTaskBasicInfo {
     @JsonProperty("extra_info")
     private BSONObject extraInfo;
 
+    @JsonProperty("detail")
+    private String detail;
+
     public OmTaskBasicInfo() {
     }
 
@@ -139,5 +142,13 @@ public class OmTaskBasicInfo {
 
     public void setExtraInfo(BSONObject extraInfo) {
         this.extraInfo = extraInfo;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 }

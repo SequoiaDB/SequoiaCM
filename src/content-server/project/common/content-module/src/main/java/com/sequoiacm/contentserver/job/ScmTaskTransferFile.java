@@ -16,8 +16,9 @@ import com.sequoiacm.contentserver.site.ScmContentModule;
 public class ScmTaskTransferFile extends ScmTaskFile {
     private static final Logger logger = LoggerFactory.getLogger(ScmTaskTransferFile.class);
 
-    public ScmTaskTransferFile(ScmTaskManager mgr, BSONObject info) throws ScmServerException {
-        super(mgr, info);
+    public ScmTaskTransferFile(ScmTaskManager mgr, BSONObject info, boolean isAsyncCountFile)
+            throws ScmServerException {
+        super(mgr, info, isAsyncCountFile);
     }
 
     @Override

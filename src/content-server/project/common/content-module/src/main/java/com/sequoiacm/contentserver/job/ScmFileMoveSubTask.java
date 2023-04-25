@@ -37,7 +37,7 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
     }
 
     @Override
-    protected void doTask() throws ScmServerException {
+    protected DoTaskRes doTask() {
         String fileId = (String) fileInfo.get(FieldName.FIELD_CLFILE_ID);
         String dataId = (String) fileInfo.get(FieldName.FIELD_CLFILE_FILE_DATA_ID);
         int majorVersion = (int) fileInfo.get(FieldName.FIELD_CLFILE_MAJOR_VERSION);
@@ -54,8 +54,7 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                     "skip, file data not in local site: workspace={}, fileId={}, version={}.{}, fileDataSiteList={}",
                     getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion,
                     fileDataSiteList);
-            taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-            return;
+            return new DoTaskRes(null, ScmDoFileRes.SKIP);
         }
 
         ScmLock localFileContentLock = null;
@@ -66,16 +65,14 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                 logger.warn(
                         "try lock local data failed, skip this file: workspace={}, fileId={},version={}.{}, dataId={}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, dataId);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             targetSiteFileContentLock = tryLockFileContent(targetSiteId, dataId);
             if (targetSiteFileContentLock == null) {
                 logger.warn(
                         "try lock remote data failed, skip this file: workspace={}, fileId={},version={}.{},dataId={}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, dataId);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             BSONObject file = ScmContentModule.getInstance().getMetaService().getFileInfo(
                     getWorkspaceInfo().getMetaLocation(), getWorkspaceInfo().getName(), fileId,
@@ -83,8 +80,7 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
             if (file == null) {
                 logger.warn("skip, file is not exist: workspace={}, fileId={},version={}.{}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
 
             ScmWorkspaceInfo ws = getWorkspaceInfo();
@@ -96,14 +92,13 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                         localFileLocation.getWsVersion(),
                         localFileLocation.getTableName());
                 cleanFile(ws, fileId, majorVersion, minorVersion, dataInfo);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SUCCESS);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             else if (transferResult == FileTransferDao.FileTransferResult.DATA_INCORRECT) {
-                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
+                return new DoTaskRes(null, ScmDoFileRes.FAIL);
             }
             else {
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
 
         }
@@ -113,8 +108,7 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                     || e.getError() == ScmError.DATA_NOT_EXIST) {
                 logger.warn("skip, move file failed: workspace={}, fileId={}, version={}.{}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, e);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.SKIP);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
 
             // failed exception
@@ -125,12 +119,11 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                     || e.getError() == ScmError.DATA_IS_IN_USE) {
                 logger.warn("move file failed: workspace={}, fileId={}, version={}.{}",
                         getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, e);
-                taskInfoContext.subTaskFinish(ScmDoFileRes.FAIL);
-                return;
+                return new DoTaskRes(null, ScmDoFileRes.FAIL);
             }
 
             // abort exception
-            throw e;
+            return new DoTaskRes(e, ScmDoFileRes.ABORT);
         }
         finally {
             if (localFileContentLock != null) {

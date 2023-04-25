@@ -34,6 +34,7 @@ public class ScmTask {
     private BSONObject extraInfo;
     private ScmWorkspace workspace;
     private ScmSession session;
+    private String detail;
 
     public ScmTask(BSONObject info, ScmWorkspace workspace, ScmSession session)
             throws ScmException {
@@ -106,6 +107,11 @@ public class ScmTask {
         temp = info.get(FieldName.Task.FIELD_EXTRA_INFO);
         if (temp != null) {
             extraInfo = (BSONObject) temp;
+        }
+
+        temp = info.get(FieldName.Task.FIELD_DETAIL);
+        if (temp != null) {
+            detail = (String) temp;
         }
 
         if (session != null) {
@@ -377,6 +383,15 @@ public class ScmTask {
         return extraInfo;
     }
 
+    /**
+     * Return the detail of task.
+     *
+     * @return Task run detail info.
+     */
+    public String getDetail() {
+        return detail;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -399,6 +414,8 @@ public class ScmTask {
         sb.append(FieldName.Task.FIELD_FAIL_COUNT).append(":").append(failCount).append(",");
         sb.append(FieldName.Task.FIELD_MAX_EXEC_TIME).append(":").append(maxExecTime).append(",");
         sb.append(FieldName.Task.FIELD_EXTRA_INFO).append(":").append(extraInfo);
+
+        sb.append(FieldName.Task.FIELD_DETAIL).append(":").append(detail);
 
         return sb.toString();
     }

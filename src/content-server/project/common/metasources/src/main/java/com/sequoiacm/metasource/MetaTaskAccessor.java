@@ -23,6 +23,9 @@ public interface MetaTaskAccessor extends MetaAccessor {
     public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount, long actualCount)
             throws ScmMetasourceException;
 
+    public void updateTaskFileCount(String taskId, long estimateCount, long actualCount)
+            throws ScmMetasourceException;
+
     public void updateProgress(String taskId, int progress, long successCount, long failedCount)
             throws ScmMetasourceException;
 

@@ -1,6 +1,5 @@
 package com.sequoiacm.schedule.core.job;
 
-import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -30,6 +29,8 @@ public class CleanJobInfo extends ScheduleJobInfo {
 
     private BSONObject cleanTriggers;
 
+    private int existenceDays = -1;
+
     public CleanJobInfo(String id, String type, String workspace, BSONObject content, String cron,
             String preferredRegion, String preferredZone) throws ScheduleException {
         super(id, type, workspace, cron, preferredRegion, preferredZone);
@@ -54,6 +55,10 @@ public class CleanJobInfo extends ScheduleJobInfo {
 
     public int getDays() {
         return days;
+    }
+
+    public int getExistenceDays() {
+        return existenceDays;
     }
 
     public BSONObject getExtraCondtion() {
@@ -150,6 +155,11 @@ public class CleanJobInfo extends ScheduleJobInfo {
                 FieldName.LifeCycleConfig.FIELD_TRANSITION_CLEAN_TRIGGERS);
         if (null == cleanTriggers) {
             cleanTriggers = new BasicBSONObject();
+        }
+
+        if (content.containsField(FieldName.Schedule.FIELD_EXISTENCE_TIME)) {
+            String existenceTime = (String) content.get(FieldName.Schedule.FIELD_EXISTENCE_TIME);
+            existenceDays = parseExistenceTime(existenceTime);
         }
     }
 

@@ -493,6 +493,7 @@ public class ScmAttributeName {
          * File max stay time.
          */
         public static final String CONTENT_MAX_STAY_TIME = "max_stay_time";
+        public static final String CONTENT_EXISTENCE_TIME = "existence_time";
         // bson
         /**
          * Extra file condition.

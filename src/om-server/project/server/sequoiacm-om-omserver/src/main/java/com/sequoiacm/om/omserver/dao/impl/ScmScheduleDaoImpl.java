@@ -178,6 +178,7 @@ public class ScmScheduleDaoImpl implements ScmScheduleDao {
             omTask.setStopTime(scmTask.getStopTime());
             omTask.setContent(scmTask.getContent());
             omTask.setExtraInfo(scmTask.getExtraInfo());
+            omTask.setDetail(scmTask.getDetail());
             omTaskList.add(omTask);
         }
         return omTaskList;

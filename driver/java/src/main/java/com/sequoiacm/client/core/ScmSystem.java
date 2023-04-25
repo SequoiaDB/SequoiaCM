@@ -370,10 +370,14 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startTransferTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startTransferTask(ScmWorkspace ws, BSONObject condition)
                 throws ScmException {
-            return startTransferTask(ws, condition, ScopeType.SCOPE_CURRENT, null);
+            return _startTransferTask(ws, condition, ScopeType.SCOPE_CURRENT, 0, null,
+                    ScmDataCheckLevel.WEEK, false, false);
 
         }
 
@@ -390,10 +394,14 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startTransferTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startTransferTask(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope) throws ScmException {
-            return startTransferTask(ws, condition, scope, 0);
+            return _startTransferTask(ws, condition, scope, 0, null, ScmDataCheckLevel.WEEK, false,
+                    false);
         }
 
         /**
@@ -410,10 +418,14 @@ public class ScmSystem {
          * @return task id
          * @throws ScmException
          *             If error happens
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startTransferTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startTransferTask(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope, long maxExecTime) throws ScmException {
-            return startTransferTask(ws, condition, scope, maxExecTime, null);
+            return _startTransferTask(ws, condition, scope, maxExecTime, null,
+                    ScmDataCheckLevel.WEEK, false, false);
         }
 
         /**
@@ -431,10 +443,14 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startTransferTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startTransferTask(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope, String targetSite) throws ScmException {
-            return startTransferTask(ws, condition, scope, 0, targetSite);
+            return _startTransferTask(ws, condition, scope, 0, targetSite, ScmDataCheckLevel.WEEK,
+                    false, false);
         }
 
         /**
@@ -446,14 +462,37 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 3.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startTransferTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startTransferTask(ScmTransferTaskConfig config) throws ScmException {
             if (null == config) {
                 throw new ScmInvalidArgumentException("config is null");
             }
             return _startTransferTask(config.getWorkspace(), config.getCondition(),
                     config.getScope(), config.getMaxExecTime(), config.getTargetSite(),
-                    config.getDataCheckLevel(), config.isQuickStart());
+                    config.getDataCheckLevel(), config.isQuickStart(), false);
+        }
+
+        /**
+         * Start transfer file task use ScmTransferTaskConfig. Async count the number of
+         * files, when quick start is not enabled and the version of the server is v3.6
+         *
+         * @param config
+         *            transfer task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.6
+         */
+        public static ScmId startTransferTaskV2(ScmTransferTaskConfig config) throws ScmException {
+            if (null == config) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startTransferTask(config.getWorkspace(), config.getCondition(),
+                    config.getScope(), config.getMaxExecTime(), config.getTargetSite(),
+                    config.getDataCheckLevel(), config.isQuickStart(), true);
         }
 
         /**
@@ -472,17 +511,21 @@ public class ScmSystem {
          * @return task id
          * @throws ScmException
          *             If error happens
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startTransferTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startTransferTask(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope, long maxExecTime, String targetSite) throws ScmException {
             return _startTransferTask(ws, condition, scope, maxExecTime, targetSite,
-                    ScmDataCheckLevel.WEEK, false);
+                    ScmDataCheckLevel.WEEK, false, false);
 
         }
 
         private static ScmId _startTransferTask(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope, long maxExecTime, String targetSite,
-                ScmDataCheckLevel dataCheckLevel, boolean quickStart) throws ScmException {
+                ScmDataCheckLevel dataCheckLevel, boolean quickStart, boolean isAsyncCountFile)
+                throws ScmException {
             if (null == ws) {
                 throw new ScmInvalidArgumentException("workspace is null");
             }
@@ -508,8 +551,8 @@ public class ScmSystem {
 
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartTransferTask(ws.getName(), condition,
-                    scope.getScope(), maxExecTime, targetSite, dataCheckLevel.getName(),
-                    quickStart);
+                    scope.getScope(), maxExecTime, targetSite, dataCheckLevel.getName(), quickStart,
+                    isAsyncCountFile);
 
         }
 
@@ -524,10 +567,14 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startCleanTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startCleanTask(ScmWorkspace ws, BSONObject condition)
                 throws ScmException {
-            return startCleanTask(ws, condition, ScopeType.SCOPE_CURRENT);
+            return _startCleanTask(ws, condition, ScopeType.SCOPE_CURRENT, 0,
+                    ScmDataCheckLevel.WEEK, false, false, false);
         }
 
         /**
@@ -543,10 +590,14 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startCleanTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startCleanTask(ScmWorkspace ws, BSONObject condition, ScopeType scope)
                 throws ScmException {
-            return startCleanTask(ws, condition, scope, 0);
+            return _startCleanTask(ws, condition, scope, 0, ScmDataCheckLevel.WEEK, false, false,
+                    false);
         }
 
         /**
@@ -563,16 +614,19 @@ public class ScmSystem {
          * @return task id
          * @throws ScmException
          *             If error happens
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startCleanTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startCleanTask(ScmWorkspace ws, BSONObject condition, ScopeType scope,
                 long maxExecTime) throws ScmException {
             return _startCleanTask(ws, condition, scope, maxExecTime, ScmDataCheckLevel.WEEK, false,
-                    false);
+                    false, false);
         }
 
         private static ScmId _startCleanTask(ScmWorkspace ws, BSONObject condition, ScopeType scope,
                 long maxExecTime, ScmDataCheckLevel dataCheckLevel, boolean quickStart,
-                boolean isRecycleSpace) throws ScmException {
+                boolean isRecycleSpace, boolean isAsyncCountFile) throws ScmException {
             if (null == ws) {
                 throw new ScmInvalidArgumentException("workspace is null");
             }
@@ -589,7 +643,8 @@ public class ScmSystem {
             }
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartCleanTask(ws.getName(), condition, scope.getScope(),
-                    maxExecTime, dataCheckLevel.getName(), quickStart, isRecycleSpace);
+                    maxExecTime, dataCheckLevel.getName(), quickStart, isRecycleSpace,
+                    isAsyncCountFile);
         }
 
         /**
@@ -601,14 +656,37 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 3.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startCleanTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startCleanTask(ScmCleanTaskConfig config) throws ScmException {
             if (config == null) {
                 throw new ScmInvalidArgumentException("config is null");
             }
             return _startCleanTask(config.getWorkspace(), config.getCondition(), config.getScope(),
                     config.getMaxExecTime(), config.getDataCheckLevel(), config.isQuickStart(),
-                    config.isRecycleSpace());
+                    config.isRecycleSpace(), false);
+        }
+
+        /**
+         * start file clean task use ScmCleanTaskConfig. Async count the number of
+         * files, when quick start is not enabled and the version of the server is v3.6
+         *
+         * @param config
+         *            clean task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.6
+         */
+        public static ScmId startCleanTaskV2(ScmCleanTaskConfig config) throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startCleanTask(config.getWorkspace(), config.getCondition(), config.getScope(),
+                    config.getMaxExecTime(), config.getDataCheckLevel(), config.isQuickStart(),
+                    config.isRecycleSpace(), true);
         }
 
         /**
@@ -620,19 +698,43 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 3.1
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startMoveTaskV2 interface.
          */
+        @Deprecated
         public static ScmId startMoveTask(ScmMoveTaskConfig config) throws ScmException {
             if (config == null) {
                 throw new ScmInvalidArgumentException("config is null");
             }
             return _startMoveTask(config.getWorkspace(), config.getCondition(), config.getScope(),
                     config.getMaxExecTime(), config.getTargetSite(), config.getDataCheckLevel(),
-                    config.isQuickStart(), config.isRecycleSpace());
+                    config.isQuickStart(), config.isRecycleSpace(), false);
+        }
+
+        /**
+         * start file move task use ScmMoveTaskConfig. Async count the number of files,
+         * when quick start is not enabled and the version of the server is v3.6
+         *
+         * @param config
+         *            clean task config
+         * @return task id
+         * @throws ScmException
+         *             If error happens
+         * @since 3.6
+         */
+        public static ScmId startMoveTaskV2(ScmMoveTaskConfig config) throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startMoveTask(config.getWorkspace(), config.getCondition(), config.getScope(),
+                    config.getMaxExecTime(), config.getTargetSite(), config.getDataCheckLevel(),
+                    config.isQuickStart(), config.isRecycleSpace(), true);
         }
 
         private static ScmId _startMoveTask(ScmWorkspace ws, BSONObject condition, ScopeType scope,
                 long maxExecTime, String targetSite, ScmDataCheckLevel dataCheckLevel,
-                boolean quickStart, boolean isRecycleSpace) throws ScmException {
+                boolean quickStart, boolean isRecycleSpace, boolean isAsyncCountFile)
+                throws ScmException {
             if (null == ws) {
                 throw new ScmInvalidArgumentException("workspace is null");
             }
@@ -660,7 +762,8 @@ public class ScmSystem {
             }
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartMoveTask(ws.getName(), condition, scope.getScope(),
-                    maxExecTime, targetSite, dataCheckLevel.getName(), quickStart, isRecycleSpace);
+                    maxExecTime, targetSite, dataCheckLevel.getName(), quickStart, isRecycleSpace,
+                    isAsyncCountFile);
         }
 
         /**
@@ -757,8 +860,8 @@ public class ScmSystem {
          * @return
          */
         public static long count(ScmSession ss, BSONObject condition) throws ScmException {
-            checkArgNotNull("session",ss);
-            checkArgNotNull("condition",condition);
+            checkArgNotNull("session", ss);
+            checkArgNotNull("condition", condition);
             return ss.getDispatcher().countTask(condition);
         }
     }
@@ -831,7 +934,8 @@ public class ScmSystem {
         /**
          * Create a schedule builder instance.
          * 
-         * @param ss session.
+         * @param ss
+         *            session.
          * @return schedule builder instance for create a schedule.
          * @throws ScmException
          *             if error happens.
@@ -905,7 +1009,8 @@ public class ScmSystem {
             return cursor;
         }
 
-        private static void checkSkipAndLimit(long skip, long limit) throws ScmInvalidArgumentException {
+        private static void checkSkipAndLimit(long skip, long limit)
+                throws ScmInvalidArgumentException {
             if (skip < 0) {
                 throw new ScmInvalidArgumentException(
                         "skip must be greater than or equals to 0:skip=" + skip);
@@ -960,18 +1065,19 @@ public class ScmSystem {
 
         /**
          * Acquires schedule count which matches the query condition.
+         * 
          * @param ss
-         *          session
+         *            session
          * @param condition
-         *          The condition of query schedule.
+         *            The condition of query schedule.
          * @return long
          * @throws ScmException
-         *          if error happens.
+         *             if error happens.
          * @since 3.1
          */
         public static long count(ScmSession ss, BSONObject condition) throws ScmException {
-            checkArgNotNull("session",ss);
-            checkArgNotNull("condition",condition);
+            checkArgNotNull("session", ss);
+            checkArgNotNull("condition", condition);
             return ss.getDispatcher().countSchedule(condition);
         }
     }
@@ -1160,7 +1266,7 @@ public class ScmSystem {
                 throws ScmException {
             checkArgNotNull("session", ss);
             checkArgNotNull("bucketName", bucketName);
-            ss.getDispatcher().refreshObjectDeltaStatistics( bucketName);
+            ss.getDispatcher().refreshObjectDeltaStatistics(bucketName);
         }
 
         /**
@@ -1554,6 +1660,9 @@ public class ScmSystem {
          * @return task ScmId.
          * @throws ScmException
          *             if error happens.
+         * @since v3.2
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startOnceTransitionV2 interface.
          */
         public static ScmId startOnceTransition(ScmOnceTransitionConfig config)
                 throws ScmException {
@@ -1564,13 +1673,39 @@ public class ScmSystem {
                     config.getScope(), config.getMaxExecTime(), config.getSourceStageTag(),
                     config.getDestStageTag(), config.getDataCheckLevel(), config.isQuickStart(),
                     config.isRecycleSpace(), config.getType(), config.getPreferredRegion(),
-                    config.getPreferredZone());
+                    config.getPreferredZone(), false);
+        }
+
+        /**
+         * start once transition use ScmOnceTransitionConfig.Async count the number of
+         * files, when quick start is not enabled and the version of the server is v3.6
+         *
+         * @param config
+         *            once transition config.
+         *
+         * @return task ScmId.
+         * @throws ScmException
+         *             if error happens.
+         * @since v3.6
+         * @deprecated Starting from v3.6, disuse this interface, please use
+         *             startOnceTransitionV2 interface.
+         */
+        public static ScmId startOnceTransitionV2(ScmOnceTransitionConfig config)
+                throws ScmException {
+            if (config == null) {
+                throw new ScmInvalidArgumentException("config is null");
+            }
+            return _startOnceTransition(config.getWorkspace(), config.getCondition(),
+                    config.getScope(), config.getMaxExecTime(), config.getSourceStageTag(),
+                    config.getDestStageTag(), config.getDataCheckLevel(), config.isQuickStart(),
+                    config.isRecycleSpace(), config.getType(), config.getPreferredRegion(),
+                    config.getPreferredZone(), true);
         }
 
         private static ScmId _startOnceTransition(ScmWorkspace ws, BSONObject condition,
                 ScopeType scope, long maxExecTime, String source, String dest,
                 ScmDataCheckLevel dataCheckLevel, boolean quickStart, boolean isRecycleSpace,
-                String type, String preferredRegion, String preferredZone)
+                String type, String preferredRegion, String preferredZone, boolean isAsyncCountFile)
                 throws ScmException {
             if (null == ws) {
                 throw new ScmInvalidArgumentException("workspace is null");
@@ -1619,7 +1754,8 @@ public class ScmSystem {
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().startOnceTransition(ws.getName(), condition,
                     scope.getScope(), maxExecTime, source, dest, dataCheckLevel.getName(),
-                    quickStart, isRecycleSpace, type, preferredRegion, preferredZone);
+                    quickStart, isRecycleSpace, type, preferredRegion, preferredZone,
+                    isAsyncCountFile);
         }
 
         /**
@@ -1640,8 +1776,7 @@ public class ScmSystem {
             checkArgNotNull("session", ss);
             checkArgNotNull("stageTagName", stageTagName);
 
-            BasicBSONList list = (BasicBSONList) ss.getDispatcher()
-                    .listTransition(stageTagName);
+            BasicBSONList list = (BasicBSONList) ss.getDispatcher().listTransition(stageTagName);
             List<ScmLifeCycleTransition> transitionList = new ArrayList<ScmLifeCycleTransition>();
             for (Object o : list) {
                 transitionList.add(ScmLifeCycleTransition.fromRecord((BSONObject) o));
@@ -1709,8 +1844,7 @@ public class ScmSystem {
          * @throws ScmException
          *             if error happens
          */
-        public static List<ScmLifeCycleStageTag> getStageTag(ScmSession ss)
-                throws ScmException {
+        public static List<ScmLifeCycleStageTag> getStageTag(ScmSession ss) throws ScmException {
             checkArgNotNull("session", ss);
             BasicBSONList list = (BasicBSONList) ss.getDispatcher().listStageTag();
             List<ScmLifeCycleStageTag> stageTagList = new ArrayList<ScmLifeCycleStageTag>();
@@ -1757,8 +1891,8 @@ public class ScmSystem {
          * @throws ScmException
          *             if error happens.
          */
-        public static ScmLifeCycleTransition getTransition(ScmSession ss,
-                String transitionName) throws ScmException {
+        public static ScmLifeCycleTransition getTransition(ScmSession ss, String transitionName)
+                throws ScmException {
             checkArgNotNull("session", ss);
             checkArgNotNull("transitionName", transitionName);
             BSONObject obj = ss.getDispatcher().getGlobalTransition(transitionName);
@@ -1868,8 +2002,7 @@ public class ScmSystem {
          * @throws ScmException
          *             if error happens.
          */
-        public static ScmLifeCycleConfig getLifeCycleConfig(ScmSession ss)
-                throws ScmException {
+        public static ScmLifeCycleConfig getLifeCycleConfig(ScmSession ss) throws ScmException {
             checkArgNotNull("session", ss);
             BSONObject obj = ss.getDispatcher().getGlobalLifeCycleConfig();
             return ScmLifeCycleConfig.fromRecord(obj);
@@ -1931,8 +2064,8 @@ public class ScmSystem {
          * @throws ScmException
          *             if error happens.
          */
-        public static void setLifeCycleConfig(ScmSession ss,
-                ScmLifeCycleConfig lifeCycleConfig) throws ScmException {
+        public static void setLifeCycleConfig(ScmSession ss, ScmLifeCycleConfig lifeCycleConfig)
+                throws ScmException {
             checkArgNotNull("session", ss);
             checkArgNotNull("life cycle config", lifeCycleConfig);
             checkLifeCycleConfigValid(lifeCycleConfig);
@@ -1955,8 +2088,7 @@ public class ScmSystem {
         }
 
         private static void checkTransitionConfigValid(
-                List<ScmLifeCycleTransition> transitionConfig)
-                throws ScmException {
+                List<ScmLifeCycleTransition> transitionConfig) throws ScmException {
             checkArgNotNull("transition configuration", transitionConfig);
             for (ScmLifeCycleTransition transition : transitionConfig) {
                 checkTransitionValid(transition);
@@ -1979,8 +2111,7 @@ public class ScmSystem {
                 throws ScmInvalidArgumentException {
             checkStringArgValid("dataCheckLevel", dataCheckLevel);
             checkStringArgValid("scope", scope);
-            ScmDataCheckLevel type = ScmDataCheckLevel
-                    .getType(dataCheckLevel.toLowerCase());
+            ScmDataCheckLevel type = ScmDataCheckLevel.getType(dataCheckLevel.toLowerCase());
             if (type == ScmDataCheckLevel.UNKNOWN) {
                 throw new ScmInvalidArgumentException(
                         "the dataCheckLevel only choose strict or week,dataCheckLevel="

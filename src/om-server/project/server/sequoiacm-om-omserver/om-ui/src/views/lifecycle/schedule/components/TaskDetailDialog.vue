@@ -54,6 +54,18 @@
             </el-input>
           </el-col>
         </el-row>
+        <el-row v-if="taskDetail.detail">
+          <el-col :span="5"><span class="key" style="width:96%">异常信息：</span></el-col>
+          <el-col :span="19">
+            <el-input
+              type="textarea"
+              :rows="2"
+              :autosize="{ minRows: 2, maxRows: 10}"
+              readonly
+              :value="$util.toPrettyJson(taskDetail.detail)">
+            </el-input>
+          </el-col>
+        </el-row>
       </div>
     </el-dialog>
   </div>

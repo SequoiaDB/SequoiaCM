@@ -257,7 +257,8 @@ public class RestDispatcher implements MessageDispatcher {
      */
     @Override
     public String login(String user, String password) throws ScmException {
-        // login 兼容性算法和 Sequoiacm-infrastructure-security-auth 包下的 SignClient.loginWithUsername 里的算法相同,
+        // login 兼容性算法和 Sequoiacm-infrastructure-security-auth 包下的
+        // SignClient.loginWithUsername 里的算法相同,
         // 此处兼容性变更时，需两处同时变更
         BSONObject saltAndDate;
         try {
@@ -975,12 +976,13 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public void deleteFileByPath(String workspaceName, String filePath, int majorVersion, int minorVersion,
-             boolean isPhysical) throws ScmException {
+    public void deleteFileByPath(String workspaceName, String filePath, int majorVersion,
+            int minorVersion, boolean isPhysical) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + FILE + "?workspace_name="
                 + encode(workspaceName) + "&" + CommonDefine.RestArg.FILE_IS_PHYSICAL + "="
-                + isPhysical + "&file_path=" + filePath + "&majorVersion=" + majorVersion + "&minorVersion=" + minorVersion
-                + "&action=" + CommonDefine.RestArg.ACTION_DELETE_FILE_BY_PATH;
+                + isPhysical + "&file_path=" + filePath + "&majorVersion=" + majorVersion
+                + "&minorVersion=" + minorVersion + "&action="
+                + CommonDefine.RestArg.ACTION_DELETE_FILE_BY_PATH;
         HttpDelete request = new HttpDelete(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
     }
@@ -1027,8 +1029,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public ScmId MsgStartTransferTask(String workspaceName, BSONObject condition, int scope,
-            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart)
-            throws ScmException {
+            long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart,
+            boolean isAsyncCountFile) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
                 + encode(workspaceName);
         HttpPost request = new HttpPost(uri);
@@ -1042,6 +1044,8 @@ public class RestDispatcher implements MessageDispatcher {
         options.put(CommonDefine.RestArg.TASK_DATA_CHECK_LEVEL, dataCheckLevel);
         options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
         params.add(new BasicNameValuePair("options", options.toString()));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE,
+                String.valueOf(isAsyncCountFile)));
         if (null != targetSite) {
             params.add(new BasicNameValuePair(CommonDefine.RestArg.CREATE_TASK_TARGET_SITE,
                     targetSite));
@@ -1055,8 +1059,8 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public ScmId MsgStartCleanTask(String workspaceName, BSONObject condition, int scope,
-            long maxExecTime, String dataCheckLevel, boolean quickStart, boolean isRecycleSpace)
-            throws ScmException {
+            long maxExecTime, String dataCheckLevel, boolean quickStart, boolean isRecycleSpace,
+            boolean isAsyncCountFile) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
                 + encode(workspaceName);
         HttpPost request = new HttpPost(uri);
@@ -1071,6 +1075,8 @@ public class RestDispatcher implements MessageDispatcher {
         options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
         options.put(CommonDefine.RestArg.TASK_IS_RECYCLE_SPACE, isRecycleSpace);
         params.add(new BasicNameValuePair("options", options.toString()));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE,
+                String.valueOf(isAsyncCountFile)));
 
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request, params);
@@ -1081,7 +1087,7 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public ScmId MsgStartMoveTask(String workspaceName, BSONObject condition, int scope,
             long maxExecTime, String targetSite, String dataCheckLevel, boolean quickStart,
-            boolean isRecycleSpace) throws ScmException {
+            boolean isRecycleSpace, boolean isAsyncCountFile) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + TASK + "?workspace_name="
                 + encode(workspaceName);
         HttpPost request = new HttpPost(uri);
@@ -1097,6 +1103,8 @@ public class RestDispatcher implements MessageDispatcher {
         options.put(CommonDefine.RestArg.TASK_QUICK_START, quickStart);
         options.put(CommonDefine.RestArg.TASK_IS_RECYCLE_SPACE, isRecycleSpace);
         params.add(new BasicNameValuePair("options", options.toString()));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE,
+                String.valueOf(isAsyncCountFile)));
         if (null != targetSite) {
             params.add(new BasicNameValuePair(CommonDefine.RestArg.CREATE_TASK_TARGET_SITE,
                     targetSite));
@@ -2904,8 +2912,8 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public ScmId startOnceTransition(String workspaceName, BSONObject condition, int scope,
             long maxExecTime, String source, String dest, String dataCheckLevel, boolean quickStart,
-            boolean isRecycleSpace, String type, String preferredRegion, String preferredZone)
-            throws ScmException {
+            boolean isRecycleSpace, String type, String preferredRegion, String preferredZone,
+            boolean isAsyncCountFile) throws ScmException {
         String uri = URL_PREFIX + pureUrl + SCHEDULE_SERVER + API_VERSION + LIFE_CYCLE_CONFIG + TASK
                 + "onceTransition";
         HttpPost request = new HttpPost(uri);
@@ -2936,6 +2944,8 @@ public class RestDispatcher implements MessageDispatcher {
         params.add(new BasicNameValuePair("dest", dest));
         params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_REGION, preferredRegion));
         params.add(new BasicNameValuePair(RestDefine.RestKey.PREFERRED_ZONE, preferredZone));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.IS_ASYNC_COUNT_FILE,
+                String.valueOf(isAsyncCountFile)));
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request, params);
         BSONObject task = (BSONObject) resp.get("task");
@@ -2971,8 +2981,7 @@ public class RestDispatcher implements MessageDispatcher {
 
     @Override
     public BSONObject enableBucketQuota(String bucketName, long maxObjects, long maxSize,
-            Long usedObjects, Long usedSize)
-            throws ScmException {
+            Long usedObjects, Long usedSize) throws ScmException {
         String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
                 + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_ENABLE_QUOTA;
         List<NameValuePair> params = new ArrayList<NameValuePair>();

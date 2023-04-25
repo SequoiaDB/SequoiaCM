@@ -23,6 +23,7 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
     private ScmDataCheckLevel dataCheckLevel = ScmDataCheckLevel.WEEK;
     private boolean quickStart;
     private boolean isRecycleSpace;
+    private String existenceTime;
 
     /**
      * Create an instance of ScmScheduleCleanFileContent with specified args.
@@ -94,6 +95,28 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
     }
 
     /**
+     * Create an instance of ScmScheduleCleanFileContent with specified args.
+     *
+     * @param siteName
+     *            site name.
+     * @param maxStayTime
+     *            file max stay time.
+     * @param extraCondition
+     *            extra file condition.
+     * @param scope
+     *            file scope.
+     * @param existenceTime
+     *            file existence time.
+     * @throws ScmException
+     *             if error hapens.
+     */
+    public ScmScheduleCleanFileContent(String siteName, String maxStayTime,
+            BSONObject extraCondition, ScopeType scope, String existenceTime) throws ScmException {
+        this(siteName, maxStayTime, extraCondition, scope);
+        this.existenceTime = existenceTime;
+    }
+
+    /**
      *
      * @param siteName
      *            site name.
@@ -132,8 +155,7 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
      * Create a instance of ScmScheduleCleanFileContent.
      *
      * @param content
-     *            a bson containing information about
-     *            ScmScheduleCleanFileContent.
+     *            a bson containing information about ScmScheduleCleanFileContent.
      * @throws ScmException
      *             if error happens.
      */
@@ -175,6 +197,10 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
         temp = content.get(ScmAttributeName.Schedule.CONTENT_DATA_CHECK_LEVEL);
         if (null != temp) {
             setDataCheckLevel(ScmDataCheckLevel.getType((String) temp));
+        }
+        temp = content.get(ScmAttributeName.Schedule.CONTENT_EXISTENCE_TIME);
+        if (null != temp) {
+            setExistenceTime((String) temp);
         }
     }
 
@@ -233,6 +259,25 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
      */
     public void setMaxStayTime(String maxStayTime) {
         this.maxStayTime = maxStayTime;
+    }
+
+    /**
+     * Gets file existence time.
+     *
+     * @return time string.
+     */
+    public String getExistenceTime() {
+        return existenceTime;
+    }
+
+    /**
+     * Sets file max existence time.
+     *
+     * @param existenceTime
+     *            time string.
+     */
+    public void setExistenceTime(String existenceTime) {
+        this.existenceTime = existenceTime;
     }
 
     /**
@@ -341,6 +386,9 @@ public class ScmScheduleCleanFileContent implements ScmScheduleContent {
         obj.put(ScmAttributeName.Schedule.CONTENT_DATA_CHECK_LEVEL, dataCheckLevel.getName());
         obj.put(ScmAttributeName.Schedule.CONTENT_IS_RECYCLE_SPACE, isRecycleSpace);
         obj.put(ScmAttributeName.Schedule.CONTENT_QUICK_START, quickStart);
+        if (null != existenceTime) {
+            obj.put(ScmAttributeName.Schedule.CONTENT_EXISTENCE_TIME, existenceTime);
+        }
         return obj;
     }
 
