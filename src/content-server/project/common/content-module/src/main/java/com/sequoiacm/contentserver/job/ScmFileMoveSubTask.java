@@ -92,7 +92,7 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                         localFileLocation.getWsVersion(),
                         localFileLocation.getTableName());
                 cleanFile(ws, fileId, majorVersion, minorVersion, dataInfo);
-                return new DoTaskRes(null, ScmDoFileRes.SKIP);
+                return new DoTaskRes(null, ScmDoFileRes.SUCCESS);
             }
             else if (transferResult == FileTransferDao.FileTransferResult.DATA_INCORRECT) {
                 return new DoTaskRes(null, ScmDoFileRes.FAIL);
