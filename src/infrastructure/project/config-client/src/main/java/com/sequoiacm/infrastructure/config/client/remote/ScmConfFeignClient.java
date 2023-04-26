@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -28,8 +29,14 @@ public interface ScmConfFeignClient {
                     throws ScmConfigException;
 
     @PostMapping("/config/{conf_name}")
-    public BSONObject createConf(@PathVariable("conf_name") String confName,
+    public BSONObject createConfV1(@PathVariable("conf_name") String confName,
             @RequestParam(ScmRestArgDefine.CONFIG) BSONObject config,
+            @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
+            throws ScmConfigException;
+
+    @PostMapping(value = "/config/{conf_name}")
+    public BSONObject createConfV2(@PathVariable("conf_name") String confName,
+            @RequestBody BSONObject configBody,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
             throws ScmConfigException;
 

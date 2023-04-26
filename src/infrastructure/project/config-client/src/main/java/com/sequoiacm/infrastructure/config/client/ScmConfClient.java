@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -109,12 +110,37 @@ public class ScmConfClient {
 
     public Config createConf(String configName, Config config, boolean isAsyncNotify)
             throws ScmConfigException {
-        BSONObject resp = confFeignClientFactory.getClient().createConf(configName,
-                config.toBSONObject(), isAsyncNotify);
+        BSONObject resp = null;
+        try {
+            if (ScmConfigNameDefine.WORKSPACE.equals(configName)) {
+                // 只有创建工作区才走新版请求，减少其他创建请求因配置服务版本旧而重发旧版本的请求，减少消耗。
+                resp = confFeignClientFactory.getClient().createConfV2(configName,
+                        config.toBSONObject(), isAsyncNotify);
+            }
+            else {
+                resp = confFeignClientFactory.getClient().createConfV1(configName,
+                        config.toBSONObject(), isAsyncNotify);
+            }
+        }
+        catch (ScmConfigException e) {
+            if (isOldVersion(e.getError(), e.getMessage())) {
+                // 配置服务旧版本情况下，请求会失败，这时需要重新发一次旧版的请求
+                resp = confFeignClientFactory.getClient().createConfV1(configName,
+                        config.toBSONObject(), isAsyncNotify);
+            }
+            else {
+                throw e;
+            }
+        }
         if (resp == null) {
             return null;
         }
         return converterMgr.getMsgConverter(configName).convertToConfig(resp);
+    }
+
+    private boolean isOldVersion(ScmConfError error, String message) {
+        return error == ScmConfError.UNKNOWN_ERROR
+                && message.equals("Required BSONObject parameter 'config' is not present");
     }
 
     public List<Version> getConfVersion(String configName, VersionFilter filter)

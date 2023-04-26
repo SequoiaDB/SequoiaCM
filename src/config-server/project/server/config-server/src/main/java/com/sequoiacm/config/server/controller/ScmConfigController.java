@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,9 +38,11 @@ public class ScmConfigController {
 
     @PostMapping("/config/{conf_name}")
     public Config createConf(@PathVariable("conf_name") String confName,
-            @RequestParam(ScmRestArgDefine.CONFIG) BSONObject config,
+            @RequestParam(value = ScmRestArgDefine.CONFIG, required = false) BSONObject configParam,
+            @RequestBody(required = false) BSONObject configBody,
             @RequestParam(value = ScmRestArgDefine.IS_ASYNC_NOTIFY, defaultValue = "true") boolean isAsyncNotify)
             throws ScmConfigException {
+        BSONObject config = configBody == null ? configParam : configBody;
         return service.createConf(confName, config, isAsyncNotify);
     }
 
