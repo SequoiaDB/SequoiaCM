@@ -88,3 +88,19 @@
 
 >  **Note:**
 > * 迁移清理工具在使用时，需要在 workspace.list 配置文件中指定 wsName 和 create_month，可支持配置多组 wsName 和 create_month，其他参数需要在 scm_env.sh 配置文件中指定
+
+
+## 执行Zookeeper日志清理
+需要在每台 zk 节点所在机器执行本脚本，修改脚本如下变量定义：
+- 填写 zk 安装目录的 bin 目录：
+zkBinDir=/opt/sequoiacm/zookeeper-3.4.12/bin
+
+- 查看当前安装目录 zk 节点的配置文件 conf/zoo.cfg 或者是 conf/zoo1（2、3）.cfg  ，观察配置项 dataDir，这个变量填写 dataDir 的值：
+zkDataDir=/opt/sequoiacm/zookeeper-3.4.12/data/1
+
+```shell
+./zkLogClean.sh
+```
+
+>  **Note:**
+> * 请在执行迁移清理工具前，在每台 zk 节点机器上执行该脚本，迁移清理工具执行结束后，停止该脚本
