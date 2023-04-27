@@ -13,6 +13,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructure.security.common.AuthCommonTools;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -202,7 +203,8 @@ public class CustomForwarderImpl implements CustomForwarder {
 
         // add user details.
         Object userdetails = clientReq.getAttribute(RestField.USER_ATTRIBUTE);
-        if (userdetails != null) {
+        if (userdetails != null && !AuthCommonTools.isBigUser((String) userdetails,
+                clientReq.getCharacterEncoding())) {
             forwardReqBuilder.addHeader(RestField.USER_ATTRIBUTE, (String) userdetails);
         }
 

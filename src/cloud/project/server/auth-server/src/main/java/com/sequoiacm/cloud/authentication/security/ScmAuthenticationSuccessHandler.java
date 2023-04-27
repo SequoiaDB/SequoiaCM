@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.serial.gson.ScmUserGsonTypeAdapter;
 import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.security.common.AuthCommonTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,10 @@ public class ScmAuthenticationSuccessHandler implements AuthenticationSuccessHan
         }
         Object principal = authentication.getPrincipal();
         if (principal instanceof ScmUser) {
-            response.setHeader(RestField.USER_DETAILS, gson.toJson(principal));
+            String user = gson.toJson(principal);
+            if (!AuthCommonTools.isBigUser(user, response.getCharacterEncoding())) {
+                response.setHeader(RestField.USER_DETAILS, user);
+            }
         }
         audit.info(ScmAuditType.LOGIN, authentication, null, 0, "login, sessionId=" + request.getSession().getId());
         response.setStatus(this.httpStatusToReturn.value());
