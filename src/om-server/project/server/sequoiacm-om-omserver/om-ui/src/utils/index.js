@@ -274,19 +274,22 @@ export function showBatchOpMessage(opType, resList) {
     message.success({
       dangerouslyUseHTMLString: true,
       message: msg,
-      showClose: hasMessage
+      showClose: hasMessage,
+      duration: hasMessage ? 0 : 3000
     })
   } else if (successList.length == 0) {
     message.error({
       dangerouslyUseHTMLString: true,
       message: msg,
-      showClose: hasMessage
+      showClose: hasMessage,
+      duration: hasMessage ? 0 : 3000
     })
   } else {
     message.warning({
       dangerouslyUseHTMLString: true,
       message: msg,
-      showClose: hasMessage
+      showClose: hasMessage,
+      duration: hasMessage ? 0 : 3000
     })
   }
 }
