@@ -151,6 +151,10 @@ SequoiaCM 配置
 |scm.zookeeper.cleanQueueSize                |num|配置服务节点清理残留的zookeeper节点所使用的异步缓存队列的大小，默认值：10000                                |重启生效|
 |scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|重启生效|
 |scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|重启生效|
+|scm.quota.sync.maxTimeDiff         | num   | 额度同步时，允许各节点间的最大时间差，单位为毫秒，默认值为 30000 |在线生效|
+|scm.quota.sync.maxConcurrentCount        | num   | 进行额度同步的最大并发数，默认值为 30 |在线生效|
+|scm.quota.sync.retryInterval        | num   | 扫描额度统计表进行重试的周期，单位为秒，默认值为 300 |在线生效|
+|scm.quota.sync.expireTime       | num   | 内容服务等待更新统计进度的时间阈值，如果在该阈值内未更新，则视为更新失败，单位为秒，默认值为 300 |在线生效|
 
 ##服务跟踪##
 

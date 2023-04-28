@@ -166,6 +166,28 @@ ScmFileStatisticInfo data = s.upload().beginDate(begin).endDate(end).user("user1
 >  * 监控服务默认不进行用户级别的文件统计，需要手动配置后才能获得上述指标，具体介绍见[监控服务功能章节][admin_server]
 
 
+* 桶对象增量统计
+
+```lang-javascript
+// 手动刷新桶对象增量
+ScmSystem.Statistics.refreshObjectDelta(session, "mybucket");
+// 查询桶对象增量统计
+ScmCursor<ScmStatisticsObjectDelta> objectDeltaScmCursor = ScmSystem.Statistics
+        .listObjectDelta(session, ScmQueryBuilder.start()
+                .put(ScmAttributeName.ObjectDelta.BUCKET_NAME)
+                .is("mybucket")
+                .get());
+while (objectDeltaScmCursor.hasNext()) {
+    ScmStatisticsObjectDelta objectDelta = objectDeltaScmCursor.getNext();
+    System.out.println("listObjectDelta: bucketName=" + objectDelta.getBucketName()
+            + ", deltaCount=" + objectDelta.getCountDelta() 
+            + ", deltaSize="+ objectDelta.getSizeDelta() 
+            + ", recordTime=" + objectDelta.getRecordTime());
+}
+objectDeltaScmCursor.close();
+
+```
+
 
 [java_api]:api/java/html/index.html
 [monitoring_service]:Maintainance/Node_Config/cloud.md

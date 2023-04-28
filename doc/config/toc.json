@@ -164,6 +164,12 @@
                 "file": "lifecycle_operation",
                 "cn": "生命周期管理操作",
                 "en": "LifeCycle Manage Operation"
+            },
+            {
+                "id": 1681094850,
+                "file": "bucket_quota_operation",
+                "cn": "桶限额操作",
+                "en": "Bucket Quota Operation"
             }]
         },
         {
@@ -375,6 +381,12 @@
             "file": "config_manage",
             "cn": "配置管理",
             "en": "Config Manage"
+        },
+        {
+            "id": 1682318363,
+            "file": "quota_manage",
+            "cn": "限额管理",
+            "en": "Quota Manage"
         }]
     },
     {
@@ -1140,6 +1152,42 @@
                     "file": "show-default-region",
                     "cn": "show-default-region",
                     "en": "show-default-region"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "enable-quota",
+                    "cn": "enable-quota",
+                    "en": "Enable Quota"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "update-quota",
+                    "cn": "update-quota",
+                    "en": "Update Quota"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "disable-quota",
+                    "cn": "disable-quota",
+                    "en": "Disable Quota"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "sync-quota",
+                    "cn": "sync-quota",
+                    "en": "Sync Quota"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "cancel-sync-quota",
+                    "cn": "cancel-sync-quota",
+                    "en": "Cancel Sync Quota"
+                },
+                {
+                    "id": 1632234712,
+                    "file": "quota-status",
+                    "cn": "quota-status",
+                    "en": "Quota Status"
                 }]
             }, 
             {

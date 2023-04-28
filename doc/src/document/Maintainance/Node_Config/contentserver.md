@@ -84,6 +84,18 @@ SequoiaCM 配置
 |scm.jobManager.threadpool.queueSize    |num  |内容服务节点异步任务线程池的任务队列大小，默认值：5000|重启生效|
 | scm.cacheStrategy.auto.days                 | num     | auto 缓存策略下，触发缓存的最大天数，默认值为 3                                                                                |重启生效|
 | scm.cacheStrategy.auto.accessCount          | num     | auto 缓存策略下，在触发缓存的最大天数内，文件数据需达到的最小访问次数，默认值为 3                                                                            |重启生效|
+|scm.quota.lowWater.rate| num     | 配置桶限额的低水位比例，当桶内已用额度和总额度的比例小于或等于该值时，限额控制将采用低水位策略<br>该参数取值范围为 [0,100]，默认值为 95，表示"已用容量/总容量"或"已上传对象数/总对象数"的比例小于或等于 95% 时，采用低水位策略 |在线生效|
+|scm.quota.lowWater.minObjects| num     | 配置桶限额的低水位对象数，默认值为 500，表示当桶内可上传对象数大于或等于 500 时，限额控制将采用低水位策略    |在线生效|
+|scm.quota.lowWater.minSize| str     | 配置桶限额的低水位容量，默认值为 1g，表示当桶内可用容量大于或等于 1GB 时，限额控制将采用低水位策略<br>数字的后缀表示容量单位，支持单位 m（M）和 g（G）  |在线生效|
+|scm.quota.lowWater.policy| str     | 配置低水位的额度控制策略，默认值为 async，可选取值如下：<br>async：异步控制<br>sync：同步控制 |在线生效|
+|scm.quota.highWater.policy| str     | 配置高水位的额度控制策略，默认值为 sync，可选取值如下：<br>async：异步控制<br>sync：同步控制 |在线生效|
+|scm.quota.asyncStrategy.flushInterval| num     | 配置异步额度控制时更新数据表的频率，单位为毫秒，默认值为 10000 |在线生效|
+|scm.quota.asyncStrategy.maxCacheObjects| num     | 配置异步额度控制时更新数据表的对象数变化阈值，默认值为 500，表示当本地缓存中的对象数新增或减少 500 时，更新数据表 |在线生效|
+|scm.quota.asyncStrategy.maxCacheSize| str     | 配置异步额度控制时更新数据表的容量变化阈值，默认值为 1g，表示当本地缓存中的容量变化达到 1GB 时，更新数据表<br>数字的后缀表示容量单位，支持单位 m（M）和 g（G） |在线生效|
+|scm.quota.refreshSyncInfoInterval| num     | 配置读取额度统计表的周期，单位为毫秒，默认值为 10000 |在线生效|
+|scm.quota.maxStatisticsThreads| num     | 配置额度同步时执行统计的最大线程数，默认值为 30，表示当线程数超过 30 时，不再接受统计请求 |在线生效|
+
+
 
  > **Note:**
  >
