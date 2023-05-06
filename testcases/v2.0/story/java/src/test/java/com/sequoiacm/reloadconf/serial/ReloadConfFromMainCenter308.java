@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -14,20 +13,11 @@ import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.ServerScope;
 import com.sequoiacm.client.common.ScmType.SessionType;
-import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.NodeWrapper;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 
 /**
  * @Testcase: SCM-308:配置未变更，刷新配置（从主中心）
@@ -48,7 +38,8 @@ public class ReloadConfFromMainCenter308 extends TestScmBase {
         node = site.getNode();
     }
 
-    @Test(groups = { GroupTags.base })
+    // CI-1946
+    @Test(groups = { GroupTags.base }, enabled = false)
     private void testReloadBizConfFromMainCenter() throws Exception {
         ScmSession session = null;
         try {

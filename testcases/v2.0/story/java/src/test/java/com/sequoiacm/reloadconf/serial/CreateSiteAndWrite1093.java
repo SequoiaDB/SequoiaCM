@@ -61,7 +61,8 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
         ScmSiteUtils.deleteSite( session, newSiteName );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // CI-1946
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         Write w = new Write();
         ReloadConf r = new ReloadConf();

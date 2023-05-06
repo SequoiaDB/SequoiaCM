@@ -24,15 +24,19 @@ public class ScmSiteUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmSiteUtils.class );
 
     /**
+     * @deprecated CI-1946
      * @descreption 创建站点
      * @param session
      *            for reloadbizconf
      * @param siteName
      * @param gatewayurl
      * @param dstype
-     * @param dsurl e.g:ZB-7:11810
-     * @param user e.g:--dsuser sdbadmin
-     * @param passwd e.g:--dspsswd sequoiadb
+     * @param dsurl
+     *            e.g:ZB-7:11810
+     * @param user
+     *            e.g:--dsuser sdbadmin
+     * @param passwd
+     *            e.g:--dspsswd sequoiadb
      * @return
      * @throws Exception
      */
@@ -70,6 +74,7 @@ public class ScmSiteUtils extends TestScmBase {
     }
 
     /**
+     * @deprecated CI-1946
      * @descreption 删除站点
      * @param session
      * @param siteName

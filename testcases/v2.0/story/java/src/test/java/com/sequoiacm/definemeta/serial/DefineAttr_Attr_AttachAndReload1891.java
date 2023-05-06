@@ -3,29 +3,19 @@ package com.sequoiacm.definemeta.serial;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.testcommon.listener.GroupTags;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType.ServerScope;
-import com.sequoiacm.client.core.ScmAttribute;
-import com.sequoiacm.client.core.ScmClass;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.metadata.ScmAttributeConf;
 import com.sequoiacm.client.element.metadata.ScmIntegerRule;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.AttributeType;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
-import com.sequoiacm.testcommon.TestThreadBase;
-import com.sequoiacm.testcommon.WsWrapper;
+import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiadb.exception.BaseException;
 
 /**
@@ -62,7 +52,8 @@ public class DefineAttr_Attr_AttachAndReload1891 extends TestScmBase {
         }
     }
 
-    @Test(groups = { GroupTags.base })
+    //CI-1946
+    @Test(groups = { GroupTags.base },enabled = false)
     private void test() throws Exception {
         Attach aThread = new Attach();
         Reload rThread = new Reload();

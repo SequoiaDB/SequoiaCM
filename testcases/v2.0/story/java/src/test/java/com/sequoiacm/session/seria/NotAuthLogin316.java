@@ -40,7 +40,8 @@ public class NotAuthLogin316 extends TestScmBase {
         wsp = ScmInfo.getWs();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    //CI-1946
+    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void test() {
         ScmSession session = null;
         try {

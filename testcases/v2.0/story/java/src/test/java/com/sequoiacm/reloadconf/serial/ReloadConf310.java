@@ -34,7 +34,8 @@ public class ReloadConf310 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    //CI-1946
+    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void reloadWithNullSession() throws Exception {
         ScmSession session = null;
         try {
@@ -52,7 +53,8 @@ public class ReloadConf310 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    //CI-1946
+    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void reloadWithNullScopeType() throws Exception {
         ScmSession session = null;
         try {
@@ -71,7 +73,8 @@ public class ReloadConf310 extends TestScmBase {
         }
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    //CI-1946
+    @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void reloadWithNotExistSiteId() throws Exception {
         ScmSession session = null;
         try {
