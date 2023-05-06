@@ -46,13 +46,19 @@
 
 ##修改工作区配置##
 
-用户在操作栏点击 **查看** 按钮后，将跳转至工作区详情界面。SequoiaCM 管理员用户可在此页面调整工作区的文件[缓存策略][strategy]和数据流配置。
+用户在操作栏点击 **查看** 按钮后，将跳转至工作区详情界面。SequoiaCM 管理员用户可在此页面调整工作区的文件[缓存策略][strategy]、标签检索开关和数据流配置。
 
 ###缓存策略###
 
 用户在缓存策略的下拉框中选择需要调整的策略，即可更新文件缓存策略。
 
 ![缓存策略][workspace_strategy]
+
+###标签检索###
+
+用户可开启或关闭工作区的标签检索功能，该功能关闭后，系统将无法通过标签检索该工作区下的文件。
+
+![标签检索][workspace_tag_retrieval]
 
 ###数据流配置###
 
@@ -119,6 +125,7 @@
 [admin_server]:Architecture/Microservice/admin_service.md
 [strategy]:Architecture/Business_Concept/workspace.md#文件缓存策略
 [workspace_strategy]:Om/Operation/workspace_strategy.png
+[workspace_tag_retrieval]:Om/Operation/workspace_tag_retrieval.png
 [workspace_transition_add]:Om/Operation/workspace_transition_add.png
 [workspace_transition_detail]:Om/Operation/workspace_transition_detail.png
 [workspace_transition_update]:Om/Operation/workspace_transition_update.png
