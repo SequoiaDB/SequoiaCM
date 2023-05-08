@@ -411,8 +411,12 @@ export default {
       let filter = {}
       if (this.searchParam) {
         if (this.currentFileSearchTypeStr === 'search_by_id') {
-          filter['id'] = {
-            $regex: this.$util.escapeStr(this.searchParam)
+          if (this.searchParam.length >= 24) {
+            filter['id'] = this.$util.escapeStr(this.searchParam)
+          } else {
+            filter['id'] = {
+              $regex: this.$util.escapeStr(this.searchParam)
+            }
           }
         }
         else if(this.currentFileSearchTypeStr === 'search_by_name') {
