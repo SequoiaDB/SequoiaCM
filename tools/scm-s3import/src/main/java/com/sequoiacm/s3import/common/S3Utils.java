@@ -88,7 +88,7 @@ public class S3Utils {
             boolean isVersionControl, String prefix, String keyMarker, int count,
             ListContext listContext) {
         List<S3ImportObject> objectList = new ArrayList<>();
-        while (count > 0 && keyMarker != CommonDefine.KeyMarker.END) {
+        while (count > 0 && !Objects.equals(keyMarker, CommonDefine.KeyMarker.END)) {
             List<S3ImportObject> tmpObjectList = internalListS3Object(s3Client, bucket,
                     isVersionControl, prefix, keyMarker, count, listContext);
             objectList.addAll(tmpObjectList);
@@ -177,10 +177,10 @@ public class S3Utils {
         return versionListing;
     }
 
-
     /**
-     * @param allSummary 版本列取结果，版本号为逆序（e.g. [key-v3、key-v2、key-v1]）
-     *                   构造多版本对象时需要逆向添加版本记录 -> key(v1、v2、v3)
+     * @param allSummary
+     *            版本列取结果，版本号为逆序（e.g. [key-v3、key-v2、key-v1]） 构造多版本对象时需要逆向添加版本记录 ->
+     *            key(v1、v2、v3)
      * @return 对象列表，对象内封装了多个版本记录
      */
     private static List<S3ImportObject> generateImportObject(List<S3VersionSummary> allSummary) {

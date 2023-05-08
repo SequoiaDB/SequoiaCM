@@ -17,6 +17,8 @@ public class S3ImportBatch {
     private Queue<CompareResult> errorSyncKeys = new ConcurrentLinkedQueue<>();
     private boolean hasAbortedTask;
 
+    private boolean isLastBatch;
+
     public S3ImportBatch(S3Bucket bucket) {
         this.bucket = bucket;
     }
@@ -73,6 +75,14 @@ public class S3ImportBatch {
 
     public void setHasAbortedTask(boolean hasAbortedTask) {
         this.hasAbortedTask = hasAbortedTask;
+    }
+
+    public boolean isLastBatch() {
+        return isLastBatch;
+    }
+
+    public void setLastBatch(boolean lastBatch) {
+        isLastBatch = lastBatch;
     }
 
     public void success() {

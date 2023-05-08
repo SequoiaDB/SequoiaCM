@@ -70,20 +70,27 @@ public class SyncCommand extends SubCommand {
                 S3ImportBatch batch;
                 while ((batch = batchFactory.getNextBatchByCmpResult(s3Bucket)) != null) {
                     batchRunner.runAndWaitBatchFinish(batch);
-                    batchRunner.increaseFailCount(batch.getErrorSyncKeys().size());
                     if (batch.hasAbortedTask()) {
                         throw new ScmToolsException("Exist abnormal sync task",
                                 S3ImportExitCode.SYSTEM_ERROR);
                     }
+                    errorSyncKeys.addAll(batch.getErrorSyncKeys());
+                    FileOperateUtils.appendCompareResult(s3Bucket, syncErrorPath, errorSyncKeys);
+
+                    // 最后一个批次执行完成，直接退出，不需要再做超时/失败数检测
+                    if (batch.isLastBatch()) {
+                        break;
+                    }
+
+                    // 校验执行时间、失败数
+                    batchRunner.increaseFailCount(batch.getErrorSyncKeys().size());
                     CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
                             batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
                     CommonUtils.checkFailCount(batchRunner.getFailureCount(),
                             ImportToolProps.getInstance().getMaxFailCount());
-                    errorSyncKeys.addAll(batch.getErrorSyncKeys());
                 }
                 s3Bucket.releaseResultFileResource();
                 s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.FINISH);
-                FileOperateUtils.appendCompareResult(s3Bucket, syncErrorPath, errorSyncKeys);
                 FileOperateUtils.moveFile(s3Bucket.getCompareResultFilePath(), syncFinishPath);
             }
 

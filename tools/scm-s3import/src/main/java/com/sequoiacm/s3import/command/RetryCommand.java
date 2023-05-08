@@ -91,14 +91,20 @@ public class RetryCommand extends SubCommand {
                         throw new ScmToolsException("Exist abnormal retry task",
                                 S3ImportExitCode.SYSTEM_ERROR);
                     }
-                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
                     tmpErrorKeys.addAll(batch.getErrorKeys());
                     // 持久化失败列表
                     Queue<String> totalErrorKeys = new LinkedList<>();
                     totalErrorKeys.addAll(s3Bucket.getErrorKeyList());
                     totalErrorKeys.addAll(tmpErrorKeys);
                     FileOperateUtils.overwriteErrorKeyList(s3Bucket, totalErrorKeys);
+
+                    // 最后一个批次执行完成，直接退出，不需要再做超时/失败数检测
+                    if (batch.isLastBatch()) {
+                        break;
+                    }
+
                     // 校验执行时间、失败数
+                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
                     CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
                             batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
                     CommonUtils.checkFailCount(batchRunner.getFailureCount(),

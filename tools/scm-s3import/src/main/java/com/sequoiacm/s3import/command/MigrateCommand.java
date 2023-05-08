@@ -136,11 +136,17 @@ public class MigrateCommand extends SubCommand {
                                 "Incomplete migration objects exist and cannot be cleaned up, execution interrupt",
                                 S3ImportExitCode.SYSTEM_ERROR);
                     }
-                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
                     // 持久化失败列表、更新迁移进度
                     FileOperateUtils.appendErrorKeyList(s3Bucket, batch.getErrorKeys());
                     FileOperateUtils.updateProgress(progressFilePath, bucketList);
+
+                    // 最后一个批次执行完成，直接退出，不需要再做超时/失败数检测
+                    if (batch.isLastBatch()) {
+                        break;
+                    }
+
                     // 校验执行时间，失败数
+                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
                     CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
                             batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
                     CommonUtils.checkFailCount(batchRunner.getFailureCount(),

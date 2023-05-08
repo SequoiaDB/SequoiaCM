@@ -218,10 +218,11 @@ public class CompareCommand extends SubCommand {
                                 lastSrcKey = srcObject.getKey();
                             }
                             else {
-                                Future<CompareResult> resultFuture = executor.submit(new CompareTask(
-                                        srcS3Client, destS3Client, srcObject, destObject, s3Bucket,
-                                        toolProps.isStrictComparisonMode(),
-                                        toolProps.getIgnoreMetadataMap()));
+                                Future<CompareResult> resultFuture = executor
+                                        .submit(new CompareTask(srcS3Client, destS3Client,
+                                                srcObject, destObject, s3Bucket,
+                                                toolProps.isStrictComparisonMode(),
+                                                toolProps.getIgnoreMetadataMap()));
                                 compareResultList.add(resultFuture);
                                 srcObjects.poll();
                                 destObjects.poll();
@@ -254,6 +255,13 @@ public class CompareCommand extends SubCommand {
                     progress.setSrcNextKeyMarker(lastSrcKey);
                     progress.setDestNextKeyMarker(lastDestKey);
                     FileOperateUtils.updateProgress(progressFilePath, bucketList);
+
+                    // 比对完桶内所有对象后，直接退出，不需要再做超时检测
+                    if (srcObjects.size() == 0 && destObjects.size() == 0
+                            && Objects.equals(srcKeyMarker, CommonDefine.KeyMarker.END)
+                            && Objects.equals(destKeyMarker, CommonDefine.KeyMarker.END)) {
+                        break;
+                    }
                     CommonUtils.checkMaxExecTime(startTime, runStartTime,
                             importOptions.getMaxExecTime());
                 }
@@ -479,8 +487,8 @@ class CompareTask implements Callable<CompareResult> {
             }
         }
         if (!isUserMetaMatch) {
-            return CheckResult.diff(
-                    "srcUserMeta=" + srcUserMetadata + ", destUserMeta=" + destUserMetadata);
+            return CheckResult
+                    .diff("srcUserMeta=" + srcUserMetadata + ", destUserMeta=" + destUserMetadata);
         }
 
         // check ObjectMeta

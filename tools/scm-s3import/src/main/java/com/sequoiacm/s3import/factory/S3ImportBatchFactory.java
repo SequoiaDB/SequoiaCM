@@ -18,6 +18,7 @@ import com.sequoiacm.s3import.task.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 
 public class S3ImportBatchFactory {
@@ -61,7 +62,13 @@ public class S3ImportBatchFactory {
                     : new MigrateTask(s3ImportObject, s3Bucket.getDestName()));
         }
 
-        return taskList.size() == 0 ? null : new S3ImportBatch(s3Bucket, taskList);
+        S3ImportBatch s3ImportBatch = null;
+        if (taskList.size() != 0) {
+            s3ImportBatch = new S3ImportBatch(s3Bucket, taskList);
+            s3ImportBatch.setLastBatch(
+                    Objects.equals(progress.getNextKeyMarker(), CommonDefine.KeyMarker.END));
+        }
+        return s3ImportBatch;
     }
 
     public S3ImportBatch getNextBatchByErrorKeyList(S3Bucket s3Bucket) {
@@ -78,6 +85,7 @@ public class S3ImportBatchFactory {
                     s3Bucket.isEnableVersionControl());
             batch.addTask(new OverWriteTask(s3ImportObject, s3Bucket.getDestName()));
         }
+        batch.setLastBatch(errorKeyList.size() == 0);
         return batch;
     }
 
@@ -85,8 +93,7 @@ public class S3ImportBatchFactory {
         ScmFileResource fileResource = s3Bucket.getResultFileResource();
         if (fileResource == null) {
             File compareResultFile = new File(s3Bucket.getCompareResultFilePath());
-            fileResource = ScmResourceFactory.getInstance()
-                    .createFileResource(compareResultFile);
+            fileResource = ScmResourceFactory.getInstance().createFileResource(compareResultFile);
             s3Bucket.setResultFileResource(fileResource);
         }
         S3ImportBatch batch = new S3ImportBatch(s3Bucket);
@@ -99,7 +106,11 @@ public class S3ImportBatchFactory {
             CompareResult compareResult = new CompareResult(recordStr);
             batch.addTask(generateSyncTask(s3Bucket, compareResult));
         }
-        return batch.getTaskList().size() != 0 ? batch : null;
+        if (batch.getTaskList().size() != 0) {
+            batch.setLastBatch(fileResource.isEof());
+            return batch;
+        }
+        return null;
     }
 
     private S3ImportTask generateSyncTask(S3Bucket s3Bucket, CompareResult compareResult)
