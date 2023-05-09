@@ -113,7 +113,7 @@ public class ConcurrentTasks3911 extends TestScmBase {
                 abortExist = true;
             }
         }
-        Assert.assertTrue( abortExist );
+        Assert.assertFalse( abortExist );
         runSuccess = true;
     }
 
