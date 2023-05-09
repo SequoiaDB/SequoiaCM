@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceInfo;
+import com.sequoiacm.fulltext.server.workspace.ScmWorkspaceMgr;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -43,6 +45,9 @@ public class FulltextIdxController {
     private ScmPrivClient privClient;
 
     @Autowired
+    private ScmWorkspaceMgr wsInfoMgr;
+
+    @Autowired
     private FulltextService service;
 
     @PostMapping(value = "fulltext", params = "action=create")
@@ -58,6 +63,11 @@ public class FulltextIdxController {
 
     private void checkPriv(String ws, String username, ScmPrivilegeDefine priv, String opDesc)
             throws FullTextException {
+        ScmWorkspaceInfo wsInfo = wsInfoMgr.getWorkspaceInfo(ws);
+        if (wsInfo == null) {
+            throw new FullTextException(ScmError.WORKSPACE_NOT_EXIST, "workspace not exist:" + ws);
+        }
+
         IResourceBuilder wsResBuilder = privClient
                 .getResourceBuilder(ScmWorkspaceResource.RESOURCE_TYPE);
         IResource wsResource = wsResBuilder.fromStringFormat(ws);

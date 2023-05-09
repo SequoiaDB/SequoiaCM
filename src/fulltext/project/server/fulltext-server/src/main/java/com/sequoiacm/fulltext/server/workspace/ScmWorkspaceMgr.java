@@ -60,11 +60,15 @@ public class ScmWorkspaceMgr {
 
     // 返回 null 表示工作区不存在
     public ScmWorkspaceFulltextExtData getWorkspaceExtData(String ws) {
-        ScmWorkspaceInfo wsInfo = wsInfos.get(ws);
+        ScmWorkspaceInfo wsInfo = getWorkspaceInfo(ws);
         if (wsInfo == null) {
             return null;
         }
         return wsInfo.getExternalData();
+    }
+
+    public ScmWorkspaceInfo getWorkspaceInfo(String ws) {
+        return wsInfos.get(ws);
     }
 
     private ScmWorkspaceInfo createWsInfo(WorkspaceConfig ws) {
