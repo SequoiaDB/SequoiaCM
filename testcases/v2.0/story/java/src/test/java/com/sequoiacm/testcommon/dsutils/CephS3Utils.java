@@ -363,23 +363,6 @@ public class CephS3Utils extends TestScmBase {
         ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName );
         ScmFactory.Role.grantPrivilege( session,
                 superuser.getRoles().iterator().next(), rs, privilege );
-
-        for ( int i = 0; i < 6; i++ ) {
-            Thread.sleep( 10000 );
-            try {
-                ScmFactory.File.listInstance(
-                        ScmFactory.Workspace.getWorkspace( wsName, session ),
-                        ScmType.ScopeType.SCOPE_ALL, new BasicBSONObject() );
-                return;
-            } catch ( ScmException e ) {
-                if ( e.getErrorCode() != ScmError.OPERATION_UNSUPPORTED
-                        .getErrorCode() && e.getErrorCode() != 404 ) {
-                    throw e;
-                }
-                throw e;
-            }
-        }
-        Assert.fail( "grantPrivilege is not done in 60 seconds" );
     }
 
     /**

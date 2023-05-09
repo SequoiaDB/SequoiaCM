@@ -252,7 +252,6 @@ public class AuthWs_Param_GetListPrivileges1791 extends TestScmBase {
                     ScmPrivilegeType.READ );
             grantPriAndAttachRole( sessionA, rs, user, role,
                     ScmPrivilegeType.CREATE );
-            Thread.sleep( 10000 );
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );

@@ -98,7 +98,6 @@ public class AuthServer_user_token1808 extends TestScmBase {
                     .createWorkspaceResource( wsp.getName() );
             ScmFactory.Role.grantPrivilege( session, role, resource,
                     ScmPrivilegeType.ALL );
-            Thread.sleep( 11 * 1000 );
 
             // operation business
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),

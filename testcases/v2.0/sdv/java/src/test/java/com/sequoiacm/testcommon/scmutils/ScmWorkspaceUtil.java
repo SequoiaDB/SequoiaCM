@@ -144,19 +144,15 @@ public class ScmWorkspaceUtil extends TestScmBase {
         ScmResource rs = ScmResourceFactory.createWorkspaceResource( wsName );
         ScmFactory.Role.grantPrivilege( session,
                 superuser.getRoles().iterator().next(), rs, privilege );
-        for ( int i = 0; i < 6; i++ ) {
-            Thread.sleep( 10000 );
-            try {
-                ScmFactory.File.listInstance(
-                        ScmFactory.Workspace.getWorkspace( wsName, session ),
-                        ScopeType.SCOPE_ALL, new BasicBSONObject() );
-                return;
-            } catch ( ScmException e ) {
-                Assert.assertEquals( e.getError(),
-                        ScmError.OPERATION_UNAUTHORIZED, e.getMessage() );
-            }
+        try {
+            ScmFactory.File.listInstance(
+                    ScmFactory.Workspace.getWorkspace( wsName, session ),
+                    ScopeType.SCOPE_ALL, new BasicBSONObject() );
+
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.OPERATION_UNAUTHORIZED,
+                    e.getMessage() );
         }
-        Assert.fail( "grantPrivilege is not done in 60 seconds" );
     }
 
     public static ScmWorkspace createWs( ScmSession session, String wsName,

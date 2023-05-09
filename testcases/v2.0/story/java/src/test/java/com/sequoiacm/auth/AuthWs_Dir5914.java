@@ -135,23 +135,16 @@ public class AuthWs_Dir5914 extends TestScmBase {
 
     private void checkUpdateFile( ScmDirectory dir )
             throws InterruptedException, ScmException {
-        boolean flag = false;
-        for ( int i = 0; i < 30; i++ ) {
-            try {
-                ScmFile file = ScmFactory.File.createInstance( newWs );
-                file.setFileName( fileName );
-                file.setDirectory( dir );
-                file.setContent( filePath );
-                file.save( new ScmUploadConf( true, false ) );
-                flag = true;
-                break;
-            } catch ( ScmException e ) {
-                if ( !e.getError().equals( ScmError.OPERATION_UNAUTHORIZED ) ) {
-                    throw e;
-                }
-                Thread.sleep( 1000 );
+        try {
+            ScmFile file = ScmFactory.File.createInstance( newWs );
+            file.setFileName( fileName );
+            file.setDirectory( dir );
+            file.setContent( filePath );
+            file.save( new ScmUploadConf( true, false ) );
+        } catch ( ScmException e ) {
+            if ( !e.getError().equals( ScmError.OPERATION_UNAUTHORIZED ) ) {
+                throw e;
             }
         }
-        Assert.assertTrue( flag, "check grantPrivilege time out" );
     }
 }

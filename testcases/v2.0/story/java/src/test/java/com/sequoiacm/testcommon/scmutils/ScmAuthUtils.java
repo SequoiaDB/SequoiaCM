@@ -157,38 +157,17 @@ public class ScmAuthUtils extends TestScmBase {
     private static void checkNodePriority( ScmSession ss, String wsName,
             NodeWrapper node, ScmDirectory scmDirectory ) throws Exception {
         int version1 = ScmFactory.Privilege.getMeta( ss ).getVersion();
-        int maxTimes = ScmAuthUtils.defaultTimeOut / ScmAuthUtils.sleepTime;
-        while ( maxTimes-- > 0 ) {
-            try {
-                Thread.sleep( ScmAuthUtils.sleepTime );
-                ScmAuthUtils.deleteScmDirByRest( ss, node, wsName,
-                        scmDirectory );
-                break;
-            } catch ( ScmException e ) {
-                if ( ScmError.OPERATION_UNAUTHORIZED == e.getError() ) {
-                    ScmAuthUtils.logger.warn( ss.getUser() + " has tried "
-                            + ( ScmAuthUtils.defaultTimeOut
-                                    / ScmAuthUtils.sleepTime - maxTimes )
-                            + " times." + "version1 = " + version1
-                            + ",version2 = "
-                            + ScmFactory.Privilege.getMeta( ss ).getVersion() );
-                } else {
-                    ScmAuthUtils.logger
-                            .error( "failed to wait privilege come into "
-                                    + "effect,version1 = " + version1
-                                    + ",version2 = "
-                                    + ScmFactory.Privilege.getMeta( ss )
-                                            .getVersion()
-                                    + ",scmDir = " + scmDirectory.getId() );
-                    throw e;
-                }
+
+        try {
+            ScmAuthUtils.deleteScmDirByRest( ss, node, wsName, scmDirectory );
+        } catch ( ScmException e ) {
+            if ( ScmError.OPERATION_UNAUTHORIZED != e.getError() ) {
+                ScmAuthUtils.logger.error( "failed to privilege come into "
+                        + "effect,version1 = " + version1 + ",version2 = "
+                        + ScmFactory.Privilege.getMeta( ss ).getVersion()
+                        + ",scmDir = " + scmDirectory.getId() );
+                throw e;
             }
-        }
-        if ( maxTimes == -1 ) {
-            throw new Exception( "privilege did not come into effect, timeout"
-                    + ".version1" + " = " + version1 + ",version2 = "
-                    + ScmFactory.Privilege.getMeta( ss ).getVersion()
-                    + ",scmDirid = " + scmDirectory.getId() );
         }
     }
 

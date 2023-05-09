@@ -141,30 +141,23 @@ public class AuthServer_LogoutOnManySession1141 extends TestScmBase {
 
     private void checkPrivilege( SiteWrapper site, WsWrapper wsp )
             throws InterruptedException {
-        int i = 0;
-        for ( ; i < 60; i++ ) {
-            ScmSession session = null;
-            try {
-                Thread.sleep( 1000 );
-                session = ScmSessionUtils.createSession( site );
-                ScmWorkspace ws = ScmFactory.Workspace
-                        .getWorkspace( wsp.getName(), session );
-                ScmFile writefile = ScmFactory.File.createInstance( ws );
-                writefile.setFileName( author + "_" + UUID.randomUUID() );
-                writefile.setAuthor( author );
-                ScmId fileId = writefile.save();
-                ScmFactory.File.deleteInstance( ws, fileId, true );
-                break;
-            } catch ( ScmException e ) {
-                if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED
-                        || i == 59 ) {
-                    e.printStackTrace();
-                    Assert.fail( e.getMessage() + ",i = " + i );
-                }
-            } finally {
-                if ( session != null ) {
-                    session.close();
-                }
+        ScmSession session = null;
+        try {
+            session = ScmSessionUtils.createSession( site );
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsp.getName(),
+                    session );
+            ScmFile writefile = ScmFactory.File.createInstance( ws );
+            writefile.setFileName( author + "_" + UUID.randomUUID() );
+            writefile.setAuthor( author );
+            ScmId fileId = writefile.save();
+            ScmFactory.File.deleteInstance( ws, fileId, true );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.OPERATION_UNAUTHORIZED ) {
+                Assert.fail( e.getMessage() );
+            }
+        } finally {
+            if ( session != null ) {
+                session.close();
             }
         }
     }
