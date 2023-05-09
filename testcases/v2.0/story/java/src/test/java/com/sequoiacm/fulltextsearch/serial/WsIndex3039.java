@@ -1,5 +1,6 @@
 package com.sequoiacm.fulltextsearch.serial;
 
+import com.sequoiacm.exception.ScmError;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -9,10 +10,9 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.ScmSessionUtils;
+import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
 /**
@@ -38,21 +38,13 @@ public class WsIndex3039 extends TestScmBase {
     @Test
     private void test() throws Exception {
         ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
-        int time = 0;
-        ScmException exception = null;
-        do {
-            try {
-                ScmFactory.Fulltext.inspectIndex( ws );
-                Assert.fail( "inspectIndex should be failed!" );
-            } catch ( ScmException e ) {
-                exception = e;
-            }
-            Thread.sleep( 1000 );
-            time++;
-            if ( time > 20 ) {
-                Assert.fail( "---time out" + exception.getMessage() );
-            }
-        } while ( exception.getError() == ScmError.WORKSPACE_NOT_EXIST );
+        try {
+            ScmFactory.Fulltext.inspectIndex( ws );
+            Assert.fail( "inspectIndex should be failed!" );
+        } catch ( ScmException e ) {
+            Assert.assertEquals( e.getError(), ScmError.WORKSPACE_NOT_EXIST,
+                    e.getMessage() );
+        }
 
     }
 
