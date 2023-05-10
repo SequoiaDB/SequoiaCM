@@ -3,6 +3,7 @@ package com.sequoiacm.auth;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmRole;
@@ -204,12 +205,12 @@ public class AuthS3SDK_AuthException6136 extends TestScmBase {
 
     private void S3sdkCreateBucketAndUploadFile( String bucketName, String key )
             throws Exception {
-        ScmFactory.S3.setDefaultRegion( session, wsName );
         ScmAccesskeyInfo accesskeyInfo = ScmFactory.S3
                 .refreshAccesskey( session, userName, passwd );
         s3Client = S3Utils.buildS3Client( accesskeyInfo.getAccesskey(),
                 accesskeyInfo.getSecretkey() );
-        Bucket bucket = s3Client.createBucket( bucketName );
+        Bucket bucket = s3Client
+                .createBucket( new CreateBucketRequest( bucketName, wsName ) );
         Assert.assertEquals( bucketName, bucket.getName() );
         s3Client.putObject( bucketName, key, new File( filePath ) );
         S3Object s3Object = s3Client.getObject( bucketName, key );

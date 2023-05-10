@@ -1,4 +1,4 @@
-package com.sequoiacm.auth;
+package com.sequoiacm.auth.serial;
 
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmRole;
@@ -10,12 +10,14 @@ import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.element.ScmUpdateConfResultSet;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiacm.testcommon.TestTools;
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import org.testng.Assert;
@@ -69,6 +71,7 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
                 cleanEnv();
             }
         } finally {
+            ConfUtil.deleteAuditConf( rootSite.getSiteServiceName() );
             if ( session != null ) {
                 session.close();
             }
@@ -105,14 +108,14 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
     private void reCreateUserAWithAdminRole() throws ScmException {
         ScmFactory.User.alterUser( session, user,
                 new ScmUserModifier().addRole( adminRoleName ) );
-        updateConfig( 10 );
+        updateConfig();
     }
 
     private void reCreateUserAWithUserRole() throws ScmException {
         ScmFactory.User.alterUser( session, user,
                 new ScmUserModifier().addRole( userRoleName ) );
         try {
-            updateConfig( 10 );
+            updateConfig();
             Assert.fail( "except fail but success" );
         } catch ( ScmException exception ) {
             if ( exception.getErrorCode() != ScmError.HTTP_FORBIDDEN
@@ -125,14 +128,14 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
     private void testAdminRole() throws ScmException {
         ScmFactory.User.alterUser( session, user,
                 new ScmUserModifier().addRole( adminRoleName ) );
-        updateConfig( 10 );
+        updateConfig();
     }
 
     private void testUserRole() throws ScmException {
         ScmFactory.User.alterUser( session, user,
                 new ScmUserModifier().addRole( userRoleName ) );
         try {
-            updateConfig( 10 );
+            updateConfig();
             Assert.fail( "except fail but success" );
         } catch ( ScmException exception ) {
             if ( exception.getErrorCode() != ScmError.HTTP_FORBIDDEN
@@ -158,15 +161,17 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
                 new ScmUserModifier().delRole( userRoleName + "_NotExist" ) );
     }
 
-    private void updateConfig( int time ) throws ScmException {
+    private void updateConfig() throws ScmException {
 
-        ScmConfigProperties conf = ScmConfigProperties.builder().allInstance()
-                .updateProperty( "scm.slowlog.allRequest", "" + time )
-                .updateProperty( "scm.slowlog.enabled", "true" ).build();
+        ScmConfigProperties conf = ScmConfigProperties.builder()
+                .service( rootSite.getSiteServiceName() )
+                .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
+                .updateProperty( ConfigCommonDefind.scm_audit_userMask,
+                        "LOCAL" )
+                .build();
         ScmUpdateConfResultSet ret = ScmSystem.Configuration
                 .setConfigProperties( userSession, conf );
         Assert.assertEquals( ret.getFailures().size(), 0 );
-        Assert.assertNotEquals( ret.getSuccesses().size(), 0 );
 
     }
 

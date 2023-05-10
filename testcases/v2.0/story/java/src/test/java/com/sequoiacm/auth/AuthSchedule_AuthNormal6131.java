@@ -271,14 +271,19 @@ public class AuthSchedule_AuthNormal6131 extends TestScmBase {
         TestTools.LocalFile.createDir( localPath.toString() );
         TestTools.LocalFile.createFile( filePath, fileSize );
 
-        List< ScmDataLocation > rootSiteLocations = ScmWorkspaceUtil
+        List< ScmDataLocation > siteLocations = ScmWorkspaceUtil
                 .getDataLocationList( rootSite.getSiteId() );
-        List< ScmDataLocation > branchSiteLocations = ScmWorkspaceUtil
-                .getDataLocationList( branchSite.getSiteId() );
-        rootSiteLocations.addAll( branchSiteLocations );
+        List< ScmDataLocation > locationList = ScmWorkspaceUtil
+                .getDataLocationList( ScmInfo.getAllSites().size() );
+        for ( ScmDataLocation dataLocation : locationList ) {
+            if ( branchSite.getSiteName()
+                    .equals( dataLocation.getSiteName() ) ) {
+                siteLocations.add( dataLocation );
+            }
+        }
         ScmWorkspaceConf conf = new ScmWorkspaceConf( wsName,
                 ScmWorkspaceUtil.getMetaLocation( ScmShardingType.YEAR ),
-                rootSiteLocations );
+                siteLocations );
         ws = ScmWorkspaceUtil.createWS( session, conf );
         resource = ScmResourceFactory.createWorkspaceResource( wsName );
         user = ScmAuthUtils.createUser( session, userName, passwd );

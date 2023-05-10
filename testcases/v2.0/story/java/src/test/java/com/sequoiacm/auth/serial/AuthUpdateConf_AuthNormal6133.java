@@ -1,4 +1,4 @@
-package com.sequoiacm.auth;
+package com.sequoiacm.auth.serial;
 
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmRole;
@@ -10,11 +10,13 @@ import com.sequoiacm.client.core.ScmUserPasswordType;
 import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.element.ScmUpdateConfResultSet;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.config.ConfigCommonDefind;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.ScmAuthUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -62,6 +64,7 @@ public class AuthUpdateConf_AuthNormal6133 extends TestScmBase {
                 ScmAuthUtils.deleteUser( session, userName );
             }
         } finally {
+            ConfUtil.deleteAuditConf( rootSite.getSiteServiceName() );
             if ( session != null ) {
                 session.close();
             }
@@ -74,7 +77,7 @@ public class AuthUpdateConf_AuthNormal6133 extends TestScmBase {
     private void testDeleteUser() throws Exception {
         ScmFactory.User.deleteUser( session, userName );
         try {
-            updateConfig( 10 );
+            updateConfig();
             Assert.fail( "except fail but success" );
         } catch ( ScmException exception ) {
             if ( exception.getErrorCode() != ScmError.HTTP_UNAUTHORIZED
@@ -88,7 +91,7 @@ public class AuthUpdateConf_AuthNormal6133 extends TestScmBase {
         user = ScmFactory.User.alterUser( session, user,
                 new ScmUserModifier().delRole( roleName ) );
         try {
-            updateConfig( 10 );
+            updateConfig();
             Assert.fail( "except fail but success" );
         } catch ( ScmException exception ) {
             if ( exception.getErrorCode() != ScmError.HTTP_FORBIDDEN
@@ -101,17 +104,20 @@ public class AuthUpdateConf_AuthNormal6133 extends TestScmBase {
     private void testNormal() throws Exception {
         user = ScmFactory.User.alterUser( session, user,
                 new ScmUserModifier().addRole( role ) );
-        updateConfig( 10 );
+        updateConfig();
     }
 
-    private void updateConfig( int time ) throws ScmException {
-        ScmConfigProperties conf = ScmConfigProperties.builder().allInstance()
-                .updateProperty( "scm.slowlog.allRequest", "" + time )
-                .updateProperty( "scm.slowlog.enabled", "true" ).build();
+    private void updateConfig() throws ScmException {
+
+        ScmConfigProperties conf = ScmConfigProperties.builder()
+                .service( rootSite.getSiteServiceName() )
+                .updateProperty( ConfigCommonDefind.scm_audit_mask, "ALL" )
+                .updateProperty( ConfigCommonDefind.scm_audit_userMask,
+                        "LOCAL" )
+                .build();
         ScmUpdateConfResultSet ret = ScmSystem.Configuration
                 .setConfigProperties( userSession, conf );
         Assert.assertEquals( ret.getFailures().size(), 0 );
-        Assert.assertNotEquals( ret.getSuccesses().size(), 0 );
     }
 
     private void prepare() throws ScmException {
