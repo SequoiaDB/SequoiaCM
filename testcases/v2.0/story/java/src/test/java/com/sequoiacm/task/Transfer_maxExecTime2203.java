@@ -86,38 +86,34 @@ public class Transfer_maxExecTime2203 extends TestScmBase {
     }
 
     @Test(groups = { "fourSite" })
-    private void test() {
-        try {
-            // set maxExecTime = 0;
-            fileNum = 1000;
-            prepareFiles( ws, fileNum );
-            long maxExecTime = 200L;
-            startTask( maxExecTime );
-            waitTaskStop( taskIdList.get( 0 ) );
-            ScmSystem.Task.stopTask( session, taskIdList.get( 0 ) );
-            checkTaskAttribute( taskIdList.get( 0 ), maxExecTime,
-                    CommonDefine.TaskRunningFlag.SCM_TASK_TIMEOUT );
+    private void test() throws Exception {
+        // set maxExecTime = 0;
+        fileNum = 200;
+        prepareFiles( ws, fileNum );
+        long maxExecTime = 200L;
+        startTask( maxExecTime );
+        waitTaskStop( taskIdList.get( 0 ) );
+        ScmSystem.Task.stopTask( session, taskIdList.get( 0 ) );
+        checkTaskAttribute( taskIdList.get( 0 ), maxExecTime,
+                CommonDefine.TaskRunningFlag.SCM_TASK_TIMEOUT );
 
-            // set maxExecTime < 0;
-            maxExecTime = 0L;
-            startTask( maxExecTime );
-            Thread.sleep( 200 );
-            ScmSystem.Task.stopTask( session, taskIdList.get( 1 ) );
-            waitTaskStop( taskIdList.get( 1 ) );
-            checkTaskAttribute( taskIdList.get( 1 ), maxExecTime,
-                    CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
+        // set maxExecTime < 0;
+        maxExecTime = 0L;
+        startTask( maxExecTime );
+        Thread.sleep( 200 );
+        ScmSystem.Task.stopTask( session, taskIdList.get( 1 ) );
+        waitTaskStop( taskIdList.get( 1 ) );
+        checkTaskAttribute( taskIdList.get( 1 ), maxExecTime,
+                CommonDefine.TaskRunningFlag.SCM_TASK_CANCEL );
 
-            // set maxExecTime > 0;
-            maxExecTime = 1000 * 60 * 60L;
-            startTask( maxExecTime );
-            waitTaskStop( taskIdList.get( 2 ) );
-            checkTaskAttribute( taskIdList.get( 2 ), maxExecTime,
-                    CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
-            checkTransContent( fileIdList );
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() );
-        }
+        // set maxExecTime > 0;
+        maxExecTime = 1000 * 60 * 60L;
+        startTask( maxExecTime );
+        waitTaskStop( taskIdList.get( 2 ) );
+        checkTaskAttribute( taskIdList.get( 2 ), maxExecTime,
+                CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
+        checkTransContent( fileIdList );
+
         runSuccess = true;
     }
 
