@@ -23,6 +23,10 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <java.version>1.7</java.version>
         <logback.version>1.2.9</logback.version>
+        <spring.version>4.3.29.RELEASE</spring.version>
+        <jackson.version>2.10.0</jackson.version>
+        <jolokia.version>1.5.0</jolokia.version>
+        <xstream.version>1.4.20</xstream.version>
 
         <!-- plugin version -->
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
@@ -54,6 +58,16 @@
         <module>../tools/scm-system-tools</module>
         <module>./monitor-daemon/project</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>${xstream.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
