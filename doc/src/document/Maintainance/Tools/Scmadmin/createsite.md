@@ -77,6 +77,8 @@ createsite 子命令提供创建站点的功能。
 >  * 其他Hbase相关配置参数可根据需求添加，如hbase.rpc.timeout、hbase.client.operation.timeout、hbase.client.scanner.timeout.period等
 >
 >  * 当Hbase服务异常时，默认的失败重试相关参数较大，容易scm服务长时间无响应，应适当减小hbase.client.retries.number 与 hbase.client.pause等相关参数
+> 
+>  * 为了能正常往 Hbase 数据源上传大文件，请在创建 Hbase 站点的节点时，确保 JVM 参数中设置的最大堆外内存大于 256M，如：-XX:MaxDirectMemorySize=2g（由于 MaxDirectMemorySize 参数不存在时会使用最大堆内存设置的值，也可以仅指定最大堆内存： -Xmx2g）
 
 ####示例####
 创建分站点，并命名为 site3，数据存储服务类型指定为Hbase
