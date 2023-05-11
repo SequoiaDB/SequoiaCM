@@ -14,8 +14,6 @@ public class InstallConfig extends BasicInstallConfig {
     private String installUserPassword;
     private String installUserGroup;
 
-    private boolean hasReset;
-
     public static final ConfCoverter<InstallConfig> CONVERTER = new ConfCoverter<InstallConfig>() {
         @Override
         public InstallConfig convert(BSONObject bson) {
@@ -45,20 +43,5 @@ public class InstallConfig extends BasicInstallConfig {
     public String toString() {
         return "InstallConfig [installPath=" + getInstallPath() + ", installUser="
                 + getInstallUser() + ", installUserGroup=" + this.installUserGroup + "]";
-    }
-
-    public void resetInstallUserGroup(String installUserGroup) throws Exception {
-        if (!hasReset) {
-            this.installUserGroup = installUserGroup;
-            hasReset = true;
-            return;
-        }
-        if (!this.installUserGroup.equals(installUserGroup)) {
-            throw new Exception(
-                    "the user is already exist, but in the group with different name in different hosts,"
-                            + " please set the user in the group with the same name, user="
-                            + getInstallUser() + ", group=" + installUserGroup
-                            + ", another host group=" + this.installUserGroup);
-        }
     }
 }

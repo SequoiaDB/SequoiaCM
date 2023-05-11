@@ -49,12 +49,17 @@ public class ScmDeployer {
         // Sending install Package
         progress += deployConfMgr.getHosts().size();
 
-        // Initializing Sdb
-        progress++;
+        // 1. Checking install user
+        // 2. Initializing Sdb
+        progress += 2;
 
         int currentProgress = 0;
         logger.info("Deploying service{}...({}/{})", dryrun ? "(Dry Run Mode)" : "",
                 currentProgress++, progress);
+
+        logger.info("Deploying service: checking the installation user ({}/{})", currentProgress++,
+                progress);
+        checkInstallUser();
 
         logger.info("Deploying service: initializing metasource and auditsource ({}/{})",
                 currentProgress++, progress);
@@ -94,19 +99,43 @@ public class ScmDeployer {
         logger.info("Deploy service success");
     }
 
+    private void checkInstallUser() throws Exception {
+        for (HostInfo host : deployConfMgr.getHosts()) {
+            Ssh ssh = null;
+            try {
+                ssh = sshFactory.getSsh(host);
+                String installUser = deployConfMgr.getInstallConfig().getInstallUser();
+                boolean isUserExist = ssh.exec("id -u " + installUser, 0, 1).getExitCode() == 0;
+                if (isUserExist) {
+                    String userGroup = ssh.getUserEffectiveGroup(installUser);
+                    String configUserGroup = deployConfMgr.getInstallConfig().getInstallUserGroup();
+                    if (!userGroup.equals(configUserGroup)) {
+                        throw new Exception(String.format(
+                                "the user group on the host is different from the configured user group,"
+                                        + " hostname=%s, user=%s, group=%s, config group=%s",
+                                host.getHostName(), installUser, userGroup, configUserGroup));
+                    }
+                }
+            }
+            finally {
+                CommonUtils.closeResource(ssh);
+            }
+        }
+    }
+
     private void createInstallUserAndPath(HostInfo host) throws Exception {
         Ssh ssh = sshFactory.getSsh(host);
         try {
             String installUser = deployConfMgr.getInstallConfig().getInstallUser();
-            int isUserExist = ssh.exec("id -u " + installUser, 0, 1).getExitCode();
-            if (isUserExist == 1) {
+            boolean isUserExist = ssh.exec("id -u " + installUser, 0, 1).getExitCode() == 0;
+            if (!isUserExist) {
                 String installPasswd = deployConfMgr.getInstallConfig().getInstallUserPassword();
                 if (installPasswd == null || installPasswd.length() <= 0) {
                     throw new IllegalArgumentException("user not exist in " + host.getHostName()
                             + ", please specify password to create install user:" + installUser);
                 }
                 String userGroup = deployConfMgr.getInstallConfig().getInstallUserGroup();
-                int isUserGroupExist = ssh.sudoExec("grep \"^" + userGroup + ":\" /etc/group",0,
+                int isUserGroupExist = ssh.sudoExec("grep \"^" + userGroup + ":\" /etc/group", 0,
                         1);
                 if (isUserGroupExist == 1) {
                     ssh.sudoExec("groupadd " + userGroup);
@@ -114,16 +143,6 @@ public class ScmDeployer {
                 ssh.sudoExec("useradd " + installUser + " -m -g " + userGroup);
                 ssh.sudoExec("echo " + deployConfMgr.getInstallConfig().getInstallUser() + ":"
                         + installPasswd + " | chpasswd");
-            }
-            else {
-                String group = ssh.getUserEffectiveGroup(installUser);
-                try {
-                    deployConfMgr.getInstallConfig().resetInstallUserGroup(group);
-                }
-                catch (Exception e) {
-                    throw new Exception("failed to reset install user group, host=" + host.getHostName()
-                                    + ", user=" + installUser + ", reset group=" + group, e);
-                }
             }
 
             ssh.sudoExec("mkdir -p " + deployConfMgr.getInstallConfig().getInstallPath());
