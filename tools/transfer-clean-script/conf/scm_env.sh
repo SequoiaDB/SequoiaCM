@@ -18,6 +18,11 @@ keepAliveTimeout=0
 url=192.168.30.82:8080/branchSite1
 scmUser=admin
 scmPassword=admin
+batchSize=100
+fileTransferTimeout=1800000
+fileStatusCheckBatchSize=50
+fileStatusCheckInterval=1000
+
 #scmPasswordFile=../conf/pwd1.txt
 #transferLogbackPath=../conf/transferLogback.xml
 

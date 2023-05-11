@@ -35,12 +35,12 @@ java -jar sequoiacm-transfer-file-3.2.1.jar  --help
 
 非必填参数
 
-    --batchSize <arg>                 批次大小，工具最多将会提交多少文件到内容服务上进行迁移处理（内容服务节点固定10条线程处理提交的文件），默认：1000
+    --batchSize <arg>                 批次大小，工具最多将会提交多少文件到内容服务上进行迁移处理（内容服务节点固定10条线程处理提交的文件），默认：100
                                       
     --fileStatusCheckInterval <arg>   每隔多长时间检查一次已提交文件的迁移状态，默认值：1000ms
     
-    --fileTransferTimeout <arg>       文件多长时间未被迁移完成时，工具标记该文件为处理超时，工具不在等待该文件的处理结果，默认值：60000ms
+    --fileTransferTimeout <arg>       文件多长时间未被迁移完成时，工具标记该文件为处理超时，工具不在等待该文件的处理结果，默认值：1800000ms
     
-    --fileStatusCheckBatchSize <arg>  
+    --fileStatusCheckBatchSize <arg>  提交的文件数达到多少时，检查迁移状态，默认值 50
     
     --help                            打印帮助

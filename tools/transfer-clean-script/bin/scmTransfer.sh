@@ -23,7 +23,7 @@ if [ ! $? -eq 0 ] ;then
   exit 1
 fi
 
-commandStr="java -Xmx2048m -jar $jarPath --logbackPath $transferLogbackPath --fileMatcher '{ create_month: \"${ts_month}\" }' --sdbCoord ${metaSdbCoord} --sdbUser ${metaSdbUser} --sdbPassword ${metaSdbPassword} --sdbPasswordFile ${metaSdbPasswordFile} --scmPassword ${scmPassword} --scmPasswordFile ${scmPasswordFile} --siteName ${targetSiteName} --url ${url} --scmUser ${scmUser} --workspace ${ts_workspace}"
+commandStr="java -Xmx2048m -jar $jarPath --logbackPath $transferLogbackPath --fileMatcher '{ create_month: \"${ts_month}\" }' --sdbCoord ${metaSdbCoord} --sdbUser ${metaSdbUser} --sdbPassword ${metaSdbPassword} --sdbPasswordFile ${metaSdbPasswordFile} --scmPassword ${scmPassword} --scmPasswordFile ${scmPasswordFile} --siteName ${targetSiteName} --url ${url} --scmUser ${scmUser} --workspace ${ts_workspace} --batchSize ${batchSize} --fileTransferTimeout ${fileTransferTimeout} --fileStatusCheckBatchSize ${fileStatusCheckBatchSize} --fileStatusCheckInterval ${fileStatusCheckInterval}"
 
 #echo $commandStr
 eval $commandStr
