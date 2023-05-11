@@ -39,6 +39,7 @@ scmadmin 工具提供了管理 SequoiaCM 业务配置的功能
 |[revokerole][revokerole]|回收角色权限     |
 |[listprivilege][listprivilege]|查看角色权限  |
 |[resetpassword][resetpassword]|修改用户密码  |
+|[sendpassword][sendpassword]|密码分发工具  |
 
 
 [encrypt]:Maintainance/Tools/Scmadmin/encrypt.md
@@ -60,3 +61,4 @@ scmadmin 工具提供了管理 SequoiaCM 业务配置的功能
 [revokerole]:Maintainance/Tools/Scmadmin/revokerole.md
 [listprivilege]:Maintainance/Tools/Scmadmin/listprivilege.md
 [resetpassword]:Maintainance/Tools/Scmadmin/resetpassword.md
+[sendpassword]:Maintainance/Tools/Scmadmin/sendpassword.md

@@ -36,6 +36,7 @@ public class ScmAdmin {
             cmd.addTool(new ScmCreateSiteToolImpl());
             cmd.addTool(new ScmPasswordEncryptor());
             cmd.addTool(new ScmResetPassword());
+            cmd.addTool(new ScmSendPasswordToolImpl());
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

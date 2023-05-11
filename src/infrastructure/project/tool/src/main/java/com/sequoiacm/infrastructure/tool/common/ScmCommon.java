@@ -391,6 +391,9 @@ public class ScmCommon {
     }
 
     public static void closeResource(Closeable... closeables) {
+        if (closeables == null) {
+            return;
+        }
         for (Closeable c : closeables) {
             if (c != null) {
                 try {
@@ -417,6 +420,9 @@ public class ScmCommon {
         String argHost = null;
         try {
             InetAddress ia = InetAddress.getByName(address);
+            if (ia.getHostAddress().equals("127.0.0.1")) {
+                return true;
+            }
             argHost = ia.getHostName();
         }
         catch (Exception e) {

@@ -74,6 +74,10 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-tool</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

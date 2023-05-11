@@ -756,6 +756,12 @@
                     "file": "resetpassword",
                     "cn": "resetpassword",
                     "en": "resetpassword"
+                },
+                {
+                    "id": 1683701867,
+                    "file": "sendpassword",
+                    "cn": "sendpassword",
+                    "en": "sendpassword"
                 }]
             },
             {
