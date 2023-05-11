@@ -1,4 +1,4 @@
-sendpassword 子命令提供了一键完成密码加密和分发的功能。
+sendpassword 子命令提供了一键完成密码[加密][encrypt]和分发的功能。
 
 ##子命令选项##
 
@@ -47,3 +47,6 @@ sendpassword 子命令提供了一键完成密码加密和分发的功能。
    Process finished, success: 2, failed: 0
    The password file is saved on the hosts: [server1, server2], path: /opt/sequoiacm/secret/sdb.pwd 
    ```
+
+
+[encrypt]:Maintainance/Tools/Scmadmin/encrypt.md

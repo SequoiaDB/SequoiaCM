@@ -28,3 +28,9 @@ encrypt 子命令提供加密明文密码的功能。
 > * CephS3 生成密码的密文字符串时，用户名、密码分别为 accesskey、secretkey
 > 
 > * /home/scmadmin/sdb.passwd 为密码文件路径
+> 
+> * 如需在将密码文件分发到多台机器，建议使用[密码分发工具][sendpassword_tool]
+
+
+
+[sendpassword_tool]:Maintainance/Tools/Scmadmin/sendpassword.md

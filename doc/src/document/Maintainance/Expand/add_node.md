@@ -63,7 +63,7 @@ $ vi /opt/sequoiacm/sequoiacm-cloud/deploy.json
 >
 >  * 注册中心地址、元数据储存地址需要按已有环境的配置填写
 >
->  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取
+>  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取或使用[密码分发工具][sendpassword_tool]发送
 
 - 执行部署命令，并启动新增节点
 
@@ -122,7 +122,7 @@ $ vi /opt/sequoiacm/sequoiacm-content/deploy.json
 >
 >  * 注册中心地址、元数据储存地址需要按已有环境的配置填写
 >
->  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取
+>  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取或使用[密码分发工具][sendpassword_tool]发送
 
 - 执行部署命令，并启动新增节点
 
@@ -158,7 +158,7 @@ $ vi /opt/sequoiacm/sequoiacm-config/deploy.json
 >
 >  * 注册中心地址、元数据储存地址需要按已有环境的配置填写
 >
->  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取
+>  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取或使用[密码分发工具][sendpassword_tool]发送
 
 - 部署并启动新增配置服务节点
 
@@ -202,7 +202,7 @@ $ vi /opt/sequoiacm/sequoiacm-schedule/deploy.json
 >
 >  * 注册中心地址、元数据储存地址需要按已有环境的配置填写
 >
->  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取
+>  * 如果需要新增节点的机器上没有密码文件，即'/opt/sequoiacm/sdb.passwd'，可以从原有环境的部署主机上拷贝获取或使用[密码分发工具][sendpassword_tool]发送
 
 - 部署并启动新增的调度服务节点
 
@@ -210,3 +210,4 @@ $ vi /opt/sequoiacm/sequoiacm-schedule/deploy.json
 $ python /opt/sequoiacm/sequoiacm-schedule/deploy.py --start
 ```
 
+[sendpassword_tool]:Maintainance/Tools/Scmadmin/sendpassword.md

@@ -24,7 +24,7 @@ createsite 子命令提供创建站点的功能。
 
 >  **Note:**
 >
->  * 密码文件的生成参考本章节的 [encrypt 命令][encrypt_tool]
+>  * 数据源的密码文件需提前生成并分发至需要创建内容服务节点的机器上，请参考 [sendpassword 命令][sendpassword_tool]
 >
 >  * 参数 --mdsurl、--mdsuser、--mdspasswd 用于指定主站点中元数据存储服务的地址和用户名、密码。以便工具获取系统的元数据信息
 >  
@@ -214,5 +214,5 @@ createsite 子命令提供创建站点的功能。
 ```
 
 [lifecycle_config]:Development/Java_Driver/lifecycle_operation.md
-[encrypt_tool]:Maintainance/Tools/Scmadmin/encrypt.md
+[sendpassword_tool]:Maintainance/Tools/Scmadmin/sendpassword.md
 [primary_standby_cephs3]:Architecture/data_storage.md

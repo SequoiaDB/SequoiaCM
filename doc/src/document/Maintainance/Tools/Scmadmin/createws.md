@@ -88,7 +88,7 @@ Ceph_S3 数据站点：
 |container_prefix|str       |指定桶名前缀（注意定义的前缀需要符合 S3 的桶名规范），默认前缀：workspaceName-scmfile（workspace 名字中的大写字母会被转成小写，'_' 会被转为 '-'）|否|
 |bucket_name|str            |指定一个已存在的桶用于对象存储，该参数配置后会忽略 data_sharding_type 与 container_prefix|否|
 |object_sharding_type|str   |指定桶内对象的分目录策略（默认不分目录），例如当指定 Sharding 策略为 'month' 时， objectId 为：[ws_name]/202202/[data_id]|否|
-| user_info | object | 指定 cephs3 用户信息，包含用户名和密码，格式为 `user_info: {primary: {user: <username>, password: <password_file>}, standby: {user: <username>, password: <password_file>}}`，具体说明如下：<br>● 字段 primary 用于配置主 cephs3 用户信息，standby 用于配置备 cephs3 用户信息。如果用户仅部署了一个 cephs3 集群，配置 primary 即可。<br>● password 需指定密文文件，且对应文件需迁移至内容服务节点所在的主机。生成密文文件的方式可参考 [encrypt][encrypt]。 | 否 |
+| user_info | object | 指定 cephs3 用户信息，包含用户名和密码，格式为 `user_info: {primary: {user: <username>, password: <password_file>}, standby: {user: <username>, password: <password_file>}}`，具体说明如下：<br>● 字段 primary 用于配置主 cephs3 用户信息，standby 用于配置备 cephs3 用户信息。如果用户仅部署了一个 cephs3 集群，配置 primary 即可。<br>● password 需指定密文文件，且对应文件需迁移至内容服务节点所在的主机。生成密文文件的方式可参考 [sendpassword][sendpassword_tool]。 | 否 |
 
 >**Note**
 >
@@ -188,4 +188,4 @@ sharding 类型说明：
 [directory]:Architecture/Business_Concept/directory.md
 [batch]:Architecture/Business_Concept/batch.md
 [workspace]:Architecture/Business_Concept/workspace.md
-[encrypt]:Maintainance/Tools/Scmadmin/encrypt.md
+[sendpassword_tool]:Maintainance/Tools/Scmadmin/sendpassword.md
