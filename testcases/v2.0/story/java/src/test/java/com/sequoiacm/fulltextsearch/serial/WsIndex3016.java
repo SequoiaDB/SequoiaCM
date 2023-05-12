@@ -39,8 +39,7 @@ public class WsIndex3016 extends TestScmBase {
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
     }
 
-    //SEQUOIACM-1340
-    @Test(enabled = false)
+    @Test
     private void test() throws Exception {
         ScmFactory.Workspace.deleteWorkspace( session, wsName, true );
         try {
