@@ -41,7 +41,6 @@ import com.sequoiacm.deploy.parser.ScmConfParser;
 import com.sequoiacm.deploy.ssh.Ssh;
 import com.sequoiacm.deploy.ssh.SshExecRes;
 import com.sequoiacm.deploy.ssh.SshMgr;
-import com.sequoiacm.infrastructure.common.CheckRuleUtils;
 import com.sequoiadb.base.Sequoiadb;
 
 public class ScmDeployInfoMgr {
@@ -392,7 +391,7 @@ public class ScmDeployInfoMgr {
         for (NodeInfo node : s3Nodes) {
             S3NodeInfo s3Node = (S3NodeInfo) node;
             String serviceName = ((S3NodeInfo) node).getServiceName();
-            boolean checkResult = CheckRuleUtils.isConformHostNameRule(serviceName);
+            boolean checkResult = CheckRuleUtils.isConformSiteNameRule(serviceName);
             if(!checkResult){
                 throw new IllegalArgumentException("failed to resolve name:" + serviceName + ",because " + serviceName + " does not conform to host name specification");
             }
@@ -496,7 +495,7 @@ public class ScmDeployInfoMgr {
             SiteNodeInfo siteNode = (SiteNodeInfo) node;
             //执行SCM部署脚本，校验站点名是否主机名命名规范
             String siteName = siteNode.getSiteName();
-            boolean checkResult = CheckRuleUtils.isConformHostNameRule(siteName);
+            boolean checkResult = CheckRuleUtils.isConformSiteNameRule(siteName);
             if(!checkResult){
                 throw new IllegalArgumentException("failed to resolve name:" + siteName + ",because " + siteName + " does not conform to host name specification");
             }

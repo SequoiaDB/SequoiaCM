@@ -140,7 +140,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
 
         String siteName = cl.getOptionValue(OPT_SHORT_NAME);
         //使用工具创建站点时，校验站点名是否主机名命名规范
-        boolean checkResult = CheckRuleUtils.isConformHostNameRule(siteName);
+        boolean checkResult = CheckRuleUtils.isConformSiteNameRule(siteName);
         if(!checkResult){
             throw new ScmToolsException(
                     "failed to resolve name:" + siteName + ",because " + siteName + " does not conform to host name specification",

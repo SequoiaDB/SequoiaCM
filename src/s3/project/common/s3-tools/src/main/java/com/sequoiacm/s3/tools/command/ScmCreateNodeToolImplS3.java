@@ -55,7 +55,7 @@ public class ScmCreateNodeToolImplS3 extends ScmCreateNodeToolImpl {
                 scmNodeRequiredParamGroup.check(nodeConf);
             }
             String applicationName = nodeConf.getProperty("spring.application.name");
-            boolean checkResult = CheckRuleUtils.isConformHostNameRule(applicationName);
+            boolean checkResult = CheckRuleUtils.isConformSiteNameRule(applicationName);
             if(!checkResult){
                 throw new ScmToolsException(
                         "failed to resolve name:" + applicationName + ",because " + applicationName + " does not conform to host name specification",

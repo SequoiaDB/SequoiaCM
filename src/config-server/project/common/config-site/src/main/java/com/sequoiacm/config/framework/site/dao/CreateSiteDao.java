@@ -52,7 +52,7 @@ public class CreateSiteDao {
     public ScmConfOperateResult create(SiteConfig config) throws ScmConfigException {
         logger.info("start to create site:{}", config.getName());
         String siteName = config.getName();
-        boolean checkResult = CheckRuleUtils.isConformHostNameRule(siteName);
+        boolean checkResult = CheckRuleUtils.isConformSiteNameRule(siteName);
         if(!checkResult){
             throw new ScmConfigException(ScmConfError.INVALID_ARG, "failed to resolve name:" + siteName + ",because " + siteName + " does not conform to host name specification");
         }

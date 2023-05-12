@@ -17,7 +17,7 @@ public class ScmConfigCheckListener implements SmartApplicationListener, Ordered
                     .getEnvironment();
             //服务启动时，监听服务名是否符合主机名规范
             String applicationName = environment.getProperty("spring.application.name");
-            boolean checkResult = CheckRuleUtils.isConformHostNameRule(applicationName);
+            boolean checkResult = CheckRuleUtils.checkConformHostNameRule(applicationName);
             if(!checkResult){
                 throw new IllegalArgumentException("failed to resolve name:" + applicationName + ",because " + applicationName + " does not conform to host name specification");
             }
