@@ -116,7 +116,8 @@ public class MigrateCommand extends SubCommand {
             S3ImportBatchFactory batchFactory = S3ImportBatchFactory.getInstance();
             boolean isNeedOverwrite = true;
 
-            for (S3Bucket s3Bucket : bucketList) {
+            for (int i = 0; i < bucketList.size(); i++) {
+                S3Bucket s3Bucket = bucketList.get(i);
                 Progress progress = s3Bucket.getProgress();
                 if (progress.getStatus().equals(CommonDefine.ProgressStatus.FINISH)) {
                     continue;
@@ -137,26 +138,30 @@ public class MigrateCommand extends SubCommand {
                                 S3ImportExitCode.SYSTEM_ERROR);
                     }
                     // 持久化失败列表、更新迁移进度
+                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
                     FileOperateUtils.appendErrorKeyList(s3Bucket, batch.getErrorKeys());
                     FileOperateUtils.updateProgress(progressFilePath, bucketList);
-
-                    // 最后一个批次执行完成，直接退出，不需要再做超时/失败数检测
-                    if (batch.isLastBatch()) {
-                        break;
-                    }
-
-                    // 校验执行时间，失败数
-                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
-                    CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
-                            batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
-                    CommonUtils.checkFailCount(batchRunner.getFailureCount(),
-                            ImportToolProps.getInstance().getMaxFailCount());
-
                     isNeedOverwrite = false;
+
+                    // 最后一个批次不做超时/失败数检测
+                    if (!batch.isLastBatch()) {
+                        CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
+                                batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
+                        CommonUtils.checkFailCount(batchRunner.getFailureCount(),
+                                ImportToolProps.getInstance().getMaxFailCount());
+                    }
                 }
                 // 更新桶的迁移状态
                 progress.setStatus(CommonDefine.ProgressStatus.FINISH);
                 FileOperateUtils.updateProgress(progressFilePath, bucketList);
+
+                // 每处理完一个桶，做一次超时/失败数检测（最后一个桶不需要）
+                if (i + 1 != bucketList.size()) {
+                    CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
+                            batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
+                    CommonUtils.checkFailCount(batchRunner.getFailureCount(),
+                            ImportToolProps.getInstance().getMaxFailCount());
+                }
             }
         }
         finally {

@@ -11,6 +11,9 @@ import com.sequoiacm.s3import.exception.S3ImportExitCode;
 import com.sequoiacm.s3import.module.S3Bucket;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,10 +61,12 @@ public class CommonUtils {
         }
         long currentTime = System.currentTimeMillis();
         long residualTime = maxExecTime - (currentTime - startTime);
+
         if (residualTime < 0) {
             throw new ScmToolsException(
-                    "Process have been interrupted because of timeout: startTime=" + startTime
-                            + " ,now=" + currentTime + " ,maxExecTime=" + maxExecTime + "(ms)",
+                    "Process have been interrupted because of timeout: startTime="
+                            + formatTime(startTime) + " ,now=" + formatTime(currentTime)
+                            + " ,maxExecTime=" + maxExecTime / 1000 + "(s)",
                     S3ImportExitCode.EXEC_TIME_OUT);
         }
 
@@ -69,11 +74,15 @@ public class CommonUtils {
         if (residualTime * 10 < lastRunTime) {
             throw new ScmToolsException(
                     "Process have been interrupted because of not enough time to execute: startTime="
-                            + startTime + " ,now=" + currentTime + " ,maxExecTime=" + maxExecTime
-                            + " ,residualTime=" + residualTime + " ,lastRunTime=" + lastRunTime
-                            + "(ms)",
+                            + formatTime(startTime) + " ,now=" + formatTime(currentTime)
+                            + " ,maxExecTime=" + maxExecTime / 1000 + "(s), " + "lastRunTime="
+                            + formatTime(lastRunTime),
                     S3ImportExitCode.EXEC_TIME_OUT);
         }
+    }
+
+    private static String formatTime(long timeStamp) {
+        return new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss:SSS]").format(new Date(timeStamp));
     }
 
     public static void checkFailCount(long currentFailCount, long maxFailCount)

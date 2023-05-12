@@ -81,7 +81,8 @@ public class RetryCommand extends SubCommand {
             batchRunner = new S3ImportBatchRunner();
             S3ImportBatchFactory batchFactory = S3ImportBatchFactory.getInstance();
 
-            for (S3Bucket s3Bucket : bucketList) {
+            for (int i = 0; i < bucketList.size(); i++) {
+                S3Bucket s3Bucket = bucketList.get(i);
                 s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.RUNNING);
                 List<String> tmpErrorKeys = new ArrayList<>();
                 S3ImportBatch batch;
@@ -92,25 +93,30 @@ public class RetryCommand extends SubCommand {
                                 S3ImportExitCode.SYSTEM_ERROR);
                     }
                     tmpErrorKeys.addAll(batch.getErrorKeys());
+                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
                     // 持久化失败列表
                     Queue<String> totalErrorKeys = new LinkedList<>();
                     totalErrorKeys.addAll(s3Bucket.getErrorKeyList());
                     totalErrorKeys.addAll(tmpErrorKeys);
                     FileOperateUtils.overwriteErrorKeyList(s3Bucket, totalErrorKeys);
 
-                    // 最后一个批次执行完成，直接退出，不需要再做超时/失败数检测
-                    if (batch.isLastBatch()) {
-                        break;
+                    // 最后一个批次不做超时/失败数检测
+                    if (!batch.isLastBatch()) {
+                        CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
+                                batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
+                        CommonUtils.checkFailCount(batchRunner.getFailureCount(),
+                                ImportToolProps.getInstance().getMaxFailCount());
                     }
+                }
+                s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.FINISH);
 
-                    // 校验执行时间、失败数
-                    batchRunner.increaseFailCount(batch.getErrorKeys().size());
+                // 每处理完一个桶，做一次超时/失败数检测（最后一个桶不需要）
+                if (i + 1 != bucketList.size()) {
                     CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
                             batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
                     CommonUtils.checkFailCount(batchRunner.getFailureCount(),
                             ImportToolProps.getInstance().getMaxFailCount());
                 }
-                s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.FINISH);
             }
         }
         finally {

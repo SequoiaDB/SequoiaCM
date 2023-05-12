@@ -144,7 +144,8 @@ public class CompareCommand extends SubCommand {
         ExecutorService executor = null;
         try {
             executor = Executors.newFixedThreadPool(workCount);
-            for (S3Bucket s3Bucket : bucketList) {
+            for (int i = 0; i < bucketList.size(); i++) {
+                S3Bucket s3Bucket = bucketList.get(i);
                 CompareProgress progress = (CompareProgress) s3Bucket.getProgress();
                 if (progress.getStatus().equals(CommonDefine.ProgressStatus.FINISH)) {
                     continue;
@@ -257,16 +258,22 @@ public class CompareCommand extends SubCommand {
                     FileOperateUtils.updateProgress(progressFilePath, bucketList);
 
                     // 比对完桶内所有对象后，直接退出，不需要再做超时检测
-                    if (srcObjects.size() == 0 && destObjects.size() == 0
+                    boolean isLastBatch = srcObjects.size() == 0 && destObjects.size() == 0
                             && Objects.equals(srcKeyMarker, CommonDefine.KeyMarker.END)
-                            && Objects.equals(destKeyMarker, CommonDefine.KeyMarker.END)) {
-                        break;
+                            && Objects.equals(destKeyMarker, CommonDefine.KeyMarker.END);
+                    if (!isLastBatch) {
+                        CommonUtils.checkMaxExecTime(startTime, runStartTime,
+                                importOptions.getMaxExecTime());
                     }
-                    CommonUtils.checkMaxExecTime(startTime, runStartTime,
-                            importOptions.getMaxExecTime());
                 }
                 progress.setStatus(CommonDefine.ProgressStatus.FINISH);
                 FileOperateUtils.updateProgress(progressFilePath, bucketList);
+
+                // 每处理完一个桶，做一次超时检测（最后一个桶不需要）
+                if (i + 1 != bucketList.size()) {
+                    CommonUtils.checkMaxExecTime(startTime, runStartTime,
+                            importOptions.getMaxExecTime());
+                }
             }
         }
         finally {

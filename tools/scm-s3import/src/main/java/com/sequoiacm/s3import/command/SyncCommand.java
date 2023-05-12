@@ -64,7 +64,8 @@ public class SyncCommand extends SubCommand {
         try {
             batchRunner = new S3ImportBatchRunner();
             S3ImportBatchFactory batchFactory = S3ImportBatchFactory.getInstance();
-            for (S3Bucket s3Bucket : bucketList) {
+            for (int i = 0; i < bucketList.size(); i++) {
+                S3Bucket s3Bucket = bucketList.get(i);
                 s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.RUNNING);
                 Queue<CompareResult> errorSyncKeys = new LinkedList<>();
                 S3ImportBatch batch;
@@ -75,23 +76,28 @@ public class SyncCommand extends SubCommand {
                                 S3ImportExitCode.SYSTEM_ERROR);
                     }
                     errorSyncKeys.addAll(batch.getErrorSyncKeys());
+                    batchRunner.increaseFailCount(batch.getErrorSyncKeys().size());
                     FileOperateUtils.appendCompareResult(s3Bucket, syncErrorPath, errorSyncKeys);
 
-                    // 最后一个批次执行完成，直接退出，不需要再做超时/失败数检测
-                    if (batch.isLastBatch()) {
-                        break;
+                    // 最后一个批次不做超时/失败数检测
+                    if (!batch.isLastBatch()) {
+                        CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
+                                batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
+                        CommonUtils.checkFailCount(batchRunner.getFailureCount(),
+                                ImportToolProps.getInstance().getMaxFailCount());
                     }
+                }
+                s3Bucket.releaseResultFileResource();
+                s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.FINISH);
+                FileOperateUtils.moveFile(s3Bucket.getCompareResultFilePath(), syncFinishPath);
 
-                    // 校验执行时间、失败数
-                    batchRunner.increaseFailCount(batch.getErrorSyncKeys().size());
+                // 每处理完一个桶，做一次超时/失败数检测（最后一个桶不需要）
+                if (i + 1 != bucketList.size()) {
                     CommonUtils.checkMaxExecTime(batchRunner.getStartTime(),
                             batchRunner.getRunStartTime(), importOptions.getMaxExecTime());
                     CommonUtils.checkFailCount(batchRunner.getFailureCount(),
                             ImportToolProps.getInstance().getMaxFailCount());
                 }
-                s3Bucket.releaseResultFileResource();
-                s3Bucket.getProgress().setStatus(CommonDefine.ProgressStatus.FINISH);
-                FileOperateUtils.moveFile(s3Bucket.getCompareResultFilePath(), syncFinishPath);
             }
 
             if (new File(syncErrorPath).exists()) {
