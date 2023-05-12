@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.infrastructrue.security.core.ITransaction;
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 
 @Repository("ITransaction")
 public class SequoiadbTransaction implements ITransaction {

@@ -20,7 +20,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 
 public class SequoiadbScmUserRoleRepository implements ScmUserRoleRepository {
     private static final Logger logger = LoggerFactory

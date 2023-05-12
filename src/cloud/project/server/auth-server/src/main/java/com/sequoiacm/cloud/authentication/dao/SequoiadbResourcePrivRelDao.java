@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.infrastructrue.security.core.ITransaction;
 import com.sequoiacm.infrastructrue.security.core.ScmPrivilege;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 
 @Repository("IResourcePrivRelDao")
 public class SequoiadbResourcePrivRelDao implements IResourcePrivRelDao {

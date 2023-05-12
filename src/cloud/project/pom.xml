@@ -20,7 +20,7 @@
         <feign.jackson.version>9.5.1</feign.jackson.version>
         <feign-form-spring.version>2.2.1</feign-form-spring.version>
 
-        <sequoiadb.driver.version>3.0.1</sequoiadb.driver.version>
+        <sequoiadb.driver.version>3.6.1-SNAPSHOT</sequoiadb.driver.version>
         <commons-cli.version>1.4</commons-cli.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
 

@@ -60,6 +60,7 @@ public class ScmMemoryPool implements IMemoryPool {
         }
         idlePool.put(1024 * 1024, new ConcurrentLinkedQueue<byte[]>());
         idlePool.put(5 * 1024 * 1024, new ConcurrentLinkedQueue<byte[]>());
+        idlePool.put(255 * 1024, new ConcurrentLinkedQueue<byte[]>());
         beginCleanTask();
         beginPrintTask();
     }

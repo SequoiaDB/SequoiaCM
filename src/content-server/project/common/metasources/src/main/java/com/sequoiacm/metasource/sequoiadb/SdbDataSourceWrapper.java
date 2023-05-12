@@ -1,15 +1,19 @@
 package com.sequoiacm.metasource.sequoiadb;
 
 import java.util.List;
+import java.util.Map;
+
+import com.sequoiacm.metasource.MetaSourceDefine;
+import com.sequoiadb.base.UserConfig;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.base.SequoiadbDatasource;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
 
 public class SdbDataSourceWrapper {
     private static final Logger logger = LoggerFactory.getLogger(SdbDataSourceWrapper.class);
@@ -17,11 +21,14 @@ public class SdbDataSourceWrapper {
     SequoiadbDatasource dataSource = null;
 
     public SdbDataSourceWrapper(List<String> urlList, String user, String passwd,
-            ConfigOptions connConf, DatasourceOptions datasourceConf)
+            ConfigOptions connConf, DatasourceOptions datasourceConf, String location)
             throws SdbMetasourceException {
         try {
-            dataSource = new SequoiadbDatasource(urlList, user, passwd, connConf, datasourceConf);
-            }
+            location = location == null ? "" : location;
+            dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+                    .userConfig(new UserConfig(user, passwd)).configOptions(connConf)
+                    .datasourceOptions(datasourceConf).location(location).build();
+        }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(), "failed to init datasource", e);
         }
@@ -73,7 +80,7 @@ public class SdbDataSourceWrapper {
         catch (Exception e) {
             logger.warn("release connection failed", e);
             try {
-                sdb.disconnect();
+                sdb.close();
             }
             catch (Exception e1) {
                 logger.warn("disconnect sequoiadb failed", e1);

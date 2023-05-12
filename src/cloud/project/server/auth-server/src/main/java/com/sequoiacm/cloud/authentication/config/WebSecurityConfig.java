@@ -33,7 +33,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMap;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMapFactory;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 

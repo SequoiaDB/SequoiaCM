@@ -26,7 +26,7 @@
     </modules>
 
     <properties>
-        <sequoiadb.driver.version>3.0.1</sequoiadb.driver.version>
+        <sequoiadb.driver.version>3.6.1-SNAPSHOT</sequoiadb.driver.version>
 
         <!-- plugin version -->
         <commons-cli.version>1.4</commons-cli.version>
@@ -130,5 +130,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>

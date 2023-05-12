@@ -40,6 +40,8 @@ class SdbConfig {
     private int maxIdleNum = dsConf.getMaxIdleCount();
     private int recheckCyclePeriod = 30 * 1000;
 
+    private String location;
+
 
     public List<String> getUrls() {
         return urls;
@@ -151,6 +153,14 @@ class SdbConfig {
 
     public void setRecheckCyclePeriod(int recheckCyclePeriod) {
         this.recheckCyclePeriod = recheckCyclePeriod;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }
 

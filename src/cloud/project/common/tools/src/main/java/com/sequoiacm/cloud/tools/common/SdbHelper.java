@@ -418,7 +418,7 @@ public class SdbHelper {
                 logger.warn("close all cursors occur error", e);
             }
             try {
-                db.disconnect();
+                db.close();
             } catch (Exception e) {
                 logger.warn("disconnect db connection occur error", e);
             }

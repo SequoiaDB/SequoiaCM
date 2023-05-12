@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.infrastructrue.security.core.ITransaction;
 import com.sequoiacm.infrastructrue.security.core.ScmResource;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 
 @Repository("IResourceDao")
 public class SequoiadbResourceDao implements IResourceDao {

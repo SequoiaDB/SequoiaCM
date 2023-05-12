@@ -44,6 +44,7 @@ public class SdbConfig {
     private int recheckCyclePeriod = CommonDefine.DefaultValue.SDB_RECHECK_CYCL_PERIOD;
     @Value("${" + PropertiesDefine.PROPERTY_SDB_CONNECTSTRATEGY + ":SERIAL}")
     private String connectStrategy = CommonDefine.DefaultValue.SDB_CONNECT_STRATEGY.toString();
+    private String location;
 
     public int getConnectTimeout() {
         return connectTimeout;
@@ -139,5 +140,13 @@ public class SdbConfig {
 
     public void setConnectStrategy(ConnectStrategy connectStrategy) {
         this.connectStrategy = connectStrategy.toString();
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

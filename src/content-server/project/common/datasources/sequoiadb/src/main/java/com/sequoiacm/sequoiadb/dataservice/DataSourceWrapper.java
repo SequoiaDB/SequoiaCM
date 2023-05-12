@@ -2,6 +2,7 @@ package com.sequoiacm.sequoiadb.dataservice;
 
 import java.util.List;
 
+import com.sequoiadb.base.UserConfig;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -9,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.sequoiadb.SequoiadbException;
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
 
 public class DataSourceWrapper {
     private static final Logger logger = LoggerFactory.getLogger(DataSourceWrapper.class);
@@ -30,7 +31,10 @@ public class DataSourceWrapper {
             ConfigOptions connConf, DatasourceOptions datasourceConf) throws SequoiadbException {
         try {
             this.siteId = siteId;
-            dataSource = new SequoiadbDatasource(urlList, user, passwd, connConf, datasourceConf);
+            dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+                    .userConfig(new UserConfig(user, passwd)).configOptions(connConf)
+                    .datasourceOptions(datasourceConf).location(SdbDatasourceConfig.getLocation())
+                    .build();
         }
         catch (BaseException e) {
             throw new SequoiadbException(e.getErrorCode(), "failed to init datasource", e);
@@ -85,7 +89,7 @@ public class DataSourceWrapper {
         catch (Exception e) {
             logger.warn("release connection failed", e);
             try {
-                sdb.disconnect();
+                sdb.close();
             }
             catch (Exception e1) {
                 logger.warn("disconnect sequoiadb failed", e1);

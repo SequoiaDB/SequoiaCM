@@ -1,5 +1,7 @@
 package com.sequoiacm.sequoiadb.dataservice;
 
+import com.sequoiacm.infrastructure.sdbversion.SdbVersionChecker;
+import com.sequoiacm.infrastructure.sdbversion.SdbVersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +14,9 @@ import com.sequoiacm.sequoiadb.SequoiadbException;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.exception.SDBError;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
+
+import java.util.List;
 
 public abstract class SdbService extends ScmService {
     private static final Logger logger = LoggerFactory.getLogger(SdbService.class);
@@ -20,6 +24,7 @@ public abstract class SdbService extends ScmService {
     protected DataSourceWrapper sd = null;
     protected ConfigOptions connConf = null;
     protected DatasourceOptions datasourceConf = null;
+    protected SdbVersionChecker sdbVersionChecker = null;
 
     public SdbService(int siteId, ScmSiteUrl siteUrl) throws SequoiadbException {
         super(siteId, siteUrl);
@@ -28,8 +33,10 @@ public abstract class SdbService extends ScmService {
         connConf = sdbSiteUrl.getConfig();
         datasourceConf = sdbSiteUrl.getDatasourceOption();
         AuthInfo auth = ScmFilePasswordParser.parserFile(siteUrl.getPassword());
+        SdbDatasourceConfig.init(sdbSiteUrl.getSdbConfig());
         sd = new DataSourceWrapper(siteId, siteUrl.getUrls(), siteUrl.getUser(), auth.getPassword(),
                 connConf, datasourceConf);
+        sdbVersionChecker = new SdbVersionChecker(sd.dataSource);
     }
 
     public abstract void _clear();
@@ -63,13 +70,17 @@ public abstract class SdbService extends ScmService {
             logger.warn("release sequoiadb failed:siteId=" + siteId + ",sdb=" + sdb, e);
             if (sdb != null) {
                 try {
-                    sdb.disconnect();
+                    sdb.close();
                 }
                 catch (Exception e1) {
                     logger.warn("disconnect sequoiadb failed:siteId=" + siteId + ",sdb=" + sdb, e1);
                 }
             }
         }
+    }
+
+    public boolean isCompatible(List<SdbVersionRange> versionRanges) {
+        return sdbVersionChecker.isCompatible(versionRanges);
     }
 
     @Override
@@ -88,6 +99,7 @@ public abstract class SdbService extends ScmService {
 
         connConf = null;
         datasourceConf = null;
+        sdbVersionChecker = null;
     }
 
     @Override

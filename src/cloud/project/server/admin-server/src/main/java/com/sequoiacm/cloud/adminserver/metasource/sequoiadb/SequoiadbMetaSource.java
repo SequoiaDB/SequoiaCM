@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sequoiadb.base.UserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,12 @@ public class SequoiadbMetaSource implements MetaSource {
         dsOpt.setValidateConnection(config.getValidateConnection());
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
-        dsOpt.setPreferedInstance(preferedInstance);
-        dataSource = new SequoiadbDatasource(urlList, user, auth.getPassword(), nwOpt, dsOpt);
+        dsOpt.setPreferredInstance(preferedInstance);
+
+        String location = config.getLocation() == null ? "" : config.getLocation().trim();
+        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+                .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
+                .datasourceOptions(dsOpt).location(location).build();
     }
 
     public void releaseConnection(Sequoiadb db) {

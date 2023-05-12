@@ -28,6 +28,7 @@ public class SequoiadbConfig {
     private int deltaIncCount = dsConf.getDeltaIncCount();
     private int maxIdleNum = dsConf.getMaxIdleCount();
     private int recheckCyclePeriod = 30 * 1000;
+    private String location;
 
     public int getConnectTimeout() {
         return connectTimeout;
@@ -139,5 +140,13 @@ public class SequoiadbConfig {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

@@ -62,5 +62,9 @@
             <artifactId>zuul-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiadb-driver</artifactId>
+        </dependency>
     </dependencies>
 </project>

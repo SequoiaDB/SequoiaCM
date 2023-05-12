@@ -20,7 +20,7 @@
         <commons-cli.version>1.4</commons-cli.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <logback.version>1.2.9</logback.version>
-        <sequoiadb-driver.version>3.0.1</sequoiadb-driver.version>
+        <sequoiadb-driver.version>3.6.1-SNAPSHOT</sequoiadb-driver.version>
 
         <testng.version>6.13.1</testng.version>
 

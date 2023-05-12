@@ -22,7 +22,7 @@
         <slf4j-log4j12.version>1.7.5</slf4j-log4j12.version>
         <slf4j-simple.version>1.6.4</slf4j-simple.version>
         <logback.version>1.2.9</logback.version>
-        <sequoiadb.driver.version>3.0.1</sequoiadb.driver.version>
+        <sequoiadb.driver.version>3.6.1-SNAPSHOT</sequoiadb.driver.version>
         <curator-recipes.version>2.11.1</curator-recipes.version>
         <quartz-scheduler.version>2.2.2</quartz-scheduler.version>
         <zookeeper.version>3.5.5</zookeeper.version>
@@ -236,6 +236,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-
 </project>

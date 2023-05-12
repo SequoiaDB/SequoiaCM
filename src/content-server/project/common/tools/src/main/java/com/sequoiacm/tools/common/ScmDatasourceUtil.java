@@ -10,6 +10,8 @@ import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiacm.tools.element.ScmSiteInfo;
 import com.sequoiacm.tools.exception.ScmExitCode;
+import com.sequoiadb.base.ConfigOptions;
+import com.sequoiadb.datasource.DatasourceOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +112,8 @@ public class ScmDatasourceUtil {
         switch (siteInfo.getDataType()) {
             case DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR:
                 return new SdbSiteUrl(siteInfo.getDataType(), siteInfo.getDataUrl(),
-                        siteInfo.getDataUser(), siteInfo.getDataPasswd(), null, null);
+                        siteInfo.getDataUser(), siteInfo.getDataPasswd(), new ConfigOptions(),
+                        new DatasourceOptions());
             case DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR:
                 return new ScmSiteUrlWithConf(siteInfo.getDataType(), siteInfo.getDataUrl(),
                         siteInfo.getDataUser(), siteInfo.getDataPasswd(), Collections.EMPTY_MAP);

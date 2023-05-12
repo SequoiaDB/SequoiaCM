@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sequoiadb.base.ConfigOptions;
+import com.sequoiadb.base.UserConfig;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,8 @@ import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.base.SequoiadbDatasource;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.exception.BaseException;
-import com.sequoiadb.net.ConfigOptions;
 
 @Repository
 public class SdbDataSourceWrapper {
@@ -49,8 +50,11 @@ public class SdbDataSourceWrapper {
         dsOpt.setValidateConnection(config.getValidateConnection());
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
-        dsOpt.setPreferedInstance(preferedInstance);
-        dataSource = new SequoiadbDatasource(urlList, user, auth.getPassword(), nwOpt, dsOpt);
+        dsOpt.setPreferredInstance(preferedInstance);
+        String location = config.getLocation() == null ? "" : config.getLocation().trim();
+        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+                .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
+                .datasourceOptions(dsOpt).location(location).build();
     }
 
     private void recordConnection(Sequoiadb sdb) {
@@ -94,7 +98,7 @@ public class SdbDataSourceWrapper {
         catch (Exception e) {
             logger.warn("release connection failed", e);
             try {
-                sdb.disconnect();
+                sdb.close();
             }
             catch (Exception e1) {
                 logger.warn("disconnect sequoiadb failed", e1);

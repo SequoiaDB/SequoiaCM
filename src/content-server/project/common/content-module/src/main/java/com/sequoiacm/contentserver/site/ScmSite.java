@@ -1,8 +1,12 @@
 package com.sequoiacm.contentserver.site;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.sequoiacm.datasource.metadata.sequoiadb.SdbConfig;
+import com.sequoiacm.metasource.MetaSourceDefine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -23,7 +27,7 @@ import com.sequoiacm.datasource.metadata.sequoiadb.SdbSiteUrl;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiadb.datasource.DatasourceOptions;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
 
 public class ScmSite {
     private static final Logger logger = LoggerFactory.getLogger(ScmSite.class);
@@ -117,17 +121,20 @@ public class ScmSite {
         datasourceConf.setValidateConnection(PropertiesUtils.getValidateConnection());
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
-        datasourceConf.setPreferedInstance(preferedInstance);
+        datasourceConf.setPreferredInstance(preferedInstance);
         try {
             if (isMeta) {
                 return new SdbSiteUrl(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR,
                         siteObj.getMetaUrlList(), siteObj.getMetaUser(), siteObj.getMetaPasswd(),
-                        connConf, datasourceConf);
+                        connConf, datasourceConf, new SdbConfig(PropertiesUtils.getLocation()));
             }
             else {
                 return new SdbSiteUrl(CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SEQUOIADB_STR,
                         siteObj.getDataUrlList(), siteObj.getDataUser(), siteObj.getDataPasswd(),
-                        connConf, datasourceConf);
+                        connConf, datasourceConf,
+                        new SdbConfig(PropertiesUtils.getSdbDatasourceConfig().getLocation(),
+                                PropertiesUtils.getSdbDatasourceConfig()
+                                        .getPutLobRequiredVersion()));
             }
         }
         catch (ScmDatasourceException e) {

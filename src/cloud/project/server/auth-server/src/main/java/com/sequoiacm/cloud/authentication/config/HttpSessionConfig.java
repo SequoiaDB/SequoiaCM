@@ -16,8 +16,7 @@ import org.springframework.session.web.http.HttpSessionStrategy;
 import com.fasterxml.jackson.databind.Module;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructure.config.client.EnableConfClient;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 @Configuration
 public class HttpSessionConfig extends SpringHttpSessionConfiguration {
 

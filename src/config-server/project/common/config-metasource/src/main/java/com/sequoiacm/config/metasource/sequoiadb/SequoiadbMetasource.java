@@ -13,6 +13,7 @@ import com.sequoiadb.base.ConfigOptions;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.DBCursor;
 import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.base.UserConfig;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.datasource.SequoiadbDatasource;
 import com.sequoiadb.exception.BaseException;
@@ -57,8 +58,12 @@ public class SequoiadbMetasource implements Metasource {
         dsOpt.setValidateConnection(sdbConnConfig.getValidateConnection());
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
-        dsOpt.setPreferedInstance(preferedInstance);
-        dataSource = new SequoiadbDatasource(urlList, user, auth.getPassword(), nwOpt, dsOpt);
+        dsOpt.setPreferredInstance(preferedInstance);
+        String location = sdbConnConfig.getLocation() == null ? ""
+                : sdbConnConfig.getLocation().trim();
+        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+                .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
+                .datasourceOptions(dsOpt).location(location).build();
     }
 
     public void releaseConnection(Sequoiadb db) {

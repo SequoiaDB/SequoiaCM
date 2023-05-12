@@ -39,7 +39,8 @@ SequoiaCM 配置
 |scm.store.sequoiadb.keepAliveTime         |num    |内容服务节点的sdb连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|重启生效|
 |scm.store.sequoiadb.recheckCyclePeriod     |num    |内容服务节点的sdb连接池定时清除连接的周期，默认值：30000，单位：毫秒|重启生效|
 |scm.store.sequoiadb.validateConnection     |boolean|内容服务节点的sdb连接池是否开启出池检查，默认值：true|重启生效|
-|scm.store.sequoiadb.connectStrategy                   | str     | 内容服务节点的sdb连接池连接策略，可选值(SERIAL, RANDOM, LOCAL, BALANCE) 默认值：SERIAL | 重启生效
+|scm.store.sequoiadb.connectStrategy                   | str     | 内容服务节点的sdb连接池连接策略，可选值(SERIAL, RANDOM, LOCAL, BALANCE) 默认值：SERIAL | 重启生效|
+|scm.store.sequoiadb.location|str|元数据服务 SequoiaDB 连接池 location 配置，默认值为空|重启生效|
 |scm.zookeeper.urls|str|内容服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|重启生效|
 |scm.zookeeper.cleanJobPeriod                |num|内容服务节点全量清理zookeeper无效节点的周期，默认值：1800000 (30分钟)，单位：毫秒                           |重启生效|
 |scm.zookeeper.maxBuffer                     |num|内容服务节点全量清理zookeeper无效节点时所使用的最大buffer大小，默认使用 JVM 最大堆内存的 1/5，单位：字节       |重启生效|
@@ -94,6 +95,8 @@ SequoiaCM 配置
 |scm.quota.asyncStrategy.maxCacheSize| str     | 配置异步额度控制时更新数据表的容量变化阈值，默认值为 1g，表示当本地缓存中的容量变化达到 1GB 时，更新数据表<br>数字的后缀表示容量单位，支持单位 m（M）和 g（G） |在线生效|
 |scm.quota.refreshSyncInfoInterval| num     | 配置读取额度统计表的周期，单位为毫秒，默认值为 10000 |在线生效|
 |scm.quota.maxStatisticsThreads| num     | 配置额度同步时执行统计的最大线程数，默认值为 30，表示当线程数超过 30 时，不再接受统计请求 |在线生效|
+|scm.datasource.sequoiadb.location|str|数据服务 SequoiaDB 连接池 location 配置，默认值为空|重启生效|
+|scm.datasource.sequoiadb.putLobRequiredVersion|str|使用 SequoiaDB putLob 接口要求的版本范围，默认值：3.6.1，支持填写范围如 [3.6.1,4)|重启生效|
 
 
 

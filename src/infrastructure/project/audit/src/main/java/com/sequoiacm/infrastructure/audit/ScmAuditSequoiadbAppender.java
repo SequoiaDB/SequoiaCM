@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.sequoiadb.base.UserConfig;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BSONTimestamp;
@@ -17,11 +18,11 @@ import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.base.SequoiadbDatasource;
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import com.sequoiadb.datasource.DatasourceOptions;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
@@ -44,6 +45,7 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
     private String keepAliveTime;
     private String recheckCyclePeriod;
     private String validateConnection;
+    private String location;
     private SequoiadbDatasource dataSource;
     private Date lastTime = new Date();
     private int count = 0;
@@ -247,7 +249,10 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
 
         ConfigOptions connConf = buildConfigOptions();
         DatasourceOptions datasourceConf = buildDatasourceOptions();
-        dataSource = new SequoiadbDatasource(urlList, userName, password, connConf, datasourceConf);
+        String location = getLocation() == null ? "" : getLocation().trim();
+        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+                .userConfig(new UserConfig(userName, password)).configOptions(connConf)
+                .datasourceOptions(datasourceConf).location(location).build();
     }
 
     private DatasourceOptions buildDatasourceOptions() {
@@ -280,7 +285,7 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
         catch (Exception e) {
             logger.warn("auditLog to SDB : release connection failed", e);
             try {
-                sdb.disconnect();
+                sdb.close();
             }
             catch (Exception e1) {
                 logger.warn("auditLog to SDB : disconnect sequoiadb failed", e1);
@@ -400,4 +405,11 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
         this.recheckCyclePeriod = recheckCyclePeriod;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 }

@@ -38,6 +38,29 @@ public class SequoiadbHelper {
         }
     }
 
+    public static void putLob(Sequoiadb sdb, String csName, String clName, String lobID,
+            byte[] data, int off, int len) throws SequoiadbException {
+        try {
+            CollectionSpace cs = sdb.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+            if (null == cl) {
+                throw new SequoiadbException(SDBError.SDB_DMS_NOTEXIST.getErrorCode(),
+                        "getCollection failed:cl=" + csName + "." + clName);
+            }
+            byte[] content = new byte[len];
+            System.arraycopy(data, off, content, 0, len);
+            cl.putLob(content, new ObjectId(lobID));
+        }
+        catch (BaseException e) {
+            throw new SequoiadbException(e.getErrorCode(),
+                    "put lob failed:table=" + csName + "." + clName + ",id=" + lobID, e);
+        }
+        catch (Exception e) {
+            throw new SequoiadbException(SDBError.SDB_SYS.getErrorCode(),
+                    "put lob failed:table=" + csName + "." + clName + ",id=" + lobID, e);
+        }
+    }
+
     public static void truncateLob(Sequoiadb sdb, String csName, String clName, String lobID, long length) throws SequoiadbException {
         try {
             CollectionSpace cs = sdb.getCollectionSpace(csName);

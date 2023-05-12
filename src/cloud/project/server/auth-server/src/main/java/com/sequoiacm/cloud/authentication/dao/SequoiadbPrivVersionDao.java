@@ -1,12 +1,12 @@
 package com.sequoiacm.cloud.authentication.dao;
 
+import com.sequoiadb.datasource.SequoiadbDatasource;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.sequoiacm.infrastructrue.security.core.ITransaction;
-import com.sequoiadb.base.SequoiadbDatasource;
 
 @Repository("IPrivVersionDao")
 public class SequoiadbPrivVersionDao implements IPrivVersionDao {

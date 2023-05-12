@@ -22,6 +22,7 @@ SequoiaCM 配置
 |scm.store.sequoiadb.keepAliveTime|num|连接池保留空闲连接的时长，默认值：60000（不清除空闲连接），单位：毫秒|重启生效|
 |scm.store.sequoiadb.recheckCyclePeriod|num|清理空闲连接的间隔时间。默认值：30000，单位：毫秒|重启生效|
 |scm.store.sequoiadb.validateConnection|bool|出池时是否检查连接有效性, 默认值：true|重启生效|
+|scm.store.sequoiadb.location|str|元数据服务 SequoiaDB 连接池 location 配置，默认值为空|重启生效|
 |scm.jvm.options|str|配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|重启生效|
 |scm.audit.mask|str|审计日志操作配置，控制对不同操作命令记录审计日志。默认为空，不记录任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|在线生效|
 |scm.audit.userMask|str|审计日志用户配置，默认为空，不记录任何用户的审计日志。支持的配置详见[审计用户类型掩码列表][audit_log]|在线生效|

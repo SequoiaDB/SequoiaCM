@@ -33,6 +33,7 @@ class ConfigSdb {
     private int deltaIncCount = dsConf.getDeltaIncCount();
     private int maxIdleNum = 2;
     private int recheckCyclePeriod = 30 * 1000;
+    private String location;
 
     public String getUrls() {
         return urls;
@@ -144,6 +145,14 @@ class ConfigSdb {
 
     public void setRecheckCyclePeriod(int recheckCyclePeriod) {
         this.recheckCyclePeriod = recheckCyclePeriod;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }
 
@@ -329,6 +338,10 @@ public class ScheduleApplicationConfig {
 
     public int getRecheckCyclePeriod() {
         return configSdb.getRecheckCyclePeriod();
+    }
+
+    public String getLocation() {
+        return configSdb.getLocation();
     }
 
     public ConfigSdb getConfigSdb() {

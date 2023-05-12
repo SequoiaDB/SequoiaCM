@@ -50,6 +50,7 @@ public class PropertiesUtils {
     private static CephS3DatasourceConfig cephS3Config;
     private static SftpDatasourceConfig sftpDatasourceConfig;
     private static AutoConfig autoConfig;
+    private static SdbDatasourceConfig sdbDatasourceConfig;
 
     @Autowired
     public void setRootSiteMetaConfig(RootSiteMetaConfig rootSiteMetaConfig) {
@@ -106,6 +107,10 @@ public class PropertiesUtils {
         PropertiesUtils.autoConfig = conf;
     }
 
+    @Autowired
+    public void setSdbDatasourceConfig(SdbDatasourceConfig conf) {
+        PropertiesUtils.sdbDatasourceConfig = conf;
+    }
 
     // 装载一些配置的key到特定集合中，对外暴露了通过key获取配置项的能力
     public static void loadSysConfig() throws ScmServerException {
@@ -344,6 +349,10 @@ public class PropertiesUtils {
         return sdbConfig.getConnectStrategy();
     }
 
+    public static String getLocation() {
+        return sdbConfig.getLocation();
+    }
+
     // *********************** SERVER ******************************
     public static int getServerPort() {
         return serverConfig.getServerPort();
@@ -499,6 +508,10 @@ public class PropertiesUtils {
 
     public static int getAutoAccessCount() {
         return autoConfig.getAccessCount();
+    }
+
+    public static SdbDatasourceConfig getSdbDatasourceConfig() {
+        return sdbDatasourceConfig;
     }
 
 }

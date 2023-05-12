@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiadb.base.UserConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -51,12 +52,14 @@ public class SdbDataSourceAutoConfig {
         dsOpt.setValidateConnection(configuration.getValidateConnection());
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
-        dsOpt.setPreferedInstance(preferedInstance);
+        dsOpt.setPreferredInstance(preferedInstance);
 
         AuthInfo auth = ScmFilePasswordParser.parserFile(configuration.getPassword());
-
-        return new SequoiadbDatasource(configuration.getUrls(), configuration.getUsername(),
-                auth.getPassword(), nwOpt, dsOpt);
+        String location = configuration.getLocation() == null ? ""
+                : configuration.getLocation().trim();
+        return SequoiadbDatasource.builder().serverAddress(configuration.getUrls())
+                .userConfig(new UserConfig(configuration.getUsername(), auth.getPassword()))
+                .configOptions(nwOpt).datasourceOptions(dsOpt).location(location).build();
     }
 
 }

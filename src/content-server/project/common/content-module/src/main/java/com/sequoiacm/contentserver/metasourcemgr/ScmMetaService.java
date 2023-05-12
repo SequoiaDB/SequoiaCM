@@ -51,9 +51,11 @@ public class ScmMetaService {
         if (siteUrl instanceof SdbSiteUrl) {
             SdbSiteUrl url = (SdbSiteUrl) siteUrl;
             try {
+                String location = url.getSdbConfig() == null ? ""
+                        : url.getSdbConfig().getLocation();
                 AuthInfo auth = ScmFilePasswordParser.parserFile(siteUrl.getPassword());
                 metasource = new SdbMetaSource(url.getUrls(), url.getUser(), auth.getPassword(),
-                        url.getConfig(), url.getDatasourceOption());
+                        url.getConfig(), url.getDatasourceOption(), location);
             }
             catch (ScmMetasourceException e) {
                 throw new ScmServerException(e.getScmError(), "Failed to create SdbMetaSource", e);

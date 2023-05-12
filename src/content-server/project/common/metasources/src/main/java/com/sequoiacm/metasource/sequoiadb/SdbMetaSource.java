@@ -1,6 +1,7 @@
 package com.sequoiacm.metasource.sequoiadb;
 
 import java.util.List;
+import java.util.Map;
 
 import com.sequoiacm.metasource.MetaQuotaAccessor;
 import com.sequoiacm.metasource.MetaQuotaSyncAccessor;
@@ -60,7 +61,7 @@ import com.sequoiacm.metasource.sequoiadb.accessor.SdbWorkspaceAccessor;
 import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 import com.sequoiadb.base.Sequoiadb;
 import com.sequoiadb.datasource.DatasourceOptions;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
 
 public class SdbMetaSource implements ContentModuleMetaSource {
     private static final Logger logger = LoggerFactory.getLogger(SdbMetaSource.class);
@@ -68,8 +69,9 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     private SdbDataSourceWrapper ms = null;
 
     public SdbMetaSource(List<String> urlList, String user, String passwd, ConfigOptions connConf,
-            DatasourceOptions datasourceConf) throws SdbMetasourceException {
-        ms = new SdbDataSourceWrapper(urlList, user, passwd, connConf, datasourceConf);
+            DatasourceOptions datasourceConf, String location)
+            throws SdbMetasourceException {
+        ms = new SdbDataSourceWrapper(urlList, user, passwd, connConf, datasourceConf, location);
         ensureTable();
     }
 

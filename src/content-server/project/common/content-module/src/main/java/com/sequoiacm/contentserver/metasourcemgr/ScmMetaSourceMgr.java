@@ -8,7 +8,7 @@ import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import com.sequoiadb.datasource.DatasourceOptions;
-import com.sequoiadb.net.ConfigOptions;
+import com.sequoiadb.base.ConfigOptions;
 
 public class ScmMetaSourceMgr {
     private static ScmMetaSourceMgr instance = new ScmMetaSourceMgr();
@@ -28,7 +28,8 @@ public class ScmMetaSourceMgr {
         datasourceConf.setConnectStrategy(PropertiesUtils.getConnectStrategy());
         datasourceConf.setMaxIdleCount(1);
         try {
-            return new SdbMetaSource(urlList, user, passwd, connConf, datasourceConf);
+            return new SdbMetaSource(urlList, user, passwd, connConf, datasourceConf,
+                    PropertiesUtils.getLocation());
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(), "Failed to create SdbMetaSource", e);

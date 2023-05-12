@@ -3,6 +3,7 @@ package com.sequoiacm.mq.server.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiadb.base.UserConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ public class SdbDatasourceConfig {
     private int deltaIncCount = dsConf.getDeltaIncCount();
     private int maxIdleNum = dsConf.getMaxIdleCount();
     private int recheckCyclePeriod = 30 * 1000;
+    private String location;
 
     public int getConnectTimeout() {
         return connectTimeout;
@@ -146,6 +148,14 @@ public class SdbDatasourceConfig {
         this.password = password;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     @Bean
     public SequoiadbDatasource sdbDatasource(SdbDatasourceConfig configuration) {
         ConfigOptions nwOpt = new ConfigOptions();
@@ -165,9 +175,12 @@ public class SdbDatasourceConfig {
         dsOpt.setValidateConnection(configuration.getValidateConnection());
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
-        dsOpt.setPreferedInstance(preferedInstance);
+        dsOpt.setPreferredInstance(preferedInstance);
         AuthInfo auth = ScmFilePasswordParser.parserFile(configuration.getPassword());
-        return new SequoiadbDatasource(configuration.getUrls(), configuration.getUsername(),
-                auth.getPassword(), nwOpt, dsOpt);
+        String location = configuration.getLocation() == null ? ""
+                : configuration.getLocation().trim();
+        return SequoiadbDatasource.builder().serverAddress(configuration.getUrls())
+                .userConfig(new UserConfig(configuration.getUsername(), auth.getPassword()))
+                .configOptions(nwOpt).datasourceOptions(dsOpt).location(location).build();
     }
 }
