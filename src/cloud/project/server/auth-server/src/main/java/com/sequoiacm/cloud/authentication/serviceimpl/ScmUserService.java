@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SimpleTimeZone;
 
 import org.bson.BSONObject;
@@ -219,6 +220,7 @@ public class ScmUserService implements IUserService {
         }
 
         if (delRoles != null && delRoles.size() > 0) {
+            Set<String> userNoContainRoles = new HashSet<>();
             for (String roleName : delRoles) {
                 if (!StringUtils.hasText(roleName)) {
                     continue;
@@ -237,6 +239,14 @@ public class ScmUserService implements IUserService {
                     roleNamesMap.remove(innerRoleName);
                     message += " alter delRoles,roleName=" + role.getRoleName() + ";";
                 }
+                else {
+                    userNoContainRoles.add(roleName);
+                }
+            }
+            if (!userNoContainRoles.isEmpty()) {
+                throw new BadRequestException(
+                        "Delete roles Failed, because the user do not have this roles, roles:"
+                                + userNoContainRoles + ",delRoles:" + delRoles);
             }
         }
 
