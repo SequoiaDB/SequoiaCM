@@ -9,19 +9,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmRole;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmUser;
-import com.sequoiacm.client.core.ScmUserModifier;
-import com.sequoiacm.client.core.ScmUserPasswordType;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
-import com.sequoiacm.testcommon.TestThreadBase;
+import com.sequoiacm.testcommon.*;
 
 /**
  * @FileName SCM-1555:并发修改用户属性删除角色、删除该角色
@@ -148,7 +139,7 @@ public class AuthServer_user1555 extends TestScmBase {
                 modifier.delRole( NAME );
                 ScmFactory.User.alterUser( session, scmUser, modifier );
             } catch ( ScmException e ) {
-                if ( ScmError.HTTP_INTERNAL_SERVER_ERROR != e.getError() ) {
+                if ( ScmError.HTTP_BAD_REQUEST != e.getError() ) {
                     e.printStackTrace();
                     throw e;
                 }
