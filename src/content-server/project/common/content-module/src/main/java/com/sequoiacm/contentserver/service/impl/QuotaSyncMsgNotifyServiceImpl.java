@@ -17,18 +17,17 @@ public class QuotaSyncMsgNotifyServiceImpl implements QuotaSyncMsgNotifyService 
     private BucketQuotaManager quotaManager;
 
     @Override
-    public long notifyBeginSync(String type, String name, int syncRoundNumber, long expireTime)
-            throws ScmServerException {
+    public long notifyBeginSync(String type, String name, int syncRoundNumber, int quotaRoundNumber,
+            long expireTime) throws ScmServerException {
         checkType(type);
-        quotaManager.handleMsg(new BeginSyncMsg(type, name, syncRoundNumber, expireTime));
+        quotaManager.handleMsg(
+                new BeginSyncMsg(type, name, syncRoundNumber, quotaRoundNumber, expireTime));
         return System.currentTimeMillis();
     }
 
-
     @Override
     public void notifySetAgreementTimeMsg(String type, String name, long agreementTime,
-            int syncRoundNumber)
-            throws ScmServerException {
+            int syncRoundNumber, int quotaRoundNumber) throws ScmServerException {
         checkType(type);
         long currentTime = System.currentTimeMillis();
         if (currentTime < agreementTime) {
@@ -36,21 +35,22 @@ public class QuotaSyncMsgNotifyServiceImpl implements QuotaSyncMsgNotifyService 
                     "currentTime is less than agreementTime:currentTime=" + currentTime
                             + ", agreementTime=" + agreementTime);
         }
-        quotaManager.handleMsg(new SetAgreementTimeMsg(type, name, syncRoundNumber, agreementTime));
+        quotaManager.handleMsg(new SetAgreementTimeMsg(type, name, syncRoundNumber,
+                quotaRoundNumber, agreementTime));
     }
 
     @Override
-    public void notifyCancelSync(String type, String name, int syncRoundNumber)
-            throws ScmServerException {
+    public void notifyCancelSync(String type, String name, int syncRoundNumber,
+            int quotaRoundNumber) throws ScmServerException {
         checkType(type);
-        quotaManager.handleMsg(new CancelSyncMsg(type, name, syncRoundNumber));
+        quotaManager.handleMsg(new CancelSyncMsg(type, name, syncRoundNumber, quotaRoundNumber));
     }
 
     @Override
-    public void notifyFinishSync(String type, String name, int syncRoundNumber)
-            throws ScmServerException {
+    public void notifyFinishSync(String type, String name, int syncRoundNumber,
+            int quotaRoundNumber) throws ScmServerException {
         checkType(type);
-        quotaManager.handleMsg(new FinishSyncMsg(type, name, syncRoundNumber));
+        quotaManager.handleMsg(new FinishSyncMsg(type, name, syncRoundNumber, quotaRoundNumber));
     }
 
     private void checkType(String type) throws ScmInvalidArgumentException {

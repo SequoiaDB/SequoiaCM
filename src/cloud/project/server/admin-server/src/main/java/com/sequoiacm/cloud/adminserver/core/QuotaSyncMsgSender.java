@@ -50,15 +50,15 @@ public class QuotaSyncMsgSender {
     }
 
     public StartSyncMsgResponse sendStartSyncMsg(final String type, final String name,
-            final int syncRoundNumber, long expireTime, List<ScmServiceInstance> notifyInstances)
-            throws StatisticsException {
+            final int syncRoundNumber, int quotaRoundNumber, long expireTime,
+            List<ScmServiceInstance> notifyInstances) throws StatisticsException {
 
         final StartSyncMsgResponse response = new StartSyncMsgResponse();
         List<Future<Result>> futures = new ArrayList<>();
         for (ScmServiceInstance notifyInstance : notifyInstances) {
             final String nodeUrl = notifyInstance.getHost() + ":" + notifyInstance.getPort();
-            Future<Result> future = msgSenderThreadPool
-                    .submit(new StartSyncTask(nodeUrl, type, name, syncRoundNumber, expireTime));
+            Future<Result> future = msgSenderThreadPool.submit(new StartSyncTask(nodeUrl, type,
+                    name, syncRoundNumber, quotaRoundNumber, expireTime));
             futures.add(future);
         }
         StatisticsException lastException = null;
@@ -88,12 +88,14 @@ public class QuotaSyncMsgSender {
     }
 
     public void sendSetAgreementTimeMsg(String type, String name, int syncRoundNumber,
-            long agreementTime, List<Result> results) throws StatisticsException {
+            int quotaRoundNumber, long agreementTime, List<Result> results)
+            throws StatisticsException {
         try {
             List<Future<?>> futures = new ArrayList<>(results.size());
             for (Result result : results) {
-                Future<?> future = msgSenderThreadPool.submit(new SetAgreementTimeTask(
-                        result.getNodeUrl(), type, name, syncRoundNumber, agreementTime));
+                Future<?> future = msgSenderThreadPool
+                        .submit(new SetAgreementTimeTask(result.getNodeUrl(), type, name,
+                                syncRoundNumber, quotaRoundNumber, agreementTime));
                 futures.add(future);
             }
             StatisticsException lastException = null;
@@ -130,13 +132,13 @@ public class QuotaSyncMsgSender {
     }
 
     public void sendCancelSyncMsgSilence(String type, String name, int syncRoundNumber,
-            List<ScmServiceInstance> notifyInstances) {
+            int quotaRoundNumber, List<ScmServiceInstance> notifyInstances) {
         try {
             List<Future<?>> futures = new ArrayList<>(notifyInstances.size());
             for (ScmServiceInstance notifyInstance : notifyInstances) {
                 String nodeUrl = notifyInstance.getHost() + ":" + notifyInstance.getPort();
-                Future<?> future = msgSenderThreadPool.submit(
-                        new CancelSyncTaskIgnoreError(nodeUrl, type, name, syncRoundNumber));
+                Future<?> future = msgSenderThreadPool.submit(new CancelSyncTaskIgnoreError(nodeUrl,
+                        type, name, syncRoundNumber, quotaRoundNumber));
                 futures.add(future);
             }
             for (Future<?> future : futures) {
@@ -150,13 +152,13 @@ public class QuotaSyncMsgSender {
     }
 
     public void sendFinishSyncMsgSilence(String type, String name, int syncRoundNumber,
-            List<ScmServiceInstance> notifyInstances) {
+            int quotaRoundNumber, List<ScmServiceInstance> notifyInstances) {
         try {
             List<Future<?>> futures = new ArrayList<>(notifyInstances.size());
             for (ScmServiceInstance notifyInstance : notifyInstances) {
                 String nodeUrl = notifyInstance.getHost() + ":" + notifyInstance.getPort();
-                Future<?> future = msgSenderThreadPool.submit(
-                        new FinishSyncTaskIgnoreError(nodeUrl, type, name, syncRoundNumber));
+                Future<?> future = msgSenderThreadPool.submit(new FinishSyncTaskIgnoreError(nodeUrl,
+                        type, name, syncRoundNumber, quotaRoundNumber));
                 futures.add(future);
             }
             for (Future<?> future : futures) {
@@ -174,14 +176,16 @@ public class QuotaSyncMsgSender {
         private String type;
         private String name;
         private int syncRoundNumber;
+        private int quotaRoundNumber;
         private long expireTime;
 
         public StartSyncTask(String nodeUrl, String type, String name, int syncRoundNumber,
-                long expireTime) {
+                int quotaRoundNumber, long expireTime) {
             this.nodeUrl = nodeUrl;
             this.type = type;
             this.name = name;
             this.syncRoundNumber = syncRoundNumber;
+            this.quotaRoundNumber = quotaRoundNumber;
             this.expireTime = expireTime;
         }
 
@@ -189,7 +193,7 @@ public class QuotaSyncMsgSender {
         public Result call() throws Exception {
             try {
                 BSONObject bsonObject = clientFactory.getClient(nodeUrl).beginSync(type, name,
-                        syncRoundNumber, expireTime);
+                        syncRoundNumber, quotaRoundNumber, expireTime);
                 long nodeTime = BsonUtils
                         .getNumberChecked(bsonObject, CommonDefine.RestArg.QUOTA_SYNC_CURRENT_TIME)
                         .longValue();
@@ -218,24 +222,27 @@ public class QuotaSyncMsgSender {
         private String type;
         private String name;
         private int syncRoundNumber;
+        private int quotaRoundNumber;
 
         public CancelSyncTaskIgnoreError(String nodeUrl, String type, String name,
-                int syncRoundNumber) {
+                int syncRoundNumber, int quotaRoundNumber) {
             this.nodeUrl = nodeUrl;
             this.type = type;
             this.name = name;
             this.syncRoundNumber = syncRoundNumber;
+            this.quotaRoundNumber = quotaRoundNumber;
         }
 
         @Override
         public void run() {
             try {
-                clientFactory.getClient(nodeUrl).cancelSync(type, name, syncRoundNumber);
+                clientFactory.getClient(nodeUrl).cancelSync(type, name, syncRoundNumber,
+                        quotaRoundNumber);
             }
             catch (Exception e) {
                 logger.warn(
-                        "failed to send cancelSync msg to node:{},type={},name={},syncRoundNumber={} ",
-                        nodeUrl, type, name, syncRoundNumber, e);
+                        "failed to send cancelSync msg to node:{},type={},name={},syncRoundNumber={},quotaRoundNumber={}",
+                        nodeUrl, type, name, syncRoundNumber, quotaRoundNumber, e);
             }
         }
     }
@@ -246,14 +253,16 @@ public class QuotaSyncMsgSender {
         private String type;
         private String name;
         private int syncRoundNumber;
+        private int quotaRoundNumber;
         private long agreementTime;
 
         public SetAgreementTimeTask(String nodeUrl, String type, String name, int syncRoundNumber,
-                long agreementTime) {
+                int quotaRoundNumber, long agreementTime) {
             this.nodeUrl = nodeUrl;
             this.type = type;
             this.name = name;
             this.syncRoundNumber = syncRoundNumber;
+            this.quotaRoundNumber = quotaRoundNumber;
             this.agreementTime = agreementTime;
         }
 
@@ -261,13 +270,14 @@ public class QuotaSyncMsgSender {
         public Void call() throws StatisticsException {
             try {
                 clientFactory.getClient(nodeUrl).setAgreementTime(type, name, agreementTime,
-                        syncRoundNumber);
+                        syncRoundNumber, quotaRoundNumber);
             }
             catch (Exception e) {
                 throw new StatisticsException(StatisticsError.INTERNAL_ERROR,
                         "failed to send setAgreementTime msg to node " + nodeUrl + ":type=" + type
                                 + ",name=" + name + ",syncRoundNumber=" + syncRoundNumber
-                                + ",agreementTime=" + agreementTime,
+                                + ",quotaRoundNumber=" + quotaRoundNumber + ",agreementTime="
+                                + agreementTime,
                         e);
             }
             return null;
@@ -279,24 +289,27 @@ public class QuotaSyncMsgSender {
         private String type;
         private String name;
         private int syncRoundNumber;
+        private int quotaRoundNumber;
 
         public FinishSyncTaskIgnoreError(String nodeUrl, String type, String name,
-                int syncRoundNumber) {
+                int syncRoundNumber, int quotaRoundNumber) {
             this.nodeUrl = nodeUrl;
             this.type = type;
             this.name = name;
             this.syncRoundNumber = syncRoundNumber;
+            this.quotaRoundNumber = quotaRoundNumber;
         }
 
         @Override
         public void run() {
             try {
-                clientFactory.getClient(nodeUrl).finishSync(type, name, syncRoundNumber);
+                clientFactory.getClient(nodeUrl).finishSync(type, name, syncRoundNumber,
+                        quotaRoundNumber);
             }
             catch (Exception e) {
                 logger.warn(
-                        "failed to send finishSyncMsg to node:{},type={},name={},syncRoundNumber={}",
-                        nodeUrl, type, name, syncRoundNumber, e);
+                        "failed to send finishSyncMsg to node:{},type={},name={},syncRoundNumber={},quotaRoundNumber={}",
+                        nodeUrl, type, name, syncRoundNumber, quotaRoundNumber, e);
             }
         }
     }

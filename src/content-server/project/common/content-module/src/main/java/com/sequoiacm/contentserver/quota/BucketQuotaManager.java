@@ -11,7 +11,7 @@ import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.quota.limiter.LimiterType;
-import com.sequoiacm.contentserver.quota.limiter.StableStatusQuotaLimiter;
+import com.sequoiacm.contentserver.quota.limiter.stable.StableStatusQuotaLimiter;
 import com.sequoiacm.contentserver.quota.limiter.SyncingStatusQuotaLimiter;
 import com.sequoiacm.contentserver.quota.limiter.UnlimitedStatusQuotaLimiter;
 import com.sequoiacm.contentserver.quota.msg.DisableQuotaMsg;
@@ -22,6 +22,7 @@ import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmHashSlotLock;
+import com.sequoiacm.infrastructure.common.ScmLockWrapper;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
@@ -55,7 +56,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
 
 @Component
 @EnableQuotaSubscriber
@@ -65,6 +65,9 @@ public class BucketQuotaManager implements ApplicationRunner {
     public static final String QUOTA_TYPE = "bucket";
 
     private final Map<String, QuotaLimiter> bucketQuotaLimiter = new ConcurrentHashMap<>();
+
+    // 从 bucketQuotaLimiter 获取 limiter 时，需要加读锁，变更时需要加写锁
+    private ScmHashSlotLock limiterLock;
 
     private ScmTimer refreshSyncInfoTimer;
     private RefreshSyncInfoTask refreshSyncInfoTask;
@@ -86,7 +89,6 @@ public class BucketQuotaManager implements ApplicationRunner {
 
     private MetaQuotaSyncAccessor quotaSyncAccessor;
     private MetaQuotaAccessor quotaAccessor;
-    private ScmHashSlotLock limiterLock;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
@@ -148,11 +150,17 @@ public class BucketQuotaManager implements ApplicationRunner {
         if (createTime == null) {
             createTime = System.currentTimeMillis();
         }
-        Lock lock = limiterLock.getReadLock(bucketName);
+        ScmLockWrapper lock = limiterLock.getReadLock(bucketName);
         try {
             lock.lock();
-            QuotaLimiter quotaLimiter = getQuotaLimiter(bucketName);
+            QuotaLimiter quotaLimiter = getQuotaLimiter(bucketName, lock);
             return quotaLimiter.acquireQuota(objects, size, createTime);
+        }
+        catch (QuotaLimiterIncorrectException e) {
+            lock.unlock();
+            lock = null;
+            removeQuotaLimiterAndDestroyInLock(bucketName, e.getCurrentQuotaLimiter());
+            return acquireQuota(bucketName, objects, size, createTime);
         }
         catch (ScmServerException e) {
             throw e;
@@ -162,7 +170,9 @@ public class BucketQuotaManager implements ApplicationRunner {
                     + ",objects=" + objects + ",size=" + size, e);
         }
         finally {
-            lock.unlock();
+            if (lock != null) {
+                lock.unlock();
+            }
         }
     }
 
@@ -191,13 +201,18 @@ public class BucketQuotaManager implements ApplicationRunner {
 
     @SlowLog(operation = "releaseQuota")
     public void releaseQuota(String bucketName, long objects, long size, long createTime) {
-        Lock lock = null;
+        checkArg(bucketName, objects, size);
+        ScmLockWrapper lock = limiterLock.getReadLock(bucketName);
         try {
-            checkArg(bucketName, objects, size);
-            lock = limiterLock.getReadLock(bucketName);
             lock.lock();
-            QuotaLimiter quotaLimiter = getQuotaLimiter(bucketName);
+            QuotaLimiter quotaLimiter = getQuotaLimiter(bucketName, lock);
             quotaLimiter.releaseQuota(objects, size, createTime);
+        }
+        catch (QuotaLimiterIncorrectException e) {
+            lock.unlock();
+            lock = null;
+            removeQuotaLimiterAndDestroyInLock(bucketName, e.getCurrentQuotaLimiter());
+            releaseQuota(bucketName, objects, size, createTime);
         }
         catch (Exception e) {
             logger.warn("release quota failed: bucketName={},objects={},size={},createTime={}",
@@ -221,10 +236,10 @@ public class BucketQuotaManager implements ApplicationRunner {
     public void handleMsg(QuotaMsg quotaMsg) throws ScmServerException {
         logger.info("receive msg:{}", quotaMsg);
         String bucketName = quotaMsg.getName();
-        Lock lock = limiterLock.getWriteLock(bucketName);
+        ScmLockWrapper lock = limiterLock.getWriteLock(bucketName);
         try {
             lock.lock();
-            QuotaLimiter quotaLimiter = getQuotaLimiter(bucketName);
+            QuotaLimiter quotaLimiter = getQuotaLimiter(bucketName, lock);
             LimiterType limiterType = quotaLimiter.handleMsg(quotaMsg);
             if (limiterType != null && limiterType != quotaLimiter.getType()) {
                 logger.info("quotaLimiter change:old={},new={},msg={}", quotaLimiter.getType(),
@@ -270,12 +285,11 @@ public class BucketQuotaManager implements ApplicationRunner {
     private QuotaLimiter createQuotaLimiter(String bucketName, QuotaLimiter oldQuotaLimiter,
             LimiterType newLimiterType, QuotaMsg quotaMsg) throws ScmServerException {
         if (newLimiterType == LimiterType.STABLE) {
-            return new StableStatusQuotaLimiter(quotaMsg, this, oldQuotaLimiter.getQuotaUsedInfo(),
-                    oldQuotaLimiter.getQuotaRoundNumber());
+            return new StableStatusQuotaLimiter(quotaMsg, this, oldQuotaLimiter.getQuotaUsedInfo());
         }
         else if (newLimiterType == LimiterType.SYNCING) {
-            return new SyncingStatusQuotaLimiter(quotaMsg, this, oldQuotaLimiter.getQuotaUsedInfo(),
-                    oldQuotaLimiter.getQuotaRoundNumber());
+            return new SyncingStatusQuotaLimiter(quotaMsg, this,
+                    oldQuotaLimiter.getQuotaUsedInfo());
         }
         else if (newLimiterType == LimiterType.UNLIMITED) {
             return new UnlimitedStatusQuotaLimiter(bucketName, this);
@@ -290,16 +304,31 @@ public class BucketQuotaManager implements ApplicationRunner {
 
     public QuotaLimiter removeQuotaLimiter(String bucketName) {
         QuotaLimiter quotaLimiter = bucketQuotaLimiter.remove(bucketName);
+        if (quotaLimiter != null) {
+            logger.info("remove quota limiter:{}", quotaLimiter.getInfo().toString());
+        }
         if (quotaLimiter != null && quotaLimiter.getType() == LimiterType.SYNCING) {
             syncingStatusBuckets.remove(bucketName);
         }
         return quotaLimiter;
     }
 
-    public void removeQuotaLimiterAndDestroy(String bucketName) {
-        QuotaLimiter quotaLimiter = removeQuotaLimiter(bucketName);
-        if (quotaLimiter != null) {
-            quotaLimiter.destroySilence();
+    public void removeQuotaLimiterAndDestroyInLock(String bucketName,
+            QuotaLimiter expectQuotaLimiter) {
+        QuotaLimiter removedQuotaLimiter = null;
+        ScmLockWrapper writeLock = limiterLock.getWriteLock(bucketName);
+        try {
+            writeLock.lock();
+            QuotaLimiter currentQuotaLimiter = bucketQuotaLimiter.get(bucketName);
+            if (currentQuotaLimiter == expectQuotaLimiter) {
+                removedQuotaLimiter = removeQuotaLimiter(bucketName);
+            }
+        }
+        finally {
+            writeLock.unlock();
+        }
+        if (removedQuotaLimiter != null) {
+            removedQuotaLimiter.destroySilence();
         }
     }
 
@@ -307,8 +336,17 @@ public class BucketQuotaManager implements ApplicationRunner {
         if (!QUOTA_TYPE.equals(type)) {
             throw new IllegalArgumentException("type must be bucket");
         }
-        QuotaLimiter bucketQuotaLimiter = getQuotaLimiter(name);
-        return bucketQuotaLimiter.getInfo();
+
+        ScmLockWrapper readLock = limiterLock.getReadLock(name);
+        try {
+            readLock.lock();
+            QuotaLimiter bucketQuotaLimiter = getQuotaLimiter(name, readLock);
+            return bucketQuotaLimiter.getInfo();
+        }
+        finally {
+            readLock.unlock();
+        }
+
     }
 
     private void checkArg(String bucketName, long objects, long size) {
@@ -323,17 +361,39 @@ public class BucketQuotaManager implements ApplicationRunner {
         }
     }
 
-    private QuotaLimiter getQuotaLimiter(String bucketName) throws ScmServerException {
+    private QuotaLimiter getQuotaLimiter(String bucketName, ScmLockWrapper outerLock)
+            throws ScmServerException {
         QuotaLimiter quotaLimiter = bucketQuotaLimiter.get(bucketName);
-        if (quotaLimiter == null) {
-            synchronized (bucketQuotaLimiter) {
-                quotaLimiter = bucketQuotaLimiter.get(bucketName);
-                if (quotaLimiter == null) {
-                    quotaLimiter = initQuotaLimiter(bucketName);
-                    putQuotaLimiter(bucketName, quotaLimiter);
-                }
-            }
+        if (quotaLimiter != null) {
+            return quotaLimiter;
         }
+
+        // 外层是写锁，直接创建 limiter
+        if (outerLock.isWriteLock()) {
+            return createQuotaLimierIfAbsent(bucketName);
+        }
+
+        // 外层是读锁，需要暂时把读锁释放，加写锁后创建 limiter
+        outerLock.unlock();
+        ScmLockWrapper writeLock = limiterLock.getWriteLock(bucketName);
+        try {
+            writeLock.lock();
+            return createQuotaLimierIfAbsent(bucketName);
+        }
+        finally {
+            writeLock.unlock();
+            outerLock.lock(); // 需要把外层的锁复原
+        }
+    }
+
+    private QuotaLimiter createQuotaLimierIfAbsent(String bucketName) throws ScmServerException {
+        QuotaLimiter quotaLimiter;
+        quotaLimiter = bucketQuotaLimiter.get(bucketName);
+        if (quotaLimiter != null) {
+            return quotaLimiter;
+        }
+        quotaLimiter = initQuotaLimiter(bucketName);
+        putQuotaLimiter(bucketName, quotaLimiter);
         return quotaLimiter;
     }
 
@@ -348,7 +408,7 @@ public class BucketQuotaManager implements ApplicationRunner {
         QuotaSyncInfo quotaSyncInfo = getBucketSyncInfo(bucketName);
         if (quotaSyncInfo == null) {
             // 可能刚开启限额还未触发同步，没有统计信息
-            return new StableStatusQuotaLimiter(bucketName, this, -1, usedObjects, usedSize,
+            return new StableStatusQuotaLimiter(bucketName, this, usedObjects, usedSize,
                     quotaConfigDetail.getQuotaRoundNumber());
         }
         QuotaLimiter quotaLimiter = null;
@@ -366,8 +426,7 @@ public class BucketQuotaManager implements ApplicationRunner {
         else if (syncStatus == ScmQuotaSyncStatus.FAILED
                 || syncStatus == ScmQuotaSyncStatus.CANCELED
                 || syncStatus == ScmQuotaSyncStatus.COMPLETED) {
-            quotaLimiter = new StableStatusQuotaLimiter(bucketName, this,
-                    quotaSyncInfo.getSyncRoundNumber(), usedObjects, usedSize,
+            quotaLimiter = new StableStatusQuotaLimiter(bucketName, this, usedObjects, usedSize,
                     quotaConfigDetail.getQuotaRoundNumber());
         }
         else {
@@ -382,29 +441,27 @@ public class BucketQuotaManager implements ApplicationRunner {
         QuotaSyncInfo bucketSyncInfo = getBucketSyncInfo(bucketName);
         if (bucketSyncInfo == null) {
             logger.warn("bucket quota sync info is null:bucketName={}", bucketName);
-            removeQuotaLimiterAndDestroy(bucketName);
-            return statisticsQuotaInfo;
+            return null;
         }
         if (bucketSyncInfo.getSyncRoundNumber() != syncRoundNumber) {
             logger.warn(
                     "bucket quota sync info is not match:bucketName={},syncRoundNumber={},currentRoundNumber={}",
                     bucketName, syncRoundNumber, bucketSyncInfo.getSyncRoundNumber());
-            removeQuotaLimiterAndDestroy(bucketName);
-            return statisticsQuotaInfo;
+            return null;
         }
         statisticsQuotaInfo.setObjects(bucketSyncInfo.getStatisticsObjects());
         statisticsQuotaInfo.setSize(bucketSyncInfo.getStatisticsSize());
         return statisticsQuotaInfo;
     }
 
-    public long getBucketMaxObjects(String bucketName) throws ScmSystemException {
+    public Long getBucketMaxObjects(String bucketName, int quotaRoundNumber)
+            throws ScmSystemException {
         try {
             QuotaConfig quota = quotaConfSubscriber.getQuota(QUOTA_TYPE, bucketName);
-            if (quota != null) {
-                return quota.getMaxObjects();
+            if (quota == null || quota.getQuotaRoundNumber() != quotaRoundNumber) {
+                return null;
             }
-            removeQuotaLimiterAndDestroy(bucketName);
-            return -1;
+            return quota.getMaxObjects();
         }
         catch (Exception e) {
             throw new ScmSystemException(
@@ -412,14 +469,29 @@ public class BucketQuotaManager implements ApplicationRunner {
         }
     }
 
-    public long getBucketMaxSize(String bucketName) throws ScmSystemException {
+    public Long getBucketMaxSize(String bucketName, int quotaRoundNumber)
+            throws ScmSystemException {
         try {
             QuotaConfig quota = quotaConfSubscriber.getQuota(QUOTA_TYPE, bucketName);
-            if (quota != null) {
-                return quota.getMaxSize();
+            if (quota == null || quota.getQuotaRoundNumber() != quotaRoundNumber) {
+                return null;
             }
-            removeQuotaLimiterAndDestroy(bucketName);
-            return -1;
+            return quota.getMaxSize();
+        }
+        catch (Exception e) {
+            throw new ScmSystemException(
+                    "failed to get bucket quota config:bucketName=" + bucketName, e);
+        }
+    }
+
+    public QuotaConfig getQuotaConfig(String bucketName, int quotaRoundNumber)
+            throws ScmSystemException {
+        try {
+            QuotaConfig quota = quotaConfSubscriber.getQuota(QUOTA_TYPE, bucketName);
+            if (quota == null || quota.getQuotaRoundNumber() != quotaRoundNumber) {
+                return null;
+            }
+            return quota;
         }
         catch (Exception e) {
             throw new ScmSystemException(
@@ -487,7 +559,6 @@ public class BucketQuotaManager implements ApplicationRunner {
     public QuotaWrapper addUsedInfoToQuotaTable(String bucketName, int quotaRoundNumber,
             long usedObjects, long usedSize) throws ScmSystemException {
         ScmLock lock = null;
-        QuotaWrapper quotaUsedInfo = new QuotaWrapper();
         ScmLockPath lockPath = ScmLockPathFactory.createQuotaUsedLockPath(QUOTA_TYPE, bucketName);
         try {
             ScmLockManager lockManager = ScmLockManager.getInstance();
@@ -498,8 +569,7 @@ public class BucketQuotaManager implements ApplicationRunner {
                 logger.warn(
                         "quota info not found, ignore to update:bucketName={},quotaRoundNumber={},usedObjects={},usedSize={}",
                         bucketName, quotaRoundNumber, usedObjects, usedSize);
-                removeQuotaLimiterAndDestroy(bucketName);
-                return quotaUsedInfo;
+                return null;
             }
             int currentQuotaRoundNumber = BsonUtils
                     .getNumberChecked(record, FieldName.Quota.QUOTA_ROUND_NUMBER).intValue();
@@ -508,8 +578,7 @@ public class BucketQuotaManager implements ApplicationRunner {
                         "quota round number not match, ignore to update:bucketName={},quotaRoundNumber={},currentQuotaRoundNumber={},usedObjects={},usedSize={}",
                         bucketName, quotaRoundNumber, currentQuotaRoundNumber, usedObjects,
                         usedSize);
-                removeQuotaLimiterAndDestroy(bucketName);
-                return quotaUsedInfo;
+                return null;
             }
 
             long newSize = BsonUtils.getNumberChecked(record, FieldName.Quota.USED_SIZE).longValue()
@@ -527,19 +596,19 @@ public class BucketQuotaManager implements ApplicationRunner {
             BSONObject bsonObject = quotaAccessor.queryAndUpdate(matcher,
                     new BasicBSONObject("$set", updator), null, true);
             if (bsonObject != null) {
+                QuotaWrapper quotaUsedInfo = new QuotaWrapper();
                 quotaUsedInfo.setObjects(BsonUtils
                         .getNumberChecked(bsonObject, FieldName.Quota.USED_OBJECTS).longValue());
                 quotaUsedInfo.setSize(BsonUtils
                         .getNumberChecked(bsonObject, FieldName.Quota.USED_SIZE).longValue());
+                return quotaUsedInfo;
             }
             else {
                 logger.warn(
                         "quota info not found, ignore to update:bucketName={},quotaRoundNumber={},usedObjects={},usedSize={}",
                         bucketName, quotaRoundNumber, usedObjects, usedSize);
-                removeQuotaLimiterAndDestroy(bucketName);
+                return null;
             }
-            return quotaUsedInfo;
-
         }
         catch (Exception e) {
             throw new ScmSystemException("failed to update quota info:bucketName=" + bucketName
@@ -558,7 +627,8 @@ public class BucketQuotaManager implements ApplicationRunner {
         if (quotaChangeEvent.getType().equals(QUOTA_TYPE)) {
             QuotaConfig newQuotaConfig = quotaChangeEvent.getNewQuotaConfig();
             if (newQuotaConfig == null) {
-                handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName()));
+                handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName(),
+                        Integer.MAX_VALUE));
                 return;
             }
             if (newQuotaConfig.isEnable()) {
@@ -566,7 +636,8 @@ public class BucketQuotaManager implements ApplicationRunner {
                         newQuotaConfig.getQuotaRoundNumber()));
             }
             else {
-                handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName()));
+                handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName(),
+                        newQuotaConfig.getQuotaRoundNumber()));
             }
         }
     }
@@ -576,7 +647,7 @@ public class BucketQuotaManager implements ApplicationRunner {
             throws ScmServerException {
         logger.info("handle bucket deleted event:{}", bucketDeletedEvent);
         DisableQuotaMsg disableQuotaMsg = new DisableQuotaMsg(QUOTA_TYPE,
-                bucketDeletedEvent.getDeletedBucketName());
+                bucketDeletedEvent.getDeletedBucketName(), Integer.MAX_VALUE);
         handleMsg(disableQuotaMsg);
     }
 
@@ -586,7 +657,14 @@ public class BucketQuotaManager implements ApplicationRunner {
         logger.info("handle RefreshScopeRefreshedEvent:{}", event);
         for (QuotaLimiter limiter : bucketQuotaLimiter.values()) {
             if (limiter instanceof ScmRefreshScopeRefreshedListener) {
-                ((ScmRefreshScopeRefreshedListener) limiter).onRefreshScopeRefreshed();
+                try {
+                    ((ScmRefreshScopeRefreshedListener) limiter).onRefreshScopeRefreshed();
+                }
+                catch (QuotaLimiterIncorrectException e) {
+                    removeQuotaLimiterAndDestroyInLock(e.getCurrentQuotaLimiter().getBucketName(),
+                            e.getCurrentQuotaLimiter());
+                }
+
             }
         }
         if (refreshSyncInfoTask != null && refreshSyncInfoTask
@@ -629,7 +707,7 @@ public class BucketQuotaManager implements ApplicationRunner {
                 for (String bucket : currentSyncingStatusInfo.keySet()) {
                     if (!currentSyncingStatusBuckets.contains(bucket)) {
                         QuotaLimiter removedLimiter = null;
-                        Lock writeLock = limiterLock.getWriteLock(bucket);
+                        ScmLockWrapper writeLock = limiterLock.getWriteLock(bucket);
                         try {
                             writeLock.lock();
                             QuotaSyncInfo bucketSyncInfo = getBucketSyncInfo(bucket);
@@ -655,7 +733,7 @@ public class BucketQuotaManager implements ApplicationRunner {
                 for (String bucket : currentSyncingStatusBuckets) {
                     if (!currentSyncingStatusInfo.containsKey(bucket)) {
                         QuotaLimiter removedLimiter = null;
-                        Lock writeLock = limiterLock.getWriteLock(bucket);
+                        ScmLockWrapper writeLock = limiterLock.getWriteLock(bucket);
                         try {
                             writeLock.lock();
                             QuotaSyncInfo bucketSyncInfo = getBucketSyncInfo(bucket);
@@ -705,16 +783,24 @@ public class BucketQuotaManager implements ApplicationRunner {
         private void flushQuotaSilence() {
             for (QuotaLimiter limiter : bucketQuotaLimiter.values()) {
                 if (limiter instanceof QuotaCacheAutoFlushable) {
-                    Lock readLock = limiterLock.getReadLock(limiter.getBucketName());
+                    ScmLockWrapper readLock = limiterLock.getReadLock(limiter.getBucketName());
                     try {
                         readLock.lock();
                         ((QuotaCacheAutoFlushable) limiter).flushCache(isExit);
+                    }
+                    catch (QuotaLimiterIncorrectException e) {
+                        readLock.unlock();
+                        readLock = null;
+                        removeQuotaLimiterAndDestroyInLock(limiter.getBucketName(),
+                                e.getCurrentQuotaLimiter());
                     }
                     catch (Exception e) {
                         logger.error("failed to flush quota cache", e);
                     }
                     finally {
-                        readLock.unlock();
+                        if (readLock != null) {
+                            readLock.unlock();
+                        }
                     }
                 }
             }
@@ -728,13 +814,27 @@ public class BucketQuotaManager implements ApplicationRunner {
                 cursor = quotaAccessor.query(matcher, null, null);
                 while (cursor.hasNext()) {
                     QuotaConfigDetail quotaConfigDetail = new QuotaConfigDetail(cursor.getNext());
-                    QuotaLimiter quotaLimiter = bucketQuotaLimiter.get(quotaConfigDetail.getName());
-                    if (quotaLimiter != null) {
-                        boolean success = quotaLimiter.setUsedQuota(
-                                quotaConfigDetail.getUsedObjects(), quotaConfigDetail.getUsedSize(),
-                                quotaConfigDetail.getQuotaRoundNumber());
-                        if (!success) {
-                            removeQuotaLimiterAndDestroy(quotaConfigDetail.getName());
+                    ScmLockWrapper readLock = limiterLock.getReadLock(quotaConfigDetail.getName());
+                    try {
+                        readLock.lock();
+                        QuotaLimiter quotaLimiter = bucketQuotaLimiter
+                                .get(quotaConfigDetail.getName());
+                        if (quotaLimiter != null) {
+                            quotaLimiter.setUsedQuota(quotaConfigDetail.getUsedObjects(),
+                                    quotaConfigDetail.getUsedSize(),
+                                    quotaConfigDetail.getQuotaRoundNumber());
+                        }
+                    }
+                    catch (QuotaLimiterIncorrectException e) {
+                        readLock.unlock();
+                        readLock = null;
+                        removeQuotaLimiterAndDestroyInLock(
+                                e.getCurrentQuotaLimiter().getBucketName(),
+                                e.getCurrentQuotaLimiter());
+                    }
+                    finally {
+                        if (readLock != null) {
+                            readLock.unlock();
                         }
                     }
                 }

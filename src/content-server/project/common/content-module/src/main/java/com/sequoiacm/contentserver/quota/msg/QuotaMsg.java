@@ -5,4 +5,6 @@ public interface QuotaMsg {
     String getType();
 
     String getName();
+
+    int getQuotaRoundNumber();
 }

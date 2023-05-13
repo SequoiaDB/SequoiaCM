@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.quota.limiter;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.quota.QuotaInfo;
 import com.sequoiacm.contentserver.quota.BucketQuotaManager;
+import com.sequoiacm.contentserver.quota.QuotaLimiterIncorrectException;
 import com.sequoiacm.contentserver.quota.QuotaRequestRecord;
 import com.sequoiacm.contentserver.quota.QuotaWrapper;
 import com.sequoiacm.contentserver.quota.msg.BeginSyncMsg;
@@ -13,7 +14,6 @@ import com.sequoiacm.contentserver.quota.msg.QuotaMsg;
 import com.sequoiacm.contentserver.quota.msg.QuotaSyncMsg;
 import com.sequoiacm.contentserver.quota.msg.SetAgreementTimeMsg;
 import com.sequoiacm.contentserver.quota.msg.SyncExpiredMsg;
-import com.sequoiacm.contentserver.quota.msg.SyncFailedMsg;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmQuotaUtils;
@@ -34,8 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * https://ujyczvcfvj.feishu.cn/wiki/wikcnOi8Kow6EBLojamSHALSi8c
  * 同步状态限额控制器，状态转换规则如下： DisableQuotaMsg => UnlimitedStatusQuotaLimiter
- * FinishSyncMsg、CancelSyncMsg、SyncFailedMsg、SyncExpiredMsg =>
- * StableStatusQuotaLimiter
+ * FinishSyncMsg、CancelSyncMsg、SyncExpiredMsg => StableStatusQuotaLimiter
  *
  */
 public class SyncingStatusQuotaLimiter implements QuotaLimiter {
@@ -74,12 +73,12 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
     }
 
     public SyncingStatusQuotaLimiter(QuotaMsg quotaMsg, BucketQuotaManager quotaManager,
-            QuotaWrapper quotaUsedInfo, int quotaRoundNumber) throws ScmSystemException {
+            QuotaWrapper quotaUsedInfo) throws ScmSystemException {
         if (quotaMsg instanceof BeginSyncMsg) {
             BeginSyncMsg beginSyncMsg = (BeginSyncMsg) quotaMsg;
             init(quotaMsg.getName(), quotaManager, beginSyncMsg.getSyncRoundNumber(),
                     beginSyncMsg.getExpireTime(), quotaUsedInfo.getObjects(),
-                    quotaUsedInfo.getSize(), quotaRoundNumber);
+                    quotaUsedInfo.getSize(), quotaMsg.getQuotaRoundNumber());
         }
         else {
             throw new ScmSystemException("unsupported quota msg: " + quotaMsg);
@@ -99,7 +98,7 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
                 if (agreementTime == null) {
                     try {
                         quotaManager.handleMsg(new SyncExpiredMsg(BucketQuotaManager.QUOTA_TYPE,
-                                bucketName, syncRoundNumber));
+                                bucketName, syncRoundNumber, quotaRoundNumber));
                         cancel();
                     }
                     catch (ScmServerException e) {
@@ -118,7 +117,13 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
     public QuotaInfo acquireQuota(long acquireObjects, long acquireSize, long createTime)
             throws ScmServerException {
         QuotaWrapper statisticsQuotaInfo = getStatisticsQuotaInfo();
-        long maxObjects = quotaManager.getBucketMaxObjects(bucketName);
+        if (statisticsQuotaInfo == null) {
+            throw new QuotaLimiterIncorrectException(this);
+        }
+        Long maxObjects = quotaManager.getBucketMaxObjects(bucketName, quotaRoundNumber);
+        if (maxObjects == null) {
+            throw new QuotaLimiterIncorrectException(this);
+        }
         if (maxObjects >= 0 && acquireObjects > 0) {
             // 这里的计算不一定准确，totalQuotaCache 可能会包含 statisticsQuotaInfo 里面一部分的额度信息
             long remainObjects = maxObjects - totalQuotaCache.getObjects()
@@ -132,7 +137,10 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
                                 + maxObjects);
             }
         }
-        long maxSize = quotaManager.getBucketMaxSize(bucketName);
+        Long maxSize = quotaManager.getBucketMaxSize(bucketName, quotaRoundNumber);
+        if (maxSize == null) {
+            throw new QuotaLimiterIncorrectException(this);
+        }
         if (maxSize >= 0 && acquireSize > 0) {
             long remainSize = maxSize - totalQuotaCache.getSize() - statisticsQuotaInfo.getSize();
             if (remainSize < acquireSize) {
@@ -162,9 +170,11 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
             }
         }
 
-        if ((System.currentTimeMillis() - lastStatisticsQuotaUpdateTime) > STATISTICS_QUOTA_UPDATE_INTERVAL) {
+        if ((System.currentTimeMillis()
+                - lastStatisticsQuotaUpdateTime) > STATISTICS_QUOTA_UPDATE_INTERVAL) {
             synchronized (this) {
-                if ((System.currentTimeMillis() - lastStatisticsQuotaUpdateTime) > STATISTICS_QUOTA_UPDATE_INTERVAL) {
+                if ((System.currentTimeMillis()
+                        - lastStatisticsQuotaUpdateTime) > STATISTICS_QUOTA_UPDATE_INTERVAL) {
                     lastStatisticsQuotaInfo = quotaManager.getStatisticsQuotaInfo(bucketName,
                             syncRoundNumber);
                     lastStatisticsQuotaUpdateTime = System.currentTimeMillis();
@@ -203,8 +213,7 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
         if (quotaMsg instanceof DisableQuotaMsg) {
             return LimiterType.UNLIMITED;
         }
-        if (quotaMsg instanceof FinishSyncMsg || quotaMsg instanceof CancelSyncMsg
-                || quotaMsg instanceof SyncFailedMsg) {
+        if (quotaMsg instanceof FinishSyncMsg || quotaMsg instanceof CancelSyncMsg) {
             return LimiterType.STABLE;
         }
         if (quotaMsg instanceof SetAgreementTimeMsg) {
@@ -220,14 +229,15 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
     }
 
     @Override
-    public boolean setUsedQuota(long usedObjects, long usedSize, int quotaRoundNumber) {
+    public void setUsedQuota(long usedObjects, long usedSize, int quotaRoundNumber)
+            throws QuotaLimiterIncorrectException {
         if (quotaRoundNumber != this.quotaRoundNumber) {
-            logger.warn("bucket {} quota round number {} is not equal to current quota round number {}",
+            logger.warn(
+                    "bucket {} quota round number {} is not equal to current quota round number {}",
                     getBucketName(), quotaRoundNumber, this.quotaRoundNumber);
-            return false;
+            throw new QuotaLimiterIncorrectException(this);
         }
         this.quotaUsedInfo = new QuotaWrapper(usedObjects, usedSize);
-        return true;
     }
 
     @Override
@@ -256,8 +266,7 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
             isFlushed = true;
             flushAfterAgreementTimeQuotaCacheSilence();
         }
-        if (quotaMsg instanceof CancelSyncMsg || quotaMsg instanceof SyncFailedMsg
-                || quotaMsg instanceof SyncExpiredMsg) {
+        if (quotaMsg instanceof CancelSyncMsg || quotaMsg instanceof SyncExpiredMsg) {
             isFlushed = true;
             flushAllQuotaCacheSilence();
         }
@@ -371,8 +380,12 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
         try {
             QuotaWrapper old = afterAgreementTimeQuotaUsedInfo;
             afterAgreementTimeQuotaUsedInfo = new QuotaWrapper();
-            quotaUsedInfo = quotaManager.addUsedInfoToQuotaTable(bucketName, quotaRoundNumber,
-                    old.getObjects(), old.getSize());
+            QuotaWrapper newQuotaInfo = quotaManager.addUsedInfoToQuotaTable(bucketName,
+                    quotaRoundNumber, old.getObjects(), old.getSize());
+            if (newQuotaInfo == null) {
+                throw new QuotaLimiterIncorrectException(this);
+            }
+            quotaUsedInfo = newQuotaInfo;
         }
         catch (Exception e) {
             logger.error("failed to flush quota cache, bucketName: " + bucketName, e);
@@ -383,8 +396,12 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
         try {
             QuotaWrapper old = totalQuotaCache;
             totalQuotaCache = new QuotaWrapper();
-            quotaUsedInfo = quotaManager.addUsedInfoToQuotaTable(bucketName, quotaRoundNumber,
-                    old.getObjects(), old.getSize());
+            QuotaWrapper newQuotaInfo = quotaManager.addUsedInfoToQuotaTable(bucketName,
+                    quotaRoundNumber, old.getObjects(), old.getSize());
+            if (newQuotaInfo == null) {
+                throw new QuotaLimiterIncorrectException(this);
+            }
+            quotaUsedInfo = newQuotaInfo;
         }
         catch (Exception e) {
             logger.error("failed to flush quota cache, bucketName: " + bucketName, e);

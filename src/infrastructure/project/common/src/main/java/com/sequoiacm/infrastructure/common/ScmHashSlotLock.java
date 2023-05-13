@@ -16,18 +16,18 @@ public class ScmHashSlotLock {
         lockMap = new ConcurrentHashMap<Integer, ReadWriteLock>(lockSize);
     }
 
-    public Lock getReadLock(String key) {
+    public ScmLockWrapper getReadLock(String key) {
         checkNotNull(key);
         int position = getHash(key) % lockSize;
         ReadWriteLock readWriteLock = getLock(position);
-        return readWriteLock.readLock();
+        return new ScmLockWrapper(readWriteLock.readLock(), true);
     }
 
-    public Lock getWriteLock(String key) {
+    public ScmLockWrapper getWriteLock(String key) {
         checkNotNull(key);
         int position = getHash(key) % lockSize;
         ReadWriteLock readWriteLock = getLock(position);
-        return readWriteLock.writeLock();
+        return new ScmLockWrapper(readWriteLock.writeLock(), false);
     }
 
     private void checkNotNull(String key) {

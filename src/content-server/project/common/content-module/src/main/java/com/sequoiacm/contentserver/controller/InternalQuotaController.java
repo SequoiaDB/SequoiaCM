@@ -33,10 +33,11 @@ public class InternalQuotaController {
     public BSONObject beginSync(@PathVariable("type") String type,
             @PathVariable("name") String name,
             @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber,
             @RequestParam(CommonDefine.RestArg.QUOTA_EXPIRE_TIME) long expireTime)
             throws ScmServerException {
         long currentTime = quotaSyncMsgNotifyService.notifyBeginSync(type, name, syncRoundNumber,
-                expireTime);
+                quotaRoundNumber, expireTime);
         return new BasicBSONObject(CommonDefine.RestArg.QUOTA_SYNC_CURRENT_TIME, currentTime);
     }
 
@@ -45,26 +46,29 @@ public class InternalQuotaController {
     public void setAgreementTime(@PathVariable("type") String type,
             @PathVariable("name") String name,
             @RequestParam(CommonDefine.RestArg.QUOTA_AGREEMENT_TIME) long agreementTime,
-            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber)
+            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws ScmServerException {
         quotaSyncMsgNotifyService.notifySetAgreementTimeMsg(type, name, agreementTime,
-                syncRoundNumber);
+                syncRoundNumber, quotaRoundNumber);
     }
 
     @PostMapping(value = "/quotas/{type}/{name}", params = "action="
             + CommonDefine.RestArg.QUOTA_ACTION_CANCEL_SYNC)
     public void cancelSync(@PathVariable("type") String type, @PathVariable("name") String name,
-            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber)
+            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws ScmServerException {
-        quotaSyncMsgNotifyService.notifyCancelSync(type, name, syncRoundNumber);
+        quotaSyncMsgNotifyService.notifyCancelSync(type, name, syncRoundNumber, quotaRoundNumber);
     }
 
     @PostMapping(value = "/quotas/{type}/{name}", params = "action="
             + CommonDefine.RestArg.QUOTA_ACTION_FINISH_SYNC)
     public void finishSync(@PathVariable("type") String type, @PathVariable("name") String name,
-            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber)
+            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws ScmServerException {
-        quotaSyncMsgNotifyService.notifyFinishSync(type, name, syncRoundNumber);
+        quotaSyncMsgNotifyService.notifyFinishSync(type, name, syncRoundNumber, quotaRoundNumber);
     }
 
     @PostMapping(value = "/quotas/{type}/{name}", params = "action="

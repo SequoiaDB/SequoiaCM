@@ -205,7 +205,7 @@ public class QuotaServiceImpl implements QuotaService {
                 try {
                     quotaSyncDao.cancelSync(type, name);
                     quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name,
-                            quotaSyncInfo.getSyncRoundNumber(),
+                            quotaSyncInfo.getSyncRoundNumber(), quotaSyncInfo.getQuotaRoundNumber(),
                             quotaHelper.getS3AndContentServerInstance());
                 }
                 catch (Exception e) {

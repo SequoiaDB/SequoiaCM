@@ -5,11 +5,13 @@ public class SyncExpiredMsg implements QuotaSyncMsg {
     private String type;
     private String name;
     private int syncRoundNumber;
+    private int quotaRoundNumber;
 
-    public SyncExpiredMsg(String type, String name, int syncRoundNumber) {
+    public SyncExpiredMsg(String type, String name, int syncRoundNumber, int quotaRoundNumber) {
         this.type = type;
         this.name = name;
         this.syncRoundNumber = syncRoundNumber;
+        this.quotaRoundNumber = quotaRoundNumber;
     }
 
     @Override
@@ -23,6 +25,11 @@ public class SyncExpiredMsg implements QuotaSyncMsg {
     }
 
     @Override
+    public int getQuotaRoundNumber() {
+        return quotaRoundNumber;
+    }
+
+    @Override
     public int getSyncRoundNumber() {
         return syncRoundNumber;
     }
@@ -30,6 +37,7 @@ public class SyncExpiredMsg implements QuotaSyncMsg {
     @Override
     public String toString() {
         return "SyncExpiredMsg{" + "type='" + type + '\'' + ", name='" + name + '\''
-                + ", syncRoundNumber=" + syncRoundNumber + '}';
+                + ", syncRoundNumber=" + syncRoundNumber + ", quotaRoundNumber=" + quotaRoundNumber
+                + '}';
     }
 }

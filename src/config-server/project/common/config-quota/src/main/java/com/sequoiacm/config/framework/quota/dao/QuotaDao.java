@@ -294,15 +294,15 @@ public class QuotaDao {
             trans.commit();
         }
         catch (Exception e) {
-            if (cursor != null) {
-                cursor.close();
-            }
             if (trans != null) {
                 trans.rollback();
             }
             logger.warn("failed to delete quota meta, wsName={}", wsName, e);
         }
         finally {
+            if (cursor != null) {
+                cursor.close();
+            }
             if (trans != null) {
                 trans.close();
             }

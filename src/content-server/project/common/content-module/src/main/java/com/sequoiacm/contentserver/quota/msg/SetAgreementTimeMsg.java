@@ -5,11 +5,14 @@ public class SetAgreementTimeMsg implements QuotaSyncMsg {
     private String type;
     private String name;
     private int syncRoundNumber;
+    private int quotaRoundNumber;
 
-    public SetAgreementTimeMsg(String type, String name, int syncRoundNumber, long agreementTime) {
+    public SetAgreementTimeMsg(String type, String name, int syncRoundNumber, int quotaRoundNumber,
+            long agreementTime) {
         this.type = type;
         this.name = name;
         this.syncRoundNumber = syncRoundNumber;
+        this.quotaRoundNumber = quotaRoundNumber;
         this.agreementTime = agreementTime;
     }
 
@@ -33,8 +36,14 @@ public class SetAgreementTimeMsg implements QuotaSyncMsg {
     }
 
     @Override
+    public int getQuotaRoundNumber() {
+        return quotaRoundNumber;
+    }
+
+    @Override
     public String toString() {
         return "SetAgreementTimeMsg{" + "agreementTime=" + agreementTime + ", type='" + type + '\''
-                + ", name='" + name + '\'' + ", syncRoundNumber=" + syncRoundNumber + '}';
+                + ", name='" + name + '\'' + ", syncRoundNumber=" + syncRoundNumber
+                + ", quotaRoundNumber=" + quotaRoundNumber + '}';
     }
 }

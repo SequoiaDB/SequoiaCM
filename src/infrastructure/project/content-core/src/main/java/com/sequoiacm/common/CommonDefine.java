@@ -442,6 +442,7 @@ public class CommonDefine {
 
         public static final String QUOTA_AGREEMENT_TIME = "agreement_time";
         public static final String QUOTA_SYNC_ROUND_NUMBER = "sync_round_number";
+        public static final String QUOTA_ROUND_NUMBER = "quota_round_number";
         public static final String QUOTA_EXPIRE_TIME = "expire_time";
         public static final String QUOTA_SYNC_CURRENT_TIME = "current_time";
         public static final String ACTION_GET_OBJECT_DELTA = "get_object_delta";

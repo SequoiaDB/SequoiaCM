@@ -49,9 +49,8 @@ public class UnlimitedStatusQuotaLimiter implements QuotaLimiter {
     }
 
     @Override
-    public boolean setUsedQuota(long usedObjects, long usedSize, int quotaRoundNumber) {
+    public void setUsedQuota(long usedObjects, long usedSize, int quotaRoundNumber) {
         this.quotaUsedInfo = new QuotaWrapper(usedObjects, usedSize);
-        return true;
     }
 
     @Override

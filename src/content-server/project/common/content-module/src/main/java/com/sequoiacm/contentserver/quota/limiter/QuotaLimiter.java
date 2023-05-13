@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.quota.limiter;
 
 import com.sequoiacm.contentserver.quota.QuotaInfo;
+import com.sequoiacm.contentserver.quota.QuotaLimiterIncorrectException;
 import com.sequoiacm.contentserver.quota.QuotaWrapper;
 import com.sequoiacm.contentserver.quota.msg.QuotaMsg;
 import com.sequoiacm.exception.ScmServerException;
@@ -18,7 +19,8 @@ public interface QuotaLimiter {
      */
     LimiterType handleMsg(QuotaMsg quotaMsg) throws ScmServerException;
 
-    boolean setUsedQuota(long usedObjects, long usedSize, int quotaRoundNumber);
+    void setUsedQuota(long usedObjects, long usedSize, int quotaRoundNumber)
+            throws QuotaLimiterIncorrectException;
 
     QuotaWrapper getQuotaUsedInfo();
 

@@ -15,6 +15,7 @@ public interface QuotaSyncNotifyServerClient {
     public BSONObject beginSync(@PathVariable("type") String type,
             @PathVariable("name") String name,
             @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber,
             @RequestParam(CommonDefine.RestArg.QUOTA_EXPIRE_TIME) long expireTime) throws Exception;
 
     @PostMapping(value = "/quotas/{type}/{name}" + "?action="
@@ -22,18 +23,21 @@ public interface QuotaSyncNotifyServerClient {
     public void setAgreementTime(@PathVariable("type") String type,
             @PathVariable("name") String name,
             @RequestParam(CommonDefine.RestArg.QUOTA_AGREEMENT_TIME) long agreementTime,
-            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber)
+            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws Exception;
 
     @PostMapping(value = "/quotas/{type}/{name}" + "?action="
             + CommonDefine.RestArg.QUOTA_ACTION_CANCEL_SYNC)
     public void cancelSync(@PathVariable("type") String type, @PathVariable("name") String name,
-            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber)
+            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws Exception;
 
     @PostMapping(value = "/quotas/{type}/{name}" + "?action="
             + CommonDefine.RestArg.QUOTA_ACTION_FINISH_SYNC)
     public void finishSync(@PathVariable("type") String type, @PathVariable("name") String name,
-            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber)
+            @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
+            @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws Exception;
 }
