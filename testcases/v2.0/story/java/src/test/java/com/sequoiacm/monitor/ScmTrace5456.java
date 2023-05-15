@@ -58,7 +58,7 @@ public class ScmTrace5456 extends TestScmBase {
     @Test
     public void test() throws Exception {
         ScmTrace scmTrace = GetScmTrace();
-        Assert.assertNotNull( scmTrace );
+        Assert.assertNotNull( scmTrace, "获取trace失败！" );
 
         ScmTraceSpan firstSpan = scmTrace.getFirstSpan();
         ScmTraceSpan nextSpan = firstSpan.getNextSpans().get( 0 );
@@ -90,13 +90,16 @@ public class ScmTrace5456 extends TestScmBase {
         runSuccess = true;
     }
 
-    private ScmTrace GetScmTrace() throws ScmException {
-        List< ScmTrace > scmTraces = ScmSystem.ServiceTrace.listTrace( session,
-                1000 );
-        for ( ScmTrace trace : scmTraces ) {
-            if ( trace.getSpanCount() > 2 && trace.isComplete() ) {
-                return trace;
+    private ScmTrace GetScmTrace() throws ScmException, InterruptedException {
+        for ( int i = 0; i < 10; i++ ) {
+            List< ScmTrace > scmTraces = ScmSystem.ServiceTrace
+                    .listTrace( session, 1000 );
+            for ( ScmTrace trace : scmTraces ) {
+                if ( trace.getSpanCount() > 2 && trace.isComplete() ) {
+                    return trace;
+                }
             }
+            Thread.sleep( 1000 );
         }
         return null;
     }
