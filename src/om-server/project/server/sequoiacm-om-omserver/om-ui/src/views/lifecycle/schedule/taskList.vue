@@ -257,7 +257,6 @@ export default {
         queryTasks(this.scheduleId , this.filter, this.pagination.current, this.pagination.size).then(res => {
         this.tableData = res.data
         this.pagination.total = Number(res.headers[X_RECORD_COUNT])
-      }).finally(() => {
         this.setRefresh()
       })
       }, this.interval)

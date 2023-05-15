@@ -116,7 +116,6 @@ export default {
       this.refresh = setTimeout(() => {
         queryBucketDetail(this.curBucketDetail.name).then(res => {
           this.curBucketDetail = JSON.parse(res.headers['bucket'])
-        }).finally(() => {
           this.setRefresh()
         })
       }, this.interval)
@@ -198,6 +197,9 @@ export default {
       }
       return res
     },
+  },
+  beforeDestroy(){
+    this.clearRefresh()
   }
 }
 </script>

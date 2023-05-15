@@ -688,7 +688,9 @@ export default {
           this.form['condition'] = this.$util.toPrettyJson(detail.content.extra_condition),
           this.form['scope'] = detail.content.scope,
           this.form['maxStayTime'] = Number(detail.content.max_stay_time.slice(0, detail.content.max_stay_time.length - 1))
-          this.form['existenceTime'] = Number(detail.content.existence_time.slice(0, detail.content.existence_time.length - 1))
+          if (detail.content.existence_time) {
+            this.form['existenceTime'] = Number(detail.content.existence_time.slice(0, detail.content.existence_time.length - 1))
+          }
           this.form['quickStart'] = detail.content.quick_start
           this.form['dataCheckLevel'] = detail.content.data_check_level
           if (this.form.type !== 'copy_file') {
