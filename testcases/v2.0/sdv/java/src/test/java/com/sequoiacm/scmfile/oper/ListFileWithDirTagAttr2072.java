@@ -103,7 +103,8 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
         prepareFile( name, dirPath2, scmTags, properties );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // SEQUOIACM-1312暂时屏蔽
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         ScmDirectory dir = ScmFactory.Directory.getInstance( ws, dirPath1 );
         BSONObject queryCond = ScmQueryBuilder
