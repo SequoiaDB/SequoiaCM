@@ -99,6 +99,9 @@
             <package name="com.sequoiacm.lifecycle.concurrent"/>
 
             <package name="com.sequoiacm.s3.bucketQuota.serial"/>
+
+            <!--tool-->
+            <package name="com.sequoiacm.tools.serial"/>
         </packages>
     </test>
 
