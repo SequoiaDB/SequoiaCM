@@ -97,6 +97,8 @@
             <!--生命周期管理-->
             <package name="com.sequoiacm.lifecycle"/>
             <package name="com.sequoiacm.lifecycle.concurrent"/>
+
+            <package name="com.sequoiacm.s3.bucketQuota.serial"/>
         </packages>
     </test>
 
