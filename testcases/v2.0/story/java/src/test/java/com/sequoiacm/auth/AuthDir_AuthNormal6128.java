@@ -46,8 +46,6 @@ public class AuthDir_AuthNormal6128 extends TestScmBase {
     private String roleName = "AuthDir6128RoleName";
     private String passwd = "AuthDir6128Pwd";
     private String path = "/AuthDir6128";
-    private boolean runSuccess = false;
-
     @BeforeClass
     private void setUp() throws Exception {
         rootSite = ScmInfo.getRootSite();
@@ -63,15 +61,12 @@ public class AuthDir_AuthNormal6128 extends TestScmBase {
         testDeleteUser();
         testDeleteRole();
         testDeleteResource();
-        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             if ( session != null ) {
                 session.close();

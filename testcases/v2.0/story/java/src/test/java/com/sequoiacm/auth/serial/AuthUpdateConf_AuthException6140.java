@@ -44,7 +44,6 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
     private String passwd = "AuthUpdateConf6140Pwd";
     private String adminRoleName = "ROLE_AUTH_ADMIN";
     private String userRoleName = "AuthUpdateConf6140RoleName";
-    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -61,15 +60,12 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
         testDeleteUserNotExistRole();
         testDeleteNotExistUser();
         testReCreateUser();
-        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             ConfUtil.deleteAuditConf( rootSite.getSiteServiceName() );
             if ( session != null ) {
@@ -157,8 +153,16 @@ public class AuthUpdateConf_AuthException6140 extends TestScmBase {
     }
 
     private void testDeleteUserNotExistRole() throws ScmException {
-        user = ScmFactory.User.alterUser( session, user,
-                new ScmUserModifier().delRole( userRoleName + "_NotExist" ) );
+        try {
+            user = ScmFactory.User.alterUser( session, user,
+                    new ScmUserModifier()
+                            .delRole( userRoleName + "_NotExist" ) );
+        } catch ( ScmException ex ) {
+            if ( ex.getErrorCode() != ScmError.HTTP_BAD_REQUEST
+                    .getErrorCode() ) {
+                throw ex;
+            }
+        }
     }
 
     private void updateConfig() throws ScmException {

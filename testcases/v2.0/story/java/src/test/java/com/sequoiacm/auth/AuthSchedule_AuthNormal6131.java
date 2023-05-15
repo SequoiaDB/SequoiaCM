@@ -70,7 +70,6 @@ public class AuthSchedule_AuthNormal6131 extends TestScmBase {
     private int fileSize = 1024 * 100;
     private File localPath = null;
     private String filePath = null;
-    private boolean runSuccess = false;
     private final static int fileNum = 10;
     private ScmSchedule sche;
     private ScmScheduleContent content = null;
@@ -96,15 +95,12 @@ public class AuthSchedule_AuthNormal6131 extends TestScmBase {
         testDeleteUser();
         testDeleteRole();
         testDeleteResource();
-        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             if ( session != null ) {
                 session.close();

@@ -48,7 +48,6 @@ public class AuthFullSearcher_AuthNormal6132 extends TestScmBase {
     private String userName = "AuthFullSearcher6132UserName";
     private String passwd = "AuthFullSearcherAuth6132Pwd";
     private String roleName = "AuthFullSearcher6132RoleName";
-    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -58,23 +57,19 @@ public class AuthFullSearcher_AuthNormal6132 extends TestScmBase {
         prepare();
     }
 
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         testNormal();
         testDeleteUserRole();
         testDeleteUser();
         testDeleteRole();
-        // SEQUOIACM-1340已经提单
-        // testDeleteResource();
-        runSuccess = true;
+        testDeleteResource();
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             if ( session != null ) {
                 session.close();

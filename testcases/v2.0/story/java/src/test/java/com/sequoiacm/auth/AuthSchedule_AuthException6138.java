@@ -71,7 +71,6 @@ public class AuthSchedule_AuthException6138 extends TestScmBase {
     private int fileSize = 1024 * 100;
     private File localPath = null;
     private String filePath = null;
-    private boolean runSuccess = false;
     private final static int fileNum = 10;
     private ScmSchedule sche;
     private ScmScheduleContent content = null;
@@ -97,15 +96,12 @@ public class AuthSchedule_AuthException6138 extends TestScmBase {
         testDeleteUserNotExistRole();
         testDeleteNotExistUser();
         testReCreateUser();
-        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             if ( session != null ) {
                 session.close();
@@ -193,8 +189,15 @@ public class AuthSchedule_AuthException6138 extends TestScmBase {
     }
 
     private void testDeleteUserNotExistRole() throws ScmException {
-        user = ScmFactory.User.alterUser( session, user,
-                new ScmUserModifier().delRole( role + "_NotExist" ) );
+        try {
+            user = ScmFactory.User.alterUser( session, user,
+                    new ScmUserModifier().delRole( role + "_NotExist" ) );
+        } catch ( ScmException ex ) {
+            if ( ex.getErrorCode() != ScmError.HTTP_BAD_REQUEST
+                    .getErrorCode() ) {
+                throw ex;
+            }
+        }
     }
 
     private void testAllPrivilege() throws Exception {

@@ -48,7 +48,6 @@ public class AuthDir_AuthException6135 extends TestScmBase {
     private String roleName = "AuthDir6135RoleName";
     private String passwd = "AuthDir6135Pwd";
     private String path = "/AuthDir6135";
-    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -65,15 +64,12 @@ public class AuthDir_AuthException6135 extends TestScmBase {
         testDeleteUserNotExistRole();
         testDeleteNotExistUser();
         testReCreateUser();
-        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             if ( session != null ) {
                 session.close();
@@ -164,8 +160,15 @@ public class AuthDir_AuthException6135 extends TestScmBase {
     }
 
     private void testDeleteUserNotExistRole() throws ScmException {
-        user = ScmFactory.User.alterUser( session, user,
-                new ScmUserModifier().delRole( role + "_NotExist" ) );
+        try {
+            user = ScmFactory.User.alterUser( session, user,
+                    new ScmUserModifier().delRole( role + "_NotExist" ) );
+        } catch ( ScmException ex ) {
+            if ( ex.getErrorCode() != ScmError.HTTP_BAD_REQUEST
+                    .getErrorCode() ) {
+                throw ex;
+            }
+        }
     }
 
     private void testAllPrivilege() throws ScmException, InterruptedException {

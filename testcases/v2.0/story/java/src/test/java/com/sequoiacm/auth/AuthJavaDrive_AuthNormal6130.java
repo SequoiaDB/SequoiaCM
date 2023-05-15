@@ -55,7 +55,6 @@ public class AuthJavaDrive_AuthNormal6130 extends TestScmBase {
     private int fileSize = 0;
     private File localPath = null;
     private String filePath = null;
-    private boolean runSuccess = false;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -75,15 +74,12 @@ public class AuthJavaDrive_AuthNormal6130 extends TestScmBase {
         testDeleteUser();
         testDeleteRole();
         testDeleteResource();
-        runSuccess = true;
     }
 
     @AfterClass
     private void tearDown() throws Exception {
         try {
-            if ( runSuccess ) {
-                cleanEnv();
-            }
+            cleanEnv();
         } finally {
             if ( session != null ) {
                 session.close();

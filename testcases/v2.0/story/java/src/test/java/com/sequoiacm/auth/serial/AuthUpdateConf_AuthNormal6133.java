@@ -40,7 +40,6 @@ public class AuthUpdateConf_AuthNormal6133 extends TestScmBase {
     private String userName = "AuthUpdateConf6133UserName";
     private String passwd = "AuthUpdateConf6133Pwd";
     private String roleName = "ROLE_AUTH_ADMIN";
-    private boolean runSuccess = false;
 
     @Test(groups = { "twoSite", "fourSite" })
     private void setUp() throws Exception {
@@ -54,15 +53,12 @@ public class AuthUpdateConf_AuthNormal6133 extends TestScmBase {
         testNormal();
         testDeleteUserRole();
         testDeleteUser();
-        runSuccess = true;
     }
 
     @AfterClass(alwaysRun = true)
     private void tearDown() throws ScmException {
         try {
-            if ( runSuccess ) {
-                ScmAuthUtils.deleteUser( session, userName );
-            }
+            ScmAuthUtils.deleteUser( session, userName );
         } finally {
             ConfUtil.deleteAuditConf( rootSite.getSiteServiceName() );
             if ( session != null ) {
