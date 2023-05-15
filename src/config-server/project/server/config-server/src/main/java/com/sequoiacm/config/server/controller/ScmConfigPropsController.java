@@ -1,6 +1,6 @@
 package com.sequoiacm.config.server.controller;
 
-import com.sequoiacm.infrastructure.common.OutStreamFlushQueue;
+import com.sequoiacm.infrastructure.common.KeepAlive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,8 +15,6 @@ import com.sequoiacm.config.server.service.ScmConfPropsService;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -24,12 +22,10 @@ public class ScmConfigPropsController {
     @Autowired
     private ScmConfPropsService service;
 
-    @Autowired
-    private OutStreamFlushQueue outStreamFlushQueue;
 
+    @KeepAlive
     @PutMapping("/config-props")
-    public ScmUpdateConfPropsResultSet updateConfigProps(@RequestBody ScmConfPropsParam config,
-            HttpServletResponse response)
+    public ScmUpdateConfPropsResultSet updateConfigProps(@RequestBody ScmConfPropsParam config)
             throws Exception {
         Assert.notNull(config.getTargetType(), "missing required argument:target_type");
         Assert.isTrue(config.getUpdateProperties() != null && config.getDeleteProperties() != null,
@@ -44,8 +40,6 @@ public class ScmConfigPropsController {
         else if (config.getTargets() == null || config.getTargets().size() == 0) {
             throw new IllegalArgumentException("missing required argument:targets");
         }
-        ServletOutputStream os = response.getOutputStream();
-        long index = outStreamFlushQueue.add(os);
         try {
             return service.updateConfProps(config.getTargetType(), config.getTargets(),
                     config.getUpdateProperties(), config.getDeleteProperties(),
@@ -56,9 +50,6 @@ public class ScmConfigPropsController {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
             throw new Exception(e.getMessage(), e);
-        }
-        finally {
-            outStreamFlushQueue.remove(index, os);
         }
     }
 }

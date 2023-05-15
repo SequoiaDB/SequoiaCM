@@ -2,7 +2,6 @@ package com.sequoiacm.cloud.adminserver.remote;
 
 import java.util.Map;
 
-import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
 import com.sequoiacm.common.CommonDefine;
 import org.bson.BSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,16 +21,27 @@ public interface ContentServerClient {
     public Map<String, Object> metrics() throws Exception;
 
     // ***************file****************//
+    // 旧接口，不支持连接保活，只在兼容时使用
     @RequestMapping(value = "/internal/v1/files", method = RequestMethod.HEAD)
-    public FileDeltaInfo getFileDelta(
+    public FileDeltaInfo getFileDeltaWithHead(
+            @RequestParam(RestCommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = RestCommonDefine.RestArg.QUERY_FILTER, required = false) BSONObject condition,
+            @RequestParam(value = RestCommonDefine.RestArg.FILE_LIST_SCOPE, required = false) int scope)
+            throws Exception;
+
+    @RequestMapping(value = "/internal/v1/files" + "?action="
+            + CommonDefine.RestArg.ACTION_GET_FILE_DELTA + "&" + CommonDefine.RestArg.KEEP_ALIVE
+            + "=true", method = RequestMethod.GET)
+    public BSONObject getFileDeltaKeepAlive(
             @RequestParam(RestCommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @RequestParam(value = RestCommonDefine.RestArg.QUERY_FILTER, required = false) BSONObject condition,
             @RequestParam(value = RestCommonDefine.RestArg.FILE_LIST_SCOPE, required = false) int scope)
             throws Exception;
 
     @GetMapping(value = "/internal/v1/buckets/{bucketName}" + "?action="
-            + CommonDefine.RestArg.ACTION_GET_OBJECT_DELTA)
-    public ObjectDeltaInfo getObjectDelta(@PathVariable("bucketName") String bucketName,
+            + CommonDefine.RestArg.ACTION_GET_OBJECT_DELTA + "&" + CommonDefine.RestArg.KEEP_ALIVE
+            + "=true")
+    public BSONObject getObjectDeltaKeepAlive(@PathVariable("bucketName") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition)
             throws Exception;
 

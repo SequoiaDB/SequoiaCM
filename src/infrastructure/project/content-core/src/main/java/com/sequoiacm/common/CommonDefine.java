@@ -446,6 +446,7 @@ public class CommonDefine {
         public static final String QUOTA_EXPIRE_TIME = "expire_time";
         public static final String QUOTA_SYNC_CURRENT_TIME = "current_time";
         public static final String ACTION_GET_OBJECT_DELTA = "get_object_delta";
+        public static final String ACTION_GET_FILE_DELTA = "get_file_delta";
         public static final String ACTION_REFRESH_OBJECT_DELTA = "refresh_object_delta";
         public static final String QUOTA_ACTION_ENABLE_QUOTA = "enable_quota";
         public static final String QUOTA_ACTION_DISABLE_QUOTA = "disable_quota";;
@@ -462,6 +463,8 @@ public class CommonDefine {
         public static final String QUOTA_ACTION_CANCEL_SYNC = "cancel_sync";
         public static final String QUOTA_ACTION_FINISH_SYNC = "finish_sync";
         public static final String QUOTA_ACTION_GET_QUOTA_INNER_DETAIL = "get_quota_inner_detail";
+
+        public static final String KEEP_ALIVE = "keepAlive";
     }
 
     public static class Directory {

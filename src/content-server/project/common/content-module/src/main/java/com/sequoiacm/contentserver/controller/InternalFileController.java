@@ -11,8 +11,10 @@ import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.KeepAlive;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class InternalFileController {
     private IFileService fileService;
 
     @RequestMapping(value = "/files", method = RequestMethod.HEAD)
-    public ResponseEntity<String> getFileDelta(
+    public ResponseEntity<String> getFileDeltaWithHead(
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition,
             @RequestParam(value = CommonDefine.RestArg.FILE_LIST_SCOPE, required = false, defaultValue = CommonDefine.Scope.SCOPE_CURRENT
@@ -47,6 +49,29 @@ public class InternalFileController {
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         response.setHeader("X-SCM-Sum", String.valueOf(sumSize));
         return ResponseEntity.ok("");
+    }
+
+    @KeepAlive
+    @RequestMapping(value = "/files", method = RequestMethod.GET, params = "action="
+            + CommonDefine.RestArg.ACTION_GET_FILE_DELTA)
+    public ResponseEntity<BSONObject> getFileDeltaKeepAlive(
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition,
+            @RequestParam(value = CommonDefine.RestArg.FILE_LIST_SCOPE, required = false, defaultValue = CommonDefine.Scope.SCOPE_CURRENT
+                    + "") Integer scope)
+            throws ScmServerException {
+        logger.info("internal get file delta: workspace={},filter={},scope={}", workspaceName,
+                condition, scope);
+
+        boolean isResContainsDeleteMarker = ScmSystemUtils.isDeleteMarkerRequired(scope);
+        BSONObject result = new BasicBSONObject();
+        long count = fileService.countFiles(workspaceName, scope, condition,
+                isResContainsDeleteMarker);
+        long sumSize = fileService.sumFileSizes(workspaceName, scope, condition);
+        result.put(FieldName.FileDelta.FIELD_COUNT_DELTA, count);
+        result.put(FieldName.FileDelta.FIELD_SIZE_DELTA, sumSize);
+
+        return ResponseEntity.ok(result);
     }
 
     @RequestMapping(value = "/files", method = RequestMethod.GET, params = "action=count")

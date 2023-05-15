@@ -27,6 +27,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.KeepAlive;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
@@ -483,6 +484,7 @@ public class FileController {
         return ResponseEntity.ok("");
     }
 
+    @KeepAlive
     @PostMapping(value = "/files/{file_id}", params = "action="
             + CommonDefine.RestArg.ACTION_CALC_MD5)
     public BSONObject calcMd5(

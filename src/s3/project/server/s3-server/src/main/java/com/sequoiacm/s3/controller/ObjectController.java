@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.sequoiacm.infrastructure.common.OutStreamFlushQueue;
 import com.sequoiacm.s3.model.DeleteError;
 import com.sequoiacm.s3.model.DeleteObjectResult;
 import com.sequoiacm.s3.model.DeleteObjects;
@@ -85,8 +84,6 @@ public class ObjectController {
     @Autowired
     BucketService bucketService;
 
-    @Autowired
-    OutStreamFlushQueue outStreamFlushQueue;
 
     @PutMapping(value = "/{bucketname:.+}/**", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<?> putObject(@PathVariable("bucketname") String bucketName,

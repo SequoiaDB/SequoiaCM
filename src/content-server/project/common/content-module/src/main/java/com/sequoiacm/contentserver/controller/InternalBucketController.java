@@ -4,6 +4,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.model.ObjectDeltaInfo;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.KeepAlive;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,10 @@ public class InternalBucketController {
     @Autowired
     private IScmBucketService bucketService;
 
+    @KeepAlive
     @GetMapping(value = "/buckets/{bucketName}", params = "action="
             + CommonDefine.RestArg.ACTION_GET_OBJECT_DELTA)
-    public ObjectDeltaInfo getObjectDelta(@PathVariable("bucketName") String bucketName,
+    public ObjectDeltaInfo getObjectDeltaKeepAlive(@PathVariable("bucketName") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_FILTER, required = false) BSONObject condition)
             throws ScmServerException {
         logger.info("internal get object delta: bucketName={},filter={}", bucketName, condition);

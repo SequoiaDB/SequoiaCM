@@ -15,6 +15,7 @@ import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sequoiacm.client.common.ScmExceptionUtils;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
@@ -2098,7 +2099,8 @@ public class RestDispatcher implements MessageDispatcher {
     public BSONObject updateConfProps(String targetType, List<String> targets,
             Map<String, String> props, List<String> deleteProps, boolean isAcceptUnknownProps)
             throws ScmException {
-        String uri = URL_PREFIX + pureUrl + CONFIG_SERVER + API_VERSION + "config-props";
+        String uri = URL_PREFIX + pureUrl + CONFIG_SERVER + API_VERSION + "config-props?"
+                + CommonDefine.RestArg.KEEP_ALIVE + "=true";
         HttpPut req = new HttpPut(uri);
         req.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         BSONObject obj = new BasicBSONObject();
@@ -2108,7 +2110,9 @@ public class RestDispatcher implements MessageDispatcher {
         obj.put("delete_properties", deleteProps);
         obj.put("accept_unknown_props", isAcceptUnknownProps);
         req.setEntity(new StringEntity(obj.toString(), Consts.UTF_8));
-        return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, req);
+        BSONObject res = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, req);
+        ScmExceptionUtils.handleException(res);
+        return res;
     }
 
     @Override
@@ -2175,8 +2179,10 @@ public class RestDispatcher implements MessageDispatcher {
                 new BasicNameValuePair(CommonDefine.RestArg.FILE_MAJOR_VERSION, majorVersion + ""));
         params.add(
                 new BasicNameValuePair(CommonDefine.RestArg.FILE_MINOR_VERSION, minorVersion + ""));
+        params.add(new BasicNameValuePair(CommonDefine.RestArg.KEEP_ALIVE, "true"));
         BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request, params);
+        ScmExceptionUtils.handleException(resp);
         return BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
     }
 

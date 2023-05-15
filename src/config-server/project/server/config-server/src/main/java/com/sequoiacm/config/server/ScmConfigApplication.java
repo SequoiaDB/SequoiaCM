@@ -1,5 +1,6 @@
 package com.sequoiacm.config.server;
 
+import com.sequoiacm.infrastructure.common.EnableRequestKeepAlive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 @EnableConfClient
 @ComponentScan(basePackages = { "com.sequoiacm.config.server", "com.sequoiacm.config.framework" })
 @EnableHystrix
+@EnableRequestKeepAlive
 public class ScmConfigApplication implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(ScmConfigApplication.class);
 

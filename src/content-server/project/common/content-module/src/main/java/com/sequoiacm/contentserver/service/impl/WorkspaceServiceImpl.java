@@ -34,6 +34,7 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.MetaHistoryDataTableNameAccessor;
@@ -261,8 +262,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 else {
                     ContentServerClient client = ContentServerClientFactory
                             .getFeignClientByServiceName(siteName.toLowerCase());
-                    client.deleteDataTables(tableNameMap.get(siteName), wsName,
-                            new DataTableDeleteOption(location.asBSON()));
+                    BSONObject res = client.deleteDataTablesKeepAlive(tableNameMap.get(siteName),
+                            wsName, new DataTableDeleteOption(location.asBSON()));
+                    ScmFeignExceptionUtils.handleException(res);
                 }
             }
             catch (Exception e) {

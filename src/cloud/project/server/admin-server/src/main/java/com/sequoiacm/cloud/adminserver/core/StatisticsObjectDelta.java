@@ -9,6 +9,8 @@ import com.sequoiacm.cloud.adminserver.model.ContentServerInfo;
 import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
 import com.sequoiacm.cloud.adminserver.remote.ContentServerClient;
 import com.sequoiacm.cloud.adminserver.remote.ContentServerClientFactory;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockPath;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
@@ -131,7 +133,16 @@ public class StatisticsObjectDelta {
             BSONObject condition) throws Exception {
         ContentServerClient client = ContentServerClientFactory
                 .getFeignClientByNodeUrl(contentServer.getNodeUrl());
-        ObjectDeltaInfo objectDeltaInfo = client.getObjectDelta(bucketName, condition);
+        BSONObject res = client.getObjectDeltaKeepAlive(bucketName, condition);
+        ScmFeignExceptionUtils.handleException(res);
+
+        ObjectDeltaInfo objectDeltaInfo = new ObjectDeltaInfo();
+        objectDeltaInfo.setCountDelta(BsonUtils
+                .getNumberChecked(res, FieldName.ObjectDelta.FIELD_COUNT_DELTA).longValue());
+        objectDeltaInfo.setSizeDelta(BsonUtils
+                .getNumberChecked(res, FieldName.ObjectDelta.FIELD_SIZE_DELTA).longValue());
+        objectDeltaInfo.setBucketName(
+                BsonUtils.getStringChecked(res, FieldName.ObjectDelta.FIELD_BUCKET_NAME));
         logger.debug(
                 "access remote success:{},bucketName={},filter={},count_delta={},size_delta={}",
                 contentServer.getNodeUrl(), bucketName, condition, objectDeltaInfo.getCountDelta(),

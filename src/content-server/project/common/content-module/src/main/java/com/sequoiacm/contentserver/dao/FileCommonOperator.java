@@ -5,11 +5,18 @@ import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.Const;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.remote.ContentServerFeignExceptionConverter;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataReader;
+import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
+import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,10 +153,44 @@ public class FileCommonOperator {
         }
     }
 
+    // 将远程站点的数据读到本地再计算 md5，旧接口，只做兼容使用
+    public static boolean isRemoteDataExistV1(int remoteSiteId, ScmWorkspaceInfo wsInfo,
+            ScmDataInfo dataInfo, String expectMd5) throws ScmServerException {
+        return _isRemoteDataExist(remoteSiteId, wsInfo, dataInfo, expectMd5, true);
+    }
+
+    // 让远程站点计算 md5 并返回，新接口
+    public static boolean isRemoteDataExistV2(int remoteSiteId, ScmWorkspaceInfo wsInfo,
+            ScmDataInfo dataInfo, String expectMd5) throws ScmServerException {
+        return _isRemoteDataExist(remoteSiteId, wsInfo, dataInfo, expectMd5, false);
+    }
+
+    // 兼容两种方式，先走新接口，新接口不存在时走旧接口
     public static boolean isRemoteDataExist(int remoteSiteId, ScmWorkspaceInfo wsInfo,
             ScmDataInfo dataInfo, String expectMd5) throws ScmServerException {
         try {
-            String remoteDataMd5 = calRemoteDataMd5(remoteSiteId, wsInfo.getName(), dataInfo);
+            return isRemoteDataExistV2(remoteSiteId, wsInfo, dataInfo, expectMd5);
+        }
+        catch (ScmServerException e) {
+            if (e.getError() == ScmError.OPERATION_UNSUPPORTED) {
+                return isRemoteDataExistV1(remoteSiteId, wsInfo, dataInfo, expectMd5);
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+
+    private static boolean _isRemoteDataExist(int remoteSiteId, ScmWorkspaceInfo wsInfo,
+            ScmDataInfo dataInfo, String expectMd5, boolean localCalc) throws ScmServerException {
+        try {
+            String remoteDataMd5 = null;
+            if (localCalc) {
+                remoteDataMd5 = calRemoteDataMd5Local(remoteSiteId, wsInfo.getName(), dataInfo);
+            }
+            else {
+                remoteDataMd5 = calRemoteDataMd5(remoteSiteId, wsInfo.getName(), dataInfo);
+            }
             if (remoteDataMd5.equals(expectMd5)) {
                 return true;
             }
@@ -170,8 +211,8 @@ public class FileCommonOperator {
         }
     }
 
-    public static String calRemoteDataMd5(int targetSiteId, String wsName, ScmDataInfo dataInfo)
-            throws ScmServerException {
+    public static String calRemoteDataMd5Local(int targetSiteId, String wsName,
+            ScmDataInfo dataInfo) throws ScmServerException {
         int remoteSiteId;
         ScmContentModule contentModule = ScmContentModule.getInstance();
         if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR
@@ -206,7 +247,49 @@ public class FileCommonOperator {
                 remoteDataReader.close();
             }
         }
+    }
 
+    public static String calRemoteDataMd5(int targetSiteId, String wsName, ScmDataInfo dataInfo)
+            throws ScmServerException {
+        int remoteSiteId;
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR
+                && !contentModule.isInMainSite()) {
+            remoteSiteId = contentModule.getMainSite();
+        }
+        else {
+            remoteSiteId = targetSiteId;
+        }
+
+        ScmSite siteInfo = contentModule.getSiteInfo(remoteSiteId);
+        if (siteInfo == null) {
+            throw new ScmServerException(ScmError.SITE_NOT_EXIST,
+                    "site not exist:siteId=" + remoteSiteId);
+        }
+        ContentServerClient client = ContentServerClientFactory
+                .getFeignClientByServiceName(siteInfo.getName());
+        BSONObject res = null;
+        try {
+            res = client.calcDataMd5KeepAlive(dataInfo.getId(), targetSiteId, wsName,
+                    dataInfo.getType(), dataInfo.getCreateTime().getTime(), dataInfo.getWsVersion(),
+                    dataInfo.getTableName());
+        }
+        catch (ScmServerException e) {
+            // 旧版本会抛出 403 状态码的异常
+            if (e.getError() == ScmError.HTTP_METHOD_NOT_ALLOWED) {
+                throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+                        "failed to calc data md5 with KeepAlive, the version of the remote node may be too old",
+                        e);
+            }
+            throw e;
+        }
+        try {
+            ScmFeignExceptionUtils.handleException(res);
+        }
+        catch (ScmFeignException e) {
+            throw new ContentServerFeignExceptionConverter().convert(e);
+        }
+        return BsonUtils.getStringChecked(res, FieldName.FIELD_CLFILE_FILE_MD5);
     }
 
     public static void addSiteInfoToList(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
@@ -216,8 +299,7 @@ public class FileCommonOperator {
                 + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion + ",siteId="
                 + addedSiteId);
         ScmContentModule.getInstance().getMetaService().addSiteInfoToFile(wsInfo, fileId,
-                majorVersion, minorVersion, addedSiteId, new Date(), wsVersion,
-                tableName);
+                majorVersion, minorVersion, addedSiteId, new Date(), wsVersion, tableName);
 
     }
 

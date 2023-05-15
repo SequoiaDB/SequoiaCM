@@ -11,7 +11,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionConverter;
 
-class ContentServerFeignExceptionConverter
+public class ContentServerFeignExceptionConverter
 implements ScmFeignExceptionConverter<ScmServerException> {
     @Override
     public ScmServerException convert(ScmFeignException e) {

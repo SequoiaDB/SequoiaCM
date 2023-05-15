@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.sequoiacm.contentserver.remote.ContentServerFeignExceptionConverter;
+import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -607,8 +610,14 @@ public class FileServiceImpl implements IFileService {
             String remoteSite = contentModule.getSiteInfo(siteInfo.getId()).getName();
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(remoteSite);
-            BSONObject resp = client.calcMd5(sessionid, userDetail, ws.getName(), fileId,
-                    majorVersion, minorVersion);
+            BSONObject resp = client.calcFileMd5KeepAlive(sessionid, userDetail, ws.getName(),
+                    fileId, majorVersion, minorVersion);
+            try {
+                ScmFeignExceptionUtils.handleException(resp);
+            }
+            catch (ScmFeignException e) {
+                throw new ContentServerFeignExceptionConverter().convert(e);
+            }
             md5 = BsonUtils.getStringChecked(resp, FieldName.FIELD_CLFILE_FILE_MD5);
         }
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,

@@ -3,6 +3,8 @@ package com.sequoiacm.infrastructure.feign;
 import java.util.Collection;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import org.bson.BSONObject;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,6 +21,16 @@ public class ScmFeignException extends Exception {
     private Map<String, Collection<String>> headers;
 
     public ScmFeignException() {
+    }
+
+
+    public ScmFeignException(BSONObject bsonObject) {
+        this.timestamp = BsonUtils.getNumberChecked(bsonObject, "timestamp").longValue();
+        this.status = BsonUtils.getNumberChecked(bsonObject, "status").intValue();
+        this.error = BsonUtils.getStringChecked(bsonObject, "error");
+        this.exception = BsonUtils.getStringChecked(bsonObject, "exception");
+        this.message = BsonUtils.getStringChecked(bsonObject, "message");
+        this.path = BsonUtils.getString(bsonObject, "path");
     }
 
     public ScmFeignException(HttpStatus status, String message) {

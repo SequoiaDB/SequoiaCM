@@ -97,6 +97,7 @@ SequoiaCM 配置
 |scm.quota.maxStatisticsThreads| num     | 配置额度同步时执行统计的最大线程数，默认值为 30，表示当线程数超过 30 时，不再接受统计请求 |在线生效|
 |scm.datasource.sequoiadb.location|str|数据服务 SequoiaDB 连接池 location 配置，默认值为空|重启生效|
 |scm.datasource.sequoiadb.putLobRequiredVersion|str|使用 SequoiaDB putLob 接口要求的版本范围，默认值：3.6.1，支持填写范围如 [3.6.1,4)|重启生效|
+|scm.request.keepAlive.interval          | num   | 对耗时较长的操作进行连接保活的频率，单位 ms，默认值为 ribbon.ReadTimeout 的一半|重启生效|
 
 
 

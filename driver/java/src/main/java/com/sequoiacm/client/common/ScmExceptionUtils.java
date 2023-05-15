@@ -1,0 +1,19 @@
+package com.sequoiacm.client.common;
+
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.client.util.BsonUtils;
+import org.bson.BSONObject;
+
+public class ScmExceptionUtils {
+
+    public static void handleException(BSONObject bsonObject) throws ScmException {
+        if (bsonObject == null || bsonObject.isEmpty()) {
+            return;
+        }
+        Number errCode = BsonUtils.getNumber(bsonObject, "status");
+        String errMsg = BsonUtils.getString(bsonObject, "message");
+        if (errCode != null && errMsg != null) {
+            throw new ScmException(errCode.intValue(), errMsg);
+        }
+    }
+}

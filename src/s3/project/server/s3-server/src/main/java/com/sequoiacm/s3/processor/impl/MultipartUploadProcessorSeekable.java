@@ -33,7 +33,6 @@ import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.datasource.dataoperation.ScmSeekableDataWriter;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.common.OutStreamFlushQueue;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
@@ -97,9 +96,6 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
     @Autowired
     S3LockPathFactory lockPathFactory;
-
-    @Autowired
-    OutStreamFlushQueue outStreamFlushQueue;
 
     @Autowired
     private BucketQuotaManager quotaManager;

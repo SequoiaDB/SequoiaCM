@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.sequoiacm.contentserver.job.ScmTaskInfoContext;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
@@ -22,7 +23,6 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.remote.ScmInnerRemoteDataWriter;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.ScmDatasourceException;
-import com.sequoiacm.datasource.common.ScmDataWriterContext;
 import com.sequoiacm.datasource.dataoperation.ScmDataInfo;
 import com.sequoiacm.datasource.dataoperation.ScmDataReader;
 import com.sequoiacm.exception.ScmError;
@@ -42,6 +42,8 @@ public class FileTransferDao {
     private FileTransferInterrupter interrupter = null;
     private String dataCheckLevel = CommonDefine.DataCheckLevel.WEEK;
 
+    private ScmTaskInfoContext taskInfoContext;
+
     public enum FileTransferResult {
         SUCCESS,
         INTERRUPT,
@@ -49,17 +51,19 @@ public class FileTransferDao {
     }
 
     public FileTransferDao(ScmWorkspaceInfo wsInfo, int targetSiteId) {
-        this(wsInfo, targetSiteId, null, CommonDefine.DataCheckLevel.WEEK);
+        this(wsInfo, targetSiteId, null, CommonDefine.DataCheckLevel.WEEK, null);
     }
 
     public FileTransferDao(ScmWorkspaceInfo wsInfo, int remoteSiteId,
-            FileTransferInterrupter interrupter, String dataCheckLevel) {
+            FileTransferInterrupter interrupter, String dataCheckLevel,
+            ScmTaskInfoContext taskInfoContext) {
         this.wsInfo = wsInfo;
         this.remoteSiteId = remoteSiteId;
         this.interrupter = interrupter;
         this.localSiteId = ScmContentModule.getInstance().getLocalSite();
         this.dataCheckLevel = dataCheckLevel;
         this.localSiteId = ScmContentModule.getInstance().getLocalSite();
+        this.taskInfoContext = taskInfoContext;
     }
 
     public FileTransferResult doTransfer(BSONObject file) throws ScmServerException {
@@ -184,8 +188,30 @@ public class FileTransferDao {
                             ScmSystemUtils.getVersionStr(majorVersion, minorVersion), e);
                     return false;
                 }
-                return FileCommonOperator.isRemoteDataExist(remoteSiteId, wsInfo, remoteDataInfo,
-                        localDataMd5);
+                if (taskInfoContext == null) {
+                    return FileCommonOperator.isRemoteDataExist(remoteSiteId, wsInfo,
+                            remoteDataInfo, localDataMd5);
+                }
+                else {
+                    if (taskInfoContext.isSupportRemoteCalcMd5()) {
+                        try {
+                            return FileCommonOperator.isRemoteDataExistV2(remoteSiteId, wsInfo,
+                                    remoteDataInfo, localDataMd5);
+                        }
+                        catch (ScmServerException e) {
+                            if (e.getError() == ScmError.OPERATION_UNSUPPORTED) {
+                                taskInfoContext.setSupportRemoteCalcMd5(false);
+                                return FileCommonOperator.isRemoteDataExistV1(remoteSiteId, wsInfo,
+                                        remoteDataInfo, localDataMd5);
+                            }
+                            throw e;
+                        }
+                    }
+                    else {
+                        return FileCommonOperator.isRemoteDataExistV1(remoteSiteId, wsInfo,
+                                remoteDataInfo, localDataMd5);
+                    }
+                }
             }
             else {
                 return FileCommonOperator.isRemoteDataExist(remoteSiteId, wsInfo, remoteDataInfo,

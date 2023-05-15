@@ -2,7 +2,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.sequoiacm.infrastructure.config.ApplicationPropertyInjection,\
 com.sequoiacm.infrastructure.monitor.OmMonitorAutoConfig,\
 com.sequoiacm.infrastructure.controller.InternalActuatorController,\
-com.sequoiacm.infrastructure.common.OutStreamFlushQueue,\
 com.sequoiacm.infrastructure.common.ScmLoadBalancerUtil,\
 com.sequoiacm.infrastructure.dispatcher.ScmRestClientAutoConfiguration,\
 com.sequoiacm.infrastructure.ribbon.ScmRibbonClientAutoConfiguration,\

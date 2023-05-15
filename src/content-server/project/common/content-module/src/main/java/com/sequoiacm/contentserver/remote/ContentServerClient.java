@@ -138,8 +138,9 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME) String tableName)
             throws ScmServerException;
 
-    @DeleteMapping(value = "/internal/v1/datasource/tables")
-    public void deleteDataTables(
+    @DeleteMapping(value = "/internal/v1/datasource/tables?" + CommonDefine.RestArg.KEEP_ALIVE
+            + "=true")
+    public BSONObject deleteDataTablesKeepAlive(
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames,
             @RequestParam(value = CommonDefine.RestArg.WORKSPACE_NAME, required = false) String wsName,
             @RequestBody(required = false) DataTableDeleteOption location)
@@ -152,12 +153,26 @@ public interface ContentServerClient {
             @RequestParam(CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE) boolean isEnforced)
             throws ScmServerException;
 
-    @PostMapping(value = "/api/v1/files/{file_id}?action=" + CommonDefine.RestArg.ACTION_CALC_MD5)
-    public BSONObject calcMd5(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    @PostMapping(value = "/api/v1/files/{file_id}?action=" + CommonDefine.RestArg.ACTION_CALC_MD5
+            + "&" + CommonDefine.RestArg.KEEP_ALIVE + "=true")
+    public BSONObject calcFileMd5KeepAlive(
+            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(RestField.USER_ATTRIBUTE) String user,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @PathVariable("file_id") String fileId,
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION) int majorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION) int minorVersion)
+            throws ScmServerException;
+
+    @PutMapping(value = "/internal/v1/datasource/{data_id}" + "?action="
+            + CommonDefine.RestArg.ACTION_CALC_MD5 + "&" + CommonDefine.RestArg.KEEP_ALIVE
+            + "=true")
+    public BSONObject calcDataMd5KeepAlive(@PathVariable("data_id") String dataId,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_ID) int siteId,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION) Integer wsVersion,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME) String tableName)
             throws ScmServerException;
 }

@@ -33,6 +33,9 @@ public class ScmTaskInfoContext {
 
     private BSONObject recentRecycleExtraInfo;
 
+    // 是否支持让远程节点计算 md5，旧的内容服务节点不支持该功能，该参数主要用作兼容标志
+    private volatile boolean supportRemoteCalcMd5 = true;
+
     public ScmTaskInfoContext(ScmTaskBase task) {
         this.task = task;
     }
@@ -197,6 +200,14 @@ public class ScmTaskInfoContext {
 
     public long getFailedCount() {
         return failedCount.get();
+    }
+
+    public boolean isSupportRemoteCalcMd5() {
+        return supportRemoteCalcMd5;
+    }
+
+    public void setSupportRemoteCalcMd5(boolean supportRemoteCalcMd5) {
+        this.supportRemoteCalcMd5 = supportRemoteCalcMd5;
     }
 
     public void recordExtraInfo(ScmSpaceRecyclingInfo recyclingInfo) {

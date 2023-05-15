@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver;
 import java.io.File;
 import java.util.HashMap;
 
+import com.sequoiacm.infrastructure.common.EnableRequestKeepAlive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
         "com.sequoiacm.contentserver" })
 @EnableHystrix
 @ContentModuleExcludeMarker
+@EnableRequestKeepAlive
 public class ScmApplication implements ApplicationRunner {
     private final static Logger logger = LoggerFactory.getLogger(ScmApplication.class);
 

@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import com.sequoiacm.cloud.adminserver.model.FileDeltaInfo;
 import com.sequoiacm.cloud.adminserver.model.WorkspaceInfo;
 import com.sequoiacm.cloud.adminserver.remote.ContentServerClient;
 import com.sequoiacm.cloud.adminserver.remote.ContentServerClientFactory;
+import org.springframework.http.HttpStatus;
 
 public class StatisticalFileDelta implements ScmStatistics {
     private static final Logger logger = LoggerFactory.getLogger(StatisticalFileDelta.class);
@@ -102,7 +105,31 @@ public class StatisticalFileDelta implements ScmStatistics {
             BSONObject condition, int scope) throws Exception {
         ContentServerClient client = ContentServerClientFactory
                 .getFeignClientByNodeUrl(contentServer.getNodeUrl());
-        FileDeltaInfo fileDelta = client.getFileDelta(wsName, condition, scope);
+        FileDeltaInfo fileDelta = null;
+        BSONObject res = null;
+
+        // 优先走有连接保活的新接口，如果是旧节点，则走旧接口
+        try {
+            res = client.getFileDeltaKeepAlive(wsName, condition, scope);
+        }
+        catch (StatisticsException e) {
+            if (!HttpStatus.BAD_REQUEST.getReasonPhrase().equalsIgnoreCase(e.getCode())) {
+                throw e;
+            }
+        }
+
+        if (res != null) {
+            ScmFeignExceptionUtils.handleException(res);
+            fileDelta = new FileDeltaInfo();
+            fileDelta.setCountDelta(BsonUtils
+                    .getNumberChecked(res, FieldName.FileDelta.FIELD_COUNT_DELTA).longValue());
+            fileDelta.setSizeDelta(BsonUtils
+                    .getNumberChecked(res, FieldName.FileDelta.FIELD_SIZE_DELTA).longValue());
+        }
+        else {
+            fileDelta = client.getFileDeltaWithHead(wsName, condition, scope);
+        }
+
         fileDelta.setWorkspaceName(wsName);
         logger.debug(
                 "access remote success:{},wsName={},filter={},scope={},count_delta={},size_delta={}",

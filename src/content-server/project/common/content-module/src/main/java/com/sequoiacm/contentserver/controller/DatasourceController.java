@@ -11,9 +11,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.model.DataTableDeleteOption;
+import com.sequoiacm.contentserver.remote.ContentServerClient;
+import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
+import com.sequoiacm.contentserver.remote.ContentServerFeignExceptionConverter;
 import com.sequoiacm.datasource.DatalocationFactory;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.ScmLocation;
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.KeepAlive;
+import com.sequoiacm.infrastructure.feign.ScmFeignException;
+import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -24,6 +31,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -168,8 +176,7 @@ public class DatasourceController {
 
     // TODO:数据不存在：404
     @RequestMapping(value = "/datasource/{data_id}", method = RequestMethod.HEAD)
-    public void headDataInfo(
-            @PathVariable("data_id") String dataId,
+    public void headDataInfo(@PathVariable("data_id") String dataId,
             @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_NAME, required = false) String siteName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
@@ -246,6 +253,57 @@ public class DatasourceController {
         return ret.build();
     }
 
+    @KeepAlive
+    @PutMapping(value = "/datasource/{data_id}", params = "action="
+            + CommonDefine.RestArg.ACTION_CALC_MD5)
+    public BSONObject calcDataMd5KeepAlive(@PathVariable("data_id") String dataId,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_ID, required = false) int siteId,
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TYPE) int type,
+            @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_CREATE_TIME) long createTime,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_WS_VERSION, required = false, defaultValue = "1") Integer wsVersion,
+            @RequestParam(value = CommonDefine.RestArg.DATASOURCE_SITE_LIST_TABLE_NAME, required = false) String tableName)
+            throws ScmServerException {
+        ScmContentModule contentModule = ScmContentModule.getInstance();
+        BSONObject bsonObject = new BasicBSONObject();
+        String md5 = null;
+        if (contentModule.getLocalSite() == siteId) {
+            ScmWorkspaceInfo workspaceInfo = ScmContentModule.getInstance()
+                    .getWorkspaceInfoCheckExist(wsName);
+            ScmDataInfo scmDataInfo = ScmDataInfo.forOpenExistData(type, dataId,
+                    new Date(createTime), wsVersion, tableName);
+            md5 = ScmSystemUtils.calcMd5(workspaceInfo, scmDataInfo);
+        }
+        else {
+            ScmSite siteInfo = contentModule.getSiteInfo(siteId);
+            if (siteInfo == null) {
+                throw new ScmServerException(ScmError.SERVER_NOT_EXIST,
+                        "site is not exist:siteId=" + siteId);
+            }
+            ContentServerClient client = null;
+            if (ScmStrategyMgr.getInstance().strategyType() == StrategyType.STAR
+                    && !contentModule.isInMainSite()) {
+                String mainSiteName = ScmContentModule.getInstance().getMainSiteName();
+                client = ContentServerClientFactory.getFeignClientByServiceName(mainSiteName);
+            }
+            else {
+                client = ContentServerClientFactory.getFeignClientByServiceName(siteInfo.getName());
+            }
+            BSONObject res = client.calcDataMd5KeepAlive(dataId, siteId, wsName, type, createTime,
+                    wsVersion, tableName);
+            try {
+                ScmFeignExceptionUtils.handleException(res);
+            }
+            catch (ScmFeignException e) {
+                throw new ContentServerFeignExceptionConverter().convert(e);
+            }
+            md5 = BsonUtils.getStringChecked(res, FieldName.FIELD_CLFILE_FILE_MD5);
+        }
+        bsonObject.put(FieldName.FIELD_CLFILE_FILE_MD5, md5);
+        return bsonObject;
+    }
+
+    @KeepAlive
     @DeleteMapping(value = "/datasource/tables")
     public void deleteDataTable(
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames,

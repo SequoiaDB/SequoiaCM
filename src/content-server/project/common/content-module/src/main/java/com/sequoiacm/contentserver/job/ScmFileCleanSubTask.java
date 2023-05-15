@@ -211,8 +211,24 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
                 if (localDataMd5 == null) {
                     localDataMd5 = ScmSystemUtils.calcMd5(getWorkspaceInfo(), localDataInfo);
                 }
-                return FileCommonOperator.isRemoteDataExist(dataInOtherSiteId, ws, remoteDataInfo,
-                        localDataMd5);
+                if (taskInfoContext.isSupportRemoteCalcMd5()) {
+                    try {
+                        return FileCommonOperator.isRemoteDataExistV2(dataInOtherSiteId, ws,
+                                remoteDataInfo, localDataMd5);
+                    }
+                    catch (ScmServerException e) {
+                        if (e.getError() == ScmError.OPERATION_UNSUPPORTED) {
+                            taskInfoContext.setSupportRemoteCalcMd5(false);
+                            return FileCommonOperator.isRemoteDataExistV1(dataInOtherSiteId, ws,
+                                    remoteDataInfo, localDataMd5);
+                        }
+                        throw e;
+                    }
+                }
+                else {
+                    return FileCommonOperator.isRemoteDataExistV1(dataInOtherSiteId, ws,
+                            remoteDataInfo, localDataMd5);
+                }
             }
         }
         catch (Exception e) {

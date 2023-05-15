@@ -35,6 +35,7 @@ SequoiaCM 配置
 |scm.zookeeper.cleanQueueSize                |num|配置服务节点清理残留的zookeeper节点所使用的异步缓存队列的大小，默认值：10000|重启生效|
 |scm.zookeeper.acl.enabled     | boolean  | 是否开启 ZooKeeper ACL 权限控制，默认值：false。详情请见：[ZooKeeper 安全性配置][zookeeper_sercurity]|重启生效|
 |scm.zookeeper.acl.id          | str   | 授权对象，填写用户名密码串（username:password）的加密文件路径|重启生效|
+|scm.request.keepAlive.interval          | num   | 对耗时较长的操作进行连接保活的频率，单位 ms，默认值为 ribbon.ReadTimeout 的一半|重启生效|
 
 > **Note:**
 >
