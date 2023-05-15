@@ -37,7 +37,7 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
 
-    private String fileName = "file965";
+    private String fileName = "file2400";
     private List< ScmId > fileIdList = new CopyOnWriteArrayList< ScmId >();
     private int[] remainSizes1 = { 10, 0, 1, 10 };
     private int[] remainSizes2 = { 10, 10, 5, 8 };
