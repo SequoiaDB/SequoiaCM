@@ -98,8 +98,10 @@ SequoiaCM 配置
 |scm.datasource.sequoiadb.location|str|数据服务 SequoiaDB 连接池 location 配置，默认值为空|重启生效|
 |scm.datasource.sequoiadb.putLobRequiredVersion|str|使用 SequoiaDB putLob 接口要求的版本范围，默认值：3.6.1，支持填写范围如 [3.6.1,4)|重启生效|
 |scm.request.keepAlive.interval          | num   | 对耗时较长的操作进行连接保活的频率，单位 ms，默认值为 ribbon.ReadTimeout 的一半|重启生效|
-
-
+| scm.tag.sdbRequiredVersion          | str     | 标签检索要求的 SDB 版本范围，默认值为 3.6.1<br>如果需要指定多个版本范围，可使用逗号（;）间隔，例如：(3.6.1, 4.0.0];(5.0.0, 6.0.0] |重启生效|
+| scm.workspace.tagRetrievalUpdater.interval          | num     | 开启工作区的标签检索功能后，后台检查工作区标签库索引建立状态的时间周期 |重启生效|
+| scm.tag.cacheSize          | num     | 标签库缓存大小，默认每个工作区缓存 1000 个标签 |重启生效|
+| scm.sdbVersionChecker.versionCacheTTL          | num     | SDB 版本缓存过期时间，超过该时间后系统将重新获取 SDB 版本信息，单位为毫秒，默认值为 600000（10 分钟） |重启生效|
 
  > **Note:**
  >

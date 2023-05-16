@@ -24,6 +24,9 @@ confadmin 提供 confserver 配置管理功能
 |[listsubscribers][listsubscribe]|获取订阅者列表|
 |[updateconfig][updateconfig]|动态修改服务或节点的配置|
 |[deleteconfig][deleteconfig]|动态删除服务或节点的配置|
+|[update-global-config][update-global-config]|设置全局配置|
+|[show-global-config][show-global-config]|查看全局配置|
+
 
 [create_node]:Maintainance/Tools/Confadmin/createnode.md
 [subscribe]:Maintainance/Tools/Confadmin/subscribe.md
@@ -31,4 +34,6 @@ confadmin 提供 confserver 配置管理功能
 [listsubscribe]:Maintainance/Tools/Confadmin/listsubscribers.md
 [updateconfig]:Maintainance/Tools/Confadmin/updateconfig.md
 [deleteconfig]:Maintainance/Tools/Confadmin/deleteconfig.md
+[show-global-config]:Maintainance/Tools/Confadmin/show-global-config.md
+[update-global-config]:Maintainance/Tools/Confadmin/update-global-config.md
 

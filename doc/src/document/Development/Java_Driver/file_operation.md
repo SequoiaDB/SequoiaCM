@@ -16,6 +16,8 @@ ScmFile file = ScmFactory.File.createInstance(workspace);
 file.setFileName("testFile");
 file.setAuthor("SequoiaCM");
 file.setContent("E:\\test\\upload_file.txt");
+file.addTagV2("tag1");
+file.addCustomTag("tagKey", "tagValue");
 // 保存文件并获取文件 Id ，根据此文件 Id 可以进行获取文件、下载文件、删除文件等操作
 ScmId fileID = file.save();
 ```
