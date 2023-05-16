@@ -17,7 +17,8 @@ public class ScmQuotaUtils {
                 multiplier = 1024L * 1024L * 1024L;
                 break;
             default:
-                throw new IllegalArgumentException("unsupported unit: " + unit);
+                throw new IllegalArgumentException(
+                        "the input value: " + input + " dose not contain a valid unit:'m' or 'g'");
         }
 
         String numberStr = input.substring(0, input.length() - 1);
@@ -48,7 +49,8 @@ public class ScmQuotaUtils {
                 return -1;
             }
             else {
-                throw e;
+                throw new IllegalArgumentException("failed to parse max size, " + e.getMessage(),
+                        e);
             }
         }
 

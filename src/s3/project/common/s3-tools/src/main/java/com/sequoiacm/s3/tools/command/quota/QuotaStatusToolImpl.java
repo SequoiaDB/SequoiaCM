@@ -30,20 +30,10 @@ import org.springframework.web.client.RestTemplate;
 public class QuotaStatusToolImpl extends BaseQuotaToolImpl {
     private static final Logger logger = LoggerFactory.getLogger(QuotaStatusToolImpl.class);
 
-    private final String OPT_SET_USED_OBJECTS = "set-used-objects";
-    private final String OPT_SET_USED_SIZE = "set-used-size";
-    private final String OPT_SET_USED_SIZE_BYTES = "set-used-size-bytes";
     private final String OPT_SHOW_INNER_DETAIL = "show-inner-detail";
 
     public QuotaStatusToolImpl() throws ScmToolsException {
         super("quota-status");
-        ops.addOption(hp.createOpt(null, OPT_SET_USED_OBJECTS,
-                "sets the used object count limit for specified bucket. ", false, true, false));
-        ops.addOption(hp.createOpt(null, OPT_SET_USED_SIZE,
-                "sets the used size for the bucket. example: 100G、100g、1000M、1000m", false, true,
-                false));
-        ops.addOption(hp.createOpt(null, OPT_SET_USED_SIZE_BYTES,
-                "sets the used size with bytes for the bucket.", false, true, false));
         ops.addOption(hp.createOpt(null, OPT_SHOW_INNER_DETAIL,
                 "show inner quota detail of the bucket. ", false, false, true));
     }
@@ -51,21 +41,12 @@ public class QuotaStatusToolImpl extends BaseQuotaToolImpl {
     @Override
     public void process(String[] args) throws ScmToolsException {
         super.process(args);
-        QuotaParams quotaParams = checkAndParseArgs(cl);
         ScmSession session = null;
         try {
             session = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
                     new ScmConfigOption(url, user, passwd));
-            if (quotaParams.usedObjects != null || quotaParams.usedSize != null) {
-                ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.updateBucketUsedQuota(session,
-                        bucket, quotaParams.usedObjects, quotaParams.usedSize);
-                System.out.println("update quota info success.");
-                printQuotaInfo(quotaInfo);
-            }
-            else {
-                ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota(session, bucket);
-                printQuotaInfo(quotaInfo);
-            }
+            ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota(session, bucket);
+            printQuotaInfo(quotaInfo);
             if (cl.hasOption(OPT_SHOW_INNER_DETAIL)) {
                 BSONObject innerQuotaInfo = getInnerQuotaInfo(session.getSessionId(), bucket);
                 System.out.println("inner quota info:");
@@ -85,26 +66,6 @@ public class QuotaStatusToolImpl extends BaseQuotaToolImpl {
                 session.close();
             }
         }
-    }
-
-    private QuotaParams checkAndParseArgs(CommandLine cl) throws ScmToolsException {
-        if (cl.hasOption(OPT_SET_USED_SIZE) && cl.hasOption(OPT_SET_USED_SIZE_BYTES)) {
-            throw new ScmToolsException("param: " + OPT_SET_USED_SIZE + " and "
-                    + OPT_SET_USED_SIZE_BYTES + " can not be specified at same time",
-                    ScmExitCode.INVALID_ARG);
-        }
-        QuotaParams quotaParams = new QuotaParams();
-        if (cl.hasOption(OPT_SET_USED_SIZE)) {
-            quotaParams.usedSize = ScmQuotaUtils
-                    .convertToBytes(cl.getOptionValue(OPT_SET_USED_SIZE));
-        }
-        if (cl.hasOption(OPT_SET_USED_SIZE_BYTES)) {
-            quotaParams.usedSize = Long.parseLong(cl.getOptionValue(OPT_SET_USED_SIZE_BYTES));
-        }
-        if (cl.hasOption(OPT_SET_USED_OBJECTS)) {
-            quotaParams.usedObjects = Long.parseLong(cl.getOptionValue(OPT_SET_USED_OBJECTS));
-        }
-        return quotaParams;
     }
 
     private BSONObject getInnerQuotaInfo(String sessionId, String bucketName)
@@ -135,8 +96,4 @@ public class QuotaStatusToolImpl extends BaseQuotaToolImpl {
         }
     }
 
-    private static class QuotaParams {
-        private Long usedSize;
-        private Long usedObjects;
-    }
 }

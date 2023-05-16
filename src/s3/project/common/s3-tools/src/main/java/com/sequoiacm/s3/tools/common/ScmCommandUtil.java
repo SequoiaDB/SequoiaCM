@@ -6,6 +6,7 @@ import com.sequoiacm.s3.tools.exception.ScmExitCode;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -52,8 +53,29 @@ public class ScmCommandUtil {
         }
         catch (ParseException e) {
             logger.error("Invalid arg", e);
-            throw new ScmToolsException(e.getMessage(), ScmExitCode.INVALID_ARG);
+            String msg = e.getMessage();
+            if (e instanceof MissingArgumentException) {
+                // 针对参数缺失异常的提示语句做特殊处理，以便于用户更好的理解
+                msg = generateMissingArgMsg(((MissingArgumentException) e).getOption());
+            }
+            throw new ScmToolsException(msg, ScmExitCode.INVALID_ARG);
         }
+    }
+
+    private static String generateMissingArgMsg(Option option) {
+        String longOpt = option.getLongOpt();
+        String shortOpt = option.getOpt();
+        String msg;
+        if (longOpt != null) {
+            msg = "Missing argument for option: --" + longOpt;
+            if (shortOpt != null) {
+                msg += "(-" + shortOpt + ")";
+            }
+        }
+        else {
+            msg = "Missing argument for option: -" + shortOpt;
+        }
+        return msg;
     }
 
     public static CommandLine parseArgs(String[] args, Options options) throws ScmToolsException {
