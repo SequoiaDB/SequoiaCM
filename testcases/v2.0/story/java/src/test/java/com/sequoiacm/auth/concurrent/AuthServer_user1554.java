@@ -2,6 +2,7 @@ package com.sequoiacm.auth.concurrent;
 
 import java.util.Random;
 
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
@@ -60,8 +61,7 @@ public class AuthServer_user1554 extends TestScmBase {
         ScmFactory.Role.createRole( session, NAME, "" );
     }
 
-    //SEQUOIACM-1331 开发修改,测试用例不通过，需要调整用例代码，暂时先屏蔽，等回归验证再修改
-    @Test(groups = { GroupTags.base }, enabled = false)
+    @Test(groups = { GroupTags.base })
     private void test() throws ScmException {
         Random random = new Random();
 
@@ -138,7 +138,14 @@ public class AuthServer_user1554 extends TestScmBase {
                 ScmUser scmUser = ScmFactory.User.getUser( session, NAME );
                 ScmUserModifier modifier = new ScmUserModifier();
                 modifier.delRole( NAME );
-                ScmFactory.User.alterUser( session, scmUser, modifier );
+                try {
+                    ScmFactory.User.alterUser( session, scmUser, modifier );
+                } catch ( ScmException ex ) {
+                    if ( ex.getErrorCode() != ScmError.HTTP_BAD_REQUEST
+                            .getErrorCode() ) {
+                        throw ex;
+                    }
+                }
             } finally {
                 if ( session != null ) {
                     session.close();
