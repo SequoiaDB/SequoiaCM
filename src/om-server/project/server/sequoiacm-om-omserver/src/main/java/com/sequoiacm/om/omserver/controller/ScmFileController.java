@@ -4,28 +4,41 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import com.sequoiacm.om.omserver.common.CommonUtil;
-import com.sequoiacm.om.omserver.common.ScmOmInputStream;
-import com.sequoiacm.om.omserver.module.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sequoiacm.om.omserver.common.CommonUtil;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
+import com.sequoiacm.om.omserver.common.ScmOmInputStream;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
-
+import com.sequoiacm.om.omserver.module.OmFileBasic;
+import com.sequoiacm.om.omserver.module.OmFileContent;
+import com.sequoiacm.om.omserver.module.OmFileDetail;
+import com.sequoiacm.om.omserver.module.OmFileInfo;
 import com.sequoiacm.om.omserver.service.ScmFileService;
+import com.sequoiacm.om.omserver.service.ScmTagService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -36,6 +49,9 @@ public class ScmFileController {
 
     @Autowired
     private ScmFileService fileService;
+
+    @Autowired
+    private ScmTagService tagService;
 
     @RequestMapping(value = "/files/id/{file_id}", method = RequestMethod.HEAD)
     public ResponseEntity<Object> getFileDetail(@PathVariable("file_id") String fileId,
@@ -73,14 +89,25 @@ public class ScmFileController {
             @RequestParam(value = RestParamDefine.SKIP, required = false, defaultValue = "0") long skip,
             @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
             @RequestParam(value = RestParamDefine.FILTER, required = false, defaultValue = "{}") BSONObject filter,
+            @RequestParam(value = RestParamDefine.TAG_CONDITION, required = false) BSONObject tagCondition,
             @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy,
             HttpServletResponse response) throws ScmInternalException, ScmOmServerException {
-        long fileCount = fileService.getFileCount(session, wsName, scope, filter);
+        if (tagCondition == null) {
+            long fileCount = fileService.getFileCount(session, wsName, scope, filter);
+            response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(fileCount));
+            if (fileCount <= 0) {
+                return Collections.emptyList();
+            }
+            return fileService.getFileList(session, wsName, scope, filter, orderBy, skip, limit);
+        }
+
+        long fileCount = tagService.countFileWithTag(session, wsName, scope, tagCondition, filter);
         response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(fileCount));
         if (fileCount <= 0) {
             return Collections.emptyList();
         }
-        return fileService.getFileList(session, wsName, scope, filter, orderBy, skip, limit);
+        return tagService.searchFileWithTag(session, wsName, scope, tagCondition, filter, orderBy,
+                skip, limit);
     }
 
     @PostMapping("/files")

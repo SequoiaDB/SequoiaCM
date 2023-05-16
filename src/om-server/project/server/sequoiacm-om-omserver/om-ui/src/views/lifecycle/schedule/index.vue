@@ -104,7 +104,7 @@
           <template slot-scope="scope">
             <el-button-group>
               <el-button id="btn_schedule_showDetailDialog" size="mini" @click="handleShowBtnClick(scope.row)">查看</el-button>
-              <el-button id="btn_schedule_showEditdeleteDialog" size="mini" @click="handleEditBtnClick(scope.row)">编辑</el-button></span>
+              <el-button id="btn_schedule_showEditdeleteDialog" size="mini" @click="handleEditBtnClick(scope.row)">编辑</el-button>
               <el-button id="btn_schedule_showTasks" size="mini" @click="handleShowTasksBtnClick(scope.row)">运行记录</el-button>
               <el-tooltip content="该调度任务为工作区应用数据流生成，无法删除" :disabled="!(scope.row.transition && true)" placement="top">
                 <span><el-button id="btn_schedule_showDeleteDialog" size="mini" type="danger" :disabled="scope.row.transition && true" @click="handleDeleteBtnClick(scope.row)">删除任务</el-button></span>

@@ -7,19 +7,21 @@ const BASE_API = '/api/v1'
  * 查看文件列表
  * @param {string} ws
  * @param {int} scope
+ * @param {object} tag_condition
  * @param {object} filter
  * @param {object} orderby
  * @param {int} page
  * @param {int} size
  * @returns
  */
- export function queryFileList(ws, scope, filter, orderby, page, size) {
+ export function queryFileList(ws, scope, tag_condition, filter, orderby, page, size) {
   return request({
     url: BASE_API+'/files',
     method: 'get',
     params: {
       workspace: ws,
       scope: scope,
+      tag_condition,
       filter,
       orderby,
       skip: (page-1)*size,
@@ -30,11 +32,11 @@ const BASE_API = '/api/v1'
 
 /**
  * 查看文件详情
- * @param {string} ws 
- * @param {string} fileId 
- * @param {int} majorVersion 
- * @param {int} minorVersion 
- * @returns 
+ * @param {string} ws
+ * @param {string} fileId
+ * @param {int} majorVersion
+ * @param {int} minorVersion
+ * @returns
  */
  export function queryFileDetail(ws, fileId, majorVersion, minorVersion) {
   return request({
@@ -50,12 +52,12 @@ const BASE_API = '/api/v1'
 
 /**
  * 上传文件
- * @param {string} ws 
- * @param {string} site 
- * @param {string} fileInfo 
+ * @param {string} ws
+ * @param {string} site
+ * @param {string} fileInfo
  * @param {object} uploadConf
- * @param {object} param 
- * @returns 
+ * @param {object} param
+ * @returns
  */
 export function uploadFile(ws, site, fileInfo, uploadConf, param, cancelToken) {
   return request({
@@ -82,12 +84,12 @@ export function uploadFile(ws, site, fileInfo, uploadConf, param, cancelToken) {
 
 /**
  * 更新文件内容
- * @param {string} ws 
- * @param {string} fileId 
- * @param {String} site 
- * @param {object} updateOption 
- * @param {object} param 
- * @returns 
+ * @param {string} ws
+ * @param {string} fileId
+ * @param {String} site
+ * @param {object} updateOption
+ * @param {object} param
+ * @returns
  */
 export function updateFileContent(ws, fileId, site, updateOption, param) {
   return request({
@@ -112,9 +114,9 @@ export function updateFileContent(ws, fileId, site, updateOption, param) {
 
 /**
  * 删除文件
- * @param {string} ws 
- * @param {array} fileIdList 
- * @returns 
+ * @param {string} ws
+ * @param {array} fileIdList
+ * @returns
  */
 export function deleteFiles(ws, fileIdList) {
   return request({

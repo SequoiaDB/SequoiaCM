@@ -37,7 +37,7 @@
             </template>
             <div class="info-container">
               <el-row>
-                <el-col :span="5" style="width:100px;margin-top:8px;font-size: 15px">
+                <el-col :span="5" style="width:120px;margin-top:12px;font-size: 15px">
                   <el-tooltip effect="light" placement="top-start">
                     <div slot="content" class="tooltip">
                       文件缓存策略控制跨中心读时，文件数据是否缓存在途经的站点上，目前支持如下缓存策略：<br/>
@@ -48,7 +48,7 @@
                     <span>缓存策略：</span>
                   </el-tooltip>
                 </el-col>
-                <el-col :span="19" style="width:200px;">
+                <el-col :span="19" style="width:200px;margin-top:12px">
                   <span>
                     <el-select
                       id="select_ws_site_cache_strategy"
@@ -69,7 +69,33 @@
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="5" style="width:100px;margin-top:8px;font-size: 15px">
+                <el-col :span="5" style="width:120px;margin-top:12px;font-size: 15px">
+                  <span>标签检索：</span>
+                </el-col>
+                <el-col :span="19">
+                  <el-radio-group v-model="tagRetrievalStatus" size="small" style="margin-top:12px;">
+                    <el-radio-button label="enabled" v-if="tagRetrievalStatus!=='indexing'">
+                      开启
+                    </el-radio-button>
+                    <el-radio-button label="indexing" v-if="tagRetrievalStatus==='indexing'">
+                      开启中<i class="el-icon-loading"></i>
+                    </el-radio-button>
+                    <el-radio-button label="disabled" :disabled="tagRetrievalStatus==='indexing'">
+                      关闭
+                    </el-radio-button>
+                  </el-radio-group>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="5" style="width:120px;margin-top:12px;font-size: 15px">
+                  <span>标签库 Domain：</span>
+                </el-col>
+                <el-col :span="4">
+                  <el-input v-model="workspaceInfo.tag_lib_domain" readonly style="margin-top:12px" size="small"></el-input>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="5" style="width:120px;margin-top:12px;font-size: 15px">
                   <span>数据流配置：</span>
                 </el-col>
                 <el-col :span="19">
@@ -265,7 +291,7 @@ import FileSizeDeltaChart from '@/views/workspace/components/FileSizeDeltaChart'
 import Panel from '@/components/Panel'
 import TransitionEditDialog from '../lifecycle/transition/components/TransitionEditDialog.vue'
 import TransitionDetailDialog from '../lifecycle/transition/components/TransitionDetailDialog.vue'
-import {queryWorkspaceDetail, updateWorkspace, queryWorkspaceTraffic, queryWorkspaceFileDelta} from '@/api/workspace'
+import {queryWorkspaceDetail, updateWorkspace, queryWorkspaceTraffic, queryWorkspaceFileDelta, queryWorkspaceBasic} from '@/api/workspace'
 import { Loading } from 'element-ui'
 import {listTransitionByWs, removeTransition, changeTransitionState} from '@/api/lifecycle'
 export default {
@@ -284,6 +310,9 @@ export default {
       siteList: [],
       originalCacheStrategy: '',
       cacheStrategy: '',
+      timer: null,         // 定时检查标签开关状态
+      tagRetrievalStatus: '',
+      watchTagRetrievalStatus: false,
       siteCacheStrategies: [{
         value : 'ALWAYS', label : 'ALWAYS'
       }, {
@@ -371,6 +400,7 @@ export default {
         this.cacheStrategy = 'ALWAYS'
       }
       this.originalCacheStrategy = this.cacheStrategy
+      this.tagRetrievalStatus = this.workspaceInfo.tag_retrieval_status
       await this.queryTransitionList()
     },
     queryTransitionList() {
@@ -508,10 +538,67 @@ export default {
           loadingInstance.close()
         })
       })
+    },
+    async tagRetrievalStatusChecker() {
+      let res = await queryWorkspaceBasic(this.$route.params.name, true)
+      let workspaceInfo = JSON.parse(res.headers['workspace'])
+      if (workspaceInfo.tag_retrieval_status !== 'indexing') {
+        this.tagRetrievalStatus = workspaceInfo.tag_retrieval_status
+      }
     }
   },
   created(){
     this.init()
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
+  },
+  watch: {
+    async tagRetrievalStatus(newValue, oldValue) {
+      if (!this.watchTagRetrievalStatus) {
+        this.watchTagRetrievalStatus = true
+        return
+      }
+
+      if (oldValue === 'indexing') {
+        clearInterval(this.timer)
+        this.timer = null
+        if (newValue === 'enabled') {
+          this.$message.success("开启工作区标签检索成功！")
+        } else {
+          this.$message.error("开启工作区标签检索失败！")
+        }
+        return
+      }
+
+      if (newValue === 'indexing') {
+        this.timer = setInterval(() => {
+          this.tagRetrievalStatusChecker()
+        }, 2000)
+        return
+      }
+
+      // 修改标签检索状态
+      try {
+        if (newValue === 'enabled') {
+          let ws = { tagRetrievalEnabled : true}
+          let res = await updateWorkspace(this.workspaceInfo.name, ws)
+          this.$message.success("正在开启工作区标签检索")
+          this.tagRetrievalStatus = 'indexing'
+        } else {
+          let ws = { tagRetrievalEnabled : false }
+          let res = await updateWorkspace(this.workspaceInfo.name, ws)
+          this.$message.success("关闭工作区标签检索成功")
+        }
+      } catch (error) {
+		    // 修改失败时还原标签状态，并且本次状态的变更不需要 watch（避免进入死循环）
+        this.tagRetrievalStatus = oldValue
+        this.watchTagRetrievalStatus = false
+      }
+    }
   }
 
 }

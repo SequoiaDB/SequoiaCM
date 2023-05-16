@@ -144,6 +144,26 @@
               <el-form-item label="目录开关" >
                 <el-switch v-model="form.directoryEnabled"></el-switch>
               </el-form-item>
+              <el-form-item label="标签检索" >
+                <el-switch v-model="form.tagRetrievalEnabled"></el-switch>
+              </el-form-item>
+              <el-form-item label="标签库 Domain" >
+                <el-radio-group v-model="form.domainType">
+                  <el-tooltip :disabled="form.defaultTagLibDomain!==''" content="系统未设置标签库默认 Domain" placement="top">
+                    <el-radio :disabled="form.defaultTagLibDomain===''" label="default" @change="selectDefaultDomain">默认 Domain</el-radio>
+                  </el-tooltip>
+                  <el-radio label="custom">自定义</el-radio>
+                </el-radio-group>
+                <el-input
+                  maxlength="50"
+                  class="input-new-workspace"
+                  placeholder="请输入 domain 名称"
+                  v-model="form.tagLibDomain"
+                  size="small"
+                  :disabled="form.domainType==='default'"
+                  style="margin-top: 5px;">
+                </el-input>
+              </el-form-item>
             </el-collapse-item>
           </el-collapse>
       </el-form>
@@ -158,6 +178,7 @@
 <script>
 
 import {createWorkspace} from '@/api/workspace'
+import {getGlobalConfig} from '@/api/system'
 import {querySiteList} from '@/api/site'
 
 import ScmShardingSelect from '@/components/selector/ScmShardingSelect'
@@ -205,6 +226,10 @@ export default {
       form: {
         workspaceNames: [],
         directoryEnabled:false,
+        tagRetrievalEnabled: false,
+        defaultTagLibDomain: '',
+        domainType: 'custom',
+        tagLibDomain: '',
         cacheStrategy:"ALWAYS",
         preferred: '',
         description: ''
@@ -240,7 +265,7 @@ export default {
     },
 
     // 初始化弹框
-    init() {
+    async init() {
       for (const site of this.sites) {
         if (site.is_root_site) {
           if (!this.addedSites.some(item => item.is_root_site)) {
@@ -249,6 +274,18 @@ export default {
           this.rootSiteName = site.name
           this.activeSite = site.name
         }
+      }
+      // 获取标签库默认 Domain
+      let configName = 'scm.tagLib.defaultDomain' 
+      let res = await getGlobalConfig(configName)
+      if (res.data[configName]) {
+        this.form.domainType = 'default'
+        this.form.defaultTagLibDomain = res.data[configName]
+        this.form.tagLibDomain = this.form.defaultTagLibDomain
+      }
+      else {
+        // 如果没有默认 Domian，则展开其它配置，让用户去填写
+        this.collapseValue = 'otherConfig'
       }
     },
 
@@ -329,10 +366,19 @@ export default {
       }
 
     },
+    
+    // 切换至默认 Domain
+    selectDefaultDomain() {
+      this.form.tagLibDomain = this.form.defaultTagLibDomain
+    },
 
     // 提交表单（上传文件）
     submitForm() {
       if (this.saveBtnDisabled) {
+        return
+      }
+      if (this.form.tagLibDomain === '') {
+        this.$message.error('其它配置->标签库 Domain 不能为空')
         return
       }
       this.saveBtnDisabled = true
@@ -356,6 +402,8 @@ export default {
             workspace_names: workspaceNames,
             cache_strategy: this.form.cacheStrategy,
             directory_enabled: this.form.directoryEnabled,
+            tag_retrieval_enabled: this.form.tagRetrievalEnabled,
+            tag_lib_domain: this.form.tagLibDomain,
             meta_location: this.$refs['metaLocation'].toFormData(),
             description: this.form.description
           }
@@ -395,6 +443,10 @@ export default {
       this.form = {
         workspaceNames: [],
         directoryEnabled:false,
+        tagRetrievalEnabled: false,
+        defaultTagLibDomain: '',
+        domainType: 'custom',
+        tagLibDomain: '',
         cacheStrategy:"ALWAYS",
         preferred: '',
         description: ''

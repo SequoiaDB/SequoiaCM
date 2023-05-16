@@ -23,6 +23,12 @@ public class OmWorkspaceDetail extends OmWorkspaceBasicInfo {
     @JsonProperty("enable_directory")
     private Boolean enableDirectory;
 
+    @JsonProperty("tag_retrieval_status")
+    private String tagRetrievalStatus;
+
+    @JsonProperty("tag_lib_domain")
+    private String tagLibDomain;
+
     @JsonProperty("site_cache_strategy")
     private String siteCacheStrategy;
 
@@ -64,6 +70,22 @@ public class OmWorkspaceDetail extends OmWorkspaceBasicInfo {
 
     public void setEnableDirectory(Boolean enableDirectory) {
         this.enableDirectory = enableDirectory;
+    }
+
+    public String getTagRetrievalStatus() {
+        return tagRetrievalStatus;
+    }
+
+    public void setTagRetrievalStatus(String tagRetrievalStatus) {
+        this.tagRetrievalStatus = tagRetrievalStatus;
+    }
+
+    public String getTagLibDomain() {
+        return tagLibDomain;
+    }
+
+    public void setTagLibDomain(String tagLibDomain) {
+        this.tagLibDomain = tagLibDomain;
     }
 
     public String getSiteCacheStrategy() {

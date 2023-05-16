@@ -7,6 +7,17 @@ public class OmWorkspaceInfo {
     @JsonProperty("site_cache_strategy")
     private String siteCacheStrategy;
 
+    @JsonProperty("tag_retrieval_enabled")
+    private Boolean tagRetrievalEnabled;
+
+    public Boolean isTagRetrievalEnabled() {
+        return tagRetrievalEnabled;
+    }
+
+    public void setTagRetrievalEnabled(Boolean tagRetrievalEnabled) {
+        this.tagRetrievalEnabled = tagRetrievalEnabled;
+    }
+
     public String getSiteCacheStrategy() {
         return siteCacheStrategy;
     }

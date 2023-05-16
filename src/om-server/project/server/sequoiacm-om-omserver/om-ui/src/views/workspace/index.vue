@@ -140,7 +140,7 @@ export default {
       isForceDelete: false,
       showCron: false,
       deleteWsDialogVisible: false,
-      pagination:{ 
+      pagination:{
         current: 1, //当前页
         size: 10, //每页大小
         total: 0, //总数据条数
@@ -157,7 +157,7 @@ export default {
     }
   },
   computed:{
-   
+
   },
   methods:{
     // 初始化
@@ -228,14 +228,14 @@ export default {
         this.queryTableData()
       })
     }
-  
+
   },
   created(){
   },
   activated() {
     this.init()
   }
-  
+
 }
 </script>
 <style  scoped>
@@ -245,8 +245,8 @@ export default {
   margin-bottom: 10px;
 }
 .text-force-delete {
-  font-weight:700; 
-  line-height:28px; 
+  font-weight:700;
+  line-height:28px;
   text-align:center;
 }
 .tip-title {

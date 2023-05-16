@@ -106,10 +106,11 @@ public class ScmWorkspaceController {
     }
 
     @RequestMapping(value = "/workspaces/{workspace_name:.+}", method = RequestMethod.HEAD)
-    public ResponseEntity<Object> getWorkspaceDetail(
-            @PathVariable("workspace_name") String workspaceName, ScmOmSession session)
+    public ResponseEntity<Object> getWorkspaceDetail(ScmOmSession session,
+            @PathVariable("workspace_name") String workspaceName,
+            @RequestParam(value = RestParamDefine.FORCE_FETCH, required = false, defaultValue = "false") Boolean forceFetch)
             throws ScmInternalException, ScmOmServerException, JsonProcessingException {
-        OmWorkspaceDetail ws = service.getWorkspaceDetail(session, workspaceName);
+        OmWorkspaceDetail ws = service.getWorkspaceDetail(session, workspaceName, forceFetch);
         return ResponseEntity.ok().header(RestParamDefine.WORKSPACE, mapper.writeValueAsString(ws))
                 .build();
     }

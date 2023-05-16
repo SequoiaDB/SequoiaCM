@@ -38,12 +38,16 @@ export function queryWorkspaceDetail(workspaceName) {
 /**
  * 查询工作区基本信息
  * @param {string} workspaceName 
+ * @param {boolean} isForceFetch 
  * @returns 
  */
- export function queryWorkspaceBasic(workspaceName) {
+ export function queryWorkspaceBasic(workspaceName, isForceFetch) {
   return request({
     url: BASE_API+'/workspaces/'+workspaceName,
-    method: 'head'
+    method: 'head',
+    params: {
+      force_fetch: isForceFetch
+    }
   })
 }
 

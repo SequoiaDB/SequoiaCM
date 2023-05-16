@@ -19,11 +19,22 @@ public class RestParamDefine {
     public static final String LIMIT = "limit";
     public static final String SKIP = "skip";
     public static final String WORKSPACE = "workspace";
+    public static final String FORCE_FETCH = "force_fetch";
     public static final String FILE = "file";
     public static final String FILTER = "filter";
     public static final String ORDERBY = "orderby";
     public static final String STRICT_MODE = "strict_mode";
     public static final String QUOTA_LEVEL = "quota_level";
+
+    // configuration
+    public static final String CONFIG_NAME = "config_name";
+    public static final String CONFIG_VALUE = "config_value";
+
+    // s3
+    public static final String TARGET_USER = "target_user";
+    public static final String TARGET_USER_PWD = "target_user_pwd";
+    public static final String ACCESS_KEY = "access_key";
+    public static final String SECRET_KEY = "secret_key";
 
     // workspace
     public static final String BEGIN_TIME = "begin_time";
@@ -53,6 +64,15 @@ public class RestParamDefine {
     public static final String FILE_UPLOAD_CONFIG = "upload_config";
     public static final String FILE_UPDATE_CONTENT_OPTION = "update_content_option";
     public static final String FILE_ID_LIST = "file_id_list";
+
+    // tag
+    public static final String TAG_TYPE = "tag_type";
+    public static final String TAG_FILTER = "tag_filter";
+    public static final String TAG_MATCHER = "tag_matcher";
+    public static final String KEY_MATCHER = "key_matcher";
+    public static final String VALUE_MATCHER = "value_matcher";
+
+    public static final String TAG_CONDITION = "tag_condition";
 
     // directory
     public static final String DIRECTORY_TYPE_PATH = "path";

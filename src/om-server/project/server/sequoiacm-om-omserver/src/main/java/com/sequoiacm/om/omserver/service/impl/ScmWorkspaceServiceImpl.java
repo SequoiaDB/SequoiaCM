@@ -6,6 +6,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sequoiacm.om.omserver.module.OmDeltaStatistics;
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.ScopeType;
 import com.sequoiacm.client.core.ScmQueryBuilder;
@@ -21,6 +30,7 @@ import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmSftpDataLocation;
+import com.sequoiacm.client.element.bizconf.ScmTagLibMetaOption;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
@@ -30,26 +40,33 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
-import com.sequoiacm.om.omserver.dao.ScmMonitorDao;
-import com.sequoiacm.om.omserver.dao.ScmWorkspaceDao;
-import com.sequoiacm.om.omserver.exception.ScmOmServerError;
-import com.sequoiacm.om.omserver.factory.*;
-import com.sequoiacm.om.omserver.module.*;
-import com.sequoiacm.om.omserver.service.ScmSiteService;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.sequoiacm.om.omserver.config.ScmOmServerConfig;
 import com.sequoiacm.om.omserver.core.ScmSiteChooser;
+import com.sequoiacm.om.omserver.dao.ScmMonitorDao;
+import com.sequoiacm.om.omserver.dao.ScmWorkspaceDao;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
+import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
+import com.sequoiacm.om.omserver.factory.ScmBatchDaoFactory;
+import com.sequoiacm.om.omserver.factory.ScmDirDaoFactory;
+import com.sequoiacm.om.omserver.factory.ScmFileDaoFactory;
+import com.sequoiacm.om.omserver.factory.ScmMonitorDaoFactory;
+import com.sequoiacm.om.omserver.factory.ScmUserDaoFactory;
+import com.sequoiacm.om.omserver.factory.ScmWorkSpaceDaoFactory;
+import com.sequoiacm.om.omserver.module.OmBatchOpResult;
+import com.sequoiacm.om.omserver.module.OmCacheWrapper;
+import com.sequoiacm.om.omserver.module.OmFileTrafficStatistics;
+import com.sequoiacm.om.omserver.module.OmSiteInfo;
+import com.sequoiacm.om.omserver.module.OmUserInfo;
+import com.sequoiacm.om.omserver.module.OmWorkspaceBasicInfo;
+import com.sequoiacm.om.omserver.module.OmWorkspaceCreateInfo;
+import com.sequoiacm.om.omserver.module.OmWorkspaceDataLocation;
+import com.sequoiacm.om.omserver.module.OmWorkspaceDetail;
+import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
+import com.sequoiacm.om.omserver.module.OmWorkspaceInfoWithStatistics;
+import com.sequoiacm.om.omserver.service.ScmSiteService;
 import com.sequoiacm.om.omserver.service.ScmWorkspaceService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
-import org.springframework.util.StringUtils;
 
 @Service
 public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
@@ -97,6 +114,8 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         wsDetailWithStatistics.setUpdateTime(wsDetail.getUpdateTime());
         wsDetailWithStatistics.setUpdateUser(wsDetail.getUpdateUser());
         wsDetailWithStatistics.setSiteCacheStrategy(wsDetail.getSiteCacheStrategy());
+        wsDetailWithStatistics.setTagRetrievalStatus(wsDetail.getTagRetrievalStatus());
+        wsDetailWithStatistics.setTagLibDomain(wsDetail.getTagLibDomain());
         String prefreSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         try {
             session.resetServiceEndpoint(prefreSite);
@@ -248,6 +267,8 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
                 conf.setDescription(workspacesInfo.getDescription());
             }
             conf.setEnableDirectory(workspacesInfo.isDirectoryEnabled());
+            conf.setEnableTagRetrieval(workspacesInfo.isTagRetrievalEnabled());
+            conf.setTagLibMetaOption(new ScmTagLibMetaOption(workspacesInfo.getTagLibDomain()));
             conf.setMetaLocation(new ScmSdbMetaLocation(workspacesInfo.getMetaLocation()));
             for (BSONObject location : workspacesInfo.getDataLocations()) {
                 conf.addDataLocation(createDataLocation(location, sitesMap));
@@ -434,14 +455,21 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
     }
 
     @Override
-    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String workspaceName)
+    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String wsName)
             throws ScmInternalException, ScmOmServerException {
-        OmCacheWrapper<OmWorkspaceDetail> cache = workspacesCache.get(workspaceName);
-        ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
-        if (cache != null && !cache.isExpire(cacheTTL)) {
-            return cache.getCache();
-        }
+        return getWorkspaceDetail(session, wsName, false);
+    }
 
+    @Override
+    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String workspaceName,
+            boolean forceFetch) throws ScmInternalException, ScmOmServerException {
+        if (!forceFetch) {
+            OmCacheWrapper<OmWorkspaceDetail> cache = workspacesCache.get(workspaceName);
+            if (cache != null && !cache.isExpire(cacheTTL)) {
+                return cache.getCache();
+            }
+        }
+        ScmWorkspaceDao workspaceDao = workSpaceDaoFactory.createWorkspaceDao(session);
         String rootSite = siteChooser.getRootSite();
         OmWorkspaceDetail ret = null;
         try {
@@ -465,20 +493,31 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         ret.setDescription(ws.getDescription());
         ret.setName(ws.getName());
         ret.setEnableDirectory(ws.isEnableDirectory());
+        ScmTagLibMetaOption tagLibMetaOption;
+        try {
+            tagLibMetaOption = ws.getTagLibMetaOption();
+            if (tagLibMetaOption != null) {
+                ret.setTagLibDomain(tagLibMetaOption.getTagLibDomain());
+            }
+            ret.setTagRetrievalStatus(ws.getTagRetrievalStatus().getValue());
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), e.getMessage(), e);
+        }
         ret.setUpdateTime(ws.getUpdateTime());
         ret.setUpdateUser(ws.getUpdateUser());
         ret.setSiteCacheStrategy(ws.getSiteCacheStrategy().name());
 
-        List<OmWorkspaceDataLocation> retDatalocations = new ArrayList<>();
+        List<OmWorkspaceDataLocation> retDataLocations = new ArrayList<>();
         for (ScmDataLocation site : ws.getDataLocations()) {
             OmWorkspaceDataLocation retDataLocation = new OmWorkspaceDataLocation();
             retDataLocation.setSiteName(site.getSiteName());
             retDataLocation.setSiteType(site.getType().toString());
             BSONObject option = generateOption(site);
             retDataLocation.setOptions(option);
-            retDatalocations.add(retDataLocation);
+            retDataLocations.add(retDataLocation);
         }
-        ret.setDataLocations(retDatalocations);
+        ret.setDataLocations(retDataLocations);
         BSONObject option = generateMetaOption(session, ws.getMetaLocation());
         ret.setMetaOption(option);
         return ret;

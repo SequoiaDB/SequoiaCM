@@ -56,6 +56,20 @@ export const FILE_SCOPE_TYPES = [
   }
 ]
 
+export const TAGS = 'tags'
+export const CUSTOM_TAG = 'custom_tag'
+// 标签类型
+export const TAG_TYPES = [
+  {
+    value: TAGS,
+    label: '标签'
+  },
+  {
+    value: CUSTOM_TAG,
+    label: '自由标签'
+  }
+]
+
 export const FILE_SCOPE_STR_TYPES = [
   {
     value: 'CURRENT',

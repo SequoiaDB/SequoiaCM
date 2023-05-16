@@ -3,7 +3,7 @@
     <!-- 搜索部分 -->
     <div class="search-box">
       <el-row :gutter="2">
-        <el-col :span="8">
+        <el-col :span="6">
           <el-select
             id="query_file_select_workspace"
             placeholder="请选择工作区"
@@ -20,7 +20,7 @@
             </el-option>
           </el-select>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="9">
           <el-input
             id="input_file_search_param"
             :placeholder="currentFileSearchType.tip"
@@ -49,6 +49,9 @@
             </el-select>
           </el-input>
         </el-col>
+        <el-col :span="3">
+          <tag-search-button ref="tagSearchButton" :workspace="currentWorkspace" @onTagConditionChange="saveTagCondition"></tag-search-button>
+        </el-col>
         <el-col :span="3" >
           <el-button id="btn_file_doSearch" @click="doSearch" type="primary" size="small" icon="el-icon-search" style="width:100%" :disabled="currentWorkspace===''">搜索</el-button>
         </el-col>
@@ -57,6 +60,7 @@
         </el-col>
       </el-row>
     </div>
+   
     <!-- 表格部分 -->
     <el-button id="btn_file_batch_deletion" type="danger" size="small" icon="el-icon-delete" @click="handleDeleteBtnClick(null)" :disabled="fileIdList.length==0" style="margin-bottom:10px">批量删除</el-button>
     <el-button id="btn_file_batch_download"  size="small" icon="el-icon-download" @click="handleDownloadBatchBtnClick" :disabled="fileIdList.length==0" style="margin-bottom:10px">批量下载</el-button>
@@ -164,6 +168,7 @@ import FileUploadDialog from './components/FileUploadDialog.vue'
 import FileEditDialog from './components/FileEditDialog.vue'
 import FileDownloadDialog from './components/FileDownloadDialog.vue'
 import FilePropertiesDialog from './components/FilePropertiesDialog.vue'
+import TagSearchButton from './components/TagSearchButton.vue'
 import {Loading } from 'element-ui';
 import {getToken} from '@/utils/auth'
 export default {
@@ -172,7 +177,8 @@ export default {
     FileUploadDialog,
     FileEditDialog,
     FileDownloadDialog,
-    FilePropertiesDialog
+    FilePropertiesDialog,
+    TagSearchButton
   },
   data(){
     return {
@@ -182,6 +188,7 @@ export default {
         total: 0, //总数据条数
       },
       filter: {},
+      tagCondition: null,
       fileSearchTypes: [
         {
           value: 'search_by_id',
@@ -218,7 +225,7 @@ export default {
       orderParam: { //记录排序参数
               prop: 'create_time',
               order: 'descending'
-      },
+      }
     }
   },
   methods:{
@@ -272,7 +279,7 @@ export default {
     handleShowBtnClick(row) {
       var queryCondition = {}
       queryCondition['id'] = row.id
-      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_ALL, queryCondition, null, 1, -1).then(res => {
+      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_ALL, null, queryCondition, null, 1, -1).then(res => {
         this.sortByVersion(res.data)
         this.multiVofCurFile = res.data;
         this.$refs['fileDetailDialog'].show()
@@ -282,7 +289,7 @@ export default {
     handleDownloadBtnClick(row) {
       var queryCondition = {}
       queryCondition['id'] = row.id
-      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_ALL, queryCondition, null, 1, -1).then(res => {
+      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_ALL, null, queryCondition, null, 1, -1).then(res => {
        this.sortByVersion(res.data)
         this.multiVofCurFile = res.data;
         this.$refs['fileDownloadDialog'].show()
@@ -378,7 +385,7 @@ export default {
       // 添加排序参数
       let orderby = {}
       orderby[prop] = order === 'descending' ? -1 : 1
-      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_CURRENT, this.filter, orderby, this.pagination.current, this.pagination.size).then(res => {
+      queryFileList(this.currentWorkspace, FILE_SCOPE_VAL_CURRENT, this.tagCondition, this.filter, orderby, this.pagination.current, this.pagination.size).then(res => {
         let total = Number(res.headers[X_RECORD_COUNT])
         if (res.data.length == 0 && total > 0) {
           this.pagination.current--
@@ -405,6 +412,11 @@ export default {
     // 点击展示 json 查询示例
     handleQuestionIconClick() {
       this.$refs['filePropertiesDialog'].show()
+    },
+    // 
+    saveTagCondition(tagCondition) {
+      this.tagCondition = tagCondition
+      this.queryTableData()
     },
     // 执行搜索
     doSearch() {
@@ -438,6 +450,10 @@ export default {
     },
     // 重置搜索
     resetSearch() {
+      // 重置标签检索按钮
+      this.$refs['tagSearchButton'].reInit()
+      this.tagCondition = null
+
       this.searchParam = ''
       this.filter = {}
       this.pagination.current = 1

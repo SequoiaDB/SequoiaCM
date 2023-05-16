@@ -22,6 +22,9 @@ public interface ScmWorkspaceService {
     public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String wsName)
             throws ScmInternalException, ScmOmServerException;
 
+    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session, String wsName,
+            boolean forceFetch) throws ScmInternalException, ScmOmServerException;
+
     public List<OmWorkspaceBasicInfo> getUserRelatedWsList(ScmOmSession session, BSONObject filter,
             BSONObject orderby, long skip, int limit, Boolean isStrictMode)
             throws ScmInternalException, ScmOmServerException;

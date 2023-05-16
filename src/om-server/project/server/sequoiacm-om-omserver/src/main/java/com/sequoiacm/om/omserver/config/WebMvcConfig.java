@@ -3,10 +3,6 @@ package com.sequoiacm.om.omserver.config;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.sequoiacm.infrastructure.feign.BSONObjectJsonDeserializer;
-import com.sequoiacm.om.omserver.common.ScheduleInfoJsonSerializer;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +14,14 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.sequoiacm.infrastructure.feign.BSONObjectJsonDeserializer;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
+import com.sequoiacm.om.omserver.common.ScheduleInfoJsonSerializer;
 import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import com.sequoiacm.om.omserver.exception.ScmOmServerException;
 import com.sequoiacm.om.omserver.filter.AuthenticationInterceptor;
