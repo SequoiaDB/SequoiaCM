@@ -4,9 +4,10 @@ import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaContext;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
@@ -19,6 +20,7 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -26,6 +28,9 @@ import java.util.Map;
 
 @Component
 public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     @Override
     public PipelineResult executionPhase(UpdateFileMetaContext context) throws ScmServerException {
         // 根据context生成最新版本、历史版本的 BSON updater
@@ -66,11 +71,11 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
         }
         BSONObject idMatcher = new BasicBSONObject();
         SequoiadbHelper.addFileIdAndCreateMonth(idMatcher, context.getFileId());
-        MetaCursor cursor = historyAccessor.queryAndUpdate(idMatcher,
-                new BasicBSONObject("$set", historyVersionUpdater));
+        MetaCursor cursor = historyAccessor.queryAndUpdate(idMatcher, historyVersionUpdater);
         try {
             while (cursor.hasNext()) {
-                FileMeta fileMeta = FileMeta.fromRecord(cursor.getNext());
+                FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(context.getWs(),
+                        cursor.getNext());
                 context.recordUpdatedFileMeta(fileMeta);
             }
         }
@@ -97,7 +102,7 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
                                 + entry.getKey().getMajorVersion() + ", minorVersion="
                                 + entry.getKey().getMinorVersion());
             }
-            FileMeta fileMeta = FileMeta.fromRecord(ret);
+            FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(context.getWs(), ret);
             if (context.getExpectVersion().equals(
                     new ScmVersion(fileMeta.getMajorVersion(), fileMeta.getMinorVersion()))) {
                 context.recordUpdatedFileMeta(fileMeta);
@@ -105,19 +110,20 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
         }
     }
 
-    private void updateLatestVersion(UpdateFileMetaContext context,
-            BSONObject latestVersionUpdater, MetaFileAccessor fileAccessor)
-            throws ScmMetasourceException, ScmServerException {
+    private void updateLatestVersion(UpdateFileMetaContext context, BSONObject latestVersionUpdater,
+            MetaFileAccessor fileAccessor) throws ScmMetasourceException, ScmServerException {
         if (latestVersionUpdater != null && !latestVersionUpdater.isEmpty()) {
             BSONObject idMatcher = new BasicBSONObject();
             SequoiadbHelper.addFileIdAndCreateMonth(idMatcher, context.getFileId());
-            BSONObject ret = fileAccessor.queryAndUpdate(idMatcher, new BasicBSONObject("$set", latestVersionUpdater), null, true);
+            BSONObject ret = fileAccessor.queryAndUpdate(idMatcher, latestVersionUpdater, null,
+                    true);
             if (ret == null) {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                         "failed to update file, file not found: ws=" + context.getWs() + ", fileId="
                                 + context.getFileId());
             }
-            FileMeta latestVersionAfterUpdate = FileMeta.fromRecord(ret);
+            FileMeta latestVersionAfterUpdate = fileMetaFactory
+                    .createFileMetaByRecord(context.getWs(), ret);
             context.setLatestVersionAfterUpdate(latestVersionAfterUpdate);
             context.recordUpdatedFileMeta(latestVersionAfterUpdate);
             return;
@@ -125,21 +131,21 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
         context.setLatestVersionAfterUpdate(context.getCurrentLatestVersion());
     }
 
-    private Updater genUpdater(UpdateFileMetaContext context) {
+    private Updater genUpdater(UpdateFileMetaContext context) throws ScmServerException {
         BSONObject latestVersionUpdater = new BasicBSONObject();
         Map<ScmVersion, BSONObject> historyVersionMapUpdater = new HashMap<>();
         BSONObject historyVersionGlobalUpdater = new BasicBSONObject();
 
         for (FileMetaUpdater updater : context.getFileMetaUpdaterList()) {
             if (updater.isGlobal()) {
-                historyVersionGlobalUpdater.put(updater.getKey(), updater.getValue());
-                latestVersionUpdater.put(updater.getKey(), updater.getValue());
+                updater.injectFileUpdater(historyVersionGlobalUpdater);
+                updater.injectFileUpdater(latestVersionUpdater);
                 continue;
             }
 
             if (ScmFileVersionHelper.isLatestVersion(updater.getVersion(),
                     context.getCurrentLatestVersion().getVersion())) {
-                latestVersionUpdater.put(updater.getKey(), updater.getValue());
+                updater.injectFileUpdater(latestVersionUpdater);
                 continue;
             }
 
@@ -148,7 +154,7 @@ public class UpdateFileMetaCoreFilter implements Filter<UpdateFileMetaContext> {
                 historyVersionUpdater = new BasicBSONObject();
                 historyVersionMapUpdater.put(updater.getVersion(), historyVersionUpdater);
             }
-            historyVersionUpdater.put(updater.getKey(), updater.getValue());
+            updater.injectFileUpdater(historyVersionUpdater);
         }
 
         if (context.containAllHistoryVersionUpdater()) {

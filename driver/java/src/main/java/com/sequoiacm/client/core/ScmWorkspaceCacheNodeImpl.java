@@ -2,10 +2,12 @@ package com.sequoiacm.client.core;
 
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
+import com.sequoiacm.client.element.bizconf.ScmTagLibMetaOption;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import org.bson.BSONObject;
 
 import java.io.InputStream;
@@ -241,6 +243,30 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
     BSONObject getExtData() {
         checkScmWorkspace();
         return scmWorkspace.getExtData();
+    }
+
+    @Override
+    public void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException {
+        checkScmWorkspace();
+        scmWorkspace.setEnableTagRetrieval(enableTagRetrieval);
+    }
+
+    @Override
+    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.getTagRetrievalStatus();
+    }
+
+    @Override
+    public String getTagLibIndexErrorMsg() throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.getTagLibIndexErrorMsg();
+    }
+
+    @Override
+    public ScmTagLibMetaOption getTagLibMetaOption() throws ScmException {
+        checkScmWorkspace();
+        return scmWorkspace.getTagLibMetaOption();
     }
 
     @Override

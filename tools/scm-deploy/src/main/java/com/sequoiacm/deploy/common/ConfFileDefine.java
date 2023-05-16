@@ -89,4 +89,9 @@ public class ConfFileDefine {
     public static final String ES_PASSWORD = "Password";
     public static final String ES_CERT_PATH = "CertPath";
 
+    public static final String SECTION_CLUSTER_GLOBAL_CONFIG = "cluster-global-config";
+
+    public static final String CONFIG_SCM_USER = "scmUser";
+    public static final String CONFIG_SCM_PASSWORD = "scmPassword";
+    public static final String CONFIG_SCM_GATEWAY = "scmGateway";
 }

@@ -14,6 +14,7 @@ import javax.servlet.ServletOutputStream;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.quota.BucketQuotaManager;
 import com.sequoiacm.contentserver.quota.QuotaInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import org.apache.commons.codec.binary.Hex;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -53,7 +54,6 @@ import com.sequoiacm.s3.core.DataInfo;
 import com.sequoiacm.s3.core.Part;
 import com.sequoiacm.s3.core.PreparedData;
 import com.sequoiacm.s3.core.S3BasicObjectMeta;
-import com.sequoiacm.s3.core.S3ObjectMeta;
 import com.sequoiacm.s3.core.UploadMeta;
 import com.sequoiacm.s3.dao.PartDao;
 import com.sequoiacm.s3.dao.UploadDao;
@@ -99,6 +99,12 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
     @Autowired
     private BucketQuotaManager quotaManager;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
+    @Autowired
+    private FileMappingUtil fileMappingUtil;
 
     @Override
     public void initMultipartUpload(String wsName, long uploadId, UploadMeta meta)
@@ -261,8 +267,8 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
         BSONObject file = buildFileInfoFromUpload(upload);
         file.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, System.currentTimeMillis());
-        FileMeta fileMeta = FileMeta.fromUser(upload.getWsName(), file,
-                session.getUser().getUsername());
+        FileMeta fileMeta = fileMetaFactory.createFileMetaByUserInfo(upload.getWsName(), file,
+                session.getUser().getUsername(), true);
         List<Part> allPartArray = new ArrayList<>();
 
         // 获取本地的part列表(不包括reserved part和废弃的part)
@@ -341,9 +347,8 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
 
             FileMeta newFileMeta = scmBucketService.createFile(session.getUser(), bucketName,
                     fileMeta, callbackUpload, false);
-            S3ObjectMeta objMeta = FileMappingUtil.buildS3ObjectMeta(bucketName,
-                    newFileMeta.toBSONObject());
-            response.setVersionId(objMeta.getVersionId());
+            response.setVersionId(fileMappingUtil.mapS3VersionId(newFileMeta.getMajorVersion(),
+                    newFileMeta.getMinorVersion()));
             return response;
         }
         catch (Exception e) {
@@ -897,7 +902,7 @@ public class MultipartUploadProcessorSeekable implements MultipartUploadProcesso
         objectMeta.setMetaList(upload.getMetaList());
         objectMeta.setTagging(upload.getTagging());
 
-        BSONObject ret = FileMappingUtil.buildFileInfo(objectMeta);
+        BSONObject ret = fileMappingUtil.buildFileInfo(objectMeta);
         return ret;
     }
 }

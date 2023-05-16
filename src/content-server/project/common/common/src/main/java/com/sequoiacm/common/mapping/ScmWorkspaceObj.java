@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 
@@ -33,6 +34,9 @@ public class ScmWorkspaceObj {
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
     private Integer version;
+    private ScmWorkspaceTagRetrievalStatus tagRetrievalStatus;
+    private String tagLibTable;
+    private boolean tagUpgrading;
 
     public ScmWorkspaceObj(BSONObject obj) throws ScmMappingException {
         try {
@@ -88,6 +92,17 @@ public class ScmWorkspaceObj {
                             ScmSiteCacheStrategy.ALWAYS.name()));
 
             version = (Integer) obj.get(FieldName.FIELD_CLWORKSPACE_VERSION);
+            String tagRetrievalStatusStr = BsonUtils.getStringOrElse(obj,
+                    FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                    ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+            tagRetrievalStatus = ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStatusStr);
+            if (tagRetrievalStatus == null) {
+                throw new ScmMappingException("parse workspaceMap info failed:record=" + obj
+                        + ", tagRetrievalStatusStr=" + tagRetrievalStatusStr);
+            }
+            tagLibTable = BsonUtils.getString(obj, FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE);
+            tagUpgrading = BsonUtils.getBooleanOrElse(obj,
+                    FieldName.FIELD_CLWORKSPACE_TAG_UPGRADING, false);
         }
         catch (Exception e) {
             throw new ScmMappingException("parse workspaceMap info failed:record=" + obj.toString(),
@@ -197,5 +212,17 @@ public class ScmWorkspaceObj {
 
     public Integer getVersion() {
         return version;
+    }
+
+    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() {
+        return tagRetrievalStatus;
+    }
+
+    public String getTagLibTable() {
+        return tagLibTable;
+    }
+
+    public boolean isTagUpgrading() {
+        return tagUpgrading;
     }
 }

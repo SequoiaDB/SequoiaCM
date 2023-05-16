@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import com.sequoiacm.contentserver.quota.EnableQuotaMsgClient;
+import com.sequoiacm.contentserver.common.IDGeneratorDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,6 @@ import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationV
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.s3.common.S3CommonDefine;
-import com.sequoiacm.s3.dao.IDGeneratorDao;
 import com.sequoiacm.s3.dao.PartDao;
 import com.sequoiacm.s3.dao.UploadDao;
 import com.sequoiadb.infrastructure.map.client.EnableMapClient;
@@ -76,7 +76,6 @@ public class SequoiacmS3Application implements ApplicationRunner {
                 .createMetaAccessor(S3CommonDefine.LIST_OBJECT_CONTEXT_TABLE_NAME);
         contextAccessor.ensureTable(null, Arrays.asList(S3CommonDefine.LIST_OBJECT_CONTEXT_FIELD_TOKEN));
 
-        idGeneratorDao.initIdGeneratorTable();
         uploadDao.initUploadMetaTable();
         partDao.initPartsTable();
 

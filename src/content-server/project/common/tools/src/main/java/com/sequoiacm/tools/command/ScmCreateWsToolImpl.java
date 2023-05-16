@@ -50,6 +50,7 @@ public class ScmCreateWsToolImpl extends ScmTool {
     private final String OPT_LONG_PREFERRED = "preferred";
     private final String OPT_SHORT_PREFERRED = "p";
     private final String OPT_LONG_SITE_CACHE_STRATEGY = "site-cache-strategy";
+    private final String OPT_LONG_ENABLE_TAG_RETRIEVAL = "enable-tag-retrieval";
 
     private final String LONG_OP_URL = "url";
     private final String LONG_OP_ADMIN_USER = "user";
@@ -100,6 +101,8 @@ public class ScmCreateWsToolImpl extends ScmTool {
         ops.addOption(hp.createOpt(null, OPT_LONG_SITE_CACHE_STRATEGY,
                 "workspace site cache strategy, all available strategy: always, never.", false,
                 true, false));
+        ops.addOption(hp.createOpt(null, OPT_LONG_ENABLE_TAG_RETRIEVAL,
+                "enable tag retrieval feature.", false, false, false));
 
         ops.addOption(hp.createOpt(null, LONG_OP_URL,
                 "gateway url. exam:\"localhost:8080/sitename\"", true, true, false));
@@ -177,6 +180,10 @@ public class ScmCreateWsToolImpl extends ScmTool {
             if (cl.hasOption(OPT_LONG_DISABLE_DIRECTORY)) {
                 conf.setEnableDirectory(false);
             }
+            if (cl.hasOption(OPT_LONG_ENABLE_TAG_RETRIEVAL)) {
+                conf.setEnableTagRetrieval(true);
+            }
+
             ScmFactory.Workspace.createWorkspace(ss, conf);
             logger.info("create workspace success:wsName={}", wsName);
             System.out.println("Create workspace success:" + wsName);

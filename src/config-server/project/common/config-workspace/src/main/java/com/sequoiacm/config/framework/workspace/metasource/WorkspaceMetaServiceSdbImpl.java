@@ -1,9 +1,13 @@
 package com.sequoiacm.config.framework.workspace.metasource;
 
 import java.util.List;
+import java.util.Objects;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.infrastructure.common.TableCreatedResult;
 import com.sequoiacm.infrastructure.common.TableMetaCommon;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -76,6 +80,8 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             throw new IllegalArgumentException("metalocation missing domain filed:" + metalocation);
         }
 
+        CollectionSpace wsCs = null;
+        DBCollection tagLibCl = null;
         Sequoiadb sdb = sdbMetasource.getConnection();
         try {
             BSONObject csOption = new BasicBSONObject("Domain", domain);
@@ -92,7 +98,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
             logger.info("creating cs:csName=" + wsName
                     + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL + ",options="
                     + csOption.toString());
-            CollectionSpace wsCs = sdb.createCollectionSpace(
+            wsCs = sdb.createCollectionSpace(
                     wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL, csOption);
 
             if (wsConfig.isEnableDirectory()) {
@@ -258,12 +264,79 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                 wsCs.createCollection(MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions);
             }
 
+            // TAG LIB
+            BasicBSONObject tagLibCsOption = new BasicBSONObject("Domain",
+                    BsonUtils.getStringChecked(wsConfig.getTagLibMetaOption(),
+                            FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN));
+            String[] csClArr = wsConfig.getTagLibTableName().split("\\.");
+            if (csClArr.length != 2) {
+                throw new IllegalArgumentException(
+                        "tagLibTableName is invalid: " + wsConfig.getTagLibTableName());
+            }
+            String tagLibCsName = csClArr[0];
+            CollectionSpace tagLibCs;
+            try {
+                tagLibCs = sdb.createCollectionSpace(tagLibCsName, tagLibCsOption);
+            }
+            catch (BaseException e) {
+                if (e.getErrorCode() != SDBError.SDB_DMS_CS_EXIST.getErrorCode()) {
+                    throw e;
+                }
+                tagLibCs = sdb.getCollectionSpace(tagLibCsName);
+            }
+            tagLibCl = tagLibCs.createCollection(csClArr[1]);
+
+            BasicBSONObject tagUniqueIdx = new BasicBSONObject(FieldName.TagLib.TAG, 1);
+            tagLibCl.createIndex("tag_unique_idx", tagUniqueIdx, true, false);
+
+            BasicBSONObject customTagUniqueIdx = new BasicBSONObject(FieldName.TagLib.CUSTOM_TAG,
+                    1);
+            tagLibCl.createIndex("custom_tag_unique_idx", customTagUniqueIdx, true, false);
+
+            if (Objects.equals(wsConfig.getTagRetrievalStatus(),
+                    CommonDefine.WorkspaceTagRetrievalStatus.ENABLED)) {
+                tagLibCl.createIndex("tag_lib_fulltext_idx",
+                        FieldName.TagLib.tagLibFulltextIdxDef(),
+                        FieldName.TagLib.tagLibFulltextIdxAttr(), null);
+            }
         }
         catch (Exception e) {
+            if (wsCs != null) {
+                dropCSSilence(wsCs.getName());
+            }
+            if (tagLibCl != null) {
+                dropCLSilence(tagLibCl);
+            }
             throw new MetasourceException("create meta collection failed:wsName=" + wsName, e);
         }
         finally {
             sdbMetasource.releaseConnection(sdb);
+        }
+    }
+
+    private void dropCSSilence(String cs) {
+        Sequoiadb db = null;
+        try {
+            db = sdbMetasource.getConnection();
+            db.dropCollectionSpace(cs);
+        }
+        catch (Exception e) {
+            logger.warn("failed to drop cs:{}", cs, e);
+        }
+        finally {
+            if (db != null) {
+                sdbMetasource.releaseConnection(db);
+            }
+        }
+
+    }
+
+    private void dropCLSilence(DBCollection cl) {
+        try {
+            cl.getCollectionSpace().dropCollection(cl.getName());
+        }
+        catch (Exception e) {
+            logger.warn("drop collection failed:clName={}", cl.getFullName(), e);
         }
     }
 
@@ -296,6 +369,26 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                     logger.warn("failed to drop cs: {}", cs, e);
                 }
             }
+            String tagLibTable = BsonUtils.getString(wsRecord,
+                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE);
+            if (tagLibTable != null) {
+                String[] csClArr = tagLibTable.split("\\.");
+                if (csClArr.length != 2) {
+                    logger.warn("failed to drop tagLibTable, tagLibTableName is invalid: "
+                            + tagLibTable);
+                }
+                String tagLibCsName = csClArr[0];
+                try {
+                    CollectionSpace tagLibCs = sdb.getCollectionSpace(tagLibCsName);
+                    tagLibCs.dropCollection(csClArr[1]);
+                }
+                catch (BaseException e) {
+                    if (e.getErrorCode() != SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()
+                            && e.getErrorCode() != SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {
+                        logger.warn("failed to drop tagLibTable: {}", tagLibTable, e);
+                    }
+                }
+            }
         }
         finally {
             sdbMetasource.releaseConnection(sdb);
@@ -309,17 +402,6 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         }
         catch (Exception e) {
             throw new MetasourceException("failed drop workspace collectionspace:cs=" + cs, e);
-        }
-    }
-
-    @Override
-    public void deleteWorkspaceMetaTable(String wsName) throws MetasourceException {
-        Sequoiadb sdb = sdbMetasource.getConnection();
-        try {
-            dropCS(sdb, wsName + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL);
-        }
-        finally {
-            sdbMetasource.releaseConnection(sdb);
         }
     }
 

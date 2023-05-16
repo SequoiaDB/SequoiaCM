@@ -4,7 +4,9 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
+import com.sequoiacm.contentserver.config.ScmTagConfig;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.DataTableNameHistoryInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
@@ -15,11 +17,14 @@ import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.hdfs.HdfsDataLocation;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
+import com.sequoiacm.infrastructure.config.core.common.ScmGlobalConfigDefine;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
+import com.sequoiacm.infrastructure.sdbversion.SdbVersionChecker;
 import com.sequoiacm.metasource.MetaAccessor;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +35,17 @@ import java.util.regex.Pattern;
 
 public class WorkspaceCreator {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceCreator.class);
+    private final SdbVersionChecker sdbVersionChecker;
+    private final ScmTagConfig tagConfig;
     private WorkspaceConfig wsConfig;
     private List<BSONObject> hdfsDataTableNameHistoryRecs = new ArrayList<>();
     private ScmContentModule contentModule;
 
-    public WorkspaceCreator(String wsName, String createUser, BSONObject clientWsConfObj)
-            throws ScmServerException {
+    public WorkspaceCreator(String wsName, String createUser, BSONObject clientWsConfObj,
+                            SdbVersionChecker sdbVersionChecker, ScmTagConfig tagConfig) throws ScmServerException {
         contentModule = ScmContentModule.getInstance();
+        this.sdbVersionChecker = sdbVersionChecker;
+        this.tagConfig = tagConfig;
         wsConfig = formate(wsName, createUser, clientWsConfObj);
     }
 
@@ -53,7 +62,7 @@ public class WorkspaceCreator {
             return;
         }
         try {
-            MetaAccessor accessor =contentModule.getMetaService().getMetaSource()
+            MetaAccessor accessor = contentModule.getMetaService().getMetaSource()
                     .getDataTableNameHistoryAccessor();
             for (BSONObject rec : hdfsDataTableNameHistoryRecs) {
                 accessor.insert(rec);
@@ -65,7 +74,7 @@ public class WorkspaceCreator {
     }
 
     private WorkspaceConfig formate(String wsName, String createUser, BSONObject clientWsConfObj)
-            throws ScmInvalidArgumentException {
+            throws ScmServerException {
         WorkspaceConfig wsConfig = new WorkspaceConfig();
         wsConfig.setWsName(wsName);
         wsConfig.setCreateUser(createUser);
@@ -85,7 +94,7 @@ public class WorkspaceCreator {
                     "failed to create workspace, metalocation missing site name:wsName=" + wsName
                             + ",metaLocation=" + metaLocationObj);
         }
-        ScmSite metaSiteInfo =contentModule.getSiteInfo(metaSiteName);
+        ScmSite metaSiteInfo = contentModule.getSiteInfo(metaSiteName);
         if (metaSiteInfo == null) {
             throw new ScmInvalidArgumentException("failed to create workspace, no such site:wsName="
                     + wsName + ",metalocation=" + metaLocationObj);
@@ -116,7 +125,7 @@ public class WorkspaceCreator {
             String siteName = (String) dataLocationObj
                     .get(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
             dataLocationSiteNameList.add(siteName);
-            ScmSite siteInfo =contentModule.getSiteInfo(siteName);
+            ScmSite siteInfo = contentModule.getSiteInfo(siteName);
             if (siteInfo == null) {
                 throw new ScmInvalidArgumentException(
                         "failed to create workspace, no such site:wsName=" + wsName + ",siteName="
@@ -125,9 +134,8 @@ public class WorkspaceCreator {
             dataLocationObj.removeField(CommonDefine.RestArg.WORKSPACE_LOCATION_SITE_NAME);
             dataLocationObj.put(FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID, siteInfo.getId());
             try {
-                ScmLocation dataLocation = DatalocationFactory
-                        .createDataLocation(siteInfo.getDataUrl().getType(), dataLocationObj,
-                                siteName);
+                ScmLocation dataLocation = DatalocationFactory.createDataLocation(
+                        siteInfo.getDataUrl().getType(), dataLocationObj, siteName);
                 if (dataLocation instanceof HdfsDataLocation) {
                     HdfsDataLocation hdfsDataLocation = (HdfsDataLocation) dataLocation;
                     BSONObject historyRec = createHdfsTableNameRec(wsName,
@@ -159,8 +167,50 @@ public class WorkspaceCreator {
                                 + ", dataLocations=" + dataLocationSiteNameList);
             }
         }
-
         wsConfig.setDataLocations(dataLocations);
+
+        String tagLibDomain = null;
+        BSONObject tagLibMetaOption = BsonUtils.getBSON(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION);
+        if (tagLibMetaOption != null) {
+            tagLibDomain = BsonUtils.getString(tagLibMetaOption,
+                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN);
+        }
+        if (tagLibDomain == null) {
+            tagLibDomain = ContenserverConfClient.getInstance()
+                    .getGlobalConf(ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
+            if (tagLibDomain == null) {
+                throw new ScmInvalidArgumentException(
+                        "failed to create workspace, taglib domain is null:wsName=" + wsName);
+            }
+        }
+        else if (tagLibDomain.trim().isEmpty()) {
+            throw new ScmInvalidArgumentException(
+                    "failed to create workspace, taglib domain is empty:wsName=" + wsName);
+        }
+
+        wsConfig.setTagLibTableName(CommonDefine.TagLib.TAG_LIB_CS_PREFIX + tagLibDomain + "."
+                + wsName + CommonDefine.TagLib.TAG_LIB_CL_TAIL);
+        wsConfig.setTagLibMetaOption(new BasicBSONObject(
+                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN, tagLibDomain));
+
+        String tagRetrievalStatus = BsonUtils.getStringOrElse(clientWsConfObj,
+                FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+        if (ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStatus) == null) {
+            throw new ScmInvalidArgumentException(
+                    "failed to create workspace, invalid tag retrieval status:wsName=" + wsName
+                            + ", tagRetrievalStatus=" + tagRetrievalStatus);
+        }
+        if (tagRetrievalStatus.equals(ScmWorkspaceTagRetrievalStatus.ENABLED.getValue())) {
+            if (!sdbVersionChecker.isCompatible(tagConfig.getSdbVersionRange())) {
+                throw new ScmInvalidArgumentException(
+                        "failed to create workspace, tag retrieval is not supported in this version:wsName="
+                                + wsName + ", sdbVersion=" + sdbVersionChecker.getSdbVersion()
+                                + ", requiredVersion=" + tagConfig.getSdbVersionRange());
+            }
+        }
+        wsConfig.setTagRetrievalStatus(tagRetrievalStatus);
 
         wsConfig.setBatchFileNameUnique(BsonUtils.getBooleanOrElse(clientWsConfObj,
                 FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false));
@@ -186,7 +236,6 @@ public class WorkspaceCreator {
                             + ", strategy=" + siteCacheStrategyStr);
         }
         wsConfig.setSiteCacheStrategy(siteCacheStrategyStr);
-
         return wsConfig;
     }
 
@@ -245,7 +294,7 @@ public class WorkspaceCreator {
             rootPath = rootPath + "/";
         }
         rootPath += wsName;
-        ScmSite site =contentModule.getSiteInfo(siteId);
+        ScmSite site = contentModule.getSiteInfo(siteId);
 
         DataTableNameHistoryInfo record = new DataTableNameHistoryInfo();
         record.setSiteName(site.getName());

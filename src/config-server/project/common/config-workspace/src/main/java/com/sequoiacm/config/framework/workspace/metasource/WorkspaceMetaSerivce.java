@@ -21,7 +21,5 @@ public interface WorkspaceMetaSerivce {
 
     TableDao getDataTableNameHistoryDao() throws MetasourceException;
 
-    void deleteWorkspaceMetaTable(String wsName) throws MetasourceException;
-
     void deleteWorkspaceMetaTable(BSONObject wsRecord) throws MetasourceException;
 }

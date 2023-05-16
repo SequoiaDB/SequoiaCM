@@ -7,11 +7,9 @@ import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.*;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
-import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaContext;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -30,6 +28,8 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
     private static final Logger logger = LoggerFactory.getLogger(UpdateFileMetaBucketFilter.class);
     @Autowired
     private BucketInfoManager bucketInfoManager;
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
 
     @Override
     public PipelineResult executionPhase(UpdateFileMetaContext context) throws ScmServerException {
@@ -41,7 +41,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
         if (fileCurrentBucket == null) {
             // 文件不在桶下，检查 attachToBucketUpdater ，允许关联文件至桶下，关联的同时允许改名，若文件没有etag，需要生成每个版本的etag
             // updater
-            FileMetaUpdater attachToBucketUpdater = context
+            FileMetaDefaultUpdater attachToBucketUpdater = (FileMetaDefaultUpdater) context
                     .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
             if (attachToBucketUpdater == null) {
                 return PipelineResult.success();
@@ -68,7 +68,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
                                     + ", versionStatus=" + attachToBucket.getVersionStatus());
                 }
             }
-            FileMetaUpdater latestVersionEtagUpdater = null;
+            FileMetaDefaultUpdater latestVersionEtagUpdater = null;
             if (context.getCurrentLatestVersion().getEtag() == null) {
                 latestVersionEtagUpdater = genEtagUpdater(context.getCurrentLatestVersion());
                 context.addFileMetaUpdater(latestVersionEtagUpdater);
@@ -78,12 +78,11 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
                 setHistoryFileEtagUpdater(context, wsInfo);
             }
 
-
-            FileMetaUpdater renameUpdater = context
+            FileMetaDefaultUpdater renameUpdater = (FileMetaDefaultUpdater) context
                     .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_NAME);
             if (renameUpdater != null) {
                 if (!context.getCurrentLatestVersion().getName().equals(renameUpdater.getValue())) {
-                    context.addFileMetaUpdater(new FileMetaUpdater(
+                    context.addFileMetaUpdater(FileMetaDefaultUpdater.globalFieldUpdater(
                             FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "."
                                     + FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH,
                             context.getCurrentLatestVersion().getName()));
@@ -91,7 +90,8 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
             }
 
             createBucketRelation(context, wsInfo, attachToBucket, latestVersionEtagUpdater,
-                    context.getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_NAME));
+                    (FileMetaDefaultUpdater) context
+                            .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_NAME));
             return PipelineResult.success();
         }
 
@@ -103,7 +103,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
                             + context.getCurrentLatestVersion().getBucketId());
         }
 
-        FileMetaUpdater attachToBucketUpdater = context
+        FileMetaDefaultUpdater attachToBucketUpdater = (FileMetaDefaultUpdater) context
                 .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
         if (attachToBucketUpdater != null) {
             Long attachToBucketId = (Long) attachToBucketUpdater.getValue();
@@ -153,18 +153,15 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
                     context.getCurrentLatestVersion().getMinorVersion())) {
                 continue;
             }
-            String bucketFileMappingField = ScmMetaSourceHelper
-                    .getBucketFileMappingField(fileMetaUpdater.getKey());
-            if (bucketFileMappingField != null) {
-                bucketRelUpdater.put(bucketFileMappingField, fileMetaUpdater.getValue());
-            }
+            fileMetaUpdater.injectBucketRelationUpdater(bucketRelUpdater);
         }
         if (!bucketRelUpdater.isEmpty()) {
             try {
-                fileCurrentBucket.getFileTableAccessor(context.getTransactionContext())
-                        .upsert(new BasicBSONObject(FieldName.BucketFile.FILE_NAME,
-                                context.getCurrentLatestVersion().getName()),
-                                new BasicBSONObject("$set", bucketRelUpdater));
+                fileCurrentBucket
+                        .getFileTableAccessor(context.getTransactionContext()).upsert(
+                                new BasicBSONObject(FieldName.BucketFile.FILE_NAME,
+                                        context.getCurrentLatestVersion().getName()),
+                                bucketRelUpdater);
             }
             catch (ScmMetasourceException e) {
                 throw new ScmServerException(e.getScmError(),
@@ -178,12 +175,11 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
     }
 
     private void createBucketRelation(UpdateFileMetaContext context, ScmWorkspaceInfo wsInfo,
-            ScmBucket attachToBucket, FileMetaUpdater latestVersionEtagUpdater,
-            FileMetaUpdater renameUpdater)
-            throws ScmServerException {
+            ScmBucket attachToBucket, FileMetaDefaultUpdater latestVersionEtagUpdater,
+            FileMetaDefaultUpdater renameUpdater) throws ScmServerException {
         try {
             BSONObject bucketRelRecord = ScmFileOperateUtils
-                    .createBucketFileRel(context.getCurrentLatestVersion().toBSONObject());
+                    .createBucketFileRel(context.getCurrentLatestVersion().toRecordBSON());
             if (latestVersionEtagUpdater != null) {
                 bucketRelRecord.put(FieldName.BucketFile.FILE_ETAG,
                         latestVersionEtagUpdater.getValue());
@@ -224,7 +220,8 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
                     .query(matcher, null);
             while (cursor.hasNext()) {
                 BSONObject historyRecord = cursor.getNext();
-                FileMeta fileMeta = FileMeta.fromRecord(historyRecord);
+                FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(wsInfo.getName(),
+                        historyRecord);
                 if (fileMeta.getEtag() == null) {
                     FileMetaUpdater etagUpdater = genEtagUpdater(fileMeta);
                     context.addFileMetaUpdater(etagUpdater);
@@ -268,7 +265,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
         return bucketInfoManager.getBucketById(bucketId);
     }
 
-    private FileMetaUpdater genEtagUpdater(FileMeta fileMeta) {
+    private FileMetaDefaultUpdater genEtagUpdater(FileMeta fileMeta) {
         String etag = null;
         String md5 = fileMeta.getMd5();
         if (md5 != null) {
@@ -279,7 +276,7 @@ public class UpdateFileMetaBucketFilter implements Filter<UpdateFileMetaContext>
             String dataId = fileMeta.getDataId();
             etag = SignUtil.calcHexMd5(dataId) + "-1";
         }
-        return new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_ETAG, etag,
+        return FileMetaDefaultUpdater.versionFieldUpdater(FieldName.FIELD_CLFILE_FILE_ETAG, etag,
                 fileMeta.getMajorVersion(), fileMeta.getMinorVersion());
     }
 }

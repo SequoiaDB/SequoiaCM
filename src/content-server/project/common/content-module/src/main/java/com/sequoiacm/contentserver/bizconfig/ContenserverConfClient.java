@@ -74,6 +74,15 @@ public class ContenserverConfClient {
         }
     }
 
+    public String getGlobalConf(String confName) throws ScmServerException {
+        try {
+            return client.getGlobalConfig(confName);
+        }
+        catch (ScmConfigException e) {
+            throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
     public List<Version> getConfigVersion(String configName, VersionFilter filter)
             throws ScmServerException {
         try {
@@ -273,6 +282,31 @@ public class ContenserverConfClient {
         catch (ScmConfigException e) {
             throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
                     "failed to get bucket:" + name, e);
+        }
+    }
+
+    public WorkspaceConfig getWorkspace(String name) throws ScmServerException {
+        WorkspaceFilter filter = new WorkspaceFilter(name);
+        try {
+            WorkspaceConfig conf = (WorkspaceConfig) client
+                    .getOneConf(ScmConfigNameDefine.WORKSPACE, filter);
+            return conf;
+        }
+        catch (ScmConfigException e) {
+            throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
+                    "failed to get workspace:" + name, e);
+        }
+    }
+
+    public List<WorkspaceConfig> getWorkspace(WorkspaceFilter filter) throws ScmServerException {
+        try {
+            List<WorkspaceConfig> conf = (List) client.getConf(ScmConfigNameDefine.WORKSPACE,
+                    filter);
+            return conf;
+        }
+        catch (ScmConfigException e) {
+            throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
+                    "failed to get workspace:" + filter, e);
         }
     }
 

@@ -268,6 +268,61 @@ public class ScmSystem {
                     config.isAcceptUnknownProps());
             return new ScmUpdateConfResultSet(ret);
         }
+
+        /**
+         * Sets the global configuration.
+         *
+         * @param session
+         *            Session for request
+         * @param confName
+         *            Global configuration name
+         * @param confValue
+         *            Global configuration value
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.6.1
+         */
+        public static void setGlobalConfig(ScmSession session, String confName, String confValue)
+                throws ScmException {
+            checkArgNotNull("session", session);
+            checkArgNotNull("key", confName);
+            session.getDispatcher().setGlobalConfig(confName, confValue);
+        }
+
+        /**
+         * Gets the global configuration.
+         *
+         * @param session
+         *            Session for request
+         * @param confName
+         *            Global configuration name
+         * @return Global configuration value, null if not exist.
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.6.1
+         */
+        public static String getGlobalConfig(ScmSession session, String confName)
+                throws ScmException {
+            checkArgNotNull("session", session);
+            checkArgNotNull("key", confName);
+            return session.getDispatcher().getGlobalConfig(confName);
+        }
+
+        /**
+         * Gets all global configuration.
+         *
+         * @param session
+         *            Session for request
+         * @return Global configuration map, key is configuration name, value is
+         *         configuration
+         * @throws ScmException
+         *             If error happens.
+         * @since 3.6.1
+         */
+        public static Map<String, String> getGlobalConfig(ScmSession session) throws ScmException {
+            checkArgNotNull("session", session);
+            return session.getDispatcher().getGlobalConfig();
+        }
     }
 
     /**

@@ -1,11 +1,11 @@
 package com.sequoiacm.contentserver.privilege;
 
-import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmOperationUnauthorizedException;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
@@ -109,7 +109,7 @@ public class ScmFileServicePriv {
         }
     }
 
-    public void checkFilePriority(ScmUser user, String ws, BSONObject file, ScmPrivilegeDefine op,
+    public void checkFilePriority(ScmUser user, String ws, FileMeta file, ScmPrivilegeDefine op,
             String opdesc) throws ScmServerException {
         ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfo(ws);
         if (wsInfo == null) {
@@ -117,10 +117,10 @@ public class ScmFileServicePriv {
             throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
                     opdesc + " failed, workspace is not exist:ws=" + ws);
         }
-        Number bucketId = BsonUtils.getNumber(file, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        Long bucketId = file.getBucketId();
         String bucketName = null;
         if (bucketId != null) {
-            ScmBucket bucket = bucketInfoMgr.getBucketById(bucketId.longValue());
+            ScmBucket bucket = bucketInfoMgr.getBucketById(bucketId);
             if (bucket != null) {
                 bucketName = bucket.getName();
                 if (hasBucketPriority(user.getUsername(), ws, bucket.getName(), op.getFlag())) {
@@ -130,7 +130,7 @@ public class ScmFileServicePriv {
         }
         String dirPath = null;
         if (wsInfo.isEnableDirectory()) {
-            String dirId = BsonUtils.getString(file, FieldName.FIELD_CLFILE_DIRECTORY_ID);
+            String dirId = file.getDirId();
             dirPath = "/";
             if (null != dirId && !"".equals(dirId)) {
                 dirPath = dirService.getDirPathById(ws, dirId);
@@ -342,7 +342,7 @@ public class ScmFileServicePriv {
         if (hasWsPriority(user.getUsername(), wsName, op.getFlag(), opDesc)) {
             return;
         }
-        BSONObject fileInfo = fileService.getFileInfoById(wsName, fileId, majorVerion, minorVersion,
+        FileMeta fileInfo = fileService.getFileInfoById(wsName, fileId, majorVerion, minorVersion,
                 true);
         checkFilePriority(user, wsName, fileInfo, op, opDesc);
     }

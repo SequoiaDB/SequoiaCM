@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.dao;
 import com.sequoiacm.contentserver.pipeline.file.module.AddFileMetaVersionResult;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import org.bson.BSONObject;
 
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
@@ -65,6 +66,9 @@ public class FileAddVersionDao {
     @Autowired
     private FileMetaOperator fileMetaOperator;
 
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     private FileInfoAndOpCompleteCallback addVersion(String wsName, String fileId,
             FileMeta newFileVersion, TransactionCallback transactionCallback)
             throws ScmServerException {
@@ -78,7 +82,8 @@ public class FileAddVersionDao {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                         "file not exist: ws=" + ws.getName() + ", fileId=" + fileId);
             }
-            FileMeta latestFileVersionMeta = FileMeta.fromRecord(latestFileVersion);
+            FileMeta latestFileVersionMeta = fileMetaFactory.createFileMetaByRecord(wsName,
+                    latestFileVersion);
             return addVersionNoLock(wsName, newFileVersion, latestFileVersionMeta,
                     transactionCallback);
         }
@@ -92,8 +97,8 @@ public class FileAddVersionDao {
             throws ScmServerException {
         ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
         listenerMgr.preAddVersion(ws, newFileVersion);
-        AddFileMetaVersionResult res = fileMetaOperator.addFileMetaVersion(wsName,
-                newFileVersion, latestFileVersion, transactionCallback);
+        AddFileMetaVersionResult res = fileMetaOperator.addFileMetaVersion(wsName, newFileVersion,
+                latestFileVersion, transactionCallback);
         if (res.getDeletedVersion() != null) {
             listenerMgr.postDeleteVersion(ws, res.getDeletedVersion());
             AsyncUtils.execute(() -> {

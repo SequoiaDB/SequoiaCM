@@ -2,6 +2,8 @@ package com.sequoiacm.sequoiadb.dataservice;
 
 import java.util.List;
 
+import com.sequoiacm.infrastructure.sdbversion.Version;
+import com.sequoiadb.base.DBVersion;
 import com.sequoiadb.base.UserConfig;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -105,6 +107,18 @@ public class DataSourceWrapper {
         }
         catch (Exception e) {
             logger.warn("close sequoiadb data source failed", e);
+        }
+    }
+
+    Version getVersion() throws SequoiadbException {
+        Sequoiadb con = getConnection();
+        try {
+            DBVersion version = con.getDBVersion();
+            return new Version(version.getVersion(), version.getSubVersion(),
+                    version.getFixVersion());
+        }
+        finally {
+            releaseConnection(con);
         }
     }
 

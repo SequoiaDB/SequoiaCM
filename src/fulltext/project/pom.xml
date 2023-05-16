@@ -30,8 +30,6 @@
     </modules>
 
     <properties>
-        <sequoiadb.driver.version>3.0.1</sequoiadb.driver.version>
-
         <!-- plugin version -->
         <commons-cli.version>1.4</commons-cli.version>
         <sequoiacm-infrastructure.version>${project.version}</sequoiacm-infrastructure.version>
@@ -83,7 +81,7 @@
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiadb-driver</artifactId>
-                <version>${sequoiadb.driver.version}</version>
+                <version>${global.sdb.driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sequoiadb</groupId>

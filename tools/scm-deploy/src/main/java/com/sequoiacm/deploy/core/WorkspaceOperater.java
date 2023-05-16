@@ -165,6 +165,8 @@ public class WorkspaceOperater {
                 BsonUtils.getStringOrElse(wsBSON, FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                         ScmSiteCacheStrategy.ALWAYS.name()));
         conf.setSiteCacheStrategy(siteCacheStrategy);
+        conf.setEnableTagRetrieval(
+                BsonUtils.getBooleanOrElse(wsBSON, "enable_tag_retrieval", false));
 
         ScmWorkspace ws = ScmFactory.Workspace.createWorkspace(ss, conf);
         return ws.getName();

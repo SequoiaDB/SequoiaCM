@@ -65,7 +65,7 @@ public class DeleteFileVersionBucketFilter implements Filter<DeleteFileVersionCo
             }
 
             BSONObject bucketFileUpdater = ScmMetaSourceHelper.createBucketFileUpdatorByFileUpdator(
-                    context.getLatestVersionAfterDelete().toBSONObject());
+                    context.getLatestVersionAfterDelete().toRecordBSON());
             MetaAccessor bucketFileAccessor = bucket
                     .getFileTableAccessor(context.getTransactionContext());
             bucketFileAccessor.update(

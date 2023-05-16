@@ -3,6 +3,8 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.metasource.*;
 import org.bson.BSONObject;
@@ -641,7 +643,8 @@ public class SdbMetaAccessor implements MetaAccessor {
     }
 
     @SlowLog(operation = "accessMeta")
-    protected MetaCursor aggregate(List<BSONObject> objs) throws SdbMetasourceException {
+    @Override
+    public MetaCursor aggregate(List<BSONObject> objs) throws SdbMetasourceException {
         Sequoiadb sdb = null;
         SdbMetaCursor sdbCursor = null;
         DBCursor cursor = null;
@@ -684,5 +687,122 @@ public class SdbMetaAccessor implements MetaAccessor {
                     e);
         }
         return sdbCursor;
+    }
+
+    @Override
+    public boolean bulkInsert(List<BSONObject> inserters) throws ScmMetasourceException {
+        if (inserters == null || inserters.isEmpty()) {
+            return true;
+        }
+        Sequoiadb sdb = null;
+        try {
+            sdb = getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
+            DBCollection cl = cs.getCollection(getClName());
+            BSONObject ret = cl.insertRecords(inserters, DBCollection.FLG_INSERT_CONTONDUP);
+
+            if (ret == null) {
+                throw new ScmMetasourceException("failed to bulk insert, ret is null: cl="
+                        + getCsName() + "." + getClName() + ", inserters=" + inserters);
+            }
+            return BsonUtils.getNumber(ret, "DuplicatedNum").longValue() <= 0;
+        }
+        catch (BaseException e) {
+            throw new SdbMetasourceException(e.getErrorCode(),
+                    "insert failed:table=" + csName + "." + clName + ",inserto=" + inserters, e);
+        }
+        catch (SdbMetasourceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "insert failed:table=" + csName + "." + clName + ",inserto=" + inserters, e);
+        }
+        finally {
+            releaseConnection(sdb);
+        }
+    }
+
+    @Override
+    public Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
+            BSONObject option) throws ScmMetasourceException {
+        Sequoiadb sdb = null;
+        try {
+            sdb = getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
+            DBCollection cl = cs.getCollection(getClName());
+            return cl.createIndexAsync(idxName, idxDefine, attribute, option);
+        }
+        catch (BaseException e) {
+            if (e.getErrorCode() == SDBError.SDB_IXM_CREATING.getErrorCode()) {
+                logger.info("index is already creating, query the task id: {}", idxName);
+                return getIndexTaskId(sdb, idxName);
+            }
+            if (e.getErrorCode() == SDBError.SDB_IXM_REDEF.getErrorCode()) {
+                return null;
+            }
+            throw new SdbMetasourceException(e.getErrorCode(),
+                    "failed to create index:table=" + csName + "." + clName + ", index=" + idxName
+                            + ", idxDefine=" + idxDefine + ", attribute=" + attribute + ", option="
+                            + option,
+                    e);
+        }
+        catch (ScmMetasourceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "failed to create index:table=" + csName + "." + clName + ", index=" + idxName
+                            + ", idxDefine=" + idxDefine + ", attribute=" + attribute + ", option="
+                            + option,
+                    e);
+        }
+        finally {
+            releaseConnection(sdb);
+        }
+    }
+
+    private long getIndexTaskId(Sequoiadb sdb, String idxName) throws ScmMetasourceException {
+        BSONObject condition = new BasicBSONObject("TaskType", 2);
+        condition.put("IndexName", idxName);
+        DBCursor cursor = sdb.listTasks(condition, null, new BasicBSONObject("CreateTimestamp", -1),
+                null);
+        try {
+            BSONObject ret = cursor.getNext();
+            if (ret == null) {
+                throw new ScmMetasourceException("task not found: indexName=" + idxName);
+            }
+            return BsonUtils.getNumberChecked(ret, "TaskID").longValue();
+        }
+        finally {
+            IOUtils.close(cursor);
+        }
+    }
+
+    @Override
+    public void dropIndex(String idxName) throws ScmMetasourceException {
+        Sequoiadb sdb = null;
+        try {
+            sdb = getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
+            DBCollection cl = cs.getCollection(getClName());
+            cl.dropIndex(idxName);
+        }
+        catch (BaseException e) {
+            throw new SdbMetasourceException(e.getErrorCode(),
+                    "failed to drop index:table=" + csName + "." + clName + ", index=" + idxName,
+                    e);
+        }
+        catch (ScmMetasourceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "failed to drop index:table=" + csName + "." + clName + ", index=" + idxName,
+                    e);
+        }
+        finally {
+            releaseConnection(sdb);
+        }
     }
 }

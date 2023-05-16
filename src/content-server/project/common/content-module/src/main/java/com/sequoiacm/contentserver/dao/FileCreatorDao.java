@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
 import com.sequoiacm.contentserver.quota.BucketQuotaManager;
 import com.sequoiacm.contentserver.quota.QuotaInfo;
 import org.bson.BSONObject;
@@ -64,6 +66,12 @@ public class FileCreatorDao {
 
     @Autowired
     private BucketQuotaManager quotaManager;
+
+    @Autowired
+    private TagLibMgr tagLibMgr;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
 
     private FileMeta createMeta(FileUploadConf uploadConf, ScmWorkspaceInfo ws, FileMeta meta,
             TransactionCallback transactionCallback, boolean allowRetry) throws ScmServerException {
@@ -189,7 +197,8 @@ public class FileCreatorDao {
                     transactionCallback);
             return new OverwriteFileMetaResult(res.getNewFile(), Collections.emptyList());
         }
-        FileMeta overwrittenFile = FileMeta.fromRecord(overwrittenFileBson);
+        FileMeta overwrittenFile = fileMetaFactory.createFileMetaByRecord(ws.getName(),
+                overwrittenFileBson);
         ScmLock batchLock = null;
         ScmLock fileLock = null;
         try {
@@ -209,7 +218,8 @@ public class FileCreatorDao {
                         transactionCallback);
                 return new OverwriteFileMetaResult(res.getNewFile(), Collections.emptyList());
             }
-            FileMeta overwrittenFileInLock = FileMeta.fromRecord(overwrittenFileBson);
+            FileMeta overwrittenFileInLock = fileMetaFactory.createFileMetaByRecord(ws.getName(),
+                    overwrittenFileBson);
             if (!isConflictFileBatchSame(overwrittenFile, overwrittenFileInLock)) {
                 throw new BatchChangeException("file batch id change ws=" + ws.getName()
                         + ", oldBatch=" + overwrittenFile.getBatchId() + ", newBatch="

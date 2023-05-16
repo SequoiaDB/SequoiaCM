@@ -3,9 +3,9 @@ package com.sequoiacm.contentserver.pipeline.file.core;
 import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.AddFileVersionContext;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -14,10 +14,14 @@ import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     @Override
     public PipelineResult executionPhase(AddFileVersionContext context) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
@@ -42,9 +46,10 @@ public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
                 BSONObject deletedVersion = ScmFileVersionHelper.deleteVersionInHistory(ws,
                         context.getFileId(), context.getShouldDeleteVersion(),
                         context.getTransactionContext(),
-                        context.getCurrentLatestVersion().toBSONObject());
+                        context.getCurrentLatestVersion().toRecordBSON());
                 if (deletedVersion != null) {
-                    context.setDeletedVersion(FileMeta.fromRecord(deletedVersion));
+                    context.setDeletedVersion(
+                            fileMetaFactory.createFileMetaByRecord(ws.getName(), deletedVersion));
                 }
                 return PipelineResult.success();
             }
@@ -70,7 +75,7 @@ public class AddFileVersionCoreFilter implements Filter<AddFileVersionContext> {
         BSONObject matcher = new BasicBSONObject();
         SequoiadbHelper.addFileIdAndCreateMonth(matcher, context.getFileId());
         BSONObject oldRecord = accessor.queryAndUpdate(matcher,
-                new BasicBSONObject("$set", context.getNewVersion().toBSONObject()), null);
+                new BasicBSONObject("$set", context.getNewVersion().toRecordBSON()), null);
         if (oldRecord == null) {
             throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                     "failed to add file version, file not found: ws=" + ws.getName() + ", fileId="

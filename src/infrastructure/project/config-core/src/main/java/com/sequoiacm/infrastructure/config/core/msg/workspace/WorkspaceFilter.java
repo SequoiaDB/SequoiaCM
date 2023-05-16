@@ -9,6 +9,7 @@ import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
 public class WorkspaceFilter implements ConfigFilter {
 
     private String wsName;
+    private String tagRetrievalStatus;
 
     public WorkspaceFilter() {
     }
@@ -21,11 +22,26 @@ public class WorkspaceFilter implements ConfigFilter {
         return wsName;
     }
 
+    public void setTagRetrievalStatus(String tagRetrievalStatus) {
+        this.tagRetrievalStatus = tagRetrievalStatus;
+    }
+
+    public String getTagRetrievalStatus() {
+        return tagRetrievalStatus;
+    }
+
+    public void setWsName(String wsName) {
+        this.wsName = wsName;
+    }
+
     @Override
     public BSONObject toBSONObject() {
         BasicBSONObject obj = new BasicBSONObject();
         if (wsName != null) {
             obj.put(ScmRestArgDefine.WORKSPACE_CONF_WORKSPACENAME, wsName);
+        }
+        if(tagRetrievalStatus != null) {
+            obj.put(ScmRestArgDefine.WORKSPACE_CONF_TAG_RETRIEVAL_STATUS, tagRetrievalStatus);
         }
         return obj;
 

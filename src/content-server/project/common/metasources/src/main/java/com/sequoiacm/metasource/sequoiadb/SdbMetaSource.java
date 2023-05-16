@@ -5,13 +5,17 @@ import java.util.Map;
 
 import com.sequoiacm.metasource.MetaQuotaAccessor;
 import com.sequoiacm.metasource.MetaQuotaSyncAccessor;
+import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.metasource.MetaSpaceRecyclingLogAccessor;
+import com.sequoiacm.metasource.MetasourceVersion;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbMetaAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbMetaQuotaAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbQuotaSyncAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbSpaceRecyclingLogAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbWorkspaceHistoryAccessor;
 import com.sequoiadb.base.CollectionSpace;
+import com.sequoiadb.base.DBCursor;
+import com.sequoiadb.base.DBVersion;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
@@ -307,6 +311,57 @@ public class SdbMetaSource implements ContentModuleMetaSource {
             }
             throw new SdbMetasourceException(e.getErrorCode(),
                     "failed to create cl:" + csName + "." + clName + ", option=" + clOption, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public BSONObject getMetaSourceTask(long taskId) throws ScmMetasourceException {
+        DBCursor cursor = null;
+        Sequoiadb db = getConnection();
+        try {
+            cursor = db.listTasks(new BasicBSONObject("TaskID", taskId), null, null, null);
+            if (cursor.hasNext()) {
+                return cursor.getNext();
+            }
+            return null;
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException("failed to get task: taskId=" + taskId, e);
+        }
+        finally {
+            IOUtils.close(cursor);
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public void cancelMetaSourceTask(long taskId, boolean isAsync) throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            db.cancelTask(taskId, isAsync);
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException(
+                    "failed to cancel task: taskId=" + taskId + ", isAsync=" + isAsync, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
+
+    @Override
+    public MetasourceVersion getVersion() throws ScmMetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            DBVersion version = db.getDBVersion();
+            return new MetasourceVersion(version.getVersion(), version.getSubVersion(),
+                    version.getFixVersion());
+        }
+        catch (Exception e) {
+            throw new ScmMetasourceException("failed to get sdb version", e);
         }
         finally {
             releaseConnection(db);

@@ -1,6 +1,7 @@
 package com.sequoiacm.contentserver.pipeline.file.core;
 
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.OverwriteFileContext;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
@@ -26,6 +27,8 @@ import java.util.List;
 public class OverwriteFileCoreFilter implements Filter<OverwriteFileContext> {
     private static final Logger logger = LoggerFactory.getLogger(OverwriteFileCoreFilter.class);
 
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
     @Autowired
     private CreateFileCoreFilter createFileCoreFilter;
 
@@ -64,7 +67,8 @@ public class OverwriteFileCoreFilter implements Filter<OverwriteFileContext> {
                 BSONObject deletedLatestVersionBSON = currentFileAccessor
                         .delete(context.getOverwrittenFile().getId(), -1, -1);
                 if (deletedLatestVersionBSON != null) {
-                    FileMeta deletedLatestVersion = FileMeta.fromRecord(deletedLatestVersionBSON);
+                    FileMeta deletedLatestVersion = fileMetaFactory
+                            .createFileMetaByRecord(wsInfo.getName(), deletedLatestVersionBSON);
                     context.getDeleteVersion().add(deletedLatestVersion);
                     if (!deletedLatestVersion.isFirstVersion()) {
                         List<FileMeta> deletedHistoryVersion = queryAndDeleteHistoryVersion(
@@ -92,10 +96,10 @@ public class OverwriteFileCoreFilter implements Filter<OverwriteFileContext> {
                 .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), trans);
         List<FileMeta> ret = new ArrayList<>();
         MetaCursor cursor = historyFileAccessor.queryAndDeleteWithCursor(
-                deletedLatestVersion.getId(), deletedLatestVersion.toBSONObject(), null, null);
+                deletedLatestVersion.getId(), deletedLatestVersion.toRecordBSON(), null, null);
         try {
             while (cursor.hasNext()) {
-                ret.add(FileMeta.fromRecord(cursor.getNext()));
+                ret.add(fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), cursor.getNext()));
             }
         }
         finally {

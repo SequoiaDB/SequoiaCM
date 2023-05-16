@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sequoiacm.deploy.module.ElasticsearchInfo;
+import com.sequoiacm.deploy.parser.ConfCoverter;
+import com.sequoiacm.deploy.parser.KeyValueConverter;
 import com.sequoiacm.infrastructure.common.CheckRuleUtils;
+import com.sequoiacm.infrastructure.config.core.common.ScmGlobalConfigDefine;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -86,6 +89,8 @@ public class ScmDeployInfoMgr {
     private static volatile ScmDeployInfoMgr instance;
     private ElasticsearchInfo esInfo;
 
+    private Map<String, String> globalConfig = new HashMap<>();
+
     public static ScmDeployInfoMgr getInstance() {
         if (instance != null) {
             return instance;
@@ -124,7 +129,16 @@ public class ScmDeployInfoMgr {
         initEsInfo(parser);
         initInstallConfig(parser);
         initHystrixConfig();
+        initGlobalConfig(parser);
         logger.info("Parse the deploy configuration success");
+    }
+
+    private void initGlobalConfig(ScmConfParser parser) {
+        Map<String, String> globalConfig = parser.getKeyValueSeaction(
+                ConfFileDefine.SECTION_CLUSTER_GLOBAL_CONFIG, keyValue -> keyValue);
+        if (globalConfig != null) {
+            this.globalConfig = globalConfig;
+        }
     }
 
     private void initEsInfo(ScmConfParser parser) {
@@ -158,24 +172,40 @@ public class ScmDeployInfoMgr {
         if (isCheck) {
             return;
         }
-        logger.info("Checking the configuration... (0/4)");
+        logger.info("Checking the configuration... (0/5)");
 
-        logger.info("Checking the configuration: Datasource (1/4)");
+        logger.info("Checking the configuration: Datasource (1/5)");
         checkDatasources();
 
-        logger.info("Checking the configuration: Metasource (2/4)");
+        logger.info("Checking the configuration: Metasource (2/5)");
         checkMetasource();
 
-        logger.info("Checking the configuration: Auditsource (3/4)");
+        logger.info("Checking the configuration: Auditsource (3/5)");
         checkAuditsource();
 
-        logger.info("Checking the configuration: Host (4/4)");
+        logger.info("Checking the configuration: Host (4/5)");
         checkHostIsReachable();
         checkJavaHome();
         checkCrontabIsUsable();
 
+        logger.info("Checking the configuration: Global Config (5/5)");
+        checkGlobalConfig();
+
         logger.info("Check the configuration success");
         isCheck = true;
+    }
+
+    private void checkGlobalConfig() {
+        String defaultDomain = globalConfig.get(ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
+        if (defaultDomain == null) {
+            throw new IllegalArgumentException("tag lib default domain must be set: "
+                    + ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
+        }
+        if (!SdbTools.isDomainExist(metasourceInfo.getUrl(),
+                metasourceInfo.getUser(), metasourceInfo.getPassword(), defaultDomain)) {
+            throw new IllegalArgumentException(
+                    "tag lib default domain is not exist: " + defaultDomain);
+        }
     }
 
     private void checkJavaHome() {
@@ -803,5 +833,9 @@ public class ScmDeployInfoMgr {
     }
     public BSONObject getHystrixConfig() {
         return hystrixConfig;
+    }
+
+    public Map<String, String> getGlobalConfig() {
+        return globalConfig;
     }
 }

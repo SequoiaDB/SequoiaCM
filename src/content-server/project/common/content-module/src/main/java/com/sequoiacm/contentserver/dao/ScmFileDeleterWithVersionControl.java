@@ -13,12 +13,12 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaExistException;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
@@ -42,11 +42,13 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
     private final String userName;
     private final FileMetaOperator fileMetaOperator;
     private final FileAddVersionDao addVersionDao;
+    private final FileMetaFactory fileMetaFactory;
 
     public ScmFileDeleterWithVersionControl(String sessionId, String userDetail, String userName,
             ScmBucket bucket, String fileName, FileOperationListenerMgr listenerMgr,
             BucketInfoManager bucketInfoMgr, FileMetaOperator fileMetaOperator,
-            FileAddVersionDao addVersionDao) throws ScmServerException {
+            FileAddVersionDao addVersionDao, FileMetaFactory fileMetaFactory)
+            throws ScmServerException {
         this.fileName = fileName;
         this.bucket = bucket;
         this.listenerMgr = listenerMgr;
@@ -58,6 +60,7 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         this.userName = userName;
         this.fileMetaOperator = fileMetaOperator;
         this.addVersionDao = addVersionDao;
+        this.fileMetaFactory = fileMetaFactory;
     }
 
     private String queryFileId() throws ScmServerException {
@@ -135,11 +138,13 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
                 // 所以这里认为指定桶下已经不存在这个文件了，直接创建 deleteMarker
                 return createDeleteMarkerFile();
             }
-            FileMeta newFileVersion = FileMeta.deleteMarkerMeta(wsInfo.getName(), fileName,
+            FileMeta newFileVersion = fileMetaFactory.createDeleteMarker(wsInfo.getName(), fileName,
                     userName, bucket.getId());
             fileInfoAndOpCompleteCallback = addVersionDao
-                    .addVersion(FileAddVersionDao.Context.lockInCaller(wsInfo.getName(),
-                            newFileVersion, FileMeta.fromRecord(latestVersionInLock), null));
+                    .addVersion(FileAddVersionDao.Context.lockInCaller(
+                            wsInfo.getName(), newFileVersion, fileMetaFactory
+                                    .createFileMetaByRecord(wsInfo.getName(), latestVersionInLock),
+                            null));
         }
         catch (FileMetaExistException e) {
             logger.debug(
@@ -198,13 +203,12 @@ public class ScmFileDeleterWithVersionControl implements ScmFileDeletor {
         if (ret == null) {
             return null;
         }
-        return FileMeta.fromRecord(ret);
+        return fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), ret);
     }
 
-
     private FileMeta createDeleteMarkerFile() throws ScmServerException {
-        FileMeta fileMeta = FileMeta.deleteMarkerMeta(wsInfo.getName(), fileName, userName,
-                bucket.getId());
+        FileMeta fileMeta = fileMetaFactory.createDeleteMarker(wsInfo.getName(), fileName,
+                userName, bucket.getId());
         return fileMetaOperator.createFileMeta(wsInfo.getName(), fileMeta, null).getNewFile();
     }
 

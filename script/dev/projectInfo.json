@@ -131,8 +131,11 @@
 			{
 				"type": "copy",
 				"src": "../../tools/scm-diagnose/target/sequoiacm-scm-diagnose"
-			}
-			]
+			},
+			{
+				"type": "copy",
+				"src": "../../tools/scm-tag-upgrade/target/sequoiacm-tag-upgrade"
+			}]
 		},
 		{
 			"type": "copy",

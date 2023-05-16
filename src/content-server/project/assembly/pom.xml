@@ -18,6 +18,12 @@
         <dependency>
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-content-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sequoiadb</groupId>
+                    <artifactId>sequoiadb-driver-jdk6</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

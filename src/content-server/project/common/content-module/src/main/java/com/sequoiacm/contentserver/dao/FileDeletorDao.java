@@ -4,6 +4,7 @@ import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
@@ -35,6 +36,9 @@ public class FileDeletorDao {
     @Autowired
     private FileAddVersionDao addVersionDao;
 
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     public FileMeta delete(String sessionId, String userDetail, ScmWorkspaceInfo wsInfo,
             String fileId, boolean isPhysical)
             throws ScmServerException {
@@ -57,7 +61,7 @@ public class FileDeletorDao {
         if (!isPhysical) {
             ScmFileDeleterWithVersionControl fileDeleter = new ScmFileDeleterWithVersionControl(
                     sessionId, userDetail, username, bucket, fileName, listenerMgr, bucketInfoMgr,
-                    fileMetaOperator, addVersionDao);
+                    fileMetaOperator, addVersionDao, fileMetaFactory);
             return fileDeleter.delete();
         }
         BSONObject file;

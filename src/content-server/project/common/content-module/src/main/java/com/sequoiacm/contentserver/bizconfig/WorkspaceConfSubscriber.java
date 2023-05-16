@@ -1,6 +1,8 @@
 package com.sequoiacm.contentserver.bizconfig;
 
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +20,18 @@ import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceNotifyOpt
 public class WorkspaceConfSubscriber implements ScmConfSubscriber {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceConfSubscriber.class);
     private final BucketInfoManager bucketInfoMgr;
+    private final TagLibMgr tagLibMgr;
     private long heartbeatInterval;
     private DefaultVersionFilter versionFilter;
     private String myServiceName;
 
     public WorkspaceConfSubscriber(BucketInfoManager bucketInfoManager, String myServiceName,
-            long heartbeatInterval) {
+            long heartbeatInterval, TagLibMgr tagLibMgr) {
         this.heartbeatInterval = heartbeatInterval;
         this.myServiceName = myServiceName;
         this.versionFilter = new DefaultVersionFilter(ScmConfigNameDefine.WORKSPACE);
         this.bucketInfoMgr = bucketInfoManager;
+        this.tagLibMgr = tagLibMgr;
     }
 
     @Override
@@ -41,9 +45,11 @@ public class WorkspaceConfSubscriber implements ScmConfSubscriber {
         WorkspaceNotifyOption option = (WorkspaceNotifyOption) notification;
         String wsName = option.getWorkspaceName();
         if (notification.getEventType() == EventType.DELTE) {
+            ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfo(wsName);
             ScmContentModule.getInstance().removeWorkspace(wsName);
             MetaDataManager.getInstence().removeMetaDataByWsName(wsName);
             bucketInfoMgr.invalidateBucketCacheByWs(wsName);
+            tagLibMgr.invalidateTagCacheByWs(ws);
             return;
         }
         if (notification.getEventType() == EventType.CREATE) {

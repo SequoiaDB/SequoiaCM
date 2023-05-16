@@ -366,4 +366,19 @@ public class SequoiadbTableDao extends TableDaoBase {
             releaseConnection(db);
         }
     }
+
+    public void upsert(BSONObject matcher, BSONObject updator) throws MetasourceException {
+        Sequoiadb db = getConnection();
+        try {
+            DBCollection cl = SequoiadbHelper.getCL(csName, clName, db);
+            cl.upsert(matcher, updator, null);
+        }
+        catch (Exception e) {
+            throw new MetasourceException("upsert failed:csName=" + csName + ",clName=" + clName
+                    + ",matcher=" + matcher + ",updator=" + updator, e);
+        }
+        finally {
+            releaseConnection(db);
+        }
+    }
 }

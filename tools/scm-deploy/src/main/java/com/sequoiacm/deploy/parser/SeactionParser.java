@@ -51,7 +51,7 @@ public class SeactionParser {
                 continue;
             }
 
-            if (Pattern.matches("^\\[[A-Za-z0-9]+\\]$", line)) {
+            if (Pattern.matches("^\\[([A-Za-z0-9]|-)+\\]$", line)) {
                 logger.debug("parse seaction:{}", line);
                 currentSeaction = line.substring(1, line.length() - 1);
                 if (seactionMap.containsKey(currentSeaction)) {
@@ -70,28 +70,68 @@ public class SeactionParser {
         }
     }
 
-    public Reader getSeaction(String seactionName) throws IOException {
+    public SectionReaderWrapper getSeaction(String seactionName) throws IOException {
         ByteArrayOutputStream byteOs = new ByteArrayOutputStream(INIT_SEACTION_BUFFER_SIZE);
         try {
             List<String> lines = seactionMap.get(seactionName);
             if (lines == null) {
-                throw new IllegalArgumentException("unknown seaction name:" + seactionName
-                        + ", all seaction:" + getSeactions());
+                throw new IllegalArgumentException(
+                        "unknown section name:" + seactionName + ", all section:" + getSeactions());
             }
+
+            SectionType type = detectSectionType(seactionName, lines);
+
             for (String line : lines) {
                 byteOs.write(line.getBytes("utf-8"));
                 byteOs.write(lineSeparator.getBytes("utf-8"));
             }
             byteOs.flush();
-            return new InputStreamReader(new ByteArrayInputStream(byteOs.toByteArray()), "utf-8");
+            return new SectionReaderWrapper(type,
+                    new InputStreamReader(new ByteArrayInputStream(byteOs.toByteArray()), "utf-8"));
         }
         finally {
             byteOs.close();
         }
     }
 
+    private SectionType detectSectionType(String sectionName, List<String> lines) {
+        for (String line : lines) {
+            if (line.trim().startsWith("#")) {
+                continue;
+            }
+            if (line.indexOf('=') > 0) {
+                return SectionType.KEY_VALUE;
+            }
+            return SectionType.TABLE;
+        }
+        throw new IllegalArgumentException("empty section:" + sectionName);
+    }
+
     public List<String> getSeactions() {
         return new ArrayList<>(seactionMap.keySet());
     }
 
+}
+
+enum SectionType {
+    TABLE,
+    KEY_VALUE;
+}
+
+class SectionReaderWrapper {
+    private final SectionType type;
+    private Reader reader;
+
+    public SectionReaderWrapper(SectionType type, Reader reader) {
+        this.reader = reader;
+        this.type = type;
+    }
+
+    public Reader getReader() {
+        return reader;
+    }
+
+    public SectionType getType() {
+        return type;
+    }
 }

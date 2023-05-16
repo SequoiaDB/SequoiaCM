@@ -68,7 +68,7 @@ public class AddFileVersionBucketFilter implements Filter<AddFileVersionContext>
 
         try {
             BSONObject bucketFileUpdater = ScmMetaSourceHelper
-                    .createBucketFileUpdatorByFileUpdator(context.getNewVersion().toBSONObject());
+                    .createBucketFileUpdatorByFileUpdator(context.getNewVersion().toRecordBSON());
             MetaAccessor bucketFileAccessor = bucket
                     .getFileTableAccessor(context.getTransactionContext());
             bucketFileAccessor.update(

@@ -1,6 +1,5 @@
 package com.sequoiacm.contentserver.pipeline.file.module;
 
-import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.metasource.TransactionContext;
 
@@ -99,10 +98,10 @@ public class UpdateFileMetaContext {
     }
 
     public void addFileMetaUpdater(FileMetaUpdater updater) {
-        List<FileMetaUpdater> updaters = fileMetaUpdaters.get(updater.getKey());
+        List<FileMetaUpdater> updaters = fileMetaUpdaters.get(updater.getFileField());
         if (updaters == null) {
             updaters = new ArrayList<>();
-            fileMetaUpdaters.put(updater.getKey(), updaters);
+            fileMetaUpdaters.put(updater.getFileField(), updaters);
         }
         updaters.add(updater);
         if (updater.isGlobal()) {

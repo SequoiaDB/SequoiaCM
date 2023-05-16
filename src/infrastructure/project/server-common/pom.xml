@@ -65,6 +65,7 @@
         <dependency>
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiadb-driver</artifactId>
+            <version>${global.sdb.driver.version}</version>
         </dependency>
     </dependencies>
 </project>

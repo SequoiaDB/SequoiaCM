@@ -123,7 +123,6 @@ public class CreateWorkspaceDao {
                 dirDao.insert(rootDir.toReocord());
             }
 
-
             // insert metadata version record
             versionDao.createVersion(ScmConfigNameDefine.META_DATA, wsConfig.getWsName(),
                     transaction);
@@ -132,7 +131,7 @@ public class CreateWorkspaceDao {
         }
         catch (ScmConfigException e) {
             if (isNeedRollbackMetaTable) {
-                rollbackMetaTable(wsConfig.getWsName());
+                rollbackMetaTable(wsRecord);
             }
             if (transaction != null) {
                 transaction.rollback();
@@ -141,7 +140,7 @@ public class CreateWorkspaceDao {
         }
         catch (Exception e) {
             if (isNeedRollbackMetaTable) {
-                rollbackMetaTable(wsConfig.getWsName());
+                rollbackMetaTable(wsRecord);
             }
             if (transaction != null) {
                 transaction.rollback();
@@ -160,12 +159,13 @@ public class CreateWorkspaceDao {
         return wsConfig;
     }
 
-    private void rollbackMetaTable(String wsName) {
+    private void rollbackMetaTable(BSONObject wsRecord) {
         try {
-            workspaceMetaService.deleteWorkspaceMetaTable(wsName);
+            workspaceMetaService.deleteWorkspaceMetaTable(wsRecord);
         }
         catch (Exception e) {
-            logger.warn("failed to rollback workspace meta table:wsName={}", wsName, e);
+            logger.warn("failed to rollback workspace meta table:wsName={}",
+                    wsRecord.get(FieldName.FIELD_CLWORKSPACE_NAME), e);
         }
     }
 
@@ -200,6 +200,11 @@ public class CreateWorkspaceDao {
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                 wsConfig.getSiteCacheStrategy());
         wsRecord.put(FieldName.FIELD_CLWORKSPACE_VERSION, wsConfig.getVersion());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                wsConfig.getTagRetrievalStatus());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE, wsConfig.getTagLibTableName());
+        wsRecord.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION,
+                wsConfig.getTagLibMetaOption());
         return wsRecord;
     }
 }

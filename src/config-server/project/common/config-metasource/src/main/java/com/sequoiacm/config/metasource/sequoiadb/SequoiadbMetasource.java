@@ -1,10 +1,7 @@
 package com.sequoiacm.config.metasource.sequoiadb;
 
-import com.sequoiacm.config.metasource.MetaSourceDefine;
-import com.sequoiacm.config.metasource.Metasource;
-import com.sequoiacm.config.metasource.MetasourceType;
-import com.sequoiacm.config.metasource.TableDao;
-import com.sequoiacm.config.metasource.Transaction;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.config.metasource.*;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
@@ -19,11 +16,13 @@ import com.sequoiadb.datasource.SequoiadbDatasource;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,6 +171,11 @@ public class SequoiadbMetasource implements Metasource {
     }
 
     @Override
+    public ScmGlobalConfigTableDao getScmGlobalConfigTableDao() throws MetasourceException {
+        return new ScmGlobalConfigTableDaoImpl(this);
+    }
+
+    @Override
     public MetasourceType getType() {
         return MetasourceType.SEQUOIADB;
     }
@@ -200,6 +204,15 @@ public class SequoiadbMetasource implements Metasource {
 
     public SequoiadbTableDao getCollection(Transaction transaction, String csName, String clName) {
         return new SequoiadbTableDao(transaction, csName, clName);
+    }
+
+    @PostConstruct
+    public void ensureTable() throws MetasourceException {
+        ensureCollection(ScmGlobalConfigTableDaoImpl.CS_NAME, ScmGlobalConfigTableDaoImpl.CL_NAME,
+                null);
+        ensureIndex(ScmGlobalConfigTableDaoImpl.CS_NAME, ScmGlobalConfigTableDaoImpl.CL_NAME,
+                "conf_name_idx", new BasicBSONObject(FieldName.GlobalConfig.FIELD_CONFIG_NAME, 1),
+                true);
     }
 
 }

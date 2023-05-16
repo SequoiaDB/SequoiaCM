@@ -94,6 +94,9 @@ public class ScmUpgrader {
         }
         progress += upgradeInfoMgr.getUpgradeHostService().keySet().size();
 
+        // set global config
+        progress++;
+
         // 5. 让用户确定是否升级
         boolean isUnattended = CommonConfig.getInstance()
                 .getSubOptionValue(SubOption.UNATTENDED) != null;
@@ -134,8 +137,10 @@ public class ScmUpgrader {
             writer.writeBeforeUpgrade(installConfig,
                     upgradeInfoMgr.getUpgradeHostService().keySet(),
                     upgradeInfoMgr.getConfigInfo());
-        } else {
-            upgradeStatusFile = new File(CommonConfig.getInstance().getUpgradeStatusDirPath() + "/upgrade_status_" + timestamp);
+        }
+        else {
+            upgradeStatusFile = new File(CommonConfig.getInstance().getUpgradeStatusDirPath()
+                    + "/upgrade_status_" + timestamp);
         }
         ServiceUpgraderMgr upgraderMgr = ServiceUpgraderMgr.getInstance();
         try {
@@ -159,7 +164,8 @@ public class ScmUpgrader {
                     writer.writeStatusRecord(statusInfo);
                     try {
                         upgraderMgr.upgrade(statusInfo);
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         logger.info(
                                 "If you want to rollback successfully upgraded services,you need to specify the upgrade status file,file location:"
                                         + upgradeStatusFile.getAbsolutePath());
@@ -167,12 +173,22 @@ public class ScmUpgrader {
                     }
                 }
             }
-        } finally {
+        }
+        finally {
             if (writer != null) {
                 writer.close();
             }
         }
-        logger.info("Upgrade service success, generate upgrade status file success, file location:" + upgradeStatusFile.getAbsolutePath());
+        logger.info("Setting Global Config...({}/{})", currentProgress++, progress);
+        if (!dryrun && ScmUpgradeInfoMgr.getInstance().getGlobalConfig() != null) {
+            new ScmGlobalConfigSetter(upgradeInfoMgr.getGlobalConfig(),
+                    upgradeInfoMgr.getConfigInfo().getScmGateway(),
+                    upgradeInfoMgr.getConfigInfo().getScmUser(),
+                    upgradeInfoMgr.getConfigInfo().getScmPassword()).setGlobalConfigSilence();
+        }
+
+        logger.info("Upgrade service success, generate upgrade status file success, file location:"
+                + upgradeStatusFile.getAbsolutePath());
     }
 
     private String prepareUpgradePackage() {
@@ -189,7 +205,8 @@ public class ScmUpgrader {
                 for (File nonServiceFile : nonServiceDirs) {
                     upgradeFileList.add(nonServiceFile.getName());
                 }
-            } else {
+            }
+            else {
                 File installPack = packManager.getServicePack(installPackType);
                 upgradeFileList.add("package/" + installPack.getName());
             }
@@ -215,7 +232,7 @@ public class ScmUpgrader {
 
             ssh.sudoExec("mkdir -p " + upgradePackPath);
 
-            //2. 传送升级包到host临时目录 并解压到upgradePackPath，改变upgradePackPath所属用户和用户组
+            // 2. 传送升级包到host临时目录 并解压到upgradePackPath，改变upgradePackPath所属用户和用户组
             ssh.scp(packPath, ssh.getScpTmpPath());
             ssh.sudoExec("tar -xf " + ssh.getScpTmpPath() + "/" + new File(packPath).getName()
                     + " -C " + upgradePackPath);
@@ -229,7 +246,8 @@ public class ScmUpgrader {
             // 4. 创建新的备份目录
             ssh.sudoExec("mkdir -p " + backupPath);
             ssh.changeOwner(backupPath, installConfig.getInstallUser(), group);
-        } finally {
+        }
+        finally {
             CommonUtils.closeResource(ssh);
         }
     }
@@ -283,7 +301,8 @@ public class ScmUpgrader {
 
         private void writeConfigInfo(ConfigInfo configInfo) throws Exception {
             bfw.write("[" + ConfFileDefine.SEACTION_CONFIG + "]" + "\n");
-            bfw.write(ConfFileDefine.CONFIG_UPGRADE_PACK_PATH + "=" + configInfo.getUpgradePackPath() + "\n");
+            bfw.write(ConfFileDefine.CONFIG_UPGRADE_PACK_PATH + "="
+                    + configInfo.getUpgradePackPath() + "\n");
             bfw.write(ConfFileDefine.CONFIG_BACKUP_PATH + "=" + configInfo.getBackupPath() + "\n");
         }
 
@@ -309,26 +328,30 @@ public class ScmUpgrader {
         public void writeStatusRecord(StatusInfo statusInfo) throws Exception {
             String serviceBackupPath;
             if (ServiceType.NON_SERVICE == statusInfo.getType()) {
-                serviceBackupPath = statusInfo.getBackupPath() + "/" + statusInfo.getType().getType() + "/backup";
-            } else if (InstallPackType.CLOUD == statusInfo.getType().getInstllPack()) {
-                serviceBackupPath = statusInfo.getBackupPath() + "/" + statusInfo.getType().getInstllPack().getUntarDirName() + "/" + statusInfo.getType().getType() + "/backup";
-            } else {
-                serviceBackupPath = statusInfo.getBackupPath() + "/" + statusInfo.getType().getInstllPack().getUntarDirName() + "/backup";
+                serviceBackupPath = statusInfo.getBackupPath() + "/"
+                        + statusInfo.getType().getType() + "/backup";
+            }
+            else if (InstallPackType.CLOUD == statusInfo.getType().getInstllPack()) {
+                serviceBackupPath = statusInfo.getBackupPath() + "/"
+                        + statusInfo.getType().getInstllPack().getUntarDirName() + "/"
+                        + statusInfo.getType().getType() + "/backup";
+            }
+            else {
+                serviceBackupPath = statusInfo.getBackupPath() + "/"
+                        + statusInfo.getType().getInstllPack().getUntarDirName() + "/backup";
             }
             StringBuilder serviceStatusStr = new StringBuilder();
             for (int i = 0; i < statusInfo.getNodeStatus().size(); i++) {
                 NodeStatus nodeStatus = statusInfo.getNodeStatus().get(i);
-                serviceStatusStr.append(nodeStatus.getPort()).append(":").append(nodeStatus.isStart() ? "start" : "stop");
+                serviceStatusStr.append(nodeStatus.getPort()).append(":")
+                        .append(nodeStatus.isStart() ? "start" : "stop");
                 if (i < statusInfo.getNodeStatus().size() - 1) {
                     serviceStatusStr.append(";");
                 }
             }
-            String statusRecord = statusInfo.getHostName() + ",  "
-                    + statusInfo.getType().getType()+ ",  "
-                    + serviceStatusStr + ",  "
-                    + serviceBackupPath + ",  "
-                    + statusInfo.getOldVersion() + ",  "
-                    + statusInfo.getNewVersion();
+            String statusRecord = statusInfo.getHostName() + ",  " + statusInfo.getType().getType()
+                    + ",  " + serviceStatusStr + ",  " + serviceBackupPath + ",  "
+                    + statusInfo.getOldVersion() + ",  " + statusInfo.getNewVersion();
             bfw.write("\n" + statusRecord);
             bfw.flush();
         }

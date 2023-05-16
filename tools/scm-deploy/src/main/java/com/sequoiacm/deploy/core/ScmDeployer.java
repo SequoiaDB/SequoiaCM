@@ -51,7 +51,8 @@ public class ScmDeployer {
 
         // 1. Checking install user
         // 2. Initializing Sdb
-        progress += 2;
+        // 3. set global config
+        progress += 3;
 
         int currentProgress = 0;
         logger.info("Deploying service{}...({}/{})", dryrun ? "(Dry Run Mode)" : "",
@@ -96,6 +97,13 @@ public class ScmDeployer {
                 }
             }
         }
+        logger.info("Setting Global Config...({}/{})", currentProgress++, progress);
+        if (!dryrun && deployConfMgr.getGlobalConfig() != null) {
+            new ScmGlobalConfigSetter(ScmDeployInfoMgr.getInstance().getGlobalConfig(),
+                    ScmDeployInfoMgr.getInstance().getFirstGatewayUrl(), "admin",
+                    "admin").setGlobalConfigSilence();
+        }
+
         logger.info("Deploy service success");
     }
 

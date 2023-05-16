@@ -47,7 +47,7 @@ public class CreateFileDirFilter implements Filter<CreateFileContext> {
             MetaRelAccessor dirAccessor = contentModule.getMetaService().getMetaSource()
                     .getRelAccessor(wsInfo.getName(), context.getTransactionContext());
             BSONObject dirRel = ScmMetaSourceHelper
-                    .createRelInsertorByFileInsertor(fileMeta.toBSONObject());
+                    .createRelInsertorByFileInsertor(fileMeta.toRecordBSON());
             dirAccessor.insert(dirRel);
         }
         catch (ScmMetasourceException e) {

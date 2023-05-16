@@ -64,7 +64,7 @@ public interface IDirService {
     FileMeta createFile(ScmUser user, String ws, String parentDirId, FileMeta fileInfo,
             String breakpointFile, FileUploadConf conf) throws ScmServerException;
 
-    BSONObject getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
+    FileMeta getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
             int majorVersion, int minorVersion, boolean acceptDeleteMarker)
             throws ScmServerException;
 

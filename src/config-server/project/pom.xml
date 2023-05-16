@@ -35,8 +35,6 @@
     </modules>
 
     <properties>
-        <sequoiadb.driver.version>3.6.1-SNAPSHOT</sequoiadb.driver.version>
-
         <!-- plugin version -->
         <commons-cli.version>1.4</commons-cli.version>
         <scm-cloud-security.version>${project.version}</scm-cloud-security.version>
@@ -56,7 +54,7 @@
             <dependency>
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiadb-driver</artifactId>
-                <version>${sequoiadb.driver.version}</version>
+                <version>${global.sdb.driver.version}</version>
             </dependency>
 
             <dependency>

@@ -4,6 +4,7 @@ import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.model.ScmVersion;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -72,10 +73,10 @@ public class ListObjVersionScanOffset extends S3ScanOffset {
         }
         if (versionIdMarker.equals(S3CommonDefine.NULL_VERSION_ID)) {
             try {
-                BSONObject file = scmBucketService.getFileVersion(bucketName, objKeyStartAfter,
+                FileMeta file = scmBucketService.getFileVersion(bucketName, objKeyStartAfter,
                         CommonDefine.File.NULL_VERSION_MAJOR, CommonDefine.File.NULL_VERSION_MINOR);
-                this.scmVersionIdMarker = ScmFileVersionHelper.parseVersionSerial(
-                        BsonUtils.getStringChecked(file, FieldName.FIELD_CLFILE_VERSION_SERIAL));
+                this.scmVersionIdMarker = ScmFileVersionHelper
+                        .parseVersionSerial(file.getVersionSerial());
             }
             catch (ScmServerException e) {
                 if (e.getError() == ScmError.FILE_NOT_FOUND) {

@@ -952,4 +952,30 @@ public class ScmAttributeName {
          */
         public static final String BUCKET_NAME = CommonDefine.RestArg.ATTACH_FAILURE_EXT_INFO_BUCKET_NAME;
     }
+
+    /**
+     * Attribute of tag lib.
+     */
+    public static class TagLib {
+
+        /**
+         * Tags name.
+         */
+        public static final String TAG = FieldName.TagLib.TAG;
+
+        /**
+         * Tag id.
+         */
+        public static final String TAG_ID = FieldName.TagLib.TAG_ID;
+
+        /**
+         * Custom tag key.
+         */
+        public static final String CUSTOM_TAG_KEY = FieldName.TagLib.CUSTOM_TAG_TAG_KEY;
+
+        /**
+         * Custom tag value.
+         */
+        public static final String CUSTOM_TAG_VALUE = FieldName.TagLib.CUSTOM_TAG_TAG_VALUE;
+    }
 }

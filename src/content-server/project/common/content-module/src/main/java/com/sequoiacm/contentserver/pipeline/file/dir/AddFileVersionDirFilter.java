@@ -10,6 +10,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaRelAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,13 +24,13 @@ public class AddFileVersionDirFilter implements Filter<AddFileVersionContext> {
         }
 
         BSONObject relUpdater = ScmMetaSourceHelper
-                .createRelUpdatorByFileUpdator(context.getNewVersion().toBSONObject());
+                .createRelUpdatorByFileUpdator(context.getNewVersion().toRecordBSON());
         MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                 .getMetaSource().getRelAccessor(wsInfo.getName(), context.getTransactionContext());
 
         try {
             relAccessor.updateRel(context.getFileId(), context.getNewVersion().getDirId(),
-                    context.getNewVersion().getName(), relUpdater);
+                    context.getNewVersion().getName(), new BasicBSONObject("$set", relUpdater));
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),

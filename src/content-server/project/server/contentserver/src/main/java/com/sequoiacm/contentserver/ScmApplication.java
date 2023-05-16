@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 
 import com.sequoiacm.infrastructure.common.EnableRequestKeepAlive;
+import com.sequoiacm.contentserver.common.IDGeneratorDao;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,12 @@ public class ScmApplication implements ApplicationRunner {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private IDGeneratorDao idGeneratorDao;
+
+    @Autowired
+    private TagLibMgr tagLibMgr;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         start(args);
@@ -102,7 +110,7 @@ public class ScmApplication implements ApplicationRunner {
 
             ScmServer ss = ScmServer.getInstance();
             ss.init(applicationContext, privClient, confClient, siteName, bucketInfoManager,
-                    dirService);
+                    dirService, idGeneratorDao, tagLibMgr);
             eurekaRegisterServiceId(ss);
         }
         catch (Exception e) {

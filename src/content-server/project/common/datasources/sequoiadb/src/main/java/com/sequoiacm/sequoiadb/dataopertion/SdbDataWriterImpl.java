@@ -3,7 +3,6 @@ package com.sequoiacm.sequoiadb.dataopertion;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
-import com.sequoiacm.infrastructure.sdbversion.SdbVersionRange;
 import com.sequoiacm.metasource.MetaSource;
 
 import com.sequoiacm.datasource.dataoperation.ScmDataWriter;

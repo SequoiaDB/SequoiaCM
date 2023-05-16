@@ -8,6 +8,7 @@ import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
@@ -15,6 +16,7 @@ import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.SessionInfoWrapper;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.service.IScmBucketService;
 import com.sequoiacm.contentserver.service.impl.Converter;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
@@ -50,6 +52,9 @@ public class BucketController {
     private DropwizardMetricServices metricServices;
     @Autowired
     private IScmBucketService service;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
 
     @PostMapping("/buckets")
     public ScmBucket createBucket(@RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String ws,
@@ -140,8 +145,8 @@ public class BucketController {
         incrementTraffic(CommonDefine.Metrics.PREFIX_FILE_UPLOAD + bucket.getWorkspace());
 
         BSONObject description = (BSONObject) JSON.parse(RestUtils.urlDecode(fileInfoStr));
-        FileMeta fileMeta = FileMeta.fromUser(bucket.getWorkspace(), description,
-                user.getUsername());
+        FileMeta fileMeta = fileMetaFactory.createFileMetaByUserInfo(bucket.getWorkspace(),
+                description, user.getUsername(), true);
 
         ClientUploadConf clientUploadConf = new ClientUploadConf(
                 BsonUtils.getBooleanOrElse(uploadConfig, CommonDefine.RestArg.FILE_IS_OVERWRITE,
@@ -165,7 +170,7 @@ public class BucketController {
             ScmSystemUtils.consumeAndCloseResource(is);
         }
 
-        return createdFile.toBSONObject();
+        return createdFile.toUserInfoBSON();
     }
 
     @PostMapping(path = "/buckets/{name}/files", params = "action=detach_file")
@@ -273,7 +278,7 @@ public class BucketController {
         FileMeta ret = service.deleteFile(user, bucketName, fileName, isPhysical,
                 new SessionInfoWrapper(sessionId, userDetail));
         if (ret != null) {
-            return ret.toBSONObject();
+            return ret.toUserInfoBSON();
         }
         return null;
     }
@@ -295,7 +300,7 @@ public class BucketController {
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, defaultValue = "-1") int minorVersion,
             Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        BSONObject file = service.getFileVersion(user, bucketName, fileName, majorVersion,
+        FileMeta file = service.getFileVersion(user, bucketName, fileName, majorVersion,
                 minorVersion);
         if (file == null) {
             throw new ScmFileNotFoundException(
@@ -303,12 +308,12 @@ public class BucketController {
                             + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
 
-        if (isDeleteMarker(file)) {
+        if (file.isDeleteMarker()) {
             throw new ScmFileNotFoundException("the specify version is delete marker:bucket="
                     + bucketName + ",fileName=" + fileName + ",version="
                     + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
-        return file;
+        return file.toUserInfoBSON();
     }
 
     private boolean isDeleteMarker(BSONObject file) {
@@ -320,17 +325,17 @@ public class BucketController {
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
             Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
-        BSONObject file = service.getFileNullVersion(user, bucketName, fileName);
+        FileMeta file = service.getFileNullVersion(user, bucketName, fileName);
         if (file == null) {
             throw new ScmFileNotFoundException(
                     "file not exist:bucket=" + bucketName + ",fileName=" + fileName);
         }
 
-        if (isDeleteMarker(file)) {
+        if (file.isDeleteMarker()) {
             throw new ScmFileNotFoundException("the specify version is delete marker:bucket="
                     + bucketName + ",fileName=" + fileName);
         }
-        return file;
+        return file.toUserInfoBSON();
 
     }
 

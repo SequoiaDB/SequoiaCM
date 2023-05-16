@@ -1,6 +1,6 @@
 package com.sequoiacm.contentserver.config;
 
-import com.sequoiacm.infrastructure.sdbversion.SdbVersionRange;
+import com.sequoiacm.infrastructure.sdbversion.VersionRange;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class SdbDatasourceConfig {
     }
 
     public void setPutLobRequiredVersion(String putLobRequiredVersion) {
-        SdbVersionRange.parse(putLobRequiredVersion);
+        VersionRange.parse(putLobRequiredVersion);
         this.putLobRequiredVersion = putLobRequiredVersion;
     }
 }

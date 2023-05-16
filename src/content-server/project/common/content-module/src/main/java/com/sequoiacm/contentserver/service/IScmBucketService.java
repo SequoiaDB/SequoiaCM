@@ -50,13 +50,13 @@ public interface IScmBucketService {
     FileMeta createFile(ScmUser user, String bucket, FileMeta fileInfo,
             TransactionCallback transactionCallback, boolean isOverWrite) throws ScmServerException;
 
-    BSONObject getFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
-            int minorVersion) throws ScmServerException;
+    FileMeta getFileVersion(ScmUser user, String bucket, String fileName, int majorVersion,
+                            int minorVersion) throws ScmServerException;
 
-    BSONObject getFileVersion(String bucket, String fileName, int majorVersion,
-                              int minorVersion) throws ScmServerException;
+    FileMeta getFileVersion(String bucket, String fileName, int majorVersion,
+                            int minorVersion) throws ScmServerException;
 
-    BSONObject getFileNullVersion(ScmUser user, String bucket, String fileName)
+    FileMeta getFileNullVersion(ScmUser user, String bucket, String fileName)
             throws ScmServerException;
 
     MetaCursor listFile(ScmUser user, String bucketName, Integer scope, BSONObject condition,

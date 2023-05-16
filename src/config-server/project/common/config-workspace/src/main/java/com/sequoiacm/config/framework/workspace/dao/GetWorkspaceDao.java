@@ -37,6 +37,10 @@ public class GetWorkspaceDao {
         if (filter.getWsName() != null) {
             sysWsRecMatcher.put(FieldName.FIELD_CLWORKSPACE_NAME, filter.getWsName());
         }
+        if (filter.getTagRetrievalStatus() != null) {
+            sysWsRecMatcher.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                    filter.getTagRetrievalStatus());
+        }
         List<Config> ret = new ArrayList<>();
         MetaCursor cursor = wsMetaTable.query(sysWsRecMatcher, null, null);
         try {

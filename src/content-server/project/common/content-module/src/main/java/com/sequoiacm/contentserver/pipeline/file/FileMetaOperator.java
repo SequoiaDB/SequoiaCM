@@ -11,6 +11,7 @@ import com.sequoiacm.contentserver.pipeline.file.module.DeleteFileResult;
 import com.sequoiacm.contentserver.pipeline.file.module.DeleteFileVersionContext;
 import com.sequoiacm.contentserver.pipeline.file.module.DeleteFileVersionResult;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.OverwriteFileContext;
 import com.sequoiacm.contentserver.pipeline.file.module.OverwriteFileMetaResult;
@@ -32,20 +33,27 @@ import java.util.List;
 
 @Component
 public class FileMetaOperator {
-    private Pipeline<CreateFileContext> createFilePipeline = new Pipeline<>();
-    private Pipeline<OverwriteFileContext> overwriteFilePipeline = new Pipeline<>();
-    private Pipeline<AddFileVersionContext> addFileVersionPipeline = new AddFileVersionPipeline();
-    private Pipeline<DeleteFileContext> deleteFilePipeline = new Pipeline<>();
-    private Pipeline<DeleteFileVersionContext> deleteFileVersionPipeline = new Pipeline<>();
-    private Pipeline<UpdateFileMetaContext> updateFileMetaPipeline = new UpdateFileMetaPipeline();
+    private final Pipeline<CreateFileContext> createFilePipeline;
+    private final Pipeline<OverwriteFileContext> overwriteFilePipeline;
+    private final Pipeline<AddFileVersionContext> addFileVersionPipeline;
+    private final Pipeline<DeleteFileContext> deleteFilePipeline;
+    private final Pipeline<DeleteFileVersionContext> deleteFileVersionPipeline;
+    private final Pipeline<UpdateFileMetaContext> updateFileMetaPipeline;
 
-    private final int MAX_REDO_COUNT = 3;
+    private static final int MAX_REDO_COUNT = 3;
 
     private static final Logger logger = LoggerFactory.getLogger(FileMetaOperator.class);
 
     @Autowired
     FileMetaOperator(List<FileMetaOperatorRelationModule> relationModuleList,
-            List<FileMetaOperatorCoreModule> coreModuleList) {
+            List<FileMetaOperatorCoreModule> coreModuleList, FileMetaFactory fileMetaFactory) {
+        createFilePipeline = new Pipeline<>();
+        overwriteFilePipeline = new Pipeline<>();
+        addFileVersionPipeline = new AddFileVersionPipeline(fileMetaFactory);
+        deleteFilePipeline = new Pipeline<>();
+        deleteFileVersionPipeline = new Pipeline<>();
+        updateFileMetaPipeline = new UpdateFileMetaPipeline(fileMetaFactory);
+
         // 各个 Pipeline filter 顺序：
         // 创建、新增版本、更新元数据、覆盖文件：relationTypeFilter->coreTypeFilter
         // 删除文件、删除版本：coreTypeFilter->relationTypeFilter

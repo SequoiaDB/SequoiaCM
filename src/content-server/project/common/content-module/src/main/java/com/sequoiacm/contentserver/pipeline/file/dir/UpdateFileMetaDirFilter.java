@@ -1,11 +1,10 @@
 package com.sequoiacm.contentserver.pipeline.file.dir;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaContext;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
@@ -39,12 +38,11 @@ public class UpdateFileMetaDirFilter implements Filter<UpdateFileMetaContext> {
                     context.getCurrentLatestVersion().getMinorVersion())) {
                 continue;
             }
+            fileMetaUpdater.injectDirRelationUpdater(relUpdater);
+        }
 
-            String dirRelKey = ScmMetaSourceHelper.getDirRelMappingField(fileMetaUpdater.getKey());
-            if (dirRelKey == null) {
-                continue;
-            }
-            relUpdater.put(dirRelKey, fileMetaUpdater.getValue());
+        if (relUpdater.isEmpty()) {
+            return PipelineResult.success();
         }
 
         MetaRelAccessor relAccessor = contentModule.getMetaService().getMetaSource()

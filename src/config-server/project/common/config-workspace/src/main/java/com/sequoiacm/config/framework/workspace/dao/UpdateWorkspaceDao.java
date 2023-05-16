@@ -98,7 +98,7 @@ public class UpdateWorkspaceDao {
                         new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_VERSION, 2));
             }
 
-            BSONObject newWsRecord;
+            BSONObject newWsRecord = null;
             if (updator.getNewDesc() != null) {
                 newWsRecord = table.updateDescription(matcher, updator.getNewDesc(), versionSet);
             }
@@ -119,10 +119,6 @@ public class UpdateWorkspaceDao {
             }
             else if (updator.getUpdateDataLocation() != null) {
                 newWsRecord = table.updateDataLocation(matcher, updator.getUpdateDataLocation(),
-                        versionSet);
-            }
-            else if (updator.getExternalData() != null) {
-                newWsRecord = table.updateExternalData(matcher, updator.getExternalData(),
                         versionSet);
             }
             else if (updator.isEnableDirectory() != null) {
@@ -164,7 +160,35 @@ public class UpdateWorkspaceDao {
                         versionSet);
             }
             else {
-                throw new ScmConfigException(ScmConfError.INVALID_ARG, "update nothing:" + updator);
+                // 可以多个工作区属性一起更新的字段
+                BSONObject newWsAttribute = new BasicBSONObject();
+                if (updator.getExternalData() != null) {
+                    for (String key : updator.getExternalData().keySet()) {
+                        newWsAttribute.put(FieldName.FIELD_CLWORKSPACE_EXT_DATA + "." + key,
+                                updator.getExternalData().get(key));
+                    }
+                }
+                if (updator.getTagRetrievalStatus() != null) {
+                    newWsAttribute.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                            updator.getTagRetrievalStatus());
+                }
+                if (updator.getTagUpgrading() != null) {
+                    newWsAttribute.put(FieldName.FIELD_CLWORKSPACE_TAG_UPGRADING,
+                            updator.getTagUpgrading());
+                }
+                if (updator.getTagLibTable() != null) {
+                    newWsAttribute.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE,
+                            updator.getTagLibTable());
+                }
+
+                if (!newWsAttribute.isEmpty()) {
+                    newWsRecord = table.updateByNewAttribute(matcher, newWsAttribute, versionSet);
+                }
+            }
+
+            if (newWsRecord == null) {
+                throw new ScmConfigException(ScmConfError.INVALID_ARG,
+                        "workspace update noting: " + updator.getWsName());
             }
 
             backupWSVersion(workspaceHistoryTable, bakWsRecord);

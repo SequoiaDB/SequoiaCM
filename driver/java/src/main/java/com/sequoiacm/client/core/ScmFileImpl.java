@@ -86,7 +86,7 @@ class ScmFileImpl extends ScmFile {
     private static final Logger logger = LoggerFactory.getLogger(ScmFileImpl.class);
     private Long bucketId;
     private BSONObject fileExternalData;
-    private Map<String, String> customTag = Collections.emptyMap();
+    private Map<String, String> customTag = new TreeMap<String, String>();
 
     public ScmFileImpl() {
         basicInfo = new ScmFileBasicInfo();
@@ -101,7 +101,7 @@ class ScmFileImpl extends ScmFile {
     }
 
     @Override
-    public void setFileId(ScmId fileId) throws ScmException{
+    public void setFileId(ScmId fileId) throws ScmException {
         if (fileId == null) {
             throw new ScmInvalidArgumentException("invalid fileId:fileId=" + fileId);
         }
@@ -1382,5 +1382,64 @@ class ScmFileImpl extends ScmFile {
     @Override
     public int getCustomTagCount() {
         return this.customTag.size();
+    }
+
+    @Override
+    public void addTagV2(String tag) throws ScmException {
+        this.tags.addTag(tag);
+        if (isExist()) {
+            BSONObject fileInfo = new BasicBSONObject();
+            fileInfo.put(CommonDefine.RestArg.UPDATE_INFO_ADD_TAG, tag);
+            updateFileInfo(fileInfo);
+        }
+    }
+
+    @Override
+    public void removeTagV2(String tag) throws ScmException {
+        this.tags.removeTag(tag);
+        if (isExist()) {
+            BSONObject fileInfo = new BasicBSONObject();
+            fileInfo.put(CommonDefine.RestArg.UPDATE_INFO_REMOVE_TAG, tag);
+            updateFileInfo(fileInfo);
+        }
+    }
+
+    @Override
+    public void addCustomTag(String tagKey, String tagValue) throws ScmException {
+        if (tagKey == null) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "the customTag key is null");
+        }
+        if (tagValue == null){
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "the customTag value is null");
+        }
+
+        this.customTag.put(tagKey, tagValue);
+        if (isExist()) {
+            BSONObject fileInfo = new BasicBSONObject();
+            fileInfo.put(CommonDefine.RestArg.UPDATE_INFO_ADD_CUSTOM_TAG,
+                    new BasicBSONObject(tagKey, tagValue));
+            updateFileInfo(fileInfo);
+        }
+    }
+
+    @Override
+    public void removeCustomTag(String tagKey, String tagValue) throws ScmException {
+        if (tagKey == null) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "the customTag key is null");
+        }
+        if (tagValue == null) {
+            throw new ScmException(ScmError.INVALID_ARGUMENT, "the customTag key is null");
+        }
+        String currentValue = this.customTag.get(tagKey);
+        if (!tagValue.equals(currentValue)) {
+            return;
+        }
+        customTag.remove(tagKey);
+        if (isExist()) {
+            BSONObject fileInfo = new BasicBSONObject();
+            fileInfo.put(CommonDefine.RestArg.UPDATE_INFO_REMOVE_CUSTOM_TAG,
+                    new BasicBSONObject(tagKey, tagValue));
+            updateFileInfo(fileInfo);
+        }
     }
 }

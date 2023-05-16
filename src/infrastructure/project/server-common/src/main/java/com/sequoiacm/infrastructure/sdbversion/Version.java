@@ -1,17 +1,19 @@
 package com.sequoiacm.infrastructure.sdbversion;
 
-public class SdbVersion implements Comparable<SdbVersion> {
+import java.util.List;
+
+public class Version implements Comparable<Version> {
     private int version;
     private int subVersion;
     private int fixVersion;
 
-    public SdbVersion(int version, int subVersion, int fixVersion) {
+    public Version(int version, int subVersion, int fixVersion) {
         this.version = version;
         this.subVersion = subVersion;
         this.fixVersion = fixVersion;
     }
 
-    public SdbVersion(String version) {
+    public Version(String version) {
         if (version == null || version.isEmpty()) {
             throw new IllegalArgumentException("version is null or empty");
         }
@@ -41,7 +43,7 @@ public class SdbVersion implements Comparable<SdbVersion> {
     }
 
     @Override
-    public int compareTo(SdbVersion dbVersion) {
+    public int compareTo(Version dbVersion) {
         int versionDiff = this.version - dbVersion.version;
         if (versionDiff != 0)
             return versionDiff;
@@ -51,5 +53,14 @@ public class SdbVersion implements Comparable<SdbVersion> {
             return subVersionDiff;
 
         return this.fixVersion - dbVersion.fixVersion;
+    }
+
+    public boolean inRange(List<VersionRange> rangeList) {
+        for (VersionRange range : rangeList) {
+            if (range.isInRange(this)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

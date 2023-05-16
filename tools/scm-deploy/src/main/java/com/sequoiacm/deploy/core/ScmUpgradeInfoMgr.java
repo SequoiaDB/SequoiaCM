@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.sequoiacm.deploy.common.SdbTools;
 import com.sequoiacm.deploy.module.BasicInstallConfig;
 import com.sequoiacm.deploy.module.VersionFileType;
+import com.sequoiacm.deploy.parser.KeyValueConverter;
+import com.sequoiacm.infrastructure.config.core.common.ScmGlobalConfigDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +26,6 @@ import com.sequoiacm.deploy.exception.UpgradeException;
 import com.sequoiacm.deploy.installer.ServicesInstallPackManager;
 import com.sequoiacm.deploy.module.ConfigInfo;
 import com.sequoiacm.deploy.module.HostInfo;
-import com.sequoiacm.deploy.module.InstallConfig;
 import com.sequoiacm.deploy.module.InstallPackType;
 import com.sequoiacm.deploy.module.JavaVersion;
 import com.sequoiacm.deploy.module.ServiceType;
@@ -53,6 +55,7 @@ public class ScmUpgradeInfoMgr {
     private Map<ServiceType, Map<HostInfo, String>> upgradeServiceHost = new HashMap<>();
     private Map<HostInfo, Map<ServiceType, String>> unableUpgradeHostService = new HashMap<>();
     private Map<ServiceType, Map<HostInfo, String>> unableUpgradeServiceHost = new HashMap<>();
+    Map<String, String> globalConfig = new HashMap<>();
 
     public static ScmUpgradeInfoMgr getInstance() {
         if (instance != null) {
@@ -83,7 +86,20 @@ public class ScmUpgradeInfoMgr {
         initHostInfo(parser);
         initConfigInfo(parser);
         initInstallPackToNewVersion();
+        initGlobalConfig(parser);
         logger.info("Parse the upgrade configuration success");
+    }
+
+    private void initGlobalConfig(ScmConfParser parser) {
+        Map<String, String> globalConfig = parser.getKeyValueSeaction(
+                ConfFileDefine.SECTION_CLUSTER_GLOBAL_CONFIG, keyValue -> keyValue);
+        if (globalConfig != null) {
+            this.globalConfig = globalConfig;
+        }
+    }
+
+    public Map<String, String> getGlobalConfig() {
+        return globalConfig;
     }
 
     private void initInstallConfig(ScmConfParser parser) {
@@ -161,7 +177,8 @@ public class ScmUpgradeInfoMgr {
                 version = VersionFileType.getVersion(files[0].getName());
             }
             else {
-                String serviceInstallPackName = packManager.getServicePack(installPackType).getName();
+                String serviceInstallPackName = packManager.getServicePack(installPackType)
+                        .getName();
                 version = VersionFileType.getVersion(serviceInstallPackName);
             }
             installPackToNewVersion.put(installPackType, version);
@@ -181,8 +198,19 @@ public class ScmUpgradeInfoMgr {
         logger.info("Checking the upgrade configuration: Config (2/2)");
         checkServiceVersion();
         checkIsServiceScriptExist();
+        checkGlobalConfig();
         logger.info("Check the upgrade configuration success");
         isCheck = true;
+    }
+
+    private void checkGlobalConfig() {
+        if (!getGlobalConfig().isEmpty()) {
+            if (configInfo.getScmUser() == null || configInfo.getScmPassword() == null
+                    || configInfo.getScmGateway() == null) {
+                throw new IllegalArgumentException(
+                        "scmUser, scmPassword, scmGateway must be set in config");
+            }
+        }
     }
 
     private void checkServiceVersion() {

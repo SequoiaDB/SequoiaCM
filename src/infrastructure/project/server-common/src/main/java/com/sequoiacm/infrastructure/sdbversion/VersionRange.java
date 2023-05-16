@@ -3,17 +3,17 @@ package com.sequoiacm.infrastructure.sdbversion;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SdbVersionRange {
-    private SdbVersion left;
+public class VersionRange {
+    private Version left;
     private boolean leftInclusive;
 
-    private SdbVersion right;
+    private Version right;
     private boolean rightInclusive;
 
     private String srcRange;
 
-    public static List<SdbVersionRange> parse(String versionRangesStr) {
-        ArrayList<SdbVersionRange> ret = new ArrayList<>();
+    public static List<VersionRange> parse(String versionRangesStr) {
+        ArrayList<VersionRange> ret = new ArrayList<>();
         String requiredVersionStrTrim = versionRangesStr.trim();
         // requiredVersionStr:
         // 多个范围：[3.6.1, 4.6.2];(5.0,5.6]
@@ -21,12 +21,12 @@ public class SdbVersionRange {
         String[] versionRanges = requiredVersionStrTrim.split(";");
         for (String versionRange : versionRanges) {
             versionRange = versionRange.trim();
-            ret.add(new SdbVersionRange(versionRange));
+            ret.add(new VersionRange(versionRange));
         }
         return ret;
     }
 
-    SdbVersionRange(String range) {
+    VersionRange(String range) {
         if (range == null || range.isEmpty()) {
             throw new IllegalArgumentException("range is null or empty");
         }
@@ -39,7 +39,7 @@ public class SdbVersionRange {
             if (range.charAt(0) != '[' && range.charAt(0) != '('
                     && range.charAt(range.length() - 1) != ']'
                     && range.charAt(range.length() - 1) != ')') {
-                left = new SdbVersion(range);
+                left = new Version(range);
                 right = left;
                 leftInclusive = true;
                 rightInclusive = true;
@@ -57,16 +57,15 @@ public class SdbVersionRange {
                 throw new IllegalArgumentException("range is invalid");
             }
 
-            left = new SdbVersion(leftAndRight[0]);
-            right = new SdbVersion(leftAndRight[1]);
-            checkRangeValid();
+            left = new Version(leftAndRight[0]);
+            right = new Version(leftAndRight[1]);
         }
         catch (Exception e) {
             throw new IllegalArgumentException("range is invalid: " + range, e);
         }
     }
 
-    public boolean isInRange(SdbVersion version) {
+    public boolean isInRange(Version version) {
         int leftRet = version.compareTo(left);
         if (leftRet < 0 || (leftRet == 0 && !leftInclusive)) {
             return false;
@@ -78,14 +77,6 @@ public class SdbVersionRange {
         }
 
         return true;
-    }
-
-    private void checkRangeValid() {
-        // 检查如 (4, 3.6.1) 这种左边的版本号大于右边的版本号的情况
-        int diff = left.compareTo(right);
-        if (diff > 0) {
-            throw new IllegalArgumentException("range is invalid");
-        }
     }
 
     @Override

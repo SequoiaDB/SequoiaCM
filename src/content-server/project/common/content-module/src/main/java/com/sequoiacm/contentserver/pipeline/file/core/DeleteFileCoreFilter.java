@@ -2,19 +2,23 @@ package com.sequoiacm.contentserver.pipeline.file.core;
 
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.DeleteFileContext;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DeleteFileCoreFilter implements Filter<DeleteFileContext> {
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     @Override
     public PipelineResult executionPhase(DeleteFileContext context) throws ScmServerException {
         // 删除最新表、历史表记录
@@ -31,7 +35,8 @@ public class DeleteFileCoreFilter implements Filter<DeleteFileContext> {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND, "file not found: ws="
                         + wsInfo.getName() + ", fileId=" + context.getFileId());
             }
-            context.setDeletedLatestVersion(FileMeta.fromRecord(latestVersion));
+            context.setDeletedLatestVersion(
+                    fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), latestVersion));
 
             if (context.getDeletedLatestVersion().isFirstVersion()) {
                 return PipelineResult.success();
@@ -41,7 +46,8 @@ public class DeleteFileCoreFilter implements Filter<DeleteFileContext> {
                             context.getTransactionContext())
                     .queryAndDeleteWithCursor(context.getFileId(), latestVersion, null, null);
             while (cursor.hasNext()) {
-                context.getDeletedHistoryVersions().add(FileMeta.fromRecord(cursor.getNext()));
+                context.getDeletedHistoryVersions().add(
+                        fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), cursor.getNext()));
             }
             return PipelineResult.success();
         }

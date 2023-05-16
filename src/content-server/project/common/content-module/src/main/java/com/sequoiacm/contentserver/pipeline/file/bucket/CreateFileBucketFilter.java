@@ -68,7 +68,7 @@ public class CreateFileBucketFilter implements Filter<CreateFileContext> {
         }
 
         BSONObject bucketRelRecord = ScmFileOperateUtils
-                .createBucketFileRel(fileMeta.toBSONObject());
+                .createBucketFileRel(fileMeta.toRecordBSON());
         try {
             MetaAccessor bucketRelTable = bucket
                     .getFileTableAccessor(context.getTransactionContext());

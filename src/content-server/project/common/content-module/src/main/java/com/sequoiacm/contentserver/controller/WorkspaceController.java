@@ -13,6 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.sdbversion.RequireSdbVersion;
 import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
@@ -118,7 +119,8 @@ public class WorkspaceController {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
 
         ClientWorkspaceUpdator clientWsUpdator = ClientWorkspaceUpdator.fromBSONObject(updator);
-        BSONObject config = workspaceService.updateWorkspace(scmUser, workspaceName, clientWsUpdator);
+        BSONObject config = workspaceService.updateWorkspace(scmUser, workspaceName,
+                clientWsUpdator);
 
         return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
     }
@@ -132,6 +134,23 @@ public class WorkspaceController {
         long count = workspaceService.countWorkspace(user, condition);
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok("");
+    }
+
+    @RequireSdbVersion(versionProperty = "scm.tag.sdbRequiredVersion", defaultVersion = "3.6.1")
+    @PutMapping(value = "/workspaces/{workspace_name}", params = "action=enable_tag_retrieval")
+    public BSONObject workspaceEnableTagRetrieval(@PathVariable("workspace_name") String wsName,
+            Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject config = workspaceService.enableTagRetrieval(user, wsName);
+        return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
+    }
+
+    @PutMapping(value = "/workspaces/{workspace_name}", params = "action=disable_tag_retrieval")
+    public BSONObject workspaceDisableTagRetrieval(@PathVariable("workspace_name") String wsName,
+            Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject config = workspaceService.disabledTagRetrieval(user, wsName);
+        return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
     }
 
     private BSONObject toClientWsBSON(BSONObject wsRec) {

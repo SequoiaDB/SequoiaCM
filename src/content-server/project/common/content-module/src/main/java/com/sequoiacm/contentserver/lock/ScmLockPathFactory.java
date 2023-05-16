@@ -43,4 +43,16 @@ public class ScmLockPathFactory {
         String[] lockPath = { ScmLockPathDefine.QUOTA_USED, type, name };
         return new ScmLockPath(lockPath);
     }
+
+    public static ScmLockPath createTagLibLockPath(String tagLib) {
+        String[] lockPath = { ScmLockPathDefine.TAG_LIBS, tagLib,
+                ScmLockPathDefine.TAG_LIB_GLOBAL_LOCK };
+        return new ScmLockPath(lockPath);
+    }
+
+    public static ScmLockPath createWorkspaceTagRetrievalLock(String ws) {
+        String[] lockPath = { ScmLockPathDefine.WORKSPACES, ws,
+                ScmLockPathDefine.WORKSPACE_TAG_RETRIEVAL_LOCK };
+        return new ScmLockPath(lockPath);
+    }
 }

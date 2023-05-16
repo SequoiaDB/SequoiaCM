@@ -12,5 +12,7 @@ public interface Metasource {
 
     public Transaction createTransaction() throws MetasourceException;
 
+    public ScmGlobalConfigTableDao getScmGlobalConfigTableDao() throws MetasourceException;
+
     public MetasourceType getType();
 }

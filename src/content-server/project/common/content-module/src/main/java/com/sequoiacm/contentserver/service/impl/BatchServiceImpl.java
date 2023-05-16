@@ -15,7 +15,8 @@ import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaDefaultUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.service.IBatchService;
@@ -43,7 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 @Service
@@ -65,6 +66,9 @@ public class BatchServiceImpl implements IBatchService {
 
     @Autowired
     private IFileService fileService;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
 
     @Override
     public BSONObject getBatchInfo(ScmUser user, String workspaceName, String batchId,
@@ -333,9 +337,10 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // attach
-            FileMeta fileMeta = FileMeta.fromRecord(fileInfo);
+            FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(workspaceName, fileInfo);
             UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(workspaceName, fileId,
-                    Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID, batchId)),
+                    Collections.singletonList(FileMetaDefaultUpdater
+                            .globalFieldUpdater(FieldName.FIELD_CLFILE_BATCH_ID, batchId)),
                     user.getUsername(), new Date(), fileMeta, null);
             callback = fileOpListenerMgr.postUpdate(wsInfo, fileMeta,
                     ret.getLatestVersionAfterUpdate());
@@ -441,9 +446,10 @@ public class BatchServiceImpl implements IBatchService {
             }
 
             // detach
-            FileMeta fileMeta = FileMeta.fromRecord(fileInfo);
+            FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), fileInfo);
             UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId,
-                    Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID, null)),
+                    Collections.singletonList(FileMetaDefaultUpdater
+                            .globalFieldUpdater(FieldName.FIELD_CLFILE_BATCH_ID, null)),
                     user.getUsername(), new Date(), fileMeta, null);
             callback = fileOpListenerMgr.postUpdate(wsInfo, fileMeta,
                     ret.getLatestVersionAfterUpdate());

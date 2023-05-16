@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.model;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import com.sequoiacm.common.mapping.ScmWorkspaceObj;
 import com.sequoiacm.contentserver.cache.ScmDirCache;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,8 +57,12 @@ public class ScmWorkspaceItem {
     private boolean batchFileNameUnique;
     private boolean enableDirectory;
     private ScmSiteCacheStrategy siteCacheStrategy;
+    private ScmWorkspaceTagRetrievalStatus tagRetrievalStatus;
+    private String tagLibTable;
+    private boolean tagUpgrading;
 
-    public ScmWorkspaceItem(ScmBizConf bizConf, BSONObject workspaceObj, boolean isHistory) throws ScmServerException {
+    public ScmWorkspaceItem(ScmBizConf bizConf, BSONObject workspaceObj, boolean isHistory)
+            throws ScmServerException {
         try {
             ScmWorkspaceObj wsObj = new ScmWorkspaceObj(workspaceObj);
             this.name = wsObj.getName();
@@ -111,6 +115,9 @@ public class ScmWorkspaceItem {
             else {
                 version = 1;
             }
+            tagLibTable = wsObj.getTagLibTable();
+            tagRetrievalStatus = wsObj.getTagRetrievalStatus();
+            tagUpgrading = wsObj.isTagUpgrading();
         }
         catch (ScmServerException e) {
             logger.error("parse workspace info failed:record=" + workspaceObj.toString());
@@ -299,5 +306,17 @@ public class ScmWorkspaceItem {
 
     public int getVersion() {
         return version;
+    }
+
+    public String getTagLibTable() {
+        return tagLibTable;
+    }
+
+    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() {
+        return tagRetrievalStatus;
+    }
+
+    public boolean isTagUpgrading() {
+        return tagUpgrading;
     }
 }

@@ -2,6 +2,7 @@ package com.sequoiacm.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,8 @@ public class ScmArgChecker {
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
             HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_TAGS);
+            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_CUSTOM_TAG);
 
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_ID);
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_NAME);
@@ -209,12 +212,8 @@ public class ScmArgChecker {
             }
         }
 
-        public static void checkFileTag(Map<String, String> customTag) throws ScmServerException {
-            if (customTag.size() > 10) {
-                throw new ScmServerException(ScmError.FILE_CUSTOMTAG_TOO_LARGE,
-                        "the file tag number can not more than 10");
-            }
-
+        public static void checkScmCustomTag(Map<String, String> customTag)
+                throws ScmServerException {
             for (Map.Entry<String, String> entry : customTag.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
@@ -231,6 +230,23 @@ public class ScmArgChecker {
                             "the file tag value length more than 256");
                 }
             }
+        }
+
+        public static void checkAndCorrectS3Tag(Map<String, String> s3Tag)
+                throws ScmServerException {
+            if (s3Tag.size() > 10) {
+                throw new ScmServerException(ScmError.FILE_CUSTOMTAG_TOO_LARGE,
+                        "the file tag number can not more than 10");
+            }
+
+            Iterator<Map.Entry<String, String>> it = s3Tag.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> entry = it.next();
+                if (entry.getValue() == null) {
+                    it.remove();
+                }
+            }
+            checkScmCustomTag(s3Tag);
         }
     }
 

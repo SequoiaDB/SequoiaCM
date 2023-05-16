@@ -1,5 +1,6 @@
 package com.sequoiacm.metasource.sequoiadb.accessor;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.util.JSON;
@@ -34,7 +35,8 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
     public void insert(BSONObject insertor) throws ScmMetasourceException {
         try {
             super.insert(insertor);
-        }catch (SdbMetasourceException e) {
+        }
+        catch (SdbMetasourceException e) {
             if (e.getErrcode() == SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {
                 e.setScmError(ScmError.FILE_EXIST);
             }
@@ -43,8 +45,20 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
     }
 
     @Override
-    public void updateRel(String fileId, String dirId, String fileName, BSONObject newInfo)
-            throws SdbMetasourceException {
+    public void updateRel(String fileId, String dirId, String fileName, BSONObject updater)
+            throws ScmMetasourceException {
+        if (updater.isEmpty()) {
+            return;
+        }
+        if (updater.keySet().size() != 1) {
+            throw new ScmMetasourceException("dir relation table only support $set: " + updater);
+        }
+
+        BSONObject newInfo = BsonUtils.getBSON(updater, SequoiadbHelper.SEQUOIADB_MODIFIER_SET);
+        if (newInfo == null) {
+            throw new ScmMetasourceException("dir relation table only support $set: " + updater);
+        }
+
         try {
             BSONObject matcher = new BasicBSONObject();
             matcher.put(FieldName.FIELD_CLREL_FILEID, fileId);
@@ -66,14 +80,13 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
                 BSONObject fileIdBSON = new BasicBSONObject(FieldName.FIELD_CLREL_FILEID, fileId);
                 BSONObject fileIdUpdator = new BasicBSONObject(
                         SequoiadbHelper.SEQUOIADB_MODIFIER_SET, fileIdBSON);
-                BSONObject relRecord = super.queryAndUpdate(matcher, fileIdUpdator,
-                        QUERY_REL_HINT);
-                if(relRecord == null) {
+                BSONObject relRecord = super.queryAndUpdate(matcher, fileIdUpdator, QUERY_REL_HINT);
+                if (relRecord == null) {
                     // the file was deleted, just return.
-                    logger.debug("update rel record failed,record not exists:fileId={}" , fileId);
+                    logger.debug("update rel record failed,record not exists:fileId={}", fileId);
                     return;
                 }
-                //this relRecord can not be modified until we commit the transaction.
+                // this relRecord can not be modified until we commit the transaction.
 
                 if ((newDirId != null
                         && !relRecord.get(FieldName.FIELD_CLREL_DIRECTORY_ID).equals(newDirId))
@@ -83,19 +96,16 @@ public class SdbRelAccessor extends SdbMetaAccessor implements MetaRelAccessor {
                     newRelRecord.putAll(relRecord);
                     newRelRecord.putAll(newInfo);
                     newRelRecord.removeField("_id");
-                    //insert new relRecord
+                    // insert new relRecord
                     super.insert(newRelRecord);
-                    //delete old relRecord
+                    // delete old relRecord
                     super.delete(relRecord);
                     return;
                 }
 
-                //the dirId of relRecord is equals newInfo, just update it directly.
+                // the dirId of relRecord is equals newInfo, just update it directly.
             }
-
-            BSONObject updator = new BasicBSONObject();
-            updator.put(SequoiadbHelper.SEQUOIADB_MODIFIER_SET, newInfo);
-            super.update(matcher, updator, QUERY_REL_HINT);
+            super.update(matcher, updater, QUERY_REL_HINT);
         }
         catch (SdbMetasourceException e) {
             if (e.getErrcode() == SDBError.SDB_IXM_DUP_KEY.getErrorCode()) {

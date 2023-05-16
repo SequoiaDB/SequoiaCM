@@ -1,9 +1,11 @@
 package com.sequoiacm.contentserver.contentmodule;
 
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.common.IDGeneratorDao;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
@@ -32,12 +34,18 @@ public class ContentModuleInitRunner {
     @Autowired
     private BucketInfoManager bucketInfoMgr;
 
+    @Autowired
+    private IDGeneratorDao idGeneratorDao;
+
     private boolean isInit = false;
     @Autowired
     private IDirService dirService;
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private TagLibMgr tagLibMgr;
 
     @PostConstruct
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -46,8 +54,8 @@ public class ContentModuleInitRunner {
             return;
         }
         ContentModuleInitializer initializer = new ContentModuleInitializer(applicationContext,
-                privClient, confClient,
-                localService.getServiceId(), config.getSite(), null, bucketInfoMgr, dirService);
+                privClient, confClient, localService.getServiceId(), config.getSite(), null,
+                bucketInfoMgr, dirService, idGeneratorDao, tagLibMgr);
         initializer.initBizComponent();
         String instance = localService.getHost() + localService.getPort();
         int instanceHash = instance.hashCode();

@@ -23,6 +23,11 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     private Boolean enableDirectory;
 
+    private String tagRetrievalStatus;
+
+    private Boolean tagUpgrading;
+    private String tagLibTable;
+
     public WorkspaceUpdator(String wsName) {
         this.wsName = wsName;
     }
@@ -76,6 +81,17 @@ public class WorkspaceUpdator implements ConfigUpdator {
         if (addExtraMetaCs != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_UPDATOR_ADD_EXTRA_META_CS, addExtraMetaCs);
         }
+        if (tagRetrievalStatus != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_TAG_RETRIEVAL_STATUS,
+                    tagRetrievalStatus);
+        }
+        if (tagUpgrading != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_TAG_UPGRADING, tagUpgrading);
+        }
+        if (tagLibTable != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_TAG_LIB_TABLE, tagLibTable);
+        }
+
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_MATCHER, matcher);
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_OLD_WS, matcher);
@@ -175,5 +191,29 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     public void setAddExtraMetaCs(String addExtraMetaCs) {
         this.addExtraMetaCs = addExtraMetaCs;
+    }
+
+    public void setTagRetrievalStatus(String tagRetrievalStatus) {
+        this.tagRetrievalStatus = tagRetrievalStatus;
+    }
+
+    public String getTagRetrievalStatus() {
+        return tagRetrievalStatus;
+    }
+
+    public void setTagUpgrading(Boolean tagUpgrading) {
+        this.tagUpgrading = tagUpgrading;
+    }
+
+    public Boolean getTagUpgrading() {
+        return tagUpgrading;
+    }
+
+    public String getTagLibTable() {
+        return tagLibTable;
+    }
+
+    public void setTagLibTable(String tagLibTable) {
+        this.tagLibTable = tagLibTable;
     }
 }

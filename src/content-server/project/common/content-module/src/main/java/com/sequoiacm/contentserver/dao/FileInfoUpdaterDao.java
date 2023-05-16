@@ -9,7 +9,9 @@ import com.sequoiacm.contentserver.listener.OperationCompleteCallback;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdaterFactoryWrapper;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -18,13 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
 import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
-import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
@@ -43,6 +43,12 @@ public class FileInfoUpdaterDao {
     @Autowired
     private FileOperationListenerMgr listenerMgr;
 
+    @Autowired
+    private FileMetaUpdaterFactoryWrapper fileMetaUpdaterFactory;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     public FileMeta updateInfo(String user, String workspaceName, String fileId, int majorVersion,
             int minorVersion, BSONObject updator) throws ScmServerException {
         ScmWorkspaceInfo ws = ScmContentModule.getInstance()
@@ -53,8 +59,9 @@ public class FileInfoUpdaterDao {
 
         List<FileMetaUpdater> fileMetaUpdaterList = new ArrayList<>();
         for (String key : updator.keySet()) {
-            fileMetaUpdaterList
-                    .add(new FileMetaUpdater(key, updator.get(key), majorVersion, minorVersion));
+            FileMetaUpdater fileMetaUpdater = fileMetaUpdaterFactory.createFileMetaUpdater(ws, key,
+                    updator.get(key), majorVersion, minorVersion);
+            fileMetaUpdaterList.add(fileMetaUpdater);
         }
 
         Date updateDate = new Date();
@@ -70,7 +77,8 @@ public class FileInfoUpdaterDao {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                         "file not found: ws=" + ws.getName() + ", fileId=" + fileId);
             }
-            FileMeta currentLatestVersion = FileMeta.fromRecord(currentLatestVersionBSON);
+            FileMeta currentLatestVersion = fileMetaFactory.createFileMetaByRecord(workspaceName,
+                    currentLatestVersionBSON);
             if (needCheckUniqueNameInBatch(ws, currentLatestVersion, updator)) {
                 ScmLockPath batchLockPath = ScmLockPathFactory.createBatchLockPath(ws.getName(),
                         currentLatestVersion.getBatchId());

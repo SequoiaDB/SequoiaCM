@@ -4,8 +4,10 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.client.element.bizconf.ScmTagLibMetaOption;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.element.bizconf.ScmDataLocation;
@@ -173,7 +175,7 @@ public abstract class ScmWorkspace {
      *
      * @param preferredZone
      *            priority zone,if null,used session's preferred zone
-     * @return  ScmTransitionSchedule
+     * @return ScmTransitionSchedule
      * @throws ScmException
      *             if error happens.
      */
@@ -362,4 +364,41 @@ public abstract class ScmWorkspace {
     abstract void setId(int id);
 
     abstract BSONObject getExtData();
+
+    /**
+     * Enable tag retrieval or not.
+     * 
+     * @param enableTagRetrieval
+     *            true to enable tag retrieval, false to disable tag retrieval.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException;
+
+    /**
+     * Get tag retrieval status.
+     * 
+     * @return tag retrieval status.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException;
+
+    /**
+     * Returns tag lib index task error msg. if enable tag retrieval failed
+     * 
+     * @return error msg.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract String getTagLibIndexErrorMsg() throws ScmException;
+
+    /**
+     * Get tag lib meta option.
+     * 
+     * @return tag lib meta option.
+     * @throws ScmException
+     *             if error happens.
+     */
+    public abstract ScmTagLibMetaOption getTagLibMetaOption() throws ScmException;
 }

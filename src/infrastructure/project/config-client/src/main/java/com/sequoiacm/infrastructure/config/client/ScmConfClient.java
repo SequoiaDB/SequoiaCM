@@ -279,6 +279,14 @@ public class ScmConfClient {
     public void setConfFilePath(String relativeConfFilePath) throws ScmConfigException {
         configPropsDaoFactory.setConfigPropsPath(relativeConfFilePath);
     }
+
+    public String getGlobalConfig(String confName) throws ScmConfigException {
+        Map<String, String> map = confFeignClientFactory.getClient().getGlobalConf(confName);
+        if (map == null) {
+            return null;
+        }
+        return map.get(confName);
+    }
 }
 
 class SubscribeTask extends ScmTimerTask {

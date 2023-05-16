@@ -7,6 +7,7 @@ import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.dao.FileReaderDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.model.ScmVersion;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.service.impl.ServiceUtils;
 import com.sequoiacm.exception.ScmError;
@@ -126,9 +127,9 @@ public class InternalFileController {
             @RequestParam(name = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") int majorVersion,
             @RequestParam(name = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") int minorVersion)
             throws ScmServerException {
-        BSONObject file = fileService.getFileInfoById(workspaceName, fileId, majorVersion,
+        FileMeta file = fileService.getFileInfoById(workspaceName, fileId, majorVersion,
                 minorVersion, false);
-        return file;
+        return file.toUserInfoBSON();
     }
 
     @GetMapping(value = "/files/{file_id}", params = "action=download")
@@ -153,12 +154,10 @@ public class InternalFileController {
 
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
 
-        BSONObject fileInfo = fileService.getFileInfoById(workspace_name, fileId,
+        FileMeta fileInfo = fileService.getFileInfoById(workspace_name, fileId,
                 version.getMajorVersion(), version.getMinorVersion(), false);
-        response.setHeader("Content-Type",
-                String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE)));
-        response.setHeader("Content-Disposition",
-                "attachment; filename=" + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        response.setHeader("Content-Type", fileInfo.getMimeType());
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileInfo.getName());
 
         ServletOutputStream os = RestUtils.getOutputStream(response);
 

@@ -3,8 +3,11 @@ package com.sequoiacm.s3.common;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
+import com.sequoiacm.s3.core.Bucket;
 import com.sequoiacm.s3.core.S3BasicObjectMeta;
 import com.sequoiacm.s3.core.S3ObjectMeta;
 import com.sequoiacm.s3.exception.S3ServerException;
@@ -15,10 +18,12 @@ import com.sequoiacm.s3.model.ListDeleteMarker;
 import com.sequoiacm.s3.utils.DataFormatUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class FileMappingUtil {
     public static final String CONTENT_LANGUAGE = "content_language";
     public static final String CONTENT_ENCODING = "content_encoding";
@@ -26,7 +31,8 @@ public class FileMappingUtil {
     public static final String CACHE_CONTROL = "cache_control";
     public static final String EXPIRE = "expire";
 
-    public static BSONObject buildFileInfo(S3BasicObjectMeta meta) {
+
+    public BSONObject buildFileInfo(S3BasicObjectMeta meta) {
         BasicBSONObject ret = new BasicBSONObject();
         ret.put(FieldName.FIELD_CLFILE_NAME, meta.getKey());
         ret.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, meta.getContentType());
@@ -45,48 +51,45 @@ public class FileMappingUtil {
         return ret;
     }
 
-    public static ListObjContent buildListObjContent(BSONObject content, String encodeType)
+    public ListObjContent buildListObjContent(BSONObject content, String encodeType)
             throws S3ServerException {
-        String key = BsonUtils.getStringChecked(content, FieldName.BucketFile.FILE_NAME);
-        key = S3Codec.encode(key, encodeType);
-        long updateTime = BsonUtils.getLongChecked(content, FieldName.BucketFile.FILE_UPDATE_TIME);
-        String etag = BsonUtils.getStringChecked(content, FieldName.BucketFile.FILE_ETAG);
-        String user = BsonUtils.getStringChecked(content, FieldName.BucketFile.FILE_CREATE_USER);
-        long size = BsonUtils.getLongChecked(content, FieldName.BucketFile.FILE_SIZE);
-        return new ListObjContent(key, DataFormatUtils.formatISO8601Date(updateTime), etag, size,
-                new Owner(user, user));
+        S3ObjectSysMeta meta = new S3ObjectSysMeta(content);
+        String key = S3Codec.encode(meta.key, encodeType);
+        return new ListObjContent(key, DataFormatUtils.formatISO8601Date(meta.lastModified),
+                meta.etag, meta.size, new Owner(meta.user, meta.user));
     }
 
-    public static ListObjContent buildListObjContent(S3ObjectMeta content, String encodeType)
-            throws S3ServerException {
-        String key = content.getKey();
-        key = S3Codec.encode(key, encodeType);
-        return new ListObjContent(key, DataFormatUtils.formatISO8601Date(content.getLastModified()),
-                content.getEtag(), content.getSize(),
-                new Owner(content.getUser(), content.getUser()));
-    }
-
-    public static ListDeleteMarker buildListDeleteMarker(S3ObjectMeta content, String encodeType,
+    public ListDeleteMarker buildListDeleteMarker(BSONObject content, String encodeType,
             boolean isLatest) throws S3ServerException {
-        String key = content.getKey();
-        key = S3Codec.encode(key, encodeType);
-        return new ListDeleteMarker(key, content.getVersionId(), isLatest,
-                DataFormatUtils.formatISO8601Date(content.getLastModified()), content.getUser());
+        S3ObjectSysMeta meta = new S3ObjectSysMeta(content);
+        String key = S3Codec.encode(meta.key, encodeType);
+        return new ListDeleteMarker(key, meta.versionId, isLatest,
+                DataFormatUtils.formatISO8601Date(meta.lastModified), meta.user);
     }
 
-    public static ListObjVersion buildListObjVersion(S3ObjectMeta content, String encodeType,
+    public ListObjVersion buildListObjVersion(BSONObject content, String encodeType,
             boolean isLatest) throws S3ServerException {
-        String key = content.getKey();
-        key = S3Codec.encode(key, encodeType);
-        return new ListObjVersion(key, content.getVersionId(), isLatest,
-                DataFormatUtils.formatISO8601Date(content.getLastModified()), content.getUser(),
-                content.getEtag(), content.getSize());
+        S3ObjectSysMeta meta = new S3ObjectSysMeta(content);
+        String key = S3Codec.encode(meta.key, encodeType);
+        return new ListObjVersion(key, meta.versionId, isLatest,
+                DataFormatUtils.formatISO8601Date(meta.lastModified), meta.user, meta.etag,
+                meta.size);
     }
 
-    public static S3ObjectMeta buildS3ObjectMeta(String bucket, BSONObject fileInfo) {
+    public String mapS3VersionId(int fileMajorVersion, int fileMinorVersion) {
+        if (fileMinorVersion == CommonDefine.File.NULL_VERSION_MINOR
+                && fileMajorVersion == CommonDefine.File.NULL_VERSION_MAJOR) {
+            return "null";
+        }
+        return String.format("%d.%d", fileMajorVersion, fileMinorVersion);
+    }
+
+    public S3ObjectMeta buildS3ObjectMeta(Bucket bucket, FileMeta fileMeta)
+            throws ScmServerException {
+        BSONObject fileInfo = fileMeta.toUserInfoBSON();
         S3ObjectMeta ret = new S3ObjectMeta();
         ret.setUser(BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_INNER_USER));
-        ret.setBucket(bucket);
+        ret.setBucket(bucket.getBucketName());
         ret.setKey(BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_NAME));
         if (ScmFileVersionHelper.isSpecifiedVersion(fileInfo, CommonDefine.File.NULL_VERSION_MAJOR,
                 CommonDefine.File.NULL_VERSION_MINOR)) {
@@ -109,7 +112,7 @@ public class FileMappingUtil {
             }
         }
         ret.setMetaList(metalist);
-        
+
         Map<String, String> tagging = new HashMap<>();
         BSONObject customTag = BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG);
         if (customTag != null) {
@@ -143,5 +146,31 @@ public class FileMappingUtil {
         ret.setLastModified(BsonUtils
                 .getNumberChecked(fileInfo, FieldName.FIELD_CLFILE_INNER_UPDATE_TIME).longValue());
         return ret;
+    }
+
+    private class S3ObjectSysMeta {
+        private String etag;
+        private String versionId;
+        private long lastModified;
+        private long size;
+        private String user;
+        private String key;
+
+        private S3ObjectSysMeta(BSONObject fileRecord) {
+            key = BsonUtils.getStringChecked(fileRecord, FieldName.BucketFile.FILE_NAME);
+            lastModified = BsonUtils.getLongChecked(fileRecord,
+                    FieldName.BucketFile.FILE_UPDATE_TIME);
+            etag = BsonUtils.getString(fileRecord, FieldName.BucketFile.FILE_ETAG);
+            user = BsonUtils.getStringChecked(fileRecord, FieldName.BucketFile.FILE_CREATE_USER);
+            size = BsonUtils.getLongChecked(fileRecord, FieldName.BucketFile.FILE_SIZE);
+            if (ScmFileVersionHelper.isSpecifiedVersion(fileRecord,
+                    CommonDefine.File.NULL_VERSION_MAJOR, CommonDefine.File.NULL_VERSION_MINOR)) {
+                versionId = "null";
+            }
+            else {
+                versionId = fileRecord.get(FieldName.FIELD_CLFILE_MAJOR_VERSION) + "."
+                        + fileRecord.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
+            }
+        }
     }
 }

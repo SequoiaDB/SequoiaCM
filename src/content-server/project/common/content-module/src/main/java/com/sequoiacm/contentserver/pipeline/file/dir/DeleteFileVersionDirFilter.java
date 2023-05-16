@@ -10,6 +10,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.metasource.MetaRelAccessor;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -46,13 +47,14 @@ public class DeleteFileVersionDirFilter implements Filter<DeleteFileVersionConte
             }
 
             BSONObject relUpdater = ScmMetaSourceHelper.createRelUpdatorByFileUpdator(
-                    context.getLatestVersionAfterDelete().toBSONObject());
+                    context.getLatestVersionAfterDelete().toRecordBSON());
             MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                     .getMetaSource()
                     .getRelAccessor(wsInfo.getName(), context.getTransactionContext());
             relAccessor.updateRel(context.getFileId(),
                     context.getLatestVersionAfterDelete().getDirId(),
-                    context.getLatestVersionAfterDelete().getName(), relUpdater);
+                    context.getLatestVersionAfterDelete().getName(),
+                    new BasicBSONObject("$set", relUpdater));
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),

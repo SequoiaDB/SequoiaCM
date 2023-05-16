@@ -38,4 +38,6 @@ public interface SysWorkspaceTableDao extends TableDao {
 
     BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject versionSet)
             throws ScmConfigException;
+
+    BSONObject updateByNewAttribute(BSONObject matcher, BSONObject newInfo, BSONObject versionSet) throws ScmConfigException;
 }

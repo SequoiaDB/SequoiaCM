@@ -180,6 +180,13 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
         return updateAndReturnNew(matcher, updater);
     }
 
+    @Override
+    public BSONObject updateByNewAttribute(BSONObject matcher, BSONObject newInfo,
+            BSONObject versionSet) throws ScmConfigException {
+        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, newInfo);
+        return updateAndReturnNew(matcher, updater);
+    }
+
     private BSONObject combineUpdater(BSONObject versionUpdate, String operation, BSONObject value){
         // 样例1：versionUpdate：{$set:{version:2}}   operation: $set   value: {preferred:"rootsite"}
         // 合并后：{$set:{version:2, preferred:"rootsite"}}

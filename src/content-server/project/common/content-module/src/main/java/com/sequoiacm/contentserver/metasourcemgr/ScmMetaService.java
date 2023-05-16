@@ -24,7 +24,6 @@ import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.metasource.*;
 import com.sequoiacm.metasource.config.MetaSourceLocation;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
-import com.sequoiacm.metasource.sequoiadb.SequoiadbHelper;
 import com.sequoiadb.base.DBQuery;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -265,64 +264,6 @@ public class ScmMetaService {
         }
     }
 
-    public void updateFileInfo(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, BSONObject fileUpdator) throws ScmServerException {
-        updateFileInfo(wsInfo, fileId, majorVersion, minorVersion, fileUpdator, null);
-    }
-
-    public boolean updateFileExternalData(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, BSONObject externalData, TransactionContext context)
-            throws ScmServerException {
-        try {
-            BasicBSONObject matcher = new BasicBSONObject();
-            SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
-            matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
-            matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
-
-            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
-                    wsInfo.getName(), context);
-            BSONObject newFileInfo = fileAccessor.updateFileExternalData(matcher, externalData);
-            if (newFileInfo != null) {
-                if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
-                    return true;
-                }
-                BSONObject oldRec = fileAccessor.updateFileInfo(fileId, majorVersion, minorVersion,
-                        new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
-                                externalData));
-                if (oldRec != null) {
-                    return true;
-                }
-            }
-            MetaFileHistoryAccessor historyFileAccessor = metasource
-                    .getFileHistoryAccessor(wsInfo.getMetaLocation(), wsInfo.getName(), context);
-            newFileInfo = historyFileAccessor.updateFileExternalData(matcher, externalData);
-            if (newFileInfo != null) {
-                if (newFileInfo.get(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA) != null) {
-                    return true;
-                }
-                BSONObject newRec = historyFileAccessor.updateFileInfo(fileId, majorVersion,
-                        minorVersion, new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA,
-                                externalData));
-                if (newRec != null) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(),
-                    "update fileInfo failed:fileId=" + fileId + ",majorVersion=" + majorVersion
-                            + ",minorVersion=" + minorVersion + ", externalData=" + externalData,
-                    e);
-        }
-        catch (Exception e) {
-            throw new ScmSystemException(
-                    "update fileInfo failed:fileId=" + fileId + ",majorVersion=" + majorVersion
-                            + ",minorVersion=" + minorVersion + ", externalData=" + externalData,
-                    e);
-        }
-    }
-
     public void updateFileExternalData(ScmWorkspaceInfo wsInfo, BSONObject matcher,
             BSONObject externalData) throws ScmServerException {
         try {
@@ -343,70 +284,6 @@ public class ScmMetaService {
         catch (Exception e) {
             throw new ScmSystemException("update file external data failed:matcher=" + matcher
                     + ", extrenalData=" + externalData, e);
-        }
-    }
-
-    public void updateFileInfo(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, BSONObject fileUpdator, BSONObject fileMatcher)
-            throws ScmServerException {
-        TransactionContext context = null;
-        try {
-            context = createTransactionContext();
-            beginTransaction(context);
-            boolean isUpdateSuccess = updateFileInfo(wsInfo, fileId, majorVersion, minorVersion,
-                    fileUpdator, fileMatcher, context);
-            if (isUpdateSuccess) {
-                commitTransaction(context);
-            }
-            else {
-                rollbackTransaction(context);
-            }
-        }
-        catch (ScmServerException e) {
-            rollbackTransaction(context);
-            throw e;
-        }
-        catch (Exception e) {
-            rollbackTransaction(context);
-            throw new ScmSystemException("update fileInfo failed:fileId=" + fileId
-                    + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion, e);
-        }
-        finally {
-            closeTransactionContext(context);
-        }
-    }
-
-    private boolean updateFileInfo(ScmWorkspaceInfo wsInfo, String fileId, int majorVersion,
-            int minorVersion, BSONObject fileUpdator, BSONObject fileMatcher,
-            TransactionContext context) throws ScmServerException {
-        try {
-            MetaFileAccessor fileAccessor = metasource.getFileAccessor(wsInfo.getMetaLocation(),
-                    wsInfo.getName(), context);
-
-            BSONObject oldFileRecord = null;
-            if (fileMatcher != null) {
-                oldFileRecord = fileAccessor.updateFileInfo(fileId, majorVersion, minorVersion,
-                        fileUpdator, fileMatcher);
-            }
-            else {
-                oldFileRecord = fileAccessor.updateFileInfo(fileId, majorVersion, minorVersion,
-                        fileUpdator);
-            }
-
-            if (oldFileRecord == null) {
-                return false;
-            }
-            ScmFileOperateUtils.updateFileRelForUpdateFile(wsInfo, fileId, oldFileRecord,
-                    fileUpdator, context);
-            return true;
-        }
-        catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(), "update fileInfo failed:fileId=" + fileId
-                    + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion, e);
-        }
-        catch (Exception e) {
-            throw new ScmSystemException("update fileInfo failed:fileId=" + fileId
-                    + ",majorVersion=" + majorVersion + ",minorVersion=" + minorVersion, e);
         }
     }
 

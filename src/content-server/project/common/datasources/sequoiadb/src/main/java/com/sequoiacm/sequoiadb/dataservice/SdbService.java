@@ -1,7 +1,6 @@
 package com.sequoiacm.sequoiadb.dataservice;
 
-import com.sequoiacm.infrastructure.sdbversion.SdbVersionChecker;
-import com.sequoiacm.infrastructure.sdbversion.SdbVersionRange;
+import com.sequoiacm.infrastructure.sdbversion.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,6 @@ public abstract class SdbService extends ScmService {
     protected DataSourceWrapper sd = null;
     protected ConfigOptions connConf = null;
     protected DatasourceOptions datasourceConf = null;
-    protected SdbVersionChecker sdbVersionChecker = null;
 
     public SdbService(int siteId, ScmSiteUrl siteUrl) throws SequoiadbException {
         super(siteId, siteUrl);
@@ -36,7 +34,6 @@ public abstract class SdbService extends ScmService {
         SdbDatasourceConfig.init(sdbSiteUrl.getSdbConfig());
         sd = new DataSourceWrapper(siteId, siteUrl.getUrls(), siteUrl.getUser(), auth.getPassword(),
                 connConf, datasourceConf);
-        sdbVersionChecker = new SdbVersionChecker(sd.dataSource);
     }
 
     public abstract void _clear();
@@ -79,8 +76,8 @@ public abstract class SdbService extends ScmService {
         }
     }
 
-    public boolean isCompatible(List<SdbVersionRange> versionRanges) {
-        return sdbVersionChecker.isCompatible(versionRanges);
+    public boolean isCompatible(List<VersionRange> versionRanges) throws SequoiadbException {
+        return sd.getVersion().inRange(versionRanges);
     }
 
     @Override
@@ -99,7 +96,6 @@ public abstract class SdbService extends ScmService {
 
         connConf = null;
         datasourceConf = null;
-        sdbVersionChecker = null;
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,9 @@ public class FileContentUpdateDao {
     private BucketInfoManager bucketInfoMgr;
     @Autowired
     private FileAddVersionDao fileAddVersionDao;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
 
     public FileMeta updateContent(String user, String wsName, String fileId, int clientMajorVersion,
             int clientMinorVersion, ScmUpdateContentOption option, String breakpointFileName)
@@ -236,8 +240,11 @@ public class FileContentUpdateDao {
                 throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                         "file not exist: ws=" + ws.getName() + ", fileId=" + fileId);
             }
+            FileMeta latestVersionFileMetaInLock = fileMetaFactory
+                    .createFileMetaByRecord(ws.getName(), latestFileVersionInLock);
 
-            FileMeta newVersion = createNewVersionMeta(ws.getName(), user, latestFileVersionInLock,
+            FileMeta newVersion = createNewVersionMeta(ws.getName(), user,
+                    latestVersionFileMetaInLock,
                     dataId, siteId, dataSize, createTime, md5, wsVersion, tableName);
 
             TransactionCallback transactionCallback = null;
@@ -247,16 +254,16 @@ public class FileContentUpdateDao {
                     public void beforeTransactionCommit(TransactionContext context)
                             throws ScmServerException, ScmMetasourceException {
                         MetaBreakpointFileAccessor breakpointAccessor = ScmContentModule
-                                .getInstance()
-                                .getMetaService().getMetaSource()
+                                .getInstance().getMetaService().getMetaSource()
                                 .getBreakpointFileAccessor(ws.getName(), context);
                         breakpointAccessor.delete(breakFileName);
                     }
                 };
             }
-            ret = fileAddVersionDao
-                    .addVersion(FileAddVersionDao.Context.lockInCaller(ws.getName(), newVersion,
-                            FileMeta.fromRecord(latestFileVersionInLock), transactionCallback));
+            ret = fileAddVersionDao.addVersion(FileAddVersionDao.Context.lockInCaller(ws.getName(),
+                    newVersion,
+                    fileMetaFactory.createFileMetaByRecord(ws.getName(), latestFileVersionInLock),
+                    transactionCallback));
         }
         finally {
             writeLock.unlock();
@@ -267,11 +274,13 @@ public class FileContentUpdateDao {
 
     }
 
-    private FileMeta createNewVersionMeta(String ws, String user, BSONObject currentLatestVersion,
+    private FileMeta createNewVersionMeta(String ws, String user, FileMeta currentLatestVersion,
             String dataId, int siteId, long size, long createTime, String md5, int wsVersion,
             String tableName) throws ScmServerException {
         // currentLatestVersion 来自表中存在的文件元数据，无需检查 classProperties （同时有可能该文件的元数据模型已被删除，若检查可能会不通过）
-        FileMeta fileMeta = FileMeta.fromUser(ws, currentLatestVersion, user, false);
+        FileMeta fileMeta = fileMetaFactory.createFileMetaByUserInfo(ws,
+                currentLatestVersion.toUserInfoBSON(), user,
+                false);
         fileMeta.resetDataInfo(dataId, createTime, ENDataType.Normal.getValue(), size, md5, siteId,
                 wsVersion, tableName);
         return fileMeta;

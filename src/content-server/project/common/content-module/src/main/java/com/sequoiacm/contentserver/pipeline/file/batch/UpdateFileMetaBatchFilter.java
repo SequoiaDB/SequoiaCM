@@ -3,9 +3,9 @@ package com.sequoiacm.contentserver.pipeline.file.batch;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaDefaultUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaContext;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
@@ -24,7 +24,7 @@ public class UpdateFileMetaBatchFilter implements Filter<UpdateFileMetaContext> 
 
         if (currentBatchId == null || currentBatchId.isEmpty()) {
             // 文件已经不处于批次下，检查是否有updater想要将文件关联至某个批次
-            FileMetaUpdater batchIdUpdater = context
+            FileMetaDefaultUpdater batchIdUpdater = (FileMetaDefaultUpdater) context
                     .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID);
             if (batchIdUpdater == null) {
                 return PipelineResult.success();
@@ -38,7 +38,7 @@ public class UpdateFileMetaBatchFilter implements Filter<UpdateFileMetaContext> 
         }
 
         // 文件已经处于批次下，检查是否有 updater（attachBatchId==null） 想要将文件取消关联（但是不允许关联到新的批次）
-        FileMetaUpdater batchIdUpdater = context
+        FileMetaDefaultUpdater batchIdUpdater = (FileMetaDefaultUpdater) context
                 .getFirstFileMetaUpdater(FieldName.FIELD_CLFILE_BATCH_ID);
         if (batchIdUpdater == null) {
             return PipelineResult.success();

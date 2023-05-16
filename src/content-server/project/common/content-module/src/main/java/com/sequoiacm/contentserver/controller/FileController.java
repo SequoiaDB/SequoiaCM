@@ -11,11 +11,12 @@ import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ClientUploadConf;
 import com.sequoiacm.contentserver.model.FileFieldExtraDefine;
-import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.model.UpdaterKeyDefine;
 import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.service.IFileService;
@@ -72,6 +73,9 @@ public class FileController {
     private BucketInfoManager bucketInfoManager;
 
     @Autowired
+    private FileMetaFactory fileMetaFactory;
+
+    @Autowired
     private ScmAudit audit;
 
     @Autowired
@@ -91,7 +95,7 @@ public class FileController {
             throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
-        BSONObject file;
+        FileMeta file;
         if (type.equals("path")) {
             String ignoreStr = "/api/v1/files/path";
             String filePath = RestUtils.getDecodePath(request.getRequestURI(), ignoreStr.length());
@@ -109,18 +113,7 @@ public class FileController {
             throw new ScmInvalidArgumentException("unknown type:type=" + type);
         }
 
-        file.removeField("_id");
-        Number bucketId = BsonUtils.getNumber(file, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
-        if (bucketId != null) {
-            ScmBucket bucket = bucketInfoManager.getBucketById(bucketId.longValue());
-            if (bucket != null) {
-                file.put(CommonDefine.RestArg.BUCKET_NAME, bucket.getName());
-            }
-            else {
-                file.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null);
-            }
-        }
-        String fileInfo = RestUtils.urlEncode(file.toString());
+        String fileInfo = RestUtils.urlEncode(file.toUserInfoBSON().toString());
         response.setHeader(CommonDefine.RestArg.FILE_RESP_FILE_INFO, fileInfo);
         return ResponseEntity.ok("");
     }
@@ -165,7 +158,7 @@ public class FileController {
 
         audit.info(ScmAuditType.UPDATE_FILE, auth, workspaceName, 0,
                 "update file by fileId=" + fileId);
-        String fileInfoUtf8 = RestUtils.urlEncode(updatedFileInfo.toBSONObject().toString());
+        String fileInfoUtf8 = RestUtils.urlEncode(updatedFileInfo.toUserInfoBSON().toString());
         response.setHeader(CommonDefine.RestArg.FILE_INFO, fileInfoUtf8);
     }
 
@@ -227,7 +220,8 @@ public class FileController {
         String username = auth.getName();
         try {
             logger.debug("file description:{}", description);
-            FileMeta fileMeta = FileMeta.fromUser(workspaceName, description, user.getUsername());
+            FileMeta fileMeta = fileMetaFactory.createFileMetaByUserInfo(workspaceName, description,
+                    user.getUsername(), true);
 
             ClientUploadConf clientUploadConf = new ClientUploadConf(uploadConfig);
 
@@ -257,13 +251,13 @@ public class FileController {
                         fileUploadConf);
             }
 
-            BSONObject createdFileBson = createdFile.toBSONObject();
+            BSONObject createdFileBson = createdFile.toUserInfoBSON();
             BSONObject body = new BasicBSONObject(CommonDefine.RestArg.FILE_RESP_FILE_INFO,
                     createdFileBson);
             ResponseEntity.BodyBuilder respBuilder = ResponseEntity.ok();
             if (ScmStatisticsType.FILE_UPLOAD.equals(statisticsType)) {
                 ScmStatisticsFileMeta staticsExtra = ScmFileOperateUtils.createStatisticsFileMeta(
-                        createdFileBson, workspaceName, username, -1, breakpointFileName);
+                        createdFile, workspaceName, username, -1, breakpointFileName);
                 respBuilder.header(ScmStatisticsDefine.STATISTICS_EXTRA_HEADER,
                         staticsExtra.toJSON());
             }
@@ -325,13 +319,11 @@ public class FileController {
 
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
 
-        BSONObject fileInfo = fileService.getFileInfoById(user, workspace_name, fileId,
+        FileMeta fileInfo = fileService.getFileInfoById(user, workspace_name, fileId,
                 version.getMajorVersion(), version.getMinorVersion(), false);
 
-        response.setHeader("Content-Type",
-                String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_FILE_MIME_TYPE)));
-        response.setHeader("Content-Disposition",
-                "attachment; filename=" + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        response.setHeader("Content-Type", String.valueOf(fileInfo.getMimeType()));
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileInfo.getName());
 
         ServletOutputStream os = RestUtils.getOutputStream(response);
 
@@ -380,7 +372,7 @@ public class FileController {
             }
             try {
                 FlowRecorder.getInstance().addDownloadSize(workspace_name,
-                        CommonHelper.toLongValue(fileInfo.get(FieldName.FIELD_CLFILE_FILE_SIZE)));
+                        CommonHelper.toLongValue(fileInfo.getSize()));
             }
             catch (Exception e) {
                 logger.error("add flow record failed", e);
@@ -435,10 +427,9 @@ public class FileController {
         ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
         filePath = ScmSystemUtils.formatFilePath(filePath);
-        BSONObject fileInfo = dirService.getFileInfoByPath(user, workspaceName, filePath,
+        FileMeta fileInfo = dirService.getFileInfoByPath(user, workspaceName, filePath,
                 majorVersion, minorVersion, true);
-        fileService.deleteFile(sessionId, userDetail, user, workspaceName,
-                BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_ID),
+        fileService.deleteFile(sessionId, userDetail, user, workspaceName, fileInfo.getId(),
                 version.getMajorVersion(), version.getMinorVersion(), isPhysical);
     }
 
@@ -511,7 +502,7 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             Authentication auth) throws ScmServerException {
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
-        BSONObject file = fileService.getFileInfoById(workspaceName, fileId,
+        FileMeta file = fileService.getFileInfoById(workspaceName, fileId,
                 version.getMajorVersion(), version.getMinorVersion(), false);
         ScmUser user = (ScmUser) auth.getPrincipal();
 
@@ -554,14 +545,7 @@ public class FileController {
             }
         }
 
-        // check file customTag
-        if (objFields.contains(FieldName.FIELD_CLFILE_CUSTOM_TAG)) {
-            Map<String, String> customTag = BsonUtils
-                    .getBSON(updateInfoObj, FieldName.FIELD_CLFILE_CUSTOM_TAG).toMap();
-            ScmArgChecker.File.checkFileTag(customTag);
-        }
-
-        FileFieldExtraDefine.checkAvailableFields(objFields);
+        UpdaterKeyDefine.checkAvailableFields(objFields);
         FileFieldExtraDefine.checkStringFields(updateInfoObj);
 
         // value type is bson, check the format
@@ -575,7 +559,23 @@ public class FileController {
         fieldName = FieldName.FIELD_CLFILE_TAGS;
         if (updateInfoObj.containsField(fieldName)) {
             BSONObject tagsValue = (BSONObject) updateInfoObj.get(fieldName);
-            updateInfoObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue));
+            updateInfoObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTagsAsBson(tagsValue));
+        }
+
+        BSONObject correctCustomTag = checkAndCorrectCustomTag(
+                updateInfoObj.get(FieldName.FIELD_CLFILE_CUSTOM_TAG));
+        if (correctCustomTag != null) {
+            updateInfoObj.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, correctCustomTag);
+        }
+        correctCustomTag = checkAddOrRemoveCustomTag(
+                updateInfoObj.get(UpdaterKeyDefine.ADD_CUSTOM_TAG));
+        if (correctCustomTag != null) {
+            updateInfoObj.put(UpdaterKeyDefine.ADD_CUSTOM_TAG, correctCustomTag);
+        }
+        correctCustomTag = checkAddOrRemoveCustomTag(
+                updateInfoObj.get(UpdaterKeyDefine.REMOVE_CUSTOM_TAG));
+        if (correctCustomTag != null) {
+            updateInfoObj.put(UpdaterKeyDefine.REMOVE_CUSTOM_TAG, correctCustomTag);
         }
 
         ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckExist(wsName);
@@ -596,5 +596,32 @@ public class FileController {
             MetaDataManager.getInstence().checkUpdateProperties(ws.getName(), updateInfoObj,
                     classIdKey, propertiesKey, classId);
         }
+    }
+
+    private BSONObject checkAndCorrectCustomTag(Object obj) throws ScmServerException {
+        if (obj == null) {
+            return null;
+        }
+        if (!(obj instanceof BasicBSONObject)) {
+            throw new ScmInvalidArgumentException(
+                    "invalid argument, custom tag must be key value format: " + obj);
+        }
+        Map<String, String> map = ScmArgumentChecker.checkAndCorrectCustomTag((BSONObject) obj);
+        BasicBSONObject ret = new BasicBSONObject();
+        ret.putAll(map);
+        return ret;
+    }
+
+    private BSONObject checkAddOrRemoveCustomTag(Object obj) throws ScmServerException {
+        BSONObject ret = checkAndCorrectCustomTag(obj);
+        if (ret == null) {
+            return ret;
+        }
+
+        if (ret.keySet().size() != 1) {
+            throw new ScmInvalidArgumentException(
+                    "invalid argument, custom tag only support one key value: " + obj);
+        }
+        return ret;
     }
 }

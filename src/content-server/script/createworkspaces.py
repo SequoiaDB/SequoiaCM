@@ -77,7 +77,11 @@ def create_workspace(ws_conf, url, user, password, passwordFile):
     if 'site_cache_strategy' in ws_conf:
         site_cache_strategy = ws_conf['site_cache_strategy']
         cmd += " --site-cache-strategy " + site_cache_strategy
-    
+    if 'enable_tag_retrieval' in ws_conf:
+        enable_tag_retrieval = ws_conf['enable_tag_retrieval']
+        if enable_tag_retrieval:
+            cmd += " --enable-tag-retrieval"
+
     cmd += ' --user ' + user
     if password is not None:
         cmd += ' --password ' + password

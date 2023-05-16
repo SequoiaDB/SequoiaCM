@@ -1,5 +1,8 @@
 package com.sequoiacm.common;
 
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
+
 public class FieldName {
     public static final String FIELD_ALL_OBJECTID = "_id"; // objectid
 
@@ -65,6 +68,8 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_DATA_OPTIONS = "data_options";
     public static final String FIELD_CLWORKSPACE_META_OPTIONS = "meta_options";
     public static final String FIELD_CLWORKSPACE_EXT_DATA = "external_data";
+    public static final String FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK = "tag_index_task_id";
+    public static final String FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK_ERROR = "tag_index_task_error";
     public static final String FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE = "batch_sharding_type";
     public static final String FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX = "batch_id_time_regex";
     public static final String FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN = "batch_id_time_pattern";
@@ -73,10 +78,10 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_PREFERRED = "preferred";
     public static final String FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY = "site_cache_strategy";
     public static final String FIELD_CLWORKSPACE_CONTAINER_PREFIX = "container_prefix"; // only
-    public static final String FIELD_CLWORKSPACE_BUCKET_NAME = "bucket_name";           // in
-                                                                                        // s3
-                                                                                        // location
-                                                                                        // now
+    public static final String FIELD_CLWORKSPACE_BUCKET_NAME = "bucket_name"; // in
+                                                                              // s3
+                                                                              // location
+                                                                              // now
     public static final String FIELD_CLWORKSPACE_DATA_PATH = "data_path"; // sftp
     public static final String FIELD_CLWORKSPACE_DESCRIPTION = "description";
     public static final String FIELD_CLWORKSPACE_CREATEUSER = "create_user";
@@ -103,6 +108,13 @@ public class FieldName {
     public static final String FIELD_CLWORKSPACE_HDFS_DFS_ROOT_PATH = "hdfs_file_root_path";
 
     public static final String FIELD_CLWORKSPACE_EXTRA_META_CS = "extra_meta_cs";
+
+    public static final String FIELD_CLWORKSPACE_TAG_LIB_META_OPTION = "tag_lib_meta_option";
+    public static final String FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN = "tag_lib_domain";
+
+    public static final String FIELD_CLWORKSPACE_TAG_LIB_TABLE = "tag_lib_table";
+    public static final String FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS = "tag_retrieval_status";
+    public static final String FIELD_CLWORKSPACE_TAG_UPGRADING = "tag_upgrading";
 
     // CL_USER
     public static final String FIELD_CLUSER_USERNAME = "user"; // string, user1
@@ -562,7 +574,7 @@ public class FieldName {
         public static final String FILE_VERSION_SERIAL = FieldName.FIELD_CLFILE_VERSION_SERIAL;
         public static final String FILE_DELETE_MARKER = FieldName.FIELD_CLFILE_DELETE_MARKER;
     }
-    
+
     public static final class TraceSpan {
         public static final String TRACE_ID = "traceId";
         public static final String SPAN_ID = "id";
@@ -591,7 +603,7 @@ public class FieldName {
         public static final String TABLE_NAME = "tableName";
     }
 
-    public static final class LifeCycleConfig{
+    public static final class LifeCycleConfig {
         public static final String FIELD_STAGE_TAG_CONFIG = "stage_tag";
         public static final String FIELD_TRANSITION_CONFIG = "transition";
         public static final String FIELD_STAGE_TAG_NAME = "name";
@@ -639,6 +651,46 @@ public class FieldName {
         public static final String FIELD_MAX_STAY_TIME = "max_stay_time";
         public static final String FIELD_LIFE_CYCLE_CONFIG = "life_cycle_config";
 
+    }
+
+    public static class GlobalConfig {
+        public static final String FIELD_CONFIG_NAME = "config_name";
+        public static final String FIELD_CONFIG_VALUE = "config_value";
+    }
+
+    public static class TagLib {
+        public static final String TAG_ID = "tag_id";
+        public static final String TAG_TYPE = "tag_type";
+
+        public static final String TAG = "tag";
+        public static final String CUSTOM_TAG = "custom_tag";
+        public static final String CUSTOM_TAG_TAG_KEY = "key";
+        public static final String CUSTOM_TAG_TAG_VALUE = "value";
+
+        public static BSONObject tagLibFulltextIdxDef() {
+            BSONObject indexDef = new BasicBSONObject();
+            indexDef.put(FieldName.TagLib.TAG_ID, "text");
+            indexDef.put(FieldName.TagLib.TAG_TYPE, "text");
+            indexDef.put(FieldName.TagLib.TAG, "text");
+            indexDef.put(FieldName.TagLib.CUSTOM_TAG, "text");
+            return indexDef;
+        }
+
+        public static BSONObject tagLibFulltextIdxAttr() {
+            BSONObject idxAttr = new BasicBSONObject();
+            BSONObject mappings = new BasicBSONObject();
+            BSONObject fields = new BasicBSONObject();
+            fields.put(FieldName.TagLib.TAG_ID, new BasicBSONObject("Index", false));
+            fields.put(FieldName.TagLib.TAG_TYPE, new BasicBSONObject("Index", false));
+            fields.put(FieldName.TagLib.TAG, new BasicBSONObject("Type", "keyword"));
+            fields.put(FieldName.TagLib.CUSTOM_TAG + "." + FieldName.TagLib.CUSTOM_TAG_TAG_KEY,
+                    new BasicBSONObject("Type", "keyword"));
+            fields.put(FieldName.TagLib.CUSTOM_TAG + "." + FieldName.TagLib.CUSTOM_TAG_TAG_VALUE,
+                    new BasicBSONObject("Type", "keyword"));
+            mappings.put("Fields", fields);
+            idxAttr.put("Mappings", mappings);
+            return idxAttr;
+        }
     }
 
     public static final class Quota {

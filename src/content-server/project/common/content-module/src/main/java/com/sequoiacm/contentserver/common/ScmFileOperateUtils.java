@@ -10,10 +10,9 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmBucket;
-import com.sequoiacm.contentserver.model.ScmDataInfoDetail;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.site.ScmContentModule;
-import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
@@ -89,21 +88,6 @@ public class ScmFileOperateUtils {
             MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
                     .getMetaSource().getRelAccessor(wsInfo.getName(), context);
             relAccessor.insert(relInsertor);
-        }
-    }
-
-    public static void updateFileRelForUpdateFile(ScmWorkspaceInfo wsInfo, String fileId,
-            BSONObject oldFileRecord, BSONObject fileUpdater, TransactionContext context)
-            throws ScmServerException, ScmMetasourceException {
-        if (wsInfo.isEnableDirectory()) {
-            BSONObject relUpdater = ScmMetaSourceHelper.createRelUpdatorByFileUpdator(fileUpdater);
-            MetaRelAccessor relAccessor = ScmContentModule.getInstance().getMetaService()
-                    .getMetaSource().getRelAccessor(wsInfo.getName(), context);
-            String oldDirId = BsonUtils.getStringChecked(oldFileRecord,
-                    FieldName.FIELD_CLFILE_DIRECTORY_ID);
-            String oldFileName = BsonUtils.getStringChecked(oldFileRecord,
-                    FieldName.FIELD_CLFILE_NAME);
-            relAccessor.updateRel(fileId, oldDirId, oldFileName, relUpdater);
         }
     }
 
@@ -266,22 +250,17 @@ public class ScmFileOperateUtils {
 
     }
 
-    public static  ScmStatisticsFileMeta createStatisticsFileMeta(BSONObject fileInfo, String workspace,
-                                                          String userName, long trafficSize, String breakpointFileName) {
+    public static ScmStatisticsFileMeta createStatisticsFileMeta(FileMeta fileInfo,
+            String workspace, String userName, long trafficSize, String breakpointFileName) {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         String mySiteName = contentModule.getSiteInfo(contentModule.getLocalSite()).getName();
-        String mimeType = com.sequoiacm.infrastructure.common.BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
-        String batchId = com.sequoiacm.infrastructure.common.BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_BATCH_ID);
-        String versionStr = com.sequoiacm.infrastructure.common.BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MAJOR_VERSION)
-                + "." + com.sequoiacm.infrastructure.common.BsonUtils.getInteger(fileInfo, FieldName.FIELD_CLFILE_MINOR_VERSION);
-        long size = com.sequoiacm.infrastructure.common.BsonUtils.getLongChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_SIZE);
-        long dataCreateTime = com.sequoiacm.infrastructure.common.BsonUtils.getLongChecked(fileInfo,
-                FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
+        String versionStr = fileInfo.getMajorVersion() + "." + fileInfo.getMinorVersion();
         if (trafficSize <= -1) {
-            trafficSize = size;
+            trafficSize = fileInfo.getSize();
         }
-        return new ScmStatisticsFileMeta(workspace, mySiteName, userName, mimeType, versionStr,
-                batchId, size, trafficSize, dataCreateTime, breakpointFileName);
+        return new ScmStatisticsFileMeta(workspace, mySiteName, userName, fileInfo.getMimeType(),
+                versionStr, fileInfo.getBatchId(), fileInfo.getSize(), trafficSize,
+                fileInfo.getDataCreateTime(), breakpointFileName);
 
     }
 

@@ -47,6 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/img/**")
         .permitAll()
         .antMatchers("/**/api/**/config-props").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
+                .antMatchers("/**/api/**/globalConfig").hasRole(ScmRole.AUTH_ADMIN_SHORT_NAME)
         .anyRequest().permitAll();
 
         httpSecurity.addFilterBefore(scmAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

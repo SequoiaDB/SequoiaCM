@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.bson.BSONObject;
 
-import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
-
 public interface MetaAccessor {
     public void insert(BSONObject insertor) throws ScmMetasourceException;
 
@@ -61,4 +59,15 @@ public interface MetaAccessor {
     // ScmInnerException;
     // public boolean updateAndCheck(BSONObject matcher, BSONObject updator)
     // throws ScmInnerException;
+
+    MetaCursor aggregate(List<BSONObject> objs) throws ScmMetasourceException;
+
+    // 忽略索引冲突批量插入记录，若全部插入成功返回 true，存在插入冲突返回 false
+    boolean bulkInsert(List<BSONObject> inserters) throws ScmMetasourceException;
+
+    // 异步建立索引，返回taskID，返回 null 表示索引已建立完成
+    Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
+            BSONObject option) throws ScmMetasourceException;
+
+    void dropIndex(String idxName) throws ScmMetasourceException;
 }

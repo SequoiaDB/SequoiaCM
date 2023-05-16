@@ -1,10 +1,8 @@
 package com.sequoiacm.contentserver.common;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.sequoiacm.common.ScmArgChecker;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -33,7 +31,14 @@ public class ScmArgumentChecker {
         return classValue;
     }
 
-    public static Set<Object> checkAndCorrectTags(BSONObject tagsValue)
+    public static BasicBSONList checkAndCorrectTagsAsBson(BSONObject tagsValue)
+            throws ScmServerException {
+        BasicBSONList ret = new BasicBSONList();
+        ret.addAll(checkAndCorrectTagsAsSet(tagsValue));
+        return ret;
+    }
+
+    public static Set<String> checkAndCorrectTagsAsSet(BSONObject tagsValue)
             throws ScmServerException {
         if (null == tagsValue) {
             return new HashSet<>();
@@ -42,11 +47,42 @@ public class ScmArgumentChecker {
             throw new ScmInvalidArgumentException("tag is not json list format: " + tagsValue);
         }
         else {
+            HashSet<String> tags = new HashSet<>();
             BasicBSONList tagsList = (BasicBSONList) tagsValue;
-            HashSet<Object> tags = new HashSet<Object>(tagsList);
-            tags.remove(null);
-            tags.remove("");
+            for (Object tag : tagsList) {
+                if (!(tag instanceof String)) {
+                    throw new ScmInvalidArgumentException("tag is not string format: " + tag);
+                }
+                if (!Objects.equals("", tag)) {
+                    tags.add((String) tag);
+                }
+            }
             return tags;
         }
     }
+
+    public static Map<String, String> checkAndCorrectCustomTag(BSONObject customTagValue)
+            throws ScmServerException {
+        if (customTagValue == null) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, String> ret = new HashMap<>();
+        for (String key : customTagValue.keySet()) {
+            Object value = customTagValue.get(key);
+            if (value == null) {
+                continue;
+            }
+            if (!(value instanceof String)) {
+                throw new ScmInvalidArgumentException(
+                        "tag is not string format: " + customTagValue);
+            }
+            ret.put(key, (String) value);
+        }
+
+        ScmArgChecker.File.checkScmCustomTag(ret);
+
+        return ret;
+    }
+
 }

@@ -35,6 +35,9 @@ public class ScmRestArgDefine {
     public static final String WORKSPACE_CONF_MATCHER = "matcher";
     public static final String WORKSPACE_CONF_OLD_WS = "old_workspace";
     public static final String WORKSPACE_CONF_EXTERNAL_DATA = "external_data";
+    public static final String WORKSPACE_CONF_TAG_RETRIEVAL_STATUS = "tag_retrieval_status";
+    public static final String WORKSPACE_CONF_TAG_UPGRADING = "tag_upgrading";
+    public static final String WORKSPACE_CONF_TAG_LIB_TABLE = "tag_lib_table";
 
     public static final String SITE_CONF_SITENAME = "name";
     public static final String SITE_CONF_SITEVERSION = "site_version";
@@ -99,4 +102,7 @@ public class ScmRestArgDefine {
     public static final String QUOTA_CONF_MATCHER = "matcher";
 
     public static final String COUNT_HEADER = "X-SCM-Count";
+
+    public static final String GLOBAL_CONF_NAME = "conf_name";
+    public static final String GLOBAL_CONF_VALUE = "conf_value";
 }

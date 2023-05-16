@@ -21,7 +21,8 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
 import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaDefaultUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
@@ -48,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -68,6 +68,9 @@ public class DirServiceImpl implements IDirService {
     @Autowired
     private FileOperationListenerMgr listenerMgr;
 
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     @Override
     public BSONObject getDirInfoById(ScmUser user, String wsName, String dirId)
             throws ScmServerException {
@@ -75,13 +78,13 @@ public class DirServiceImpl implements IDirService {
                 ScmPrivilegeDefine.READ, "get dir path info by id");
         try {
             ScmContentModule contentModule = ScmContentModule.getInstance();
-            ScmWorkspaceInfo ws =contentModule.getWorkspaceInfoCheckLocalSite(wsName);
+            ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
             if (!ws.isEnableDirectory()) {
                 throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                         "failed to get directory, directory feature is disable:ws=" + ws.getName()
                                 + ", id=" + dirId);
             }
-            BSONObject destDir =contentModule.getMetaService().getDirInfo(wsName, dirId);
+            BSONObject destDir = contentModule.getMetaService().getDirInfo(wsName, dirId);
             if (destDir == null) {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "directory not exist:id=" + dirId);
@@ -101,7 +104,8 @@ public class DirServiceImpl implements IDirService {
 
     public BSONObject getDirInfoByPath(String wsName, String dirPath) throws ScmServerException {
         try {
-            ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(wsName);
+            ScmWorkspaceInfo ws = ScmContentModule.getInstance()
+                    .getWorkspaceInfoCheckLocalSite(wsName);
             if (!ws.isEnableDirectory()) {
                 throw new ScmServerException(ScmError.DIR_FEATURE_DISABLE,
                         "failed to get directory, directory feature is disable:ws=" + ws.getName()
@@ -473,7 +477,7 @@ public class DirServiceImpl implements IDirService {
         }
         ScmContentModule contentModule = ScmContentModule.getInstance();
         contentModule.getWorkspaceInfoCheckLocalSite(wsName);
-        long count =contentModule.getMetaService().getDirCount(wsName, condition);
+        long count = contentModule.getMetaService().getDirCount(wsName, condition);
         String message = "count directory";
         if (null != condition) {
             message += " by condition=" + condition.toString();
@@ -537,7 +541,7 @@ public class DirServiceImpl implements IDirService {
     }
 
     @Override
-    public BSONObject getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
+    public FileMeta getFileInfoByPath(ScmUser user, String workspaceName, String filePath,
             int majorVersion, int minorVersion, boolean acceptDeleteMarker)
             throws ScmServerException {
         ScmFileServicePriv.getInstance().checkDirPriority(user, workspaceName, filePath,
@@ -570,15 +574,15 @@ public class DirServiceImpl implements IDirService {
                     + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
 
-        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file by filePath=" + filePath
-                + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
-        return fileInfo;
+        FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(ws.getName(), fileInfo);
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
+                "get file by filePath=" + filePath + ", fileName=" + fileMeta.getName());
+        return fileMeta;
     }
 
     @Override
     public FileMeta moveFile(ScmUser user, String ws, String moveToDirId, String fileId,
-            ScmVersion returnVersion)
-            throws ScmServerException {
+            ScmVersion returnVersion) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkFilePriorityByFileId(user, ws, fileService, fileId,
                 -1, -1, ScmPrivilegeDefine.UPDATE, "move file");
 
@@ -618,12 +622,12 @@ public class DirServiceImpl implements IDirService {
                 throw new ScmServerException(ScmError.DIR_NOT_FOUND,
                         "parent directory not exist:id=" + moveToDirId);
             }
-            FileMeta fileMeta = FileMeta.fromRecord(currentLatestVersionBSON);
+            FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(ws,
+                    currentLatestVersionBSON);
             ret = fileMetaOperator.updateFileMeta(ws, fileId,
-                    Collections.singletonList(
-                            new FileMetaUpdater(FieldName.FIELD_CLFILE_DIRECTORY_ID, moveToDirId)),
-                    user.getUsername(), new Date(), fileMeta,
-                    returnVersion);
+                    Collections.singletonList(FileMetaDefaultUpdater
+                            .globalFieldUpdater(FieldName.FIELD_CLFILE_DIRECTORY_ID, moveToDirId)),
+                    user.getUsername(), new Date(), fileMeta, returnVersion);
             callback = listenerMgr.postUpdate(wsInfo, fileMeta, ret.getLatestVersionAfterUpdate());
         }
         finally {
@@ -662,8 +666,7 @@ public class DirServiceImpl implements IDirService {
 
     @Override
     public FileMeta moveFileByPath(ScmUser user, String ws, String moveToDirPath, String fileId,
-            ScmVersion returnVersion)
-            throws ScmServerException {
+            ScmVersion returnVersion) throws ScmServerException {
         BSONObject dirId = getDirInfoByPath(ws, moveToDirPath);
         return moveFile(user, ws, BsonUtils.getStringChecked(dirId, FieldName.FIELD_CLDIR_ID),
                 fileId, returnVersion);

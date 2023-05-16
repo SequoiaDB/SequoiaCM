@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.sequoiacm.config.tools.command.ScmDeleteConfigImpl;
 import com.sequoiacm.config.tools.command.ScmListSubscribersImpl;
+import com.sequoiacm.config.tools.command.ScmShowGlobalConfigImpl;
 import com.sequoiacm.config.tools.command.ScmUnsubscribeImpl;
 import com.sequoiacm.config.tools.command.ScmUpdateConfigImpl;
+import com.sequoiacm.config.tools.command.ScmUpdateGlobalConfigImpl;
 import com.sequoiacm.infrastructure.tool.operator.ScmConfNodeOperator;
 import com.sequoiacm.infrastructure.tool.CommandManager;
 import com.sequoiacm.infrastructure.tool.command.ScmCreateNodeToolImpl;
@@ -42,6 +44,8 @@ public class ConfAdmin {
             cmd.addTool(new ScmUnsubscribeImpl());
             cmd.addTool(new ScmUpdateConfigImpl());
             cmd.addTool(new ScmDeleteConfigImpl());
+            cmd.addTool(new ScmShowGlobalConfigImpl());
+            cmd.addTool(new ScmUpdateGlobalConfigImpl());
         }
         catch (ScmToolsException e) {
             e.printStackTrace();

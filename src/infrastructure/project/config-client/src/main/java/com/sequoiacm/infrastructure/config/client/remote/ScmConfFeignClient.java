@@ -15,6 +15,8 @@ import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
 import feign.Response;
 
+import java.util.Map;
+
 @RequestMapping("/internal/v1")
 public interface ScmConfFeignClient {
 
@@ -69,4 +71,8 @@ public interface ScmConfFeignClient {
     public BSONObject getConfVersion(@PathVariable("conf_name") String confName,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
 
+    @GetMapping("/globalConfig")
+    public Map<String, String> getGlobalConf(
+            @RequestParam(ScmRestArgDefine.GLOBAL_CONF_NAME) String confName)
+            throws ScmConfigException;
 }

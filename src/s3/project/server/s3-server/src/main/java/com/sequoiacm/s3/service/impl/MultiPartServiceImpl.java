@@ -1,5 +1,6 @@
 package com.sequoiacm.s3.service.impl;
 
+import com.sequoiacm.contentserver.common.IDGeneratorDao;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.service.IScmBucketService;
@@ -21,7 +22,6 @@ import com.sequoiacm.s3.common.RestParamDefine;
 import com.sequoiacm.s3.common.S3Codec;
 import com.sequoiacm.s3.common.S3CommonDefine;
 import com.sequoiacm.s3.core.*;
-import com.sequoiacm.s3.dao.IDGeneratorDao;
 import com.sequoiacm.s3.dao.PartDao;
 import com.sequoiacm.s3.dao.UploadDao;
 import com.sequoiacm.s3.exception.S3Error;
@@ -82,7 +82,7 @@ public class MultiPartServiceImpl implements MultiPartService {
             ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(bucket.getWorkspace());
             ScmSite siteInfo = ScmContentModule.getInstance().getLocalSiteInfo();
 
-            Long uploadId = idGeneratorDao.getNewId(S3CommonDefine.IdType.TYPE_UPLOAD);
+            long uploadId = idGeneratorDao.getNewId(S3CommonDefine.IdType.TYPE_UPLOAD);
             uploadMeta.setBucketId(bucket.getId());
             uploadMeta.setUploadId(uploadId);
             uploadMeta.setUploadStatus(S3CommonDefine.UploadStatus.UPLOAD_INIT);

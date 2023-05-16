@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
@@ -241,4 +242,26 @@ public class ScmWorkspaceInfo {
     public void addHistoryWsItem(ScmWorkspaceItem item) {
         workspaceHistories.put(item.getVersion(), item);
     }
+
+    public String getTagLibTable() {
+        return currentWorkspace.getTagLibTable();
+    }
+
+    // true: 新版工作区，标签采用标签库管理，文件记录的是标签ID
+    // false：旧版工作区，未使用标签库，文件记录的是明文标签
+    public boolean newVersionTag() throws ScmServerException {
+        if (currentWorkspace.isTagUpgrading()) {
+            // 标签升级工具正在重构标签，当前工作区处于中间状态，拒绝判定工作区的标签形式
+            throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+                    "workspace tag is refactoring: " + getName());
+        }
+
+        return currentWorkspace.getTagLibTable() != null
+                && !currentWorkspace.getTagLibTable().isEmpty();
+    }
+
+    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() {
+        return currentWorkspace.getTagRetrievalStatus();
+    }
+
 }

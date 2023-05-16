@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.service.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +11,18 @@ import java.util.TreeMap;
 import com.sequoiacm.contentserver.remote.ContentServerFeignExceptionConverter;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
+import com.sequoiacm.common.module.TagInfo;
+import com.sequoiacm.common.module.TagType;
+import com.sequoiacm.contentserver.pipeline.file.module.*;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
+import com.sequoiacm.metasource.ScmMetasourceException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.common.CommonDefine;
@@ -48,10 +55,6 @@ import com.sequoiacm.contentserver.lock.ScmLockPathFactory;
 import com.sequoiacm.contentserver.model.ScmVersion;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
-import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
-import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
@@ -111,21 +114,27 @@ public class FileServiceImpl implements IFileService {
     @Autowired
     private FileInfoUpdaterDao fileInfoUpdatorDao;
 
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
+    @Autowired
+    private FileInfoCursorTagWrapper fileInfoCursorTagWrapper;
+
     @Override
-    public BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId,
+    public FileMeta getFileInfoById(ScmUser user, String workspaceName, String fileId,
             int majorVersion, int minorVersion, boolean acceptDeleteMarker)
             throws ScmServerException {
-        BSONObject fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion,
+        FileMeta fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion,
                 acceptDeleteMarker);
         ScmFileServicePriv.getInstance().checkFilePriority(user, workspaceName, fileInfo,
                 ScmPrivilegeDefine.READ, "get file by id");
-        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0, "get file info by fileId="
-                + fileId + ", fileName=" + (String) fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+        audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
+                "get file info by fileId=" + fileId + ", fileName=" + fileInfo.getName());
         return fileInfo;
     }
 
     @Override
-    public BSONObject getFileInfoById(String workspaceName, String fileId, int majorVersion,
+    public FileMeta getFileInfoById(String workspaceName, String fileId, int majorVersion,
             int minorVersion, boolean acceptDeleteMarker) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
@@ -136,7 +145,8 @@ public class FileServiceImpl implements IFileService {
                     "file not exist:workspace=" + workspaceName + ",fileId=" + fileId + ",version="
                             + ScmSystemUtils.getVersionStr(majorVersion, minorVersion));
         }
-        return fileInfo;
+
+        return fileMetaFactory.createFileMetaByRecord(workspaceName, fileInfo);
     }
 
     @Override
@@ -189,7 +199,9 @@ public class FileServiceImpl implements IFileService {
         catch (InvalidArgumentException e) {
             throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
         }
-        return metaCursor;
+
+        // 若 selector 中包含标签字段，需要将标签 ID 转为标签字符串
+        return fileInfoCursorTagWrapper.wrapFileInfoCursor(ws, metaCursor, selector);
     }
 
     @Override
@@ -280,28 +292,26 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public FileMeta createFile(String workspace, FileMeta fileMeta, FileUploadConf conf,
-            TransactionCallback transactionCallback)
-            throws ScmServerException {
+            TransactionCallback transactionCallback) throws ScmServerException {
         return fileCreatorDao.createFile(workspace, fileMeta, conf, transactionCallback);
     }
 
     @Override
     public FileReaderDao downloadFile(String sessionId, String userDetail, String workspaceName,
-            BSONObject fileInfo, int readFlag) throws ScmServerException {
+            FileMeta fileInfo, int readFlag) throws ScmServerException {
         return new FileReaderDao(sessionId, userDetail,
                 ScmContentModule.getInstance().getWorkspaceInfoCheckLocalSite(workspaceName),
-                fileInfo, readFlag);
+                fileInfo.toRecordBSON(), readFlag);
     }
 
     @Override
     public FileReaderDao downloadFile(String sessionId, String userDetail, ScmUser user,
-            String workspaceName, BSONObject fileInfo, int readFlag) throws ScmServerException {
+            String workspaceName, FileMeta fileInfo, int readFlag) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkFilePriority(user, workspaceName, fileInfo,
                 ScmPrivilegeDefine.READ, "read file");
         FileReaderDao dao = downloadFile(sessionId, userDetail, workspaceName, fileInfo, readFlag);
         audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
-                "read file, fileId=" + fileInfo.get(FieldName.FIELD_CLFILE_ID) + ", fileName="
-                        + String.valueOf(fileInfo.get(FieldName.FIELD_CLFILE_NAME)));
+                "read file, fileId=" + fileInfo.getId() + ", fileName=" + fileInfo.getName());
         return dao;
     }
 
@@ -398,10 +408,6 @@ public class FileServiceImpl implements IFileService {
             BSONObject fileInfo, int majorVersion, int minorVersion) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkFilePriorityByFileId(user, workspaceName, this,
                 fileId, majorVersion, minorVersion, ScmPrivilegeDefine.UPDATE, "update file by id");
-        BSONObject customTag = BsonUtils.getBSON(fileInfo, FieldName.FIELD_CLFILE_CUSTOM_TAG);
-        if (customTag != null) {
-            fileInfo.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new TreeMap<>(customTag.toMap()));
-        }
         FileMeta ret = fileInfoUpdatorDao.updateInfo(user.getUsername(), workspaceName, fileId,
                 majorVersion, minorVersion, fileInfo);
         audit.info(ScmAuditType.UPDATE_FILE, user, workspaceName, 0,
@@ -580,10 +586,9 @@ public class FileServiceImpl implements IFileService {
         ScmFileServicePriv.getInstance().checkFilePriorityByFileId(user, workspaceName, this,
                 fileId, majorVersion, minorVersion, ScmPrivilegeDefine.UPDATE,
                 "calculate file md5");
-        BSONObject fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion,
+        FileMeta fileInfo = getFileInfoById(workspaceName, fileId, majorVersion, minorVersion,
                 false);
-        BasicBSONList siteBson = BsonUtils.getArray(fileInfo,
-                FieldName.FIELD_CLFILE_FILE_SITE_LIST);
+        BasicBSONList siteBson = fileInfo.getSiteList();
         List<ScmFileLocation> siteList = new ArrayList<>();
         CommonHelper.getFileLocationList(siteBson, siteList);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(siteBson);
@@ -595,9 +600,8 @@ public class FileServiceImpl implements IFileService {
         ScmFileLocation localFileLocation = fileLocationMap.get(contentModule.getLocalSite());
         if (localFileLocation != null) {
             // 在本地读取数据计算MD5
-            ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(fileInfo,
-                    localFileLocation.getWsVersion(),
-                    localFileLocation.getTableName());
+            ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(fileInfo.toRecordBSON(),
+                    localFileLocation.getWsVersion(), localFileLocation.getTableName());
             md5 = ScmSystemUtils.calcMd5(ws, dataInfo);
             updateFileMd5(user.getUsername(), ws, fileId, majorVersion, minorVersion,
                     dataInfo.getId(), md5);
@@ -630,27 +634,26 @@ public class FileServiceImpl implements IFileService {
         ScmLockPath lockPath = ScmLockPathFactory.createFileLockPath(wsInfo.getName(), fileId);
         ScmLock writeLock = ScmLockManager.getInstance().acquiresWriteLock(lockPath);
         try {
-            BSONObject fileInfo = getFileInfoById(wsInfo.getName(), fileId, majorVersion,
+            FileMeta fileInfo = getFileInfoById(wsInfo.getName(), fileId, majorVersion,
                     minorVersion, false);
 
             // 锁内确认文件数据没有发生变化（桶内 -2.0 版本文件可以被重复覆盖，而文件的 ID、版本号不会发生变化，所以这里查出来的文件比对以下 data Id）
-            if (!BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID)
-                    .equals(dataId)) {
+            if (!fileInfo.getDataId().equals(dataId)) {
                 // 文件已经被另外一个线程覆盖了，直接返回
                 return;
             }
 
             List<FileMetaUpdater> fileMetaUpdaters = new ArrayList<>();
-            fileMetaUpdaters.add(new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_MD5, md5,
-                    majorVersion, minorVersion));
+            fileMetaUpdaters.add(FileMetaDefaultUpdater.versionFieldUpdater(
+                    FieldName.FIELD_CLFILE_FILE_MD5, md5, majorVersion, minorVersion));
 
             // 当文件已经存在ETAG时，不能同时更新文件的ETAG，因为会破坏 S3 对象 ETAG 的定义（描述对象内容，相当于摘要）
             BSONObject newFileInfo = new BasicBSONObject(FieldName.FIELD_CLFILE_FILE_MD5, md5);
-            String etag = com.sequoiacm.infrastructure.config.core.common.BsonUtils
-                    .getString(fileInfo, FieldName.FIELD_CLFILE_FILE_ETAG);
+            String etag = fileInfo.getEtag();
             if (etag == null || etag.isEmpty()) {
-                fileMetaUpdaters.add(new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_ETAG,
-                        SignUtil.toHex(md5), majorVersion, minorVersion));
+                fileMetaUpdaters.add(
+                        FileMetaDefaultUpdater.versionFieldUpdater(FieldName.FIELD_CLFILE_FILE_ETAG,
+                                SignUtil.toHex(md5), majorVersion, minorVersion));
             }
 
             fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId, fileMetaUpdaters, null, null,
@@ -673,7 +676,6 @@ public class FileServiceImpl implements IFileService {
         return ScmIdGenerator.FileId.get(fileCreateTime);
     }
 
-
     @Override
     public boolean updateFileExternalData(String workspaceName, String fileId, int majorVersion,
             int minorVersion, BSONObject externalData, TransactionContext transactionContext)
@@ -685,9 +687,9 @@ public class FileServiceImpl implements IFileService {
         try {
             List<FileMetaUpdater> fileMetaUpdaters = new ArrayList<>();
             for (String key : externalData.keySet()) {
-                fileMetaUpdaters.add(
-                        new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "." + key,
-                                externalData.get(key), majorVersion, minorVersion));
+                fileMetaUpdaters.add(FileMetaDefaultUpdater.versionFieldUpdater(
+                        FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "." + key,
+                        externalData.get(key), majorVersion, minorVersion));
             }
             fileMetaOperator.updateFileMeta(workspaceName, fileId, fileMetaUpdaters, null, null,
                     null, new ScmVersion(majorVersion, minorVersion));
@@ -714,18 +716,16 @@ public class FileServiceImpl implements IFileService {
     }
 
     @Override
-    public BasicBSONList getFileContentLocations(ScmUser user, BSONObject fileInfo,
+    public BasicBSONList getFileContentLocations(ScmUser user, FileMeta fileInfo,
             String workspaceName) throws ScmServerException {
         ScmFileServicePriv.getInstance().checkFilePriority(user, workspaceName, fileInfo,
                 ScmPrivilegeDefine.READ, "get file content locations");
         BasicBSONList result = new BasicBSONList();
         ScmContentModule contentServer = ScmContentModule.getInstance();
         ScmWorkspaceInfo ws = contentServer.getWorkspaceInfoCheckLocalSite(workspaceName);
-        BasicBSONList siteList = BsonUtils.getArrayChecked(fileInfo,
-                FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-        Date createTime = new Date(
-                CommonHelper.toLongValue(fileInfo.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME)));
-        String dataId = BsonUtils.getStringChecked(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        BasicBSONList siteList = fileInfo.getSiteList();
+        Date createTime = new Date(fileInfo.getCreateTime());
+        String dataId = fileInfo.getDataId();
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(siteList);
 
         for (ScmFileLocation fileLocation : fileLocationMap.values()) {
@@ -738,8 +738,8 @@ public class FileServiceImpl implements IFileService {
             result.add(contentLocation);
         }
         audit.info(ScmAuditType.FILE_DQL, user, workspaceName, 0,
-                "get file content locations, fileId=" + fileInfo.get(FieldName.FIELD_CLFILE_ID)
-                        + ", fileName=" + fileInfo.get(FieldName.FIELD_CLFILE_NAME));
+                "get file content locations, fileId=" + fileInfo.getId() + ", fileName="
+                        + fileInfo.getName());
         return result;
     }
 
@@ -750,5 +750,103 @@ public class FileServiceImpl implements IFileService {
         audit.info(ScmAuditType.DELETE_FILE, user, ws, 0, "delete file version: wsName=" + ws
                 + ", fileId=" + fileId + ", version=" + majorVersion + "." + minorVersion);
         return ret;
+    }
+}
+
+@Component
+class FileInfoCursorTagWrapper {
+    @Autowired
+    private TagLibMgr tagLibMgr;
+
+    public MetaCursor wrapFileInfoCursor(ScmWorkspaceInfo ws, MetaCursor fileInfoCursor,
+            BSONObject selector) throws ScmServerException {
+        try {
+            if (!ws.newVersionTag()) {
+                return fileInfoCursor;
+            }
+
+            if (selector != null && !selector.containsField(FieldName.FIELD_CLFILE_TAGS)
+                    && !selector.containsField(FieldName.FIELD_CLFILE_CUSTOM_TAG)) {
+                return fileInfoCursor;
+            }
+
+            return new FileInfoCursorTagWrapped(tagLibMgr, fileInfoCursor, ws);
+        }
+        catch (Exception e) {
+            fileInfoCursor.close();
+            throw e;
+        }
+    }
+}
+
+class FileInfoCursorTagWrapped implements MetaCursor {
+    private TagLibMgr tagLibMgr;
+
+    private MetaCursor fileInfoCursor;
+
+    private ScmWorkspaceInfo ws;
+
+    public FileInfoCursorTagWrapped(TagLibMgr tagLibMgr, MetaCursor fileInfoCursor,
+            ScmWorkspaceInfo ws) {
+        this.tagLibMgr = tagLibMgr;
+        this.fileInfoCursor = fileInfoCursor;
+        this.ws = ws;
+    }
+
+    @Override
+    public boolean hasNext() throws ScmMetasourceException {
+        return fileInfoCursor.hasNext();
+    }
+
+    @Override
+    public BSONObject getNext() throws ScmMetasourceException {
+        BSONObject ret = fileInfoCursor.getNext();
+        if (ret == null) {
+            return null;
+        }
+
+        List<Long> tagsIdList = BsonUtils.getLongArray(ret, FieldName.FIELD_CLFILE_TAGS);
+        if (tagsIdList == null) {
+            tagsIdList = Collections.emptyList();
+        }
+        List<Long> customTagIdList = BsonUtils.getLongArray(ret, FieldName.FIELD_CLFILE_CUSTOM_TAG);
+        if (customTagIdList == null) {
+            customTagIdList = Collections.emptyList();
+        }
+
+        List<Long> allTagIdList = new ArrayList<>();
+        allTagIdList.addAll(customTagIdList);
+        allTagIdList.addAll(tagsIdList);
+
+        List<TagInfo> tagInfoList = null;
+        try {
+            tagInfoList = tagLibMgr.getTagInfoById(ws, allTagIdList);
+        }
+        catch (ScmServerException e) {
+            throw new ScmMetasourceException(
+                    "get tag info failed: " + allTagIdList + ", ws=" + ws.getName(), e);
+        }
+        TreeMap<String, String> customTag = new TreeMap<>();
+        BasicBSONList tags = new BasicBSONList();
+        for (TagInfo tagInfo : tagInfoList) {
+            if (tagInfo.getTagType() == TagType.CUSTOM_TAG) {
+                customTag.put(tagInfo.getTagName().getTagKey(), tagInfo.getTagName().getTagValue());
+            }
+            else if (tagInfo.getTagType() == TagType.TAGS) {
+                tags.add(tagInfo.getTagName().getTag());
+            }
+            else {
+                throw new ScmMetasourceException(
+                        "unknown tag type: " + tagInfo + ", ws=" + ws.getName() + " ,file=" + ret);
+            }
+        }
+        ret.put(FieldName.FIELD_CLFILE_TAGS, tags);
+        ret.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
+        return ret;
+    }
+
+    @Override
+    public void close() {
+        fileInfoCursor.close();
     }
 }

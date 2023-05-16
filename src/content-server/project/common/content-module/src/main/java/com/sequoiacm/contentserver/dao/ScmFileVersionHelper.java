@@ -120,73 +120,14 @@ public class ScmFileVersionHelper {
         return true;
     }
 
-    // 文件存在并更新成功返回 true，文件不存在返回 false
-    public static boolean updateLatestVersionAsNewVersion(ScmWorkspaceInfo ws, String fileId,
-            BSONObject newFileVersion, BSONObject latestFileVersion,
-            TransactionContext transactionContext)
-            throws ScmMetasourceException, ScmServerException {
-        MetaFileAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
-                .getFileAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
-        BSONObject matcher = new BasicBSONObject();
-        SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
-
-        BSONObject oldRecord = accessor.queryAndUpdate(matcher, new BasicBSONObject("$set", newFileVersion), null);
-        if(oldRecord == null){
-            return false;
-        }
-        ScmFileOperateUtils.updateBucketFileForUpdateFile(newFileVersion, latestFileVersion,
-                transactionContext);
-        ScmFileOperateUtils.updateFileRelForUpdateFile(ws, fileId, latestFileVersion, newFileVersion,
-                transactionContext);
-        return true;
-    }
-
-    // return old
-    public static BSONObject updateLatestVersionAndRel(ScmWorkspaceInfo ws, String fileId,
-            BSONObject updater, TransactionContext transactionContext)
-            throws ScmMetasourceException, ScmServerException {
-        return updateLatestVersionAndRel(ws, fileId, null, updater, transactionContext);
-    }
-
-    // return old
-    public static BSONObject updateLatestVersionAndRel(ScmWorkspaceInfo ws, String fileId,
-            BSONObject additionMatcher, BSONObject updater, TransactionContext transactionContext)
-            throws ScmMetasourceException, ScmServerException {
-        MetaFileAccessor accessor = ScmContentModule.getInstance().getMetaService().getMetaSource()
-                .getFileAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
-        BSONObject fileIdMatcher = new BasicBSONObject();
-        SequoiadbHelper.addFileIdAndCreateMonth(fileIdMatcher, fileId);
-
-        BasicBSONList andArr = new BasicBSONList();
-        andArr.add(fileIdMatcher);
-        if (additionMatcher != null) {
-            andArr.add(additionMatcher);
-        }
-        BasicBSONObject matcher = new BasicBSONObject().append("$and", andArr);
-
-        BSONObject oldFileVersion = accessor.queryAndUpdate(matcher,
-                new BasicBSONObject("$set", updater), null, false);
-        if (oldFileVersion == null) {
-            return null;
-        }
-
-
-        ScmFileOperateUtils.updateBucketFileForUpdateFile(updater, oldFileVersion,
-                transactionContext);
-        ScmFileOperateUtils.updateFileRelForUpdateFile(ws, fileId, oldFileVersion, updater,
-                transactionContext);
-        return oldFileVersion;
-    }
-
     public static void insertVersionToHistory(ScmWorkspaceInfo ws, FileMeta latestFileVersion,
             TransactionContext transactionContext)
             throws ScmMetasourceException, ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         try {
-            MetaFileHistoryAccessor accessor = contentModule.getMetaService()
-                    .getMetaSource()
+            MetaFileHistoryAccessor accessor = contentModule.getMetaService().getMetaSource()
                     .getFileHistoryAccessor(ws.getMetaLocation(), ws.getName(), transactionContext);
-            accessor.insert(latestFileVersion.toBSONObject());
+            accessor.insert(latestFileVersion.toRecordBSON());
         }
         catch (ScmMetasourceException e) {
             // 捕获下写历史表产生子表不存在的异常，然后执行下子表创建及挂载
@@ -195,7 +136,7 @@ public class ScmFileVersionHelper {
                 try {
                     FileTableCreator.createSubFileTable(
                             (SdbMetaSource) contentModule.getMetaService().getMetaSource(), ws,
-                            latestFileVersion.toBSONObject());
+                            latestFileVersion.toRecordBSON());
                 }
                 catch (Exception ex) {
                     throw new ScmServerException(ScmError.METASOURCE_ERROR,

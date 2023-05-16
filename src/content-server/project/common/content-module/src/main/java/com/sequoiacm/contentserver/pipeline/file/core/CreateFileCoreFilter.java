@@ -29,7 +29,7 @@ public class CreateFileCoreFilter implements Filter<CreateFileContext> {
         MetaFileAccessor fileAccessor = contentModule.getMetaService().getMetaSource()
                 .getFileAccessor(wsInfo.getMetaLocation(), wsInfo.getName(),
                         context.getTransactionContext());
-        BSONObject fileRecord = context.getFileMeta().toBSONObject();
+        BSONObject fileRecord = context.getFileMeta().toRecordBSON();
         try {
             fileAccessor.insert(fileRecord);
         }

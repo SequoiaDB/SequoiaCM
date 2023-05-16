@@ -391,7 +391,6 @@ public interface MessageDispatcher extends Closeable {
             throws ScmException;
 
     void setDefaultRegion(String s3ServiceName, String wsName) throws ScmException;
-
     String getDefaultRegion(String s3ServiceName) throws ScmException;
 
     BSONObject refreshAccesskey(String targetUser, String targetPassword, String accesskey,
@@ -407,7 +406,6 @@ public interface MessageDispatcher extends Closeable {
     void setBucketTag(String bucketName, Map<String, String> customTag) throws ScmException;
 
     void deleteBucketTag(String bucketName) throws ScmException;
-
     void setGlobalLifeCycleConfig(BSONObject lifeCycleConfigBSON) throws ScmException;
 
     void deleteGlobalLifeCycleConfig() throws ScmException;
@@ -483,4 +481,32 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject updateBucketUsedQuota(String bucketName, Long usedObjects, Long usedSize)
             throws ScmException;
+
+    BSONObject enableWsTagRetrieval(String wsName, boolean enableTagRetrieval) throws ScmException;
+
+    void setGlobalConfig(String confName, String confValue) throws ScmException;
+
+    Map<String, String> getGlobalConfig() throws ScmException;
+
+    String getGlobalConfig(String confName) throws ScmException;
+
+    BsonReader tagSearchFile(String wsName, BSONObject tagCondition, BSONObject fileCondition,
+                             int scopeType, long skip, long limit, BSONObject orderBy) throws ScmException;
+
+    long tagCountFile(String wsName, BSONObject tagCondition, BSONObject fileCondition,
+                      int scopeType) throws ScmException;
+
+    BsonReader listTag(String ws, String tagNameMatcher, BSONObject orderBy, long skip, long limit)
+            throws ScmException;
+
+    BSONObject getTag(String ws, String tagName) throws ScmException;
+
+    BsonReader listCustomTag(String ws, String tagKeyMatcher, String tagValueMatcher,
+            BSONObject orderBy, long skip, long limit) throws ScmException;
+
+    BSONObject getCustomTag(String ws, String tagKey, String tagValue) throws ScmException;
+
+    BsonReader listCustomTagKey(String ws, String tagKeyMatcher, boolean ascending, long skip,
+            long limit) throws ScmException;
+
 }

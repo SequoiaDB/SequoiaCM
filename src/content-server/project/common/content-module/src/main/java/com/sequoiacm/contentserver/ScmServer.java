@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver;
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.PropertiesDefine;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
+import com.sequoiacm.contentserver.common.IDGeneratorDao;
 import com.sequoiacm.contentserver.common.ScmPasswordRewriter;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
@@ -14,6 +15,7 @@ import com.sequoiacm.contentserver.metasourcemgr.MapServerHandlerAdapter;
 import com.sequoiacm.contentserver.service.IDirService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.contentserver.site.ScmContentServerInfo;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
@@ -76,11 +78,11 @@ public class ScmServer {
 
     public void init(ApplicationContext applicationContext, ScmPrivClient privClient,
             ScmConfClient confClient, String siteName, BucketInfoManager bucketInfoManager,
-            IDirService dirService)
+            IDirService dirService, IDGeneratorDao idGeneratorDao, TagLibMgr tagLibMgr)
             throws Exception {
         ContentModuleInitializer initializer = new ContentModuleInitializer(applicationContext,
-                privClient, confClient,
-                siteName, siteName, new MapServerHandlerAdapter(), bucketInfoManager, dirService);
+                privClient, confClient, siteName, siteName, new MapServerHandlerAdapter(),
+                bucketInfoManager, dirService, idGeneratorDao, tagLibMgr);
 
         // 先执行 content-module 第一阶段的初始化
         initializer.initBizComponent();

@@ -11,6 +11,7 @@ import com.sequoiacm.client.element.bizconf.*;
 import com.sequoiacm.client.element.lifecycle.ScmLifeCycleTransition;
 import com.sequoiacm.client.element.lifecycle.ScmWorkspaceLifeCycleConfig;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.common.XMLUtils;
@@ -50,6 +51,8 @@ class ScmWorkspaceImpl extends ScmWorkspace {
     private boolean enableDirectory;
     private String preferred;
     private ScmSiteCacheStrategy siteCacheStrategy;
+    private ScmWorkspaceTagRetrievalStatus tagRetrievalStatus;
+    private ScmTagLibMetaOption tagLibMetaOption;
 
     public ScmWorkspaceImpl(ScmSession s, BSONObject wsInfo) throws ScmException {
         this.session = s;
@@ -98,6 +101,16 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         siteCacheStrategy = ScmSiteCacheStrategy.getStrategy(BsonUtils.getStringOrElse(newWsInfo,
                 FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                 ScmSiteCacheStrategy.ALWAYS.name()));
+        String tagRetrievalStr = BsonUtils.getStringOrElse(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+        tagRetrievalStatus = ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStr);
+        BSONObject tagLibMetaOptionBSON = BsonUtils.getBSON(newWsInfo,
+                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION);
+        if (tagLibMetaOptionBSON != null) {
+            tagLibMetaOption = new ScmTagLibMetaOption(BsonUtils.getString(tagLibMetaOptionBSON,
+                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN));
+        }
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -197,7 +210,7 @@ class ScmWorkspaceImpl extends ScmWorkspace {
                 + batchShardingType + ", batchIdTimeRegex='" + batchIdTimeRegex + '\''
                 + ", batchIdTimePattern='" + batchIdTimePattern + '\'' + ", batchFileNameUnique="
                 + batchFileNameUnique + ", enableDirectory=" + enableDirectory + ", preferred='"
-                + preferred + '\'' + '}';
+                + preferred + '\'' + ", tagRetrieval=" + tagRetrievalStatus + '}';
     }
 
     @Override
@@ -461,5 +474,26 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         BasicBSONObject updator = new BasicBSONObject(
                 CommonDefine.RestArg.WORKSPACE_UPDATOR_META_DOMAIN, domainName);
         _update(updator);
+    }
+
+    @Override
+    public void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException {
+        BSONObject newBson = session.getDispatcher().enableWsTagRetrieval(name, enableTagRetrieval);
+        refresh(newBson);
+    }
+
+    @Override
+    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException {
+        return tagRetrievalStatus;
+    }
+
+    @Override
+    public String getTagLibIndexErrorMsg() throws ScmException {
+        return BsonUtils.getString(extData,
+                FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK_ERROR);
+    }
+
+    public ScmTagLibMetaOption getTagLibMetaOption() {
+        return tagLibMetaOption;
     }
 }

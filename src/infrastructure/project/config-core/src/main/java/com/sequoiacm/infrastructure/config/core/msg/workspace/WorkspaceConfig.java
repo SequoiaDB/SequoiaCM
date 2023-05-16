@@ -28,6 +28,12 @@ public class WorkspaceConfig implements Config {
     private String siteCacheStrategy = ScmSiteCacheStrategy.ALWAYS.name();
     private int version;
 
+    private BSONObject tagLibMetaOption;
+    private String tagLibTableName;
+    private String tagRetrievalStatus;
+    
+    private boolean tagUpgrading = false;
+
     public WorkspaceConfig() {
     }
 
@@ -196,7 +202,42 @@ public class WorkspaceConfig implements Config {
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY, siteCacheStrategy);
         wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_VERSION, version);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION, tagLibMetaOption);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE, tagLibTableName);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS, tagRetrievalStatus);
+        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_UPGRADING, tagUpgrading);
         return wsConfigObj;
     }
 
+    public BSONObject getTagLibMetaOption() {
+        return tagLibMetaOption;
+    }
+
+    public void setTagLibMetaOption(BSONObject tagLibMetaOption) {
+        this.tagLibMetaOption = tagLibMetaOption;
+    }
+
+    public void setTagLibTableName(String tagLibTableName) {
+        this.tagLibTableName = tagLibTableName;
+    }
+
+    public String getTagLibTableName() {
+        return tagLibTableName;
+    }
+
+    public void setTagRetrievalStatus(String tagRetrievalStatus) {
+        this.tagRetrievalStatus = tagRetrievalStatus;
+    }
+
+    public String getTagRetrievalStatus() {
+        return tagRetrievalStatus;
+    }
+
+    public void setTagUpgrading(boolean tagUpgrading) {
+        this.tagUpgrading = tagUpgrading;
+    }
+
+    public boolean isTagUpgrading() {
+        return tagUpgrading;
+    }
 }

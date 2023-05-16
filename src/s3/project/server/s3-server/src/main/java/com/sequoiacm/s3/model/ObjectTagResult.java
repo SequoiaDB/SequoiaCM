@@ -1,6 +1,7 @@
 package com.sequoiacm.s3.model;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ObjectTagResult {
     private String versionId;
@@ -19,6 +20,7 @@ public class ObjectTagResult {
     }
 
     public void setTagging(Map<String, String> tagging) {
-        this.tagging = tagging;
+        // 使用 tree map 对外保证有序
+        this.tagging = new TreeMap<>(tagging);
     }
 }

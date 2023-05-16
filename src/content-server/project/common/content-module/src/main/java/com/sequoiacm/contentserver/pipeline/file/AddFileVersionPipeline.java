@@ -1,7 +1,7 @@
 package com.sequoiacm.contentserver.pipeline.file;
 
 import com.sequoiacm.contentserver.pipeline.file.module.AddFileVersionContext;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -11,6 +11,12 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
 public class AddFileVersionPipeline extends Pipeline<AddFileVersionContext> {
+    private FileMetaFactory fileMetaFactory;
+
+    public AddFileVersionPipeline(FileMetaFactory fileMetaFactory) {
+        this.fileMetaFactory = fileMetaFactory;
+    }
+
     @Override
     void preInvokeFilter(AddFileVersionContext context) throws ScmServerException {
         super.preInvokeFilter(context);
@@ -29,7 +35,7 @@ public class AddFileVersionPipeline extends Pipeline<AddFileVersionContext> {
                             "failed to add version, file not exist: ws=" + context.getWs()
                                     + ", fileId=" + context.getFileId());
                 }
-                context.setCurrentLatestVersion(FileMeta.fromRecord(record));
+                context.setCurrentLatestVersion(fileMetaFactory.createFileMetaByRecord(context.getWs(), record));
             }
             catch (ScmMetasourceException e) {
                 throw new ScmServerException(e.getScmError(),

@@ -121,6 +121,7 @@ public class RestDispatcher implements MessageDispatcher {
     private static final String ACCESSKEY = "accesskey";
     private static final String BUCKETS = "buckets/";
     private static final String QUOTAS = "quotas/";
+    private static final String TAG = "tag/";
 
     private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
 
@@ -3070,5 +3071,162 @@ public class RestDispatcher implements MessageDispatcher {
                 + bucketName + "?action=" + CommonDefine.RestArg.QUOTA_ACTION_CANCEL_SYNC;
         HttpPost request = new HttpPost(uri);
         RestClient.sendRequest(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject enableWsTagRetrieval(String wsName, boolean enableTagRetrieval)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + encode(wsName) + "?action="
+                + (enableTagRetrieval ? "enable_tag_retrieval" : "disable_tag_retrieval");
+        HttpPut request = new HttpPut(uri);
+        BSONObject resp = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+        return (BSONObject) resp.get(CommonDefine.RestArg.GET_WORKSPACE_REPS);
+    }
+
+    @Override
+    public void setGlobalConfig(String confName, String confValue) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + CONFIG_SERVER + API_VERSION + "globalConfig";
+        HttpPut req = new HttpPut(uri);
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("conf_name", confName));
+        params.add(new BasicNameValuePair("conf_value", confValue));
+        RestClient.sendRequest(getHttpClient(), sessionId, req, params);
+    }
+
+    @Override
+    public Map<String, String> getGlobalConfig() throws ScmException {
+        return innerGetGlobalConfig(null);
+    }
+
+    private Map<String, String> innerGetGlobalConfig(String confName) throws ScmException {
+        String uri = URL_PREFIX + pureUrl + CONFIG_SERVER + API_VERSION + "globalConfig";
+        if (confName != null) {
+            uri += "?conf_name=" + confName;
+        }
+        HttpGet req = new HttpGet(uri);
+        BSONObject ret = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, req);
+        return ret.toMap();
+    }
+
+    @Override
+    public String getGlobalConfig(String confName) throws ScmException {
+        return innerGetGlobalConfig(confName).get(confName);
+    }
+
+    @Override
+    public BsonReader tagSearchFile(String workspaceName, BSONObject tagCondition,
+            BSONObject fileCondition, int scopeType, long skip, long limit, BSONObject orderBy)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=search_file&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(workspaceName) + "&"
+                + CommonDefine.RestArg.FILE_LIST_SCOPE + "=" + scopeType + "&"
+                + CommonDefine.RestArg.SKIP + "=" + skip + "&" + CommonDefine.RestArg.LIMIT + "="
+                + limit + "&" + CommonDefine.RestArg.ORDER_BY + "=" + encodeCondition(orderBy) + "&"
+                + CommonDefine.RestArg.FILE_CONDITION + "=" + encodeCondition(fileCondition) + "&"
+                + CommonDefine.RestArg.TAG_CONDITION + "=" + encodeCondition(tagCondition);
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public long tagCountFile(String wsName, BSONObject tagCondition, BSONObject fileCondition,
+            int scopeType) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=count_file&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(wsName) + "&"
+                + CommonDefine.RestArg.FILE_LIST_SCOPE + "=" + scopeType + "&"
+                + CommonDefine.RestArg.FILE_CONDITION + "=" + encodeCondition(fileCondition) + "&"
+                + CommonDefine.RestArg.TAG_CONDITION + "=" + encodeCondition(tagCondition);
+        HttpGet request = new HttpGet(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
+    }
+
+    @Override
+    public BsonReader listTag(String ws, String tagNameMatcher, BSONObject orderBy, long skip,
+            long limit) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=get_tag&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(ws) + "&"
+                + CommonDefine.RestArg.SKIP + "=" + skip + "&" + CommonDefine.RestArg.LIMIT + "="
+                + limit;
+        if (tagNameMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_WILDCARD + "=" + encode(tagNameMatcher);
+        }
+        if (orderBy != null) {
+            uri += "&" + CommonDefine.RestArg.ORDER_BY + "=" + encodeCondition(orderBy);
+        }
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getTag(String ws, String tagName) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=get_tag&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(ws) + "&"
+                + CommonDefine.RestArg.TAG + "=" + encode(tagName);
+        HttpGet request = new HttpGet(uri);
+        BSONObject ret = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+        return ensureOnlyOneElement((BasicBSONList) ret);
+    }
+
+    @Override
+    public BsonReader listCustomTag(String ws, String tagKeyMatcher, String tagValueMatcher,
+            BSONObject orderBy, long skip, long limit) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=get_custom_tag&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(ws) + "&"
+                + CommonDefine.RestArg.SKIP + "=" + skip + "&" + CommonDefine.RestArg.LIMIT + "="
+                + limit;
+        if (tagKeyMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_KEY_WILDCARD + "=" + encode(tagKeyMatcher);
+        }
+        if (tagValueMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_VALUE_WILDCARD + "=" + encode(tagValueMatcher);
+        }
+        if (orderBy != null) {
+            uri += "&" + CommonDefine.RestArg.ORDER_BY + "=" + encodeCondition(orderBy);
+        }
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BsonReader listCustomTagKey(String ws, String tagKeyMatcher, boolean ascending,
+            long skip, long limit) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=get_custom_tag_key&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(ws) + "&"
+                + CommonDefine.RestArg.SKIP + "=" + skip + "&" + CommonDefine.RestArg.LIMIT + "="
+                + limit + "&" + CommonDefine.RestArg.ASCENDING + "=" + ascending;
+        if (tagKeyMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_KEY_WILDCARD + "=" + encode(tagKeyMatcher);
+        }
+        HttpGet request = new HttpGet(uri);
+        return RestClient.sendRequestWithBsonReaderResponse(getHttpClient(), sessionId, request);
+    }
+
+    @Override
+    public BSONObject getCustomTag(String ws, String tagKey, String tagValue) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=get_custom_tag&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(ws) + "&"
+                + CommonDefine.RestArg.TAG_KEY + "=" + encode(tagKey) + "&"
+                + CommonDefine.RestArg.TAG_VALUE + "=" + encode(tagValue);
+        HttpGet request = new HttpGet(uri);
+        BSONObject ret = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                request);
+        return ensureOnlyOneElement((BasicBSONList) ret);
+    }
+
+    private static BSONObject ensureOnlyOneElement(BasicBSONList list) throws ScmException {
+        if (list == null) {
+            return null;
+        }
+        if (list.size() == 0) {
+            return null;
+        }
+        if (list.size() > 1) {
+            throw new ScmException(ScmError.SYSTEM_ERROR, "More than one element found: " + list);
+        }
+        return (BSONObject) list.get(0);
     }
 }

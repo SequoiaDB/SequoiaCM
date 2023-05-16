@@ -6,6 +6,7 @@ import com.sequoiacm.contentserver.pipeline.file.module.DeleteFileVersionContext
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.Filter;
 import com.sequoiacm.contentserver.pipeline.file.PipelineResult;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
@@ -17,13 +18,19 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DeleteFileVersionCoreFilter implements Filter<DeleteFileVersionContext> {
     private static final Logger logger = LoggerFactory.getLogger(DeleteFileVersionCoreFilter.class);
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
+
     @Override
-    public PipelineResult executionPhase(DeleteFileVersionContext context) throws ScmServerException {
+    public PipelineResult executionPhase(DeleteFileVersionContext context)
+            throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckExist(context.getWs());
 
@@ -36,7 +43,8 @@ public class DeleteFileVersionCoreFilter implements Filter<DeleteFileVersionCont
                             + ", minorVersion=" + context.getMinorVersion());
         }
 
-        FileMeta latestVersionBeforeDelete = FileMeta.fromRecord(latestVersionBeforeDeleteBson);
+        FileMeta latestVersionBeforeDelete = fileMetaFactory
+                .createFileMetaByRecord(wsInfo.getName(), latestVersionBeforeDeleteBson);
 
         context.setLatestVersionBeforeDelete(latestVersionBeforeDelete);
 
@@ -78,8 +86,8 @@ public class DeleteFileVersionCoreFilter implements Filter<DeleteFileVersionCont
                     new BasicBSONObject(FieldName.FIELD_CLFILE_MAJOR_VERSION, -1)
                             .append(FieldName.FIELD_CLFILE_MINOR_VERSION, -1));
             if (latestVersionAfterDeleteBson != null) {
-                FileMeta latestVersionAfterDelete = FileMeta
-                        .fromRecord(latestVersionAfterDeleteBson);
+                FileMeta latestVersionAfterDelete = fileMetaFactory
+                        .createFileMetaByRecord(wsInfo.getName(), latestVersionAfterDeleteBson);
                 fileHistoryAccessor.delete(context.getFileId(),
                         latestVersionAfterDelete.getMajorVersion(),
                         latestVersionAfterDelete.getMinorVersion());
@@ -111,7 +119,7 @@ public class DeleteFileVersionCoreFilter implements Filter<DeleteFileVersionCont
             throws ScmServerException {
         try {
             BSONObject deletedVersion = fileHistoryAccessor.queryAndDelete(context.getFileId(),
-                    latestVersionBeforeDelete.toBSONObject(),
+                    latestVersionBeforeDelete.toRecordBSON(),
                     new BasicBSONObject(FieldName.FIELD_CLFILE_MAJOR_VERSION,
                             context.getMajorVersion()).append(FieldName.FIELD_CLFILE_MINOR_VERSION,
                                     context.getMinorVersion()),
@@ -124,7 +132,8 @@ public class DeleteFileVersionCoreFilter implements Filter<DeleteFileVersionCont
                                 + context.getMinorVersion());
             }
             context.setLatestVersionAfterDelete(latestVersionBeforeDelete);
-            context.setDeletedVersion(FileMeta.fromRecord(deletedVersion));
+            context.setDeletedVersion(
+                    fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), deletedVersion));
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),

@@ -1,33 +1,25 @@
 package com.sequoiacm.contentserver.dao.impl;
 
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
-import com.sequoiacm.contentserver.dao.FileDeletorDao;
 import com.sequoiacm.contentserver.dao.IBatchDao;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmOperationUnsupportedException;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
-import com.sequoiacm.contentserver.listener.FileOperationListenerMgr;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaService;
 import com.sequoiacm.contentserver.metasourcemgr.ScmMetaSourceHelper;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
-import com.sequoiacm.contentserver.service.IFileService;
 import com.sequoiacm.contentserver.site.ScmContentModule;
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.metasource.BatchMetaCursorFillInFileCount;
-import com.sequoiacm.metasource.MetaBatchAccessor;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -212,7 +204,7 @@ public class BatchDaoImpl implements IBatchDao {
 
         fieldName = FieldName.Batch.FIELD_TAGS;
         BSONObject tagsValue = (BSONObject) batchObj.get(fieldName);
-        result.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue));
+        result.put(fieldName, ScmArgumentChecker.checkAndCorrectTagsAsBson(tagsValue));
 
         return result;
     }
@@ -276,7 +268,7 @@ public class BatchDaoImpl implements IBatchDao {
         fieldName = FieldName.Batch.FIELD_TAGS;
         if (batchObj.containsField(fieldName)) {
             BSONObject tagsValue = (BSONObject) batchObj.get(fieldName);
-            batchObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTags(tagsValue));
+            batchObj.put(fieldName, ScmArgumentChecker.checkAndCorrectTagsAsBson(tagsValue));
         }
     }
 

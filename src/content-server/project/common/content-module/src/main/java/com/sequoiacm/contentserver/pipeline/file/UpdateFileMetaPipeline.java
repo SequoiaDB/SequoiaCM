@@ -2,7 +2,8 @@ package com.sequoiacm.contentserver.pipeline.file;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.contentserver.model.ScmVersion;
-import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaDefaultUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaContext;
 import com.sequoiacm.contentserver.site.ScmContentModule;
@@ -17,6 +18,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class UpdateFileMetaPipeline extends Pipeline<UpdateFileMetaContext> {
+
+    private FileMetaFactory fileMetaFactory;
+
+    public UpdateFileMetaPipeline(FileMetaFactory fileMetaFactory) {
+        this.fileMetaFactory = fileMetaFactory;
+    }
 
     @Override
     void preInvokeFilter(UpdateFileMetaContext context) throws ScmServerException {
@@ -39,7 +46,8 @@ public class UpdateFileMetaPipeline extends Pipeline<UpdateFileMetaContext> {
                             "failed to update file, file not exist: ws=" + context.getWs()
                                     + ", fileId=" + context.getFileId());
                 }
-                context.setCurrentLatestVersion(FileMeta.fromRecord(record));
+                context.setCurrentLatestVersion(
+                        fileMetaFactory.createFileMetaByRecord(context.getWs(), record));
             }
             catch (ScmMetasourceException e) {
                 throw new ScmServerException(e.getScmError(),
@@ -84,14 +92,13 @@ public class UpdateFileMetaPipeline extends Pipeline<UpdateFileMetaContext> {
 
         if (context.isHasGlobalUpdater()) {
             if (context.getUpdateUser() != null) {
-                context.addFileMetaUpdater(
-                        new FileMetaUpdater(FieldName.FIELD_CLFILE_INNER_UPDATE_USER,
-                                context.getUpdateUser(), true, -1, -1));
+                context.addFileMetaUpdater(FileMetaDefaultUpdater.globalFieldUpdater(
+                        FieldName.FIELD_CLFILE_INNER_UPDATE_USER, context.getUpdateUser()));
             }
             if (context.getUpdateTime() != null) {
-                context.addFileMetaUpdater(
-                        new FileMetaUpdater(FieldName.FIELD_CLFILE_INNER_UPDATE_TIME,
-                                context.getUpdateTime().getTime(), true, -1, -1));
+                context.addFileMetaUpdater(FileMetaDefaultUpdater.globalFieldUpdater(
+                        FieldName.FIELD_CLFILE_INNER_UPDATE_TIME,
+                        context.getUpdateTime().getTime()));
             }
             return;
         }
@@ -103,14 +110,14 @@ public class UpdateFileMetaPipeline extends Pipeline<UpdateFileMetaContext> {
 
         for (ScmVersion version : updatedVersions) {
             if (context.getUpdateUser() != null) {
-                context.addFileMetaUpdater(new FileMetaUpdater(
-                        FieldName.FIELD_CLFILE_INNER_UPDATE_USER, context.getUpdateUser(), false,
+                context.addFileMetaUpdater(FileMetaDefaultUpdater.versionFieldUpdater(
+                        FieldName.FIELD_CLFILE_INNER_UPDATE_USER, context.getUpdateUser(),
                         version.getMajorVersion(), version.getMinorVersion()));
             }
             if (context.getUpdateTime() != null) {
-                context.addFileMetaUpdater(new FileMetaUpdater(
+                context.addFileMetaUpdater(FileMetaDefaultUpdater.versionFieldUpdater(
                         FieldName.FIELD_CLFILE_INNER_UPDATE_TIME, context.getUpdateTime().getTime(),
-                        false, version.getMajorVersion(), version.getMinorVersion()));
+                        version.getMajorVersion(), version.getMinorVersion()));
             }
         }
 

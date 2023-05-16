@@ -421,6 +421,9 @@ public class CommonDefine {
 
         public static final String FILTER = "filter";
         public static final String ORDER_BY = "order_by";
+
+        public static final String ASCENDING = "ascending";
+
         public static final String SKIP = "skip";
         public static final String LIMIT = "limit";
         public static final String BUCKET_NAME = "bucket_name";
@@ -465,6 +468,23 @@ public class CommonDefine {
         public static final String QUOTA_ACTION_GET_QUOTA_INNER_DETAIL = "get_quota_inner_detail";
 
         public static final String KEEP_ALIVE = "keepAlive";
+
+        public static final String TAG_CONDITION = "tag_condition";
+        public static final String FILE_CONDITION = "file_condition";
+
+        public static final String TAG_KEY = "tag_key";
+        public static final String TAG_KEY_WILDCARD = "tag_key_wildcard";
+        public static final String TAG_VALUE = "tag_value";
+        public static final String TAG_VALUE_WILDCARD = "tag_value_wildcard";
+
+        public static final String TAG = "tag";
+        public static final String TAG_WILDCARD = "tag_wildcard";
+
+        public static final String UPDATE_INFO_ADD_TAG = "add_tag";
+        public static final String UPDATE_INFO_REMOVE_TAG = "remove_tag";
+        public static final String UPDATE_INFO_ADD_CUSTOM_TAG = "add_custom_tag";
+        public static final String UPDATE_INFO_REMOVE_CUSTOM_TAG = "remove_custom_tag";
+
     }
 
     public static class Directory {
@@ -519,6 +539,29 @@ public class CommonDefine {
     public static class DataCheckLevel {
         public static final String WEEK = "week";
         public static final String STRICT = "strict";
+    }
+
+    public static class WorkspaceTagRetrievalStatus {
+        public static final String ENABLED = "enabled";
+        public static final String DISABLED = "disabled";
+        public static final String INDEXING = "indexing";
+    }
+
+    public static class TagLib {
+        public static final String TAG_LIB_CS_PREFIX = "SCM_TAG_LIB_";
+        public static final String TAG_LIB_CL_TAIL = "_TAG_LIB";
+    }
+
+    public static class IdGenerator {
+
+        public static final String ID_GENERATOR_TABLE_CS = "SCMSYSTEM";
+        public static final String ID_GENERATOR_TABLE_CL = "ID_GENERATOR";
+        public static final String ID_GENERATOR_TABLE_NAME = ID_GENERATOR_TABLE_CS + "."
+                + ID_GENERATOR_TABLE_CL;
+        public static final String ID_TYPE = "type";
+        public static final String ID_ID = "id";
+
+        public final static String ID_TYPE_TAG = "tag";
     }
 
     public static class QuotaStatisticsStatus {

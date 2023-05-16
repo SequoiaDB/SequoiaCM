@@ -4,7 +4,9 @@ import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class BsonUtils {
@@ -106,6 +108,22 @@ public final class BsonUtils {
 
     public static BasicBSONList getArray(BSONObject object, String field) {
         return get(object, field);
+    }
+
+    public static List<Long> getLongArray(BSONObject object, String field) {
+        BasicBSONList bsonList = getArray(object, field);
+        if (bsonList == null) {
+            return null;
+        }
+
+        List<Long> ret = new ArrayList<Long>();
+        for (Object idObj : bsonList) {
+            if (!(idObj instanceof Number)) {
+                throw new IllegalArgumentException("tagId is not number type: " + object);
+            }
+            ret.add(((Number) idObj).longValue());
+        }
+        return ret;
     }
 
     public static BasicBSONList getArrayChecked(BSONObject object, String field) {

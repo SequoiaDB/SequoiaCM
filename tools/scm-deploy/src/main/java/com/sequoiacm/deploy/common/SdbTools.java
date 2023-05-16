@@ -29,6 +29,17 @@ public class SdbTools {
         }
     }
 
+    public static boolean isDomainExist(String urls, String user, String passwd, String domain) {
+        Sequoiadb db = null;
+        try {
+            db = SdbTools.createSdb(urls, user, passwd);
+            return db.isDomainExist(domain);
+        }
+        finally {
+            CommonUtils.closeResource(db);
+        }
+    }
+
     public static Sequoiadb createSdb(String urls, String user, String passwd) {
         List<String> url = Arrays.asList(urls.split(","));
         return new Sequoiadb(url, user, passwd, new ConfigOptions());

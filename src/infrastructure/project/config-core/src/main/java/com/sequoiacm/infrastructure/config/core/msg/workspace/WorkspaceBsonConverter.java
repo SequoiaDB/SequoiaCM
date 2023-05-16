@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.core.msg.workspace;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
@@ -79,14 +80,26 @@ public class WorkspaceBsonConverter implements BsonConverter {
         wsConfig.setSiteCacheStrategy(
                 BsonUtils.getStringOrElse(config, FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                         ScmSiteCacheStrategy.ALWAYS.name()));
+        wsConfig.setTagLibMetaOption(
+                BsonUtils.getBSON(config, FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION));
+        wsConfig.setTagLibTableName(
+                BsonUtils.getString(config, FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE));
+        wsConfig.setTagRetrievalStatus(
+                BsonUtils.getStringOrElse(config, FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+                        CommonDefine.WorkspaceTagRetrievalStatus.DISABLED));
+        wsConfig.setTagUpgrading(BsonUtils.getBooleanOrElse(config,
+                FieldName.FIELD_CLWORKSPACE_TAG_UPGRADING, false));
         return wsConfig;
     }
 
     @Override
     public ConfigFilter convertToConfigFilter(BSONObject configFilter) {
-        String wsName = BsonUtils.getString(configFilter,
-                ScmRestArgDefine.WORKSPACE_CONF_WORKSPACENAME);
-        return new WorkspaceFilter(wsName);
+        WorkspaceFilter filter = new WorkspaceFilter();
+        filter.setWsName(
+                BsonUtils.getString(configFilter, ScmRestArgDefine.WORKSPACE_CONF_WORKSPACENAME));
+        filter.setTagRetrievalStatus(BsonUtils.getString(configFilter,
+                ScmRestArgDefine.WORKSPACE_CONF_TAG_RETRIEVAL_STATUS));
+        return filter;
     }
 
     @Override
@@ -136,6 +149,12 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_UPDATOR_META_DOMAIN));
         configUpdator.setAddExtraMetaCs(BsonUtils.getString(wsUpdatorObj,
                 ScmRestArgDefine.WORKSPACE_UPDATOR_ADD_EXTRA_META_CS));
+        configUpdator.setTagRetrievalStatus(BsonUtils.getString(wsUpdatorObj,
+                ScmRestArgDefine.WORKSPACE_CONF_TAG_RETRIEVAL_STATUS));
+        configUpdator.setTagUpgrading(BsonUtils.getBoolean(wsUpdatorObj,
+                ScmRestArgDefine.WORKSPACE_CONF_TAG_UPGRADING));
+        configUpdator.setTagLibTable(
+                BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_TAG_LIB_TABLE));
         return configUpdator;
     }
 

@@ -2,6 +2,8 @@ package com.sequoiacm.contentserver.contentmodule;
 
 import java.util.List;
 
+import com.sequoiacm.contentserver.common.IDGeneratorDao;
+import com.sequoiacm.contentserver.tag.TagLibMgr;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,8 @@ public class ContentModuleInitializer {
     private final IMetaSourceHandler metaSouceHandler;
     private final BucketInfoManager bucketInfoMgr;
     private final IDirService dirService;
+    private final IDGeneratorDao idGeneratorDao;
+    private final TagLibMgr tagLibMgr;
 
     private ScmPrivClient privClient;
 
@@ -44,9 +48,9 @@ public class ContentModuleInitializer {
     private ApplicationContext applicationContext;
 
     public ContentModuleInitializer(ApplicationContext applicationContext, ScmPrivClient privClient,
-            ScmConfClient confClient,
-            String serviceName, String bindingSite, IMetaSourceHandler metaSourceHandler,
-            BucketInfoManager bucketMgr, IDirService dirService) {
+            ScmConfClient confClient, String serviceName, String bindingSite,
+            IMetaSourceHandler metaSourceHandler, BucketInfoManager bucketMgr,
+            IDirService dirService, IDGeneratorDao idGeneratorDao, TagLibMgr tagLibMgr) {
         this.applicationContext = applicationContext;
         this.privClient = privClient;
         this.confClient = confClient;
@@ -55,6 +59,8 @@ public class ContentModuleInitializer {
         this.metaSouceHandler = metaSourceHandler;
         this.bucketInfoMgr = bucketMgr;
         this.dirService = dirService;
+        this.idGeneratorDao = idGeneratorDao;
+        this.tagLibMgr = tagLibMgr;
     }
 
     public void initBizComponent() throws Exception {
@@ -74,8 +80,8 @@ public class ContentModuleInitializer {
                 .init(confClient, bucketInfoMgr);
 
         // subscribe ws config
-        contentserverConfClient.subscribeWithAsyncRetry(new WorkspaceConfSubscriber(bucketInfoMgr, serviceName,
-                PropertiesUtils.getWorkspaceVersionHeartbeat()));
+        contentserverConfClient.subscribeWithAsyncRetry(new WorkspaceConfSubscriber(bucketInfoMgr,
+                serviceName, PropertiesUtils.getWorkspaceVersionHeartbeat(), tagLibMgr));
         // subscribe metadata config
         contentserverConfClient.subscribeWithAsyncRetry(new MetaDataConfSubscriber(serviceName,
                 PropertiesUtils.getMetaDataVersionHearbeat()));
@@ -102,6 +108,8 @@ public class ContentModuleInitializer {
         logger.info("ScmPrivClient={}", privClient);
         ScmFileServicePriv.getInstance().init(bucketInfoMgr, dirService, privClient,
                 PropertiesUtils.getPrivilegeHeartBeatInterval());
+
+        idGeneratorDao.ensureTable();
     }
 
     public void initIdGenerator(int serverId) throws Exception {

@@ -2,6 +2,7 @@ package com.sequoiacm.contentserver.pipeline.file;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import org.apache.commons.lang.StringUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -35,9 +36,12 @@ import com.sequoiacm.metasource.sequoiadb.config.SdbMetaSourceLocation;
 @PrepareForTest({ ScmContentModule.class })
 public class TestCreateFileMeta extends ScmTestBase {
 
+    private FileMetaFactory fileMetaFactory;
+
     @Configuration
     @ComponentScan(value = { "com.sequoiacm.contentserver.bucket",
-            "com.sequoiacm.contentserver.pipeline.file" })
+            "com.sequoiacm.contentserver.pipeline.file",
+            "com.sequoiacm.contentserver.pipeline.file.module" })
     static class InnerConfig {
     }
 
@@ -59,7 +63,8 @@ public class TestCreateFileMeta extends ScmTestBase {
 
     @Test
     public void test() throws ScmServerException {
-        FileMeta fileMeta = FileMeta.fromRecord(generateFileRec());
+        FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(wsInfo.getName(),
+                generateFileRec());
         CreateFileMetaResult result = fileMetaOperator.createFileMeta(WORKSPACE, fileMeta, null);
         FileMeta newFile = result.getNewFile();
         Assert.assertTrue(StringUtils.equals(fileMeta.getName(), newFile.getName()));
@@ -98,6 +103,7 @@ public class TestCreateFileMeta extends ScmTestBase {
         // 手动加载 Spring 容器
         ApplicationContext context = new AnnotationConfigApplicationContext(InnerConfig.class);
         fileMetaOperator = (FileMetaOperator) context.getBean("fileMetaOperator");
+        fileMetaFactory = (FileMetaFactory) context.getBean("fileMetaFactory");
         // 对注解了 @Mock 的对象进行模拟
         MockitoAnnotations.initMocks(this);
     }

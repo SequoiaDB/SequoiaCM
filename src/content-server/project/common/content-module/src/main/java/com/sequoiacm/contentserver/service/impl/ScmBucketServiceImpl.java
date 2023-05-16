@@ -6,7 +6,6 @@ import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
-import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.contentmodule.TransactionCallback;
@@ -28,6 +27,8 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.pipeline.file.module.FileExistStrategy;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMeta;
 import com.sequoiacm.contentserver.pipeline.file.FileMetaOperator;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaDefaultUpdater;
+import com.sequoiacm.contentserver.pipeline.file.module.FileMetaFactory;
 import com.sequoiacm.contentserver.pipeline.file.module.FileMetaUpdater;
 import com.sequoiacm.contentserver.pipeline.file.module.FileUploadConf;
 import com.sequoiacm.contentserver.pipeline.file.module.UpdateFileMetaResult;
@@ -62,10 +63,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -101,6 +102,9 @@ public class ScmBucketServiceImpl implements IScmBucketService {
 
     @Autowired
     private BucketQuotaManager quotaManager;
+
+    @Autowired
+    private FileMetaFactory fileMetaFactory;
 
     @Override
     public ScmBucket createBucket(ScmUser user, String ws, String name) throws ScmServerException {
@@ -559,7 +563,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                         "bucket file not found: bucket=" + bucketName + ", fileName=" + fileName
                                 + ", fileId=" + fileId);
             }
-            FileMeta fileMeta = FileMeta.fromRecord(file);
+            FileMeta fileMeta = fileMetaFactory.createFileMetaByRecord(wsInfo.getName(), file);
             if (!isFileInBucket(fileMeta, bucketName)) {
                 logger.info(
                         "bucket file already detach from bucket: bucketName={}, fileName={}, fileId={}",
@@ -568,10 +572,11 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                         "bucket file not found: bucket=" + bucketName + ", fileName=" + fileName);
             }
             UpdateFileMetaResult res = fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId,
-                    Arrays.asList(new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null)),
+                    Collections.singletonList(FileMetaDefaultUpdater
+                            .globalFieldUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null)),
                     user.getUsername(), new Date(), fileMeta, null);
-            operationCompleteCallback = listenerMgr.postUpdate(wsInfo,
-                    fileMeta, res.getLatestVersionAfterUpdate());
+            operationCompleteCallback = listenerMgr.postUpdate(wsInfo, fileMeta,
+                    res.getLatestVersionAfterUpdate());
             audit.info(ScmAuditType.UPDATE_FILE, user, bucket.getWorkspace(), 0,
                     "bucket detach file: bucketName=" + bucketName + ", fileName=" + fileName
                             + ", fileId=" + fileId);
@@ -724,14 +729,16 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                 return failure;
             }
 
-            FileMeta latestVersionMeta = FileMeta.fromRecord(latestFileVersion);
+            FileMeta latestVersionMeta = fileMetaFactory.createFileMetaByRecord(wsInfo.getName(),
+                    latestFileVersion);
 
             List<FileMetaUpdater> fileMetaUpdaters = new ArrayList<>();
-            fileMetaUpdaters.add(new FileMetaUpdater(FieldName.FIELD_CLFILE_FILE_BUCKET_ID,
-                    attachToBucket.getId()));
+            fileMetaUpdaters.add(FileMetaDefaultUpdater.globalFieldUpdater(
+                    FieldName.FIELD_CLFILE_FILE_BUCKET_ID, attachToBucket.getId()));
             if (attachKeyType == ScmBucketAttachKeyType.FILE_ID) {
-                fileMetaUpdaters.add(new FileMetaUpdater(FieldName.FIELD_CLFILE_NAME, fileId));
-                fileMetaUpdaters.add(new FileMetaUpdater(
+                fileMetaUpdaters.add(FileMetaDefaultUpdater
+                        .globalFieldUpdater(FieldName.FIELD_CLFILE_NAME, fileId));
+                fileMetaUpdaters.add(FileMetaDefaultUpdater.globalFieldUpdater(
                         FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + "."
                                 + FieldName.FIELD_CLFILE_FILE_EXT_NAME_BEFORE_ATTACH,
                         latestVersionMeta.getName()));
@@ -740,8 +747,8 @@ public class ScmBucketServiceImpl implements IScmBucketService {
                     latestVersionMeta.getSize(), latestVersionMeta.getCreateTime());
             UpdateFileMetaResult ret = fileMetaOperator.updateFileMeta(wsInfo.getName(), fileId,
                     fileMetaUpdaters, username, new Date(), latestVersionMeta, null);
-            operationCompleteCallback = listenerMgr.postUpdate(wsInfo,
-                    latestVersionMeta, ret.getLatestVersionAfterUpdate());
+            operationCompleteCallback = listenerMgr.postUpdate(wsInfo, latestVersionMeta,
+                    ret.getLatestVersionAfterUpdate());
             return null;
         }
         catch (Exception e) {
@@ -781,12 +788,12 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
-    public BSONObject getFileVersion(ScmUser user, String bucketName, String fileName,
+    public FileMeta getFileVersion(ScmUser user, String bucketName, String fileName,
             int majorVersion, int minorVersion) throws ScmServerException {
         ScmBucket bucket = getBucket(bucketName);
         ScmFileServicePriv.getInstance().checkBucketPriority(user, bucket.getWorkspace(),
                 bucket.getName(), ScmPrivilegeDefine.READ, "get file in bucket");
-        BSONObject ret = getFileVersion(bucketName, fileName, majorVersion, minorVersion);
+        FileMeta ret = getFileVersion(bucketName, fileName, majorVersion, minorVersion);
         audit.info(ScmAuditType.FILE_DQL, user, bucket.getWorkspace(), 0,
                 "get file in bucket: bucketName=" + bucketName + ", fileName=" + fileName
                         + ", version=" + majorVersion + "." + minorVersion);
@@ -794,7 +801,7 @@ public class ScmBucketServiceImpl implements IScmBucketService {
     }
 
     @Override
-    public BSONObject getFileVersion(String bucketName, String fileName, int majorVersion,
+    public FileMeta getFileVersion(String bucketName, String fileName, int majorVersion,
             int minorVersion) throws ScmServerException {
         ScmBucket bucket = getBucket(bucketName);
         String fileId = getFileId(bucket, fileName);
@@ -806,12 +813,11 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             throw new ScmServerException(ScmError.FILE_NOT_FOUND,
                     "file not exist: bucket=" + bucketName + ", fileName=" + fileName);
         }
-        return fileInfo;
-
+        return fileMetaFactory.createFileMetaByRecord(ws.getName(), fileInfo);
     }
 
     @Override
-    public BSONObject getFileNullVersion(ScmUser user, String bucketName, String fileName)
+    public FileMeta getFileNullVersion(ScmUser user, String bucketName, String fileName)
             throws ScmServerException {
         return getFileVersion(user, bucketName, fileName, CommonDefine.File.NULL_VERSION_MAJOR,
                 CommonDefine.File.NULL_VERSION_MINOR);

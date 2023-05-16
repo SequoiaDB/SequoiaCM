@@ -1,33 +1,35 @@
 package com.sequoiacm.contentserver.pipeline.file.module;
 
-import com.google.common.base.Strings;
-import com.sequoiacm.common.CommonDefine;
-import com.sequoiacm.common.FieldName;
+import java.util.Date;
+
 import com.sequoiacm.common.MimeType;
+import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmArgumentChecker;
 import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
-import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
+import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
-import com.sequoiacm.contentserver.model.ScmVersion;
+import com.sequoiacm.contentserver.model.ScmBucket;
+import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
-import java.util.Date;
-import java.util.TreeMap;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.base.Strings;
+import com.sequoiacm.common.CommonDefine;
+import com.sequoiacm.common.FieldName;
+import com.sequoiacm.contentserver.common.ScmSystemUtils;
+import com.sequoiacm.contentserver.model.ScmVersion;
 
-public class FileMeta implements Cloneable {
+public abstract class FileMeta implements Cloneable {
+    private BucketInfoManager bucketInfoManager;
     private String id;
     private String name;
     private Long bucketId;
@@ -38,7 +40,6 @@ public class FileMeta implements Cloneable {
     private int type;
     private String classId;
     private BSONObject classProperties;
-    private BSONObject tags;
     private String user;
     private String updateUser;
     private Long createTime;
@@ -60,7 +61,6 @@ public class FileMeta implements Cloneable {
     private boolean deleteMarker;
     private int status;
     private String transId;
-    private Map<String, String> customTag;
     private BasicBSONList accessHistory;
 
     // 新增字段需要调整如下函数：
@@ -69,47 +69,52 @@ public class FileMeta implements Cloneable {
     // fromUser()
     // fromRecord()
 
-    // 深拷贝
-    private FileMeta(FileMeta fileMeta) {
-        this.id = fileMeta.id;
-        this.name = fileMeta.name;
-        this.bucketId = fileMeta.bucketId;
-        this.dirId = fileMeta.dirId;
-        this.batchId = fileMeta.batchId;
-        this.majorVersion = fileMeta.majorVersion;
-        this.minorVersion = fileMeta.minorVersion;
-        this.type = fileMeta.type;
-        this.classId = fileMeta.classId;
-        this.classProperties = BsonUtils.deepCopyRecordBSON(fileMeta.classProperties);
-        this.tags = BsonUtils.deepCopyRecordBSON(fileMeta.tags);
-        this.user = fileMeta.user;
-        this.updateUser = fileMeta.updateUser;
-        this.createTime = fileMeta.createTime;
-        this.updateTime = fileMeta.updateTime;
-        this.createMonth = fileMeta.createMonth;
-        this.dataCreateTime = fileMeta.dataCreateTime;
-        this.dataType = fileMeta.dataType;
-        this.size = fileMeta.size;
-        this.dataId = fileMeta.dataId;
-        this.siteList = (BasicBSONList) BsonUtils.deepCopyRecordBSON(fileMeta.siteList);
-        this.title = fileMeta.title;
-        this.author = fileMeta.author;
-        this.mimeType = fileMeta.mimeType;
-        this.md5 = fileMeta.md5;
-        this.etag = fileMeta.etag;
-        this.externalData = BsonUtils.deepCopyRecordBSON(fileMeta.externalData);
-        this.customMeta = BsonUtils.deepCopyRecordBSON(fileMeta.customMeta);
-        this.versionSerial = fileMeta.versionSerial;
-        this.deleteMarker = fileMeta.deleteMarker;
-        this.status = fileMeta.status;
-        this.transId = fileMeta.transId;
-        this.customTag = fileMeta.customTag;
-        this.accessHistory = BsonUtils.deepCopyBasicBSONList(fileMeta.accessHistory);
-
-        // 如果是赋值 BSON 类型，使用 BsonUtils.deepCopy
+    FileMeta(BucketInfoManager bucketInfoManager) {
+        this.bucketInfoManager = bucketInfoManager;
     }
 
-    private FileMeta() {
+    public FileMeta clone() {
+        FileMeta clone;
+        try {
+            clone = (FileMeta) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new IllegalStateException("FileMeta clone failed: " + this.getSimpleDesc(), e);
+        }
+        clone.bucketInfoManager = this.bucketInfoManager;
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.bucketId = this.bucketId;
+        clone.dirId = this.dirId;
+        clone.batchId = this.batchId;
+        clone.majorVersion = this.majorVersion;
+        clone.minorVersion = this.minorVersion;
+        clone.type = this.type;
+        clone.classId = this.classId;
+        clone.classProperties = BsonUtils.deepCopyRecordBSON(this.classProperties);
+        clone.user = this.user;
+        clone.updateUser = this.updateUser;
+        clone.createTime = this.createTime;
+        clone.updateTime = this.updateTime;
+        clone.createMonth = this.createMonth;
+        clone.dataCreateTime = this.dataCreateTime;
+        clone.dataType = this.dataType;
+        clone.size = this.size;
+        clone.dataId = this.dataId;
+        clone.siteList = (BasicBSONList) BsonUtils.deepCopyRecordBSON(this.siteList);
+        clone.title = this.title;
+        clone.author = this.author;
+        clone.mimeType = this.mimeType;
+        clone.md5 = this.md5;
+        clone.etag = this.etag;
+        clone.externalData = BsonUtils.deepCopyRecordBSON(this.externalData);
+        clone.customMeta = BsonUtils.deepCopyRecordBSON(this.customMeta);
+        clone.versionSerial = this.versionSerial;
+        clone.deleteMarker = this.deleteMarker;
+        clone.status = this.status;
+        clone.transId = this.transId;
+        clone.accessHistory = BsonUtils.deepCopyBasicBSONList(this.accessHistory);
+        return clone;
     }
 
     public String getId() {
@@ -155,6 +160,7 @@ public class FileMeta implements Cloneable {
     public ScmVersion getVersion() {
         return new ScmVersion(majorVersion, minorVersion);
     }
+
     public void setMajorVersion(int majorVersion) {
         this.majorVersion = majorVersion;
     }
@@ -179,10 +185,6 @@ public class FileMeta implements Cloneable {
         return classProperties;
     }
 
-    public BSONObject getTags() {
-        return tags;
-    }
-
     public String getUser() {
         return user;
     }
@@ -194,7 +196,6 @@ public class FileMeta implements Cloneable {
     public Long getCreateTime() {
         return createTime;
     }
-
 
     public String getCreateMonth() {
         return createMonth;
@@ -276,13 +277,6 @@ public class FileMeta implements Cloneable {
         return transId;
     }
 
-    public Map<String, String> getCustomTag() {
-        return customTag;
-    }
-
-    public void setCustomTag(Map<String, String> customTag) {
-        this.customTag = customTag;
-    }
     public BasicBSONList getAccessHistory() {
         return accessHistory;
     }
@@ -302,139 +296,6 @@ public class FileMeta implements Cloneable {
         this.createMonth = ScmSystemUtils.getCurrentYearMonth(idGenDate);
     }
 
-    public static FileMeta deleteMarkerMeta(String ws, String fileName, String user, long bucketId)
-            throws ScmServerException {
-        BSONObject obj = new BasicBSONObject(FieldName.FIELD_CLFILE_NAME, fileName);
-        FileMeta ret = fromUser(ws, obj, user);
-        ret.setBucketId(bucketId);
-        ret.setDeleteMarker(true);
-        Date createTime = new Date();
-        ret.resetFileIdAndFileTime(ScmIdGenerator.FileId.get(createTime), createTime);
-        return ret;
-    }
-
-    public static FileMeta fromUser(String ws, BSONObject userFileObject, String user)
-            throws ScmServerException {
-        return fromUser(ws, userFileObject, user, true);
-    }
-
-    public static FileMeta fromUser(String ws, BSONObject userFileObject, String user,
-                                    boolean checkPropsClass) throws ScmServerException {
-        FileMeta fileMeta = new FileMeta();
-        if (userFileObject == null) {
-            userFileObject = new BasicBSONObject();
-        }
-
-        String fileName = BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_NAME);
-        ScmFileOperateUtils.checkFileName(
-                ScmContentModule.getInstance().getWorkspaceInfoCheckExist(ws), fileName);
-        fileMeta.name = fileName;
-
-        fileMeta.author = BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_FILE_AUTHOR);
-
-        fileMeta.title = BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_FILE_TITLE);
-
-        fileMeta.mimeType = BsonUtils.getStringOrElse(userFileObject,
-                FieldName.FIELD_CLFILE_FILE_MIME_TYPE, MimeType.OCTET_STREAM.getType());
-
-        fileMeta.classId = BsonUtils.getString(userFileObject,
-                FieldName.FIELD_CLFILE_FILE_CLASS_ID);
-        BSONObject classValue = BsonUtils.getBSON(userFileObject,
-                FieldName.FIELD_CLFILE_PROPERTIES);
-        fileMeta.classProperties = BsonUtils.deepCopyRecordBSON(classValue);
-        if (checkPropsClass) {
-            MetaDataManager.getInstence().checkPropeties(ws, fileMeta.classId,
-                    fileMeta.classProperties);
-            fileMeta.classProperties = ScmArgumentChecker.checkAndCorrectClass(
-                    fileMeta.classProperties, FieldName.FIELD_CLFILE_PROPERTIES);
-        }
-
-        BSONObject tagsValue = BsonUtils.getBSON(userFileObject, FieldName.FIELD_CLFILE_TAGS);
-        tagsValue = BsonUtils.deepCopyRecordBSON(tagsValue);
-        Set<Object> tagsSet = ScmArgumentChecker.checkAndCorrectTags(tagsValue);
-        BasicBSONList tagsBson = new BasicBSONList();
-        tagsBson.addAll(tagsSet);
-        fileMeta.tags = tagsBson;
-
-        BSONObject extData = BsonUtils.getBSON(userFileObject,
-                FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
-        extData = BsonUtils.deepCopyRecordBSON(extData);
-        BSONObject newExtData = new BasicBSONObject();
-        if (extData != null) {
-            newExtData.putAll(extData);
-        }
-        fileMeta.externalData = extData;
-
-        BSONObject customMeta = BsonUtils.getBSON(userFileObject,
-                FieldName.FIELD_CLFILE_CUSTOM_METADATA);
-        customMeta = BsonUtils.deepCopyRecordBSON(customMeta);
-        BSONObject newCustomMeta = new BasicBSONObject();
-        if (customMeta != null) {
-            newCustomMeta.putAll(customMeta);
-        }
-        fileMeta.customMeta = newCustomMeta;
-
-        fileMeta.majorVersion = 1;
-        fileMeta.minorVersion = 0;
-        fileMeta.type = 1;
-        fileMeta.siteList = new BasicBSONList();
-        fileMeta.dataId = null;
-        fileMeta.dataCreateTime = null;
-
-        BSONObject customTag = BsonUtils.getBSON(userFileObject, FieldName.FIELD_CLFILE_CUSTOM_TAG);
-        customTag = BsonUtils.deepCopyRecordBSON(customTag);
-        Map<String, String> newCustomTag = new TreeMap<>();
-        if (customTag != null) {
-            newCustomTag.putAll(customTag.toMap());
-        }
-        fileMeta.customTag = newCustomTag;
-
-        fileMeta.user = user;
-
-        fileMeta.id = BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_ID);
-        Number fileCreateTime = BsonUtils.getNumber(userFileObject,
-                FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
-        if (fileCreateTime != null) {
-            fileMeta.createTime = fileCreateTime.longValue();
-            fileMeta.updateTime = fileMeta.createTime;
-            if (fileMeta.id != null) {
-                ScmIdParser idParser = new ScmIdParser(fileMeta.id);
-                if (fileCreateTime.longValue() / 1000 != idParser.getSecond()) {
-                    throw new ScmInvalidArgumentException(
-                            "The specified fileID and createTime is conflict, creatTime="
-                                    + new Date(fileCreateTime.longValue()));
-                }
-            }
-            fileMeta.createMonth = ScmSystemUtils
-                    .getCurrentYearMonth(new Date(fileMeta.createTime));
-        }
-
-        // Date fileCreateDate = new Date(fileCreateTime);
-        //
-        // fileMeta.id = ScmIdGenerator.FileId.get(fileCreateDate);
-        // fileMeta.createTime = fileCreateTime;
-        // fileMeta.createMonth = ScmSystemUtils.getCurrentYearMonth(fileCreateDate);
-
-        fileMeta.updateUser = user;
-        fileMeta.status = ServiceDefine.FileStatus.NORMAL;
-        fileMeta.transId = "";
-        fileMeta.dataType = ENDataType.Normal.getValue();
-        fileMeta.size = 0;
-        fileMeta.md5 = null;
-        fileMeta.etag = null;
-        fileMeta.versionSerial = null;
-        fileMeta.deleteMarker = false;
-
-        fileMeta.bucketId = null;
-        fileMeta.dirId = null;
-        fileMeta.batchId = "";
-
-        fileMeta.accessHistory = new BasicBSONList();
-
-        return fileMeta;
-
-    }
-
     public void resetDataInfo(String dataId, long dataCreateTime, int dataType, long dataSize,
             String md5, int dataSite, int wsVersion, String tableName) {
         this.dataId = dataId;
@@ -448,7 +309,7 @@ public class FileMeta implements Cloneable {
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME, dataCreateTime);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME, dataCreateTime);
         oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION, wsVersion);
-        if (!Strings.isNullOrEmpty(tableName)){
+        if (!Strings.isNullOrEmpty(tableName)) {
             oneSite.put(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TABLE_NAME, tableName);
         }
         BasicBSONList sites = new BasicBSONList();
@@ -456,13 +317,14 @@ public class FileMeta implements Cloneable {
         this.siteList = sites;
 
         BSONObject access = new BasicBSONObject();
-        access.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID,dataSite);
+        access.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_ID, dataSite);
         BasicBSONList lastAccessTimeHis = new BasicBSONList();
         lastAccessTimeHis.add(dataCreateTime);
-        access.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS,lastAccessTimeHis);
+        access.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY_LAST_ACCESS_TIME_HIS, lastAccessTimeHis);
         BasicBSONList accessRecord = new BasicBSONList();
         accessRecord.add(access);
         this.accessHistory = accessRecord;
+        this.deleteMarker = false;
     }
 
     public boolean isFirstVersion() {
@@ -475,12 +337,91 @@ public class FileMeta implements Cloneable {
         return false;
     }
 
-    @Override
-    public FileMeta clone() {
-        return new FileMeta(this);
+    protected BSONObject asUserInfoBson() throws ScmServerException {
+        BSONObject bson = asRecordBSON();
+        if (bucketId != null) {
+            ScmBucket bucket = bucketInfoManager.getBucketById(bucketId);
+            if (bucket != null) {
+                bson.put(CommonDefine.RestArg.BUCKET_NAME, bucket.getName());
+            }
+            else {
+                bson.put(FieldName.FIELD_CLFILE_FILE_BUCKET_ID, null);
+            }
+        }
+        return bson;
     }
 
-    public BSONObject toBSONObject() {
+    // 根据入参 fileCurrentLatestVersion 重置当前对象的文件全局属性，生成版本号
+    public void newVersionFrom(FileMeta fileCurrentLatestVersion) throws ScmServerException {
+        BSONObject standardBson = fileCurrentLatestVersion.toRecordBSON();
+        BSONObject myBson = toRecordBSON();
+        ScmFileVersionHelper.resetNewFileVersion(myBson, standardBson);
+        loadInfoFromRecord(myBson);
+    }
+
+    protected void loadBasicInfoFromRecord(BSONObject bson) {
+        this.id = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_ID);
+        this.name = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_NAME);
+        Number num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
+        if (num != null) {
+            this.bucketId = num.longValue();
+        }
+
+        this.dirId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_DIRECTORY_ID);
+        this.batchId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_BATCH_ID);
+        this.minorVersion = BsonUtils.getIntegerChecked(bson, FieldName.FIELD_CLFILE_MINOR_VERSION);
+        this.majorVersion = BsonUtils.getIntegerChecked(bson, FieldName.FIELD_CLFILE_MAJOR_VERSION);
+        this.type = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_TYPE, 1);
+        this.classId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_CLASS_ID);
+        this.classProperties = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_PROPERTIES);
+        this.classProperties = BsonUtils.deepCopyRecordBSON(this.classProperties);
+
+        this.user = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_INNER_USER);
+        this.updateUser = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_INNER_UPDATE_USER);
+        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
+        if (num != null) {
+            this.createTime = num.longValue();
+        }
+        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_INNER_UPDATE_TIME);
+        if (num != null) {
+            this.updateTime = num.longValue();
+        }
+        this.createMonth = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
+        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
+        if (num != null) {
+            this.dataCreateTime = num.longValue();
+        }
+        this.dataType = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_FILE_DATA_TYPE,
+                ENDataType.Normal.getValue());
+        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_FILE_SIZE);
+        if (num != null) {
+            this.size = num.longValue();
+        }
+        this.dataId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_DATA_ID);
+        this.siteList = BsonUtils.getArray(bson, FieldName.FIELD_CLFILE_FILE_SITE_LIST);
+        this.siteList = (BasicBSONList) BsonUtils.deepCopyRecordBSON(this.siteList);
+        this.title = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_TITLE);
+        this.author = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_AUTHOR);
+        this.mimeType = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
+        this.md5 = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_MD5);
+        this.etag = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_ETAG);
+        this.externalData = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+        this.externalData = BsonUtils.deepCopyRecordBSON(this.externalData);
+        this.customMeta = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+        this.customMeta = BsonUtils.deepCopyRecordBSON(this.customMeta);
+        this.versionSerial = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_VERSION_SERIAL);
+        this.deleteMarker = BsonUtils.getBooleanOrElse(bson, FieldName.FIELD_CLFILE_DELETE_MARKER,
+                false);
+        this.status = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_EXTRA_STATUS,
+                ServiceDefine.FileStatus.NORMAL);
+        this.transId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_EXTRA_TRANS_ID);
+        this.accessHistory = BsonUtils.getArray(bson, FieldName.FIELD_CLFILE_ACCESS_HISTORY);
+        if (this.accessHistory != null) {
+            this.accessHistory = (BasicBSONList) BsonUtils.deepCopyRecordBSON(this.accessHistory);
+        }
+    }
+
+    protected BSONObject asRecordBSON() {
         BasicBSONObject bson = new BasicBSONObject();
         bson.put(FieldName.FIELD_CLFILE_ID, id);
         bson.put(FieldName.FIELD_CLFILE_NAME, name);
@@ -492,7 +433,6 @@ public class FileMeta implements Cloneable {
         bson.put(FieldName.FIELD_CLFILE_TYPE, type);
         bson.put(FieldName.FIELD_CLFILE_FILE_CLASS_ID, classId);
         bson.put(FieldName.FIELD_CLFILE_PROPERTIES, classProperties);
-        bson.put(FieldName.FIELD_CLFILE_TAGS, tags);
         bson.put(FieldName.FIELD_CLFILE_INNER_USER, user);
         bson.put(FieldName.FIELD_CLFILE_INNER_UPDATE_USER, updateUser);
         bson.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, createTime);
@@ -514,101 +454,206 @@ public class FileMeta implements Cloneable {
         bson.put(FieldName.FIELD_CLFILE_DELETE_MARKER, deleteMarker);
         bson.put(FieldName.FIELD_CLFILE_EXTRA_STATUS, status);
         bson.put(FieldName.FIELD_CLFILE_EXTRA_TRANS_ID, transId);
-        if (customTag != null) {
-            bson.put(FieldName.FIELD_CLFILE_CUSTOM_TAG, new BasicBSONObject(customTag));
-        }
         if (accessHistory != null) {
             bson.put(FieldName.FIELD_CLFILE_ACCESS_HISTORY, accessHistory);
         }
         return bson;
     }
 
-    // 根据入参 fileCurrentLatestVersion 重置当前对象的文件全局属性，生成版本号
-    public void newVersionFrom(FileMeta fileCurrentLatestVersion) throws ScmServerException {
-        BSONObject standardBson = fileCurrentLatestVersion.toBSONObject();
-        BSONObject myBson = toBSONObject();
-        ScmFileVersionHelper.resetNewFileVersion(myBson, standardBson);
-        setValueFromBSON(this, myBson);
-    }
-
-    public static FileMeta fromRecord(BSONObject fileRecord) throws ScmServerException {
-        FileMeta fileMeta = new FileMeta();
-        setValueFromBSON(fileMeta, fileRecord);
-        return fileMeta;
-    }
-
-    private static void setValueFromBSON(FileMeta fileMeta, BSONObject bson)
-            throws ScmServerException {
-        fileMeta.id = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_ID);
-        fileMeta.name = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_NAME);
-        Number num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_FILE_BUCKET_ID);
-        if (num != null) {
-            fileMeta.bucketId = num.longValue();
-        }
-
-        fileMeta.dirId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_DIRECTORY_ID);
-        fileMeta.batchId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_BATCH_ID);
-        fileMeta.minorVersion = BsonUtils.getIntegerChecked(bson,
-                FieldName.FIELD_CLFILE_MINOR_VERSION);
-        fileMeta.majorVersion = BsonUtils.getIntegerChecked(bson,
-                FieldName.FIELD_CLFILE_MAJOR_VERSION);
-        fileMeta.type = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_TYPE, 1);
-        fileMeta.classId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_CLASS_ID);
-        fileMeta.classProperties = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_PROPERTIES);
-        fileMeta.classProperties = BsonUtils.deepCopyRecordBSON(fileMeta.classProperties);
-        fileMeta.tags = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_TAGS);
-        fileMeta.tags = BsonUtils.deepCopyRecordBSON(fileMeta.tags);
-        fileMeta.user = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_INNER_USER);
-        fileMeta.updateUser = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_INNER_UPDATE_USER);
-        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
-        if (num != null) {
-            fileMeta.createTime = num.longValue();
-        }
-        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_INNER_UPDATE_TIME);
-        if (num != null) {
-            fileMeta.updateTime = num.longValue();
-        }
-        fileMeta.createMonth = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
-        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
-        if (num != null) {
-            fileMeta.dataCreateTime = num.longValue();
-        }
-        fileMeta.dataType = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_FILE_DATA_TYPE,
-                ENDataType.Normal.getValue());
-        num = BsonUtils.getNumber(bson, FieldName.FIELD_CLFILE_FILE_SIZE);
-        if (num != null) {
-            fileMeta.size = num.longValue();
-        }
-        fileMeta.dataId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_DATA_ID);
-        fileMeta.siteList = BsonUtils.getArray(bson, FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-        fileMeta.siteList = (BasicBSONList) BsonUtils.deepCopyRecordBSON(fileMeta.siteList);
-        fileMeta.title = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_TITLE);
-        fileMeta.author = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_AUTHOR);
-        fileMeta.mimeType = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_MIME_TYPE);
-        fileMeta.md5 = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_MD5);
-        fileMeta.etag = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_FILE_ETAG);
-        fileMeta.externalData = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
-        fileMeta.externalData = BsonUtils.deepCopyRecordBSON(fileMeta.externalData);
-        fileMeta.customMeta = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_CUSTOM_METADATA);
-        fileMeta.customMeta = BsonUtils.deepCopyRecordBSON(fileMeta.customMeta);
-        fileMeta.versionSerial = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_VERSION_SERIAL);
-        fileMeta.deleteMarker = BsonUtils.getBooleanOrElse(bson,
-                FieldName.FIELD_CLFILE_DELETE_MARKER, false);
-        fileMeta.status = BsonUtils.getIntegerOrElse(bson, FieldName.FIELD_CLFILE_EXTRA_STATUS,
-                ServiceDefine.FileStatus.NORMAL);
-        fileMeta.transId = BsonUtils.getString(bson, FieldName.FIELD_CLFILE_EXTRA_TRANS_ID);
-        BSONObject customTagBson = BsonUtils.getBSON(bson, FieldName.FIELD_CLFILE_CUSTOM_TAG);
-        if (customTagBson != null) {
-            fileMeta.customTag = BsonUtils.deepCopyMap(customTagBson.toMap());
-        }
-        fileMeta.accessHistory = BsonUtils.getArray(bson,FieldName.FIELD_CLFILE_ACCESS_HISTORY);
-        if (fileMeta.accessHistory != null){
-            fileMeta.accessHistory = (BasicBSONList) BsonUtils.deepCopyRecordBSON(fileMeta.accessHistory);
-        }
-    }
-
     public String getSimpleDesc() {
         return "fileId=" + id + ", fileName=" + name + ", size=" + size + ", isDeleteMarker="
                 + deleteMarker + ", version=" + majorVersion + "." + minorVersion;
     }
+
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime.getTime();
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
+    }
+
+    public void setClassProperties(BSONObject classProperties) {
+        this.classProperties = classProperties;
+    }
+
+    public void setCustomMeta(BSONObject customMeta) {
+        this.customMeta = customMeta;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public void setSiteList(BasicBSONList siteList) {
+        this.siteList = siteList;
+    }
+
+    public void setDataId(String dataId) {
+        this.dataId = dataId;
+    }
+
+    public void setDataCreateTime(Long dataCreateTime) {
+        this.dataCreateTime = dataCreateTime;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    public void setUpdateTime(Long updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public void setCreateMonth(String createMonth) {
+        this.createMonth = createMonth;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public void setTransId(String transId) {
+        this.transId = transId;
+    }
+
+    public void setDataType(int dataType) {
+        this.dataType = dataType;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public void setBatchId(String batchId) {
+        this.batchId = batchId;
+    }
+
+    public void setAccessHistory(BasicBSONList accessHistory) {
+        this.accessHistory = accessHistory;
+    }
+
+    public abstract void loadInfoFromRecord(BSONObject record);
+
+    public abstract void loadInfoFromUserInfo(String ws, BSONObject userFileInfo, String user,
+            boolean checkProps) throws ScmServerException;
+
+    protected void loadBasicInfoFromUserInfo(String ws, BSONObject userFileObject, String user,
+            boolean checkProps) throws ScmServerException {
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance().getWorkspaceInfo(ws);
+        String fileName = BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_NAME);
+        ScmFileOperateUtils.checkFileName(wsInfo, fileName);
+        this.setName(fileName);
+
+        this.setAuthor(BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_FILE_AUTHOR));
+        this.setTitle(BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_FILE_TITLE));
+
+        this.setMimeType(BsonUtils.getStringOrElse(userFileObject,
+                FieldName.FIELD_CLFILE_FILE_MIME_TYPE, MimeType.OCTET_STREAM.getType()));
+
+        this.setClassId(BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_FILE_CLASS_ID));
+        BSONObject classValue = BsonUtils.getBSON(userFileObject,
+                FieldName.FIELD_CLFILE_PROPERTIES);
+        BSONObject classProperties = BsonUtils.deepCopyRecordBSON(classValue);
+        this.setClassProperties(classProperties);
+
+        if (checkProps) {
+            MetaDataManager.getInstence().checkPropeties(wsInfo.getName(), this.getClassId(),
+                    classProperties);
+            this.setClassProperties(ScmArgumentChecker.checkAndCorrectClass(classProperties,
+                    FieldName.FIELD_CLFILE_PROPERTIES));
+        }
+
+        BSONObject extData = BsonUtils.getBSON(userFileObject,
+                FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
+        extData = BsonUtils.deepCopyRecordBSON(extData);
+        BSONObject newExtData = new BasicBSONObject();
+        if (extData != null) {
+            newExtData.putAll(extData);
+        }
+        this.setExternalData(extData);
+
+        BSONObject customMeta = BsonUtils.getBSON(userFileObject,
+                FieldName.FIELD_CLFILE_CUSTOM_METADATA);
+        customMeta = BsonUtils.deepCopyRecordBSON(customMeta);
+        BSONObject newCustomMeta = new BasicBSONObject();
+        if (customMeta != null) {
+            newCustomMeta.putAll(customMeta);
+        }
+        this.setCustomMeta(newCustomMeta);
+
+        this.setMajorVersion(1);
+        this.setMinorVersion(0);
+        this.setType(1);
+        this.setSiteList(new BasicBSONList());
+        this.setDataId(null);
+        this.setDataCreateTime(null);
+
+        this.setUser(user);
+
+        this.setId(BsonUtils.getString(userFileObject, FieldName.FIELD_CLFILE_ID));
+        Number fileCreateTime = BsonUtils.getNumber(userFileObject,
+                FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
+        if (fileCreateTime != null) {
+            this.setCreateTime(fileCreateTime.longValue());
+            this.setUpdateTime(this.getCreateTime());
+            if (this.getId() != null) {
+                ScmIdParser idParser = new ScmIdParser(this.getId());
+                if (fileCreateTime.longValue() / 1000 != idParser.getSecond()) {
+                    throw new ScmInvalidArgumentException(
+                            "The specified fileID and createTime is conflict, creatTime="
+                                    + new Date(fileCreateTime.longValue()));
+                }
+            }
+            this.setCreateMonth(ScmSystemUtils.getCurrentYearMonth(new Date(this.getCreateTime())));
+        }
+
+        this.setUpdateUser(user);
+        this.setStatus(ServiceDefine.FileStatus.NORMAL);
+        this.setTransId("");
+        this.setDataType(ENDataType.Normal.getValue());
+        this.setSize(0);
+        this.setMd5(null);
+        this.setEtag(null);
+        this.setVersionSerial(null);
+        this.setDeleteMarker(false);
+
+        this.setBucketId(null);
+        this.setDirId(null);
+        this.setBatchId("");
+
+        this.setAccessHistory(new BasicBSONList());
+    }
+
+    public abstract BSONObject toRecordBSON();
+
+    public abstract BSONObject toUserInfoBSON() throws ScmServerException;
 }

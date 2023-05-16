@@ -25,18 +25,18 @@ public interface IFileService {
             boolean isResContainsDeleteMarker) throws ScmServerException;
 
     MetaCursor getFileList(String workspaceName, BSONObject condition, int scope,
-            BSONObject orderby, long skip, long limit, BSONObject selector,
-            boolean isResContainsDeleteMarker) throws ScmServerException;
+                           BSONObject orderby, long skip, long limit, BSONObject selector,
+                           boolean isResContainsDeleteMarker) throws ScmServerException;
 
     MetaCursor getDirSubFileList(ScmUser user, String workspaceName, String dirId,
             BSONObject condition, int scope, BSONObject orderby, long skip, long limit,
             BSONObject selector) throws ScmServerException;
 
     FileReaderDao downloadFile(String sessionId, String userDetail, ScmUser user,
-            String workspaceName, BSONObject fileInfo, int readflag) throws ScmServerException;
+            String workspaceName, FileMeta fileInfo, int readflag) throws ScmServerException;
 
     FileReaderDao downloadFile(String sessionId, String userDetail, String workspaceName,
-            BSONObject fileInfo, int readflag) throws ScmServerException;
+            FileMeta fileInfo, int readflag) throws ScmServerException;
 
     void deleteFile(String sessionid, String userDetail, ScmUser user, String workspaceName,
             String fileId, int majorVersion, int minorVersion, boolean isPhysical)
@@ -47,7 +47,7 @@ public interface IFileService {
 
     long countFiles(ScmUser user, String workspaceName, int scope, BSONObject condition,
             boolean isResContainsDeleteMarker) throws ScmServerException;
-    
+
     long countFiles(String workspaceName, int scope, BSONObject condition,
             boolean isResContainsDeleteMarker) throws ScmServerException;
 
@@ -78,10 +78,10 @@ public interface IFileService {
     void asyncCacheFile(ScmUser user, String workspaceName, String fileId, int majorVersion,
             int minorVersion) throws ScmServerException;
 
-    BSONObject getFileInfoById(ScmUser user, String workspaceName, String fileId, int majorVersion,
+    FileMeta getFileInfoById(ScmUser user, String workspaceName, String fileId, int majorVersion,
             int minorVersion, boolean acceptDeleteMarker) throws ScmServerException;
 
-    BSONObject getFileInfoById(String workspaceName, String fileId, int majorVersion,
+    FileMeta getFileInfoById(String workspaceName, String fileId, int majorVersion,
             int minorVersion, boolean acceptDeleteMarker) throws ScmServerException;
 
     FileMeta createFile(String workspace, FileMeta fileMeta, FileUploadConf conf,
@@ -105,7 +105,7 @@ public interface IFileService {
 
     String generateId(Date fileCreateTime) throws ScmServerException;
 
-    BasicBSONList getFileContentLocations(ScmUser user, BSONObject fileInfo, String workspaceName)
+    BasicBSONList getFileContentLocations(ScmUser user, FileMeta fileInfo, String workspaceName)
             throws ScmServerException;
 
     FileMeta deleteVersion(ScmUser user, String bucket, String fileName, int majorVersion,

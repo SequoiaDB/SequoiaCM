@@ -126,7 +126,7 @@ public class ScmCommon {
         return f.getAbsolutePath() + File.separator;
     }
 
-    public static String listToString(List<?> list) {
+    public static String listToString(Collection<?> list) {
         if (list == null || list.size() <= 0) {
             return "";
         }

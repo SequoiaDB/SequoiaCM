@@ -1,26 +1,26 @@
 package com.sequoiacm.sequoiadb.dataservice;
 
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbConfig;
-import com.sequoiacm.infrastructure.sdbversion.SdbVersionRange;
+import com.sequoiacm.infrastructure.sdbversion.VersionRange;
 
 import java.util.List;
 
 public class SdbDatasourceConfig {
     private static String location = "";
     private static String putLobRequiredVersion = "3.6.1";
-    private static List<SdbVersionRange> putLobRequiredVersionRanges;
+    private static List<VersionRange> putLobRequiredVersionRanges;
 
     public static String getLocation() {
         return location;
     }
 
-    public static List<SdbVersionRange> getPutLobRequiredVersionRanges() {
+    public static List<VersionRange> getPutLobRequiredVersionRanges() {
         return putLobRequiredVersionRanges;
     }
 
     public static void init(SdbConfig sdbConfig) {
         if (sdbConfig == null) {
-            putLobRequiredVersionRanges = SdbVersionRange.parse(putLobRequiredVersion);
+            putLobRequiredVersionRanges = VersionRange.parse(putLobRequiredVersion);
             return;
         }
         String locationConf = sdbConfig.getLocation();
@@ -32,6 +32,6 @@ public class SdbDatasourceConfig {
         if (putLobRequiredVersionConf != null) {
             putLobRequiredVersion = putLobRequiredVersionConf;
         }
-        putLobRequiredVersionRanges = SdbVersionRange.parse(putLobRequiredVersion);
+        putLobRequiredVersionRanges = VersionRange.parse(putLobRequiredVersion);
     }
 }

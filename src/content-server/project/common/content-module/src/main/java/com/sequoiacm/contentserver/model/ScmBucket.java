@@ -375,4 +375,49 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
             throw e;
         }
     }
+
+    @Override
+    public boolean bulkInsert(List<BSONObject> inserters) throws ScmMetasourceException {
+        try {
+            return bucketFileMetaAccessor.bulkInsert(inserters);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
+            BSONObject option) throws ScmMetasourceException {
+        try {
+            return bucketFileMetaAccessor.asyncCreateIndex(idxName, idxDefine, attribute, option);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void dropIndex(String idxName) throws ScmMetasourceException {
+        try {
+            bucketFileMetaAccessor.dropIndex(idxName);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
+
+    @Override
+    public MetaCursor aggregate(List<BSONObject> objs) throws ScmMetasourceException {
+        try {
+            return bucketFileMetaAccessor.aggregate(objs);
+        }
+        catch (ScmMetasourceException e) {
+            checkIfBucketTableNotExistError(e);
+            throw e;
+        }
+    }
 }

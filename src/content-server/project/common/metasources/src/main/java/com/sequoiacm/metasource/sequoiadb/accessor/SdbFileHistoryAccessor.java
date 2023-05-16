@@ -128,14 +128,13 @@ public class SdbFileHistoryAccessor implements MetaFileHistoryAccessor {
 
     @Override
     public BSONObject updateFileInfo(String fileId, int majorVersion, int minorVersion,
-            BSONObject newFileInfo) throws ScmMetasourceException {
+            BSONObject updater) throws ScmMetasourceException {
         try {
-            BSONObject updator = new BasicBSONObject("$set", newFileInfo);
             BSONObject matcher = new BasicBSONObject();
             SequoiadbHelper.addFileIdAndCreateMonth(matcher, fileId);
             matcher.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, majorVersion);
             matcher.put(FieldName.FIELD_CLFILE_MINOR_VERSION, minorVersion);
-            return updateAndReturnNew(matcher, updator);
+            return updateAndReturnNew(matcher, updater);
         }
         catch (SdbMetasourceException e) {
             logger.error("updateFileInfo failed:table=" + baseAccesor.getCsName() + "."

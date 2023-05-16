@@ -9,9 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
-import com.sequoiacm.deploy.common.ConfFileDefine;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -24,7 +22,7 @@ public class ScmConfParser {
     private static final Logger logger = LoggerFactory.getLogger(ScmConfParser.class);
     private File confFile;
     private Map<String, List<BSONObject>> tableSeactionBsonRecords;
-    private Map<String, BSONObject> keyValueSeactionBsonRecord;
+    private Map<String, Map<String, String>> keyValueSectionContents;
 
     public ScmConfParser(String filePath) throws IOException {
         confFile = new File(filePath);
@@ -34,21 +32,23 @@ public class ScmConfParser {
 
     private void parse(SeactionParser seactionParser) throws IOException {
         tableSeactionBsonRecords = new HashMap<>();
-        keyValueSeactionBsonRecord = new HashMap<>();
+        keyValueSectionContents = new HashMap<>();
         List<String> seactionNames = seactionParser.getSeactions();
         for (String seactionName : seactionNames) {
-            Reader seactionReader = seactionParser.getSeaction(seactionName);
+            SectionReaderWrapper sectionReaderWrapper = seactionParser.getSeaction(seactionName);
             try {
-                if (ConfFileDefine.SEACTION_CONFIG.equals(seactionName)) {
-                    BSONObject record = parseKeyValueSeaction(seactionReader);
-                    keyValueSeactionBsonRecord.put(seactionName, record);
+                if (sectionReaderWrapper.getType() == SectionType.KEY_VALUE) {
+                    Map<String, String> keyValueContent = parseKeyValueSeaction(
+                            sectionReaderWrapper.getReader());
+                    keyValueSectionContents.put(seactionName, keyValueContent);
                     continue;
                 }
-                List<BSONObject> records = parseTableSeaction(seactionReader);
+                // table section
+                List<BSONObject> records = parseTableSeaction(sectionReaderWrapper.getReader());
                 tableSeactionBsonRecords.put(seactionName, records);
             }
             finally {
-                seactionReader.close();
+                sectionReaderWrapper.getReader().close();
             }
         }
 
@@ -76,8 +76,8 @@ public class ScmConfParser {
         }
     }
 
-    private BSONObject parseKeyValueSeaction(Reader seactionReader) throws IOException {
-        BSONObject bson = new BasicBSONObject();
+    private Map<String, String> parseKeyValueSeaction(Reader seactionReader) throws IOException {
+        Map<String, String> ret = new HashMap<>();
         BufferedReader bufferedReader = new BufferedReader(seactionReader);
         try {
             while (true) {
@@ -88,14 +88,14 @@ public class ScmConfParser {
                 int index = line.indexOf("=");
                 String key = line.substring(0, index);
                 String value = line.substring(index + 1);
-                bson.put(key, value);
+                ret.put(key, value);
             }
-        } finally {
+        }
+        finally {
             bufferedReader.close();
         }
-        return bson;
+        return ret;
     }
-
 
     public List<String> getSeactionNames() {
         return new ArrayList<>(tableSeactionBsonRecords.keySet());
@@ -127,11 +127,11 @@ public class ScmConfParser {
         return ret;
     }
 
-    public <T> T getKeyValueSeaction(String seactionName, ConfCoverter<T> converter) {
-        BSONObject bson = keyValueSeactionBsonRecord.get(seactionName);
-        if (bson == null){
+    public <T> T getKeyValueSeaction(String seactionName, KeyValueConverter<T> converter) {
+        Map<String, String> content = keyValueSectionContents.get(seactionName);
+        if (content == null) {
             return null;
         }
-        return converter.convert(bson);
+        return converter.convert(content);
     }
 }
