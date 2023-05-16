@@ -13,7 +13,7 @@ residue 子命令提供检测集群残留数据的功能。
 | --user             |  -  | 指定管理员用户名                                        | 是    |
 | --passwd           |  -  | 指定管理员用户密码，取值为空时表示采用交互的方式输入密码                         | 是    |
 | --data-table       |  -  | 指定待检测的数据表名，格式为 `<csName>.<clName>`<br>不指定该选项时，选项 --dataid-file-path 必填 | 否    |
-| --dataid-file-path |  -  | 指定待检测的目录<br>不指定该选项时，选项 --data-table 必填 | 否    |
+| --dataid-file-path |  -  | 指定待检测的 dataId 清单文件路径<br>不指定该选项时，选项 --data-table 必填                     | 否    |
 | --max              |  -  | 指定检测的最大数据量，默认值为 10000，取值范围为 [1,1000000]<br>如果数据量超出最大值，将检测失败 | 否    |
 | --worker-count     |  -  | 指定检测任务的最大并发数，默认值为 1，取值范围为 [1,100]<br>用户需根据业务环境设置该选项，避免因取值过大影响系统性能   | 否    |
 
@@ -25,10 +25,27 @@ residue 子命令提供检测集群残留数据的功能。
     $ cd /opt/sequoiacm/tools/sequoiacm-scm-diagnose
     ```
 
-2. 检测目录 `/opt/lob_id_list` 下的文件是否存在残留数据
+2. 编辑 dataId 清单文件，以 `/opt/data_id_list` 为例
+
+   ```lang-bash
+   $ vi /opt/data_id_list
+   ```
+   
+   根据实际需求将需要检测的 dataId 以列表的形式写到 `/opt/data_id_list` 文件中
+
+   ```lang-text
+   6461f08e40000100136d6f61
+   6461f08e40000100136d6f62
+   6461f08e40000100136d6f63
+   6461f08e40000100136d6f64
+   6461f08e40000100136d6f65
+   ...
+   ```
+   
+3. 对 `/opt/data_id_list` 文件进行数据残留检测
 
     ```lang-bash
-    $ ./bin/scmdiagnose.sh residue --work-path /opt/datacheck --workspace ws_default --site rootSite --url 192.168.17.183:8080/rootSite --user admin --passwd admin --dataid-file-path /opt/lob_id_list
+    $ ./bin/scmdiagnose.sh residue --work-path /opt/datacheck --workspace ws_default --site rootSite --url 192.168.17.183:8080/rootSite --user admin --passwd admin --dataid-file-path /opt/data_id_list
     ```
 
    检测完成后，结果将保存在归档目录下
@@ -37,10 +54,18 @@ residue 子命令提供检测集群残留数据的功能。
     ...
     [16:41:38] Finish! workspace: ws_default, process: 8, success: 8, fail: 0, residue: 0, cost: 0 min 0 s 505 ms, the result in:/opt/datacheck/residue_result/2023-04-11-16-41-37/
     ```
-3. 查看残留结果文件
+4. 查看残留结果文件
 
    ```lang-bash
     $ vi /opt/datacheck/residue_result/2023-04-11-16-41-37/residue_list
+   ```
+   
+   残留结果文件 `residue_list` 内容如下:
+
+   ```lang-text
+   6461f08e40000100136d6f61
+   6461f08e40000100136d6f65
+   ...
    ```
 
    >**Note:**
