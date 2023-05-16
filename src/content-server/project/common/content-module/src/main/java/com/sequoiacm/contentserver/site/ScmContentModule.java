@@ -369,7 +369,11 @@ public class ScmContentModule {
     }
 
     public ScmSite getSiteInfo(int siteId) {
-        return bizConf.getSiteInfo(siteId);
+        ScmSite info = bizConf.getSiteInfo(siteId);
+        if (null == info) {
+            throw new IllegalArgumentException("site is not exist,siteId=" + siteId);
+        }
+        return info;
     }
 
     public ScmSite getSiteInfo(String siteName) {

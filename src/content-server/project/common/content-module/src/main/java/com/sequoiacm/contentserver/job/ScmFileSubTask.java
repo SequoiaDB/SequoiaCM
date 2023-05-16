@@ -52,6 +52,8 @@ public abstract class ScmFileSubTask implements Runnable {
                 taskInfoContext.subTaskFinish(res.getRes());
                 return;
             }
+            logger.error("Execute task failed, taskId={}, fileId={}", getTaskId(), fileId,
+                    res.getE());
             // abort 结果的需要进行重试
             int retryCount = 1;
             while (retryCount <= TASK_MAX_RETRY_COUNT) {

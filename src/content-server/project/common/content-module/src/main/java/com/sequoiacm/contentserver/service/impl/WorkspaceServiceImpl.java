@@ -279,6 +279,10 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         for (String siteName : tableNameMap.keySet()) {
             try {
                 ScmSite siteInfo = coontentserver.getSiteInfo(siteName);
+                if (null == siteInfo) {
+                    throw new ScmServerException(ScmError.SITE_NOT_EXIST,
+                            "site is not exist,siteName=" + siteName);
+                }
                 ScmLocation location = locations.get(siteInfo.getId());
                 if (siteName.equalsIgnoreCase(mySite.getName())) {
                     datasourceService.deleteDataTables(tableNameMap.get(siteName), wsName,

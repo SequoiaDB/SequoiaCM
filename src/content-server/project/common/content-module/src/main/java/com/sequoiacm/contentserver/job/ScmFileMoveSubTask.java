@@ -124,6 +124,8 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
             }
 
             // abort exception
+            logger.warn("move file failed: workspace={}, fileId={}, version={}.{}",
+                    getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion);
             return new DoTaskRes(e, ScmDoFileRes.ABORT);
         }
         finally {

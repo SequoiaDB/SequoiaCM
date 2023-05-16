@@ -35,18 +35,20 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
         int minorVersion = (int) fileInfo.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
 
         int remoteSiteId = (int) getTask().getTaskInfo().get(FieldName.Task.FIELD_TARGET_SITE);
-        ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
-                getWorkspaceInfo().getName(),
-                ScmContentModule.getInstance().getSiteInfo(remoteSiteId).getName(), dataId);
-
-        ScmLock fileContentLock = ScmLockManager.getInstance().tryAcquiresLock(fileContentLockPath);
-        if (fileContentLock == null) {
-            logger.warn("try lock failed, skip this file:fileId={},version={}.{},dataId={}", fileId,
-                    majorVersion, minorVersion, dataId);
-            return new DoTaskRes(null, ScmDoFileRes.SKIP);
-        }
+        ScmLock fileContentLock = null;
         BSONObject file;
         try {
+            ScmLockPath fileContentLockPath = ScmLockPathFactory.createFileContentLockPath(
+                    getWorkspaceInfo().getName(),
+                    ScmContentModule.getInstance().getSiteInfo(remoteSiteId).getName(), dataId);
+
+            fileContentLock = ScmLockManager.getInstance().tryAcquiresLock(fileContentLockPath);
+            if (fileContentLock == null) {
+                logger.warn("try lock failed, skip this file:fileId={},version={}.{},dataId={}",
+                        fileId, majorVersion, minorVersion, dataId);
+                return new DoTaskRes(null, ScmDoFileRes.SKIP);
+            }
+
             ScmWorkspaceInfo ws = getWorkspaceInfo();
             file = ScmContentModule.getInstance().getMetaService().getFileInfo(ws.getMetaLocation(),
                     ws.getName(), fileId, majorVersion, minorVersion);
@@ -73,7 +75,8 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
             // skip exception
             if (e.getError() == ScmError.DATA_TYPE_ERROR || e.getError() == ScmError.FILE_NOT_FOUND
                     || e.getError() == ScmError.DATA_NOT_EXIST) {
-                logger.warn("transfer file failed", e);
+                logger.warn("transfer file failed: workspace={}, fileId={}, version={}.{}",
+                        getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, e);
                 return new DoTaskRes(null, ScmDoFileRes.SKIP);
             }
             // failed exception
@@ -82,14 +85,20 @@ public class ScmFileTransferSubTask extends ScmFileSubTask {
             // size failed
                     || e.getError() == ScmError.DATA_IS_IN_USE
                     || e.getError() == ScmError.DATA_EXIST) {
-                logger.warn("transfer file failed", e);
+                logger.warn("transfer file failed: workspace={}, fileId={}, version={}.{}",
+                        getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion, e);
                 return new DoTaskRes(null, ScmDoFileRes.FAIL);
             }
+
             // abort exception
+            logger.warn("transfer file failed: workspace={}, fileId={}, version={}.{}",
+                    getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion);
             return new DoTaskRes(e, ScmDoFileRes.ABORT);
         }
         finally {
-            fileContentLock.unlock();
+            if (null != fileContentLock) {
+                fileContentLock.unlock();
+            }
         }
     }
 }

@@ -356,7 +356,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
                 taskInfoContext.waitAllSubTaskFinish();
             }
             catch (Exception ex) {
-                logger.warn("failed to wait all subTask finish", e);
+                logger.warn("failed to wait all subTask finish", ex);
             }
             abortTaskAndAsyncRedo(getTaskId(), CommonDefine.TaskRunningFlag.SCM_TASK_ABORT,
                     e.toString(), taskInfoContext.getSuccessCount(),

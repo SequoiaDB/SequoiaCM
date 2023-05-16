@@ -118,6 +118,8 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
             }
 
             // abort exception
+            logger.warn("clean file failed: workspace={}, fileId={},version={}.{}",
+                    getWorkspaceInfo().getName(), fileId, majorVersion, minorVersion);
             return new DoTaskRes(e, ScmDoFileRes.ABORT);
         }
         finally {
@@ -233,7 +235,7 @@ public class ScmFileCleanSubTask extends ScmFileSubTask {
         }
         catch (Exception e) {
             logger.warn("failed to check data, localSiteId={},remoteSiteId={},fileId={}",
-                    ScmContentModule.getInstance().getLocalSite(), dataInOtherSiteId, fileId);
+                    ScmContentModule.getInstance().getLocalSite(), dataInOtherSiteId, fileId, e);
             return false;
         }
     }

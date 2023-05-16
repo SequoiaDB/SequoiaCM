@@ -146,7 +146,8 @@ public class WorkspaceCreator {
             catch (ScmDatasourceException e) {
                 throw new ScmInvalidArgumentException(
                         "failed to create workspace, invlid datalocation:wsName=" + wsName
-                                + ",dataLocation=" + dataLocationObj);
+                                + ",dataLocation=" + dataLocationObj,
+                        e);
             }
             if (siteInfo.isRootSite()) {
                 isDatalocationsContainRootSite = true;
