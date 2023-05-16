@@ -17,7 +17,7 @@
               <el-form-item label="最大存储容量" prop="maxSize">
                 <el-row>
                   <el-col :span="20">
-                    <el-input v-model="form.maxSize" placeholder="请输入桶最大存储容量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
+                    <el-input v-model.number="form.maxSize" placeholder="请输入桶最大存储容量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
                   </el-col>
                   <el-col :span="4">
                     <el-select v-model="sizeUnit">
@@ -28,7 +28,7 @@
                 </el-row>
               </el-form-item>
               <el-form-item label="最大对象个数" prop="maxObjects">
-                <el-input v-model="form.maxObjects" placeholder="请输入桶最大对象数量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
+                <el-input v-model.number="form.maxObjects" placeholder="请输入桶最大对象数量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
               </el-form-item>
             </template>
         </el-form>

@@ -71,7 +71,7 @@ export default {
   }
 }
 </script>
-<style scope>
+<style scoped>
 .key {
   font-size: 14px;
   font-weight: 600;

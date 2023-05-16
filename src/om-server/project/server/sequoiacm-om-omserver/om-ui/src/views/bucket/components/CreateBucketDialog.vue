@@ -63,22 +63,23 @@
             <el-form-item label="开启限额">
               <el-switch v-model="form.quotaEnable"></el-switch>
             </el-form-item>
+
+            <el-row v-if="form.quotaEnable">
+              <el-col :span="20">
+                <el-form-item label="最大存储容量" prop="maxSize">
+                  <el-input v-model.number="form.maxSize" placeholder="请输入桶最大存储容量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-select v-model="sizeUnit" size="small">
+                  <el-option label="M" value="M"></el-option>
+                  <el-option label="G" value="G"></el-option>
+                </el-select>
+              </el-col>
+            </el-row>
             <template v-if="form.quotaEnable">
-              <el-form-item label="最大存储容量" prop="maxSize">
-                <el-row>
-                  <el-col :span="20">
-                    <el-input v-model="form.maxSize" placeholder="请输入桶最大存储容量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
-                  </el-col>
-                  <el-col :span="4">
-                    <el-select v-model="sizeUnit">
-                      <el-option label="M" value="M"></el-option>
-                      <el-option label="G" value="G"></el-option>
-                    </el-select>
-                  </el-col>
-                </el-row>
-              </el-form-item>
               <el-form-item label="最大对象个数" prop="maxObjects">
-                <el-input v-model="form.maxObjects" placeholder="请输入桶最大对象数量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
+                <el-input v-model.number="form.maxObjects" placeholder="请输入桶最大对象数量限制，-1 表示无限制" maxlength="9" v-number-only></el-input>
               </el-form-item>
             </template>
 
@@ -116,8 +117,8 @@ export default {
       rules: {
        bucketNames: {required: true, trigger: 'blur', validator: bucketNamesValidation},
        workspace: {required: true, trigger: 'blur', message: '请选择region'},
-       maxSize: {required: true, trigger: 'blur', message: '请输入最大容量限制'},
-       maxObjects: {required: true, trigger: 'blur', message: '请输入最大对象数量限制'}
+       maxSize: {required: true, trigger: 'none', message: '请输入最大容量限制'},
+       maxObjects: {required: true, trigger: 'none', message: '请输入最大对象数量限制'}
       },
       workspaces: [],
       form: {
