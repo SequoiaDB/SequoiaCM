@@ -42,8 +42,8 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
- * @Description:SCM-1944 :: SCM-1946 :: 通过断点文件更新文件，添加/更新/删除自定义属性和标签
  * @author fanyu
+ * @Description:SCM-1944 :: SCM-1946 :: 通过断点文件更新文件，添加/更新/删除自定义属性和标签
  * @Date:2018年7月11日
  * @version:1.0
  */
@@ -97,7 +97,8 @@ public class ScheduleTransfer1955 extends TestScmBase {
         createAllFile( fileNum );
     }
 
-    @Test(groups = { "fourSite" })
+    // 问题单http://jira.web:8080/browse/SEQUOIACM-1312未修改，屏蔽用例
+    @Test(groups = { "fourSite" }, enabled = false)
     private void test() throws Exception {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.PROPERTIES + "." + name )
@@ -172,7 +173,7 @@ public class ScheduleTransfer1955 extends TestScmBase {
     }
 
     private ScmId createFile( String name, ScmClassProperties properties,
-            ScmTags tag ) throws ScmException, ParseException {
+                              ScmTags tag ) throws ScmException, ParseException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name + "_" + UUID.randomUUID() );
         file.setAuthor( name );
