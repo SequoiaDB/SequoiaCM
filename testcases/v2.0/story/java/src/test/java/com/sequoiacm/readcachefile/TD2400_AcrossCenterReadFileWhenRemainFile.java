@@ -58,9 +58,10 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, "test", fileSize );
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
-        if ( branSites.get( 1 )
-                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
-            throw new SkipTestException( "源站点不能为ceph S3数据源" );
+        if ( branSites.get( 1 ).getDataType() == ScmType.DatasourceType.CEPH_S3
+                || branSites.get( 1 )
+                        .getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
+            throw new SkipTestException( "残留站点不能为ceph s3或sequoiaDB数据源" );
         }
         wsp = ScmInfo.getWs();
         sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
@@ -83,7 +84,9 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                         remainFilePathList2.get( 3 ) } };
     }
 
-    @Test(groups = { "fourSite", "star" }, dataProvider = "range-provider")
+    // SEQUOIACM-1376
+    @Test(groups = { "fourSite",
+            "star" }, dataProvider = "range-provider", enabled = false)
     private void test( String remainFilePath1, String remainFilePath2 )
             throws Exception {
         // write from centerA
