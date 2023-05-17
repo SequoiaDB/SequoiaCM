@@ -95,7 +95,7 @@ public class ScmTrace5456 extends TestScmBase {
             List< ScmTrace > scmTraces = ScmSystem.ServiceTrace
                     .listTrace( session, 1000 );
             for ( ScmTrace trace : scmTraces ) {
-                if ( trace.getSpanCount() > 2 && trace.isComplete() ) {
+                if ( trace.getSpanCount() >= 2 && trace.isComplete() ) {
                     return trace;
                 }
             }
