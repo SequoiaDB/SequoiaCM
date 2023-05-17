@@ -111,7 +111,7 @@ public class BucketQuota6095 extends TestScmBase {
                     .setMaxSize( maxObjectSize + "T" ).build();
             Assert.fail( "预期失败，实际成功！" );
         } catch ( IllegalArgumentException e ) {
-            if ( !e.getMessage().contains( "unsupported unit" ) ) {
+            if ( !e.getMessage().contains( "failed to parse max size" ) ) {
                 throw e;
             }
         }

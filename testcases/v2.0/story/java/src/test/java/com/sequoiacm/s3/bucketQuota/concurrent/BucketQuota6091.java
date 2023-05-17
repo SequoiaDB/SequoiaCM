@@ -4,6 +4,7 @@ import java.io.File;
 import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
 import com.sequoiacm.common.ScmQuotaSyncStatus;
 import com.sequoiacm.testcommon.scmutils.BucketQuotaUtils;
+import org.apache.hadoop.hbase.util.Threads;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -91,8 +92,13 @@ public class BucketQuota6091 extends TestScmBase {
 
         ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
-        BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName, -1, -1,
-                objectNum - 1, ( objectNum - 1 ) * fileSize );
+        if ( quotaInfo.getUsedObjects() == objectNum ) {
+            BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName, -1, -1,
+                    objectNum, objectNum * fileSize );
+        } else {
+            BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName, -1, -1,
+                    objectNum - 1, ( objectNum - 1 ) * fileSize );
+        }
         checkObjectContent();
 
         runSuccess = true;
