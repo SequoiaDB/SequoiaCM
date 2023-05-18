@@ -1,6 +1,7 @@
 package com.sequoiacm.infrastructure.metasource.template;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +67,16 @@ public class SequoiadbTemplate {
         }
 
         public void dropCollection(String collectionName) {
+            dropCollection(collectionName, false);
+        }
+
+        public void dropCollection(String collectionName, boolean skipRecycleBin) {
             Sequoiadb sdb = null;
             try {
                 sdb = getSequoiadb(null);
                 CollectionSpace cs = sdb.getCollectionSpace(collectionSpace);
-                cs.dropCollection(collectionName);
+                BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+                cs.dropCollection(collectionName, options);
             }
             finally {
                 releaseSequoiadb(sdb, null);

@@ -84,7 +84,7 @@ public class BucketMetaServiceSdbImpl implements BucketMetaService {
                     new BasicBSONObject(FieldName.BucketFile.FILE_NAME, 1), true);
         }
         catch (Exception e) {
-            dropBucketFileTableSilence(csName + "." + clName);
+            dropBucketFileTableSilence(csName + "." + clName, true);
             throw e;
         }
         return opResult;
@@ -122,10 +122,10 @@ public class BucketMetaServiceSdbImpl implements BucketMetaService {
     }
 
     @Override
-    public void dropBucketFileTableSilence(String bucketFileTable) {
+    public void dropBucketFileTableSilence(String bucketFileTable, boolean skipRecycleBin) {
         try {
             String[] csClArr = bucketFileTable.split("\\.");
-            sdbMetaSource.dropCollection(csClArr[0], csClArr[1]);
+            sdbMetaSource.dropCollection(csClArr[0], csClArr[1], skipRecycleBin);
         }
         catch (Exception e) {
             logger.warn("failed to drop bucket file table: name={}", bucketFileTable, e);

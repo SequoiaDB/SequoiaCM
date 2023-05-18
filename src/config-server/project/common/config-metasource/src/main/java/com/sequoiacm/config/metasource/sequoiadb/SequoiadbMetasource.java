@@ -148,11 +148,13 @@ public class SequoiadbMetasource implements Metasource {
         }
     }
 
-    public void dropCollection(String csName, String clName) throws MetasourceException {
+    public void dropCollection(String csName, String clName, boolean skipRecycleBin)
+            throws MetasourceException {
         Sequoiadb db = getConnection();
         try {
             CollectionSpace cs = db.getCollectionSpace(csName);
-            cs.dropCollection(clName);
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            cs.dropCollection(clName, options);
         }
         catch (BaseException e) {
             if (e.getErrorCode() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {

@@ -138,7 +138,7 @@ public class BucketDao {
 
         if (deletedBucket != null) {
             metaService.dropBucketFileTableSilence(
-                    BsonUtils.getStringChecked(deletedBucket, FieldName.Bucket.FILE_TABLE));
+                    BsonUtils.getStringChecked(deletedBucket, FieldName.Bucket.FILE_TABLE), false);
             BucketConfig bucket = converter.convertToConfig(deletedBucket);
 
             // 删除 bucket，不需要递增全局版本，所以通知给一个 -1 无效的全局版本
@@ -177,14 +177,20 @@ public class BucketDao {
         String tableName = opResult.getFullClName();
         if (!opResult.isInExtraCs()) {
             // cs 不在 extra_meta_cs 里，需要添加到工作区的 extra_meta_cs 列表里
-            addExtraCsResult = addToExtraCsListSilence(config.getWorkspace(),
-                    opResult.getCsName());
+            addExtraCsResult = addToExtraCsListSilence(config.getWorkspace(), opResult.getCsName());
         }
         config.setId(bucketId);
         config.setCreateTime(createTime.getTime());
         config.setUpdateTime(createTime.getTime());
         config.setFileTable(tableName);
-        insertBucketMeta(config);
+        try {
+            insertBucketMeta(config);
+        }
+        catch (Exception e) {
+            // 表名由桶 ID 构成，且前面创表流程已经保证该表为新建的集合，因此失败时需要 drop 掉它
+            metaService.dropBucketFileTableSilence(tableName, true);
+            throw e;
+        }
         BucketNotifyOption notifyOption = new BucketNotifyOption(config.getName(), 1,
                 EventType.CREATE, -1);
         ScmConfEventBase event = new ScmConfEventBase(ScmConfigNameDefine.BUCKET, notifyOption);
@@ -208,7 +214,6 @@ public class BucketDao {
     }
 
     private void insertBucketMeta(BucketConfig config) throws ScmConfigException {
-        String tableName = config.getFileTable();
         Transaction trans = metasource.createTransaction();
         try {
             trans.begin();
@@ -219,8 +224,6 @@ public class BucketDao {
         }
         catch (Exception e) {
             trans.rollback();
-            // 这张表的表名是由桶ID而不是表名构成，即便当前这个异常是相同桶已存在，注意这里依然要drop掉它（因为它不是已存在桶的表）
-            metaService.dropBucketFileTableSilence(tableName);
             if (e instanceof ScmConfigException) {
                 if (((ScmConfigException) e).getError() == ScmConfError.METASOURCE_RECORD_EXIST) {
                     throw new ScmConfigException(ScmConfError.BUCKET_EXIST,

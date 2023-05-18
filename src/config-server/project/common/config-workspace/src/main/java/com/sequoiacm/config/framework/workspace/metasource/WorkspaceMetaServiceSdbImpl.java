@@ -302,10 +302,10 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         }
         catch (Exception e) {
             if (wsCs != null) {
-                dropCSSilence(wsCs.getName());
+                dropCSSilence(wsCs.getName(), true);
             }
             if (tagLibCl != null) {
-                dropCLSilence(tagLibCl);
+                dropCLSilence(tagLibCl, true);
             }
             throw new MetasourceException("create meta collection failed:wsName=" + wsName, e);
         }
@@ -314,11 +314,12 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         }
     }
 
-    private void dropCSSilence(String cs) {
+    private void dropCSSilence(String cs, boolean skipRecycleBin) {
         Sequoiadb db = null;
         try {
             db = sdbMetasource.getConnection();
-            db.dropCollectionSpace(cs);
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            db.dropCollectionSpace(cs, options);
         }
         catch (Exception e) {
             logger.warn("failed to drop cs:{}", cs, e);
@@ -331,9 +332,10 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
 
     }
 
-    private void dropCLSilence(DBCollection cl) {
+    private void dropCLSilence(DBCollection cl, boolean skipRecycleBin) {
         try {
-            cl.getCollectionSpace().dropCollection(cl.getName());
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            cl.getCollectionSpace().dropCollection(cl.getName(), options);
         }
         catch (Exception e) {
             logger.warn("drop collection failed:clName={}", cl.getFullName(), e);
@@ -355,7 +357,8 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
     }
 
     @Override
-    public void deleteWorkspaceMetaTable(BSONObject wsRecord) throws MetasourceException {
+    public void deleteWorkspaceMetaTable(BSONObject wsRecord, boolean skipRecycleBin)
+            throws MetasourceException {
         List<String> extraMetaList = TableMetaCommon.getExtraCsList(wsRecord);
         extraMetaList.add(BsonUtils.getStringChecked(wsRecord, FieldName.FIELD_CLWORKSPACE_NAME)
                 + MetaSourceDefine.SequoiadbTableName.CS_WORKSPACE_META_TAIL);
@@ -363,7 +366,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         try {
             for (String cs : extraMetaList) {
                 try {
-                    dropCS(sdb, cs);
+                    dropCS(sdb, cs, skipRecycleBin);
                 }
                 catch (Exception e) {
                     logger.warn("failed to drop cs: {}", cs, e);
@@ -380,7 +383,8 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                 String tagLibCsName = csClArr[0];
                 try {
                     CollectionSpace tagLibCs = sdb.getCollectionSpace(tagLibCsName);
-                    tagLibCs.dropCollection(csClArr[1]);
+                    BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+                    tagLibCs.dropCollection(csClArr[1], options);
                 }
                 catch (BaseException e) {
                     if (e.getErrorCode() != SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()
@@ -395,9 +399,11 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         }
     }
 
-    private void dropCS(Sequoiadb sdb, String cs) throws MetasourceException {
+    private void dropCS(Sequoiadb sdb, String cs, boolean skipRecycleBin)
+            throws MetasourceException {
         try {
-            sdb.dropCollectionSpace(cs);
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            sdb.dropCollectionSpace(cs, options);
             logger.info("drop workspace collectionspace:cs=" + cs);
         }
         catch (Exception e) {

@@ -152,7 +152,8 @@ public class SdbCsRecycleHelper {
     private static void dropRenamedCs(Sequoiadb sequoiadb, String oldCsName, String renamedCsName,
             MetaDataOperator operator) throws ScmMetasourceException {
         logger.info("dropping collection space, csName={}", renamedCsName);
-        sequoiadb.dropCollectionSpace(renamedCsName);
+        BSONObject options = new BasicBSONObject("SkipRecycleBin", true);
+        sequoiadb.dropCollectionSpace(renamedCsName, options);
         removeRecyclingLogSilence(oldCsName, operator);
         operator.removeTableNameRecord(oldCsName);
     }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,13 @@ public class SdbTemplate {
         return new SequoiadbCollectionTemplate(csCl[0], csCl[1]);
     }
 
-    public void dropCollection(String clFullName) {
+    public void dropCollection(String clFullName, boolean skipRecycleBin) {
         String[] csCl = parseClFullName(clFullName);
         Sequoiadb sdb = getSequoiadb();
         try {
             CollectionSpace cs = sdb.getCollectionSpace(csCl[0]);
-            cs.dropCollection(csCl[1]);
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            cs.dropCollection(csCl[1], options);
         }
         catch (BaseException e) {
             if (e.getErrorCode() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()

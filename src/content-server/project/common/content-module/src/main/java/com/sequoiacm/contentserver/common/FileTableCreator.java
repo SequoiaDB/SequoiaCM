@@ -99,7 +99,7 @@ public class FileTableCreator {
                     new BasicBSONObject(FieldName.BucketFile.FILE_NAME, 1), true, false);
         }
         catch (Exception e) {
-            dropCLSilence(sdb, csName, clName);
+            dropCLSilence(sdb, csName, clName, true);
             throw e;
         }
         return csName + "." + clName;
@@ -320,10 +320,12 @@ public class FileTableCreator {
         }
     }
 
-    private static void dropCLSilence(Sequoiadb db, String csName, String clName) {
+    private static void dropCLSilence(Sequoiadb db, String csName, String clName,
+            boolean skipRecycleBin) {
         try {
             CollectionSpace cs = db.getCollectionSpace(csName);
-            cs.dropCollection(clName);
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            cs.dropCollection(clName, options);
         }
         catch (Exception e) {
             logger.warn("failed to drop cl:{}", csName + "." + clName, e);

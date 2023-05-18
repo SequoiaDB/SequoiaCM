@@ -161,7 +161,7 @@ public class CreateWorkspaceDao {
 
     private void rollbackMetaTable(BSONObject wsRecord) {
         try {
-            workspaceMetaService.deleteWorkspaceMetaTable(wsRecord);
+            workspaceMetaService.deleteWorkspaceMetaTable(wsRecord, true);
         }
         catch (Exception e) {
             logger.warn("failed to rollback workspace meta table:wsName={}",

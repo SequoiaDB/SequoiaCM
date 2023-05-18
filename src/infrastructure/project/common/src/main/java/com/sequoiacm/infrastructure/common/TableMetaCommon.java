@@ -155,7 +155,7 @@ public class TableMetaCommon {
         catch (Exception e) {
             if (isCreateCs) {
                 // 在新的CS上创建集合失败，删除CS
-                dropCSSilence(sdb, newExtraCsName);
+                dropCSSilence(sdb, newExtraCsName, true);
             }
             throw e;
         }
@@ -183,9 +183,10 @@ public class TableMetaCommon {
         }
     }
 
-    private static void dropCSSilence(Sequoiadb db, String cs) {
+    private static void dropCSSilence(Sequoiadb db, String cs, boolean skipRecycleBin) {
         try {
-            db.dropCollectionSpace(cs);
+            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+            db.dropCollectionSpace(cs, options);
         }
         catch (Exception e) {
             logger.warn("failed to drop cs:{}", cs, e);

@@ -76,7 +76,7 @@ public class SdbMsgRepository implements MsgRepository {
     @Override
     public void dropMsgTableSilence(String tableName) throws MqException {
         try {
-            sdbTemplate.dropCollection(tableName);
+            sdbTemplate.dropCollection(tableName, true);
         }
         catch (Exception e) {
             logger.warn("failed to drop topic message table:table={}", tableName, e);

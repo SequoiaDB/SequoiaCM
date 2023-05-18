@@ -37,7 +37,7 @@ public class MapTableDaoImpl implements IMapTableDao {
                 clTemplate.ensureIndex("idx_group_name", mapIdx, true);
             }
             catch (Exception e) {
-                template.collectionSpace(CS_SCMSYSTEM).dropCollection(CL_MAP);
+                template.collectionSpace(CS_SCMSYSTEM).dropCollection(CL_MAP, true);
                 throw e;
             }
         }
@@ -84,7 +84,7 @@ public class MapTableDaoImpl implements IMapTableDao {
                 return insertBson;
             }
             catch (Exception e) {
-                template.collectionSpace(CS_SCMSYSTEM).dropCollection(mapMeta.getClName());
+                template.collectionSpace(CS_SCMSYSTEM).dropCollection(mapMeta.getClName(), true);
                 throw e;
             }
 
