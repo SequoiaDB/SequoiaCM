@@ -10,7 +10,9 @@ public class BucketSubscriberConfig {
     private Logger logger = LoggerFactory.getLogger(BucketSubscriberConfig.class);
     @ScmRewritableConfMarker
     private int cacheLimit = 1000;
-    private long heartbeatInterval = 180000;
+
+    @ScmRewritableConfMarker
+    private long heartbeatInterval = 3 * 60 * 1000; // 3 min
 
     public void setCacheLimit(int cacheLimit) {
         if (cacheLimit < 0) {
@@ -26,6 +28,11 @@ public class BucketSubscriberConfig {
     }
 
     public void setHeartbeatInterval(long heartbeatInterval) {
+        if (heartbeatInterval <= 0) {
+            logger.warn("Invalid interval value of bucket heartbeat: " + heartbeatInterval
+                    + ", set to default value: " + this.heartbeatInterval);
+            return;
+        }
         this.heartbeatInterval = heartbeatInterval;
     }
 

@@ -22,6 +22,7 @@ public class AutoConfig {
     public void setDays(int days) {
         if (days > 0) {
             this.days = days;
+            return;
         }
         logger.warn("invalid scm.cacheStrategy.auto.days value, correct to old value:" + this.days);
     }
@@ -33,6 +34,7 @@ public class AutoConfig {
     public void setAccessCount(int accessCount) {
         if (accessCount > 0 && accessCount <= 10) {
             this.accessCount = accessCount;
+            return;
         }
         logger.warn("invalid scm.cacheStrategy.auto.accessCount value, correct to old value:"
                 + this.accessCount);

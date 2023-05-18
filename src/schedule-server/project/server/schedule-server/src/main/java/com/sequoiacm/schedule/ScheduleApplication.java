@@ -85,6 +85,9 @@ public class ScheduleApplication implements ApplicationRunner {
     ScheduleApplicationConfig config;
 
     @Autowired
+    ConfVersionConfig versionConfig;
+
+    @Autowired
     private FileServerDao fileServerDao;
 
     @Autowired
@@ -143,33 +146,26 @@ public class ScheduleApplication implements ApplicationRunner {
         for (String o : args.getOptionNames()) {
             logger.info("{}={}", o, args.getOptionValues(o));
         }
-//
-//        if (!args.containsOption(ScheduleDefine.APPLICATION_PROPERTIES_LOCATION)
-//                || !args.containsOption(ScheduleDefine.LOGGING_CONFIG)) {
-//            logger.error("{} or {} must be specified in command line",
-//                    ScheduleDefine.APPLICATION_PROPERTIES_LOCATION, ScheduleDefine.LOGGING_CONFIG);
-//            throw new Exception(ScheduleDefine.APPLICATION_PROPERTIES_LOCATION + " or "
-//                    + ScheduleDefine.LOGGING_CONFIG + " must be specified");
-//        }
 
-        initSystem(config);
-        
+        initSystem(config, versionConfig);
+
         initLifeCycleConfig();
         logger.info("zookeeper={},server.port:{}", config.getZookeeperUrl(),
                 config.getServerPort());
     }
 
-    private void initSystem(ScheduleApplicationConfig config) throws Exception {
+    private void initSystem(ScheduleApplicationConfig config, ConfVersionConfig versionConfig)
+            throws Exception {
         ScmIdGenerator.FileId.init(0, 101);
         // subscribe ws conig
         confClient.subscribeWithAsyncRetry(new ScmWorkspaceConfSubscriber(
-                localInstance.getServiceId(), config.getWorkspaceHeartbeat()));
+                localInstance.getServiceId(), versionConfig.getWorkspaceHeartbeat()));
         // subscribe site config
-        confClient.subscribeWithAsyncRetry(
-                new ScmSiteConfSubscriber(localInstance.getServiceId(), config.getSiteHeartbeat()));
+        confClient.subscribeWithAsyncRetry(new ScmSiteConfSubscriber(localInstance.getServiceId(),
+                versionConfig.getSiteHeartbeat()));
         // subscribe node config
         confClient.subscribeWithAsyncRetry(new ScmNodeConfSubscriber(localInstance.getServiceId(),
-                config.getSreverNodeHeartbeat()));
+                versionConfig.getNodeHeartbeat()));
 
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
                 strategyDao, discoveryClient);
@@ -218,7 +214,7 @@ public class ScheduleApplication implements ApplicationRunner {
             initDefaultConfig(fullEntity);
         }
         finally {
-            if (null != lock){
+            if (null != lock) {
                 lock.unlock();
             }
             if (query != null) {
