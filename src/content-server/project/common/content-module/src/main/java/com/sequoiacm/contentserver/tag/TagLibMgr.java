@@ -274,7 +274,7 @@ public class TagLibMgr {
     }
 
     public void invalidateTagCacheByWs(ScmWorkspaceInfo ws) throws ScmServerException {
-        if (ws == null || ws.getTagLibTable() != null) {
+        if (ws == null || ws.getTagLibTable() == null) {
             return;
         }
 
