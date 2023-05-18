@@ -101,7 +101,7 @@
                 "data":[
                     {
                         "site":"rootSite",
-                        "domain":"data_domain",
+                        "domain":"data_domain"
                     }
                 ],
                 "enable_directory": false,
