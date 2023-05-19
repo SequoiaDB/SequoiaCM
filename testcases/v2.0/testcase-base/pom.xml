@@ -14,8 +14,6 @@
         <scmdriver.path>${basedir}/../../testcase-base/lib/sequoiacm-driver-${scmdriver.version}.jar</scmdriver.path>
         <!--scmcommon.version>2.3.0</scmcommon.version -->
         <sdbdriver.version>3.0.1</sdbdriver.version>
-        <sdbdriver.path>${basedir}/../../testcase-base/lib/sequoiadb-driver-jdk6-${sdbdriver.version}.jar
-        </sdbdriver.path>
 
         <!-- jars properties -->
         <testng.version>6.13.1</testng.version>
@@ -85,8 +83,6 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiadb-driver</artifactId>
             <version>${sdbdriver.version}</version>
-            <scope>system</scope>
-            <systemPath>${sdbdriver.path}</systemPath>
         </dependency>
 
         <dependency>
