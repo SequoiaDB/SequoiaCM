@@ -14,6 +14,7 @@ export function updateProperties(confParam) {
     headers: {
       "Content-Type" : "application/json;charset=UTF-8",
     },
-    data: confParam
+    data: confParam,
+    timeout: -1
   })
 }

@@ -146,7 +146,8 @@ export function queryWorkspaceDetail(workspaceName) {
     headers: {
       "Content-Type" : "application/json;charset=UTF-8",
     },
-    data: data
+    data: data,
+    timeout: -1
   })
 }
 

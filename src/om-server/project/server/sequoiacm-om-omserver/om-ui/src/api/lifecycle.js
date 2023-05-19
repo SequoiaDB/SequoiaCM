@@ -150,7 +150,8 @@ export function addTransitionApply(transition, wsList) {
     headers: {
       "Content-Type" : "application/json;charset=UTF-8",
     },
-    data: wsList
+    data: wsList,
+    timeout: -1
   })
 }
 
@@ -167,7 +168,8 @@ export function addTransitionApply(transition, wsList) {
     headers: {
       "Content-Type" : "application/json;charset=UTF-8",
     },
-    data: wsList
+    data: wsList,
+    timeout: -1
   })
 }
 
