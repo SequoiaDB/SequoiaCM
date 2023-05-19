@@ -27,6 +27,7 @@ public class ScmTask {
     private Date stopTime;
     private long estimateCount;
     private long actualCount;
+    private Date startExecuteTime;
     private long successCount;
     private long failCount;
     private long maxExecTime;
@@ -75,6 +76,11 @@ public class ScmTask {
         }
         else if (null != temp) {
             estimateCount = (Integer) temp;
+        }
+
+        temp = info.get(FieldName.Task.FIELD_START_EXECUTE_TIME);
+        if (null != temp) {
+            startExecuteTime = new Date((Long) temp);
         }
 
         temp = info.get(FieldName.Task.FIELD_ACTUAL_COUNT);
@@ -344,6 +350,16 @@ public class ScmTask {
     }
 
     /**
+     * Return the time of task actual start execute.
+     *
+     * @return the time of task actual start execute.
+     *
+     */
+    public Date getStartExecuteTime() {
+        return startExecuteTime;
+    }
+
+    /**
      * Return the count of files successfully processed.
      *
      * @return The count of files successfully processed.
@@ -410,6 +426,8 @@ public class ScmTask {
         sb.append(FieldName.Task.FIELD_ESTIMATE_COUNT).append(":").append(estimateCount)
                 .append(",");
         sb.append(FieldName.Task.FIELD_ACTUAL_COUNT).append(":").append(actualCount).append(",");
+        sb.append(FieldName.Task.FIELD_START_EXECUTE_TIME).append(":").append(startExecuteTime)
+                .append(",");
         sb.append(FieldName.Task.FIELD_SUCCESS_COUNT).append(":").append(successCount).append(",");
         sb.append(FieldName.Task.FIELD_FAIL_COUNT).append(":").append(failCount).append(",");
         sb.append(FieldName.Task.FIELD_MAX_EXEC_TIME).append(":").append(maxExecTime).append(",");

@@ -286,6 +286,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             return;
         }
 
+        long startExecuteTime = System.currentTimeMillis();
         logger.info("running task:task=" + toString());
         // 1. get total count
         // totalCount = queryMatchingCount();
@@ -296,6 +297,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         MetaCursor cursor = null;
         try {
             sms = ScmContentModule.getInstance().getMetaService();
+            updateTaskStartExecuteTime(taskId, startExecuteTime);
         }
         catch (ScmServerException e) {
             logger.warn("do task failed:taskId=" + getTaskId(), e);

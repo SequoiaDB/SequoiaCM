@@ -47,6 +47,12 @@ public abstract class ScmTaskBase extends ScmBackgroundJob {
                 actualCount);
     }
 
+    public void updateTaskStartExecuteTime(String taskId, long startExecuteTime)
+            throws ScmServerException {
+        ScmContentModule.getInstance().getMetaService().updateTaskStartExecuteTime(taskId,
+                startExecuteTime);
+    }
+
     public void updateTaskStopTimeAndAsyncRedo(String taskId, long successCount, long failedCount,
             int progress) {
         TaskUpdator updator = new TaskStopTimeUpdator(taskId, successCount, failedCount, progress);

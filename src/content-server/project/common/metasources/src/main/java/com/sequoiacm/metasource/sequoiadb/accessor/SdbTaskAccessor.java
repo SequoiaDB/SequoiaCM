@@ -295,8 +295,8 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
     }
 
     @Override
-    public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount, long actualCount)
-            throws SdbMetasourceException {
+    public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount,
+            long actualCount) throws SdbMetasourceException {
         try {
             BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
             matcher.put(FieldName.Task.FIELD_RUNNING_FLAG, CommonDefine.TaskRunningFlag.SCM_TASK_INIT);
@@ -348,6 +348,30 @@ public class SdbTaskAccessor extends SdbMetaAccessor implements MetaTaskAccessor
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
                     "update task file count failed:table=" + getCsName() + "." + getClName()
+                            + ",taskId=" + taskId,
+                    e);
+        }
+    }
+
+    @Override
+    public void updateTaskStartExecuteTime(String taskId, long startExecuteTime)
+            throws SdbMetasourceException {
+        try {
+            BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
+            BSONObject newValue = new BasicBSONObject();
+            newValue.put(FieldName.Task.FIELD_START_EXECUTE_TIME, startExecuteTime);
+            BSONObject updator = new BasicBSONObject(SequoiadbHelper.SEQUOIADB_MODIFIER_SET,
+                    newValue);
+            update(matcher, updator);
+        }
+        catch (ScmMetasourceException e) {
+            logger.error("update task start execute time failed:table=" + getCsName() + "."
+                    + getClName() + ",taskId=" + taskId);
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "update task start execute time failed:table=" + getCsName() + "." + getClName()
                             + ",taskId=" + taskId,
                     e);
         }

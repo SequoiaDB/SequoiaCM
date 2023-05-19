@@ -4,13 +4,11 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.contentserver.config.ScmJobManagerConfig;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
@@ -18,6 +16,7 @@ import com.sequoiacm.infrastructure.common.thread.ScmThreadFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import com.sequoiacm.infrastructure.slowlog.config.SlowLogConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,8 @@ public class ScmJobManager {
     private static volatile ScmJobManager jobManager = null;
 
     @Autowired
-    public ScmJobManager(ScmJobManagerConfig jobManagerConfig) throws ScmServerException {
+    public ScmJobManager(ScmJobManagerConfig jobManagerConfig, SlowLogConfig slowLogConfig)
+            throws ScmServerException {
         this.shortTimeTaskThreadPool = new ThreadPoolExecutor(jobManagerConfig.getCoreSize(),
                 jobManagerConfig.getMaxSize(), 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(jobManagerConfig.getQueueSize()),
@@ -75,6 +75,7 @@ public class ScmJobManager {
                 scheduleTaskThreadPool.getRejectedExecutionHandler());
 
         ScmJobManager.jobManager = this;
+        SchTaskSlowLogOperator.init(slowLogConfig);
     }
 
     public static ScmJobManager getInstance() {

@@ -97,9 +97,11 @@ public abstract class ScmFileSubTask implements Runnable {
             ScmLockPath lockPath = ScmLockPathFactory
                     .createFileLockPath(getWorkspaceInfo().getName(), fileId);
             fileReadLock = ScmLockManager.getInstance().acquiresReadLock(lockPath);
+            SchTaskSlowLogOperator.getInstance().doTaskBefore();
             return doTask();
         }
         finally {
+            SchTaskSlowLogOperator.getInstance().doTaskAfter(getTaskId(), fileId);
             if (fileReadLock != null) {
                 fileReadLock.unlock();
             }

@@ -28,6 +28,9 @@
           <el-col :span="24"><span class="key" style="width:20%">停止时间：</span> <span class="value">{{this.$util.parseTime(taskDetail.stop_time)}}</span></el-col>
         </el-row>
         <el-row>
+           <el-col :span="24"><span class="key" style="width:20%">开始处理文件时间：</span> <span class="value">{{this.$util.parseTime(taskDetail.start_execute_time)}}</span></el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12"><span class="key">任务状态：</span> <span class="value">{{getStatusText(taskDetail.status)}}</span></el-col>
         </el-row>
         <el-row v-if="taskDetail.content">

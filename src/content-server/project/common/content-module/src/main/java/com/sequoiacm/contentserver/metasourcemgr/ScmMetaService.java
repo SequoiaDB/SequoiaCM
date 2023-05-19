@@ -848,8 +848,8 @@ public class ScmMetaService {
         }
     }
 
-    public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount, long actualCount)
-            throws ScmServerException {
+    public boolean checkAndStartTask(String taskId, Date startTime, long estimateCount,
+            long actualCount) throws ScmServerException {
         try {
             MetaTaskAccessor taskAccessor = metasource.getTaskAccessor();
             return taskAccessor.checkAndStartTask(taskId, startTime, estimateCount, actualCount);
@@ -881,6 +881,24 @@ public class ScmMetaService {
                     "update task file count failed:siteId=" + siteId + ",taskId=" + taskId
                             + ",estimateCount=" + estimateCount + ",actualCount=" + actualCount,
                     e);
+        }
+    }
+
+    public void updateTaskStartExecuteTime(String taskId, long startExecuteTime)
+            throws ScmServerException {
+        try {
+            MetaTaskAccessor taskAccessor = metasource.getTaskAccessor();
+            taskAccessor.updateTaskStartExecuteTime(taskId, startExecuteTime);
+        }
+        catch (ScmMetasourceException e) {
+            throw new ScmServerException(e.getScmError(),
+                    "update task start execute time failed:siteId=" + siteId + ",taskId=" + taskId
+                            + ",startExecuteTime=" + startExecuteTime,
+                    e);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("update task start execute time failed:siteId=" + siteId
+                    + ",taskId=" + taskId + ",startExecuteTime=" + startExecuteTime, e);
         }
     }
 

@@ -45,6 +45,9 @@ public class OmTaskBasicInfo {
     @JsonProperty("detail")
     private String detail;
 
+    @JsonProperty("start_execute_time")
+    private Date startExecuteTime;
+
     public OmTaskBasicInfo() {
     }
 
@@ -150,5 +153,13 @@ public class OmTaskBasicInfo {
 
     public void setDetail(String detail) {
         this.detail = detail;
+    }
+
+    public Date getStartExecuteTime() {
+        return startExecuteTime;
+    }
+
+    public void setStartExecuteTime(Date startExecuteTime) {
+        this.startExecuteTime = startExecuteTime;
     }
 }
