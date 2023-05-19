@@ -55,7 +55,6 @@
         <file_encoding>UTF-8</file_encoding>
 
         <!-- dependencies version -->
-        <sdbdriver.jdk6.version>3.0.1</sdbdriver.jdk6.version>
         <junit.version>4.12</junit.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <jdk-tools.version>1.7</jdk-tools.version>
@@ -94,11 +93,6 @@
                 <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-content-core</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiadb-driver-jdk6</artifactId>
-                <version>${sdbdriver.jdk6.version}</version>
             </dependency>
 
             <dependency>
