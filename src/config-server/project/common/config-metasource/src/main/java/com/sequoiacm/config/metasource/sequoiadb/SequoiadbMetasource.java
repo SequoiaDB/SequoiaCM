@@ -3,6 +3,7 @@ package com.sequoiacm.config.metasource.sequoiadb;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.config.metasource.*;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
+import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiadb.base.CollectionSpace;
@@ -153,8 +154,7 @@ public class SequoiadbMetasource implements Metasource {
         Sequoiadb db = getConnection();
         try {
             CollectionSpace cs = db.getCollectionSpace(csName);
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            cs.dropCollection(clName, options);
+            TableMetaCommon.dropCLWithSkipRecycleBin(cs, clName, skipRecycleBin);
         }
         catch (BaseException e) {
             if (e.getErrorCode() == SDBError.SDB_DMS_NOTEXIST.getErrorCode()) {

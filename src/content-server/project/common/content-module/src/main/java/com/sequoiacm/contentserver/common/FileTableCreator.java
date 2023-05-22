@@ -324,8 +324,7 @@ public class FileTableCreator {
             boolean skipRecycleBin) {
         try {
             CollectionSpace cs = db.getCollectionSpace(csName);
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            cs.dropCollection(clName, options);
+            TableMetaCommon.dropCLWithSkipRecycleBin(cs, clName, skipRecycleBin);
         }
         catch (Exception e) {
             logger.warn("failed to drop cl:{}", csName + "." + clName, e);

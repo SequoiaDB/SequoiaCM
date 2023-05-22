@@ -5,6 +5,7 @@ import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.lock.ScmLockPath;
@@ -152,8 +153,7 @@ public class SdbCsRecycleHelper {
     private static void dropRenamedCs(Sequoiadb sequoiadb, String oldCsName, String renamedCsName,
             MetaDataOperator operator) throws ScmMetasourceException {
         logger.info("dropping collection space, csName={}", renamedCsName);
-        BSONObject options = new BasicBSONObject("SkipRecycleBin", true);
-        sequoiadb.dropCollectionSpace(renamedCsName, options);
+        TableMetaCommon.dropCSWithSkipRecycleBin(sequoiadb, renamedCsName, true);
         removeRecyclingLogSilence(oldCsName, operator);
         operator.removeTableNameRecord(oldCsName);
     }

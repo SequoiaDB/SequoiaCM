@@ -318,8 +318,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
         Sequoiadb db = null;
         try {
             db = sdbMetasource.getConnection();
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            db.dropCollectionSpace(cs, options);
+            TableMetaCommon.dropCSWithSkipRecycleBin(db, cs, skipRecycleBin);
         }
         catch (Exception e) {
             logger.warn("failed to drop cs:{}", cs, e);
@@ -334,8 +333,8 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
 
     private void dropCLSilence(DBCollection cl, boolean skipRecycleBin) {
         try {
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            cl.getCollectionSpace().dropCollection(cl.getName(), options);
+            CollectionSpace cs = cl.getCollectionSpace();
+            TableMetaCommon.dropCLWithSkipRecycleBin(cs, cl.getName(), skipRecycleBin);
         }
         catch (Exception e) {
             logger.warn("drop collection failed:clName={}", cl.getFullName(), e);
@@ -383,8 +382,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                 String tagLibCsName = csClArr[0];
                 try {
                     CollectionSpace tagLibCs = sdb.getCollectionSpace(tagLibCsName);
-                    BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-                    tagLibCs.dropCollection(csClArr[1], options);
+                    TableMetaCommon.dropCLWithSkipRecycleBin(tagLibCs, csClArr[1], skipRecycleBin);
                 }
                 catch (BaseException e) {
                     if (e.getErrorCode() != SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()
@@ -402,8 +400,7 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
     private void dropCS(Sequoiadb sdb, String cs, boolean skipRecycleBin)
             throws MetasourceException {
         try {
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            sdb.dropCollectionSpace(cs, options);
+            TableMetaCommon.dropCSWithSkipRecycleBin(sdb, cs, skipRecycleBin);
             logger.info("drop workspace collectionspace:cs=" + cs);
         }
         catch (Exception e) {

@@ -3,6 +3,7 @@ package com.sequoiacm.mq.server.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -43,8 +44,7 @@ public class SdbTemplate {
         Sequoiadb sdb = getSequoiadb();
         try {
             CollectionSpace cs = sdb.getCollectionSpace(csCl[0]);
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            cs.dropCollection(csCl[1], options);
+            TableMetaCommon.dropCLWithSkipRecycleBin(cs, csCl[1], skipRecycleBin);
         }
         catch (BaseException e) {
             if (e.getErrorCode() == SDBError.SDB_DMS_CS_NOTEXIST.getErrorCode()

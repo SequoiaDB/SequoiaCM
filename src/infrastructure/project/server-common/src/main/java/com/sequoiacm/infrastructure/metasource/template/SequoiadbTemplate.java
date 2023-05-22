@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.metasource.template;
 
+import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -75,8 +76,7 @@ public class SequoiadbTemplate {
             try {
                 sdb = getSequoiadb(null);
                 CollectionSpace cs = sdb.getCollectionSpace(collectionSpace);
-                BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-                cs.dropCollection(collectionName, options);
+                TableMetaCommon.dropCLWithSkipRecycleBin(cs, collectionName, skipRecycleBin);
             }
             finally {
                 releaseSequoiadb(sdb, null);

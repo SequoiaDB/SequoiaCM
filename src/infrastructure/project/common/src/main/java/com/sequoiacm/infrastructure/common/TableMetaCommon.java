@@ -185,11 +185,42 @@ public class TableMetaCommon {
 
     private static void dropCSSilence(Sequoiadb db, String cs, boolean skipRecycleBin) {
         try {
-            BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-            db.dropCollectionSpace(cs, options);
+            dropCSWithSkipRecycleBin(db, cs, skipRecycleBin);
         }
         catch (Exception e) {
             logger.warn("failed to drop cs:{}", cs, e);
+        }
+    }
+
+    public static void dropCSWithSkipRecycleBin(Sequoiadb db, String cs, boolean skipRecycleBin) {
+        BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+        try {
+            db.dropCollectionSpace(cs, options);
+        }
+        catch (BaseException e) {
+            // 部分 SDB 版本 dropCS 不支持 SkipRecycleBin 参数
+            if (e.getErrorCode() != SDBError.SDB_INVALIDARG.getErrorCode()) {
+                throw e;
+            }
+            logger.warn("Failed to drop cs:{}, try to drop it again", cs, e);
+            db.dropCollectionSpace(cs);
+        }
+    }
+
+    public static void dropCLWithSkipRecycleBin(CollectionSpace cs, String clName,
+            boolean skipRecycleBin) {
+        BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+        try {
+            cs.dropCollection(clName, options);
+        }
+        catch (BaseException e) {
+            // 部分 SDB 版本 dropCL 不支持 SkipRecycleBin 参数
+            if (e.getErrorCode() != SDBError.SDB_INVALIDARG.getErrorCode()) {
+                throw e;
+            }
+            logger.warn("Failed to drop cl:{}, try to drop it again", cs.getName() + "." + clName,
+                    e);
+            cs.dropCollection(clName);
         }
     }
 }
