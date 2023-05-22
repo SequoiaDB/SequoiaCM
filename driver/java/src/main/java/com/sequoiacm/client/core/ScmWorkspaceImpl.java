@@ -489,8 +489,12 @@ class ScmWorkspaceImpl extends ScmWorkspace {
 
     @Override
     public String getTagLibIndexErrorMsg() throws ScmException {
-        return BsonUtils.getString(extData,
-                FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK_ERROR);
+        // 没有错误返回空字符串
+        if (extData == null) {
+            return "";
+        }
+        return BsonUtils.getStringOrElse(extData,
+                FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK_ERROR, "");
     }
 
     public ScmTagLibMetaOption getTagLibMetaOption() {

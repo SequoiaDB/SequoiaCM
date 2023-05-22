@@ -385,8 +385,9 @@ public abstract class ScmWorkspace {
     public abstract ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException;
 
     /**
-     * Returns tag lib index task error msg. if enable tag retrieval failed
-     * 
+     * Returns tag lib index task error msg if enable tag retrieval failed, else
+     * return empty string.
+     *
      * @return error msg.
      * @throws ScmException
      *             if error happens.
