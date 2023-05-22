@@ -64,5 +64,7 @@ public class ScmAlterWorkspaceToolImpl extends ScmTool {
         new ScmUpdatePreferredWsToolImpl().printHelp(isFullHelp);
         System.out.println("disable-directory");
         new ScmDisableDirectoryWsToolImpl().printHelp(isFullHelp);
+        System.out.println("update-metadomain");
+        new ScmUpdateMetaDomainWsToolImpl().printHelp(isFullHelp);
     }
 }
