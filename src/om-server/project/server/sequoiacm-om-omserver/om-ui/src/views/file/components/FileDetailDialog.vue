@@ -250,7 +250,7 @@ export default {
         return
       }
       queryFileDetail(this.workspace, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version).then(res => {
-        this.curVersionFileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
+        this.curVersionFileDetail = res.data
         let customMetadata = this.curVersionFileDetail.custom_metadata
         let customTag = this.curVersionFileDetail.custom_tag
         this.customMetadataList = []

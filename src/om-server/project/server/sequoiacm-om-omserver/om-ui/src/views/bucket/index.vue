@@ -205,7 +205,7 @@ export default {
     // 查看桶详情
     handleShowDetail(name){
       queryBucketDetail(name).then(res => {
-        let currentBucketDetail = JSON.parse(res.headers['bucket'])
+        let currentBucketDetail = res.data
         this.$refs['bucketDetailDialog'].show(currentBucketDetail)
       })
     },

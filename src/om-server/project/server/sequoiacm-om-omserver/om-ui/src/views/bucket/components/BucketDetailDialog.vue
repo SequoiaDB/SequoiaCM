@@ -115,7 +115,7 @@ export default {
     setRefresh() {
       this.refresh = setTimeout(() => {
         queryBucketDetail(this.curBucketDetail.name).then(res => {
-          this.curBucketDetail = JSON.parse(res.headers['bucket'])
+          this.curBucketDetail = res.data
           this.setRefresh()
         })
       }, this.interval)

@@ -1,6 +1,5 @@
 package com.sequoiacm.om.omserver.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.om.omserver.common.CommonUtil;
 import com.sequoiacm.om.omserver.common.PageUtil;
@@ -19,7 +18,6 @@ import com.sequoiacm.om.omserver.service.ScmBucketService;
 import com.sequoiacm.om.omserver.session.ScmOmSession;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -83,8 +80,7 @@ public class ScmBucketController {
             @RequestParam(value = RestParamDefine.ORDERBY, required = false) BSONObject orderBy,
             @RequestParam(value = RestParamDefine.STRICT_MODE, required = false, defaultValue = "false") Boolean isStrictMode,
             @RequestParam(value = RestParamDefine.QUOTA_LEVEL, required = false) String quotaLevel,
-            HttpServletResponse response)
-            throws ScmInternalException, ScmOmServerException {
+            HttpServletResponse response) throws ScmInternalException, ScmOmServerException {
         if (quotaLevel == null) {
             long count = bucketService.countBucket(session, filter, isStrictMode);
             response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(count));
@@ -102,13 +98,10 @@ public class ScmBucketController {
 
     }
 
-    @RequestMapping(value = "/buckets/{bucket_name:.+}", method = RequestMethod.HEAD)
-    public ResponseEntity<Object> getBucketDetail(@PathVariable("bucket_name") String bucketName,
-            ScmOmSession session)
-            throws JsonProcessingException, ScmInternalException, ScmOmServerException {
-        OmBucketDetail bucketDetail = bucketService.getBucketDetail(session, bucketName);
-        return ResponseEntity.ok()
-                .header(RestParamDefine.BUCKET, mapper.writeValueAsString(bucketDetail)).build();
+    @GetMapping(value = "/buckets/{bucket_name:.+}", params = "action=get_bucket_by_name")
+    public OmBucketDetail getBucketDetail(@PathVariable("bucket_name") String bucketName,
+            ScmOmSession session) throws ScmInternalException, ScmOmServerException {
+        return bucketService.getBucketDetail(session, bucketName);
     }
 
     @GetMapping("/buckets/{name}/files")

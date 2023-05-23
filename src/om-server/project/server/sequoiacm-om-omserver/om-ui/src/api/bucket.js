@@ -43,8 +43,8 @@ const BASE_API = '/api/v1'
  */
  export function queryBucketDetail(bucketName) {
   return request({
-    url: BASE_API+'/buckets/'+bucketName,
-    method: 'head'
+    url: BASE_API+'/buckets/'+bucketName+'?action=get_bucket_by_name',
+    method: 'get'
   })
 }
 

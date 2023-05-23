@@ -41,7 +41,7 @@ const BASE_API = '/api/v1'
  export function queryFileDetail(ws, fileId, majorVersion, minorVersion) {
   return request({
     url: BASE_API+'/files/id/'+fileId,
-    method: 'head',
+    method: 'get',
     params: {
       workspace: ws,
       major_version: majorVersion,

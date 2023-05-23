@@ -221,7 +221,7 @@ export default {
     // 切换桶
     onBucketChange() {
       queryBucketDetail(this.currentBucket).then(res => {
-        this.currentBucketDetail = JSON.parse(res.headers['bucket'])
+        this.currentBucketDetail = res.data
         this.resetSearch()
       })
     },

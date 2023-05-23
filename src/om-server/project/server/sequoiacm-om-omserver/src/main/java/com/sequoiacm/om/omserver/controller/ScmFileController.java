@@ -21,11 +21,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.om.omserver.common.CommonUtil;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
@@ -53,19 +51,16 @@ public class ScmFileController {
     @Autowired
     private ScmTagService tagService;
 
-    @RequestMapping(value = "/files/id/{file_id}", method = RequestMethod.HEAD)
-    public ResponseEntity<Object> getFileDetail(@PathVariable("file_id") String fileId,
+    @GetMapping(value = "/files/id/{file_id}")
+    public OmFileDetail getFileDetail(@PathVariable("file_id") String fileId,
             @RequestParam(value = RestParamDefine.MAJOR_VERSION, defaultValue = "1") int majorVersion,
             @RequestParam(value = RestParamDefine.MINOR_VERSION, defaultValue = "0") int minorVersion,
             @RequestParam(RestParamDefine.WORKSPACE) String wsName, ScmOmSession session)
-            throws JsonProcessingException, ScmInternalException, ScmOmServerException {
-        OmFileDetail fileDetail = fileService.getFileDetail(session, wsName, fileId, majorVersion,
-                minorVersion);
-        return ResponseEntity.ok().header(RestParamDefine.FILE,
-                CommonUtil.urlEncode(mapper.writeValueAsString(fileDetail))).build();
+            throws ScmInternalException, ScmOmServerException {
+        return fileService.getFileDetail(session, wsName, fileId, majorVersion, minorVersion);
     }
 
-    @GetMapping(value = "/files/id/{file_id}")
+    @GetMapping(value = "/files/id/{file_id}", params = "action=download_file")
     public ResponseEntity<InputStreamResource> downloadFile(@PathVariable("file_id") String fileId,
             @RequestParam(RestParamDefine.WORKSPACE) String wsName,
             @RequestParam(RestParamDefine.SITE_NAME) String siteName,

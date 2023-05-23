@@ -541,7 +541,7 @@ export default {
     },
     async tagRetrievalStatusChecker() {
       let res = await queryWorkspaceBasic(this.$route.params.name, true)
-      let workspaceInfo = JSON.parse(res.headers['workspace'])
+      let workspaceInfo = res.data
       if (workspaceInfo.tag_retrieval_status !== 'indexing') {
         this.tagRetrievalStatus = workspaceInfo.tag_retrieval_status
       }

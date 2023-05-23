@@ -30,7 +30,7 @@ export function queryWorkspaceList(page, size, filter, isStrictMode) {
  */
 export function queryWorkspaceDetail(workspaceName) {
   return request({
-    url: BASE_API+'/workspaces/'+workspaceName,
+    url: BASE_API+'/workspaces/'+workspaceName+"?action=get_detail_with_statistics",
     method: 'get'
   })
 }
@@ -44,7 +44,7 @@ export function queryWorkspaceDetail(workspaceName) {
  export function queryWorkspaceBasic(workspaceName, isForceFetch) {
   return request({
     url: BASE_API+'/workspaces/'+workspaceName,
-    method: 'head',
+    method: 'get',
     params: {
       force_fetch: isForceFetch
     }

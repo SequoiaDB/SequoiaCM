@@ -756,7 +756,7 @@ export default {
         return
       }
       queryWorkspaceBasic(workspace).then(res => {
-        let basicInfo = JSON.parse(res.headers['workspace'])
+        let basicInfo = res.data
         let siteList = basicInfo['data_locations']
         if (siteList && siteList.length > 0) {
           this.workspaceSiteList = []

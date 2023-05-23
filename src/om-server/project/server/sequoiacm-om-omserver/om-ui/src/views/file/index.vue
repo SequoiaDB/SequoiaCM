@@ -307,9 +307,9 @@ export default {
       }).then(() => {
         this.selectedFiles.forEach(item => {
           queryFileDetail(this.currentWorkspace, item.id, item.major_version, item.minor_version).then(res => {
-            let fileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
-            let downloadURL = '/api/v1/files/id/' + fileDetail.id;
-            downloadURL += '?workspace=' + this.currentWorkspace;
+            let fileDetail = res.data
+            let downloadURL = '/api/v1/files/id/' + fileDetail.id + '?action=download_file';
+            downloadURL += '&workspace=' + this.currentWorkspace;
             downloadURL += '&site_name=' + fileDetail.sites[0].site_name;
             downloadURL += '&major_version=' + fileDetail.major_version;
             downloadURL += '&minor_version=' + fileDetail.minor_version;
@@ -339,7 +339,7 @@ export default {
         return
       }
       queryWorkspaceBasic(this.currentWorkspace).then(res => {
-        this.currentWorkspaceDetail = JSON.parse(res.headers['workspace'])
+        this.currentWorkspaceDetail = res.data
       })
       this.currentFileId = row.id
       this.$refs['fileEditDialog'].show()

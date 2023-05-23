@@ -371,10 +371,10 @@ export default {
       }
       this.currentBucket = bucket
       queryBucketDetail(bucket).then(res => {
-        this.currentBucketDetail = JSON.parse(res.headers['bucket'])
+        this.currentBucketDetail = res.data
         this.currentWorkspace = this.currentBucketDetail.workspace
         queryWorkspaceBasic(this.currentWorkspace).then(res => {
-          this.workspaceDetail = JSON.parse(res.headers['workspace'])
+          this.workspaceDetail = res.data
           let siteList = this.workspaceDetail['data_locations']
           if (siteList && siteList.length > 0) {
             for (let site of siteList) {

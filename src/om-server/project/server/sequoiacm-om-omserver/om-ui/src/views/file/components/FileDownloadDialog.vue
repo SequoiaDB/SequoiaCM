@@ -116,8 +116,8 @@ export default {
         this.$message.warning(`当前版本为 deleteMarker，无法下载`)
         return
       }
-      let downloadURL = '/api/v1/files/id/' + this.curVersionFile.id;
-      downloadURL += '?workspace=' + this.workspace;
+      let downloadURL = '/api/v1/files/id/' + this.curVersionFile.id + '?action=download_file';
+      downloadURL += '&workspace=' + this.workspace;
       downloadURL += '&site_name=' + this.curVersionFileDetail.sites[0].site_name;
       downloadURL += '&major_version=' + this.curVersionFile.major_version;
       downloadURL += '&minor_version=' + this.curVersionFile.minor_version;
@@ -133,7 +133,7 @@ export default {
         return
       }
       queryFileDetail(this.workspace, this.curVersionFile.id, this.curVersionFile.major_version, this.curVersionFile.minor_version).then(res => {
-        this.curVersionFileDetail = JSON.parse(decodeURIComponent(res.headers['file']))
+        this.curVersionFileDetail = res.data
       })
     }
   },

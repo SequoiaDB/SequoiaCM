@@ -10,7 +10,6 @@ import com.sequoiacm.om.omserver.module.OmWorkspaceCreateInfo;
 import com.sequoiacm.om.omserver.module.OmWorkspaceInfo;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,11 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
@@ -44,7 +41,7 @@ public class ScmWorkspaceController {
     @Autowired
     private ObjectMapper mapper;
 
-    @GetMapping("/workspaces/{workspace_name:.+}")
+    @GetMapping(value = "/workspaces/{workspace_name:.+}", params = "action=get_detail_with_statistics")
     public OmWorkspaceInfoWithStatistics getWorkspaceDetailWithStatistics(
             @PathVariable("workspace_name") String workspaceName, ScmOmSession session)
             throws ScmInternalException, ScmOmServerException {
@@ -105,14 +102,12 @@ public class ScmWorkspaceController {
         return service.getCreatePrivilegeWsList(session);
     }
 
-    @RequestMapping(value = "/workspaces/{workspace_name:.+}", method = RequestMethod.HEAD)
-    public ResponseEntity<Object> getWorkspaceDetail(ScmOmSession session,
+    @GetMapping(value = "/workspaces/{workspace_name:.+}")
+    public OmWorkspaceDetail getWorkspaceDetail(ScmOmSession session,
             @PathVariable("workspace_name") String workspaceName,
             @RequestParam(value = RestParamDefine.FORCE_FETCH, required = false, defaultValue = "false") Boolean forceFetch)
-            throws ScmInternalException, ScmOmServerException, JsonProcessingException {
-        OmWorkspaceDetail ws = service.getWorkspaceDetail(session, workspaceName, forceFetch);
-        return ResponseEntity.ok().header(RestParamDefine.WORKSPACE, mapper.writeValueAsString(ws))
-                .build();
+            throws ScmInternalException, ScmOmServerException {
+        return service.getWorkspaceDetail(session, workspaceName, forceFetch);
     }
 
     @PutMapping(value = "/workspaces/{workspace_name}")
