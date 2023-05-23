@@ -12,6 +12,7 @@ import com.sequoiacm.common.CephS3UrlInfo;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import org.springframework.util.StringUtils;
 
 interface RestoreCallback {
     void onRestore() throws Exception;
@@ -21,15 +22,26 @@ public class CephS3HealthDetector {
     private static final Logger logger = LoggerFactory.getLogger(CephS3HealthDetector.class);
     private final ScmTimer timer;
     private final CephS3ConnectionConf detectConnConf;
+    private static final String CONF_KEY_DETECT_CONN_TIMEOUT = "detectClient."
+            + CephS3ConnectionConf.CONF_KEY_CONN_TIMEOUT;
     private Map<CephS3UrlInfo, RestoreCallback> url2Callback = new ConcurrentHashMap<>();
 
-    public CephS3HealthDetector(Map<String, String> detectConnectionConf) throws CephS3Exception {
-        long interval = Long.parseLong(detectConnectionConf.getOrDefault("detectInterval", "5000"));
+    public CephS3HealthDetector(Map<String, String> cephS3Conf) throws CephS3Exception {
+        long interval = Long.parseLong(cephS3Conf.getOrDefault("detectInterval", "5000"));
         if (interval <= 0) {
             throw new CephS3Exception(
                     "ceph s3 detectInterval must be greater than 0: " + interval);
         }
-        this.detectConnConf = new CephS3ConnectionConf(detectConnectionConf, "detectClient.");
+        this.detectConnConf = new CephS3ConnectionConf(cephS3Conf);
+        String connTimeout = cephS3Conf.get(CONF_KEY_DETECT_CONN_TIMEOUT);
+        if (!StringUtils.isEmpty(connTimeout)) {
+            int connTimeoutInMills = Integer.parseInt(connTimeout);
+            if (connTimeoutInMills < 0) {
+                throw new IllegalArgumentException("ceph s3 " + CONF_KEY_DETECT_CONN_TIMEOUT
+                        + " must be greater than or equals 0: " + connTimeoutInMills);
+            }
+            this.detectConnConf.setConnectionTimeout(connTimeoutInMills);
+        }
         logger.info("cephs3 detect client conf:{}", detectConnConf);
         timer = ScmTimerFactory.createScmTimer();
         timer.schedule(new ScmTimerTask() {

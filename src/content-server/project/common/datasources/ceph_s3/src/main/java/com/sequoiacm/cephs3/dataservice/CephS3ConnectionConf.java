@@ -118,6 +118,10 @@ public class CephS3ConnectionConf {
         return connectionTTL;
     }
 
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
     public int getConnectionTimeout() {
         return connectionTimeout;
     }
