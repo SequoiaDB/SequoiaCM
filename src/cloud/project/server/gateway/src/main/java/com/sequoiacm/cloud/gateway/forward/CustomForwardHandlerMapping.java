@@ -9,6 +9,7 @@ import com.sequoiacm.cloud.gateway.forward.decider.Decision;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmRequestAttributeDefine;
+import com.sequoiacm.infrastructure.security.auth.RestField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,9 +79,11 @@ public class CustomForwardHandlerMapping extends AbstractHandlerMapping {
                     decision.isSetFrowardPrefix());
         }
         catch (Exception e) {
-            logger.error("failed to forward request: serviceName={}, reqUrl={}, queryParam={}",
+            // this will get null, when forwarding s3 request
+            String sessionId = clientReq.getHeader(RestField.SESSION_ATTRIBUTE);
+            logger.error("failed to forward request: serviceName={}, reqUrl={}, queryParam={}, sessionId={}",
                     decision.getServiceName(), clientReq.getRequestURI(),
-                    clientReq.getQueryString());
+                    clientReq.getQueryString(), sessionId);
             throw e;
         }
         finally {
