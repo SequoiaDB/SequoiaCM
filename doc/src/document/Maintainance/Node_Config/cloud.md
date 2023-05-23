@@ -38,6 +38,8 @@ SequoiaCM 配置
 |scm.trace.enabled|boolean|是否开启链路追踪功能，默认值：false|在线生效|
 |scm.trace.samplePercentage|num|配置链路追踪的请求采样率，默认值：10（表示采样 10% 的请求），可选值：[0,100]|在线生效|
 |scm.trace.sampleServices|str|配置链路追踪采样的下游服务列表，多个用逗号隔开，不存在该配置时默认对所有下游服务采样|在线生效|
+|scm.conf.client.workspace.heartbeatInterval|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.bucket.heartbeatInterval|num|配置bucket版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 
 ##注册中心##
 
@@ -158,6 +160,10 @@ SequoiaCM 配置
 |scm.quota.sync.maxConcurrentCount        | num   | 进行额度同步的最大并发数，默认值为 30 |在线生效|
 |scm.quota.sync.retryInterval        | num   | 扫描额度统计表进行重试的周期，单位为秒，默认值为 300 |在线生效|
 |scm.quota.sync.expireTime       | num   | 内容服务等待更新统计进度的时间阈值，如果在该阈值内未更新，则视为更新失败，单位为秒，默认值为 300 |在线生效|
+|scm.conf.client.workspace.heartbeatInterval|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.bucket.heartbeatInterval|num|配置bucket版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.user.heartbeatInterval|num|配置用户版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.role.heartbeatInterval|num|配置角色版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 
 ##服务跟踪##
 

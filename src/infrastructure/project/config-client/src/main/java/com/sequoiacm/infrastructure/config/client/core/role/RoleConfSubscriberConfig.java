@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "scm.conf.version.role")
+@ConfigurationProperties(prefix = "scm.conf.client.role")
 public class RoleConfSubscriberConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(RoleConfSubscriberConfig.class);

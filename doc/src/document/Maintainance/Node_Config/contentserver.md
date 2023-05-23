@@ -23,8 +23,9 @@ SequoiaCM 配置
 |scm.conf.version.nodeHeartbeat|num|内容服务节点请求查询配置服务node版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.workspaceHeartbeat|num|内容服务节点请求查询配置服务workspace版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.version.metaDataHeartbeat|num|内容服务节点请求查询配置服务metaData版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.user.heartbeatInterval|num|配置用户版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.role.heartbeatInterval|num|配置角色版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.user.heartbeatInterval|num|内容服务节点请求查询配置服务user版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.role.heartbeatInterval|num|内容服务节点请求查询配置服务role版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.quota.heartbeatInterval|num|内容服务节点请求查询配置服务quota(桶限额配置)版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.store.sequoiadb.urls          |str    |内容服务节点的元数据服务地址（sequoiadb的协调节点地址列表：ip1:port2,ip2:port2）|重启生效|
 |scm.store.sequoiadb.username        |str    |内容服务节点的元数据服务用户名（sequoiadb的用户名），默认用户名为空|重启生效|
 |scm.store.sequoiadb.password     |str    |内容服务节点的元数据服务密码文件路径（sequoiadb的密码），默认密码为空|重启生效|
