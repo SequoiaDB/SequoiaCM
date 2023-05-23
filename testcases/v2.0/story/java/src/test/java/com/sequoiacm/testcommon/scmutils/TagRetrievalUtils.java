@@ -9,6 +9,7 @@ import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmTags;
 import com.sequoiacm.client.element.tag.ScmTagCondition;
 import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import com.sequoiacm.exception.ScmError;
 import org.testng.Assert;
 
@@ -52,7 +53,7 @@ public class TagRetrievalUtils {
     }
 
     public static void waitFileTagBuild( ScmWorkspace ws, ScmTagCondition cond,
-            long expCountFile ) throws ScmException, InterruptedException {
+                                         long expCountFile ) throws ScmException, InterruptedException {
         long actCountFile = -1;
         int i = 0;
         do {
@@ -70,5 +71,31 @@ public class TagRetrievalUtils {
                 Assert.fail( "countFile超时,countFile=" + actCountFile );
             }
         } while ( actCountFile != expCountFile );
+    }
+
+    /**
+     * @descreption 有限时间内等待工作区标签检索变成 waitStatus 状态
+     * @param ws
+     * @param waitStatus
+     * @param second
+     * @return
+     * @throws ScmException
+     */
+    public static void waitWsTagRetrievalStatus( ScmWorkspace ws,
+                                                 ScmWorkspaceTagRetrievalStatus waitStatus, int second )
+            throws ScmException, InterruptedException {
+        long waitCont = 0;
+        while ( true ) {
+            ScmWorkspaceTagRetrievalStatus status = ws.getTagRetrievalStatus();
+            if ( waitStatus.getValue().equals( status.getValue() ) ) {
+                break;
+            }
+            if ( waitCont >= second ) {
+                Assert.fail( "wait time out get tagRetrieval status "
+                        + waitStatus.getValue() );
+            }
+            Thread.sleep( 1000 );
+            waitCont++;
+        }
     }
 }

@@ -697,6 +697,43 @@ public class ScmFileUtils extends TestScmBase {
     }
 
     /**
+     * @descreption create File by the local file
+     * @param ws
+     * @param fileName
+     * @param filePath
+     * @param authorName
+     * @param tag
+     * @param tagKey
+     * @param tagValue
+     * @return ScmId
+     * @throws ScmException
+     */
+    /* 
+    public static ScmId create( ScmWorkspace ws, String fileName,
+            String filePath, String authorName, String tag, String tagKey,
+            String tagValue ) throws ScmException {
+        ScmId fileId = null;
+        try {
+            ScmFile file = ScmFactory.File.createInstance( ws );
+            file.setFileName( fileName );
+            file.setAuthor( authorName );
+            file.setContent( filePath );
+            if ( tag != null ) {
+                file.addTagV2( tag );
+            }
+            if ( tagKey != null ) {
+                file.addCustomTag( tagKey, tagValue );
+            }
+            fileId = file.save();
+        } catch ( ScmException e ) {
+            logger.error( "[test] create scmfile, fileName=" + fileName );
+            throw e;
+        }
+        return fileId;
+    }
+    */
+
+    /**
      * @descreption scm桶下创建文件，使用文件方式
      * @param bucket
      * @param fileName
