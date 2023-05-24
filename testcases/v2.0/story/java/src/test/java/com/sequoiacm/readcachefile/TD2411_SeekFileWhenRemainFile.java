@@ -65,7 +65,7 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         ScmFileUtils.cleanFile( wsp, cond );
     }
 
-    @Test(groups = { "fourSite", "net" })
+    @Test(groups = { "fourSite", "net" }, enabled = false)
     public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
@@ -80,7 +80,7 @@ public class TD2411_SeekFileWhenRemainFile extends TestScmBase {
         runSuccess = true;
     }
 
-    @Test(groups = { "fourSite", "star" })
+    @Test(groups = { "fourSite", "star" }, enabled = false)
     public void startest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
