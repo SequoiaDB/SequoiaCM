@@ -4,10 +4,8 @@ import com.sequoiacm.infrastructure.tool.common.*;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeInfo;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeInfoDetail;
 import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeList;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiacm.infrastructure.tool.exec.ScmExecutorWrapper;
 import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperator;
 import com.sequoiacm.infrastructure.tool.operator.ScmServiceNodeOperatorGroup;
 import org.apache.commons.cli.CommandLine;
@@ -26,6 +24,7 @@ public class ScmStopToolImpl extends ScmTool {
 
     protected int SLEEP_TIME = 200;
     protected int STOP_TIMEOUT = 30 * 1000;
+    protected int STOP_INTERVAL_TIME = 100;
 
     protected Options options;
     protected ScmHelpGenerator hp;
@@ -111,129 +110,145 @@ public class ScmStopToolImpl extends ScmTool {
 
         ScmMonitorDaemonHelper.changeMonitorStatus(needStopMap.keySet(), "off", installPath);
 
-        List<ScmNodeInfo> checkList = new ArrayList<>();
-        stopNodes(needStopMap, checkList);
-
-        // check stop resault and force option
-        boolean stopRes = isStopSuccess(checkList, commandLine.hasOption(OPT_SHORT_FORCE));
-        System.out.println("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
-                + (needStopMap.size() - success));
-        logger.info("Total:" + needStopMap.size() + ";Success:" + success + ";Failed:"
-                + (needStopMap.size() - success));
-        if (!stopRes || needStopMap.size() != success) {
-            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
-        }
+        stopNodes(needStopMap, commandLine.hasOption(OPT_SHORT_FORCE));
     }
 
-    protected void stopNodes(Map<Integer, ScmNodeInfo> needStopMap, List<ScmNodeInfo> checkList) {
-        for (Integer key : needStopMap.keySet()) {
+    protected void stopNodes(Map<Integer, ScmNodeInfo> needStopMap, boolean isForce)
+            throws ScmToolsException {
+        List<ScmNodeInfo> nodeInfoList = getSortedStopList(needStopMap);
+        List<ScmNodeInfo> timeOutList = new ArrayList<>();
+        List<ScmNodeInfo> checkStatusList = new ArrayList<>();
+        for (ScmNodeInfo node : nodeInfoList) {
             try {
-                if (nodeOperators.getNodePid(key) != ScmNodeInfoDetail.NOT_RUNNING) {
-                    nodeOperators.stopNode(key, false);
-                    checkList.add(needStopMap.get(key));
+                if (nodeOperators.getNodePid(node.getPort()) != ScmNodeInfoDetail.NOT_RUNNING) {
+                    // not force: kill -15 pid
+                    nodeOperators.stopNode(node.getPort(), false);
+                    checkStatusList.add(node);
+                    // 睡眠 100 ms，尽量避免后执行stop的节点比先执行stop的节点先停止，导致出错
+                    ScmCommon.sleep(STOP_INTERVAL_TIME);
                 }
                 else {
-                    logger.info("Success:" + needStopMap.get(key).getNodeType().getUpperName() + "("
-                            + needStopMap.get(key).getPort() + ")" + " is already stopped");
-                    System.out.println(
-                            "Success:" + needStopMap.get(key).getNodeType().getUpperName() + "("
-                                    + needStopMap.get(key).getPort() + ")" + " is already stopped");
+                    logger.info("Success:" + node.getNodeType().getUpperName() + "("
+                            + node.getPort() + ")" + " is already stopped");
+                    System.out.println("Success:" + node.getNodeType().getUpperName() + "("
+                            + node.getPort() + ")" + " is already stopped");
                     success++;
                 }
             }
             catch (ScmToolsException e) {
-                logger.error("stop occur error", e);
-                e.printErrorMsg();
+                logger.error("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort()
+                        + ")" + " failed to stop, stop occur error", e);
+                System.out.println("Failed:" + node.getNodeType().getUpperName() + "("
+                        + node.getPort() + ")" + " failed to stop");
             }
-        }
-    }
-
-    protected boolean isStopSuccess(List<ScmNodeInfo> checkList, boolean isForce)
-            throws ScmToolsException {
-        boolean rc = true;
-        long timeStamp = System.currentTimeMillis();
-        while (true) {
-            Iterator<ScmNodeInfo> it = checkList.iterator();
-            while (it.hasNext()) {
-                ScmNodeInfo node = it.next();
-                try {
-                    int pid = nodeOperators.getNodePid(node.getPort());
-                    if (pid == ScmNodeInfoDetail.NOT_RUNNING) {
-                        logger.info("Success:" + node.getNodeType().getUpperName() + "("
-                                + node.getPort() + ")" + " is successfully stopped");
-                        System.out.println("Success:" + node.getNodeType().getUpperName() + "("
-                                + node.getPort() + ")" + " is successfully stopped");
-                        it.remove();
-                        success++;
-                    }
-                }
-                catch (ScmToolsException e) {
-                    logger.error("check node status failed,node:"
-                            + node.getNodeType().getUpperName() + "(" + node.getPort() + ")", e);
-                    e.printErrorMsg();
-                    rc = false;
-                    it.remove();
-                }
-            }
-            if (checkList.size() <= 0) {
-                return rc;
-            }
-            if (System.currentTimeMillis() - timeStamp > STOP_TIMEOUT) {
-                break;
-            }
-            ScmCommon.sleep(SLEEP_TIME);
         }
 
-        if (isForce) {
-            for (ScmNodeInfo node : checkList) {
-                try {
-                    logger.info("force stop node:" + node.getNodeType().getUpperName() + "("
-                            + node.getPort() + ")");
-                    nodeOperators.stopNode(node.getPort(), true);
-                }
-                catch (ScmToolsException e) {
-                    logger.error("force stop node occur exception,node:"
-                            + node.getNodeType().getUpperName() + "(" + node.getPort() + ")", e);
-                    System.out.println("force stop node occur exception,node:"
-                            + node.getNodeType().getUpperName() + "(" + node.getPort() + ")"
-                            + ",error:" + e.getMessage());
-                    rc = false;
-                }
+        for (ScmNodeInfo node : checkStatusList) {
+            // check node status
+            NodeStopStatus checkResult = checkNodeStoppingStatus(node, STOP_TIMEOUT);
+            if (isForce && checkResult == NodeStopStatus.TIME_OUT) {
+                // force: kill -15 pid still running then kill -9 pid
+                stopForce(node);
+                ScmCommon.sleep(SLEEP_TIME);
+                checkResult = checkNodeStoppingStatus(node, 0);
             }
-            ScmCommon.sleep(SLEEP_TIME);
-            Iterator<ScmNodeInfo> it = checkList.iterator();
-            while (it.hasNext()) {
-                ScmNodeInfo node = it.next();
-                try {
-                    int pid = nodeOperators.getNodePid(node.getPort());
-                    if (pid == -1) {
-                        logger.info("Success:" + node.getNodeType().getUpperName() + "("
-                                + node.getPort() + ")" + " is successfully stopped");
-                        System.out.println("Success:" + node.getNodeType().getUpperName() + "("
-                                + node.getPort() + ")" + " is successfully stopped");
-                        it.remove();
-                        success++;
-                    }
-                }
-                catch (ScmToolsException e) {
-                    logger.error("stop node occur exception", e);
-                    e.printErrorMsg();
-                    it.remove();
-                    rc = false;
-                }
+
+            if (checkResult == NodeStopStatus.NOT_RUNNING) {
+                logger.info("Success:" + node.getNodeType().getUpperName() + "(" + node.getPort()
+                        + ")" + " is successfully stopped");
+                System.out.println("Success:" + node.getNodeType().getUpperName() + "("
+                        + node.getPort() + ")" + " is successfully stopped");
+                success++;
             }
-        }
-        if (checkList.size() == 0) {
-            return rc;
+            else if (checkResult == NodeStopStatus.FAILED) {
+                logger.error("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort()
+                        + ")" + " failed to stop, check node status failed, unknown node status");
+                System.out.println(
+                        "Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort() + ")"
+                                + " failed to stop, check node status failed, unknown node status");
+            }
+            else {
+                timeOutList.add(node);
+            }
         }
 
-        for (ScmNodeInfo node : checkList) {
+        // time out some node still running
+        for (ScmNodeInfo node : timeOutList) {
             logger.error("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort() + ")"
                     + " failed to stop, timeout, node still running");
             System.out.println("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort()
                     + ")" + " failed to stop");
         }
-        return false;
+
+        System.out.println("Total:" + nodeInfoList.size() + ";Success:" + success + ";Failed:"
+                + (nodeInfoList.size() - success));
+        logger.info("Total:" + nodeInfoList.size() + ";Success:" + success + ";Failed:"
+                + (nodeInfoList.size() - success));
+
+        if (nodeInfoList.size() != success) {
+            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
+        }
+    }
+
+    private NodeStopStatus checkNodeStoppingStatus(ScmNodeInfo node, int stopTimeOut) {
+        long timeStamp = System.currentTimeMillis();
+        while (true) {
+            NodeStopStatus status = getNodeStopStatus(node);
+            if (status == NodeStopStatus.NOT_RUNNING || status == NodeStopStatus.FAILED) {
+                return status;
+            }
+            if (System.currentTimeMillis() - timeStamp > stopTimeOut) {
+                break;
+            }
+            ScmCommon.sleep(SLEEP_TIME);
+        }
+        return NodeStopStatus.TIME_OUT;
+    }
+
+    private void stopForce(ScmNodeInfo node) throws ScmToolsException {
+        // force stop node
+        try {
+            logger.info("force stop node:" + node.getNodeType().getUpperName() + "("
+                    + node.getPort() + ")");
+            nodeOperators.stopNode(node.getPort(), true);
+        }
+        catch (ScmToolsException e) {
+            logger.error("force stop node occur exception,node:" + node.getNodeType().getUpperName()
+                    + "(" + node.getPort() + ")", e);
+            System.out.println(
+                    "force stop node occur exception,node:" + node.getNodeType().getUpperName()
+                            + "(" + node.getPort() + ")" + ",error:" + e.getMessage());
+            throw e;
+        }
+    }
+
+    private NodeStopStatus getNodeStopStatus(ScmNodeInfo node) {
+        try {
+            int pid = nodeOperators.getNodePid(node.getPort());
+            if (pid == ScmNodeInfoDetail.NOT_RUNNING) {
+                return NodeStopStatus.NOT_RUNNING;
+            }
+            return NodeStopStatus.RUNNING;
+        }
+        catch (ScmToolsException e) {
+            logger.error("check node status failed,node:" + node.getNodeType().getUpperName() + "("
+                    + node.getPort() + ")", e);
+            return NodeStopStatus.FAILED;
+        }
+    }
+
+    protected List<ScmNodeInfo> getSortedStopList(Map<Integer, ScmNodeInfo> needStopMap) {
+        Collection<ScmNodeInfo> values = needStopMap.values();
+        List<ScmNodeInfo> nodeInfoList = new ArrayList<>(values);
+        // 优先级越小，优先部署，逆序排序，先部署的后停止
+        Collections.sort(nodeInfoList, new Comparator<ScmNodeInfo>() {
+            @Override
+            public int compare(ScmNodeInfo n1, ScmNodeInfo n2) {
+                return n2.getNodeType().getTypeEnum().getDeployPriority()
+                        - n1.getNodeType().getTypeEnum().getDeployPriority();
+            }
+        });
+        return nodeInfoList;
     }
 
     @Override

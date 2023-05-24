@@ -11,10 +11,12 @@ public class SpringClientFactoryPostProcess implements BeanFactoryPostProcessor 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
             throws BeansException {
         String contextName = "springClientFactory";
-        String beanName = "eurekaAutoServiceRegistration";
-        if (containsBeanDefinition(beanFactory, contextName,beanName)) {
-            BeanDefinition definition = beanFactory.getBeanDefinition(contextName);
-            definition.setDependsOn(beanName);
+        String[] beanNames = { "eurekaAutoServiceRegistration", "eurekaStateListener" };
+        for (String beanName : beanNames) {
+            if (containsBeanDefinition(beanFactory, contextName, beanName)) {
+                BeanDefinition definition = beanFactory.getBeanDefinition(contextName);
+                definition.setDependsOn(beanName);
+            }
         }
     }
 

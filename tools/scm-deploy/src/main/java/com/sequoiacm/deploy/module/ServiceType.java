@@ -1,5 +1,7 @@
 package com.sequoiacm.deploy.module;
 
+import com.sequoiacm.infrastructure.tool.common.ScmDeployPriority;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,23 +9,39 @@ import java.util.Comparator;
 import java.util.List;
 
 public enum ServiceType {
-    ZOOKEEPER("zookeeper", true, InstallPackType.ZOOKEEPER, -1, null),
-    SERVICE_CENTER("service-center", true, InstallPackType.CLOUD, "jars/sequoiacm-cloud-servicecenter-*.jar", 0, "scmcloudctl.sh"),
-    SERVICE_TRACE("service-trace", false, InstallPackType.CLOUD, "jars/sequoiacm-cloud-servicetrace-*.jar", 1, "scmcloudctl.sh"),
-    AUTH_SERVER("auth-server", true, InstallPackType.CLOUD, "jars/sequoiacm-cloud-authserver-*.jar", 2, "scmcloudctl.sh"),
-    MQ_SERVER("mq-server", false, InstallPackType.MQ_SERVER, "jars/sequoiacm-mq-server-*.jar", 2, "mqctl.sh"),
-    CONFIG_SERVER("config-server", true, InstallPackType.CONFIG_SERVER, "jars/sequoiacm-config-server-*.jar", 3, "confctl.sh"),
-    SCHEDULE_SERVER("schedule-server", false, InstallPackType.SCHEDULE_SERVER, "jars/sequoiacm-schedule-server-*.jar", 3, "schctl.sh"),
-    GATEWAY("gateway", true, InstallPackType.CLOUD, "jars/sequoiacm-cloud-gateway-*.jar", 4, "scmcloudctl.sh"),
-    CONTENT_SERVER("content-server", true, InstallPackType.CONTENTSERVER, "lib/sequoiacm-content-server-*.jar", 5, "scmctl.sh"),
-    ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, "jars/sequoiacm-cloud-adminserver-*.jar", 10, "scmcloudctl.sh"),
-    OM_SERVER("om-server", false, InstallPackType.OM_SERVER, "jars/sequoiacm-om-omserver-*.jar", 10, "omctl.sh"),
-    FULLTEXT_SERVER("fulltext-server", false, InstallPackType.FULLTEXT_SERVER, "jars/sequoiacm-fulltext-server-*.jar", 10, "ftctl.sh"),
-    S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, "jars/sequoiacm-s3-server-*.jar", 10, "s3ctl.sh"),
-    SCMSYSTOOLS("scmsystools", false, InstallPackType.SCMSYSTOOLS, "jars/sequoiacm-sys-tools-*.jar", 100, null),
+    ZOOKEEPER("zookeeper", true, InstallPackType.ZOOKEEPER, ScmDeployPriority.ZOOKEEPER
+            .getDeployPriority(), null),
+    SERVICE_CENTER("service-center", true, InstallPackType.CLOUD, "jars/sequoiacm-cloud-servicecenter-*.jar", ScmDeployPriority.SERVICE_CENTER
+            .getDeployPriority(), "scmcloudctl.sh"),
+    SERVICE_TRACE("service-trace", false, InstallPackType.CLOUD, "jars/sequoiacm-cloud-servicetrace-*.jar", ScmDeployPriority.SERVICE_TRACE
+            .getDeployPriority(), "scmcloudctl.sh"),
+    AUTH_SERVER("auth-server", true, InstallPackType.CLOUD, "jars/sequoiacm-cloud-authserver-*.jar", ScmDeployPriority.AUTH_SERVER
+            .getDeployPriority(), "scmcloudctl.sh"),
+    MQ_SERVER("mq-server", false, InstallPackType.MQ_SERVER, "jars/sequoiacm-mq-server-*.jar", ScmDeployPriority.MQ_SERVER
+            .getDeployPriority(), "mqctl.sh"),
+    CONFIG_SERVER("config-server", true, InstallPackType.CONFIG_SERVER, "jars/sequoiacm-config-server-*.jar", ScmDeployPriority.CONFIG_SERVER
+            .getDeployPriority(), "confctl.sh"),
+    SCHEDULE_SERVER("schedule-server", false, InstallPackType.SCHEDULE_SERVER, "jars/sequoiacm-schedule-server-*.jar", ScmDeployPriority.SCHEDULE_SERVER
+            .getDeployPriority(), "schctl.sh"),
+    GATEWAY("gateway", true, InstallPackType.CLOUD, "jars/sequoiacm-cloud-gateway-*.jar", ScmDeployPriority.GATEWAY
+            .getDeployPriority(), "scmcloudctl.sh"),
+    CONTENT_SERVER("content-server", true, InstallPackType.CONTENTSERVER, "lib/sequoiacm-content-server-*.jar", ScmDeployPriority.CONTENT_SERVER
+            .getDeployPriority(), "scmctl.sh"),
+    ADMIN_SERVER("admin-server", false, InstallPackType.CLOUD, "jars/sequoiacm-cloud-adminserver-*.jar", ScmDeployPriority.ADMIN_SERVER
+            .getDeployPriority(), "scmcloudctl.sh"),
+    OM_SERVER("om-server", false, InstallPackType.OM_SERVER, "jars/sequoiacm-om-omserver-*.jar", ScmDeployPriority.OM_SERVER
+            .getDeployPriority(), "omctl.sh"),
+    FULLTEXT_SERVER("fulltext-server", false, InstallPackType.FULLTEXT_SERVER, "jars/sequoiacm-fulltext-server-*.jar", ScmDeployPriority.FULLTEXT_SERVER
+            .getDeployPriority(), "ftctl.sh"),
+    S3_SERVER("s3-server", false, InstallPackType.S3_SERVER, "jars/sequoiacm-s3-server-*.jar", ScmDeployPriority.S3_SERVER
+            .getDeployPriority(), "s3ctl.sh"),
+    SCMSYSTOOLS("scmsystools", false, InstallPackType.SCMSYSTOOLS, "jars/sequoiacm-sys-tools-*.jar", ScmDeployPriority.SCMSYSTOOLS
+            .getDeployPriority(), null),
     // Daemon need to start last and clean first
-    DAEMON("daemon", false, InstallPackType.DAEMON, "jars/sequoiacm-daemon-tools-*.jar", 200, "scmd.sh"),
-    NON_SERVICE("non-service", false, InstallPackType.NON_SERVICE, "sequoiacm-driver-*.tar.gz", 300, null) {
+    DAEMON("daemon", false, InstallPackType.DAEMON, "jars/sequoiacm-daemon-tools-*.jar", ScmDeployPriority.DAEMON
+            .getDeployPriority(), "scmd.sh"),
+    NON_SERVICE("non-service", false, InstallPackType.NON_SERVICE, "sequoiacm-driver-*.tar.gz", ScmDeployPriority.NON_SERVICE
+            .getDeployPriority(), null) {
 
         @Override
         public String toString() {
