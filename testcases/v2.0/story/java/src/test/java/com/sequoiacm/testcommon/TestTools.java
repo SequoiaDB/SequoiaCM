@@ -13,6 +13,8 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 
 import org.apache.commons.codec.binary.Hex;
@@ -647,6 +649,80 @@ public class TestTools {
             if ( fileInputStream != null ) {
                 fileInputStream.close();
             }
+        }
+    }
+
+    public static class DateTools {
+        /**
+         * @descreption 返回当前时间的前i天
+         * @param i
+         *            i为正数时，返回当前时间的前i天，i为负数时，返回当前时间的后i天
+         * @return md5 value
+         */
+        public static Date getBeforeDay( int i ) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add( Calendar.DATE, -i );
+            return calendar.getTime();
+        }
+
+        /**
+         * @descreption 返回当前时间的前i月
+         * @param i
+         *            i为正数时，返回当前时间的前i个月，i为负数时，返回当前时间的后i个月
+         * @return md5 value
+         */
+        public static Date getBeforeMonth( int i ) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add( Calendar.MONTH, -i );
+            return calendar.getTime();
+        }
+
+        /**
+         * @descreption 返回当前时间的前i年
+         * @param i
+         *            i为正数时，返回当前时间的前i年，i为负数时，返回当前时间的后i年
+         * @return md5 value
+         */
+        public static Date getBeforeYear( int i ) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add( Calendar.YEAR, -i );
+            return calendar.getTime();
+        }
+
+        /**
+         * @descreption 返回当前时间的前i小时
+         * @param i
+         *            i为正数时，返回当前时间的前i小时，i为负数时，返回当前时间的后i小时
+         * @return md5 value
+         */
+        public static Date getBeforeHour( int i ) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add( Calendar.HOUR, -i );
+            return calendar.getTime();
+        }
+
+        /**
+         * @descreption 返回当前时间的前i分钟
+         * @param i
+         *            i为正数时，返回当前时间的前i分钟，i为负数时，返回当前时间的后i分钟
+         * @return md5 value
+         */
+        public static Date getBeforeMinute( int i ) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add( Calendar.MINUTE, -i );
+            return calendar.getTime();
+        }
+
+        /**
+         * @descreption 返回当前时间的前i秒
+         * @param i
+         *            i为正数时，返回当前时间的前i秒，i为负数时，返回当前时间的后i秒
+         * @return md5 value
+         */
+        public static Date getBeforeSecond( int i ) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add( Calendar.SECOND, -i );
+            return calendar.getTime();
         }
     }
 }
