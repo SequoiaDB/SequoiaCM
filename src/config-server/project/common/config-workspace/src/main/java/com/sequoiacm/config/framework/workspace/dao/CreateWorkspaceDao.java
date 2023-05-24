@@ -73,6 +73,7 @@ public class CreateWorkspaceDao {
             TableDao sysWsTabledao = workspaceMetaService.getSysWorkspaceTable(transaction);
             // generate ws id
             int wsId = sysWsTabledao.generateId();
+            logger.info("create workspace:{}, generate ws id:{}", wsConfig.getWsName(), wsId);
             wsConfig.setWsId(wsId);
             // insert ws record
             transaction.begin();
@@ -80,6 +81,7 @@ public class CreateWorkspaceDao {
             wsRecord = formateToWorkspaceRecord(wsConfig);
 
             try {
+                logger.info("insert record into workspace table:" + wsRecord);
                 sysWsTabledao.insert(wsRecord);
             }
             catch (MetasourceException e) {

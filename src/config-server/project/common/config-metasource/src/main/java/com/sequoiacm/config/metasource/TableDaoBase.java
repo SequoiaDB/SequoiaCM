@@ -41,6 +41,7 @@ public abstract class TableDaoBase implements TableDao {
             cursor = query(null, null, orderBy);
             if (cursor.hasNext()) {
                 BSONObject rec = cursor.getNext();
+                logger.info("The record with the largest id: {}", rec);
                 Integer id = (Integer) rec.get(FieldIdName);
                 if (id != null && id != Integer.MAX_VALUE) {
                     return id + 1 > 0 ? id + 1 : 1;
