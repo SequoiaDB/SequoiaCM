@@ -36,9 +36,7 @@ public class VersionRange {
         try {
 
             // range = 3.6.1
-            if (range.charAt(0) != '[' && range.charAt(0) != '('
-                    && range.charAt(range.length() - 1) != ']'
-                    && range.charAt(range.length() - 1) != ')') {
+            if (isSingleVersionNumbers(range)) {
                 left = new Version(range);
                 right = left;
                 leftInclusive = true;
@@ -47,6 +45,7 @@ public class VersionRange {
             }
 
             // range = [3.6.1, 4.2.0]
+            checkVersionRangeValid(range);
             leftInclusive = range.charAt(0) == '[';
             rightInclusive = range.charAt(range.length() - 1) == ']';
 
@@ -54,11 +53,18 @@ public class VersionRange {
             rangNoWrapper = rangNoWrapper.trim();
             String[] leftAndRight = rangNoWrapper.split(",");
             if (leftAndRight.length != 2) {
-                throw new IllegalArgumentException("range is invalid");
+                throw new IllegalArgumentException(
+                        "range is invalid, the range can only contain two version numbers, range="
+                                + range);
             }
 
             left = new Version(leftAndRight[0]);
             right = new Version(leftAndRight[1]);
+            if (left.compareTo(right) > 0) {
+                throw new IllegalArgumentException(
+                        "range is invalid, the left version numbers cannot bigger than right version numbers, range="
+                                + range);
+            }
         }
         catch (Exception e) {
             throw new IllegalArgumentException("range is invalid: " + range, e);
@@ -77,6 +83,25 @@ public class VersionRange {
         }
 
         return true;
+    }
+
+    private boolean isSingleVersionNumbers(String range) {
+        return range.charAt(0) != '[' && range.charAt(0) != '('
+                && range.charAt(range.length() - 1) != ']'
+                && range.charAt(range.length() - 1) != ')';
+    }
+
+    private void checkVersionRangeValid(String range) {
+        if (range.charAt(0) != '(' && range.charAt(0) != '[') {
+            throw new IllegalArgumentException(
+                    "range is invalid, only '(' or '[' is supported at the beginning, range="
+                            + range);
+        }
+
+        if (range.charAt(range.length() - 1) != ')' && range.charAt(range.length() - 1) != ']') {
+            throw new IllegalArgumentException(
+                    "range is invalid, only ')' or ']' is supported at the ending, range=" + range);
+        }
     }
 
     @Override
