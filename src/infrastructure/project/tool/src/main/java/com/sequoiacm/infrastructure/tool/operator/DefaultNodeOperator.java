@@ -104,7 +104,7 @@ public abstract class DefaultNodeOperator extends ScmServiceNodeOperator {
                 if (exceptionMsgMap == null) {
                     exceptionMsgMap = new HashMap<>();
                 }
-                String msg = e.getMessage() + " " + Arrays.toString(e.getStackTrace());
+                String msg = e.getMessage() + ", stacktrace: " + Arrays.toString(e.getStackTrace());
                 exceptionMsgMap.put(healthEndpoint, msg);
             }
         }

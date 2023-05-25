@@ -255,10 +255,9 @@ public class ScmStartToolImpl extends ScmTool {
 
     private void printUnStartedNodes(Map<ScmNodeInfoDetail, String> nodeInfoDetails) {
         for (Map.Entry<ScmNodeInfoDetail, String> entry : nodeInfoDetails.entrySet()) {
-            logger.error("failed to start node"
-                    + entry.getKey().getNodeInfo().getNodeType().getUpperName() + "("
-                    + entry.getKey().getNodeInfo().getPort() + ")" + ",timeout,node status:"
-                    + entry.getValue());
+            logger.error("failed to start node {}({}) because of timeout\n" + "node status: {}",
+                    entry.getKey().getNodeInfo().getNodeType().getUpperName(),
+                    entry.getKey().getNodeInfo().getPort(), entry.getValue());
             System.out.println("Failed:" + entry.getKey().getNodeInfo().getNodeType().getUpperName()
                     + "(" + entry.getKey().getNodeInfo().getPort() + ")" + " failed to start");
         }

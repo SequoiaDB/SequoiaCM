@@ -259,8 +259,8 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         for (Entry<Integer, String> entry : port2Status.entrySet()) {
-            logger.error("failed to start node(" + entry.getKey() + "),timeout,node status:"
-                    + entry.getValue());
+            logger.error("failed to start node({}) because of timeout\n" + "node status: {}",
+                    entry.getKey(), entry.getValue());
             System.out.println("Failed:CONTENT-SERVER(" + entry.getKey() + ") failed to start");
         }
 
