@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.om.omserver.exception.ScmOmServerError;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,10 +37,9 @@ public class ScmTagController {
             ScmOmSession session, HttpServletResponse response)
             throws ScmInternalException, ScmOmServerException {
         OmTagFilter omTagFilter = new OmTagFilter(tagFilter);
-        List<OmTagBasic> omTagBasics = tagService.listTag(session, wsName, tagType, omTagFilter,
-                skip, limit);
-        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(omTagBasics.size()));
-        return omTagBasics;
+        long tagCount = tagService.countTag(session, wsName, tagType, omTagFilter);
+        response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(tagCount));
+        return tagService.listTag(session, wsName, tagType, omTagFilter, skip, limit);
     }
 
     @GetMapping("/tags/custom_tag/key")
@@ -50,6 +50,11 @@ public class ScmTagController {
             @RequestParam(value = RestParamDefine.LIMIT, required = false, defaultValue = "1000") int limit,
             ScmOmSession session, HttpServletResponse response)
             throws ScmInternalException, ScmOmServerException {
+        if (skip != 0) {
+            // 暂无分页需求，先不做实现
+            throw new ScmOmServerException(ScmOmServerError.INVALID_ARGUMENT,
+                    "skip is not supported.");
+        }
         List<String> keys = tagService.listCustomTagKey(session, wsName, keyMatcher, skip, limit);
         response.setHeader(RestParamDefine.X_RECORD_COUNT, String.valueOf(keys.size()));
         return keys;

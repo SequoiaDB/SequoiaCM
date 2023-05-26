@@ -20,4 +20,7 @@ public interface ITagService {
 
     MetaCursor queryCustomTagKey(String workspaceName, ScmUser user, BSONObject condition,
             boolean ascending, long skip, long limit) throws ScmServerException;
+
+    long countTag(String workspaceName, ScmUser user, BSONObject condition)
+            throws ScmServerException;
 }

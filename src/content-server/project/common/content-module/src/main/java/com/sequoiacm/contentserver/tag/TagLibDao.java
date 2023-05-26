@@ -195,4 +195,23 @@ public class TagLibDao {
         }
 
     }
+
+    public long countTag(ScmWorkspaceInfo ws, BSONObject matcher) throws ScmServerException {
+        try {
+            MetaAccessor tagLibMetaAccessor = ScmContentModule.getInstance().getMetaService()
+                    .getMetaSource().createMetaAccessor(ws.getTagLibTable());
+            return tagLibMetaAccessor.count(matcher);
+        }
+        catch (Exception e) {
+            if (e instanceof ScmMetasourceException) {
+                throw new ScmServerException(((ScmMetasourceException) e).getScmError(),
+                        "failed to count tag: tagLib=" + ws.getTagLibTable() + ", matcher="
+                                + matcher,
+                        e);
+            }
+            throw new ScmSystemException(
+                    "failed to count tag: tagLib=" + ws.getTagLibTable() + ", matcher=" + matcher,
+                    e);
+        }
+    }
 }

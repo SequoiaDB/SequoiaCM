@@ -49,6 +49,22 @@ public class ScmTagServiceImpl implements ScmTagService {
     }
 
     @Override
+    public long countTag(ScmOmSession session, String wsName, String tagType,
+            OmTagFilter omTagFilter) throws ScmOmServerException, ScmInternalException {
+        OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);
+        String preferSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
+        ScmTagDao tagDao = scmTagDaoFactory.createTadDao(session);
+        try {
+            session.resetServiceEndpoint(preferSite);
+            return tagDao.countTag(wsName, tagType, omTagFilter);
+        }
+        catch (ScmInternalException e) {
+            siteChooser.onException(e);
+            throw e;
+        }
+    }
+
+    @Override
     public List<String> listCustomTagKey(ScmOmSession session, String wsName, String keyMatcher,
             long skip, int limit) throws ScmOmServerException, ScmInternalException {
         OmWorkspaceDetail wsDetail = wsService.getWorkspaceDetail(session, wsName);

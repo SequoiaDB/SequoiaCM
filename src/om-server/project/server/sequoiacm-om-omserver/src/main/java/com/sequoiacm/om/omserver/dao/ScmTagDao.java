@@ -14,6 +14,9 @@ public interface ScmTagDao {
     List<OmTagBasic> listTag(String wsName, String tagType, OmTagFilter omTagFilter, long skip,
             int limit) throws ScmInternalException;
 
+    long countTag(String wsName, String tagType, OmTagFilter omTagFilter)
+            throws ScmInternalException;
+
     List<String> listCustomTagKey(String wsName, String keyMatcher, long skip, int limit)
             throws ScmInternalException;
 

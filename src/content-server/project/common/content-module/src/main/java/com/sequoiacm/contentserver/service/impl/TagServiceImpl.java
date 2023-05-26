@@ -96,4 +96,14 @@ public class TagServiceImpl implements ITagService {
                 ScmPrivilegeDefine.READ, "query tag lib");
         return tagLibDao.queryCustomTagKey(wsInfo, condition, ascending, skip, limit);
     }
+
+    @Override
+    public long countTag(String workspaceName, ScmUser user, BSONObject condition)
+            throws ScmServerException {
+        ScmWorkspaceInfo wsInfo = ScmContentModule.getInstance()
+                .getWorkspaceInfoCheckExist(workspaceName);
+        ScmFileServicePriv.getInstance().checkWsPriority(user, workspaceName,
+                ScmPrivilegeDefine.READ, "count tag lib");
+        return tagLibDao.countTag(wsInfo, condition);
+    }
 }

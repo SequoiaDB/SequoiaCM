@@ -3860,6 +3860,24 @@ public class ScmFactory {
             }
             return new ScmTag(obj);
         }
+
+        /**
+         * Count tag.
+         *
+         * @param ws
+         *            workspace
+         * @param tagNameMatcher
+         *            tag name matcher, support wildcard: * and ?, * means any, ? means
+         *            one char, when this parameter is null match tag
+         * @return tag count
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.6.1
+         */
+        public static long countTags(ScmWorkspace ws, String tagNameMatcher) throws ScmException {
+            checkArgNotNull("workspace", ws);
+            return ws.getSession().getDispatcher().countTag(ws.getName(), tagNameMatcher);
+        }
     }
 
     /**
@@ -3973,6 +3991,29 @@ public class ScmFactory {
                     return BsonUtils.getStringChecked(obj, FieldName.TagLib.CUSTOM_TAG_TAG_KEY);
                 }
             });
+        }
+
+        /**
+         * Count custom tag.
+         *
+         * @param ws
+         *            workspace
+         * @param tagKeyMatcher
+         *            tag key matcher, support wildcard: * and ?, * means any, ? means
+         *            one char, when this parameter is null match all custom tag key
+         * @param tagValueMatcher
+         *            tag value matcher, support wildcard: * and ?, * means any, ? means
+         *            one char, when this parameter is null match all custom tag value
+         * @return custom tag count
+         * @throws ScmException
+         *             if error happens.
+         * @since 3.6.1
+         */
+        public static long countCustomTag(ScmWorkspace ws, String tagKeyMatcher,
+                String tagValueMatcher) throws ScmException {
+            checkArgNotNull("workspace", ws);
+            return ws.getSession().getDispatcher().countCustomTag(ws.getName(), tagKeyMatcher,
+                    tagValueMatcher);
         }
     }
 

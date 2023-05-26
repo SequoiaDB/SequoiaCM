@@ -501,10 +501,15 @@ public interface MessageDispatcher extends Closeable {
 
     BSONObject getTag(String ws, String tagName) throws ScmException;
 
+    long countTag(String ws, String tagNameMatcher) throws ScmException;
+
     BsonReader listCustomTag(String ws, String tagKeyMatcher, String tagValueMatcher,
             BSONObject orderBy, long skip, long limit) throws ScmException;
 
     BSONObject getCustomTag(String ws, String tagKey, String tagValue) throws ScmException;
+
+    long countCustomTag(String WS, String tagKeyMatcher, String tagValueMatcher)
+            throws ScmException;
 
     BsonReader listCustomTagKey(String ws, String tagKeyMatcher, boolean ascending, long skip,
             long limit) throws ScmException;

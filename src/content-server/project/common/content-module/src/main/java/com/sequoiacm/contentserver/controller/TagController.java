@@ -224,6 +224,33 @@ public class TagController {
         ServiceUtils.putCursorToResponse(cursor, response);
     }
 
+    @GetMapping(value = "/tag", params = "action=count_tag")
+    public ResponseEntity countTag(
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.TAG_WILDCARD, required = false) String tagWildcard,
+            HttpServletResponse resp, Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject condition = genTagCondition(null, tagWildcard);
+        long count = tagService.countTag(workspaceName, user, condition);
+        resp.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+        return ResponseEntity.ok().header(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count))
+                .build();
+    }
+
+    @GetMapping(value = "/tag", params = "action=count_custom_tag")
+    public ResponseEntity countCustomTagTag(
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.TAG_KEY_WILDCARD, required = false) String tagKeyWildcard,
+            @RequestParam(value = CommonDefine.RestArg.TAG_VALUE_WILDCARD, required = false) String tagValueWildcard,
+            HttpServletResponse resp, Authentication auth) throws ScmServerException {
+        ScmUser user = (ScmUser) auth.getPrincipal();
+        BSONObject condition = genCustomTagCondition(null, tagKeyWildcard, null, tagValueWildcard);
+        long count = tagService.countTag(workspaceName, user, condition);
+        resp.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
+        return ResponseEntity.ok().header(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count))
+                .build();
+    }
+
     private void checkOrderByBSON(BSONObject bson, List<String> validKeys)
             throws ScmInvalidArgumentException {
         for (String key : bson.keySet()) {

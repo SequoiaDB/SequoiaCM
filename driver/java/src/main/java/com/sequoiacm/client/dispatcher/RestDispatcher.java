@@ -3172,6 +3172,19 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public long countTag(String wsName, String tagNameMatcher) throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=count_tag&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(wsName);
+        if (tagNameMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_WILDCARD + "=" + encode(tagNameMatcher);
+        }
+        HttpGet request = new HttpGet(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
+    }
+
+    @Override
     public BsonReader listCustomTag(String ws, String tagKeyMatcher, String tagValueMatcher,
             BSONObject orderBy, long skip, long limit) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=get_custom_tag&"
@@ -3215,6 +3228,23 @@ public class RestDispatcher implements MessageDispatcher {
         BSONObject ret = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
                 request);
         return ensureOnlyOneElement((BasicBSONList) ret);
+    }
+
+    @Override
+    public long countCustomTag(String wsName, String tagKeyMatcher, String tagValueMatcher)
+            throws ScmException {
+        String uri = URL_PREFIX + url + API_VERSION + TAG + "?action=count_custom_tag&"
+                + CommonDefine.RestArg.WORKSPACE_NAME + "=" + encode(wsName);
+        if (tagKeyMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_KEY_WILDCARD + "=" + encode(tagKeyMatcher);
+        }
+        if (tagValueMatcher != null) {
+            uri += "&" + CommonDefine.RestArg.TAG_VALUE_WILDCARD + "=" + encode(tagValueMatcher);
+        }
+        HttpGet request = new HttpGet(uri);
+        String count = RestClient.sendRequestWithHeaderResponse(getHttpClient(), sessionId, request,
+                X_SCM_COUNT);
+        return Long.parseLong(count);
     }
 
     private static BSONObject ensureOnlyOneElement(BasicBSONList list) throws ScmException {

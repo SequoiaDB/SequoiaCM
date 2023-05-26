@@ -17,6 +17,9 @@ public interface ScmTagService {
             OmTagFilter omTagFilter, long skip, int limit)
             throws ScmOmServerException, ScmInternalException;
 
+    long countTag(ScmOmSession session, String wsName, String tagType, OmTagFilter omTagFilter)
+            throws ScmOmServerException, ScmInternalException;
+
     List<String> listCustomTagKey(ScmOmSession session, String wsName, String keyMatcher, long skip,
             int limit) throws ScmOmServerException, ScmInternalException;
 

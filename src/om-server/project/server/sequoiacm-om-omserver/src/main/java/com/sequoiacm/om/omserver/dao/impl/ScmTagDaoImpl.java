@@ -94,6 +94,24 @@ public class ScmTagDaoImpl implements ScmTagDao {
     }
 
     @Override
+    public long countTag(String wsName, String tagType, OmTagFilter omTagFilter)
+            throws ScmInternalException {
+        ScmSession con = session.getConnection();
+        try {
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, con);
+            if (tagType.equals(OmTagType.TAGS.getType())) {
+                return ScmFactory.Tag.countTags(ws, omTagFilter.getTagMatcher());
+            }
+            return ScmFactory.CustomTag.countCustomTag(ws, omTagFilter.getKeyMatcher(),
+                    omTagFilter.getValueMatcher());
+        }
+        catch (ScmException e) {
+            throw new ScmInternalException(e.getError(), "failed to count tag, " + e.getMessage(),
+                    e);
+        }
+    }
+
+    @Override
     public List<String> listCustomTagKey(String wsName, String keyMatcher, long skip, int limit)
             throws ScmInternalException {
         ScmSession con = session.getConnection();
