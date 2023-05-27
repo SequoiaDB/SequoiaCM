@@ -36,11 +36,11 @@ public class Object4627 extends TestScmBase {
     @Test(groups = { GroupTags.base })
     public void testCreateObject() throws Exception {
         s3Client.putObject( bucketName, keyName, createDatas );
-        Thread.sleep(100);
+        Thread.sleep(1000);
         Date expDate1 = new Date();
         checkPutObjectResult( expDate1, createDatas );
         s3Client.putObject( bucketName, keyName, upateDatas );
-        Thread.sleep(100);
+        Thread.sleep(1000);
         Date expDate2 = new Date();
         checkPutObjectResult( expDate2, upateDatas );
 

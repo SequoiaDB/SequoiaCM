@@ -1,19 +1,19 @@
 package com.sequoiacm.s3.version;
 
+import java.util.Date;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.util.Date;
 
 /**
  * @Description SCM-4628 :: 更新桶状态为禁用（enable->suspended），增加同名对象
@@ -40,11 +40,13 @@ public class Object4628 extends TestScmBase {
     @Test
     public void testCreateObject() throws Exception {
         s3Client.putObject( bucketName, keyName, createDatas );
+        Thread.sleep(1000);
         Date expFirstCreateTime = new Date();
 
         // 设置桶为禁用后创建同名对象
         S3Utils.setBucketVersioning( s3Client, bucketName, "Suspended" );
         s3Client.putObject( bucketName, keyName, upateDatas );
+        Thread.sleep(1000);
         Date expSecondCreateTime = new Date();
 
         String historyVersionId = "1.0";
