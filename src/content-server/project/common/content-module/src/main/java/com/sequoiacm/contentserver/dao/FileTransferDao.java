@@ -46,6 +46,7 @@ public class FileTransferDao {
 
     public enum FileTransferResult {
         SUCCESS,
+        SKIP,
         INTERRUPT,
         DATA_INCORRECT
     }
@@ -95,7 +96,7 @@ public class FileTransferDao {
                     fileLocationMap.get(remoteSiteId).getWsVersion(),
                     fileLocationMap.get(remoteSiteId).getTableName());
             return checkDataIsSame(localDataInfo, targetDataInfo, size, majorVersion, minorVersion)
-                    ? FileTransferResult.SUCCESS
+                    ? FileTransferResult.SKIP
                     : FileTransferResult.DATA_INCORRECT;
         }
 
