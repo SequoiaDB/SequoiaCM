@@ -87,16 +87,16 @@
 3. 给新的文件子集合 ws_META_1.FILE_2023 创建索引
 
    ```lang-javascript
-   > db.ws_META_1.FILE_2023.createIndex("idx_FILE_2023_id", {id: 1}, {Unique: true, Enforced: false})
-   > db.ws_META_1.FILE_2023.createIndex("idx_FILE_2023_data_id", {data_id: 1}, {Unique: false, Enforced: false})
-   > db.ws_META_1.FILE_2023.createIndex("idx_FILE_2023_file_name", {name: 1}, {Unique: false, Enforced: false})
-   > db.ws_META_1.FILE_2023.createIndex("idx_FILE_2023_create_time", {create_time: 1}, {Unique: false, Enforced: false})
-   > db.ws_META_1.FILE_2023.createIndex("idx_FILE_2023_data_create_time", {data_create_time: 1}, {Unique: false, Enforced: false})
+   > db.ws_META_1.FILE_2023.createIndex("idx_id", {id: 1}, {Unique: true, Enforced: false})
+   > db.ws_META_1.FILE_2023.createIndex("idx_data_id", {data_id: 1}, {Unique: false, Enforced: false})
+   > db.ws_META_1.FILE_2023.createIndex("idx_file_name", {name: 1}, {Unique: false, Enforced: false})
+   > db.ws_META_1.FILE_2023.createIndex("idx_create_time", {create_time: 1}, {Unique: false, Enforced: false})
+   > db.ws_META_1.FILE_2023.createIndex("idx_data_create_time", {data_create_time: 1}, {Unique: false, Enforced: false})
    ```
 
     >  **Note:**
     >
-    >  * 创建索引时索引名中 "FILE_2023" 为实际的子集合名
+    >  * 创建索引时索引名建议与示例保持一致
 
 4. 从文件主集合中分离出当前最新的文件子集合，如这里最新的文件子集合为 ws_META.FILE_2023，具体已实际为准。
 
@@ -151,15 +151,15 @@
 3. 给新的历史文件子集合 ws_META_1.FILE_HISTORY_2023 创建索引
 
    ```lang-javascript
-   > db.ws_META_1.FILE_HISTORY_2023.createIndex("idx_FILE_HISTORY_2023_id_version", {id: 1, major_version: 1, minor_version: 1}, {Unique: true, Enforced: false})
-   > db.ws_META_1.FILE_HISTORY_2023.createIndex("idx_FILE_HISTORY_2023_data_id", {data_id: 1}, {Unique: false, Enforced: false})
+   > db.ws_META_1.FILE_HISTORY_2023.createIndex("idx_id_version", {id: 1, major_version: 1, minor_version: 1}, {Unique: true, Enforced: false})
+   > db.ws_META_1.FILE_HISTORY_2023.createIndex("idx_data_id", {data_id: 1}, {Unique: false, Enforced: false})
    > db.ws_META_1.FILE_HISTORY_2023.createIndex("name_version_idx", {name: 1, version_serial: -1, major_version: -1, minor_version: -1}, {Unique: false, Enforced: false})
-   > db.ws_META_1.FILE_HISTORY_2023.createIndex("idx_FILE_HISTORY_2023_data_create_time", {data_create_time: 1}, {Unique: false, Enforced: false})
+   > db.ws_META_1.FILE_HISTORY_2023.createIndex("idx_data_create_time", {data_create_time: 1}, {Unique: false, Enforced: false})
    ```
 
    >  **Note:**
    >
-   >  * 创建索引时索引名中 "FILE_HISTORY_2023" 为实际的历史文件子集合名
+   >  * 创建索引时索引名建议与示例保持一致
 
 4. 从历史文件主集合中分离出当前最新的历史文件子集合，如这里最新的历史文件子集合为 ws_META.FILE_HISTORY_2023，具体以实际为准。
 

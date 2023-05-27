@@ -183,7 +183,7 @@ public class FileTableCreator {
             indexDef.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, 1);
             indexDef.put(FieldName.FIELD_CLFILE_MINOR_VERSION, 1);
             SequoiadbHelper.createIndex(sdb, csName, subClName,
-                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_ID + "_version", indexDef,
+                    "idx_" + FieldName.FIELD_CLFILE_ID + "_version", indexDef,
                     true, false);
 
             createDataIdIndex(sdb, csName, subClName);
@@ -222,20 +222,20 @@ public class FileTableCreator {
             BSONObject indexDef = new BasicBSONObject();
             indexDef.put(FieldName.FIELD_CLFILE_ID, 1);
             SequoiadbHelper.createIndex(sdb, csName, subClName,
-                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_ID, indexDef, true, false);
+                    "idx_" + FieldName.FIELD_CLFILE_ID, indexDef, true, false);
 
             createDataIdIndex(sdb, csName, subClName);
 
             indexDef = new BasicBSONObject();
             indexDef.put(FieldName.FIELD_CLFILE_NAME, 1);
             SequoiadbHelper.createIndex(sdb, csName, subClName,
-                    "idx_" + subClName + "_" + FieldName.FIELD_CLREL_FILENAME, indexDef, false,
+                    "idx_" + FieldName.FIELD_CLREL_FILENAME, indexDef, false,
                     false);
 
             indexDef = new BasicBSONObject();
             indexDef.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, 1);
             SequoiadbHelper.createIndex(sdb, csName, subClName,
-                    "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_INNER_CREATE_TIME, indexDef,
+                    "idx_" + FieldName.FIELD_CLFILE_INNER_CREATE_TIME, indexDef,
                     false, false);
 
             createDataCreateTimeIndex(sdb, csName, subClName);
@@ -257,7 +257,7 @@ public class FileTableCreator {
         BasicBSONObject indexDef = new BasicBSONObject();
         indexDef.put(FieldName.FIELD_CLFILE_FILE_DATA_ID, 1);
         SequoiadbHelper.createIndex(sdb, csName, subClName,
-                "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_ID, indexDef, false,
+                "idx_" + FieldName.FIELD_CLFILE_FILE_DATA_ID, indexDef, false,
                 false);
     }
 
@@ -266,7 +266,7 @@ public class FileTableCreator {
         BasicBSONObject indexDef = new BasicBSONObject();
         indexDef.put(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, 1);
         SequoiadbHelper.createIndex(sdb, csName, subClName,
-                "idx_" + subClName + "_" + FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, indexDef,
+                "idx_" + FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME, indexDef,
                 false, false);
     }
 
