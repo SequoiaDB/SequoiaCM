@@ -85,8 +85,7 @@ public class DiagnoseToolTest5929 extends TestScmBase {
         createFile();
     }
 
-    // 问题单http://jira.web:8080/browse/SEQUOIACM-1378未修改，暂时屏蔽用例
-    @Test(enabled = false)
+    @Test
     public void test() throws Exception {
         compareTest();
         runSuccess = true;
