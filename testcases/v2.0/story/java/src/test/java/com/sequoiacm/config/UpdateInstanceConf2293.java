@@ -14,11 +14,7 @@ import com.sequoiacm.client.element.ScmConfigProperties;
 import com.sequoiacm.client.element.ScmUpdateConfResultSet;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
-import com.sequoiacm.testcommon.NodeWrapper;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
+import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ConfUtil;
 
 /**
@@ -63,8 +59,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                             + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
         ConfUtil.checkNotTakeEffect( site, fileName );
@@ -91,8 +86,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                             + " invalid,actResult = " + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
-                e.printStackTrace();
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
         ConfUtil.checkNotTakeEffect( site, fileName );
@@ -120,7 +114,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                     + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
         ConfUtil.checkNotTakeEffect( site, fileName );
@@ -147,7 +141,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
                             + actResults.toString() );
         } catch ( ScmException e ) {
             if ( e.getError() != ScmError.HTTP_INTERNAL_SERVER_ERROR ) {
-                Assert.fail( e.getMessage() );
+                throw e;
             }
         }
         ConfUtil.checkNotTakeEffect( site, fileName );
