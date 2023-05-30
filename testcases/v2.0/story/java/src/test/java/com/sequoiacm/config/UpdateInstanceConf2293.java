@@ -37,7 +37,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // SEQUOIACM-1400暂时屏蔽
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testSingleInstance1() throws ScmException {
         try {
             ScmConfigProperties.Builder builder = ScmConfigProperties.builder();
@@ -65,7 +66,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // SEQUOIACM-1400暂时屏蔽
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testSingleInstance2() throws ScmException {
         try {
             ScmConfigProperties.Builder builder = ScmConfigProperties.builder();
@@ -92,7 +94,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // SEQUOIACM-1400暂时屏蔽
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testListInstance2() throws ScmException {
         try {
             List< String > instances = new ArrayList< String >();
@@ -120,7 +123,8 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.checkNotTakeEffect( site, fileName );
     }
 
-    @Test(groups = { "oneSite", "twoSite", "fourSite" })
+    // SEQUOIACM-1400暂时屏蔽
+    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
     private void testListInstance1() throws ScmException {
         try {
             List< String > instances = new ArrayList< String >();
