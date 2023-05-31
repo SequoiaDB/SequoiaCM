@@ -88,7 +88,19 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                     new TaskTransfileInterrupter(getTask()), getTask().getDataCheckLevel(),
                     taskInfoContext);
             FileTransferDao.FileTransferResult transferResult = fileTransferDao.doTransfer(file);
-            if (transferResult == FileTransferDao.FileTransferResult.SUCCESS) {
+            if (transferResult == FileTransferDao.FileTransferResult.SUCCESS
+                    || transferResult == FileTransferDao.FileTransferResult.SKIP) {
+                if (transferResult == FileTransferDao.FileTransferResult.SKIP) {
+                    // check if remote site metadata exists, if not, skip
+                    boolean isExist = checkMetaIsExist(fileId, majorVersion, minorVersion,
+                            targetSiteId);
+                    if (!isExist) {
+                        logger.warn(
+                                "skip, file is not in remote site: workspace={}, fileId={}, version={}.{}, remoteSite={}",
+                                ws.getName(), fileId, majorVersion, minorVersion, targetSiteId);
+                        return new DoTaskRes(null, ScmDoFileRes.SKIP);
+                    }
+                }
                 ScmDataInfo dataInfo = ScmDataInfo.forOpenExistData(fileInfo,
                         localFileLocation.getWsVersion(),
                         localFileLocation.getTableName());
@@ -157,6 +169,23 @@ public class ScmFileMoveSubTask extends ScmFileSubTask {
                             + ScmSystemUtils.getVersionStr(majorVersion, minorVersion),
                     e);
         }
+    }
+
+    private boolean checkMetaIsExist(String fileId, int majorVersion, int minorVersion, int siteId)
+            throws ScmServerException {
+        ScmWorkspaceInfo wsInfo = getWorkspaceInfo();
+        BSONObject file = ScmContentModule.getInstance().getMetaService().getFileInfo(
+                wsInfo.getMetaLocation(), wsInfo.getName(), fileId, majorVersion, minorVersion);
+        if (file == null) {
+            throw new ScmServerException(ScmError.FILE_NOT_FOUND,
+                    "file is not exist: workspace=" + wsInfo.getName() + ", fileId=" + fileId
+                            + ",version=" + majorVersion + "." + minorVersion);
+        }
+
+        BasicBSONList sites = (BasicBSONList) file.get(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
+        Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(sites);
+        ScmFileLocation fileLocation = fileLocationMap.get(siteId);
+        return fileLocation != null;
     }
 
     private ScmLock tryLockFileContent(int siteId, String dataId) throws ScmServerException {
