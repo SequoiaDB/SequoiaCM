@@ -126,7 +126,6 @@ public class BucketQuota5994 extends TestScmBase {
         S3Utils.deleteAllObjects( s3Client, bucketName );
     }
 
-
     public void test1() throws ScmException {
         try {
             ScmFactory.Quota.updateBucketQuota( session, quotaConfig );

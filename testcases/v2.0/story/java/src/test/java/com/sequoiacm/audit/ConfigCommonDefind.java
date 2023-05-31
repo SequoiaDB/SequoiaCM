@@ -72,4 +72,9 @@ public class ConfigCommonDefind {
             return forbiddenList;
         }
     }
+
+    public static class BucketQuota{
+        public static final String scm_quota_lowWater_minObjects =  "scm.quota.lowWater.minObjects";
+        public static final String scm_quota_lowWater_minSize =  "scm.quota.lowWater.minSize";
+    }
 }

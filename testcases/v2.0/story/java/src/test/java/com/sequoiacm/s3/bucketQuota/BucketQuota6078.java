@@ -6,6 +6,7 @@ import java.util.Date;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.SiteWrapper;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

@@ -2,6 +2,7 @@ package com.sequoiacm.s3.bucketQuota;
 
 import java.io.File;
 import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.BucketQuotaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -127,7 +128,7 @@ public class BucketQuota6002 extends TestScmBase {
         S3Utils.deleteAllObjects( s3Client, bucketName );
     }
 
-    public void test2() throws ScmException {
+    public void test2() throws ScmException, InterruptedException {
         preLowWaterLevel();
         try {
             s3Client.putObject( bucketName, keyName + 0,
@@ -138,6 +139,10 @@ public class BucketQuota6002 extends TestScmBase {
                 throw e;
             }
         }
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,
@@ -145,6 +150,10 @@ public class BucketQuota6002 extends TestScmBase {
                 ( objectNum - 2 ) * fileSize1 );
 
         s3Client.putObject( bucketName, keyName + 0, new File( filePath2 ) );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         bucketQuotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,

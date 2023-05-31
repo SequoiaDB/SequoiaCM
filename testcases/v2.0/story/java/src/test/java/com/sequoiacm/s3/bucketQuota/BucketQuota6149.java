@@ -143,7 +143,7 @@ public class BucketQuota6149 extends TestScmBase {
         S3Utils.deleteAllObjects( s3Client, bucketName );
     }
 
-    public void test2() throws ScmException {
+    public void test2() throws ScmException, InterruptedException {
         preLowWaterLevel();
         try {
             String uploadId = PartUploadUtils.initPartUpload( s3Client,
@@ -159,6 +159,10 @@ public class BucketQuota6149 extends TestScmBase {
                     .contains( "Complete multipart upload failed" ) )
                 throw e;
         }
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,

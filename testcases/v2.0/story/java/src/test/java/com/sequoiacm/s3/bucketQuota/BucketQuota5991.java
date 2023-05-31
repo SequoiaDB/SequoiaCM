@@ -66,7 +66,7 @@ public class BucketQuota5991 extends TestScmBase {
         session = ScmSessionUtils.createSession( rootSite );
     }
 
-    @Test(groups = { GroupTags.base })
+    @Test
     public void test() throws Exception {
         ScmEnableBucketQuotaConfig quotaConfig = ScmEnableBucketQuotaConfig
                 .newBuilder( bucketName ).setMaxObjects( maxObjectNum )

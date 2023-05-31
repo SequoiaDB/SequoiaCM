@@ -73,7 +73,6 @@ public class BucketQuota5995 extends TestScmBase {
                 .setMaxSize( maxObjectSize2 + "m" ).build();
         ScmFactory.Quota.enableBucketQuota( session, quotaConfig );
     }
-
     @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         ScmUpdateBucketQuotaConfig quotaConfig = ScmUpdateBucketQuotaConfig

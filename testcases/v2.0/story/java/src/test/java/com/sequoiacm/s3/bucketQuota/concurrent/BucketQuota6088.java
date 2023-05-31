@@ -4,6 +4,7 @@ import java.io.File;
 import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.BucketQuotaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -81,6 +82,10 @@ public class BucketQuota6088 extends TestScmBase {
         t.addWorker( new PutObjectThread() );
         t.addWorker( new DeleteObjectThread() );
         t.run();
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
         if ( isPutObjectSuccess ) {

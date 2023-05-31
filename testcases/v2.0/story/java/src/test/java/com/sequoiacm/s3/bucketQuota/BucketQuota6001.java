@@ -77,7 +77,7 @@ public class BucketQuota6001 extends TestScmBase {
         ScmFactory.Quota.enableBucketQuota( session, quotaConfig );
     }
 
-    @Test(groups = { GroupTags.base })
+    @Test
     public void test() throws Exception {
         // 高水位
         test1();
@@ -129,7 +129,7 @@ public class BucketQuota6001 extends TestScmBase {
         S3Utils.deleteAllObjects( s3Client, bucketName );
     }
 
-    public void test2() throws ScmException {
+    public void test2() throws ScmException, InterruptedException {
         preLowWaterLevel();
         try {
             s3Client.putObject( bucketName, keyName + objectNum,
@@ -140,6 +140,10 @@ public class BucketQuota6001 extends TestScmBase {
                 throw e;
             }
         }
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,
@@ -151,6 +155,10 @@ public class BucketQuota6001 extends TestScmBase {
 
         bucketQuotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,
                 maxObjectNum, maxObjectSize * fileSize1, objectNum - 1,
                 ( objectNum - 2 ) * fileSize1 + fileSize2 );

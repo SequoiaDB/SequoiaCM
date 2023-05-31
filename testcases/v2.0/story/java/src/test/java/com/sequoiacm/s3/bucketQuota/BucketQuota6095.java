@@ -61,8 +61,7 @@ public class BucketQuota6095 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         session = ScmSessionUtils.createSession( rootSite );
     }
-
-    @Test(groups = { GroupTags.base })
+    @Test
     public void test() throws Exception {
         // 指定不存在的桶
         test1();

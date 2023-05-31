@@ -2,11 +2,21 @@ package com.sequoiacm.testcommon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import com.sequoiacm.audit.ConfigCommonDefind;
+import com.sequoiacm.client.core.ScmUserPasswordType;
+import com.sequoiacm.client.exception.ScmException;
+import com.sequoiacm.testcommon.listener.GroupTags;
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
+import org.testng.annotations.AfterGroups;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
@@ -151,6 +161,9 @@ public class TestScmBase {
                 isfulltextExists = true;
             }
 
+            // 修改内容服务节点和s3节点桶限额相关配置
+            updateBucketQuotaConf();
+
             // 数据源环境检查清理
             CleanDataSource();
 
@@ -176,6 +189,9 @@ public class TestScmBase {
     @AfterSuite(alwaysRun = true)
     public static void finiSuite() throws Exception {
         WsPool.destroy();
+
+        // 删除内容服务节点和S3节点桶限额配置
+        deleteBucketQuotaConf();
         // SEQUOIACM-1316
         Sequoiadb sdb = null;
         try {
@@ -287,5 +303,61 @@ public class TestScmBase {
             map.put( strings[ 0 ], strings[ 1 ] );
         }
         return map;
+    }
+
+    /**
+     * @description 修改节点桶限额配置
+     * @param
+     * @return
+     */
+    public static void updateBucketQuotaConf() throws ScmException {
+        try ( ScmSession session = ScmSessionUtils
+                .createSession( ScmInfo.getRootSite() )) {
+            Map< String, String > confMap = new HashMap< String, String >();
+            confMap.put(
+                    ConfigCommonDefind.BucketQuota.scm_quota_lowWater_minObjects,
+                    "2" );
+            confMap.put(
+                    ConfigCommonDefind.BucketQuota.scm_quota_lowWater_minSize,
+                    "2m" );
+            List< SiteWrapper > allSites = ScmInfo.getAllSites();
+            for ( SiteWrapper site : allSites ) {
+                ConfUtil.updateConf( site.getSiteServiceName(), confMap );
+            }
+            List< String > s3ServiceName = S3Utils.getS3ServiceName( session );
+            for ( String serviceName : s3ServiceName ) {
+                {
+                    ConfUtil.updateConf( serviceName, confMap );
+                }
+            }
+        }
+    }
+
+    /**
+     * @description 删除节点桶限额配置
+     * @param
+     * @return
+     */
+    public static void deleteBucketQuotaConf() throws ScmException {
+        try ( ScmSession session = ScmSessionUtils
+                .createSession( ScmInfo.getRootSite() )) {
+            Set< String > keySet = new HashSet<>();
+            keySet.add(
+                    ConfigCommonDefind.BucketQuota.scm_quota_lowWater_minObjects );
+            keySet.add(
+                    ConfigCommonDefind.BucketQuota.scm_quota_lowWater_minSize );
+
+            List< SiteWrapper > allSites = ScmInfo.getAllSites();
+            for ( SiteWrapper site : allSites ) {
+                ConfUtil.deleteConf( session, site.getSiteServiceName(),
+                        keySet );
+            }
+            List< String > s3ServiceName = S3Utils.getS3ServiceName( session );
+            for ( String serviceName : s3ServiceName ) {
+                {
+                    ConfUtil.deleteConf( session, serviceName, keySet );
+                }
+            }
+        }
     }
 }

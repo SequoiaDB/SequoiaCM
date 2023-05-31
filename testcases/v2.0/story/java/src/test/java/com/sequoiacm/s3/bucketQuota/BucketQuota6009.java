@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
 import com.sequoiacm.common.ScmQuotaSyncStatus;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.BucketQuotaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -101,6 +102,9 @@ public class BucketQuota6009 extends TestScmBase {
         // 删除指定版本
         s3Client.deleteVersion( bucketName, keyName, "2.0" );
 
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,
@@ -110,9 +114,12 @@ public class BucketQuota6009 extends TestScmBase {
         S3Utils.deleteAllObjectVersions( s3Client, bucketName );
     }
 
-    public void test2() throws ScmException {
+    public void test2() throws ScmException, InterruptedException {
         preLowWaterLevel();
         s3Client.deleteVersion( bucketName, keyName, "2.0" );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
 
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );

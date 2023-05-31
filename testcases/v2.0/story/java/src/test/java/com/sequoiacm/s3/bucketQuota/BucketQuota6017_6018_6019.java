@@ -3,6 +3,7 @@ package com.sequoiacm.s3.bucketQuota;
 import java.io.File;
 import com.sequoiacm.client.element.quota.ScmBucketQuotaInfo;
 import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.BucketQuotaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -72,12 +73,16 @@ public class BucketQuota6017_6018_6019 extends TestScmBase {
         for ( int i = 0; i < objectNum; i++ ) {
             s3Client.putObject( bucketName, keyName + i, new File( filePath ) );
             if ( i == objectNum - 3 ) {
+                // 用例中需等待缓存更新，周期为10s，等待2个周期
+                Thread.sleep( 20000 );
                 ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota
                         .getBucketQuota( session, bucketName );
                 BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName,
                         maxObjectNum, maxObjectSize * fileSize, objectNum - 2,
                         ( objectNum - 2 ) * fileSize );
             } else if ( i == objectNum - 2 ) {
+                // 用例中需等待缓存更新，周期为10s，等待2个周期
+                Thread.sleep( 20000 );
                 ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota
                         .getBucketQuota( session, bucketName );
                 BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName,
@@ -88,6 +93,8 @@ public class BucketQuota6017_6018_6019 extends TestScmBase {
 
         for ( int i = 0; i < objectNum; i++ ) {
             s3Client.deleteObject( bucketName, keyName + i );
+            // 用例中需等待缓存更新，周期为10s，等待2个周期
+            Thread.sleep( 20000 );
             ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota
                     .getBucketQuota( session, bucketName );
             BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName,

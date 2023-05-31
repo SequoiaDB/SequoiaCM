@@ -8,6 +8,7 @@ import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmQueryBuilder;
 import com.sequoiacm.client.core.ScmStatisticsObjectDelta;
 import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.joda.time.LocalDate;

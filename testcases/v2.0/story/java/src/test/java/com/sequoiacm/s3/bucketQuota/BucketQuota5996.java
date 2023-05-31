@@ -62,7 +62,6 @@ public class BucketQuota5996 extends TestScmBase {
         rootSite = ScmInfo.getRootSite();
         session = ScmSessionUtils.createSession( rootSite );
     }
-
     @Test(groups = { GroupTags.base })
     public void test() throws Exception {
         try {

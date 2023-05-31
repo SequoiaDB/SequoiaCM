@@ -3,6 +3,7 @@ package com.sequoiacm.s3.bucketQuota.concurrent;
 import java.io.File;
 import com.sequoiacm.client.element.quota.ScmEnableBucketQuotaConfig;
 import com.sequoiacm.common.ScmQuotaSyncStatus;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.BucketQuotaUtils;
 import org.apache.hadoop.hbase.util.Threads;
 import org.testng.Assert;

@@ -154,7 +154,7 @@ public class BucketQuota6000 extends TestScmBase {
             ScmFactory.Quota.cancelSyncBucketQuota( session, bucketName );
             BucketQuotaUtils.checkSyncStatus( session, bucketName,
                     ScmQuotaSyncStatus.CANCELED );
-        }else {
+        } else {
             BucketQuotaUtils.checkSyncStatus( session, bucketName,
                     ScmQuotaSyncStatus.COMPLETED );
         }
