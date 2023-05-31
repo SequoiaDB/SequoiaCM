@@ -3,7 +3,7 @@
 include_once "parseConf.php" ;
 include_once "function.php" ;
 
-//doxygenÉú³ÉµÄÎÄ¼şºÍtoc.jsonµÄÓ³Éä¹ØÏµ
+//doxygenç”Ÿæˆçš„æ–‡ä»¶å’Œtoc.jsonçš„æ˜ å°„å…³ç³»
 $apiList = array(
    "java"      => 1501487716,
 ) ;
@@ -24,7 +24,7 @@ if( $edition == FALSE )
 $major = $edition['major'] ;
 $minor = $edition['minor'] ;
 
-//Êä³öµÄÎÄ¼şÃû
+//è¾“å‡ºçš„æ–‡ä»¶å
 $outputFileName = "SequoiaCM_usermanuals_v$major.$minor" ;
 
 $config = getConfig( $path ) ;
@@ -53,7 +53,7 @@ if( $param['h'] == "1" )
    exit( 0 ) ;
 }
 
-//=== ³õÊ¼»¯ ===
+//=== åˆå§‹åŒ– ===
 printLog( "Init...", "Event" ) ;
 
 $os = getOSInfo() ;
@@ -61,7 +61,7 @@ $mdConvert = $os == 'windows' ? 'mdConverter.exe' : 'linux_mdConverter' ;
 $html2mysql = $os == 'windows' ? 'exec.bat' : 'exec.sh' ;
 $wkhtmltopdf = $os == 'windows' ? 'wkhtmltopdf.exe' : 'wkhtmltopdf' ;
 
-//2.ÇåÀí¾ÉÎÄ¼ş
+//2.æ¸…ç†æ—§æ–‡ä»¶
 printLog( "Clear file...", "Event" ) ;
 if( file_exists( $os == 'windows' ? "$root\build\mid" : "$root/build/mid" ) && removeDir( $os == 'windows' ? "$root\build\mid" : "$root/build/mid" ) == false )
 {
@@ -75,7 +75,7 @@ if( file_exists( $os == 'windows' ? "$root\build\output" : "$root/build/output" 
    exit( 1 ) ;
 }
 
-//2.´´½¨Ä¿Â¼
+//2.åˆ›å»ºç›®å½•
 mkdir( "$root/build/mid", 0777, true ) ;
 if( file_exists( "$root/build/output/api" ) == false )
 {
@@ -83,7 +83,7 @@ if( file_exists( "$root/build/output/api" ) == false )
 }
 chmod( "$root/tools/$mdConvert", 0777 ) ;
 
-//=== Ô¤´¦Àí ===
+//=== é¢„å¤„ç† ===
 if( $param['m'] == "chm" || $param['m'] == "website" || $param['m'] == "doxygen" )
 {
    $file = 'tools/create_javadoc.py' ;
@@ -98,7 +98,7 @@ if( $param['m'] == "chm" || $param['m'] == "website" || $param['m'] == "doxygen"
    }
 }
 
-//=== ×ª»» + Éú³É ===
+//=== è½¬æ¢ + ç”Ÿæˆ ===
 //1. pdf
 if( $param['m'] == "doc" || $param['m'] == "pdf" )
 {
@@ -118,7 +118,7 @@ if( $param['m'] == "doc" || $param['m'] == "pdf" )
    $platform = $os == 'windows' ? 'win32' : 'linux64' ;
    chmod( "$root/tools/pdfConvertor/tools/$platform/wkhtmltox/bin/$wkhtmltopdf", 0777 ) ;
 
-   //ĞŞ¸ÄÅäÖÃ
+   //ä¿®æ”¹é…ç½®
    $headerContents = file_get_contents( "$root/tools/pdfConvertor/src/header.html" ) ;
    $headerContents = str_replace( '{{version}}', "$major.$minor", $headerContents ) ;
    file_put_contents( "$root/tools/pdfConvertor/src/header_tmp.html", $headerContents ) ;
@@ -127,10 +127,10 @@ if( $param['m'] == "doc" || $param['m'] == "pdf" )
    $coverContents = str_replace( '{{version}}', "$major.$minor", $coverContents ) ;
    file_put_contents( "$root/tools/pdfConvertor/src/cover_tmp.html", $coverContents ) ;
 
-   $pdf = "$root/tools/pdfConvertor/tools/$platform/wkhtmltox/bin/$wkhtmltopdf --page-size A4 --dpi 300 --enable-smart-shrinking --load-error-handling ignore --encoding utf-8 --user-style-sheet $root/tools/pdfConvertor/src/pdf_global.css --footer-html $root/tools/pdfConvertor/src/footer.html --header-html $root/tools/pdfConvertor/src/header_tmp.html --page-offset -1 cover $root/tools/pdfConvertor/src/cover_tmp.html toc --xsl-style-sheet $root/tools/pdfConvertor/src/toc.xsl $root/build/mid/build.html $root/build/output/$outputFileName.pdf" ;
+   $pdf = "$root/tools/pdfConvertor/tools/$platform/wkhtmltox/bin/$wkhtmltopdf --page-size A4 --dpi 150 --margin-top 20 --enable-local-file-access --enable-smart-shrinking --load-error-handling ignore --encoding utf-8 --user-style-sheet $root/tools/pdfConvertor/src/pdf_global.css --footer-html $root/tools/pdfConvertor/src/footer.html --header-html $root/tools/pdfConvertor/src/header_tmp.html --page-offset -1 cover $root/tools/pdfConvertor/src/cover_tmp.html toc --xsl-style-sheet $root/tools/pdfConvertor/src/toc.xsl $root/build/mid/build.html $root/build/output/$outputFileName.pdf" ;
    if( execCmd( $pdf ) != 0 )
    {
-      //ºöÂÔpdfÔÚlinuxµÄ´íÎó
+      //å¿½ç•¥pdfåœ¨linuxçš„é”™è¯¯
       if( $os == 'windows' )
       {
          printLog( 'Failed to convert pdf file' ) ;
@@ -231,7 +231,7 @@ if( $param['m'] == "chm" && $os == 'windows' )
    printLog( "Finish build chm document, path: doc/build/output/$outputFileName.chm", "Event" ) ;
 }
 
-//4. ¹ÙÍø
+//4. å®˜ç½‘
 if( $param['m'] == "website" )
 {
    printLog( "Generate website", "Event" ) ;
