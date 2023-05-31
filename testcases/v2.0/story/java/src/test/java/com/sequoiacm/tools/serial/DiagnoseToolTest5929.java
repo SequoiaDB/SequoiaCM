@@ -1,5 +1,6 @@
 package com.sequoiacm.tools.serial;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmFile;
@@ -166,15 +167,16 @@ public class DiagnoseToolTest5929 extends TestScmBase {
 
         Ssh ssh = null;
         String host = site.getNode().getHost();
+        System.out.println( "----host = " + host );
         String diagnoseToolPath = "tools/sequoiacm-scm-diagnose/bin";
         try {
             ssh = new Ssh( host, sshUserName, sshPassword, 22 );
             String scmInstallDir = ssh.getScmInstallDir();
-            ssh.exec( "echo $JAVA_HOME" );
-            String stdout = ssh.getStdout();
+
+            String javaHome = ssh.getJavaHome();
 
             ssh.exec( "cd " + scmInstallDir + "/../" + diagnoseToolPath );
-            String cmd = "env JAVA_HOME=" + stdout + " " + scmInstallDir
+            String cmd = "env JAVA_HOME=" + javaHome + " " + scmInstallDir
                     + "/../" + diagnoseToolPath
                     + "/scmdiagnose.sh compare --workspace " + wsName
                     + " --work-path /opt/compare " + " --url " + url
@@ -183,7 +185,7 @@ public class DiagnoseToolTest5929 extends TestScmBase {
                     + formatDate;
             System.out.println( "----cmd =" + cmd );
             ssh.exec( cmd );
-            stdout = ssh.getStdout();
+            String stdout = ssh.getStdout();
             checkCompare( stdout );
         } finally {
             if ( ssh != null ) {
