@@ -2,11 +2,13 @@ package com.sequoiacm.readcachefile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.sequoiacm.client.common.ScmType;
@@ -18,7 +20,6 @@ import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
-import com.sequoiacm.testresource.SkipTestException;
 
 /**
  * @Testcase: SCM-963:文件在A中心，B中心有残留相同LOB（大小和内容一致），B中心读取文件
@@ -30,42 +31,46 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private final int branSitesNum = 2;
     private boolean runSuccess = false;
     private SiteWrapper rootSite = null;
-    private List< SiteWrapper > branSites = null;
+    private List< SiteWrapper > branSites = new ArrayList<>();
     private WsWrapper wsp = null;
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
 
     private String fileName = "file963";
     private ScmId fileId = null;
-    private int fileSize = 10;
+    private int fileSize1 = 250;
+    private int fileSize2 = 255;
     private File localPath = null;
-    private String filePath = null;
+    private String filePath1 = null;
+    private String filePath2 = null;
 
     @BeforeClass(alwaysRun = true)
     private void setUp() throws ScmException, IOException {
         localPath = new File( TestScmBase.dataDirectory + File.separator
                 + TestTools.getClassName() );
-        filePath = localPath + File.separator + "localFile_" + fileSize
+        filePath1 = localPath + File.separator + "localFile1_" + fileSize1
+                + ".txt";
+        filePath2 = localPath + File.separator + "localFile2_" + fileSize2
                 + ".txt";
         TestTools.LocalFile.removeFile( localPath );
         TestTools.LocalFile.createDir( localPath.toString() );
-        TestTools.LocalFile.createFile( filePath, fileSize );
+        TestTools.LocalFile.createFile( filePath1, fileSize1 );
+        TestTools.LocalFile.createFile( filePath2, fileSize2 );
 
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
-        if ( branSites.get( 1 )
-                .getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
-            throw new SkipTestException( "残留站点不能为sequoiaDB数据源" );
-        }
         wsp = ScmInfo.getWs();
-
         sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
     }
 
-    // SEQUOIACM-1376
-    @Test(groups = { "fourSite", "net" }, enabled = false)
-    public void nettest() throws Exception {
+    @DataProvider(name = "range-provider")
+    public Object[] generateRangData() throws Exception {
+        return new Object[] { filePath1, filePath2 };
+    }
+
+    @Test(groups = { "fourSite", "net" }, dataProvider = "range-provider")
+    public void nettest( String filePath ) throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
 
@@ -73,18 +78,18 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId, filePath );
 
         // read from centerB
-        this.readFileFrom( branSites.get( 1 ) );
+        this.readFileFrom( branSites.get( 1 ), filePath );
 
         // check result
         SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
                 filePath );
+        ScmFileUtils.cleanFile( wsA, fileName );
         runSuccess = true;
     }
 
-    // SEQUOIACM-1376
-    @Test(groups = { "fourSite", "star" }, enabled = false)
-    public void startest() throws Exception {
+    @Test(groups = { "fourSite", "star" }, dataProvider = "range-provider")
+    public void startest( String filePath ) throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
 
@@ -92,12 +97,13 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         TestSdbTools.Lob.putLob( branSites.get( 1 ), wsp, fileId, filePath );
 
         // read from centerB
-        this.readFileFrom( branSites.get( 1 ) );
+        this.readFileFrom( branSites.get( 1 ), filePath );
 
         // check result
         SiteWrapper[] expSites;
-        if ( branSites.get( 1 )
-                .getDataType() == ScmType.DatasourceType.CEPH_S3 ) {
+        if ( branSites.get( 1 ).getDataType() == ScmType.DatasourceType.CEPH_S3
+                || branSites.get( 1 )
+                        .getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
             expSites = new SiteWrapper[] { branSites.get( 0 ),
                     branSites.get( 1 ), rootSite };
         } else {
@@ -108,12 +114,13 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                 filePath );
 
         // read from centerM
-        this.readFileFrom( rootSite );
+        this.readFileFrom( rootSite, filePath );
         // check result
         SiteWrapper[] expSites2 = { rootSite, branSites.get( 0 ),
                 branSites.get( 1 ) };
         ScmFileUtils.checkMetaAndData( wsp, fileId, expSites2, localPath,
                 filePath );
+        ScmFileUtils.cleanFile( wsA, fileName );
         runSuccess = true;
     }
 
@@ -121,7 +128,6 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private void tearDown() throws ScmException {
         try {
             if ( runSuccess || forceClear ) {
-                ScmFactory.File.deleteInstance( wsA, fileId, true );
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
@@ -131,7 +137,8 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         }
     }
 
-    private void readFileFrom( SiteWrapper site ) throws Exception {
+    private void readFileFrom( SiteWrapper site, String filePath )
+            throws Exception {
         ScmSession session = null;
         try {
             session = ScmSessionUtils.createSession( site );

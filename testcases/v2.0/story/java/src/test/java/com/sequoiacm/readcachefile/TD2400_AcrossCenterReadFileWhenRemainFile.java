@@ -32,7 +32,7 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
     private final int branSitesNum = 2;
     private boolean runSuccess = false;
     private SiteWrapper rootSite = null;
-    private List< SiteWrapper > branSites = null;
+    private List< SiteWrapper > branSites = new ArrayList<>();
     private WsWrapper wsp = null;
     private ScmSession sessionA = null;
     private ScmWorkspace wsA = null;
@@ -58,11 +58,6 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         TestTools.LocalFile.createFile( filePath, "test", fileSize );
         rootSite = ScmInfo.getRootSite();
         branSites = ScmInfo.getBranchSites( branSitesNum );
-        if ( branSites.get( 1 ).getDataType() == ScmType.DatasourceType.CEPH_S3
-                || branSites.get( 1 )
-                        .getDataType() == ScmType.DatasourceType.SEQUOIADB ) {
-            throw new SkipTestException( "残留站点不能为ceph s3或sequoiaDB数据源" );
-        }
         wsp = ScmInfo.getWs();
         sessionA = ScmSessionUtils.createSession( branSites.get( 0 ) );
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
@@ -84,9 +79,7 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                         remainFilePathList2.get( 3 ) } };
     }
 
-    // SEQUOIACM-1376
-    @Test(groups = { "fourSite",
-            "star" }, dataProvider = "range-provider", enabled = false)
+    @Test(groups = { "fourSite", "star" }, dataProvider = "range-provider")
     private void test( String remainFilePath1, String remainFilePath2 )
             throws Exception {
         // write from centerA
@@ -98,23 +91,31 @@ public class TD2400_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
                 remainFilePath2 );
         // read from centerB
         this.readFile( fileId, branSites.get( 1 ) );
-        // check meta and data,because the metadata is directly modified when
-        // remainsize is equal to filesize,
-        // rootsite does not cache data
-        if ( new File( remainFilePath2 ).length() == fileSize ) {
-            SiteWrapper[] expSites = { branSites.get( 0 ), branSites.get( 1 ) };
-            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+
+        SiteWrapper[] expSites1 = { rootSite, branSites.get( 0 ),
+                branSites.get( 1 ) };
+        SiteWrapper[] expSites2 = { branSites.get( 0 ), branSites.get( 1 ) };
+
+        ScmType.DatasourceType dataType = branSites.get( 1 ).getDataType();
+        if ( dataType == ScmType.DatasourceType.CEPH_S3
+                || dataType == ScmType.DatasourceType.SEQUOIADB ) {
+            // db和cephS3数据源无论残留是否大小、md5一致，都做覆盖处理
+            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites1, localPath,
                     filePath );
         } else {
-            SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                    branSites.get( 1 ) };
-            ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
-                    filePath );
+            // 非db和cephS3数据源，根据残留文件大小判断是否覆盖
+            File remainFile = new File( remainFilePath2 );
+            if ( remainFile.length() == fileSize ) {
+                ScmFileUtils.checkMetaAndData( wsp, fileId, expSites2,
+                        localPath, filePath );
+            } else {
+                ScmFileUtils.checkMetaAndData( wsp, fileId, expSites1,
+                        localPath, filePath );
+            }
         }
+
         readFile( fileId, rootSite );
-        SiteWrapper[] expSites = { rootSite, branSites.get( 0 ),
-                branSites.get( 1 ) };
-        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites, localPath,
+        ScmFileUtils.checkMetaAndData( wsp, fileId, expSites1, localPath,
                 filePath );
         runSuccess = true;
     }
