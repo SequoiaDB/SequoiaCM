@@ -387,25 +387,21 @@ public class Ssh {
 
     /**
      * 获取SSH连接机器的JAVA_HOME环境变量
+     * 
      * @return JAVA_HOME环境变量
      * @throws Exception
      */
     public String getJavaHome() throws Exception {
-        Ssh ssh = new Ssh(host, username, password);
+        Ssh ssh = new Ssh( host, username, password );
         String javaHome;
         try {
-            // 尝试从 /etc/profile 文件中获取 JAVA_HOME 环境变量
-            ssh.exec("grep -E '^\\s*export\\s+JAVA_HOME=' /etc/profile | awk -F '=' '{print $2}'");
-            javaHome = ssh.getStdout().trim();
-
-            if (javaHome.isEmpty()) {
-                // 如果 /etc/profile 中未设置 JAVA_HOME，则尝试从 /etc/environment 文件中获取
-                ssh.exec("grep -E '^\\s*JAVA_HOME=' /etc/environment | awk -F '=' '{print $2}'");
-                javaHome = ssh.getStdout().trim();
-
-                if (javaHome.isEmpty()) {
-                    throw new Exception("Failed to get JAVA_HOME environment variable.");
-                }
+            // 从 /etc/profile 文件中获取JAVA_HOME 环境变量
+            ssh.exec( "source /etc/profile&&echo $JAVA_HOME" );
+            javaHome = ssh.getStdout().replaceAll( "\\r?\\n", "" ).trim();
+            // 如果 JAVA_HOME 环境变量为空，则尝试从 /etc/environment 文件中获取
+            if ( javaHome == null || javaHome.length() == 0 ) {
+                ssh.exec( "source /etc/environment &&echo $JAVA_HOME" );
+                javaHome = ssh.getStdout().replaceAll( "\\r?\\n", "" ).trim();
             }
         } finally {
             ssh.disconnect();
