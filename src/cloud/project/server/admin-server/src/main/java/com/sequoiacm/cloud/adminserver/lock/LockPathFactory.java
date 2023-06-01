@@ -8,10 +8,16 @@ public class LockPathFactory {
     private static final String FILE_STATISTICS_DATA = "file_statistics_data";
 
     private static final String OBJECT_DELTA_STATISTICS = "object_delta_statistics";
+    private static final String FILE_DELTA_STATISTICS = "file_delta_statistics";
 
     private static final String QUOTA_MANAGE = "quota_manager";
     private static final String QUOTA_SYNC = "quota_sync_task";
     private static final String QUOTA_USED = "quota_used";
+
+    public ScmLockPath fileDeltaStatisticsLock(String wsName) {
+        String[] lockPath = { FILE_DELTA_STATISTICS, wsName };
+        return new ScmLockPath(lockPath);
+    }
 
     public ScmLockPath fileStatisticsLock(String type) {
         String[] lockPath = { FILE_STATISTICS_DATA, type };

@@ -7,9 +7,11 @@ import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
 import com.sequoiacm.cloud.adminserver.model.ContentServerInfo;
 import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
+import com.sequoiacm.cloud.adminserver.model.WorkspaceInfo;
 import com.sequoiacm.cloud.adminserver.remote.ContentServerClient;
 import com.sequoiacm.cloud.adminserver.remote.ContentServerClientFactory;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockPath;
@@ -23,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class StatisticsObjectDelta {
@@ -46,11 +49,12 @@ public class StatisticsObjectDelta {
             return;
         }
 
-        List<ContentServerInfo> tmpServers = StatisticsServer.getInstance().getContentServers();
+        Map<Integer, List<ContentServerInfo>> allServersMap = CommonUtils.getAllServersMap();
 
         for (String bucketName : buckets) {
+            List<ContentServerInfo> conformServers = getConformServers(bucketName, allServersMap);
             if (forceUpdate) {
-                recordBucketDelta(bucketName, isRefresh, needBacktrace, tmpServers);
+                recordBucketDelta(bucketName, isRefresh, needBacktrace, conformServers);
             }
             else {
                 ScmLock lock = null;
@@ -68,7 +72,7 @@ public class StatisticsObjectDelta {
                                 bucketName, objectDeltaRecord.getUpdateTime());
                     }
                     else {
-                        recordBucketDelta(bucketName, isRefresh, needBacktrace, tmpServers);
+                        recordBucketDelta(bucketName, isRefresh, needBacktrace, conformServers);
                     }
 
                 }
@@ -167,5 +171,13 @@ public class StatisticsObjectDelta {
         }
 
         throw new StatisticsException(StatisticsError.INTERNAL_ERROR, "no accessible remote node");
+    }
+
+    private List<ContentServerInfo> getConformServers(String bucketName,
+            Map<Integer, List<ContentServerInfo>> allServerMap) throws StatisticsException {
+        StatisticsServer statisticsServer = StatisticsServer.getInstance();
+        BucketConfig bucket = statisticsServer.getBucket(bucketName);
+        WorkspaceInfo workspaceInfo = statisticsServer.getWorkspaceChecked(bucket.getWorkspace());
+        return CommonUtils.getConformServers(workspaceInfo.getSiteList(), allServerMap);
     }
 }

@@ -4,6 +4,10 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import org.bson.BSONObject;
 
 import com.sequoiacm.cloud.adminserver.common.FieldName;
+import org.bson.types.BasicBSONList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BsonTranslator {
     public static final class ContentServer {
@@ -36,6 +40,8 @@ public class BsonTranslator {
             fileDelta.setCountDelta((long) obj.get(FieldName.FileDelta.FIELD_COUNT_DELTA));
             fileDelta.setSizeDelta((long) obj.get(FieldName.FileDelta.FIELD_SIZE_DELTA));
             fileDelta.setRecordTime((long) obj.get(FieldName.FileDelta.FIELD_RECORD_TIME));
+            fileDelta.setUpdateTime(BsonUtils
+                    .getNumberOrElse(obj, FieldName.FileDelta.FIELD_UPDATE_TIME, 0).longValue());
             return fileDelta;
         }
     }
@@ -63,6 +69,15 @@ public class BsonTranslator {
             workspace.setId((int) obj.get(FieldName.Workspace.FIELD_ID));
             workspace.setName((String) obj.get(FieldName.Workspace.FIELD_NAME));
 
+            BasicBSONList dataLocation = (BasicBSONList) obj
+                    .get(FieldName.Workspace.FIELD_DATA_LOCATION);
+            List<Integer> siteList = new ArrayList<>();
+            for (Object o : dataLocation) {
+                BSONObject siteObj = (BSONObject) o;
+                siteList.add(
+                        BsonUtils.getIntegerChecked(siteObj, FieldName.Workspace.FIELD_SITE_ID));
+            }
+            workspace.setSiteList(siteList);
             return workspace;
         }
     }

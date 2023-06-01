@@ -16,4 +16,5 @@ public final class StatisticsError {
     public static final String QUOTA_SYNCING = "quota_syncing";
     public static final String QUOTA_SYNC_TIME_DIFF_TOO_LARGE = "quota_sync_time_diff_too_large";
     public static final String UNAUTHORIZED_OPERATION = "Unauthorized operation";
+    public static final String SITE_NOT_EXISTS = "site_not_exists";
 }

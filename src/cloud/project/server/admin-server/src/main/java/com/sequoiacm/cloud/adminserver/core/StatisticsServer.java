@@ -95,6 +95,16 @@ public class StatisticsServer {
             }
         }
     }
+
+    public BucketConfig getBucket(String bucketName) throws StatisticsException {
+        try {
+            return bucketConfSubscriber.getBucket(bucketName);
+        }
+        catch (Exception e) {
+            throw new StatisticsException(StatisticsError.INTERNAL_ERROR,
+                    "failed to get bucket,bucket=" + bucketName, e);
+        }
+    }
     
     public WorkspaceInfo getWorkspaceChecked(String wsName) throws StatisticsException {
         WorkspaceInfo wsInfo = getWorkspace(wsName);

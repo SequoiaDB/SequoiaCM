@@ -4,10 +4,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
+import com.sequoiacm.infrastructure.lock.ScmLock;
+import com.sequoiacm.infrastructure.lock.ScmLockPath;
+import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -29,32 +33,68 @@ import org.springframework.http.HttpStatus;
 public class StatisticalFileDelta implements ScmStatistics {
     private static final Logger logger = LoggerFactory.getLogger(StatisticalFileDelta.class);
 
+    private static final long MIN_STATISTICS_INTERVAL = 1000 * 60 * 30L; // 30 minutes
+
     public StatisticalFileDelta() {
     }
 
     @Override
     public void doStatistics(boolean needBacktrace) throws StatisticsException {
         List<WorkspaceInfo> workspaceList = StatisticsServer.getInstance().getWorkspaces();
-        _execute(workspaceList, false, needBacktrace);
+        _execute(workspaceList, false, needBacktrace, false);
     }
 
     @Override
     public void refresh(WorkspaceInfo... workspaces) throws StatisticsException {
-        _execute(Arrays.asList(workspaces), true, true);
+        _execute(Arrays.asList(workspaces), true, true, true);
     }
 
-    private void _execute(List<WorkspaceInfo> workspaces, boolean isRefresh, boolean needBacktrace)
+    private void _execute(List<WorkspaceInfo> workspaces, boolean isRefresh, boolean needBacktrace,
+            boolean forceUpdate)
             throws StatisticsException {
         if (workspaces == null || workspaces.isEmpty()) {
             logger.warn("statistical traffic: no available workspaces");
             return;
         }
 
-        List<ContentServerInfo> tmpServers = StatisticsServer.getInstance().getContentServers();
-        
+        Map<Integer, List<ContentServerInfo>> allServersMap = CommonUtils.getAllServersMap();
+
         for (WorkspaceInfo wsInfo : workspaces) {
             String wsName = wsInfo.getName();
-            recordFileDelta(wsName, isRefresh, needBacktrace, tmpServers);
+            List<ContentServerInfo> conformServers = CommonUtils
+                    .getConformServers(wsInfo.getSiteList(), allServersMap);
+            if (forceUpdate) {
+                recordFileDelta(wsName, isRefresh, needBacktrace, conformServers);
+            }
+            else {
+                ScmLock lock = null;
+                try {
+                    StatisticsServer statisticsServer = StatisticsServer.getInstance();
+                    ScmLockPath lockPath = statisticsServer.getLockPathFactory()
+                            .fileDeltaStatisticsLock(wsName);
+                    lock = statisticsServer.getLockManager().acquiresLock(lockPath);
+                    FileDeltaInfo lastFileDeltaRecord = statisticsServer
+                            .getLastFileDeltaRecord(wsName);
+                    if (lastFileDeltaRecord != null && (System.currentTimeMillis()
+                            - lastFileDeltaRecord.getUpdateTime() < MIN_STATISTICS_INTERVAL)) {
+                        logger.info(
+                                "statistics have been performed recently, skip it:workspace={},lastUpdateTime={}",
+                                wsName, lastFileDeltaRecord.getUpdateTime());
+                    }
+                    else {
+                        recordFileDelta(wsName, isRefresh, needBacktrace, conformServers);
+                    }
+                }
+                catch (ScmLockException e) {
+                    throw new StatisticsException(StatisticsError.LOCK_ERROR,
+                            "failed to acquire file statistics lock", e);
+                }
+                finally {
+                    if (lock != null) {
+                        lock.unlock();
+                    }
+                }
+            }
         }
     }
 

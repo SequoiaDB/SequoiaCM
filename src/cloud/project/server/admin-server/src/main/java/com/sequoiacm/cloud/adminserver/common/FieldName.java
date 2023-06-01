@@ -24,6 +24,7 @@ public class FieldName {
         public static final String FIELD_ID = "id";
         public static final String FIELD_NAME = "name";
         public static final String FIELD_SITE_ID = "site_id";
+        public static final String FIELD_DATA_LOCATION = "data_location";
     }
     
     public static final class ContentServer {
@@ -52,6 +53,7 @@ public class FieldName {
         public static final String FIELD_COUNT_DELTA    = "count_delta";
         public static final String FIELD_SIZE_DELTA     = "size_delta";
         public static final String FIELD_RECORD_TIME    = "record_time";
+        public static final String FIELD_UPDATE_TIME = "update_time";
     }
 
     public static final class ObjectDelta {

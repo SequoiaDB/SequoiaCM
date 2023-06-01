@@ -2,16 +2,21 @@ package com.sequoiacm.cloud.adminserver.common;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.sequoiacm.cloud.adminserver.core.StatisticsServer;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
+import com.sequoiacm.cloud.adminserver.model.ContentServerInfo;
 
 public class CommonUtils {
 
@@ -155,5 +160,37 @@ public class CommonUtils {
         Random r = new Random();
         int idx = r.nextInt(list.size());
         return list.get(idx);
+    }
+
+    public static List<ContentServerInfo> getConformServers(List<Integer> siteList,
+            Map<Integer, List<ContentServerInfo>> allServerMap) throws StatisticsException {
+        List<ContentServerInfo> conformServers = new ArrayList<>();
+        for (Integer siteId : siteList) {
+            List<ContentServerInfo> contentServerInfos = allServerMap.get(siteId);
+            if (contentServerInfos == null) {
+                throw new StatisticsException(StatisticsError.SITE_NOT_EXISTS,
+                        "site is not exist,siteId=" + siteId);
+            }
+            conformServers.addAll(contentServerInfos);
+        }
+        return conformServers;
+    }
+
+    public static Map<Integer, List<ContentServerInfo>> getAllServersMap()
+            throws StatisticsException {
+        List<ContentServerInfo> allServers = StatisticsServer.getInstance().getContentServers();
+        Map<Integer, List<ContentServerInfo>> map = new HashMap<>();
+        for (ContentServerInfo serverInfo : allServers) {
+            List<ContentServerInfo> serverInfoList = map.get(serverInfo.getSiteId());
+            if (serverInfoList == null) {
+                serverInfoList = new ArrayList<>();
+                serverInfoList.add(serverInfo);
+                map.put(serverInfo.getSiteId(), serverInfoList);
+            }
+            else {
+                serverInfoList.add(serverInfo);
+            }
+        }
+        return map;
     }
 }

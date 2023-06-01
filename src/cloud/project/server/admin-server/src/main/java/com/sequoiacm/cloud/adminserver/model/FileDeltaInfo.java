@@ -5,6 +5,7 @@ public class FileDeltaInfo {
     private long countDelta;
     private long sizeDelta;
     private long recordTime;
+    private long updateTime;
     
     public String getWorkspaceName() {
         return workspaceName;
@@ -29,5 +30,13 @@ public class FileDeltaInfo {
     }
     public void setRecordTime(long recordTime) {
         this.recordTime = recordTime;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
     }
 }

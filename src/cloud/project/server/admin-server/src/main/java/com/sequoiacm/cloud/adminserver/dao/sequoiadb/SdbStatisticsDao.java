@@ -129,6 +129,7 @@ public class SdbStatisticsDao implements StatisticsDao {
         BasicBSONObject set = new BasicBSONObject();
         set.put(FieldName.FileDelta.FIELD_COUNT_DELTA, newCount);
         set.put(FieldName.FileDelta.FIELD_SIZE_DELTA, newSize);
+        set.put(FieldName.FileDelta.FIELD_UPDATE_TIME, System.currentTimeMillis());
         BasicBSONObject upsertor = new BasicBSONObject(SequoiadbHelper.DOLLAR_SET, set);
         BasicBSONObject matcher = new BasicBSONObject();
         matcher.put(FieldName.FileDelta.FIELD_WORKSPACE_NAME, workspace);
