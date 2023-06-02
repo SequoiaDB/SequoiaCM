@@ -154,6 +154,10 @@ public class BucketQuota6007 extends TestScmBase {
         fileId = file.save();
 
         ScmFactory.Bucket.attachFile( session, bucketName, fileId );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+
         bucketQuotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
         BucketQuotaUtils.checkQuotaInfo( bucketQuotaInfo, bucketName,
@@ -195,6 +199,9 @@ public class BucketQuota6007 extends TestScmBase {
         file.setContent( filePath2 );
         fileId = file.save();
         ScmFactory.Bucket.attachFile( session, bucketName, fileId );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
 
         bucketQuotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
