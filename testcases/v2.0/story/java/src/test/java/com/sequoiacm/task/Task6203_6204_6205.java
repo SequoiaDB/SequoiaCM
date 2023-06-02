@@ -47,7 +47,7 @@ import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 public class Task6203_6204_6205 extends TestScmBase {
     private final static int fileNum = 10;
     private final static int fileSize = 100;
-    private final static String name = "scheduleTask6200";
+    private final static String name = "scheduleTask6203_6204_6205";
     private boolean runSuccess = false;
     private ScmSession ssA = null;
     private ScmWorkspace wsA = null;
