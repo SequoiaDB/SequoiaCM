@@ -4,7 +4,6 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.ScmQuotaSyncStatus;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.config.QuotaLimitConfig;
-import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
 import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.lock.ScmLockManager;
 import com.sequoiacm.contentserver.lock.ScmLockPath;
@@ -19,6 +18,7 @@ import com.sequoiacm.contentserver.quota.msg.EnableQuotaMsg;
 import com.sequoiacm.contentserver.quota.msg.QuotaMsg;
 import com.sequoiacm.contentserver.quota.limiter.QuotaLimiter;
 import com.sequoiacm.contentserver.site.ScmContentModule;
+import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmHashSlotLock;
@@ -180,7 +180,8 @@ public class BucketQuotaManager implements ApplicationRunner {
             throws ScmServerException {
         ScmBucket bucket = bucketInfoManager.getBucketById(bucketId);
         if (bucket == null) {
-            throw new ScmInvalidArgumentException("bucket not found, bucketId: " + bucketId);
+            throw new ScmServerException(ScmError.BUCKET_NOT_EXISTS,
+                    "bucket not found, bucketId: " + bucketId);
         }
         return acquireQuota(bucket.getName(), 1, size, createTime);
     }
