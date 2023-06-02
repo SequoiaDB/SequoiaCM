@@ -570,4 +570,32 @@ public class ScmInfo {
         }
         return siteListForWs;
     }
+
+    /**
+     * @descreption 指定工作区名获取WsWrapper对象
+     * @param session
+     * @param wsName
+     * @return
+     * @throws ScmException
+     */
+    public static WsWrapper getWsWrapperByWsName(ScmSession session, String wsName)
+            throws ScmException {
+        ScmCursor< ScmWorkspaceInfo > cursor = null;
+        ScmWorkspaceInfo wsInfo = null;
+        try {
+            cursor = ScmFactory.Workspace.listWorkspace( session );
+            while ( cursor.hasNext() ) {
+                ScmWorkspaceInfo info = cursor.getNext();
+                if ( wsName.equals( info.getName() ) ) {
+                    wsInfo = info;
+                }
+            }
+        } finally {
+            if ( null != cursor ) {
+                cursor.close();
+            }
+        }
+        WsWrapper ws = new WsWrapper( wsInfo );
+        return ws;
+    }
 }
