@@ -72,8 +72,7 @@ public class ConcurrentTasks3901 extends TestScmBase {
         fileIdList.add( fileId );
     }
 
-    // 问题单SEQUOIACM-744未修改
-    @Test(groups = { "twoSite", "fourSite", GroupTags.base }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite", GroupTags.base })
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         for ( int i = 0; i < threadNums; i++ ) {

@@ -6,9 +6,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -93,12 +95,10 @@ public class ConcurrentTasks3916 extends TestScmBase {
         SiteWrapper[] expSites1 = { rootSite, branchSite1, branchSite2 };
         ScmScheduleUtils.checkScmFile( rootSiteWorkspace, fileIdList,
                 expSites1 );
-        // SEQUOIACM-744未修改暂时屏蔽
-        /*
-         * long successCountSum = 0; ScmTask task = ScmSystem.Task.getTask(
-         * rootSiteSession, taskId ); successCountSum = task.getSuccessCount();
-         * Assert.assertEquals( successCountSum, 1 );
-         */
+        long successCountSum = 0;
+        ScmTask task = ScmSystem.Task.getTask( rootSiteSession, taskId );
+        successCountSum = task.getSuccessCount();
+        Assert.assertEquals( successCountSum, 1 );
         runSuccess = true;
     }
 

@@ -85,8 +85,7 @@ public class ConcurrentTasks3903 extends TestScmBase {
         ScmTaskUtils.waitTaskFinish( rootSiteSession, cleanTaskId );
     }
 
-    // SEQUOIACM-744 问题单未处理
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     public void test() throws Exception {
         ThreadExecutor es = new ThreadExecutor();
         es.addWorker( new ThreadFileMigration( branchSite1 ) );
