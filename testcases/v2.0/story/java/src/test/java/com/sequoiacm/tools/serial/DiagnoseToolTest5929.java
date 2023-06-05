@@ -47,7 +47,7 @@ public class DiagnoseToolTest5929 extends TestScmBase {
     private int fileSize1 = 1024;
     private int fileSize2 = 1024 * 1024;
     private String wsName = "ws5929";
-    private String fileName = "file5929";
+    private String fileName = "file5929_";
     private ArrayList< ScmId > fileIds = new ArrayList<>();
     private int fileNum = 100;
     private ScmWorkspace ws = null;
@@ -99,7 +99,7 @@ public class DiagnoseToolTest5929 extends TestScmBase {
                 TestTools.LocalFile.removeFile( localPath );
             }
         } finally {
-            // ScmWorkspaceUtil.deleteWs( wsName, session );
+            ScmWorkspaceUtil.deleteWs( wsName, session );
             if ( session != null ) {
                 session.close();
             }
