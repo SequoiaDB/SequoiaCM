@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.testcommon.dsutils.HbaseUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -299,6 +300,34 @@ public class TestSdbTools {
                 db.close();
             }
         }
+    }
+
+    /**
+     * @descreption 连接db创建集合空间和集合 
+     * @param sdb 
+     * @param csName 
+     * @param doMainName 
+     * @return
+     * @throws Exception
+     */
+    public static void checkCsInDomain( Sequoiadb sdb, String csName,
+            String doMainName ) throws Exception {
+        Domain domain = sdb.getDomain( doMainName );
+        DBCursor listCSInDomain = null;
+        try {
+            listCSInDomain = domain.listCSInDomain();
+            while ( listCSInDomain.hasNext() ) {
+                BSONObject csBson = listCSInDomain.getNext();
+                if ( csName.equals( BsonUtils.getString( csBson, "Name" ) ) ) {
+                    return;
+                }
+            }
+        } finally {
+            if ( null != listCSInDomain ) {
+                listCSInDomain.close();
+            }
+        }
+        throw new Exception( csName + " not in domain " + doMainName );
     }
 
     /**
@@ -792,6 +821,71 @@ public class TestSdbTools {
                 System.out.println( "taskInfo : " + bsonObject.toString() );
             }
         }
+    }
+
+    public static void createDomain( SiteWrapper site, String domainName ) {
+        Sequoiadb sdb = null;
+        try {
+            sdb = TestSdbTools.getSdb( site.getDataDsUrl() );
+            List< String > groupNameList = getGroupNames( sdb );
+            BSONObject obj = new BasicBSONObject();
+            obj.put( "Groups", groupNameList.toArray() );
+            if ( sdb.isDomainExist( domainName ) ) {
+                sdb.dropDomain( domainName );
+                sdb.createDomain( domainName, obj );
+            } else {
+                sdb.createDomain( domainName, obj );
+            }
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+    }
+
+    public static void dropDomain( SiteWrapper site, String domainName ) {
+        Sequoiadb sdb = null;
+        try {
+            sdb = TestSdbTools.getSdb( site.getDataDsUrl() );
+            List< String > groupNameList = getGroupNames( sdb );
+            BSONObject obj = new BasicBSONObject();
+            obj.put( "Groups", groupNameList.toArray() );
+            if ( sdb.isDomainExist( domainName ) ) {
+                Domain domain = sdb.getDomain( domainName );
+                DBCursor csCursor = null;
+                try {
+                    csCursor = domain.listCSInDomain();
+                    while ( csCursor.hasNext() ) {
+                        BSONObject csCursorNext = csCursor.getNext();
+                        String csName = BsonUtils.getString( csCursorNext,
+                                "Name" );
+                        sdb.dropCollectionSpace( csName );
+                    }
+                } finally {
+                    if ( csCursor != null ) {
+                        csCursor.close();
+                    }
+                }
+                sdb.dropDomain( domainName );
+            }
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
+    }
+
+    public static List< String > getGroupNames( Sequoiadb db ) {
+        List< String > groupNameList = db.getReplicaGroupNames();
+        List< String > sysGroupname = new ArrayList< String >();
+        int num = groupNameList.size();
+        for ( int i = 0; i < num; i++ ) {
+            if ( groupNameList.get( i ).contains( "SYS" ) ) {
+                sysGroupname.add( groupNameList.get( i ) );
+            }
+        }
+        groupNameList.removeAll( sysGroupname );
+        return groupNameList;
     }
 
     public static void deleteLobCS( SiteWrapper site ) {
