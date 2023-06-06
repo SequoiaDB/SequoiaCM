@@ -4,22 +4,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.client.common.ScmType;
-import com.sequoiacm.client.element.ScmOnceTransitionConfig;
-import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmOnceTransitionConfig;
 import com.sequoiacm.client.element.lifecycle.*;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.LifeCycleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
 
 /**
@@ -126,6 +126,7 @@ public class LifeCycle5764 extends TestScmBase {
         ScmOnceTransitionConfig scmOnceTransitionConfig = new ScmOnceTransitionConfig(
                 "move_file", ws, 300000, queryCond, stageTagName1,
                 stageTagName2, TestScmBase.defaultRegion, TestScmBase.zone1 );
+        scmOnceTransitionConfig.setRecycleSpace( false );
         scmOnceTransitionConfig.setScope( ScmType.ScopeType.SCOPE_CURRENT );
 
         ScmSystem.LifeCycleConfig
@@ -138,27 +139,28 @@ public class LifeCycle5764 extends TestScmBase {
         scmOnceTransitionConfig = new ScmOnceTransitionConfig( "copy_file", ws,
                 300000, queryCond, stageTagName2, stageTagName1,
                 TestScmBase.defaultRegion, TestScmBase.zone1 );
+        scmOnceTransitionConfig.setRecycleSpace( false );
         scmOnceTransitionConfig.setScope( ScmType.ScopeType.SCOPE_CURRENT );
 
         ScmSystem.LifeCycleConfig
                 .startOnceTransition( scmOnceTransitionConfig );
 
-        SiteWrapper[] expSites2 = { rootSite,site };
+        SiteWrapper[] expSites2 = { rootSite, site };
         ScmScheduleUtils.checkScmFile( ws, fileIdList, expSites2 );
     }
 
     public void test2() throws Exception {
         ScmOnceTransitionConfig scmOnceTransitionConfig = new ScmOnceTransitionConfig(
-                "move_file", ws, 300000, queryCond, stageTagName1+"not_exit",
+                "move_file", ws, 300000, queryCond, stageTagName1 + "not_exit",
                 stageTagName2, TestScmBase.defaultRegion, TestScmBase.zone1 );
         scmOnceTransitionConfig.setScope( ScmType.ScopeType.SCOPE_CURRENT );
 
         try {
             ScmSystem.LifeCycleConfig
                     .startOnceTransition( scmOnceTransitionConfig );
-            Assert.fail("预期失败实际成功！");
-        }catch (ScmException e){
-            if (e.getErrorCode()!=ScmError.HTTP_NOT_FOUND.getErrorCode()){
+            Assert.fail( "预期失败实际成功！" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.HTTP_NOT_FOUND.getErrorCode() ) {
                 throw e;
             }
         }
@@ -166,16 +168,16 @@ public class LifeCycle5764 extends TestScmBase {
 
     public void test3() throws Exception {
         ScmOnceTransitionConfig scmOnceTransitionConfig = new ScmOnceTransitionConfig(
-                "move_file", ws, 300000, queryCond, "Hot",
-                stageTagName2, TestScmBase.defaultRegion, TestScmBase.zone1 );
+                "move_file", ws, 300000, queryCond, "Hot", stageTagName2,
+                TestScmBase.defaultRegion, TestScmBase.zone1 );
         scmOnceTransitionConfig.setScope( ScmType.ScopeType.SCOPE_CURRENT );
 
         try {
             ScmSystem.LifeCycleConfig
                     .startOnceTransition( scmOnceTransitionConfig );
-            Assert.fail("预期失败实际成功！");
-        }catch (ScmException e){
-            if (e.getErrorCode()!=ScmError.HTTP_NOT_FOUND.getErrorCode()){
+            Assert.fail( "预期失败实际成功！" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.HTTP_NOT_FOUND.getErrorCode() ) {
                 throw e;
             }
         }
@@ -190,9 +192,10 @@ public class LifeCycle5764 extends TestScmBase {
         try {
             ScmSystem.LifeCycleConfig
                     .startOnceTransition( scmOnceTransitionConfig );
-            Assert.fail("预期失败实际成功！");
-        }catch (ScmException e){
-            if (e.getErrorCode()!=ScmError.HTTP_INTERNAL_SERVER_ERROR.getErrorCode()){
+            Assert.fail( "预期失败实际成功！" );
+        } catch ( ScmException e ) {
+            if ( e.getErrorCode() != ScmError.HTTP_INTERNAL_SERVER_ERROR
+                    .getErrorCode() ) {
                 throw e;
             }
         }
