@@ -79,8 +79,7 @@ public class ScheduleTask5222 extends TestScmBase {
         prepareDate();
     }
 
-    // 问题单http://jira.web:8080/browse/SEQUOIACM-1399未修改，屏蔽用例
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         // 创建迁移清理任务,目标站点于源站点文件大小相同，lob相同
         testMoveSchedule1();

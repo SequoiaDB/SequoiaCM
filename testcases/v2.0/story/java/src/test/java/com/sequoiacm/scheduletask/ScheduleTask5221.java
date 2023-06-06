@@ -75,8 +75,7 @@ public class ScheduleTask5221 extends TestScmBase {
         prepareDate();
     }
 
-    // 问题单http://jira.web:8080/browse/SEQUOIACM-1399未修改，屏蔽用例
-    @Test(groups = { "twoSite", "fourSite" },enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     public void test() throws Exception {
         // 创建迁移清理任务,指定强校验
         scmSchedule = ScmScheduleUtils.createMoveSchedule( rootSiteSession,
