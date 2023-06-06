@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -16,9 +14,11 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -77,8 +77,8 @@ public class ConcurrentTasks3903 extends TestScmBase {
                 filePath );
         fileIdList.add( fileId );
 
-        asyncCache( branchSite1 );
-        asyncCache( branchSite2 );
+        // 缓存文件到branchSite1和branchSite2
+        asyncCache();
 
         cleanTaskId = ScmSystem.Task.startCleanTask( rootSiteWorkspace,
                 queryCond );
@@ -150,10 +150,12 @@ public class ConcurrentTasks3903 extends TestScmBase {
         }
     }
 
-    public void asyncCache( SiteWrapper branchSite ) throws Exception {
+    public void asyncCache() throws Exception {
         ScmFactory.File.asyncTransfer( rootSiteWorkspace, fileIdList.get( 0 ),
-                branchSite.getSiteName() );
+                branchSite1.getSiteName() );
+        ScmFactory.File.asyncTransfer( rootSiteWorkspace, fileIdList.get( 0 ),
+                branchSite2.getSiteName() );
         ScmTaskUtils.waitAsyncTaskFinished( rootSiteWorkspace,
-                fileIdList.get( 0 ), 2 );
+                fileIdList.get( 0 ), 3 );
     }
 }
