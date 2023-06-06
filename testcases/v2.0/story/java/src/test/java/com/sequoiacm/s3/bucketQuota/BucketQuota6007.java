@@ -137,7 +137,7 @@ public class BucketQuota6007 extends TestScmBase {
             ScmFactory.Bucket.attachFile( session, bucketName, fileId );
             Assert.fail( "预期失败，实际成功！" );
         } catch ( Exception e ) {
-            if ( e.getMessage().contains( "quote" ) ) {
+            if ( !e.getMessage().contains( "quota" ) ) {
                 throw e;
             }
         }
@@ -183,7 +183,7 @@ public class BucketQuota6007 extends TestScmBase {
             ScmFactory.Bucket.attachFile( session, bucketName, fileId );
             Assert.fail( "预期失败，实际成功！" );
         } catch ( Exception e ) {
-            if ( e.getMessage().contains( "quote" ) ) {
+            if ( !e.getMessage().contains( "quota" ) ) {
                 throw e;
             }
         }

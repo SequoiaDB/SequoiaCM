@@ -113,7 +113,7 @@ public class BucketQuota6006 extends TestScmBase {
             s3Client.copyObject( bucketName2, keyName, bucketName1, keyName );
             Assert.fail( "预期失败，实际成功！" );
         } catch ( Exception e ) {
-            if ( e.getMessage().contains( "quote" ) ) {
+            if ( !e.getMessage().contains( "quota" ) ) {
                 throw e;
             }
         }
@@ -142,7 +142,7 @@ public class BucketQuota6006 extends TestScmBase {
             s3Client.copyObject( bucketName2, keyName, bucketName1, keyName );
             Assert.fail( "预期失败，实际成功！" );
         } catch ( Exception e ) {
-            if ( e.getMessage().contains( "quote" ) ) {
+            if ( !e.getMessage().contains( "quota" ) ) {
                 throw e;
             }
         }
