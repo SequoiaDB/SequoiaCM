@@ -1,6 +1,7 @@
 package com.sequoiacm.infrastructure.tool.element;
 
 public class ScmNodeInfo {
+    // /opt/sequoiacm/sequoiacm-config/conf/config-server/8190
     private String confPath;
     private ScmNodeType nodeType;
     private int port;

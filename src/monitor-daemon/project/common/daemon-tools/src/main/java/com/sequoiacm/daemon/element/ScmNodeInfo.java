@@ -1,20 +1,15 @@
 package com.sequoiacm.daemon.element;
 
 import com.sequoiacm.daemon.common.DaemonDefine;
-import com.sequoiacm.daemon.exception.ScmExitCode;
-import com.sequoiacm.daemon.manager.ScmDaemonMgr;
 import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
-import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
-import com.sequoiadb.datasource.DatasourceOptions;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ScmNodeInfo implements Serializable {
     private ScmServerScriptEnum serverType;
     private int port;
     private String status;
+    // /opt/sequoiacm/sequoiacm-config/conf/config-server/8190/application.properties
     private String confPath;
 
     public ScmServerScriptEnum getServerType() {

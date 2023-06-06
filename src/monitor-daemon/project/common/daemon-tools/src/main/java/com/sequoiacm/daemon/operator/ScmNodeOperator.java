@@ -7,13 +7,19 @@ import com.sequoiacm.daemon.exception.ScmExitCode;
 import com.sequoiacm.daemon.exec.ScmExecutor;
 import com.sequoiacm.infrastructure.tool.common.PropertiesUtil;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeProcessInfo;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeStatus;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
+import com.sequoiacm.infrastructure.tool.element.ScmNodeTypeEnum;
 import com.sequoiacm.infrastructure.tool.element.ScmServerScriptEnum;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
+import com.sequoiacm.infrastructure.tool.exec.ScmLinuxExecutorImpl;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class ScmNodeOperator implements NodeOperator {
@@ -25,46 +31,21 @@ public class ScmNodeOperator implements NodeOperator {
 
     @Override
     public boolean isNodeRunning(ScmNodeInfo node) throws ScmToolsException {
-        String confPath = node.getConfPath();
-        String dirName = node.getServerType().getDirName();
-        String servicePath = confPath.substring(0, confPath.indexOf(dirName) + dirName.length());
-        int port = node.getPort();
-        String shellName = node.getServerType().getShellName();
+        ScmLinuxExecutorImpl linuxExecutor = new ScmLinuxExecutorImpl();
+        ScmNodeStatus nodeStatus = linuxExecutor.getNodeStatus(new ScmNodeType(
+                ScmNodeTypeEnum.getScmNodeByName(node.getServerType().getType().toLowerCase()),
+                node.getServerType()));
 
-        String cmd = servicePath + File.separator + "bin" + File.separator + shellName
-                + " list -m local -p " + port;
-        ScmCmdResult result = executor.execCmd(cmd);
-        return getNodePid(result.getStdIn()) != -1;
+        return checkNodeStatus(nodeStatus, node.getConfPath());
     }
 
-    private int getNodePid(List<String> stdInList) throws ScmToolsException {
-        // CONFIG-SERVER(8190) (8866)
-        String nodeLine = null;
-        int count = 0;
-        for (String line : stdInList) {
-            if (line.startsWith("Total")) {
-                continue;
-            }
-            count++;
-            nodeLine = line;
-        }
-
-        if (count != 1) {
-            throw new ScmToolsException("Get one node pid, but return multiple pid",
-                    ScmExitCode.INVALID_ARG);
-        }
-
-        try {
-            String pidStr = nodeLine.substring(nodeLine.lastIndexOf("(") + 1,
-                    nodeLine.lastIndexOf(")"));
-            if (pidStr.equals("-")) {
-                return -1;
-            }
-            return ScmCommon.convertStrToInt(pidStr);
-        }
-        catch (Exception e) {
-            throw new ScmToolsException("Failed to get node pid", ScmExitCode.INVALID_ARG, e);
-        }
+    private boolean checkNodeStatus(ScmNodeStatus nodeStatus, String confPath) {
+        Map<String, ScmNodeProcessInfo> confNodeProcessMap = nodeStatus.getStatusMap();
+        // Map<String, ScmNodeProcessInfo> key 格式为
+        // /opt/sequoiacm/sequoiacm-config/conf/config-server/8190
+        // ScmNodeInfo.getConfPath() 格式为
+        // /opt/sequoiacm/sequoiacm-config/conf/config-server/8190/application.properties
+        return confNodeProcessMap.containsKey(new File(confPath).getParentFile().toString());
     }
 
     @Override
