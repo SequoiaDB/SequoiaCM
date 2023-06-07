@@ -232,9 +232,9 @@ public class StableStatusQuotaLimiter
         info.put("limiter", StableStatusQuotaLimiter.class.getSimpleName());
         info.put("bucketName", bucketName);
         info.put("quotaRoundNumber", quotaRoundNumber);
-        info.put("waterLevel", currentWaterLevelStrategy.getWaterLevel());
+        info.put("waterLevel", currentWaterLevelStrategy.getWaterLevel().name());
         info.put("writeTablePolicy", currentWaterLevelStrategy.getWriteTablePolicy().getName());
-        info.put("quotaUsedInfo", getQuotaUsedInfo());
+        info.put("quotaUsedInfo", getQuotaUsedInfo().toBSONObject());
         return info;
     }
 

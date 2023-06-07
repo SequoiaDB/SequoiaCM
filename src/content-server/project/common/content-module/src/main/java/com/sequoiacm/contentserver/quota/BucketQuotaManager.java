@@ -771,13 +771,18 @@ public class BucketQuotaManager implements ApplicationRunner {
         @Override
         public void run() {
             while (true) {
-                if (isExit) {
+                try {
+                    if (isExit) {
+                        flushQuotaSilence();
+                        break;
+                    }
                     flushQuotaSilence();
-                    break;
+                    refreshQuotaSilence();
+                    waitNextExecute(quotaLimitConfig.getAsyncStrategy().getFlushInterval());
                 }
-                flushQuotaSilence();
-                refreshQuotaSilence();
-                waitNextExecute(quotaLimitConfig.getAsyncStrategy().getFlushInterval());
+                catch (Throwable e) {
+                    logger.error("failed to flush or refresh quota", e);
+                }
             }
         }
 
