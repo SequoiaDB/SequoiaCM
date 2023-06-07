@@ -54,8 +54,7 @@ public class Transfer_maxExecTime2203 extends TestScmBase {
     private ScmWorkspace ws = null;
     private List< ScmId > taskIdList = new ArrayList< ScmId >();
     private List< ScmId > fileIdList = new ArrayList< ScmId >();
-    private int fileNum = 10;
-
+    private int fileNum;
     private SiteWrapper branceSite = null;
     private WsWrapper ws_T = null;
 
@@ -112,7 +111,14 @@ public class Transfer_maxExecTime2203 extends TestScmBase {
         waitTaskStop( taskIdList.get( 2 ) );
         checkTaskAttribute( taskIdList.get( 2 ), maxExecTime,
                 CommonDefine.TaskRunningFlag.SCM_TASK_FINISH );
-        checkTransContent( fileIdList );
+
+        SiteWrapper[] expSiteList = { ScmInfo.getRootSite(), branceSite };
+        List< ScmId > scmIds1 = fileIdList.subList( 0, fileNum / 2 );
+        List< ScmId > scmIds2 = fileIdList.subList( fileNum / 2, fileNum );
+        ScmFileUtils.checkMetaAndData( ws_T, scmIds1, expSiteList, localPath,
+                filePath );
+        ScmFileUtils.checkMetaAndData( ws_T, scmIds2, expSiteList, localPath,
+                filePath );
 
         runSuccess = true;
     }
@@ -156,48 +162,6 @@ public class Transfer_maxExecTime2203 extends TestScmBase {
         Assert.assertEquals( task.getMaxExecTime(), maxExecTime );
         Assert.assertNotNull( task.getStartTime() );
         Assert.assertNotNull( task.getStopTime() );
-    }
-
-    private void checkTransContent( List< ScmId > fileIdList )
-            throws IOException, ScmException {
-        ScmSession session = null;
-        OutputStream fos = null;
-        ScmInputStream sis = null;
-        try {
-
-            SiteWrapper rootSite = ScmInfo.getRootSite();
-            // login
-            session = ScmSessionUtils.createSession( rootSite );
-            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( ws_T.getName(),
-                    session );
-            for ( ScmId fileId : fileIdList ) {
-                ScmFile scmfile = ScmFactory.File.getInstance( ws, fileId );
-                String downloadPath = TestTools.LocalFile.initDownloadPath(
-                        localPath, TestTools.getMethodName(),
-                        Thread.currentThread().getId() );
-                fos = new FileOutputStream( new File( downloadPath ) );
-                sis = ScmFactory.File.createInputStream( scmfile );
-                sis.read( fos );
-                // check content on main center
-                Assert.assertEquals( TestTools.getMD5( filePath ),
-                        TestTools.getMD5( downloadPath ) );
-                // check meta data
-                SiteWrapper[] expSiteList = { rootSite, branceSite };
-                ScmFileUtils.checkMetaAndData( ws_T, fileId, expSiteList,
-                        localPath, filePath );
-            }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            Assert.fail( e.getMessage() + " node INFO" + branceSite.toString()
-                    + " fileIdList = " + fileIdList.toString() );
-        } finally {
-            if ( fos != null )
-                fos.close();
-            if ( sis != null )
-                sis.close();
-            if ( session != null )
-                session.close();
-        }
     }
 
     @AfterClass(alwaysRun = true)
