@@ -29,8 +29,8 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
     }
 
     @Override
-    public BSONObject removeDataLocation(BSONObject oldWsRecord, int siteId, BSONObject versionSet)
-            throws MetasourceException {
+    public BSONObject removeDataLocation(BSONObject oldWsRecord, int siteId,
+            BSONObject extraUpdator) throws MetasourceException {
         BasicBSONObject matcher = new BasicBSONObject(
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION + "." + SequoiadbHelper.DOLLAR0 + "."
                         + FieldName.FIELD_CLWORKSPACE_LOCATION_SITE_ID,
@@ -42,7 +42,7 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
 
         BasicBSONObject unsetValue = new BasicBSONObject(
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION + "." + SequoiadbHelper.DOLLAR0, "");
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_UNSET, unsetValue);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_UNSET, unsetValue);
 
         BSONObject updatedRecord = updateAndReturnNew(andMatcher, updater);
         if (updatedRecord == null){
@@ -56,11 +56,12 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
 
     @Override
     // TODO:控制加站点加到数组的位置
-    public BSONObject addDataLocation(BSONObject oldWsRecord, BSONObject location, BSONObject versionSet)
-            throws MetasourceException {
+    public BSONObject addDataLocation(BSONObject oldWsRecord, BSONObject location,
+            BSONObject extraUpdator) throws MetasourceException {
         BasicBSONObject locationInfo = new BasicBSONObject(
                 FieldName.FIELD_CLWORKSPACE_DATA_LOCATION, location);
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_PUSH, locationInfo);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_PUSH,
+                locationInfo);
 
         return updateAndReturnNew(oldWsRecord, updater);
     }
@@ -74,21 +75,21 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
     }
 
     @Override
-    public BSONObject updateExternalData(BSONObject matcher, BSONObject externalData, BSONObject versionSet)
-            throws MetasourceException {
+    public BSONObject updateExternalData(BSONObject matcher, BSONObject externalData,
+            BSONObject extraUpdator) throws MetasourceException {
         BSONObject extDatas = new BasicBSONObject();
         for (String key : externalData.keySet()) {
             extDatas.put(FieldName.FIELD_CLWORKSPACE_EXT_DATA + "." + key, externalData.get(key));
         }
 
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, extDatas);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_SET, extDatas);
 
         return updateAndReturnNew(matcher, updater);
     }
 
     @Override
     public BSONObject updateDataLocation(BSONObject matcher, BasicBSONList updater,
-            BSONObject versionSet) throws ScmConfigException {
+            BSONObject extraUpdator) throws ScmConfigException {
         BasicBSONList matcherList = new BasicBSONList();
         matcherList.add(matcher);
 
@@ -112,52 +113,57 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
             ++dollarPos;
         }
 
-        BSONObject allUpdater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setValue);
+        BSONObject allUpdater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_SET, setValue);
         BSONObject andMatcher = new BasicBSONObject(SequoiadbHelper.DOLLAR_AND, matcherList);
 
         return updateAndReturnNew(andMatcher, allUpdater);
     }
 
     @Override
-    public BSONObject updateDescription(BSONObject matcher, String newDesc, BSONObject versionSet) throws ScmConfigException {
+    public BSONObject updateDescription(BSONObject matcher, String newDesc, BSONObject extraUpdator)
+            throws ScmConfigException {
         BasicBSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_DESCRIPTION,
                 newDesc);
-        BSONObject siteCacheStrategyUpdater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
+        BSONObject siteCacheStrategyUpdater = combineUpdater(extraUpdator,
+                SequoiadbHelper.DOLLAR_SET, setUpdater);
 
         return updateAndReturnNew(matcher, siteCacheStrategyUpdater);
     }
 
     @Override
-    public BSONObject updateSiteCacheStrategy(BSONObject matcher, String newSiteCacheStrategy, BSONObject versionSet) throws ScmConfigException {
+    public BSONObject updateSiteCacheStrategy(BSONObject matcher, String newSiteCacheStrategy,
+            BSONObject extraUpdator) throws ScmConfigException {
         BasicBSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                 newSiteCacheStrategy);
-        BSONObject siteCacheStrategyUpdater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
+        BSONObject siteCacheStrategyUpdater = combineUpdater(extraUpdator,
+                SequoiadbHelper.DOLLAR_SET, setUpdater);
 
         return updateAndReturnNew(matcher, siteCacheStrategyUpdater);
     }
 
     @Override
-    public BSONObject updatePreferred(BSONObject matcher, String newPreferred, BSONObject versionSet) throws ScmConfigException {
+    public BSONObject updatePreferred(BSONObject matcher, String newPreferred,
+            BSONObject extraUpdator) throws ScmConfigException {
         BasicBSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_PREFERRED,
                 newPreferred);
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_SET, setUpdater);
 
         return updateAndReturnNew(matcher, updater);
     }
 
     @Override
-    public BSONObject updateDirectory(BSONObject matcher, Boolean isEnableDirectory, BSONObject versionSet)
-            throws ScmConfigException {
+    public BSONObject updateDirectory(BSONObject matcher, Boolean isEnableDirectory,
+            BSONObject extraUpdator) throws ScmConfigException {
         BasicBSONObject setUpdater = new BasicBSONObject(
                 FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, isEnableDirectory);
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_SET, setUpdater);
 
         return updateAndReturnNew(matcher, updater);
     }
 
     @Override
     public BSONObject updateMetaDomain(BSONObject oldWsRecord, String newDomain,
-            BSONObject versionSet) throws ScmConfigException {
+            BSONObject extraUpdator) throws ScmConfigException {
         if (!isDomainExist(newDomain)) {
             throw new ScmConfigException(ScmConfError.INVALID_ARG,
                     "Domain does not exist,domainName: " + newDomain);
@@ -165,41 +171,49 @@ public class SysWorkspaceTableDaoSdbImpl extends SequoiadbTableDao implements Sy
         // { $set: { "meta_location.domain": newDomain } }
         BasicBSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_META_LOCATION
                 + "." + FieldName.FIELD_CLWORKSPACE_LOCATION_DOMAIN, newDomain);
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, setUpdater);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_SET, setUpdater);
 
         return updateAndReturnNew(oldWsRecord, updater);
 
     }
 
     @Override
-    public BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject versionSet)
+    public BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject extraUpdator)
             throws ScmConfigException {
         BSONObject setUpdater = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXTRA_META_CS,
                 newCs);
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_PUSH, setUpdater);
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_PUSH, setUpdater);
         return updateAndReturnNew(matcher, updater);
     }
 
     @Override
     public BSONObject updateByNewAttribute(BSONObject matcher, BSONObject newInfo,
-            BSONObject versionSet) throws ScmConfigException {
-        BSONObject updater = combineUpdater(versionSet, SequoiadbHelper.DOLLAR_SET, newInfo);
+            BSONObject extraUpdator) throws ScmConfigException {
+        BSONObject updater = combineUpdater(extraUpdator, SequoiadbHelper.DOLLAR_SET, newInfo);
         return updateAndReturnNew(matcher, updater);
     }
 
-    private BSONObject combineUpdater(BSONObject versionUpdate, String operation, BSONObject value){
-        // 样例1：versionUpdate：{$set:{version:2}}   operation: $set   value: {preferred:"rootsite"}
-        // 合并后：{$set:{version:2, preferred:"rootsite"}}
-        // 样例2：versionUpdate：{$inc:{version:1}}   operation: $set   value: {preferred:"rootsite"}
-        // 合并后：{$inc:{version:1}}, $set:{preferred:"rootsite"}}
+    private BSONObject combineUpdater(BSONObject extraUpdator, String operation, BSONObject value) {
+        // 样例1：
+        // extraUpdator：{$set:{version:2,update_user:"admin","update_time":1686106906493}}
+        // operation: $set value: {preferred:"rootsite"}
+        // 合并后：{$set:{version:2,update_user:"admin","update_time":1686106906493,
+        // preferred:"rootsite"}}
+
+        // 样例2：extraUpdator：{{$inc:{version:1}},{$set:
+        // {update_user:"admin","update_time":1686106906493}}}
+        // operation: $set value: {preferred:"rootsite"}
+        // 合并后：{$inc:{version:1}},
+        // $set:{preferred:"rootsite",update_user:"admin","update_time":1686106906493}}
         BSONObject update = new BasicBSONObject();
-        if (versionUpdate.get(operation) != null) {
-            value.putAll((BSONObject) versionUpdate.get(operation));
-            update.put(operation, value);
+        if (extraUpdator.get(operation) != null) {
+            BSONObject bsonObject = (BSONObject) extraUpdator.get(operation);
+            bsonObject.putAll(value);
+            update.putAll(extraUpdator);
         }
         else {
             update.put(operation, value);
-            update.putAll(versionUpdate);
+            update.putAll(extraUpdator);
         }
 
         return update;

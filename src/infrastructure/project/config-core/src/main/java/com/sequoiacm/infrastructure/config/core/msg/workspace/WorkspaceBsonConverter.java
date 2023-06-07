@@ -155,6 +155,10 @@ public class WorkspaceBsonConverter implements BsonConverter {
                 ScmRestArgDefine.WORKSPACE_CONF_TAG_UPGRADING));
         configUpdator.setTagLibTable(
                 BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_TAG_LIB_TABLE));
+        configUpdator.setUpdateUser(
+                BsonUtils.getString(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_UPDATE_USER));
+        configUpdator.setUpdateTime(
+                BsonUtils.getLong(wsUpdatorObj, ScmRestArgDefine.WORKSPACE_CONF_UPDATE_TIME));
         return configUpdator;
     }
 

@@ -9,35 +9,36 @@ import org.bson.types.BasicBSONList;
 
 public interface SysWorkspaceTableDao extends TableDao {
     // update and return newSysWorkspaceTableDao
-    public BSONObject removeDataLocation(BSONObject oldWsRecord, int siteId, BSONObject versionSet)
-            throws MetasourceException;
+    public BSONObject removeDataLocation(BSONObject oldWsRecord, int siteId,
+            BSONObject extraUpdator) throws MetasourceException;
 
     public BSONObject addDataLocation(BSONObject oldWsRecord, BSONObject location,
-            BSONObject versionSet) throws MetasourceException;
+            BSONObject extraUpdator) throws MetasourceException;
 
     public BSONObject updateExternalData(BSONObject matcher, BSONObject externalData,
-            BSONObject versionSet) throws MetasourceException;
+            BSONObject extraUpdator) throws MetasourceException;
 
     BSONObject updateDataLocation(BSONObject matcher, BasicBSONList locations,
-            BSONObject versionSet) throws ScmConfigException;
+            BSONObject extraUpdator) throws ScmConfigException;
 
-    BSONObject updateDescription(BSONObject matcher, String newDesc, BSONObject versionSet)
+    BSONObject updateDescription(BSONObject matcher, String newDesc, BSONObject extraUpdator)
             throws ScmConfigException;
 
     BSONObject updateSiteCacheStrategy(BSONObject matcher, String newSiteCacheStrategy,
-            BSONObject versionSet) throws ScmConfigException;
+            BSONObject extraUpdator) throws ScmConfigException;
 
-    BSONObject updatePreferred(BSONObject matcher, String newPreferred, BSONObject versionSet)
+    BSONObject updatePreferred(BSONObject matcher, String newPreferred, BSONObject extraUpdator)
             throws ScmConfigException;
 
-    BSONObject updateDirectory(BSONObject matcher, Boolean isEnableDirectory, BSONObject versionSet)
+    BSONObject updateDirectory(BSONObject matcher, Boolean isEnableDirectory,
+            BSONObject extraUpdator) throws ScmConfigException;
+
+    BSONObject updateMetaDomain(BSONObject matcher, String newDomain, BSONObject extraUpdator)
             throws ScmConfigException;
 
-    BSONObject updateMetaDomain(BSONObject matcher, String newDomain, BSONObject versionSet)
+    BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject extraUpdator)
             throws ScmConfigException;
 
-    BSONObject addExtraMetaCs(BSONObject matcher, String newCs, BSONObject versionSet)
+    BSONObject updateByNewAttribute(BSONObject matcher, BSONObject newInfo, BSONObject extraUpdator)
             throws ScmConfigException;
-
-    BSONObject updateByNewAttribute(BSONObject matcher, BSONObject newInfo, BSONObject versionSet) throws ScmConfigException;
 }

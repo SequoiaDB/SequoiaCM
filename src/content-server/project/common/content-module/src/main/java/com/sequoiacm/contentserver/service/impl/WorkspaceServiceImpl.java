@@ -316,13 +316,13 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     public BSONObject updateWorkspace(ScmUser user, String wsName, ClientWorkspaceUpdator updator)
             throws ScmServerException {
         if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            audit.info(ScmAuditType.DELETE_WS, user, wsName,
+            audit.info(ScmAuditType.UPDATE_WS, user, wsName,
                     ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
                     "update workspace failed, permission denied: userName=" + user.getUsername());
             throw new ScmOperationUnauthorizedException(
                     "permission denied:user=" + user.getUsername());
         }
-        WorkspaceUpdator confUpdator = validateUpdator(wsName, updator);
+        WorkspaceUpdator confUpdator = validateUpdator(user.getUsername(), wsName, updator);
         WorkspaceConfig resp = ContenserverConfClient.getInstance()
                 .updateWorkspaceConf(confUpdator);
         BSONObject ret = resp.toBSONObject();
@@ -352,14 +352,16 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
     }
 
-    private WorkspaceUpdator validateUpdator(String wsName, ClientWorkspaceUpdator updator)
-            throws ScmServerException {
+    private WorkspaceUpdator validateUpdator(String userName, String wsName,
+            ClientWorkspaceUpdator updator) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         List<Integer> dataLocationAfterUpdate = new ArrayList<>(wsInfo.getDataLocations().keySet());
 
         WorkspaceUpdator confUpdator = new WorkspaceUpdator(wsName,
                 contentModule.getWorkspaceInfoCheckLocalSite(wsName).getBSONObject());
+        confUpdator.setUpdateUser(userName);
+        confUpdator.setUpdateTime(new Date().getTime());
 
         confUpdator.setNewDesc(updator.getDescription());
         confUpdator.setNewSiteCacheStrategy(updator.getSiteCacheStrategy() == null ? null
@@ -382,7 +384,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
             catch (ScmDatasourceException e) {
                 throw new ScmInvalidArgumentException(
-                        "invalid data location:location=" + addDataLocation);
+                        "invalid data location:location=" + addDataLocation, e);
             }
 
             if (oldDataLocations.get(addSite.getId()) != null) {

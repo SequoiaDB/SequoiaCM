@@ -28,6 +28,9 @@ public class WorkspaceUpdator implements ConfigUpdator {
     private Boolean tagUpgrading;
     private String tagLibTable;
 
+    private String updateUser;
+    private Long updateTime;
+
     public WorkspaceUpdator(String wsName) {
         this.wsName = wsName;
     }
@@ -90,6 +93,12 @@ public class WorkspaceUpdator implements ConfigUpdator {
         }
         if (tagLibTable != null) {
             updator.put(ScmRestArgDefine.WORKSPACE_CONF_TAG_LIB_TABLE, tagLibTable);
+        }
+        if (updateUser != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATE_USER, updateUser);
+        }
+        if (updateTime != null) {
+            updator.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATE_TIME, updateTime);
         }
 
         obj.put(ScmRestArgDefine.WORKSPACE_CONF_UPDATOR, updator);
@@ -215,5 +224,21 @@ public class WorkspaceUpdator implements ConfigUpdator {
 
     public void setTagLibTable(String tagLibTable) {
         this.tagLibTable = tagLibTable;
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public Long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Long updateTime) {
+        this.updateTime = updateTime;
     }
 }

@@ -88,38 +88,55 @@ public class UpdateWorkspaceDao {
                         "workspace cache is not latest. matcher:" + matcher);
             }
 
-            BSONObject versionSet;
+            BSONObject updateUserAndTime = new BasicBSONObject();
+            if (updator.getUpdateUser() != null) {
+                updateUserAndTime.put(FieldName.FIELD_CLWORKSPACE_UPDATEUSER,
+                        updator.getUpdateUser());
+            }
+            if (updator.getUpdateTime() != null) {
+                updateUserAndTime.put(FieldName.FIELD_CLWORKSPACE_UPDATETIME,
+                        updator.getUpdateTime());
+            }
+
+            BSONObject extraUpdator;
             if (bakWsRecord.get(FieldName.FIELD_CLWORKSPACE_VERSION) != null) {
-                versionSet = new BasicBSONObject(SequoiadbHelper.DOLLAR_INC,
+                extraUpdator = new BasicBSONObject(SequoiadbHelper.DOLLAR_INC,
                         new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_VERSION, 1));
+                if (!updateUserAndTime.isEmpty()) {
+                    extraUpdator.put(SequoiadbHelper.DOLLAR_SET, updateUserAndTime);
+                }
             }
             else {
-                versionSet = new BasicBSONObject(SequoiadbHelper.DOLLAR_SET,
-                        new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_VERSION, 2));
+                BSONObject setBson = new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_VERSION, 2);
+                if (!updateUserAndTime.isEmpty()) {
+                    setBson.putAll(updateUserAndTime);
+                }
+
+                extraUpdator = new BasicBSONObject(SequoiadbHelper.DOLLAR_SET, setBson);
             }
 
             BSONObject newWsRecord = null;
             if (updator.getNewDesc() != null) {
-                newWsRecord = table.updateDescription(matcher, updator.getNewDesc(), versionSet);
+                newWsRecord = table.updateDescription(matcher, updator.getNewDesc(), extraUpdator);
             }
             else if (updator.getNewSiteCacheStrategy() != null) {
                 newWsRecord = table.updateSiteCacheStrategy(matcher,
-                        updator.getNewSiteCacheStrategy(), versionSet);
+                        updator.getNewSiteCacheStrategy(), extraUpdator);
             }
             else if (updator.getPreferred() != null) {
-                newWsRecord = table.updatePreferred(matcher, updator.getPreferred(), versionSet);
+                newWsRecord = table.updatePreferred(matcher, updator.getPreferred(), extraUpdator);
             }
             else if (updator.getRemoveDataLocationId() != null) {
                 newWsRecord = table.removeDataLocation(matcher, updator.getRemoveDataLocationId(),
-                        versionSet);
+                        extraUpdator);
             }
             else if (updator.getAddDataLocation() != null) {
                 newWsRecord = table.addDataLocation(matcher, updator.getAddDataLocation(),
-                        versionSet);
+                        extraUpdator);
             }
             else if (updator.getUpdateDataLocation() != null) {
                 newWsRecord = table.updateDataLocation(matcher, updator.getUpdateDataLocation(),
-                        versionSet);
+                        extraUpdator);
             }
             else if (updator.isEnableDirectory() != null) {
                 Boolean isEnableDirectory = updator.isEnableDirectory();
@@ -131,7 +148,7 @@ public class UpdateWorkspaceDao {
                                         + updator.getWsName());
 
                     }
-                    newWsRecord = table.updateDirectory(matcher, false, versionSet);
+                    newWsRecord = table.updateDirectory(matcher, false, extraUpdator);
                 }
                 else {
                     if (isEnableDirectory) {
@@ -147,7 +164,7 @@ public class UpdateWorkspaceDao {
             }
             else if (updator.getUpdateDomain() != null) {
                 newWsRecord = table.updateMetaDomain(matcher, updator.getUpdateDomain(),
-                        versionSet);
+                        extraUpdator);
             }
             else if (updator.getAddExtraMetaCs() != null) {
                 BasicBSONList extraMetaCs = (BasicBSONList) matcher
@@ -157,7 +174,7 @@ public class UpdateWorkspaceDao {
                             "new extra meta cs record exist");
                 }
                 newWsRecord = table.addExtraMetaCs(matcher, updator.getAddExtraMetaCs(),
-                        versionSet);
+                        extraUpdator);
             }
             else {
                 // 可以多个工作区属性一起更新的字段
@@ -182,7 +199,7 @@ public class UpdateWorkspaceDao {
                 }
 
                 if (!newWsAttribute.isEmpty()) {
-                    newWsRecord = table.updateByNewAttribute(matcher, newWsAttribute, versionSet);
+                    newWsRecord = table.updateByNewAttribute(matcher, newWsAttribute, extraUpdator);
                 }
             }
 
