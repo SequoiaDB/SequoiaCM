@@ -559,6 +559,9 @@ public class BucketQuotaManager implements ApplicationRunner {
 
     public QuotaWrapper addUsedInfoToQuotaTable(String bucketName, int quotaRoundNumber,
             long usedObjects, long usedSize) throws ScmSystemException {
+        logger.debug(
+                "add used info to quota table:bucketName={},quotaRoundNumber={},usedObjects={},usedSize={}",
+                bucketName, quotaRoundNumber, usedObjects, usedSize);
         ScmLock lock = null;
         ScmLockPath lockPath = ScmLockPathFactory.createQuotaUsedLockPath(QUOTA_TYPE, bucketName);
         try {
@@ -587,9 +590,14 @@ public class BucketQuotaManager implements ApplicationRunner {
             long newObjects = BsonUtils.getNumberChecked(record, FieldName.Quota.USED_OBJECTS)
                     .longValue() + usedObjects;
 
+            if (newSize < 0 || newObjects < 0) {
+                logger.info(
+                        "the quota info to be updated is less than 0:bucketName={},quotaRoundNumber={},usedObjects={},usedSize={}",
+                        bucketName, quotaRoundNumber, usedObjects, usedSize);
+            }
             BSONObject updator = new BasicBSONObject();
-            updator.put(FieldName.Quota.USED_SIZE, Math.max(newSize, 0L));
-            updator.put(FieldName.Quota.USED_OBJECTS, Math.max(newObjects, 0L));
+            updator.put(FieldName.Quota.USED_SIZE, newSize);
+            updator.put(FieldName.Quota.USED_OBJECTS, newObjects);
             BSONObject matcher = new BasicBSONObject();
             matcher.put(FieldName.Quota.TYPE, QUOTA_TYPE);
             matcher.put(FieldName.Quota.NAME, bucketName);
