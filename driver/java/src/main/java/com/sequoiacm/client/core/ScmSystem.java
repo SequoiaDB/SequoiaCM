@@ -1742,8 +1742,6 @@ public class ScmSystem {
          * @throws ScmException
          *             if error happens.
          * @since v3.6
-         * @deprecated Starting from v3.6, disuse this interface, please use
-         *             startOnceTransitionV2 interface.
          */
         public static ScmId startOnceTransitionV2(ScmOnceTransitionConfig config)
                 throws ScmException {
