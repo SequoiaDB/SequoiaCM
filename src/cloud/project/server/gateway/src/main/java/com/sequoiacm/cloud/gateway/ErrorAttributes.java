@@ -38,7 +38,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
             String serviceName = getServiceName(result);
             if (serviceName != null && serviceNotExist(serviceName)) {
                 // 请求的服务不存在
-                result.put("message", serviceName + " is not exist");
+                result.put("message", "Service does not exist, serviceName: " + serviceName);
             }
             else {
                 // 其他类型的 404 错误，一般是路径含有非法参数

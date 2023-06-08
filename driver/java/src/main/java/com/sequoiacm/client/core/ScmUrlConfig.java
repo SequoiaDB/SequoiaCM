@@ -35,7 +35,7 @@ public class ScmUrlConfig {
         for (String url : urls) {
             String tmpUrl = url;
             String urlTargetSite = null;
-            int i = url.lastIndexOf("/");
+            int i = url.indexOf("/");
             if (i <= -1) {
                 urlTargetSite = "";
             }
@@ -56,10 +56,7 @@ public class ScmUrlConfig {
                         "all url should point to the same site:invalidUrl=" + url + ",exepectSite="
                                 + targetSite);
             }
-            i = tmpUrl.indexOf('/');
-            if (i > -1) {
-                tmpUrl = tmpUrl.substring(0, i) + tmpUrl.substring(i).toLowerCase();
-            }
+
             newUrls.add(tmpUrl);
         }
         return newUrls;
