@@ -301,8 +301,9 @@ public class SequoiadbSessionRepository
         catch (InterruptedException e) {
             throw new BaseException(SDBError.SDB_INTERRUPT, e);
         }
+        DBCursor cursor = null;
         try {
-            DBCursor cursor = sdb.getCollectionSpace(collectionSpaceName)
+            cursor = sdb.getCollectionSpace(collectionSpaceName)
                     .getCollection(collectionName).query();
             if (cursor != null) {
                 while (cursor.hasNext()) {
@@ -316,10 +317,12 @@ public class SequoiadbSessionRepository
                         }
                     }
                 }
-                cursor.close();
             }
         }
         finally {
+            if (cursor != null) {
+                cursor.close();
+            }
             sequoiadbDatasource.releaseConnection(sdb);
         }
 

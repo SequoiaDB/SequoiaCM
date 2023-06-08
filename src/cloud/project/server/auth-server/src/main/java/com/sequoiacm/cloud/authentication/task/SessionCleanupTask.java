@@ -21,7 +21,12 @@ public class SessionCleanupTask extends TimerTask {
 
     @Override
     public void run() {
-        int num = sessionRepository.cleanExpiredSessions(maxCleanupNum);
-        logger.info("Cleanup {} expired sessions", num);
+        try {
+            int num = sessionRepository.cleanExpiredSessions(maxCleanupNum);
+            logger.info("Cleanup {} expired sessions", num);
+        }
+        catch (Throwable e) {
+            logger.error("Cleanup expired sessions failed", e);
+        }
     }
 }
