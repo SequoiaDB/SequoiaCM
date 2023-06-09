@@ -60,6 +60,11 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-feign</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-config-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

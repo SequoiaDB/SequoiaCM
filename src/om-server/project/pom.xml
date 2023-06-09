@@ -86,6 +86,12 @@
 
             <dependency>
                 <groupId>com.sequoiadb</groupId>
+                <artifactId>sequoiacm-infrastructure-config-client</artifactId>
+                <version>${sequoiacm-infrastructure.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sequoiadb</groupId>
                 <artifactId>sequoiacm-infrastructure-tool</artifactId>
                 <version>${sequoiacm-infrastructure.version}</version>
             </dependency>
