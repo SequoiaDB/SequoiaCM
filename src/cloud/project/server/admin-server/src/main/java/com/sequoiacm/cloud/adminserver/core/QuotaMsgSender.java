@@ -27,15 +27,15 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @EnableScmServiceDiscoveryClient
-public class QuotaSyncMsgSender {
-    private static final Logger logger = LoggerFactory.getLogger(QuotaSyncMsgSender.class);
+public class QuotaMsgSender {
+    private static final Logger logger = LoggerFactory.getLogger(QuotaMsgSender.class);
 
     private ThreadPoolExecutor msgSenderThreadPool;
 
     private QuotaSyncNotifyServerClientFactory clientFactory;
 
     @Autowired
-    public QuotaSyncMsgSender(QuotaSyncNotifyServerClientFactory clientFactory) {
+    public QuotaMsgSender(QuotaSyncNotifyServerClientFactory clientFactory) {
         this.clientFactory = clientFactory;
         msgSenderThreadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.MILLISECONDS,
                 new SynchronousQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -98,28 +98,7 @@ public class QuotaSyncMsgSender {
                                 syncRoundNumber, quotaRoundNumber, agreementTime));
                 futures.add(future);
             }
-            StatisticsException lastException = null;
-            for (Future<?> future : futures) {
-                try {
-                    future.get();
-                }
-                catch (ExecutionException e) {
-                    if (e.getCause() instanceof StatisticsException) {
-                        lastException = (StatisticsException) e.getCause();
-                    }
-                    else {
-                        lastException = new StatisticsException(StatisticsError.INTERNAL_ERROR,
-                                "failed to send setAgreementTime msg", e);
-                    }
-                }
-                catch (Exception e) {
-                    lastException = new StatisticsException(StatisticsError.INTERNAL_ERROR,
-                            "failed to send setAgreementTime msg", e);
-                }
-            }
-            if (lastException != null) {
-                throw lastException;
-            }
+            waitTasksFinish(futures);
         }
         catch (StatisticsException e) {
             throw e;
@@ -128,7 +107,6 @@ public class QuotaSyncMsgSender {
             throw new StatisticsException(StatisticsError.INTERNAL_ERROR,
                     "failed to send setAgreementTime msg", e);
         }
-
     }
 
     public void sendCancelSyncMsgSilence(String type, String name, int syncRoundNumber,
@@ -167,6 +145,58 @@ public class QuotaSyncMsgSender {
         }
         catch (Exception e) {
             logger.warn("failed to send finish sync msg", e);
+        }
+    }
+
+    public void sendFlushQuotaCacheMsg(List<ScmServiceInstance> instances, final String type,
+            final String name) throws StatisticsException {
+        List<Future<?>> futures = new ArrayList<>(instances.size());
+        for (ScmServiceInstance instance : instances) {
+            final String nodeUrl = instance.getHost() + ":" + instance.getPort();
+            Future<?> future = msgSenderThreadPool.submit(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    try {
+                        clientFactory.getClient(nodeUrl).flushQuotaCache(type, name);
+                    }
+                    catch (Exception e) {
+                        throw new StatisticsException(StatisticsError.INTERNAL_ERROR,
+                                "failed to flush quota cache, nodeUrl=" + nodeUrl + ",type=" + type
+                                        + ",name=" + name,
+                                e);
+                    }
+                    return null;
+                }
+            });
+            futures.add(future);
+        }
+        waitTasksFinish(futures);
+    }
+
+    private void waitTasksFinish(List<Future<?>> futures) throws StatisticsException {
+        Throwable lastException = null;
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            }
+            catch (ExecutionException e) {
+                if (e.getCause() != null) {
+                    lastException = e.getCause();
+                }
+                else {
+                    lastException = e;
+                }
+            }
+            catch (Exception e) {
+                lastException = e;
+            }
+        }
+        if (lastException != null) {
+            if (lastException instanceof StatisticsException) {
+                throw (StatisticsException) lastException;
+            }
+            throw new StatisticsException(StatisticsError.INTERNAL_ERROR,
+                    lastException.getMessage(), lastException);
         }
     }
 

@@ -469,7 +469,7 @@ public interface MessageDispatcher extends Closeable {
 
     void disableBucketQuota(String bucketName) throws ScmException;
 
-    BSONObject getBucketQuota(String bucketName) throws ScmException;
+    BSONObject getBucketQuota(String bucketName, boolean forceRefresh) throws ScmException;
 
     void syncBucketQuota(String bucketName) throws ScmException;
 

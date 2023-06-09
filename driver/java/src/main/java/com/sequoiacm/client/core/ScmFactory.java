@@ -4127,9 +4127,27 @@ public class ScmFactory {
          */
         public static ScmBucketQuotaInfo getBucketQuota(ScmSession ss, String bucketName)
                 throws ScmException {
+            return getBucketQuota(ss, bucketName, false);
+        }
+
+        /**
+         * Gets bucket quota info.
+         *
+         * @param ss
+         *            session.
+         * @param bucketName
+         *            bucket name.
+         * @param forceRefresh
+         *            force refresh quota info.
+         * @return quota info.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static ScmBucketQuotaInfo getBucketQuota(ScmSession ss, String bucketName,
+                boolean forceRefresh) throws ScmException {
             checkArgNotNull("session", ss);
             checkStringArgNotEmpty("bucketName", bucketName);
-            BSONObject resp = ss.getDispatcher().getBucketQuota(bucketName);
+            BSONObject resp = ss.getDispatcher().getBucketQuota(bucketName, forceRefresh);
             return new ScmBucketQuotaInfo(resp);
         }
 

@@ -3050,9 +3050,9 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public BSONObject getBucketQuota(String bucketName) throws ScmException {
+    public BSONObject getBucketQuota(String bucketName, boolean forceRefresh) throws ScmException {
         String uri = URL_PREFIX + pureUrl + ADMIN_SERVER + API_VERSION + QUOTAS + "bucket/"
-                + bucketName;
+                + bucketName + "?" + CommonDefine.RestArg.QUOTA_FORCE_REFRESH + "=" + forceRefresh;
         HttpGet request = new HttpGet(uri);
         return RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId, request);
     }

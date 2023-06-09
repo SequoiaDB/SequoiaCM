@@ -13,7 +13,8 @@ public interface QuotaService {
 
     void disableQuota(String type, String name, Authentication auth) throws StatisticsException;
 
-    QuotaResult getQuota(String type, String name, Authentication auth) throws StatisticsException;
+    QuotaResult getQuota(String type, String name, boolean isForceRefresh, Authentication auth)
+            throws StatisticsException;
 
     QuotaResult updateQuotaUsedInfo(String type, String name, Long usedObjects, Long usedSize,
             Authentication auth) throws StatisticsException;

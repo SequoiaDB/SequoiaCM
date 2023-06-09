@@ -467,6 +467,9 @@ public class CommonDefine {
         public static final String QUOTA_ACTION_FINISH_SYNC = "finish_sync";
         public static final String QUOTA_ACTION_GET_QUOTA_INNER_DETAIL = "get_quota_inner_detail";
 
+        public static final String QUOTA_FLUSH_CACHE = "flush_cache";
+        public static final String QUOTA_FORCE_REFRESH = "force_refresh";
+
         public static final String KEEP_ALIVE = "keepAlive";
 
         public static final String TAG_CONDITION = "tag_condition";

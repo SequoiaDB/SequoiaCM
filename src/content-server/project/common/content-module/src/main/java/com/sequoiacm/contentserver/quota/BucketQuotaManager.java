@@ -695,6 +695,23 @@ public class BucketQuotaManager implements ApplicationRunner {
         this.quotaLimitConfig = quotaLimitConfig;
     }
 
+    public void flushCache(String type, String name) throws ScmServerException {
+        if (!QUOTA_TYPE.equals(type)) {
+            throw new IllegalArgumentException("type must be " + QUOTA_TYPE);
+        }
+        ScmLockWrapper readLock = limiterLock.getReadLock(name);
+        readLock.lock();
+        try {
+            QuotaLimiter limiter = getQuotaLimiter(name, readLock);
+            if (limiter instanceof QuotaCacheAutoFlushable) {
+                ((QuotaCacheAutoFlushable) limiter).flushCache(true);
+            }
+        }
+        finally {
+            readLock.unlock();
+        }
+    }
+
     private class RefreshSyncInfoTask extends ScmTimerTask {
         private long refreshSyncInfoInterval;
 

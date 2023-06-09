@@ -2,7 +2,7 @@ package com.sequoiacm.cloud.adminserver.service.impl;
 
 import com.sequoiacm.cloud.adminserver.config.QuotaSyncConfig;
 import com.sequoiacm.cloud.adminserver.core.QuotaHelper;
-import com.sequoiacm.cloud.adminserver.core.QuotaSyncMsgSender;
+import com.sequoiacm.cloud.adminserver.core.QuotaMsgSender;
 import com.sequoiacm.cloud.adminserver.dao.QuotaSyncDao;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsException;
@@ -56,7 +56,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
     private QuotaSyncDao quotaSyncDao;
 
     @Autowired
-    private QuotaSyncMsgSender quotaSyncMsgSender;
+    private QuotaMsgSender quotaMsgSender;
 
     @Autowired
     private QuotaHelper quotaHelper;
@@ -139,7 +139,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                                 + name + ",status=" + syncInfo.getStatus());
             }
             quotaSyncDao.cancelSync(type, name);
-            quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name, syncInfo.getSyncRoundNumber(),
+            quotaMsgSender.sendCancelSyncMsgSilence(type, name, syncInfo.getSyncRoundNumber(),
                     syncInfo.getQuotaRoundNumber(), quotaHelper.getS3AndContentServerInstance());
         }
         catch (StatisticsException e) {
@@ -360,7 +360,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                     if (ScmQuotaSyncStatus.CANCELED.getName().equals(quotaSyncInfo.getStatus())) {
                         logger.info("quota sync canceled:type={},name={},syncRoundNumber={}", type,
                                 name, syncRoundNumber);
-                        quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
+                        quotaMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
                                 quotaSyncInfo.getQuotaRoundNumber(), notifyInstances);
                         break;
                     }
@@ -383,7 +383,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                     logger.warn("not statistics node:type={},name={},syncRoundNumber={}", type,
                             name, syncRoundNumber);
                     quotaSyncDao.recordError(type, name, syncRoundNumber, "no statistics node");
-                    quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
+                    quotaMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
                             quotaSyncInfo.getQuotaRoundNumber(), notifyInstances);
                     break;
                 }
@@ -396,7 +396,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                     logger.info("quota statistics completed:type={},name={},syncRoundNumber={}",
                             type, name, syncRoundNumber);
                     quotaSyncDao.recordCompleted(type, name, syncRoundNumber);
-                    quotaSyncMsgSender.sendFinishSyncMsgSilence(type, name, syncRoundNumber,
+                    quotaMsgSender.sendFinishSyncMsgSilence(type, name, syncRoundNumber,
                             quotaSyncInfo.getQuotaRoundNumber(), notifyInstances);
                     break;
                 }
@@ -409,7 +409,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                             "quota statistics error:type={},name={},syncRoundNumber={},errorMsg={}",
                             type, name, syncRoundNumber, errorMsg);
                     quotaSyncDao.recordError(type, name, syncRoundNumber, errorMsg);
-                    quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
+                    quotaMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
                             quotaSyncInfo.getQuotaRoundNumber(), notifyInstances);
                     break;
                 }
@@ -425,7 +425,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                     logger.warn("quota statistics timeout:type={},name={},syncRoundNumber={}", type,
                             name, syncRoundNumber);
                     quotaSyncDao.recordError(type, name, syncRoundNumber, "sync timeout");
-                    quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
+                    quotaMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber,
                             quotaSyncInfo.getQuotaRoundNumber(), notifyInstances);
                     break;
                 }
@@ -498,7 +498,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
         }
 
         // 2. 发送取消同步消息
-        quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber, quotaRoundNumber,
+        quotaMsgSender.sendCancelSyncMsgSilence(type, name, syncRoundNumber, quotaRoundNumber,
                 notifyInstances);
 
         // 3. 如果是第一次同步，将限额状态改为禁用
@@ -522,12 +522,12 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
             int quotaRoundNumber, long expireTime, List<ScmServiceInstance> notifyInstances)
             throws StatisticsException {
         // 发送开始同步消息
-        QuotaSyncMsgSender.StartSyncMsgResponse response = quotaSyncMsgSender.sendStartSyncMsg(type,
+        QuotaMsgSender.StartSyncMsgResponse response = quotaMsgSender.sendStartSyncMsg(type,
                 name, syncRoundNumber, quotaRoundNumber, expireTime, notifyInstances);
-        List<QuotaSyncMsgSender.Result> results = response.getResults();
-        Collections.sort(results, new Comparator<QuotaSyncMsgSender.Result>() {
+        List<QuotaMsgSender.Result> results = response.getResults();
+        Collections.sort(results, new Comparator<QuotaMsgSender.Result>() {
             @Override
-            public int compare(QuotaSyncMsgSender.Result o1, QuotaSyncMsgSender.Result o2) {
+            public int compare(QuotaMsgSender.Result o1, QuotaMsgSender.Result o2) {
                 return Long.compare(o1.getNodeTime(), o2.getNodeTime());
             }
         });
@@ -555,7 +555,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
             }
         }
         quotaSyncDao.updateAgreementTime(type, name, syncRoundNumber, agreementTime);
-        quotaSyncMsgSender.sendSetAgreementTimeMsg(type, name, syncRoundNumber, quotaRoundNumber,
+        quotaMsgSender.sendSetAgreementTimeMsg(type, name, syncRoundNumber, quotaRoundNumber,
                 agreementTime, results);
     }
 

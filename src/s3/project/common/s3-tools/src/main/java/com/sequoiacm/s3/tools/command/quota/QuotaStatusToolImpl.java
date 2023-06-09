@@ -31,9 +31,12 @@ public class QuotaStatusToolImpl extends BaseQuotaToolImpl {
     private static final Logger logger = LoggerFactory.getLogger(QuotaStatusToolImpl.class);
 
     private final String OPT_SHOW_INNER_DETAIL = "show-inner-detail";
+    private final String OPT_FORCE_REFRESH = "force-refresh";
 
     public QuotaStatusToolImpl() throws ScmToolsException {
         super("quota-status");
+        ops.addOption(hp.createOpt(null, OPT_FORCE_REFRESH, "force refresh of quota info.", false,
+                false, false));
         ops.addOption(hp.createOpt(null, OPT_SHOW_INNER_DETAIL,
                 "show inner quota detail of the bucket. ", false, false, true));
     }
@@ -45,7 +48,9 @@ public class QuotaStatusToolImpl extends BaseQuotaToolImpl {
         try {
             session = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
                     new ScmConfigOption(url, user, passwd));
-            ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota(session, bucket);
+            boolean forceRefresh = cl.hasOption(OPT_FORCE_REFRESH);
+            ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota(session, bucket,
+                    forceRefresh);
             printQuotaInfo(quotaInfo);
             if (cl.hasOption(OPT_SHOW_INNER_DETAIL)) {
                 BSONObject innerQuotaInfo = getInnerQuotaInfo(session.getSessionId(), bucket);

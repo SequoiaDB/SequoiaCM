@@ -40,4 +40,8 @@ public interface QuotaSyncNotifyServerClient {
             @RequestParam(CommonDefine.RestArg.QUOTA_SYNC_ROUND_NUMBER) int syncRoundNumber,
             @RequestParam(CommonDefine.RestArg.QUOTA_ROUND_NUMBER) int quotaRoundNumber)
             throws Exception;
+
+    @PostMapping(value = "/quotas/{type}/{name}" + "?action="
+            + CommonDefine.RestArg.QUOTA_FLUSH_CACHE)
+    void flushQuotaCache(@PathVariable("type") String type, @PathVariable("name") String name);
 }

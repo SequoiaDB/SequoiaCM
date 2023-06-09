@@ -72,8 +72,10 @@ public class QuotaController {
 
     @GetMapping("/quotas/{type}/{name}")
     public QuotaResult getQuota(@PathVariable("type") String type,
-            @PathVariable("name") String name, Authentication auth) throws StatisticsException {
-        return quotaService.getQuota(type, name, auth);
+            @PathVariable("name") String name,
+            @RequestParam(value = CommonDefine.RestArg.QUOTA_FORCE_REFRESH, defaultValue = "false", required = false) boolean isForceRefresh,
+            Authentication auth) throws StatisticsException {
+        return quotaService.getQuota(type, name, isForceRefresh, auth);
     }
 
     @PutMapping(value = "/quotas/{type}/{name}", params = "action="

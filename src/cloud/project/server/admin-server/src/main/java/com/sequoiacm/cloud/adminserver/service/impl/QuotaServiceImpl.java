@@ -2,7 +2,7 @@ package com.sequoiacm.cloud.adminserver.service.impl;
 
 import com.sequoiacm.cloud.adminserver.config.QuotaSyncConfig;
 import com.sequoiacm.cloud.adminserver.core.QuotaHelper;
-import com.sequoiacm.cloud.adminserver.core.QuotaSyncMsgSender;
+import com.sequoiacm.cloud.adminserver.core.QuotaMsgSender;
 import com.sequoiacm.cloud.adminserver.dao.QuotaConfigDao;
 import com.sequoiacm.cloud.adminserver.dao.QuotaSyncDao;
 import com.sequoiacm.cloud.adminserver.exception.StatisticsError;
@@ -21,6 +21,7 @@ import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
 import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaConfig;
 import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaUpdator;
+import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.lock.ScmLockPath;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class QuotaServiceImpl implements QuotaService {
@@ -63,7 +66,7 @@ public class QuotaServiceImpl implements QuotaService {
     private QuotaConfigDao quotaConfigDao;
 
     @Autowired
-    private QuotaSyncMsgSender quotaSyncMsgSender;
+    private QuotaMsgSender quotaMsgSender;
 
     @Override
     public QuotaResult enableQuota(String type, String name, long maxObjects, long maxSize,
@@ -204,7 +207,7 @@ public class QuotaServiceImpl implements QuotaService {
                     && ScmQuotaSyncStatus.SYNCING.getName().equals(quotaSyncInfo.getStatus())) {
                 try {
                     quotaSyncDao.cancelSync(type, name);
-                    quotaSyncMsgSender.sendCancelSyncMsgSilence(type, name,
+                    quotaMsgSender.sendCancelSyncMsgSilence(type, name,
                             quotaSyncInfo.getSyncRoundNumber(), quotaSyncInfo.getQuotaRoundNumber(),
                             quotaHelper.getS3AndContentServerInstance());
                 }
@@ -230,10 +233,15 @@ public class QuotaServiceImpl implements QuotaService {
     }
 
     @Override
-    public QuotaResult getQuota(String type, String name, Authentication auth)
+    public QuotaResult getQuota(String type, String name, boolean isForceRefresh,
+            Authentication auth)
             throws StatisticsException {
         quotaHelper.checkTypeAndName(type, name);
         quotaHelper.checkPriv(type, name, auth.getName(), ScmPrivilegeDefine.READ, "get quota");
+        if (isForceRefresh) {
+            List<ScmServiceInstance> instances = quotaHelper.getS3AndContentServerInstance();
+            quotaMsgSender.sendFlushQuotaCacheMsg(instances, type, name);
+        }
         return internalGetQuota(type, name);
     }
 

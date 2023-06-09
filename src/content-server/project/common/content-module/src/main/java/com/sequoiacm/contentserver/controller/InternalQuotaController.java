@@ -87,4 +87,11 @@ public class InternalQuotaController {
         return bucketQuotaManager.getQuotaLimiterInfo(type, name);
     }
 
+    @PostMapping(value = "/quotas/{type}/{name}", params = "action="
+            + CommonDefine.RestArg.QUOTA_FLUSH_CACHE)
+    public void flushQuotaCache(@PathVariable("type") String type,
+            @PathVariable("name") String name) throws ScmServerException {
+        bucketQuotaManager.flushCache(type, name);
+    }
+
 }
