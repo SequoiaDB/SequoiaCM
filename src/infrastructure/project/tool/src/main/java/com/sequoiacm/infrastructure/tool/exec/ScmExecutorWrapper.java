@@ -161,9 +161,9 @@ public class ScmExecutorWrapper {
                                 confPath + File.separator + f.getName(), nodeType, port));
                     }
                     catch (Exception e) {
-                        logger.warn(
-                                "scan conf dir have some incomplete node's conf file:failed to analyze server.port in conf file:"
-                                        + applicationProp + ",server.port:" + confPort);
+                        logger.error(
+                                "error occurs when parsing 'server.port' in config file, path={}, server.port='{}'.",
+                                applicationProp, confPort, e);
                     }
                 }
                 else {

@@ -202,9 +202,9 @@ public class ScmExecutorWrapper {
                         serverList.add(info);
                     }
                     catch (Exception e) {
-                        logger.warn(
-                                "scan conf dir have some incomplete node's conf file:failed to analyze server.port in conf file:"
-                                        + sysconfPath + ",server.port:" + confPort);
+                        logger.error(
+                                "error occurs when parsing 'server.port' in config file, path={}, server.port='{}'.",
+                                sysconfPath, confPort, e);
                     }
                 }
                 else {
