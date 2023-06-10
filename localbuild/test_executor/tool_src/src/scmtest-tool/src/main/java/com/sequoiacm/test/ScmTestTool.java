@@ -26,7 +26,7 @@ public class ScmTestTool {
             System.exit(1);
         }
 
-        if (args[0].equals("--help") || args[0].equals("--h")) {
+        if (args[0].equals("--help") || args[0].equals("-h")) {
             displaySubcommandsDesc();
             System.exit(0);
         }
