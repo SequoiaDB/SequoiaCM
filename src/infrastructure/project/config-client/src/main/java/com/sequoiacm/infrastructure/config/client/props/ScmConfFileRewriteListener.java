@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
@@ -116,6 +117,11 @@ public class ScmConfFileRewriteListener {
             return;
         }
 
+        rewriteConf(rewriteConf);
+    }
+
+    public synchronized void rewriteConf(Map<String, String> rewriteConf)
+            throws ScmConfigException {
         logger.info("rewrite conf: {}", rewriteConf);
         ScmConfigPropsDao confDao = confDaoFactory.createConfigPropsDao();
         try {

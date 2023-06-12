@@ -10,9 +10,9 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmJsonInputStreamCursor;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
+import com.sequoiacm.infrastructure.config.client.NotifyCallback;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
@@ -24,7 +24,7 @@ import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigUpdater;
 import com.sequoiacm.infrastructure.config.core.msg.metadata.*;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
-import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdater;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -52,18 +52,20 @@ public class ContenserverConfClient {
         return this;
     }
 
-    public void subscribeWithAsyncRetry(ScmConfSubscriber subscriber) throws ScmServerException {
+    public void subscribe(String businessType, NotifyCallback notifyCallback)
+            throws ScmServerException {
         try {
-            client.subscribeWithAsyncRetry(subscriber);
+            client.subscribe(businessType, notifyCallback);
         }
         catch (ScmConfigException e) {
-            throw new ScmServerException(ScmError.SYSTEM_ERROR, e.getMessage(), e);
+            throw new ScmServerException(ScmError.SYSTEM_ERROR,
+                    "failed to subscribe: " + businessType, e);
         }
     }
 
     public WorkspaceConfig createWorkspace(WorkspaceConfig config) throws ScmServerException {
         try {
-            return (WorkspaceConfig) client.createConf(ScmConfigNameDefine.WORKSPACE, config,
+            return (WorkspaceConfig) client.createConf(ScmBusinessTypeDefine.WORKSPACE, config,
                     false);
         }
         catch (ScmConfigException e) {
@@ -83,10 +85,10 @@ public class ContenserverConfClient {
         }
     }
 
-    public List<Version> getConfigVersion(String configName, VersionFilter filter)
+    public List<Version> getConfigVersion(String businessType, VersionFilter filter)
             throws ScmServerException {
         try {
-            return client.getConfVersion(configName, filter);
+            return client.getConfVersion(businessType, filter);
         }
         catch (ScmConfigException e) {
             throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR, e.getMessage(), e);
@@ -95,16 +97,16 @@ public class ContenserverConfClient {
 
     public Config deleteWorkspace(WorkspaceFilter filter) throws ScmServerException {
         try {
-            return client.deleteConf(ScmConfigNameDefine.WORKSPACE, filter, false);
+            return client.deleteConf(ScmBusinessTypeDefine.WORKSPACE, filter, false);
         }
         catch (ScmConfigException e) {
             throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR, e.getMessage(), e);
         }
     }
 
-    public WorkspaceConfig updateWorkspaceConf(WorkspaceUpdator updator) throws ScmServerException {
+    public WorkspaceConfig updateWorkspaceConf(WorkspaceUpdater updator) throws ScmServerException {
         try {
-            return (WorkspaceConfig) client.updateConfig(ScmConfigNameDefine.WORKSPACE, updator,
+            return (WorkspaceConfig) client.updateConfig(ScmBusinessTypeDefine.WORKSPACE, updator,
                     false);
         }
         catch (ScmConfigException e) {
@@ -119,7 +121,7 @@ public class ContenserverConfClient {
             throws ScmServerException {
         MetaDataConfig config = new MetaDataConfig(attribute);
         try {
-            MetaDataConfig resp = (MetaDataConfig) client.createConf(ScmConfigNameDefine.META_DATA,
+            MetaDataConfig resp = (MetaDataConfig) client.createConf(ScmBusinessTypeDefine.META_DATA,
                     config, false);
             return resp.getAttributeConfig();
         }
@@ -135,7 +137,7 @@ public class ContenserverConfClient {
             throws ScmServerException {
         MetaDataConfig config = new MetaDataConfig(classConfig);
         try {
-            MetaDataConfig resp = (MetaDataConfig) client.createConf(ScmConfigNameDefine.META_DATA,
+            MetaDataConfig resp = (MetaDataConfig) client.createConf(ScmBusinessTypeDefine.META_DATA,
                     config, false);
             return resp.getClassConfig();
         }
@@ -150,7 +152,7 @@ public class ContenserverConfClient {
     public void deleteClass(MetaDataClassConfigFilter classFilter) throws ScmServerException {
         MetaDataConfigFilter filter = new MetaDataConfigFilter(classFilter);
         try {
-            client.deleteConf(ScmConfigNameDefine.META_DATA, filter, false);
+            client.deleteConf(ScmBusinessTypeDefine.META_DATA, filter, false);
         }
         catch (ScmConfigException e) {
             if (e.getError() == ScmConfError.CLASS_NOT_EXIST) {
@@ -164,7 +166,7 @@ public class ContenserverConfClient {
             throws ScmServerException {
         MetaDataConfigFilter filter = new MetaDataConfigFilter(attributeFilter);
         try {
-            client.deleteConf(ScmConfigNameDefine.META_DATA, filter, false);
+            client.deleteConf(ScmBusinessTypeDefine.META_DATA, filter, false);
         }
         catch (ScmConfigException e) {
             if (e.getError() == ScmConfError.ATTRIBUTE_NOT_EXIST) {
@@ -180,10 +182,10 @@ public class ContenserverConfClient {
 
     public MetaDataAttributeConfig updateAttribute(MetaDataAttributeConfigUpdator attributeUpdator)
             throws ScmServerException {
-        MetaDataConfigUpdator updator = new MetaDataConfigUpdator(attributeUpdator);
+        MetaDataConfigUpdater updator = new MetaDataConfigUpdater(attributeUpdator);
         try {
             MetaDataConfig resp = (MetaDataConfig) client
-                    .updateConfig(ScmConfigNameDefine.META_DATA, updator, false);
+                    .updateConfig(ScmBusinessTypeDefine.META_DATA, updator, false);
             return resp.getAttributeConfig();
         }
         catch (ScmConfigException e) {
@@ -199,10 +201,10 @@ public class ContenserverConfClient {
 
     public MetaDataClassConfig updateClass(MetaDataClassConfigUpdator classUpdator)
             throws ScmServerException {
-        MetaDataConfigUpdator updator = new MetaDataConfigUpdator(classUpdator);
+        MetaDataConfigUpdater updator = new MetaDataConfigUpdater(classUpdator);
         try {
             MetaDataConfig resp = (MetaDataConfig) client
-                    .updateConfig(ScmConfigNameDefine.META_DATA, updator, false);
+                    .updateConfig(ScmBusinessTypeDefine.META_DATA, updator, false);
             return resp.getClassConfig();
         }
         catch (ScmConfigException e) {
@@ -230,7 +232,7 @@ public class ContenserverConfClient {
     public long countBucket(BSONObject matcher) throws ScmServerException {
         BucketConfigFilter filter = new BucketConfigFilter(matcher);
         try {
-            return client.countConf(ScmConfigNameDefine.BUCKET, filter);
+            return client.countConf(ScmBusinessTypeDefine.BUCKET, filter);
         }
         catch (ScmConfigException e) {
             throw new ScmServerException(ScmError.CONFIG_SERVER_ERROR,
@@ -243,7 +245,7 @@ public class ContenserverConfClient {
         BucketConfigFilter filter = new BucketConfigFilter(matcher, orderby, limit, skip);
         try {
             final ScmJsonInputStreamCursor<Config> cursor = client
-                    .listConf(ScmConfigNameDefine.BUCKET, filter);
+                    .listConf(ScmBusinessTypeDefine.BUCKET, filter);
             return new ScmObjectCursor<ScmBucket>() {
                 @Override
                 public boolean hasNext() throws IOException {
@@ -272,7 +274,7 @@ public class ContenserverConfClient {
     public ScmBucket getBucket(String name) throws ScmServerException {
         BucketConfigFilter filter = new BucketConfigFilter(name);
         try {
-            BucketConfig bucketConf = (BucketConfig) client.getOneConf(ScmConfigNameDefine.BUCKET,
+            BucketConfig bucketConf = (BucketConfig) client.getOneConf(ScmBusinessTypeDefine.BUCKET,
                     filter);
             if (bucketConf == null) {
                 return null;
@@ -289,7 +291,7 @@ public class ContenserverConfClient {
         WorkspaceFilter filter = new WorkspaceFilter(name);
         try {
             WorkspaceConfig conf = (WorkspaceConfig) client
-                    .getOneConf(ScmConfigNameDefine.WORKSPACE, filter);
+                    .getOneConf(ScmBusinessTypeDefine.WORKSPACE, filter);
             return conf;
         }
         catch (ScmConfigException e) {
@@ -300,7 +302,7 @@ public class ContenserverConfClient {
 
     public List<WorkspaceConfig> getWorkspace(WorkspaceFilter filter) throws ScmServerException {
         try {
-            List<WorkspaceConfig> conf = (List) client.getConf(ScmConfigNameDefine.WORKSPACE,
+            List<WorkspaceConfig> conf = (List) client.getConf(ScmBusinessTypeDefine.WORKSPACE,
                     filter);
             return conf;
         }
@@ -314,7 +316,7 @@ public class ContenserverConfClient {
         BucketConfigFilter filter = new BucketConfigFilter(
                 new BasicBSONObject(FieldName.Bucket.ID, id), null, -1, 0);
         try {
-            BucketConfig bucketConf = (BucketConfig) client.getOneConf(ScmConfigNameDefine.BUCKET,
+            BucketConfig bucketConf = (BucketConfig) client.getOneConf(ScmBusinessTypeDefine.BUCKET,
                     filter);
             if (bucketConf == null) {
                 return null;
@@ -335,7 +337,7 @@ public class ContenserverConfClient {
             BucketConfig bucketConfig = FileTableCreator.createBucketTable(
                     (SdbMetaSource) ScmContentModule.getInstance().getMetaService().getMetaSource(),
                     user, ws, bucketName);
-            BucketConfig ret = (BucketConfig) client.createConf(ScmConfigNameDefine.BUCKET,
+            BucketConfig ret = (BucketConfig) client.createConf(ScmBusinessTypeDefine.BUCKET,
                     bucketConfig, false);
             return convertBucketConf(ret);
         }
@@ -359,7 +361,7 @@ public class ContenserverConfClient {
         bucketConfigUpdater.setVersionStatus(status.name());
         bucketConfigUpdater.setUpdateUser(user);
         try {
-            BucketConfig ret = (BucketConfig) client.updateConfig(ScmConfigNameDefine.BUCKET,
+            BucketConfig ret = (BucketConfig) client.updateConfig(ScmBusinessTypeDefine.BUCKET,
                     bucketConfigUpdater, false);
             return convertBucketConf(ret);
         }
@@ -375,7 +377,7 @@ public class ContenserverConfClient {
 
     public void deleteBucket(String name) throws ScmServerException {
         try {
-            client.deleteConf(ScmConfigNameDefine.BUCKET, new BucketConfigFilter(name), false);
+            client.deleteConf(ScmBusinessTypeDefine.BUCKET, new BucketConfigFilter(name), false);
         }
         catch (ScmConfigException e) {
             if (e.getError() == ScmConfError.BUCKET_NOT_EXIST) {
@@ -393,7 +395,7 @@ public class ContenserverConfClient {
         bucketConfigUpdater.setUpdateUser(username);
         bucketConfigUpdater.setCustomTag(customTag);
         try {
-            client.updateConfig(ScmConfigNameDefine.BUCKET, bucketConfigUpdater, false);
+            client.updateConfig(ScmBusinessTypeDefine.BUCKET, bucketConfigUpdater, false);
         }
         catch (ScmConfigException e) {
             if (e.getError() == ScmConfError.BUCKET_NOT_EXIST) {

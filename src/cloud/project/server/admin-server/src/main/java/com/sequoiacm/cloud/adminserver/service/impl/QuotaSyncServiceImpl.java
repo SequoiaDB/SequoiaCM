@@ -21,9 +21,9 @@ import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaConfig;
-import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaUpdater;
 import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
@@ -504,13 +504,13 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
         // 3. 如果是第一次同步，将限额状态改为禁用
         if (isFirstSync) {
             try {
-                QuotaUpdator quotaUpdator = new QuotaUpdator();
+                QuotaUpdater quotaUpdator = new QuotaUpdater();
                 quotaUpdator.setType(type);
                 quotaUpdator.setName(name);
                 quotaUpdator.setEnable(false);
                 quotaUpdator.setMatcher(
                         new BasicBSONObject(FieldName.Quota.QUOTA_ROUND_NUMBER, quotaRoundNumber));
-                confClient.updateConfig(ScmConfigNameDefine.QUOTA, quotaUpdator, false);
+                confClient.updateConfig(ScmBusinessTypeDefine.QUOTA, quotaUpdator, false);
             }
             catch (Exception ex) {
                 logger.warn("failed to disable quota", ex);

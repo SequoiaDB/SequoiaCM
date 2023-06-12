@@ -3,7 +3,9 @@ package com.sequoiacm.config.server;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import org.bson.BSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -30,6 +32,9 @@ import com.sequoiacm.infrastructure.feign.BSONObjectJsonDeserializer;
 @Configuration
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
+
+    @Autowired
+    private ConfigEntityTranslator configEntityTranslator;
 
     @Bean
     public HttpPutFormContentFilter httpPutFormContentFilter() {
@@ -61,7 +66,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(BSONObject.class, new BSONObjectJsonDeserializer<BSONObject>());
         module.addSerializer(new ScmSubscriberSerializer());
-        module.addSerializer(new ConfigSerializer());
+        module.addSerializer(new ConfigSerializer(configEntityTranslator));
         module.addSerializer(new VersionSerializer());
         mapper.registerModule(module);
     }

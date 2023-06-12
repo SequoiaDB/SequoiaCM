@@ -9,7 +9,7 @@ import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 public class GatewayHttpFireWall extends DefaultHttpFirewall {
     private static final Logger logger = LoggerFactory.getLogger(GatewayHttpFireWall.class);
@@ -20,7 +20,7 @@ public class GatewayHttpFireWall extends DefaultHttpFirewall {
             return super.getFirewalledRequest(request);
         }
         catch (RequestRejectedException e) {
-            String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
+            String sessionId = request.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
             String target = "unknown host";
             logger.error("send {} request {} from {}:{} to {} with session {} failed(status={})",
                     request.getMethod(), request.getRequestURI(), request.getRemoteHost(),

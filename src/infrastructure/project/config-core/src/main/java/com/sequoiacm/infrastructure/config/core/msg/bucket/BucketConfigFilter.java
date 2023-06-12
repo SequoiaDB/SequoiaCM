@@ -1,21 +1,36 @@
 package com.sequoiacm.infrastructure.config.core.msg.bucket;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
 
+import java.util.Objects;
+
+@BusinessType(ScmBusinessTypeDefine.BUCKET)
 public class BucketConfigFilter implements ConfigFilter {
+
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_FILTER_TYPE)
     private BucketConfigFilterType type;
 
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_FILTER_NAME)
     // type=EXACT_MATCH
     private String bucketName;
 
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_FILTER_MATCHER)
     // type=FUZZY_MATCH
     private BSONObject matcher;
+
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_FILTER_ORDERBY)
     private BSONObject orderBy;
+
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_FILTER_LIMIT)
     private long limit = -1;
+
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_FILTER_SKIP)
     private long skip = 0;
 
     public BucketConfigFilter(BSONObject matcher, BSONObject orderBy, long limit, long skip) {
@@ -36,16 +51,7 @@ public class BucketConfigFilter implements ConfigFilter {
         this.type = BucketConfigFilterType.EXACT_MATCH;
     }
 
-    @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject ret = new BasicBSONObject();
-        ret.put(ScmRestArgDefine.BUCKET_CONF_FILTER_TYPE, type.name());
-        ret.put(ScmRestArgDefine.BUCKET_CONF_FILTER_NAME, bucketName);
-        ret.put(ScmRestArgDefine.BUCKET_CONF_FILTER_MATCHER, matcher);
-        ret.put(ScmRestArgDefine.BUCKET_CONF_FILTER_ORDERBY, orderBy);
-        ret.put(ScmRestArgDefine.BUCKET_CONF_FILTER_SKIP, skip);
-        ret.put(ScmRestArgDefine.BUCKET_CONF_FILTER_LIMIT, limit);
-        return ret;
+    public BucketConfigFilter() {
     }
 
     @Override
@@ -76,5 +82,42 @@ public class BucketConfigFilter implements ConfigFilter {
 
     public long getSkip() {
         return skip;
+    }
+
+    public void setType(BucketConfigFilterType type) {
+        this.type = type;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public void setMatcher(BSONObject matcher) {
+        this.matcher = matcher;
+    }
+
+    public void setOrderBy(BSONObject orderBy) {
+        this.orderBy = orderBy;
+    }
+
+    public void setLimit(long limit) {
+        this.limit = limit;
+    }
+
+    public void setSkip(long skip) {
+        this.skip = skip;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BucketConfigFilter that = (BucketConfigFilter) o;
+        return limit == that.limit && skip == that.skip && type == that.type && Objects.equals(bucketName, that.bucketName) && Objects.equals(matcher, that.matcher) && Objects.equals(orderBy, that.orderBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, bucketName, matcher, orderBy, limit, skip);
     }
 }

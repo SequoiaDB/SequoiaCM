@@ -1,27 +1,28 @@
 package com.sequoiacm.infrastructure.config.core.msg.user;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 
-import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
 
+@BusinessType(ScmBusinessTypeDefine.USER)
 public class UserNotifyOption implements NotifyOption {
 
+    @JsonProperty(ScmRestArgDefine.USER_CONF_USERNAME)
     private String username;
-    private EventType eventType;
 
-    public UserNotifyOption(String username, EventType type) {
+    public UserNotifyOption(String username) {
         this.username = username;
-        this.eventType = type;
     }
 
+    public UserNotifyOption() {
+    }
 
-    @Override
-    public EventType getEventType() {
-        return eventType;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getUsername() {
@@ -29,19 +30,17 @@ public class UserNotifyOption implements NotifyOption {
     }
 
     @Override
-    public Version getVersion() {
+    public String getBusinessName() {
+        return username;
+    }
+
+    @Override
+    public Version getBusinessVersion() {
         return null;
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
-        obj.put(ScmRestArgDefine.USER_CONF_USERNAME, username);
-        return obj;
-    }
-
-    @Override
     public String toString() {
-        return "UserNotifyOption{" + "username='" + username + '\'' + ", eventType=" + eventType + '}';
+        return "UserNotifyOption{" + "username='" + username + '\'' + '}';
     }
 }

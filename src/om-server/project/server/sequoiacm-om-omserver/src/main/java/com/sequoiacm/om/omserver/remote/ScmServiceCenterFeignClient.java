@@ -1,7 +1,7 @@
 package com.sequoiacm.om.omserver.remote;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
-import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.om.omserver.common.RestParamDefine;
 import com.sequoiacm.om.omserver.module.monitor.OmMonitorInstanceBasicInfo;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +19,6 @@ public interface ScmServiceCenterFeignClient {
     @DeleteMapping(value = "/api/v1/instances")
     void deleteInstance(@RequestParam(RestParamDefine.IP_ADDR) String ipAddr,
             @RequestParam(RestParamDefine.PORT) Integer port,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId)
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId)
             throws ScmFeignException;
 }

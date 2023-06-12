@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.core.msg.metadata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
@@ -7,19 +8,48 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 
+import java.util.Objects;
+
 public class MetaDataAttributeConfig {
+
+    @JsonProperty(ScmRestArgDefine.META_DATA_WORKSPACE_NAME)
     private String wsName;
+
+    @JsonProperty(FieldName.Attribute.FIELD_ID)
     private String id;
+
+    @JsonProperty(FieldName.Attribute.FIELD_NAME)
     private String name;
+
+    @JsonProperty(FieldName.Attribute.FIELD_DISPLAY_NAME)
     private String displayName = "";
+
+    @JsonProperty(FieldName.Attribute.FIELD_DESCRIPTION)
     private String description = "";
+
+    @JsonProperty(FieldName.Attribute.FIELD_TYPE)
     private String type;
+
+    @JsonProperty(FieldName.Attribute.FIELD_CHECK_RULE)
     private BSONObject checkRule;
+
+    @JsonProperty(FieldName.Attribute.FIELD_REQUIRED)
     private boolean required;
+
+    @JsonProperty(FieldName.Attribute.FIELD_INNER_CREATE_USER)
     private String createUser;
+
+    @JsonProperty(FieldName.Attribute.FIELD_INNER_CREATE_TIME)
     private long createTime;
+
+    @JsonProperty(FieldName.Attribute.FIELD_INNER_UPDATE_USER)
     private String updateUser;
+
+    @JsonProperty(FieldName.Attribute.FIELD_INNER_UPDATE_TIME)
     private long updateTime;
+
+    public MetaDataAttributeConfig() {
+    }
 
     public MetaDataAttributeConfig(BSONObject config) {
         wsName = BsonUtils.getString(config, ScmRestArgDefine.META_DATA_WORKSPACE_NAME);
@@ -155,9 +185,26 @@ public class MetaDataAttributeConfig {
         return obj;
     }
 
-    public BSONObject toBSONObject() {
-        BSONObject record = toRecord();
-        record.put(ScmRestArgDefine.META_DATA_WORKSPACE_NAME, wsName);
-        return record;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        MetaDataAttributeConfig that = (MetaDataAttributeConfig) o;
+        return required == that.required && createTime == that.createTime
+                && updateTime == that.updateTime && Objects.equals(wsName, that.wsName)
+                && Objects.equals(id, that.id) && Objects.equals(name, that.name)
+                && Objects.equals(displayName, that.displayName)
+                && Objects.equals(description, that.description) && Objects.equals(type, that.type)
+                && Objects.equals(checkRule, that.checkRule)
+                && Objects.equals(createUser, that.createUser)
+                && Objects.equals(updateUser, that.updateUser);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(wsName, id, name, displayName, description, type, checkRule, required,
+                createUser, createTime, updateUser, updateTime);
     }
 }

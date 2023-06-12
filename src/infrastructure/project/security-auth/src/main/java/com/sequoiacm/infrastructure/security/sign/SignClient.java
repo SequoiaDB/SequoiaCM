@@ -20,7 +20,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmUserJsonDeserializer;
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
 import com.sequoiacm.infrastructure.feign.ScmFeignErrorDecoder;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.auth.ScmSessionService;
 import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 
@@ -46,7 +46,7 @@ public class SignClient {
     public ScmUserWrapper getUserDetail(String sessionId) throws ScmFeignException {
         String sessionInfoStr = sessionService.getSession(sessionId, sessionId, true);
         BSONObject sessionInfo = (BSONObject) JSON.parse(sessionInfoStr);
-        BSONObject userDetailsObj = (BSONObject) sessionInfo.get(RestField.USER_DETAILS);
+        BSONObject userDetailsObj = (BSONObject) sessionInfo.get(SecurityRestField.USER_DETAILS);
         if (userDetailsObj == null) {
             logger.error("No user details in session: {}", sessionInfo);
             throw new RuntimeException("No user details in session");
@@ -103,10 +103,10 @@ public class SignClient {
 
     private String parseLoginResp(Response resp) throws ScmFeignException {
         if (resp.status() >= 200 && resp.status() < 300) {
-            Collection<String> sessionIdCl = resp.headers().get(RestField.SESSION_ATTRIBUTE);
+            Collection<String> sessionIdCl = resp.headers().get(SecurityRestField.SESSION_ATTRIBUTE);
             if (sessionIdCl == null || sessionIdCl.size() <= 0) {
                 throw new RuntimeException("failed to decode login resp, missing header:"
-                        + RestField.SESSION_ATTRIBUTE);
+                        + SecurityRestField.SESSION_ATTRIBUTE);
             }
 
             return sessionIdCl.iterator().next();

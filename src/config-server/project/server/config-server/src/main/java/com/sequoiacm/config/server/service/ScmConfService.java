@@ -11,26 +11,26 @@ import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
 
 public interface ScmConfService {
-    Config createConf(String configName, BSONObject config, boolean isAsyncNotify)
+    Config createConf(String businessType, BSONObject config, boolean isAsyncNotify)
             throws ScmConfigException;
 
-    Config deleteConf(String configName, BSONObject config, boolean isAsyncNotify)
+    Config deleteConf(String businessType, BSONObject config, boolean isAsyncNotify)
             throws ScmConfigException;
 
-    Config updateConf(String configName, BSONObject config, boolean isAsyncNotify)
+    Config updateConf(String businessType, BSONObject config, boolean isAsyncNotify)
             throws ScmConfigException;
 
-    List<Config> getConf(String configName, BSONObject option) throws ScmConfigException;
+    List<Config> getConf(String businessType, BSONObject option) throws ScmConfigException;
 
-    long countConf(String configName, BSONObject option) throws ScmConfigException;
+    long countConf(String businessType, BSONObject option) throws ScmConfigException;
 
-    MetaCursor listConf(String configName, BSONObject option) throws ScmConfigException;
+    MetaCursor listConf(String businessType, BSONObject option) throws ScmConfigException;
 
-    List<Version> getConfVersion(String configName, BSONObject option) throws ScmConfigException;
+    List<Version> getConfVersion(String businessType, BSONObject option) throws ScmConfigException;
 
-    void subscribe(String configName, String serviceName) throws ScmConfigException;
+    void subscribe(String businessType, String serviceName) throws ScmConfigException;
 
-    void unsubscribe(String configName, String serviceName) throws ScmConfigException;
+    void unsubscribe(String businessType, String serviceName) throws ScmConfigException;
 
     List<ScmConfSubscriber> listSubsribers() throws ScmConfigException;
 }

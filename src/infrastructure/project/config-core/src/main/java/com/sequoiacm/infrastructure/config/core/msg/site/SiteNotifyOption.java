@@ -1,53 +1,73 @@
 package com.sequoiacm.infrastructure.config.core.msg.site;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
 
-import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
+import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 
-public class SiteNotifyOption implements NotifyOption {
-    private String siteName;
-    private Integer version;
-    private EventType eventType;
+import java.util.Objects;
 
-    public SiteNotifyOption(String siteName, Integer version, EventType type) {
+@BusinessType(ScmBusinessTypeDefine.SITE)
+public class SiteNotifyOption implements NotifyOption {
+    @JsonProperty(ScmRestArgDefine.SITE_CONF_SITENAME)
+    private String siteName;
+
+    @JsonProperty(ScmRestArgDefine.SITE_CONF_SITEVERSION)
+    private Integer version;
+
+    public SiteNotifyOption(String siteName, Integer version) {
         this.siteName = siteName;
         this.version = version;
-        this.eventType = type;
+    }
+
+    public SiteNotifyOption() {
     }
 
     public String getSiteName() {
         return siteName;
     }
 
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     @Override
-    public DefaultVersion getVersion() {
-        if (eventType == EventType.DELTE) {
-            return new DefaultVersion(ScmConfigNameDefine.SITE, siteName, -1);
-        }
-        return new DefaultVersion(ScmConfigNameDefine.SITE, siteName, version);
+    public Version getBusinessVersion() {
+
+        return new Version(ScmBusinessTypeDefine.SITE, siteName, version);
+    }
+
+    @Override
+    public String getBusinessName() {
+        return siteName;
     }
 
     @Override
     public String toString() {
-        return "siteName=" + siteName + ",eventType=" + eventType + ",version=" + version;
+        return "SiteNotifyOption{" + "siteName='" + siteName + '\'' + ", version=" + version + '}';
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
-        obj.put(ScmRestArgDefine.SITE_CONF_SITENAME, siteName);
-        obj.put(ScmRestArgDefine.SITE_CONF_SITEVERSION, version);
-        return obj;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SiteNotifyOption that = (SiteNotifyOption) o;
+        return Objects.equals(siteName, that.siteName) && Objects.equals(version, that.version);
     }
 
     @Override
-    public EventType getEventType() {
-        return eventType;
+    public int hashCode() {
+        return Objects.hash(siteName, version);
     }
-
 }

@@ -4,10 +4,10 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.common.ScmQueryDefine;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClientFactory;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import com.sequoiacm.infrastructure.config.core.msg.site.SiteUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.site.SiteUpdater;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.lock.exception.ScmLockException;
@@ -93,6 +93,9 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
 
     @Autowired
     private ScmConfFeignClientFactory configClientFactory;
+
+    @Autowired
+    private com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator configEntityTranslator;
 
     @Override
     public void setGlobalLifeCycleConfig(String user, LifeCycleConfigUserEntity info)
@@ -1256,9 +1259,9 @@ public class LifeCycleConfigServiceImpl implements LifeCycleConfigService {
 
     private void updateSiteConf(String siteName, String stageTag) throws ScheduleException {
         try {
-            SiteUpdator siteUpdator = new SiteUpdator(siteName, stageTag);
-            configClientFactory.getClient().updateConf(ScmConfigNameDefine.SITE,
-                    siteUpdator.toBSONObject(), false);
+            SiteUpdater siteUpdator = new SiteUpdater(siteName, stageTag);
+            configClientFactory.getClient().updateConf(ScmBusinessTypeDefine.SITE,
+                    configEntityTranslator.toConfigUpdaterBSON(siteUpdator), false);
         }
         catch (ScmConfigException e) {
             if (e.getError() == ScmConfError.SITE_NOT_EXIST) {

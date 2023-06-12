@@ -14,8 +14,8 @@ import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 @RequestMapping("/internal/v1")
 public interface ScmConfClient {
 
-    @PostMapping("/notify/{config_name}")
-    public void notifyInstance(@PathVariable("config_name") String configName,
+    @PostMapping("/notify/{businessType}")
+    public void notifyInstance(@PathVariable("businessType") String businessType,
             @RequestParam(ScmRestArgDefine.EVENT_TYPE) String eventType,
             @RequestParam(ScmRestArgDefine.OPTION) BSONObject option,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)

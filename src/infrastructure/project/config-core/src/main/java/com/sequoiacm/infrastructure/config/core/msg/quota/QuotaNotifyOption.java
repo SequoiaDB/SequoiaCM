@@ -1,37 +1,37 @@
 package com.sequoiacm.infrastructure.config.core.msg.quota;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
-import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 
+@BusinessType(ScmBusinessTypeDefine.QUOTA)
 public class QuotaNotifyOption implements NotifyOption {
+    @JsonProperty(FieldName.Quota.TYPE)
     private String type;
+
+    @JsonProperty(FieldName.Quota.NAME)
     private String name;
+
+    @JsonProperty(ScmRestArgDefine.QUOTA_CONF_VERSION)
     private Integer version;
-    private EventType eventType;
 
-    private String businessName;
-
-    public QuotaNotifyOption(String type, String name, Integer version, EventType eventType) {
+    public QuotaNotifyOption(String type, String name, Integer version) {
         this.type = type;
         this.name = name;
         this.version = version;
-        this.eventType = eventType;
-        this.businessName = QuotaConfig.toBusinessName(type, name);
     }
 
-    public QuotaNotifyOption(String businessName, Integer version, EventType eventType) {
+    public QuotaNotifyOption(String businessName, Integer version) {
         this.type = QuotaConfig.getTypeFromBusinessName(businessName);
         this.name = QuotaConfig.getNameFromBusinessName(businessName);
         this.version = version;
-        this.eventType = eventType;
-        this.businessName = businessName;
+    }
+
+    public QuotaNotifyOption() {
     }
 
     public String getType() {
@@ -42,36 +42,36 @@ public class QuotaNotifyOption implements NotifyOption {
         return name;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    @Override
     public String getBusinessName() {
-        return businessName;
+        return QuotaConfig.toBusinessName(type, name);
     }
 
     @Override
-    public EventType getEventType() {
-        return eventType;
+    public Version getBusinessVersion() {
+        return new Version(ScmBusinessTypeDefine.QUOTA, getBusinessName(), version);
     }
 
-    @Override
-    public Version getVersion() {
-        if (eventType == EventType.DELTE) {
-            return new DefaultVersion(ScmConfigNameDefine.QUOTA, businessName, -1);
-        }
-        return new DefaultVersion(ScmConfigNameDefine.QUOTA, businessName, version);
-    }
-
-    @Override
-    public BSONObject toBSONObject() {
-        BSONObject bsonObject = new BasicBSONObject();
-        bsonObject.put(ScmRestArgDefine.QUOTA_CONF_VERSION, version);
-        bsonObject.put(FieldName.Quota.NAME, name);
-        bsonObject.put(FieldName.Quota.TYPE, type);
-        return bsonObject;
-    }
 
     @Override
     public String toString() {
         return "QuotaNotifyOption{" + "type='" + type + '\'' + ", name='" + name + '\''
-                + ", version=" + version + ", eventType=" + eventType + ", businessName='"
-                + businessName + '\'' + '}';
+                + ", version=" + version + '}';
     }
 }

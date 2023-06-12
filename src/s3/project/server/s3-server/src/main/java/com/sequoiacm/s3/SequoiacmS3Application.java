@@ -5,6 +5,8 @@ import java.util.Arrays;
 
 import com.sequoiacm.contentserver.quota.EnableQuotaMsgClient;
 import com.sequoiacm.contentserver.common.IDGeneratorDao;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.EnableBucketCache;
+import com.sequoiacm.infrastructure.config.client.cache.quota.EnableQuotaConfCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,6 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import com.sequoiacm.contentserver.contentmodule.EnableContentModule;
 import com.sequoiacm.contentserver.service.MetaSourceService;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
 import com.sequoiacm.metasource.MetaAccessor;
@@ -33,12 +33,12 @@ import com.sequoiadb.infrastructure.map.client.EnableMapClient;
 @EnableScmLock
 @EnableDiscoveryClient
 @EnableMapClient
-@EnableUserSubscriber
-@EnableRoleSubscriber
 @SpringBootApplication
 @EnableHystrix
 @EnableContentModule
 @EnableQuotaMsgClient
+@EnableBucketCache
+@EnableQuotaConfCache
 public class SequoiacmS3Application implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(SequoiacmS3Application.class);
 

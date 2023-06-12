@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.security.auth;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ public class ScmSessionMgr {
     public ScmUserWrapper getUserBySessionId(String sessionId) throws ScmFeignException {
         String sessionInfoStr = scmSessionService.getSession(sessionId, sessionId, true);
         BSONObject sessionInfo = (BSONObject) JSON.parse(sessionInfoStr);
-        BSONObject userDetailsObj = (BSONObject) sessionInfo.get(RestField.USER_DETAILS);
+        BSONObject userDetailsObj = (BSONObject) sessionInfo.get(SecurityRestField.USER_DETAILS);
         if (userDetailsObj == null) {
             logger.error("No user details in session: {}", sessionInfo);
             throw new RuntimeException("No user details in session");

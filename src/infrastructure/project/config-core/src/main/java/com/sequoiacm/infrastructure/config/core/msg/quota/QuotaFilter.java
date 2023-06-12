@@ -1,13 +1,18 @@
 package com.sequoiacm.infrastructure.config.core.msg.quota;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 
+@BusinessType(ScmBusinessTypeDefine.QUOTA)
 public class QuotaFilter implements ConfigFilter {
 
+    @JsonProperty(FieldName.Quota.TYPE)
     private String type;
+
+    @JsonProperty(FieldName.Quota.NAME)
     private String name;
 
     public QuotaFilter(String type, String name) {
@@ -35,14 +40,7 @@ public class QuotaFilter implements ConfigFilter {
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BSONObject bsonObject = new BasicBSONObject();
-        if (type != null) {
-            bsonObject.put(FieldName.Quota.TYPE, type);
-        }
-        if (name != null) {
-            bsonObject.put(FieldName.Quota.NAME, name);
-        }
-        return bsonObject;
+    public String toString() {
+        return "QuotaFilter{" + "type='" + type + '\'' + ", name='" + name + '\'' + '}';
     }
 }

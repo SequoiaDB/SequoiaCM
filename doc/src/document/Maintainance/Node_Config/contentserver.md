@@ -19,10 +19,11 @@ SequoiaCM 配置
 |scm.audit.user.xxx|str|审计日志操作配置，控制具体用户对不同操作命令记录审计日志。默认为空，不记录用户名为 xxx 用户任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|在线生效|
 |scm.audit.userType.xxx|str|审计日志操作配置，控制用户类型对不同操作命令记录审计日志。默认为空，不记录用户类型为 xxx 用户任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|在线生效|
 |scm.privilege.heartbeat.interval|num|内容服务节点查询鉴权服务更新自身权限信息的心跳间隔，默认值：10000，单位：毫秒|重启生效|
-|scm.conf.version.siteHeartbeat|num|内容服务节点请求查询配置服务site版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.nodeHeartbeat|num|内容服务节点请求查询配置服务node版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.workspaceHeartbeat|num|内容服务节点请求查询配置服务workspace版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.metaDataHeartbeat|num|内容服务节点请求查询配置服务metaData版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.site.heartbeatInterval|num|内容服务节点请求查询配置服务site版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.node.heartbeatInterval|num|内容服务节点请求查询配置服务node版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.workspace.heartbeatInterval|num|内容服务节点请求查询配置服务workspace版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.metaData.heartbeatInterval|num|内容服务节点请求查询配置服务metaData版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.bucket.heartbeatInterval|num|内容服务节点请求查询配置服务bucket版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.user.heartbeatInterval|num|内容服务节点请求查询配置服务user版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.role.heartbeatInterval|num|内容服务节点请求查询配置服务role版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.quota.heartbeatInterval|num|内容服务节点请求查询配置服务quota(桶限额配置)版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|

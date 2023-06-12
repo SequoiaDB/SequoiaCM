@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import org.bson.BSONObject;
 import org.bson.types.BasicBSONList;
 import org.slf4j.Logger;
@@ -17,7 +20,6 @@ import org.springframework.stereotype.Component;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.fulltext.es.client.base.EsClient;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
-import com.sequoiacm.fulltext.server.config.ConfVersionConfig;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
@@ -33,16 +35,34 @@ public class ScmWorkspaceMgr {
     private EsClient esClient;
 
     @Autowired
-    public ScmWorkspaceMgr(ConfServiceClient confClient, ConfVersionConfig versionConfig)
-            throws FullTextException {
+    public ScmWorkspaceMgr(ConfServiceClient confClient)
+            throws FullTextException, ScmConfigException {
         this.confClient = confClient;
-        confClient.registerSubscriber(
-                new ScmWorkspaceSubscriber(this, versionConfig.getWorkspaceHeartbeat()));
+        confClient.subscribe(ScmBusinessTypeDefine.WORKSPACE, this::noWsNotify);
         List<WorkspaceConfig> wsList = confClient.getWorkspaceList();
         for (WorkspaceConfig ws : wsList) {
             ScmWorkspaceInfo wsInfo = createWsInfo(ws);
             addWs(wsInfo);
         }
+    }
+
+    private void noWsNotify(EventType type, String businessName, NotifyOption notification)
+            throws FullTextException {
+        if (type == EventType.DELTE) {
+            removeWs(businessName);
+            return;
+        }
+
+        if (type == EventType.CREATE) {
+            addWs(businessName);
+            return;
+        }
+
+        if (type == EventType.UPDATE) {
+            updateWs(businessName);
+            return;
+        }
+
     }
 
     public List<ScmWorkspaceFulltextExtData> getWorkspaceExtDataList() {

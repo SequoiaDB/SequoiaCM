@@ -3,6 +3,11 @@ package com.sequoiacm.schedule;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.config.client.NotifyCallback;
+import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -25,8 +30,6 @@ import com.sequoiacm.infrastructure.audit.ScmAuditPropsVerifier;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.discovery.EnableScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.lock.EnableScmLock;
@@ -38,9 +41,6 @@ import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 import com.sequoiacm.schedule.bizconf.ScheduleStrategyMgr;
-import com.sequoiacm.schedule.bizconf.ScmNodeConfSubscriber;
-import com.sequoiacm.schedule.bizconf.ScmSiteConfSubscriber;
-import com.sequoiacm.schedule.bizconf.ScmWorkspaceConfSubscriber;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.LifeCycleConfigDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
@@ -72,8 +72,6 @@ import com.sequoiadb.exception.SDBError;
 @EnableScmServiceDiscoveryClient
 @EnableAudit
 @EnableConfClient
-@EnableUserSubscriber
-@EnableRoleSubscriber
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",
         "com.sequoiacm.schedule" })
 @EnableHystrix
@@ -83,9 +81,6 @@ public class ScheduleApplication implements ApplicationRunner {
 
     @Autowired
     ScheduleApplicationConfig config;
-
-    @Autowired
-    ConfVersionConfig versionConfig;
 
     @Autowired
     private FileServerDao fileServerDao;
@@ -147,25 +142,18 @@ public class ScheduleApplication implements ApplicationRunner {
             logger.info("{}={}", o, args.getOptionValues(o));
         }
 
-        initSystem(config, versionConfig);
+        initSystem(config);
 
         initLifeCycleConfig();
         logger.info("zookeeper={},server.port:{}", config.getZookeeperUrl(),
                 config.getServerPort());
     }
 
-    private void initSystem(ScheduleApplicationConfig config, ConfVersionConfig versionConfig)
+    private void initSystem(ScheduleApplicationConfig config)
             throws Exception {
         ScmIdGenerator.FileId.init(0, 101);
-        // subscribe ws conig
-        confClient.subscribeWithAsyncRetry(new ScmWorkspaceConfSubscriber(
-                localInstance.getServiceId(), versionConfig.getWorkspaceHeartbeat()));
-        // subscribe site config
-        confClient.subscribeWithAsyncRetry(new ScmSiteConfSubscriber(localInstance.getServiceId(),
-                versionConfig.getSiteHeartbeat()));
-        // subscribe node config
-        confClient.subscribeWithAsyncRetry(new ScmNodeConfSubscriber(localInstance.getServiceId(),
-                versionConfig.getNodeHeartbeat()));
+
+        subscribeConfig();
 
         ScheduleServer.getInstance().init(siteDao, workspaceDao, fileServerDao, taskDao,
                 strategyDao, discoveryClient);
@@ -189,6 +177,51 @@ public class ScheduleApplication implements ApplicationRunner {
         ScmSchedulePriv.getInstance().init(privClient, config.getPriHBInterval());
 
         confClient.registerConfigPropVerifier(new ScmAuditPropsVerifier());
+    }
+
+    private void subscribeConfig() throws ScmConfigException {
+        confClient.subscribe(ScmBusinessTypeDefine.WORKSPACE,
+                new NotifyCallback() {
+                    @Override
+                    public void processNotify(EventType type, String businessName,
+                            NotifyOption notification) throws Exception {
+                        if (type == EventType.DELTE) {
+                            ScheduleServer.getInstance().removeWorkspace(businessName);
+                            ScheduleMgrWrapper.getInstance()
+                                    .deleteScheduleByWorkspace(businessName);
+                        }
+                        else {
+                            ScheduleServer.getInstance().reloadWorkspace(businessName);
+                        }
+                    }
+                });
+
+        confClient.subscribe(ScmBusinessTypeDefine.SITE,
+                new NotifyCallback() {
+                    @Override
+                    public void processNotify(EventType type, String businessName,
+                            NotifyOption notification) throws Exception {
+                        if (type == EventType.DELTE) {
+                            ScheduleServer.getInstance().removeSite(businessName);
+                        }
+                        else {
+                            ScheduleServer.getInstance().reloadSite(businessName);
+                        }
+                    }
+                });
+        confClient.subscribe(ScmBusinessTypeDefine.NODE,
+                new NotifyCallback() {
+                    @Override
+                    public void processNotify(EventType type, String businessName,
+                            NotifyOption notification) throws Exception {
+                        if (type == EventType.DELTE) {
+                            ScheduleServer.getInstance().removeNode(businessName);
+                        }
+                        else {
+                            ScheduleServer.getInstance().reloadNode(businessName);
+                        }
+                    }
+                });
     }
 
     private void initLifeCycleConfig() throws Exception {

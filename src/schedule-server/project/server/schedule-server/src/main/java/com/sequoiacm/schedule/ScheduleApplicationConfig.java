@@ -269,61 +269,6 @@ class ConfigInternalSchedule {
 }
 
 @Component
-@ConfigurationProperties(prefix = "scm.conf.version")
-class ConfVersionConfig {
-
-    private static final Logger logger = LoggerFactory.getLogger(ConfVersionConfig.class);
-
-    @ScmRewritableConfMarker
-    private long workspaceHeartbeat = 3 * 60 * 1000; // 3 min
-
-    @ScmRewritableConfMarker
-    private long siteHeartbeat = 3 * 60 * 1000; // 3 min
-
-    @ScmRewritableConfMarker
-    private long nodeHeartbeat = 3 * 60 * 1000; // 3 min
-
-    public long getWorkspaceHeartbeat() {
-        return workspaceHeartbeat;
-    }
-
-    public void setWorkspaceHeartbeat(long workspaceHeartbeat) {
-        if (workspaceHeartbeat <= 0) {
-            logger.warn("Invalid interval value of workspace heartbeat: " + workspaceHeartbeat
-                    + ", set to default value: " + this.workspaceHeartbeat);
-            return;
-        }
-        this.workspaceHeartbeat = workspaceHeartbeat;
-    }
-
-    public long getSiteHeartbeat() {
-        return siteHeartbeat;
-    }
-
-    public void setSiteHeartbeat(long siteHeartbeat) {
-        if (siteHeartbeat <= 0) {
-            logger.warn("Invalid interval value of site heartbeat: " + siteHeartbeat
-                    + ", set to default value: " + this.siteHeartbeat);
-            return;
-        }
-        this.siteHeartbeat = siteHeartbeat;
-    }
-
-    public long getNodeHeartbeat() {
-        return nodeHeartbeat;
-    }
-
-    public void setNodeHeartbeat(long nodeHeartbeat) {
-        if (nodeHeartbeat <= 0) {
-            logger.warn("Invalid interval value of node heartbeat: " + nodeHeartbeat
-                    + ", set to default value: " + this.nodeHeartbeat);
-            return;
-        }
-        this.nodeHeartbeat = nodeHeartbeat;
-    }
-}
-
-@Component
 @Configuration
 public class ScheduleApplicationConfig {
     @Autowired

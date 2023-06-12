@@ -20,55 +20,55 @@ import java.util.Map;
 @RequestMapping("/internal/v1")
 public interface ScmConfFeignClient {
 
-    @PostMapping("/subscribe/{config_name}")
-    public void subscribe(@PathVariable("config_name") String configName,
+    @PostMapping("/subscribe/{businessType}")
+    public void subscribe(@PathVariable("businessType") String configName,
             @RequestParam(ScmRestArgDefine.SERVICE_NAME) String serviceName)
                     throws ScmConfigException;
 
-    @DeleteMapping("/subscribe/{config_name}")
-    public void unsubscribe(@PathVariable("config_name") String configName,
+    @DeleteMapping("/subscribe/{businessType}")
+    public void unsubscribe(@PathVariable("businessType") String businessType,
             @RequestParam(ScmRestArgDefine.SERVICE_NAME) String serviceName)
                     throws ScmConfigException;
 
-    @PostMapping("/config/{conf_name}")
-    public BSONObject createConfV1(@PathVariable("conf_name") String confName,
+    @PostMapping("/config/{businessType}")
+    public BSONObject createConfV1(@PathVariable("businessType") String confName,
             @RequestParam(ScmRestArgDefine.CONFIG) BSONObject config,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
             throws ScmConfigException;
 
-    @PostMapping(value = "/config/{conf_name}")
-    public BSONObject createConfV2(@PathVariable("conf_name") String confName,
+    @PostMapping(value = "/config/{businessType}")
+    public BSONObject createConfV2(@PathVariable("businessType") String confName,
             @RequestBody BSONObject configBody,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
             throws ScmConfigException;
 
-    @DeleteMapping("/config/{conf_name}")
-    public BSONObject deleteConf(@PathVariable("conf_name") String confName,
+    @DeleteMapping("/config/{businessType}")
+    public BSONObject deleteConf(@PathVariable("businessType") String confName,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
             throws ScmConfigException;
 
-    @GetMapping("/config/{conf_name}")
-    public BSONObject getConf(@PathVariable("conf_name") String confName,
+    @GetMapping("/config/{businessType}")
+    public BSONObject getConf(@PathVariable("businessType") String confName,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
 
-    @GetMapping("/config/{conf_name}?action=list_conf")
-    public Response listConf(@PathVariable("conf_name") String confName,
+    @GetMapping("/config/{businessType}?action=list_conf")
+    public Response listConf(@PathVariable("businessType") String confName,
                              @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
 
-    @GetMapping("/config/{conf_name}?action=count_conf")
-    public Response countConf(@PathVariable("conf_name") String confName,
+    @GetMapping("/config/{businessType}?action=count_conf")
+    public Response countConf(@PathVariable("businessType") String confName,
                              @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
 
 
-    @PutMapping("/config/{conf_name}")
-    public BSONObject updateConf(@PathVariable("conf_name") String confName,
+    @PutMapping("/config/{businessType}")
+    public BSONObject updateConf(@PathVariable("businessType") String confName,
             @RequestParam(ScmRestArgDefine.CONFIG) BSONObject config,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
             throws ScmConfigException;
 
-    @GetMapping("/config/{conf_name}/version")
-    public BSONObject getConfVersion(@PathVariable("conf_name") String confName,
+    @GetMapping("/config/{businessType}/version")
+    public BSONObject getConfVersion(@PathVariable("businessType") String confName,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject filter) throws ScmConfigException;
 
     @GetMapping("/globalConfig")

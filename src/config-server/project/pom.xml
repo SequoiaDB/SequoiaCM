@@ -22,14 +22,6 @@
         <module>./common/config-metasource</module>
         <module>./common/config-tools</module>
         <module>./common/config-framework</module>
-        <module>./common/config-workspace</module>
-        <module>./common/config-metadata</module>
-        <module>./common/config-site</module>
-        <module>./common/config-node</module>
-        <module>./common/config-bucket</module>
-        <module>./common/config-quota</module>
-        <module>./common/config-user</module>
-        <module>./common/config-role</module>
         <module>./server/config-server</module>
         <module>./assembly</module>
     </modules>
@@ -86,49 +78,6 @@
                 <artifactId>sequoiacm-config-framework</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-workspace</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-metadata</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-site</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-bucket</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-node</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-quota</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-user</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sequoiadb</groupId>
-                <artifactId>sequoiacm-config-role</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
 
             <dependency>
                 <groupId>com.sequoiadb</groupId>

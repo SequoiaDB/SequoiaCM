@@ -36,7 +36,7 @@ import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDeciderGroup;
 import com.sequoiacm.cloud.gateway.statistics.decider.ScmStatisticsDecisionResult;
 import com.sequoiacm.infrastructure.common.UriUtil;
 import com.sequoiacm.infrastructure.dispatcher.ScmRestClient;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
@@ -116,7 +116,7 @@ public class CustomForwarderImpl implements CustomForwarder {
 
             long duration = System.currentTimeMillis() - requestStartTime;
             ScmUserWrapper userWrapper = (ScmUserWrapper) clientReq
-                    .getAttribute(RestField.USER_INFO_WRAPPER);
+                    .getAttribute(SecurityRestField.USER_INFO_WRAPPER);
             String username = userWrapper == null ? null : userWrapper.getUser().getUsername();
             if (statisticsDecideResult.isNeedStatistics() && isSuccessResponse) {
                 Header extraHeader = forwardResp
@@ -162,7 +162,7 @@ public class CustomForwarderImpl implements CustomForwarder {
         String uri = "/" + targetService + forwardReq.getRequestLine().getUri();
         String clientAddr = clientReq.getRemoteHost() + ":" + clientReq.getRemotePort();
         String toServiceAddr = httpHost.getHostName() + ":" + httpHost.getPort();
-        String session = clientReq.getHeader(RestField.SESSION_ATTRIBUTE);
+        String session = clientReq.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
         logger.error("send {} request {} from {} to {} with session {} failed(status={})", method,
                 uri, clientAddr, toServiceAddr, session,
                 forwardResp.getStatusLine().getStatusCode());
@@ -202,10 +202,10 @@ public class CustomForwarderImpl implements CustomForwarder {
         }
 
         // add user details.
-        Object userdetails = clientReq.getAttribute(RestField.USER_ATTRIBUTE);
+        Object userdetails = clientReq.getAttribute(SecurityRestField.USER_ATTRIBUTE);
         if (userdetails != null && !AuthCommonTools.isBigUser((String) userdetails,
                 clientReq.getCharacterEncoding())) {
-            forwardReqBuilder.addHeader(RestField.USER_ATTRIBUTE, (String) userdetails);
+            forwardReqBuilder.addHeader(SecurityRestField.USER_ATTRIBUTE, (String) userdetails);
         }
 
         // add client request body.

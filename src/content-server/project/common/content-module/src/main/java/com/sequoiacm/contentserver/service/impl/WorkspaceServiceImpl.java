@@ -40,9 +40,10 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
-import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdater;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.sdbversion.EnableSdbVersionChecker;
@@ -88,6 +89,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
     @Autowired
     ScmTagConfig tagConfig;
 
+    @Autowired
+    private ConfigEntityTranslator configEntityTranslator;
+
     @Override
     public BSONObject getWorkspace(ScmUser user, String workspaceName) throws ScmServerException {
         audit.info(ScmAuditType.WS_DQL, user, workspaceName, 0,
@@ -127,7 +131,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
         WorkspaceCreator creator = new WorkspaceCreator(wsName, createUser, wsConf,
                 sdbVersionChecker, tagConfig);
-        BSONObject ret = creator.create();
+        BSONObject ret = configEntityTranslator.toConfigBSON(creator.create());
 
         audit.info(ScmAuditType.CREATE_WS, user, wsName, 0, "create workspace by wsConf=" + wsConf);
         return ret;
@@ -322,10 +326,10 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             throw new ScmOperationUnauthorizedException(
                     "permission denied:user=" + user.getUsername());
         }
-        WorkspaceUpdator confUpdator = validateUpdator(user.getUsername(), wsName, updator);
+        WorkspaceUpdater confUpdator = validateUpdator(user.getUsername(), wsName, updator);
         WorkspaceConfig resp = ContenserverConfClient.getInstance()
                 .updateWorkspaceConf(confUpdator);
-        BSONObject ret = resp.toBSONObject();
+        BSONObject ret = configEntityTranslator.toConfigBSON(resp);
         audit.info(ScmAuditType.UPDATE_WS, user, wsName, 0,
                 "update wsName=" + wsName + ", updator=" + updator);
         return ret;
@@ -352,13 +356,13 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         }
     }
 
-    private WorkspaceUpdator validateUpdator(String userName, String wsName,
+    private WorkspaceUpdater validateUpdator(String userName, String wsName,
             ClientWorkspaceUpdator updator) throws ScmServerException {
         ScmContentModule contentModule = ScmContentModule.getInstance();
         ScmWorkspaceInfo wsInfo = contentModule.getWorkspaceInfoCheckLocalSite(wsName);
         List<Integer> dataLocationAfterUpdate = new ArrayList<>(wsInfo.getDataLocations().keySet());
 
-        WorkspaceUpdator confUpdator = new WorkspaceUpdator(wsName,
+        WorkspaceUpdater confUpdator = new WorkspaceUpdater(wsName,
                 contentModule.getWorkspaceInfoCheckLocalSite(wsName).getBSONObject());
         confUpdator.setUpdateUser(userName);
         confUpdator.setUpdateTime(new Date().getTime());
@@ -566,7 +570,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                         "tag retrieval already disabled: workspace=" + ws);
             }
 
-            WorkspaceUpdator updater = new WorkspaceUpdator(ws);
+            WorkspaceUpdater updater = new WorkspaceUpdater(ws);
             updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
             WorkspaceConfig ret = ContenserverConfClient.getInstance().updateWorkspaceConf(updater);
 
@@ -576,7 +580,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
 
             dropTagLibFulltextIndexSilence(wsConf);
-            return ret.toBSONObject();
+            return configEntityTranslator.toConfigBSON(ret);
         }
         finally {
             lock.unlock();
@@ -650,19 +654,19 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                     FieldName.TagLib.tagLibFulltextIdxDef(),
                     FieldName.TagLib.tagLibFulltextIdxAttr(), null);
             if (taskId == null) {
-                WorkspaceUpdator updater = new WorkspaceUpdator(ws);
+                WorkspaceUpdater updater = new WorkspaceUpdater(ws);
                 updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.ENABLED.getValue());
                 WorkspaceConfig ret = ContenserverConfClient.getInstance()
                         .updateWorkspaceConf(updater);
-                return ret.toBSONObject();
+                return configEntityTranslator.toConfigBSON(ret);
             }
 
-            WorkspaceUpdator updater = new WorkspaceUpdator(ws);
+            WorkspaceUpdater updater = new WorkspaceUpdater(ws);
             updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.INDEXING.getValue());
             updater.setExternalData(
                     new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK, taskId));
             WorkspaceConfig ret = ContenserverConfClient.getInstance().updateWorkspaceConf(updater);
-            return ret.toBSONObject();
+            return configEntityTranslator.toConfigBSON(ret);
         }
         catch (ScmMetasourceException e) {
             throw new ScmServerException(e.getScmError(),
@@ -786,7 +790,7 @@ class WorkspaceTagRetrievalStatusUpdater {
 
     private void updateWs(String wsName, ScmWorkspaceTagRetrievalStatus status, Long taskId,
             String taskErrorMsg) throws ScmServerException {
-        WorkspaceUpdator updater = new WorkspaceUpdator(wsName);
+        WorkspaceUpdater updater = new WorkspaceUpdater(wsName);
         if (status != null) {
             updater.setTagRetrievalStatus(status.getValue());
         }

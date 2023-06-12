@@ -1,17 +1,23 @@
 package com.sequoiacm.infrastructure.config.core.msg.user;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+
 
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigFilter;
-
+@BusinessType(ScmBusinessTypeDefine.USER)
 public class UserFilter implements ConfigFilter {
 
+    @JsonProperty(ScmRestArgDefine.USER_CONF_USERNAME)
     private String username;
 
     public UserFilter(String username) {
         this.username = username;
+    }
+
+    public UserFilter() {
     }
 
     public String getUsername() {
@@ -22,12 +28,4 @@ public class UserFilter implements ConfigFilter {
         this.username = username;
     }
 
-    @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
-        if (username != null) {
-            obj.put(ScmRestArgDefine.USER_CONF_USERNAME, username);
-        }
-        return obj;
-    }
 }

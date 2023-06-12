@@ -8,7 +8,7 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.sequoiacm.cloud.gateway.statistics.commom.ScmStatisticsDefaultExtraGenerator;
 import com.sequoiacm.infrastructure.monitor.ReqRecorder;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.infrastructure.statistics.client.ScmStatisticsRawDataReporter;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
@@ -58,7 +58,7 @@ public class StatisticReqPostFilter extends ZuulFilter {
             return null;
         }
         ScmUserWrapper userWrapper = (ScmUserWrapper) ctx.getRequest()
-                .getAttribute(RestField.USER_INFO_WRAPPER);
+                .getAttribute(SecurityRestField.USER_INFO_WRAPPER);
         String username = userWrapper == null ? null : userWrapper.getUser().getUsername();
         if (ctx.getResponseStatusCode() >= 200 && ctx.getResponseStatusCode() < 300) {
             String extraStatistics = (String) ctx.getRequest()

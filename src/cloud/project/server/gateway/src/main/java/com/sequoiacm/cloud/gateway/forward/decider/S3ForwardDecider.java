@@ -3,10 +3,10 @@ package com.sequoiacm.cloud.gateway.forward.decider;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
-import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.bucket.EnableBucketSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.workspace.EnableWorkspaceSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.workspace.WorkspaceConfSubscriber;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.BucketConfCache;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.EnableBucketCache;
+import com.sequoiacm.infrastructure.config.client.cache.workspace.EnableWorkspaceConfCache;
+import com.sequoiacm.infrastructure.config.client.cache.workspace.WorkspaceConfCache;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
@@ -65,8 +65,8 @@ class S3ForwardDeciderConfig {
     }
 }
 
-@EnableBucketSubscriber
-@EnableWorkspaceSubscriber
+@EnableBucketCache
+@EnableWorkspaceConfCache
 @Component
 @EnableScmServiceDiscoveryClient
 @Order(S3ForwardDecider.ORDER)
@@ -87,10 +87,10 @@ public class S3ForwardDecider implements ForwardDecider {
     private final ScmTimer timer;
 
     @Autowired
-    private BucketConfSubscriber bucketConfSubscriber;
+    private BucketConfCache bucketConfCache;
 
     @Autowired
-    private WorkspaceConfSubscriber workspaceSubscriber;
+    private WorkspaceConfCache workspaceConfCache;
 
     private S3ForwardDeciderConfig s3Config;
 
@@ -220,14 +220,14 @@ public class S3ForwardDecider implements ForwardDecider {
 
     private String chooseS3ServiceNameByBucket(String bucket) {
         try {
-            BucketConfig bucketConf = bucketConfSubscriber.getBucket(bucket);
+            BucketConfig bucketConf = bucketConfCache.getBucket(bucket);
             if (bucketConf == null) {
                 logger.debug(
                         "the bucket not exist, using zone rule to choose s3 service: bucket={}",
                         bucket);
                 return zoneRuleS3Chooser.chooseS3Service();
             }
-            WorkspaceConfig wsConf = workspaceSubscriber.getWorkspace(bucketConf.getWorkspace());
+            WorkspaceConfig wsConf = workspaceConfCache.getWorkspace(bucketConf.getWorkspace());
             if (wsConf == null) {
                 logger.debug(
                         "the bucket workspace not exist, using zone rule to choose s3 service: bucket={}, workspace={}",

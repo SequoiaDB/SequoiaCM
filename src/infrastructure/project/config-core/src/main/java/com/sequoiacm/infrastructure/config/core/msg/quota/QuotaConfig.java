@@ -1,21 +1,38 @@
 package com.sequoiacm.infrastructure.config.core.msg.quota;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sequoiacm.common.FieldName;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 
+@BusinessType(ScmBusinessTypeDefine.QUOTA)
 public class QuotaConfig implements Config {
-    private static final String SEPARATOR = "-";
 
+    @JsonIgnore
+    private static final String SEPARATOR = "-";
+    @JsonProperty(FieldName.Quota.TYPE)
     private String type;
+
+    @JsonProperty(FieldName.Quota.NAME)
     private String name;
+
+    @JsonProperty(FieldName.Quota.MAX_SIZE)
     private long maxSize = -1;
+
+    @JsonProperty(FieldName.Quota.MAX_OBJECTS)
     private long maxObjects = -1;
+
+    @JsonProperty(FieldName.Quota.ENABLE)
     private boolean enable;
 
+    @JsonProperty(FieldName.Quota.QUOTA_ROUND_NUMBER)
     // 每次重新打开限额时，递增该数字
     private int quotaRoundNumber;
+
+    @JsonProperty(FieldName.Quota.EXTRA_INFO)
     private BSONObject extraInfo;
 
     public QuotaConfig(String type, String name, long maxSize, long maxObjects, boolean enable,
@@ -88,6 +105,7 @@ public class QuotaConfig implements Config {
         this.extraInfo = extraInfo;
     }
 
+    @Override
     public String getBusinessName() {
         return toBusinessName(type, name);
     }
@@ -105,22 +123,10 @@ public class QuotaConfig implements Config {
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BSONObject quotaConfigObj = new BasicBSONObject();
-        quotaConfigObj.put(FieldName.Quota.TYPE, type);
-        quotaConfigObj.put(FieldName.Quota.NAME, name);
-        quotaConfigObj.put(FieldName.Quota.MAX_SIZE, maxSize);
-        quotaConfigObj.put(FieldName.Quota.MAX_OBJECTS, maxObjects);
-        quotaConfigObj.put(FieldName.Quota.ENABLE, enable);
-        quotaConfigObj.put(FieldName.Quota.QUOTA_ROUND_NUMBER, quotaRoundNumber);
-        quotaConfigObj.put(FieldName.Quota.EXTRA_INFO, extraInfo);
-        return quotaConfigObj;
-    }
-
-    @Override
     public String toString() {
         return "QuotaConfig{" + "type='" + type + '\'' + ", name='" + name + '\'' + ", maxSize="
                 + maxSize + ", maxObjects=" + maxObjects + ", enable=" + enable + ", quotaRoundNumber="
                 + quotaRoundNumber + ", extraInfo=" + extraInfo + '}';
     }
+
 }

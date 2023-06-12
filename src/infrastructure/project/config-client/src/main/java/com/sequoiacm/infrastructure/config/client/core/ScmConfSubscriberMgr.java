@@ -9,6 +9,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PreDestroy;
 
+import com.sequoiacm.infrastructure.config.client.NotifyCallback;
+import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
+import com.sequoiacm.infrastructure.config.core.customizer.ConfigCustomizer;
+import com.sequoiacm.infrastructure.config.core.customizer.ConfigCustomizerMgr;
+import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +26,8 @@ import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.client.ScmConfSubscriber;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import com.sequoiacm.infrastructure.config.core.msg.BsonConverterMgr;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
 
@@ -34,69 +36,97 @@ public class ScmConfSubscriberMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmConfSubscriberMgr.class);
 
     @Autowired
-    private BsonConverterMgr converterMgr;
+    private ConfigEntityTranslator configEntityTranslator;
 
-    private ScmTimer timer = ScmTimerFactory.createScmTimer();
-    private Map<String, ScmConfSubscriber> subscribers = new ConcurrentHashMap<>();
-    private Map<String, ConfVersionChecker> confVersionTasks = new ConcurrentHashMap<>();
-    private ReentrantLock notifyLock = new ReentrantLock();
+    @Autowired
+    private ConfigCustomizerMgr configCustomizerMgr;
 
-    public void addSubscriber(ScmConfSubscriber subscriber, ScmConfClient client)
-            throws ScmConfigException {
-        ScmConfSubscriber old = subscribers.put(subscriber.subscribeConfigName(), subscriber);
-        if (old != null) {
-            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                    "subscriber already exist for config: " + subscriber.subscribeConfigName()
-                            + ", can not subscribe twice");
+    private final ScmTimer timer = ScmTimerFactory.createScmTimer();
+    private final Map<String, ScmConfSubscriber> subscribers = new ConcurrentHashMap<>();
+    private final Map<String, ConfVersionChecker> confVersionTasks = new ConcurrentHashMap<>();
+    private final ReentrantLock notifyLock = new ReentrantLock();
+
+    public void subscribe(String businessType, int heartbeatInterval,
+            int initStatusHeartbeatInterval, ScmConfClient scmConfClient,
+            NotifyCallback notifyCallback) {
+        boolean isNewSubscriber = false;
+        ScmConfSubscriber subscriber = subscribers.get(businessType);
+        if (subscriber == null) {
+            synchronized (this) {
+                subscriber = subscribers.get(businessType);
+                if (subscriber == null) {
+                    subscriber = new ScmConfSubscriber(businessType);
+                    subscribers.put(businessType, subscriber);
+                    isNewSubscriber = true;
+                }
+            }
         }
-        if (subscriber.getHeartbeatIterval() == -1) {
+        subscriber.addNotifyCallback(notifyCallback);
+
+        if (!isNewSubscriber) {
+            return;
+        }
+
+        if (heartbeatInterval == -1) {
             // 不需要用定时器，即允许发生通知丢失问题
             return;
         }
-        addTempChecker(subscriber, client);
-        ConfVersionChecker checker = new ConfVersionChecker(subscriber, client, notifyLock);
-        timer.schedule(checker, subscriber.getHeartbeatIterval(), subscriber.getHeartbeatIterval());
-        logger.info("config version's heartbeat is started:configName={},filter={},interval={}",
-                subscriber.subscribeConfigName(), subscriber.getVersionFilter(),
-                subscriber.getHeartbeatIterval());
-        confVersionTasks.put(subscriber.subscribeConfigName(), checker);
-    }
 
-    private void addTempChecker(ScmConfSubscriber subscriber, ScmConfClient client) {
-        if (subscriber.getInitStatusInterval() > 0) {
-            // 临时的检查配置版本任务
-            ConfVersionChecker tempChecker = new ConfVersionChecker(subscriber, client, notifyLock,
-                    true);
-            timer.schedule(tempChecker, 0, subscriber.getInitStatusInterval());
+        ConfigCustomizer configCustomizer = configCustomizerMgr.get(businessType);
+
+        VersionFilter versionFilter = new VersionFilter(businessType);
+        if (configCustomizer.heartbeatOption().isGlobalVersionHeartbeat()) {
+            versionFilter
+                    .addBusinessName(configCustomizer.heartbeatOption().getGlobalVersionName());
         }
+
+        if (initStatusHeartbeatInterval > 0) {
+            // 临时的检查配置版本任务
+            ConfVersionTempChecker tempChecker = new ConfVersionTempChecker(subscriber,
+                    versionFilter, scmConfClient, notifyLock, heartbeatInterval);
+            timer.schedule(tempChecker, 0, initStatusHeartbeatInterval);
+        }
+
+        ConfVersionChecker checker = new ConfVersionChecker(subscriber, versionFilter,
+                scmConfClient, notifyLock);
+        timer.schedule(checker, heartbeatInterval, heartbeatInterval);
+        logger.info("config version's heartbeat is started:businessType={},interval={}",
+                businessType,
+                heartbeatInterval);
+        confVersionTasks.put(businessType, checker);
     }
 
     @PreDestroy
-    public void destory() {
+    public void destroy() {
         timer.cancel();
     }
 
     @Async
-    public Future<String> processNotify(String configName, EventType type,
+    public Future<String> processNotify(String businessType, EventType type,
             BSONObject notification) {
         try {
-            NotifyOption notify = converterMgr.getMsgConverter(configName)
-                    .convertToNotifyOption(type, notification);
-            ScmConfSubscriber p = subscribers.get(configName);
+            NotifyOption notify = configEntityTranslator.fromNotifyOptionBSON(businessType,
+                    notification);
+            ScmConfSubscriber p = subscribers.get(businessType);
             if (p == null) {
-                logger.error("no such notify processer:configName={},notify={}", configName,
+                logger.error("no such notify processer:configName={},notify={}", businessType,
                         notify);
                 return new AsyncResult<>(null);
             }
 
             notifyLock.lock();
             try {
-                p.processNotify(notify);
-
-                // 有些配置发生变动（bucket增加删除）不会修改版本号
-                if (notify.getVersion() != null) {
-                    confVersionTasks.get(configName).updateVersion(notify.getEventType(),
-                            notify.getVersion());
+                boolean isSuccess = p.processNotify(type, notify.getBusinessName(), notify);
+                // 有些配置发生变动不会修改版本号
+                if (isSuccess && notify.getBusinessVersion() != null) {
+                    ConfVersionChecker versionChecker = confVersionTasks.get(businessType);
+                    if (versionChecker == null) {
+                        logger.error("no such version checker:businessType={}, event={}, notify={}",
+                                type, businessType, notify);
+                    }
+                    else {
+                        versionChecker.updateVersion(type, notify.getBusinessVersion());
+                    }
                 }
             }
             finally {
@@ -107,35 +137,54 @@ public class ScmConfSubscriberMgr {
         catch (Exception e) {
             logger.error(
                     "failed to process notification:configName={},notification={}, eventType={}",
-                    configName, notification, type, e);
+                    businessType, notification, type, e);
         }
         return new AsyncResult<>(null);
     }
 }
 
+class ConfVersionTempChecker extends ConfVersionChecker {
+
+    private final long timeToLive;
+    private final long startTime;
+
+    public ConfVersionTempChecker(ScmConfSubscriber subscriber, VersionFilter versionFilter,
+                                  ScmConfClient client, ReentrantLock notifyLock, long timeToLive) {
+        super(subscriber, versionFilter, client, notifyLock);
+        this.timeToLive = timeToLive;
+        this.startTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void run() {
+        super.run();
+        if (System.currentTimeMillis() - startTime > timeToLive) {
+            cancel();
+        }
+    }
+}
+
 class ConfVersionChecker extends ScmTimerTask {
     private static final Logger logger = LoggerFactory.getLogger(ConfVersionChecker.class);
-    private ScmConfClient client;
-    private Map<String, Version> myVersions;
-    private ScmConfSubscriber subscriber;
-    private ReentrantLock notifyLock;
-    private boolean isTemp;
-    private long runTime = 0L;
+    private final ScmConfClient client;
+    private final Map<String, Version> myVersions;
+    private final ScmConfSubscriber subscriber;
+    private final ReentrantLock notifyLock;
+    private final VersionFilter versionFilter;
 
-    public ConfVersionChecker(ScmConfSubscriber processer, ScmConfClient client,
-            ReentrantLock notifyLock, boolean isTemp) {
+    public ConfVersionChecker(ScmConfSubscriber subscriber, VersionFilter versionFilter,
+                              ScmConfClient client, ReentrantLock notifyLock) {
         this.notifyLock = notifyLock;
-        this.subscriber = processer;
+        this.subscriber = subscriber;
         this.client = client;
         this.myVersions = new ConcurrentHashMap<>();
-        this.isTemp = isTemp;
-        runTime = System.currentTimeMillis();
+        this.versionFilter = versionFilter;
 
         try {
-            List<Version> versions = client.getConfVersion(subscriber.subscribeConfigName(),
-                    subscriber.getVersionFilter());
+            List<Version> versions = client.getConfVersion(subscriber.getBusinessType(),
+                    versionFilter);
             for (Version version : versions) {
-                myVersions.put(version.getBussinessName(), version);
+                myVersions.put(version.getBusinessName(), version);
             }
         }
         catch (Exception e) {
@@ -143,30 +192,25 @@ class ConfVersionChecker extends ScmTimerTask {
         }
     }
 
-    public ConfVersionChecker(ScmConfSubscriber processer, ScmConfClient client,
-            ReentrantLock notifyLock) {
-        this(processer, client, notifyLock, false);
-    }
-
     @Override
     public void run() {
         try {
-            List<Version> latestVersions = client.getConfVersion(subscriber.subscribeConfigName(),
-                    subscriber.getVersionFilter());
+            List<Version> latestVersions = client.getConfVersion(subscriber.getBusinessType(),
+                    versionFilter);
             List<String> latestVersionNames = new ArrayList<>();
             for (Version latestVersion : latestVersions) {
-                latestVersionNames.add(latestVersion.getBussinessName());
-                Version myVersion = myVersions.get(latestVersion.getBussinessName());
+                latestVersionNames.add(latestVersion.getBusinessName());
+                Version myVersion = myVersions.get(latestVersion.getBusinessName());
 
-                boolean isNotifySuccess = false;
-                NotifyOption notifyOption;
+                boolean isNotifySuccess;
+                EventType eventType;
                 if (myVersion == null) {
-                    notifyOption = subscriber.versionToNotifyOption(EventType.CREATE,
-                            latestVersion);
+
+                    eventType = EventType.CREATE;
+
                 }
                 else if (latestVersion.getVersion() != myVersion.getVersion()) {
-                    notifyOption = subscriber.versionToNotifyOption(EventType.UPDATE,
-                            latestVersion);
+                    eventType = EventType.UPDATE;
                 }
                 else {
                     // version is same
@@ -175,10 +219,13 @@ class ConfVersionChecker extends ScmTimerTask {
 
                 notifyLock.lock();
                 try {
+                    logger.info(
+                            "business version incompatible:myVersion={}, latestVersion={}, eventType={}",
+                            myVersion, latestVersion, eventType);
                     // 3. 更新 myVersion
-                    isNotifySuccess = processNotify(notifyOption);
+                    isNotifySuccess = processNotify(eventType, latestVersion);
                     if (isNotifySuccess) {
-                        myVersions.put(latestVersion.getBussinessName(), latestVersion);
+                        myVersions.put(latestVersion.getBusinessName(), latestVersion);
                     }
                 }
                 finally {
@@ -190,9 +237,11 @@ class ConfVersionChecker extends ScmTimerTask {
                 if (!latestVersionNames.contains(myVersionName)) {
                     notifyLock.lock();
                     try {
-                        NotifyOption notifyOption = subscriber.versionToNotifyOption(
-                                EventType.DELTE, myVersions.get(myVersionName));
-                        boolean isSuccess = processNotify(notifyOption);
+                        logger.info(
+                                "business version incompatible:myVersion={}, latestVersion={}, eventType={}",
+                                myVersions.get(myVersionName), null, EventType.DELTE);
+                        boolean isSuccess = processNotify(EventType.DELTE,
+                                myVersions.get(myVersionName));
                         if (isSuccess) {
                             myVersions.remove(myVersionName);
                         }
@@ -202,37 +251,25 @@ class ConfVersionChecker extends ScmTimerTask {
                     }
                 }
             }
-
-            if (isTemp) {
-                if (System.currentTimeMillis() - runTime >= subscriber.getHeartbeatIterval()) {
-                    // 如果临时任务执行的时长达到了正式任务的延迟启动时长，就剔除掉该任务。
-                    cancel();
-                }
-            }
         }
         catch (Exception e) {
-            logger.warn("failed to check version:configame={},filter={}",
-                    subscriber.subscribeConfigName(), subscriber.getVersionFilter(), e);
+            logger.warn("failed to check version:businessType={},filter={}",
+                    subscriber.getBusinessType(), versionFilter, e);
         }
     }
 
-    private boolean processNotify(NotifyOption notifyOption) {
-        try {
-            subscriber.processNotify(notifyOption);
-            return true;
-        }
-        catch (Exception e) {
-            logger.error("failed process notification:{}", notifyOption, e);
-            return false;
-        }
+    private boolean processNotify(EventType eventType, Version version) {
+        return subscriber.processNotify(eventType, version.getBusinessName(), null);
     }
 
     public void updateVersion(EventType eventType, Version newVersion) {
         if (eventType == EventType.DELTE) {
-            myVersions.remove(newVersion.getBussinessName());
+            myVersions.remove(newVersion.getBusinessName());
         }
         else {
-            myVersions.put(newVersion.getBussinessName(), newVersion);
+            if (newVersion.getVersion() != -1) {
+                myVersions.put(newVersion.getBusinessName(), newVersion);
+            }
         }
     }
 

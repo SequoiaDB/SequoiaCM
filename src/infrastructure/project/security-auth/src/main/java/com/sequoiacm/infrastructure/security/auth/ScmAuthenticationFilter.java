@@ -2,6 +2,7 @@ package com.sequoiacm.infrastructure.security.auth;
 
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserJsonDeserializer;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import org.bson.BSONObject;
@@ -54,7 +55,7 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
+        String sessionId = request.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
         boolean isLogoutReq = isLogoutRequest(request);
         if (StringUtils.hasText(sessionId) && !isLogoutReq) {
             ScmUser user;
@@ -76,11 +77,11 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
                 logger.info("Get user from session user details");
             }
 
-            request.setAttribute(RestField.USER_ATTRIBUTE, userDetails);
-            if (!response.containsHeader(RestField.SESSION_ATTRIBUTE)) {
-                response.setHeader(RestField.SESSION_ATTRIBUTE, sessionId);
+            request.setAttribute(SecurityRestField.USER_ATTRIBUTE, userDetails);
+            if (!response.containsHeader(SecurityRestField.SESSION_ATTRIBUTE)) {
+                response.setHeader(SecurityRestField.SESSION_ATTRIBUTE, sessionId);
             }
-            request.setAttribute(RestField.USER_INFO_WRAPPER,
+            request.setAttribute(SecurityRestField.USER_INFO_WRAPPER,
                     new ScmUserWrapper(user, userDetails));
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -98,8 +99,8 @@ public class ScmAuthenticationFilter extends OncePerRequestFilter {
         // cache user info when processing login requests
         if (sessionMgr instanceof ScmSessionMgrWithSessionCache
                 && (isLoginRequest(request) || isV2LocalLoginRequest(request))) {
-            String loginSessionId = response.getHeader(RestField.SESSION_ATTRIBUTE);
-            String userJson = response.getHeader(RestField.USER_DETAILS);
+            String loginSessionId = response.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
+            String userJson = response.getHeader(SecurityRestField.USER_DETAILS);
             if (loginSessionId == null || userJson == null) {
                 return;
             }

@@ -11,7 +11,7 @@ import com.netflix.client.http.HttpResponse;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 public class PostAccessFilter extends ZuulFilter {
     private static final Logger logger = LoggerFactory.getLogger(PostAccessFilter.class);
@@ -29,7 +29,7 @@ public class PostAccessFilter extends ZuulFilter {
 
         if (ctx.getResponseStatusCode() != 200) {
             HttpServletRequest request = ctx.getRequest();
-            String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
+            String sessionId = request.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
 
             String target = "unknown host";
             logger.error("proxy=" + ctx.get("proxy"));

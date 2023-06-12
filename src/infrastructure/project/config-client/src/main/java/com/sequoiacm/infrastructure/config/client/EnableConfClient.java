@@ -13,8 +13,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@EnableFeignClients
-@EnableAsync
 @Import(ScmConfigClientAutoConfig.class)
 public @interface EnableConfClient {
 

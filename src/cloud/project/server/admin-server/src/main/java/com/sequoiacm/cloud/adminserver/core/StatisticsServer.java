@@ -6,8 +6,9 @@ import java.util.List;
 import com.sequoiacm.cloud.adminserver.lock.LockPathFactory;
 import com.sequoiacm.cloud.adminserver.model.ObjectDeltaInfo;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
-import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.BucketConfCache;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
+import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfigFilter;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +30,10 @@ public class StatisticsServer {
     private ContentServerDao contentServerDao;
     private StatisticsDao statisticsDao;
     private WorkspaceDao workspaceDao;
-    private BucketConfSubscriber bucketConfSubscriber;
     private ScmLockManager lockManager;
     private LockPathFactory lockPathFactory;
-//    private List<ContentServerInfo> contentServerList = new ArrayList<>();
-    
-//    private SiteDao siteDao;
-//    private SiteMgr siteMgr = new SiteMgr();
+
+    private BucketConfCache bucketConfCache;
 
     private StatisticsServer() {
     }
@@ -45,13 +43,13 @@ public class StatisticsServer {
     }
 
     public void init(ContentServerDao contentServerDao, StatisticsDao statisticsDao,
-            WorkspaceDao workspaceDao, BucketConfSubscriber bucketConfSubscriber,
+            WorkspaceDao workspaceDao, BucketConfCache bucketConfCache,
             ScmLockManager lockManager, LockPathFactory lockPathFactory)
             throws StatisticsException {
         this.contentServerDao = contentServerDao;
         this.statisticsDao = statisticsDao;
         this.workspaceDao = workspaceDao;
-        this.bucketConfSubscriber = bucketConfSubscriber;
+        this.bucketConfCache = bucketConfCache;
         this.lockManager = lockManager;
         this.lockPathFactory = lockPathFactory;
     }
@@ -79,7 +77,7 @@ public class StatisticsServer {
         ScmObjectCursor<BucketConfig> cursor = null;
         try {
             List<String> bucketConfigs = new ArrayList<>();
-            cursor = bucketConfSubscriber.listBucket(null, null, 0, -1);
+            cursor = bucketConfCache.listBucket(null, null, 0, -1);
             while (cursor.hasNext()) {
                 bucketConfigs.add(cursor.getNext().getName());
             }
@@ -98,7 +96,7 @@ public class StatisticsServer {
 
     public BucketConfig getBucket(String bucketName) throws StatisticsException {
         try {
-            return bucketConfSubscriber.getBucket(bucketName);
+            return bucketConfCache.getBucket(bucketName);
         }
         catch (Exception e) {
             throw new StatisticsException(StatisticsError.INTERNAL_ERROR,

@@ -36,75 +36,75 @@ public class ScmConfigController {
     @Autowired
     ScmConfService service;
 
-    @PostMapping("/config/{conf_name}")
-    public Config createConf(@PathVariable("conf_name") String confName,
+    @PostMapping("/config/{business_type}")
+    public Config createConf(@PathVariable("business_type") String businessType,
             @RequestParam(value = ScmRestArgDefine.CONFIG, required = false) BSONObject configParam,
             @RequestBody(required = false) BSONObject configBody,
             @RequestParam(value = ScmRestArgDefine.IS_ASYNC_NOTIFY, defaultValue = "true") boolean isAsyncNotify)
             throws ScmConfigException {
         BSONObject config = configBody == null ? configParam : configBody;
-        return service.createConf(confName, config, isAsyncNotify);
+        return service.createConf(businessType, config, isAsyncNotify);
     }
 
-    @DeleteMapping("/config/{conf_name}")
-    public Config deleteConf(@PathVariable("conf_name") String confName,
+    @DeleteMapping("/config/{business_type}")
+    public Config deleteConf(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject config,
             @RequestParam(value = ScmRestArgDefine.IS_ASYNC_NOTIFY, defaultValue = "true") boolean isAsyncNotify)
             throws ScmConfigException {
-        return service.deleteConf(confName, config, isAsyncNotify);
+        return service.deleteConf(businessType, config, isAsyncNotify);
     }
 
-    @PutMapping("/config/{conf_name}")
-    public Config updateConf(@PathVariable("conf_name") String confName,
+    @PutMapping("/config/{business_type}")
+    public Config updateConf(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.CONFIG) BSONObject config,
             @RequestParam(value = ScmRestArgDefine.IS_ASYNC_NOTIFY, defaultValue = "true") boolean isAsyncNotify)
             throws ScmConfigException {
-        return service.updateConf(confName, config, isAsyncNotify);
+        return service.updateConf(businessType, config, isAsyncNotify);
     }
 
-    @GetMapping("/config/{conf_name}")
-    public List<Config> getConf(@PathVariable("conf_name") String confName,
+    @GetMapping("/config/{business_type}")
+    public List<Config> getConf(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject confFilter)
             throws ScmConfigException {
-        return service.getConf(confName, confFilter);
+        return service.getConf(businessType, confFilter);
     }
 
-    @GetMapping(path = "/config/{conf_name}", params = "action=count_conf")
-    public ResponseEntity countConf(@PathVariable("conf_name") String confName,
+    @GetMapping(path = "/config/{business_type}", params = "action=count_conf")
+    public ResponseEntity countConf(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject confFilter)
             throws ScmConfigException {
-        long count = service.countConf(confName, confFilter);
+        long count = service.countConf(businessType, confFilter);
         return ResponseEntity.ok().header(ScmRestArgDefine.COUNT_HEADER, count + "").build();
     }
 
-    @GetMapping(path = "/config/{conf_name}", params = "action=list_conf")
-    public void listConf(@PathVariable("conf_name") String confName,
+    @GetMapping(path = "/config/{business_type}", params = "action=list_conf")
+    public void listConf(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject confFilter, HttpServletResponse resp)
             throws ScmConfigException, IOException {
         resp.setHeader("Content-Type", "application/json;charset=utf-8");
         PrintWriter writer = resp.getWriter();
-        putCursorToWriter(service.listConf(confName, confFilter), writer);
+        putCursorToWriter(service.listConf(businessType, confFilter), writer);
     }
 
-    @GetMapping("/config/{conf_name}/version")
-    public List<Version> getConfVersion(@PathVariable("conf_name") String confName,
+    @GetMapping("/config/{business_type}/version")
+    public List<Version> getConfVersion(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.FILTER) BSONObject versionFilter)
             throws ScmConfigException {
-        return service.getConfVersion(confName, versionFilter);
+        return service.getConfVersion(businessType, versionFilter);
     }
 
-    @PostMapping("/subscribe/{config_name}")
-    public void subscribe(@PathVariable("config_name") String configName,
+    @PostMapping("/subscribe/{business_type}")
+    public void subscribe(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.SERVICE_NAME) String serviceName)
             throws ScmConfigException {
-        service.subscribe(configName, serviceName);
+        service.subscribe(businessType, serviceName);
     }
 
-    @DeleteMapping("/subscribe/{config_name}")
-    public void unsubscribe(@PathVariable("config_name") String configName,
+    @DeleteMapping("/subscribe/{business_type}")
+    public void unsubscribe(@PathVariable("business_type") String businessType,
             @RequestParam(ScmRestArgDefine.SERVICE_NAME) String serviceName)
             throws ScmConfigException {
-        service.unsubscribe(configName, serviceName);
+        service.unsubscribe(businessType, serviceName);
     }
 
     @GetMapping("/subscribe")

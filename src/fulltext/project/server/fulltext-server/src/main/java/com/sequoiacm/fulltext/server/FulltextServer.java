@@ -12,8 +12,6 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import com.sequoiacm.content.client.EnableContentserverClient;
 import com.sequoiacm.fulltext.server.config.PrivilegeHeartBeatConfig;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
-import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
 import com.sequoiacm.mq.client.EnableScmMqAdmin;
 import com.sequoiacm.mq.client.EnableScmMqConsumer;
@@ -24,8 +22,6 @@ import com.sequoiacm.schedule.client.EnableScheduleWorker;
 @EnableEurekaClient
 @SpringBootApplication
 @EnableConfClient
-@EnableUserSubscriber
-@EnableRoleSubscriber
 @EnableScheduleClient
 @EnableScheduleWorker
 @EnableScmMqConsumer

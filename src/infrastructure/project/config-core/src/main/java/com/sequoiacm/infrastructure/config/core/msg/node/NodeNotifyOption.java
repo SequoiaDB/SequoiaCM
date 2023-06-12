@@ -1,51 +1,77 @@
 package com.sequoiacm.infrastructure.config.core.msg.node;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
 
-import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
+import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 
-public class NodeNotifyOption implements NotifyOption {
-    private String nodeName;
-    private Integer version;
-    private EventType eventType;
+import java.util.Objects;
 
-    public NodeNotifyOption(String nodeName, Integer version, EventType eventType) {
+@BusinessType(ScmBusinessTypeDefine.NODE)
+public class NodeNotifyOption implements NotifyOption {
+
+    @JsonProperty(ScmRestArgDefine.NODE_CONF_NODENAME)
+    private String nodeName;
+
+    @JsonProperty(ScmRestArgDefine.NODE_CONF_NODEVERSION)
+    private Integer version;
+
+    public NodeNotifyOption(String nodeName, Integer version) {
         this.nodeName = nodeName;
         this.version = version;
-        this.eventType = eventType;
+    }
+
+    public NodeNotifyOption() {
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public String getNodeName() {
         return nodeName;
     }
 
-    public DefaultVersion getVersion() {
-        if (eventType == EventType.DELTE) {
-            return new DefaultVersion(ScmConfigNameDefine.NODE, nodeName, -1);
-        }
-        return new DefaultVersion(ScmConfigNameDefine.NODE, nodeName, version);
+    @Override
+    public Version getBusinessVersion() {
+        return new Version(ScmBusinessTypeDefine.NODE, nodeName, version);
     }
 
-    public EventType getEventType() {
-        return eventType;
-    }
 
     @Override
     public String toString() {
-        return "nodeName=" + nodeName + ",eventType=" + eventType + ",version=" + version;
+        return "nodeName=" + nodeName + ",version=" + version;
+    }
+
+
+    @Override
+    public String getBusinessName() {
+        return nodeName;
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
-        obj.put(ScmRestArgDefine.NODE_CONF_NODENAME, nodeName);
-        obj.put(ScmRestArgDefine.NODE_CONF_NODEVERSION, version);
-        return obj;
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NodeNotifyOption that = (NodeNotifyOption) o;
+        return Objects.equals(nodeName, that.nodeName) && Objects.equals(version, that.version);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodeName, version);
+    }
 }

@@ -1,37 +1,85 @@
 package com.sequoiacm.infrastructure.config.core.msg.workspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sequoiacm.common.ScmSiteCacheStrategy;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
+import java.util.Objects;
+
+@BusinessType(ScmBusinessTypeDefine.WORKSPACE)
 public class WorkspaceConfig implements Config {
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_NAME)
     private String wsName;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_ID)
     private int wsId;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_CREATEUSER)
     private String createUser;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_UPDATEUSER)
     private String updateUser;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_DESCRIPTION)
     private String desc = "";
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_CREATETIME)
     private Long createTime;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_UPDATETIME)
     private Long updateTime;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_META_LOCATION)
     private BSONObject metalocation;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION)
     private BasicBSONList dataLocations;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_EXT_DATA)
     private BSONObject externalData;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE)
     private String batchShardingType;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX)
     private String batchIdTimeRegex;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN)
     private String batchIdTimePattern;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE)
     private boolean batchFileNameUnique;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY)
     private boolean enableDirectory = false;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_PREFERRED)
     private String preferred;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY)
     private String siteCacheStrategy = ScmSiteCacheStrategy.ALWAYS.name();
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_VERSION)
     private int version;
 
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION)
     private BSONObject tagLibMetaOption;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE)
     private String tagLibTableName;
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS)
     private String tagRetrievalStatus;
-    
+
+    @JsonProperty(FieldName.FIELD_CLWORKSPACE_TAG_UPGRADING)
     private boolean tagUpgrading = false;
 
     public WorkspaceConfig() {
@@ -181,33 +229,6 @@ public class WorkspaceConfig implements Config {
         return version;
     }
 
-    @Override
-    public BSONObject toBSONObject() {
-        BSONObject wsConfigObj = new BasicBSONObject();
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_NAME, wsName);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_ID, wsId);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_DESCRIPTION, desc);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_CREATEUSER, createUser);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_UPDATEUSER, updateUser);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_CREATETIME, createTime);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_UPDATETIME, updateTime);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_META_LOCATION, metalocation);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_DATA_LOCATION, dataLocations);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_EXT_DATA, externalData);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_PATTERN, batchIdTimePattern);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_ID_TIME_REGEX, batchIdTimeRegex);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, batchFileNameUnique);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_BATCH_SHARDING_TYPE, batchShardingType);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_ENABLE_DIRECTORY, enableDirectory);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_PREFERRED, preferred);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY, siteCacheStrategy);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_VERSION, version);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION, tagLibMetaOption);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE, tagLibTableName);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS, tagRetrievalStatus);
-        wsConfigObj.put(FieldName.FIELD_CLWORKSPACE_TAG_UPGRADING, tagUpgrading);
-        return wsConfigObj;
-    }
 
     public BSONObject getTagLibMetaOption() {
         return tagLibMetaOption;
@@ -239,5 +260,23 @@ public class WorkspaceConfig implements Config {
 
     public boolean isTagUpgrading() {
         return tagUpgrading;
+    }
+
+    @Override
+    public String getBusinessName() {
+        return wsName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WorkspaceConfig that = (WorkspaceConfig) o;
+        return wsId == that.wsId && batchFileNameUnique == that.batchFileNameUnique && enableDirectory == that.enableDirectory && version == that.version && tagUpgrading == that.tagUpgrading && Objects.equals(wsName, that.wsName) && Objects.equals(createUser, that.createUser) && Objects.equals(updateUser, that.updateUser) && Objects.equals(desc, that.desc) && Objects.equals(createTime, that.createTime) && Objects.equals(updateTime, that.updateTime) && Objects.equals(metalocation, that.metalocation) && Objects.equals(dataLocations, that.dataLocations) && Objects.equals(externalData, that.externalData) && Objects.equals(batchShardingType, that.batchShardingType) && Objects.equals(batchIdTimeRegex, that.batchIdTimeRegex) && Objects.equals(batchIdTimePattern, that.batchIdTimePattern) && Objects.equals(preferred, that.preferred) && Objects.equals(siteCacheStrategy, that.siteCacheStrategy) && Objects.equals(tagLibMetaOption, that.tagLibMetaOption) && Objects.equals(tagLibTableName, that.tagLibTableName) && Objects.equals(tagRetrievalStatus, that.tagRetrievalStatus);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(wsName, wsId, createUser, updateUser, desc, createTime, updateTime, metalocation, dataLocations, externalData, batchShardingType, batchIdTimeRegex, batchIdTimePattern, batchFileNameUnique, enableDirectory, preferred, siteCacheStrategy, version, tagLibMetaOption, tagLibTableName, tagRetrievalStatus, tagUpgrading);
     }
 }

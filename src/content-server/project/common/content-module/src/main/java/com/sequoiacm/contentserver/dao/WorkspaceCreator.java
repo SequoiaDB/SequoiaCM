@@ -49,12 +49,12 @@ public class WorkspaceCreator {
         wsConfig = formate(wsName, createUser, clientWsConfObj);
     }
 
-    public BSONObject create() throws ScmServerException {
+    public WorkspaceConfig create() throws ScmServerException {
         WorkspaceConfig resp = ContenserverConfClient.getInstance().createWorkspace(wsConfig);
 
         insertHdfsTableNameHistoryRecs();
 
-        return resp.toBSONObject();
+        return resp;
     }
 
     private void insertHdfsTableNameHistoryRecs() {

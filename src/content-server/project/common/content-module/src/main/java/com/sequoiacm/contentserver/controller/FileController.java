@@ -30,7 +30,7 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.KeepAlive;
 import com.sequoiacm.infrastructure.monitor.FlowRecorder;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsDefine;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsFileMeta;
 import com.sequoiacm.infrastructure.statistics.common.ScmStatisticsType;
@@ -205,8 +205,8 @@ public class FileController {
             @RequestHeader(value = CommonDefine.RestArg.FILE_DESCRIPTION) String desc,
             @RequestParam(value = CommonDefine.RestArg.FILE_BREAKPOINT_FILE, required = false) String breakpointFileName,
             @RequestParam(value = CommonDefine.RestArg.FILE_UPLOAD_CONFIG, required = false) BSONObject uploadConfig,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletRequest request, Authentication auth)
             throws ScmServerException, IOException {
@@ -301,8 +301,8 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_READ_OFFSET, required = false, defaultValue = "0") long offset,
             @RequestParam(value = CommonDefine.RestArg.FILE_READ_LENGTH, required = false, defaultValue = CommonDefine.File.UNTIL_END_OF_FILE
                     + "") int length,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(value = ScmStatisticsDefine.STATISTICS_HEADER, required = false) String statisticsType,
             HttpServletResponse response, Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
@@ -403,9 +403,9 @@ public class FileController {
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false) Integer majorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false) Integer minorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") Boolean isPhysical,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
         fileService.deleteFile(sessionId, userDetail, user, workspaceName, fileId,
@@ -415,14 +415,13 @@ public class FileController {
     @DeleteMapping(value = "/files", params = "action=" +
             CommonDefine.RestArg.ACTION_DELETE_FILE_BY_PATH)
     public void deleteFileByPath(@RequestParam("file_path") String filePath,
-                                 @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
-                                 @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") Integer majorVersion,
-                                 @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") Integer minorVersion,
-                                 @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") Boolean isPhysical,
-                                 @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-                                 @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-                                 HttpServletRequest request,
-                                 HttpServletResponse response, Authentication auth)
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") Integer majorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") Integer minorVersion,
+            @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") Boolean isPhysical,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            HttpServletRequest request, HttpServletResponse response, Authentication auth)
             throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         ScmVersion version = new ScmVersion(majorVersion, minorVersion);
@@ -483,8 +482,8 @@ public class FileController {
             @PathVariable("file_id") String fileId,
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION, required = false, defaultValue = "-1") int majorVersion,
             @RequestParam(value = CommonDefine.RestArg.FILE_MINOR_VERSION, required = false, defaultValue = "-1") int minorVersion,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws ScmServerException, UnsupportedEncodingException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         String md5 = fileService.calcFileMd5(sessionId, userDetail, user, workspaceName, fileId,

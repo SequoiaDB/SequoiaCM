@@ -18,9 +18,9 @@ import com.sequoiacm.common.ScmQuotaSyncStatus;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaConfig;
-import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaUpdater;
 import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
@@ -87,20 +87,20 @@ public class QuotaServiceImpl implements QuotaService {
             scmLock = acquireQuotaManageLock(type, name);
             QuotaConfig quotaConfig = quotaHelper.getQuotaConfig(type, name);
             if (quotaConfig == null) {
-                confClient.createConf(ScmConfigNameDefine.QUOTA, new QuotaConfig(type, name,
+                confClient.createConf(ScmBusinessTypeDefine.QUOTA, new QuotaConfig(type, name,
                         maxSize, maxObjects, true, 1, quotaHelper.generateExtraInfo(type, name)),
                         false);
             }
             else {
                 if (!quotaConfig.isEnable()) {
-                    QuotaUpdator quotaUpdator = new QuotaUpdator(type, name, maxSize, maxObjects,
+                    QuotaUpdater quotaUpdator = new QuotaUpdater(type, name, maxSize, maxObjects,
                             true, new BasicBSONObject(FieldName.Quota.QUOTA_ROUND_NUMBER,
                                     quotaConfig.getQuotaRoundNumber()));
                     // 需要把上一次的额度信息置0
                     quotaUpdator.setUsedObjects(0L);
                     quotaUpdator.setUsedSize(0L);
                     quotaUpdator.setQuotaRoundNumber(quotaConfig.getQuotaRoundNumber() + 1);
-                    confClient.updateConfig(ScmConfigNameDefine.QUOTA, quotaUpdator, false);
+                    confClient.updateConfig(ScmBusinessTypeDefine.QUOTA, quotaUpdator, false);
                 }
                 else {
                     throw new StatisticsException(StatisticsError.QUOTA_ALREADY_ENABLE,
@@ -163,10 +163,10 @@ public class QuotaServiceImpl implements QuotaService {
                 throw new StatisticsException(StatisticsError.QUOTA_NOT_ENABLE,
                         "failed to update quota," + type + " quota is not enable:name=" + name);
             }
-            QuotaUpdator updator = new QuotaUpdator(type, name, maxSize, maxObjects, true,
+            QuotaUpdater updator = new QuotaUpdater(type, name, maxSize, maxObjects, true,
                     new BasicBSONObject(FieldName.Quota.QUOTA_ROUND_NUMBER,
                             quotaConfig.getQuotaRoundNumber()));
-            confClient.updateConfig(ScmConfigNameDefine.QUOTA, updator, false);
+            confClient.updateConfig(ScmBusinessTypeDefine.QUOTA, updator, false);
             return internalGetQuota(type, name);
         }
         catch (StatisticsException e) {
@@ -198,10 +198,10 @@ public class QuotaServiceImpl implements QuotaService {
                         "failed to disable quota," + type + " quota is already disable:name="
                                 + name);
             }
-            QuotaUpdator quotaUpdator = new QuotaUpdator(type, name, -1L, -1L, false,
+            QuotaUpdater quotaUpdator = new QuotaUpdater(type, name, -1L, -1L, false,
                     new BasicBSONObject(FieldName.Quota.QUOTA_ROUND_NUMBER,
                             quotaConfig.getQuotaRoundNumber()));
-            confClient.updateConfig(ScmConfigNameDefine.QUOTA, quotaUpdator, false);
+            confClient.updateConfig(ScmBusinessTypeDefine.QUOTA, quotaUpdator, false);
             QuotaSyncInfo quotaSyncInfo = quotaSyncDao.getQuotaSyncInfo(type, name, null);
             if (quotaSyncInfo != null
                     && ScmQuotaSyncStatus.SYNCING.getName().equals(quotaSyncInfo.getStatus())) {

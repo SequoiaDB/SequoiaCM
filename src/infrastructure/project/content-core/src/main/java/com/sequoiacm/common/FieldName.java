@@ -278,7 +278,7 @@ public class FieldName {
     public static final String FIELD_CLTABLE_NAME_HISTORY_TABLE_NAME = "table_name";
 
     // CL_SUBSCRIBER
-    public static final String FIELD_CLSUBSCRIBER_CONFIG_NAME = "config_name";
+    public static final String FIELD_CLSUBSCRIBER_BUSINESS_TYPE = "config_name";
     public static final String FIELD_CLSUBSCRIBER_SERVICE_NAME = "service_name";
 
     // CL_CONTENTSERVER_CONF_VERSION

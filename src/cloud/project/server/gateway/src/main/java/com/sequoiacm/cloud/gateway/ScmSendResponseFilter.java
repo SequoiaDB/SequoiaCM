@@ -30,7 +30,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 public class ScmSendResponseFilter extends ZuulFilter {
 
@@ -107,7 +107,7 @@ public class ScmSendResponseFilter extends ZuulFilter {
         String sessionId;
         try {
             RequestContext context = RequestContext.getCurrentContext();
-            sessionId = context.getRequest().getHeader(RestField.SESSION_ATTRIBUTE);
+            sessionId = context.getRequest().getHeader(SecurityRestField.SESSION_ATTRIBUTE);
             serviceId = (String) context.get(SERVICE_ID_KEY);
             RibbonApacheHttpResponse response = (RibbonApacheHttpResponse) context
                     .get("ribbonResponse");

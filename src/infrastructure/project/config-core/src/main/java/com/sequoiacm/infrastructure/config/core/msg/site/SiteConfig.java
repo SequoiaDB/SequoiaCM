@@ -1,18 +1,39 @@
 package com.sequoiacm.infrastructure.config.core.msg.site;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
+import java.util.Objects;
+
+@BusinessType(ScmBusinessTypeDefine.SITE)
 public class SiteConfig implements Config {
+
+    @JsonProperty(FieldName.FIELD_CLSITE_ID)
     private int id;
+
+    @JsonProperty(FieldName.FIELD_CLSITE_NAME)
     private String name;
+
+    @JsonProperty(FieldName.FIELD_CLSITE_MAINFLAG)
     private boolean isRootSite;
+
+    @JsonProperty(FieldName.FIELD_CLSITE_STAGE_TAG)
     private String stageTag;
+
+    @JsonProperty(FieldName.FIELD_CLSITE_DATA)
     private BSONObject dataSource;
+
+    @JsonProperty(FieldName.FIELD_CLSITE_META)
     private BSONObject metaSource;
+
+    public SiteConfig() {
+    }
 
     public boolean isRootSite() {
         return isRootSite;
@@ -62,19 +83,6 @@ public class SiteConfig implements Config {
         this.stageTag = stageTag;
     }
 
-    @Override
-    public BSONObject toBSONObject() {
-        BSONObject siteConfigObj = new BasicBSONObject();
-        siteConfigObj.put(FieldName.FIELD_CLSITE_ID, id);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_NAME, name);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_STAGE_TAG, stageTag);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_MAINFLAG, isRootSite);
-        siteConfigObj.put(FieldName.FIELD_CLSITE_DATA, dataSource);
-        if (metaSource != null) {
-            siteConfigObj.put(FieldName.FIELD_CLSITE_META, metaSource);
-        }
-        return siteConfigObj;
-    }
 
     @Override
     public String toString() {
@@ -83,4 +91,22 @@ public class SiteConfig implements Config {
                 + ", dataSource=" + dataSource + ", metaSource=" + metaSource + "]";
     }
 
+    @JsonIgnore
+    @Override
+    public String getBusinessName() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SiteConfig that = (SiteConfig) o;
+        return id == that.id && isRootSite == that.isRootSite && Objects.equals(name, that.name) && Objects.equals(stageTag, that.stageTag) && Objects.equals(dataSource, that.dataSource) && Objects.equals(metaSource, that.metaSource);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, isRootSite, stageTag, dataSource, metaSource);
+    }
 }

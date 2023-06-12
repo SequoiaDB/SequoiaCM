@@ -36,6 +36,13 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-config-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-server-discovery</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-lock</artifactId>

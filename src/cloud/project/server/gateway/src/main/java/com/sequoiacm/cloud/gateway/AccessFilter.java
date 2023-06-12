@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 public class AccessFilter extends ZuulFilter {
     private static final Logger logger = LoggerFactory.getLogger(AccessFilter.class);
@@ -33,13 +33,13 @@ public class AccessFilter extends ZuulFilter {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
 
-        String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
+        String sessionId = request.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
         if (sessionId != null) {
             logger.debug("send {} request to {} with session {}", request.getMethod(),
                     request.getRequestURI(), sessionId);
-            String user = (String) request.getAttribute(RestField.USER_ATTRIBUTE);
+            String user = (String) request.getAttribute(SecurityRestField.USER_ATTRIBUTE);
             if (user != null && !AuthCommonTools.isBigUser(user, request.getCharacterEncoding())) {
-                ctx.addZuulRequestHeader(RestField.USER_ATTRIBUTE, user);
+                ctx.addZuulRequestHeader(SecurityRestField.USER_ATTRIBUTE, user);
             }
         }
         else {

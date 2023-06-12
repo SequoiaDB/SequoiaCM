@@ -5,7 +5,7 @@ import com.sequoiacm.contentserver.service.IPrivilegeService;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ public class PrivilegeController {
     }
 
     @PutMapping("roles/{role_name}/grant")
-    public void grantPrivilege(@RequestHeader(value = RestField.SESSION_ATTRIBUTE) String token,
+    public void grantPrivilege(@RequestHeader(value = SecurityRestField.SESSION_ATTRIBUTE) String token,
             @PathVariable("role_name") String roleName,
             @RequestParam("resource_type") String resourceType,
             @RequestParam("resource") String resource, @RequestParam("privilege") String privilege,
@@ -44,7 +44,7 @@ public class PrivilegeController {
     }
 
     @PutMapping("roles/{role_name}/revoke")
-    public void revokePrivilege(@RequestHeader(value = RestField.SESSION_ATTRIBUTE) String token,
+    public void revokePrivilege(@RequestHeader(value = SecurityRestField.SESSION_ATTRIBUTE) String token,
             @PathVariable("role_name") String roleName,
             @RequestParam("resource_type") String resourceType,
             @RequestParam("resource") String resource, @RequestParam("privilege") String privilege,

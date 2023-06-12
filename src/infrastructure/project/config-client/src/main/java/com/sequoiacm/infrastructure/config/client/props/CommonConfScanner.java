@@ -95,24 +95,6 @@ public class CommonConfScanner {
 
 }
 
-class PropInfo {
-    private PropCheckRule checkRule;
-    private boolean isRefreshable;
-
-    public PropInfo(PropCheckRule checkRule, boolean isRefreshable) {
-        this.checkRule = checkRule;
-        this.isRefreshable = isRefreshable;
-    }
-
-    public PropCheckRule getCheckRule() {
-        return checkRule;
-    }
-
-    public boolean isRefreshable() {
-        return isRefreshable;
-    }
-}
-
 class CommonTypeCheckRule implements PropCheckRule {
     private static final Logger logger = LoggerFactory.getLogger(CommonTypeCheckRule.class);
     private final Class<?> confType;
@@ -143,54 +125,6 @@ class CommonTypeCheckRule implements PropCheckRule {
     @Override
     public String toString() {
         return "[" + confType.getName() + " value]";
-    }
-}
-
-class NumberCheckRule implements PropCheckRule {
-    private static final Logger logger = LoggerFactory.getLogger(NumberCheckRule.class);
-    private final ConversionService conversionService;
-    private long min = Long.MIN_VALUE;
-    private long max = Long.MAX_VALUE;
-
-    public NumberCheckRule(ConversionService conversionService) {
-        this.conversionService = conversionService;
-    }
-
-    public NumberCheckRule(ConversionService conversionService, Long max, Long min) {
-        this(conversionService);
-        if (max != null) {
-            this.max = max;
-        }
-        if (min != null) {
-            this.min = min;
-        }
-    }
-
-    @Override
-    public boolean checkValue(String value) {
-        Number v;
-        try {
-            v = conversionService.convert(value, Number.class);
-        }
-        catch (ConversionFailedException e) {
-            logger.warn("failed to convert value to number: value={}", value, e);
-            return false;
-        }
-
-        if (v.longValue() <= max && v.longValue() >= min) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isDeletable() {
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "[number value, max=" + max + ",min" + min + "]";
     }
 }
 

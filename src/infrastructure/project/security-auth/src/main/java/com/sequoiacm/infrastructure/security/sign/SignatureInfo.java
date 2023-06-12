@@ -9,7 +9,7 @@ import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
 
 import com.sequoiacm.infrastructure.common.BsonUtils;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 public class SignatureInfo {
     private String secretKeyPrefix = "";
@@ -20,16 +20,16 @@ public class SignatureInfo {
     private List<String> stringToSign = Collections.emptyList();
 
     public SignatureInfo(BSONObject bson) {
-        this.algorithm = BsonUtils.getStringOrElse(bson, RestField.SIGNATURE_INFO_ALGORITHM,
+        this.algorithm = BsonUtils.getStringOrElse(bson, SecurityRestField.SIGNATURE_INFO_ALGORITHM,
                 algorithm);
-        this.accessKey = BsonUtils.getStringChecked(bson, RestField.SIGNATURE_INFO_ACCESSKEY);
-        this.signature = BsonUtils.getStringOrElse(bson, RestField.SIGNATURE_INFO_SINAGTURE,
+        this.accessKey = BsonUtils.getStringChecked(bson, SecurityRestField.SIGNATURE_INFO_ACCESSKEY);
+        this.signature = BsonUtils.getStringOrElse(bson, SecurityRestField.SIGNATURE_INFO_SINAGTURE,
                 signature);
         this.signatureEncoder = BsonUtils.getStringOrElse(bson,
-                RestField.SIGNATURE_INFO_SINAGTURE_ENCODER, signatureEncoder);
+                SecurityRestField.SIGNATURE_INFO_SINAGTURE_ENCODER, signatureEncoder);
         this.secretKeyPrefix = BsonUtils.getStringOrElse(bson,
-                RestField.SIGNATURE_INFO_SECREKEY_PREFIX, secretKeyPrefix);
-        BasicBSONList bsonArr = BsonUtils.getArray(bson, RestField.SIGNATURE_INFO_STRING_TO_SIGN);
+                SecurityRestField.SIGNATURE_INFO_SECREKEY_PREFIX, secretKeyPrefix);
+        BasicBSONList bsonArr = BsonUtils.getArray(bson, SecurityRestField.SIGNATURE_INFO_STRING_TO_SIGN);
         if (bsonArr != null) {
             stringToSign = new ArrayList<>();
             for (Object s : bsonArr) {
@@ -81,12 +81,12 @@ public class SignatureInfo {
 
     public BSONObject toBSON() {
         BasicBSONObject bson = new BasicBSONObject();
-        bson.put(RestField.SIGNATURE_INFO_ALGORITHM, algorithm);
-        bson.put(RestField.SIGNATURE_INFO_ACCESSKEY, accessKey);
-        bson.put(RestField.SIGNATURE_INFO_SECREKEY_PREFIX, secretKeyPrefix);
-        bson.put(RestField.SIGNATURE_INFO_SINAGTURE, signature);
-        bson.put(RestField.SIGNATURE_INFO_STRING_TO_SIGN, stringToSign);
-        bson.put(RestField.SIGNATURE_INFO_SINAGTURE_ENCODER, signatureEncoder);
+        bson.put(SecurityRestField.SIGNATURE_INFO_ALGORITHM, algorithm);
+        bson.put(SecurityRestField.SIGNATURE_INFO_ACCESSKEY, accessKey);
+        bson.put(SecurityRestField.SIGNATURE_INFO_SECREKEY_PREFIX, secretKeyPrefix);
+        bson.put(SecurityRestField.SIGNATURE_INFO_SINAGTURE, signature);
+        bson.put(SecurityRestField.SIGNATURE_INFO_STRING_TO_SIGN, stringToSign);
+        bson.put(SecurityRestField.SIGNATURE_INFO_SINAGTURE_ENCODER, signatureEncoder);
         return bson;
     }
 

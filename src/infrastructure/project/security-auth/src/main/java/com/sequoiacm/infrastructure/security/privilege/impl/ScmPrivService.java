@@ -14,7 +14,7 @@ import com.sequoiacm.infrastructrue.security.core.ScmResource;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserPasswordType;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 
 // @FeignClient(name = "auth-server", configuration =
@@ -47,13 +47,13 @@ public interface ScmPrivService {
     public ScmRole findRoleById(@PathVariable("roleId") String roleId);
 
     @PutMapping("/internal/v1/roles/{role_name}/grant")
-    public void grant(@RequestHeader(value = RestField.SESSION_ATTRIBUTE) String token,
+    public void grant(@RequestHeader(value = SecurityRestField.SESSION_ATTRIBUTE) String token,
             @PathVariable("role_name") String roleName,
             @RequestParam("resource_type") String resourceType,
             @RequestParam("resource") String resource, @RequestParam("privilege") String privilege);
 
     @PutMapping("/internal/v1/roles/{role_name}/revoke")
-    public void revoke(@RequestHeader(value = RestField.SESSION_ATTRIBUTE) String token,
+    public void revoke(@RequestHeader(value = SecurityRestField.SESSION_ATTRIBUTE) String token,
             @PathVariable("role_name") String roleName,
             @RequestParam("resource_type") String resourceType,
             @RequestParam("resource") String resource, @RequestParam("privilege") String privilege);

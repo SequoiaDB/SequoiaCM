@@ -8,6 +8,10 @@ import com.sequoiacm.infrastructrue.security.privilege.IResourceBuilder;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
+import com.sequoiacm.infrastructure.config.client.EnableConfClient;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@EnableConfClient
 public class ScmPrivClient {
     private static final Logger logger = LoggerFactory.getLogger(ScmPrivClient.class);
 
@@ -35,7 +40,7 @@ public class ScmPrivClient {
     private static final long MIN_HEARTBEAT_INTERVAL = 1000;
 
     @Autowired
-    public ScmPrivClient(ScmFeignClient feignClient) {
+    public ScmPrivClient(ScmFeignClient feignClient, ScmConfClient scmConfClient) throws ScmConfigException {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(ScmRole.class, new ScmRoleJsonDeserializer());
@@ -50,6 +55,11 @@ public class ScmPrivClient {
 
         addResourceBuilder(new WsResourceBuilder());
         addResourceBuilder(new WsAllResourceBuilder());
+
+        scmConfClient.subscribe(ScmBusinessTypeDefine.ROLE,
+                (type, businessName, notification) -> loadAuth());
+        scmConfClient.subscribe(ScmBusinessTypeDefine.USER,
+                (type, businessName, notification) -> loadAuth());
     }
 
     @PreDestroy
@@ -63,7 +73,7 @@ public class ScmPrivClient {
     public synchronized void loadAuth() {
         try {
             reload();
-            logger.info("privielege version={}", getVersion());
+            logger.info("reload privilege, version={}", getVersion());
         }
         catch (Exception e) {
             logger.warn("init privilege from auth-server failed", e);

@@ -21,8 +21,8 @@ public class ScmConfigNotifyController {
     @Autowired
     ScmConfigNotifyService notifyService;
 
-    @RequestMapping("/notify/{config_name}")
-    public void nofify(@PathVariable("config_name") String configName,
+    @RequestMapping("/notify/{businessType}")
+    public void nofify(@PathVariable("businessType") String businessType,
             @RequestParam(ScmRestArgDefine.EVENT_TYPE) String eventType,
             @RequestParam(ScmRestArgDefine.OPTION) String notifyOption,
             @RequestParam(ScmRestArgDefine.IS_ASYNC_NOTIFY) boolean isAsyncNotify)
@@ -30,6 +30,6 @@ public class ScmConfigNotifyController {
         BSONObject notifyOptionObj = (BSONObject) JSON.parse(notifyOption);
         EventType type = EventType.valueOf(eventType);
         Assert.notNull(type, "unknown event type:" + eventType);
-        notifyService.notify(configName, type, notifyOptionObj, isAsyncNotify);
+        notifyService.notify(businessType, type, notifyOptionObj, isAsyncNotify);
     }
 }

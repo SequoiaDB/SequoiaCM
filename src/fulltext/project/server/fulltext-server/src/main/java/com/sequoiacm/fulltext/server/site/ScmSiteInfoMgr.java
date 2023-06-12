@@ -7,6 +7,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +19,9 @@ import org.springframework.stereotype.Component;
 
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.fulltext.server.ConfServiceClient;
-import com.sequoiacm.fulltext.server.config.ConfVersionConfig;
 import com.sequoiacm.fulltext.server.exception.FullTextException;
 import com.sequoiacm.infrastructure.config.core.msg.site.SiteConfig;
+
 
 @Component
 public class ScmSiteInfoMgr {
@@ -28,12 +32,10 @@ public class ScmSiteInfoMgr {
     private List<ScmSiteInfo> sites = new ArrayList<>();
 
     @Autowired
-    public ScmSiteInfoMgr(ConfServiceClient confClient, DiscoveryClient dicoveryClient,
-            ConfVersionConfig versionConfig) throws FullTextException {
+    public ScmSiteInfoMgr(ConfServiceClient confClient, DiscoveryClient dicoveryClient) throws FullTextException, ScmConfigException {
         this.confClient = confClient;
 
-        confClient.registerSubscriber(
-                new SiteConfigSubscriber(this, versionConfig.getSiteHeartbeat()));
+        confClient.subscribe(ScmBusinessTypeDefine.SITE, this::noSiteNotify);
 
         List<SiteConfig> siteList = confClient.getSiteList();
         WriteLock wirteLock = sitesLock.writeLock();
@@ -50,7 +52,25 @@ public class ScmSiteInfoMgr {
         finally {
             wirteLock.unlock();
         }
+    }
 
+    private void noSiteNotify(EventType type, String businessName, NotifyOption notification)
+            throws FullTextException {
+        if (type == EventType.DELTE) {
+            removeSite(businessName);
+            return;
+        }
+
+        if (type == EventType.CREATE) {
+            addSite(businessName);
+            return;
+        }
+
+        if (type == EventType.UPDATE) {
+            removeSite(businessName);
+            addSite(businessName);
+            return;
+        }
     }
 
     public ScmSiteInfo getRootSite() throws FullTextException {
@@ -69,72 +89,6 @@ public class ScmSiteInfoMgr {
         throw new FullTextException(ScmError.SYSTEM_ERROR, "root site not exist");
     }
 
-    //
-    //    public boolean isSameZoneWithMe(int siteId) {
-    //        String myRegionZone = region + "-" + zone;
-    //        ReadLock readLock = sitesLock.readLock();
-    //        readLock.lock();
-    //        try {
-    //            for (ScmSiteInfo site : sites) {
-    //                if (siteId != site.getSiteId()) {
-    //                    continue;
-    //                }
-    //                for (String regionZone : site.getZones()) {
-    //                    if (regionZone.equals(myRegionZone)) {
-    //                        return true;
-    //                    }
-    //                }
-    //                return false;
-    //            }
-    //            return false;
-    //        }
-    //        finally {
-    //            readLock.unlock();
-    //        }
-    //    }
-    //
-    //    public String getPreferSite(List<Integer> expectedSites) throws FullTextException {
-    //        String myRegionZone = region + "-" + zone;
-    //        String sameRegionSite = null;
-    //        List<String> expectedSiteNames = new ArrayList<>();
-    //        ReadLock readLock = sitesLock.readLock();
-    //        readLock.lock();
-    //        try {
-    //            for (ScmSiteInfo site : sites) {
-    //                if (!expectedSites.contains(site.getSiteId())) {
-    //                    expectedSiteNames.add(site.getName());
-    //                    continue;
-    //                }
-    //                for (String regionZone : site.getZones()) {
-    //                    if (regionZone.equals(myRegionZone)) {
-    //                        return site.getName();
-    //                    }
-    //                    if (sameRegionSite != null) {
-    //                        continue;
-    //                    }
-    //                    if (regionZone.startsWith(region + "-")) {
-    //                        sameRegionSite = site.getName();
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        finally {
-    //            readLock.unlock();
-    //        }
-    //
-    //        if (sameRegionSite != null) {
-    //            return sameRegionSite;
-    //        }
-    //
-    //        if (expectedSiteNames.size() <= 0) {
-    //            throw new FullTextException(ScmError.SITE_NOT_EXIST,
-    //                    "no such site:siteIdList=" + expectedSites);
-    //        }
-    //
-    //        Random random = new Random();
-    //        int rIdx = random.nextInt(expectedSiteNames.size());
-    //        return expectedSiteNames.get(rIdx);
-    //    }
 
     void removeSite(String name) {
         WriteLock wirteLock = sitesLock.writeLock();

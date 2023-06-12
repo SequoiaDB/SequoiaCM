@@ -11,7 +11,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -113,9 +113,9 @@ public class BatchController {
 
     @DeleteMapping("/batches/{batch_id}")
     public ResponseEntity delete(String workspace_name, @PathVariable("batch_id") String batchId,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         RestUtils.checkWorkspaceName(workspace_name);
         ScmUser user = (ScmUser) auth.getPrincipal();
         batchService.delete(sessionId, userDetail, user, workspace_name, batchId);

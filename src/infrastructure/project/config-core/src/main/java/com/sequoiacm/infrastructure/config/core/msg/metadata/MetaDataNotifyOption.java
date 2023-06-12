@@ -1,23 +1,30 @@
 package com.sequoiacm.infrastructure.config.core.msg.metadata;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
 
-import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
+import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 
+import java.util.Objects;
+
+@BusinessType(ScmBusinessTypeDefine.META_DATA)
 public class MetaDataNotifyOption implements NotifyOption {
+
+    @JsonProperty(ScmRestArgDefine.META_DATA_WORKSPACE_NAME)
     private String wsName;
-    private EventType type;
+
+    @JsonProperty(ScmRestArgDefine.META_DATA_VERSION)
     private Integer version;
 
-    public MetaDataNotifyOption(String wsName, EventType type, Integer version) {
+    public MetaDataNotifyOption(String wsName, Integer version) {
         this.wsName = wsName;
-        this.type = type;
         this.version = version;
+    }
+
+    public MetaDataNotifyOption() {
     }
 
     public String getWsName() {
@@ -28,42 +35,42 @@ public class MetaDataNotifyOption implements NotifyOption {
         this.wsName = wsName;
     }
 
-    public EventType getType() {
-        return type;
-    }
-
-    public void setType(EventType type) {
-        this.type = type;
-    }
-
     @Override
-    public DefaultVersion getVersion() {
-        if (type == EventType.DELTE) {
-            return new DefaultVersion(ScmConfigNameDefine.META_DATA, wsName, -1);
-        }
-        return new DefaultVersion(ScmConfigNameDefine.META_DATA, wsName, version);
+    public Version getBusinessVersion() {
+        return new Version(ScmBusinessTypeDefine.META_DATA, wsName, version);
     }
 
     public void setVersion(Integer version) {
         this.version = version;
     }
 
-    @Override
-    public EventType getEventType() {
-        return type;
-    }
-
-    @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
-        obj.put(ScmRestArgDefine.META_DATA_VERSION, version);
-        obj.put(ScmRestArgDefine.META_DATA_WORKSPACE_NAME, wsName);
-        return obj;
+    public Integer getVersion() {
+        return version;
     }
 
     @Override
     public String toString() {
-        return "MetaDataNotifyOption [wsName=" + wsName + ", type=" + type + ", version=" + version
+        return "MetaDataNotifyOption [wsName=" + wsName + ", version=" + version
                 + "]";
+    }
+
+    @Override
+    public String getBusinessName() {
+        return wsName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        MetaDataNotifyOption that = (MetaDataNotifyOption) o;
+        return Objects.equals(wsName, that.wsName) && Objects.equals(version, that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(wsName, version);
     }
 }

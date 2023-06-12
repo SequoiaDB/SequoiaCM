@@ -16,9 +16,8 @@ import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
+import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 
 @Component
 public class DefaultVersionDaoImpl implements DefaultVersionDao {
@@ -39,14 +38,14 @@ public class DefaultVersionDaoImpl implements DefaultVersionDao {
     }
 
     @Override
-    public List<Version> getVerions(DefaultVersionFilter filter) throws MetasourceException {
+    public List<Version> getVerions(VersionFilter filter) throws MetasourceException {
         BSONObject matcher = new BasicBSONObject();
-        if (filter.getBussinessType() != null) {
-            matcher.put(FieldName.FIELD_CLVERSION_BUSINESS_TYPE, filter.getBussinessType());
+        if (filter.getBusinessType() != null) {
+            matcher.put(FieldName.FIELD_CLVERSION_BUSINESS_TYPE, filter.getBusinessType());
         }
-        if (filter.getBussinessNames() != null) {
+        if (filter.getBusinessNames() != null) {
             List<Version> versions = new ArrayList<>();
-            for (String bussinessName : filter.getBussinessNames()) {
+            for (String bussinessName : filter.getBusinessNames()) {
                 matcher.put(FieldName.FIELD_CLVERSION_BUSINESS_NAME, bussinessName);
                 versions.addAll(queryVersions(matcher));
             }
@@ -69,7 +68,7 @@ public class DefaultVersionDaoImpl implements DefaultVersionDao {
                         FieldName.FIELD_CLVERSION_BUSINESS_NAME);
                 Integer version = BsonUtils.getIntegerChecked(versionObj,
                         FieldName.FIELD_CLVERSION_BUSINESS_VERSION);
-                DefaultVersion basicVersion = new DefaultVersion(bussinessType, bussinessName,
+                Version basicVersion = new Version(bussinessType, bussinessName,
                         version);
                 versions.add(basicVersion);
             }
@@ -144,7 +143,7 @@ public class DefaultVersionDaoImpl implements DefaultVersionDao {
             return null;
         }
 
-        DefaultVersion oldVersion = new DefaultVersion(record);
+        Version oldVersion = new Version(record);
 
         return updateVersion(businessType, businessName, oldVersion.getVersion() + 1, transaction);
 

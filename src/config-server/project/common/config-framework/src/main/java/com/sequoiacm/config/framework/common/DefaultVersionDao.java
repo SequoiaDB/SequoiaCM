@@ -5,13 +5,13 @@ import java.util.List;
 import com.sequoiacm.config.metasource.Transaction;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersionFilter;
+import com.sequoiacm.infrastructure.config.core.msg.VersionFilter;
 import com.sequoiacm.infrastructure.config.core.msg.Version;
 
 public interface DefaultVersionDao {
     public Integer getVersion(String businessType, String businessName) throws ScmConfigException;
 
-    public List<Version> getVerions(DefaultVersionFilter filter) throws MetasourceException;
+    public List<Version> getVerions(VersionFilter filter) throws MetasourceException;
 
     public void createVersion(String businessType, String businessName, Transaction transaction)
             throws ScmConfigException;

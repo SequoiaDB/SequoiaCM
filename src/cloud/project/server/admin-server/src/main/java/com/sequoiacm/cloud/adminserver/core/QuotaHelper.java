@@ -11,9 +11,9 @@ import com.sequoiacm.infrastructrue.security.privilege.IResourceBuilder;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.workspace.WorkspaceConfSubscriber;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.BucketConfCache;
+import com.sequoiacm.infrastructure.config.client.cache.workspace.WorkspaceConfCache;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
@@ -42,10 +42,10 @@ public class QuotaHelper {
     private ScmConfClient confClient;
 
     @Autowired
-    private BucketConfSubscriber bucketConfSubscriber;
+    private BucketConfCache bucketConfCache;
 
     @Autowired
-    private WorkspaceConfSubscriber workspaceConfSubscriber;
+    private WorkspaceConfCache workspaceConfCache;
 
     @Autowired
     private ScmServiceDiscoveryClient serviceDiscoveryClient;
@@ -78,7 +78,7 @@ public class QuotaHelper {
     public void checkTypeAndName(String type, String name) throws StatisticsException {
         if (StatisticsDefine.QuotaType.BUCKET.equals(type)) {
             try {
-                BucketConfig bucket = bucketConfSubscriber.getBucket(name);
+                BucketConfig bucket = bucketConfCache.getBucket(name);
                 if (bucket == null) {
                     throw new StatisticsException(StatisticsError.INVALID_ARGUMENT,
                             "bucket is not exist:" + name);
@@ -101,7 +101,7 @@ public class QuotaHelper {
         if (StatisticsDefine.QuotaType.BUCKET.equals(type)) {
             BucketConfig bucket = null;
             try {
-                bucket = bucketConfSubscriber.getBucket(name);
+                bucket = bucketConfCache.getBucket(name);
             }
             catch (ScmConfigException e) {
                 throw new StatisticsException(StatisticsError.INTERNAL_ERROR,
@@ -130,7 +130,7 @@ public class QuotaHelper {
 
     public QuotaConfig getQuotaConfig(String type, String name) throws StatisticsException {
         try {
-            return (QuotaConfig) confClient.getOneConf(ScmConfigNameDefine.QUOTA,
+            return (QuotaConfig) confClient.getOneConf(ScmBusinessTypeDefine.QUOTA,
                     new QuotaFilter(type, name));
         }
         catch (ScmConfigException e) {
@@ -142,7 +142,7 @@ public class QuotaHelper {
     @SuppressWarnings("unchecked")
     public List<QuotaConfig> getQuotaConfigs() throws StatisticsException {
         try {
-            List<Config> confList = confClient.getConf(ScmConfigNameDefine.QUOTA,
+            List<Config> confList = confClient.getConf(ScmBusinessTypeDefine.QUOTA,
                     new QuotaFilter());
             return (List<QuotaConfig>) (Object) confList;
         }
@@ -187,11 +187,11 @@ public class QuotaHelper {
 
     private List<Integer> getSiteIdsAndShuffle(String bucketName)
             throws ScmConfigException, StatisticsException {
-        BucketConfig bucket = bucketConfSubscriber.getBucket(bucketName);
+        BucketConfig bucket = bucketConfCache.getBucket(bucketName);
         if (bucket == null) {
             throw new IllegalArgumentException("bucket is not exist:" + bucketName);
         }
-        WorkspaceConfig workspace = workspaceConfSubscriber.getWorkspace(bucket.getWorkspace());
+        WorkspaceConfig workspace = workspaceConfCache.getWorkspace(bucket.getWorkspace());
         if (workspace == null) {
             throw new IllegalArgumentException("workspace is not exist:" + bucket.getWorkspace());
         }
@@ -237,7 +237,7 @@ public class QuotaHelper {
     public BSONObject generateExtraInfo(String type, String name) throws StatisticsException {
         try {
             if (StatisticsDefine.QuotaType.BUCKET.equals(type)) {
-                BucketConfig bucket = bucketConfSubscriber.getBucket(name);
+                BucketConfig bucket = bucketConfCache.getBucket(name);
                 if (bucket == null) {
                     throw new StatisticsException(StatisticsError.INVALID_ARGUMENT,
                             "bucket is not exist:" + name);

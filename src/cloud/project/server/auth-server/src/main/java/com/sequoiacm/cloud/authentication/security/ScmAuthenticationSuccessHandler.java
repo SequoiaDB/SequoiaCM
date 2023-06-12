@@ -10,7 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.serial.gson.ScmUserGsonTypeAdapter;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.common.AuthCommonTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class ScmAuthenticationSuccessHandler implements AuthenticationSuccessHan
         if (principal instanceof ScmUser) {
             String user = gson.toJson(principal);
             if (!AuthCommonTools.isBigUser(user, response.getCharacterEncoding())) {
-                response.setHeader(RestField.USER_DETAILS, user);
+                response.setHeader(SecurityRestField.USER_DETAILS, user);
             }
         }
         audit.info(ScmAuditType.LOGIN, authentication, null, 0, "login, sessionId=" + request.getSession().getId());

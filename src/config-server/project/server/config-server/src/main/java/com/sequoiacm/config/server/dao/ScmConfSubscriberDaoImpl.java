@@ -16,7 +16,7 @@ import com.sequoiacm.config.metasource.MetaCursor;
 import com.sequoiacm.config.metasource.Metasource;
 import com.sequoiacm.config.metasource.TableDao;
 import com.sequoiacm.config.metasource.exception.MetasourceException;
-import com.sequoiacm.config.server.core.ScmConfFrameworkMgr;
+import com.sequoiacm.config.server.core.ScmConfOperatorMgr;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 
@@ -28,16 +28,16 @@ public class ScmConfSubscriberDaoImpl implements ScmConfSubscriberDao {
     Metasource metasource;
 
     @Autowired
-    ScmConfFrameworkMgr frameworkMgr;
+    ScmConfOperatorMgr confOperatorMgr;
 
     @Override
-    public void createSubscriber(String configName, String serviceName) throws ScmConfigException {
-        // make sure configName is valid.
-        frameworkMgr.getConfOperator(configName);
+    public void createSubscriber(String businessType, String serviceName) throws ScmConfigException {
+        // make sure businessType is valid.
+        confOperatorMgr.getConfOperator(businessType);
         try {
             TableDao dao = metasource.getSubscribersTable();
             BSONObject record = new BasicBSONObject();
-            record.put(FieldName.FIELD_CLSUBSCRIBER_CONFIG_NAME, configName);
+            record.put(FieldName.FIELD_CLSUBSCRIBER_BUSINESS_TYPE, businessType);
             record.put(FieldName.FIELD_CLSUBSCRIBER_SERVICE_NAME, serviceName.toLowerCase());
             dao.insert(record);
         }
@@ -45,19 +45,19 @@ public class ScmConfSubscriberDaoImpl implements ScmConfSubscriberDao {
             if (e.getError() == ScmConfError.METASOURCE_RECORD_EXIST) {
                 return;
             }
-            throw new ScmConfigException(e.getError(), "failed to subscribe:configName="
-                    + configName + ", serviceName=" + serviceName + ",error=" + e.getMessage(), e);
+            throw new ScmConfigException(e.getError(), "failed to subscribe:businessType="
+                    + businessType + ", serviceName=" + serviceName + ",error=" + e.getMessage(), e);
         }
     }
 
     @Override
-    public List<ScmConfSubscriber> querySubscribers(String configName) throws ScmConfigException {
+    public List<ScmConfSubscriber> querySubscribers(String businessType) throws ScmConfigException {
         MetaCursor cursor = null;
         try {
             TableDao dao = metasource.getSubscribersTable();
             BSONObject matcher = new BasicBSONObject();
-            if (configName != null) {
-                matcher.put(FieldName.FIELD_CLSUBSCRIBER_CONFIG_NAME, configName);
+            if (businessType != null) {
+                matcher.put(FieldName.FIELD_CLSUBSCRIBER_BUSINESS_TYPE, businessType);
             }
             cursor = dao.query(matcher, null, null);
             List<ScmConfSubscriber> subscribers = new ArrayList<>();
@@ -67,11 +67,10 @@ public class ScmConfSubscriberDaoImpl implements ScmConfSubscriberDao {
                         .get(FieldName.FIELD_CLSUBSCRIBER_SERVICE_NAME);
 
                 String recConfigName = (String) subscriberObj
-                        .get(FieldName.FIELD_CLSUBSCRIBER_CONFIG_NAME);
+                        .get(FieldName.FIELD_CLSUBSCRIBER_BUSINESS_TYPE);
 
                 Assert.notNull(recServiceName, "missing serviceName:" + subscriberObj);
-                ScmConfSubscriber subscriber = frameworkMgr.getSubscriberFactory(recConfigName)
-                        .createSubscriber(recServiceName);
+                ScmConfSubscriber subscriber = new ScmConfSubscriber(recConfigName, recServiceName);
                 subscribers.add(subscriber);
             }
             return subscribers;
@@ -84,10 +83,10 @@ public class ScmConfSubscriberDaoImpl implements ScmConfSubscriberDao {
     }
 
     @Override
-    public void deleteSubscriber(String configName, String serviceName) throws ScmConfigException {
+    public void deleteSubscriber(String businessType, String serviceName) throws ScmConfigException {
         TableDao tableDao = metasource.getSubscribersTable();
         BSONObject matcher = new BasicBSONObject();
-        matcher.put(FieldName.FIELD_CLSUBSCRIBER_CONFIG_NAME, configName);
+        matcher.put(FieldName.FIELD_CLSUBSCRIBER_BUSINESS_TYPE, businessType);
         matcher.put(FieldName.FIELD_CLSUBSCRIBER_SERVICE_NAME, serviceName);
         tableDao.delete(matcher);
     }

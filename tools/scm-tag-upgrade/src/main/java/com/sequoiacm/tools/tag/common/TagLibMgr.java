@@ -8,7 +8,7 @@ import com.sequoiacm.common.module.TagType;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMap;
 import com.sequoiacm.infrastructure.common.ConcurrentLruMapFactory;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
-import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdater;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import com.sequoiadb.base.CollectionSpace;
@@ -175,7 +175,7 @@ class TagLibDao {
                     FieldName.FIELD_CLWORKSPACE_TAG_LIB_TABLE);
             if (tagLibTable != null && !tagLibTable.isEmpty()) {
                 logger.info("workspace already has tagLib: " + wsName);
-                WorkspaceUpdator wsUpdater = new WorkspaceUpdator(wsName);
+                WorkspaceUpdater wsUpdater = new WorkspaceUpdater(wsName);
                 wsUpdater.setTagUpgrading(true);
                 updateWorkspace(sdb, wsUpdater);
                 return;
@@ -210,7 +210,7 @@ class TagLibDao {
                     1);
             ensureUniqueIndex(tagLibCl, "custom_tag_unique_idx", customTagUniqueIdx);
 
-            WorkspaceUpdator wsUpdater = new WorkspaceUpdator(wsName);
+            WorkspaceUpdater wsUpdater = new WorkspaceUpdater(wsName);
             wsUpdater.setTagUpgrading(true);
             wsUpdater.setTagLibTable(tagLibCl.getFullName());
             updateWorkspace(sdb, wsUpdater);
@@ -220,7 +220,7 @@ class TagLibDao {
         }
     }
 
-    private void updateWorkspace(Sequoiadb sdb, WorkspaceUpdator wsUpdater)
+    private void updateWorkspace(Sequoiadb sdb, WorkspaceUpdater wsUpdater)
             throws ScmToolsException {
         List<String> configServerUrls = getConfigServerUrl(sdb);
         if (configServerUrls.isEmpty()) {
@@ -387,7 +387,7 @@ class TagLibDao {
     public void markWorkspaceUpgradeComplete(String ws) throws ScmToolsException {
         Sequoiadb sdb = SequoiadbDataSourceWrapper.getInstance().getConnection();
         try {
-            WorkspaceUpdator wsUpdater = new WorkspaceUpdator(ws);
+            WorkspaceUpdater wsUpdater = new WorkspaceUpdater(ws);
             wsUpdater.setTagUpgrading(false);
 
             List<String> configServerUrls = getConfigServerUrl(sdb);

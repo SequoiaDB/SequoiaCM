@@ -14,7 +14,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.sdbversion.RequireSdbVersion;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -85,9 +85,9 @@ public class WorkspaceController {
     @PostMapping(value = "/workspaces/{workspace_name}")
     public BSONObject createWorkspace(@PathVariable("workspace_name") String newWsName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_CONF) BSONObject newWsConf,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
         if (!ScmArgChecker.Workspace.checkWorkspaceName(newWsName)) {
             throw new ScmInvalidArgumentException("invalid workspace name:name=" + newWsName);
@@ -102,9 +102,9 @@ public class WorkspaceController {
     @DeleteMapping(value = "/workspaces/{workspace_name}")
     public void deleteWorkspace(@PathVariable("workspace_name") String workspaceName,
             @RequestParam(value = CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE, defaultValue = "false") boolean isEnforced,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String token,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String token,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
         workspaceService.deleteWorkspace(sessionId, token, scmUser, workspaceName, isEnforced);
 
@@ -113,9 +113,9 @@ public class WorkspaceController {
     @PutMapping(value = "/workspaces/{workspace_name}")
     public BSONObject updateWorkspace(@PathVariable("workspace_name") String workspaceName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_UPDATOR) BSONObject updator,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         ScmUser scmUser = (ScmUser) auth.getPrincipal();
 
         ClientWorkspaceUpdator clientWsUpdator = ClientWorkspaceUpdator.fromBSONObject(updator);

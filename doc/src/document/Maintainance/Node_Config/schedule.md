@@ -29,9 +29,9 @@ SequoiaCM 配置
 |scm.audit.user.xxx|str|审计日志操作配置，控制具体用户对不同操作命令记录审计日志。默认为空，不记录用户名为 xxx 用户任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|在线生效|
 |scm.audit.userType.xxx|str|审计日志操作配置，控制用户类型对不同操作命令记录审计日志。默认为空，不记录用户类型为 xxx 用户任何操作的审计日志。支持的配置详见[审计操作类型掩码列表][audit_log]|在线生效|
 |scm.privilege.heartbeat.interval|num|权限版本号校验间隔时间，当版本号不一致时会刷新版本信息。默认值：10000，单位：毫秒|重启生效|
-|scm.conf.version.siteHeartbeat|num|配置站点版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.nodeHeartbeat|num|配置节点版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.workspaceHeartbeat|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.site.heartbeatInterval|num|请求查询配置服务site版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.node.heartbeatInterval|num|请求查询配置服务node版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.workspace.heartbeatInterval|num|请求查询配置服务workspace版本号的心跳间隔，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.user.heartbeatInterval|num|配置用户版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.role.heartbeatInterval|num|配置角色版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.zookeeper.urls|str|调度服务节点的zookeeper服务地址(ip1:host1,ip2:host2)|重启生效|

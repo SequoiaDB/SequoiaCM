@@ -1,6 +1,5 @@
 package com.sequoiacm.config.server.core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -28,17 +27,9 @@ public class ScmConfigEventMgr {
     public Future<String> onEvent(ScmConfEvent event, boolean isAsyncNotify) {
         try {
             //查出来就是需要通知的，外面不用再处理
-            List<ScmConfSubscriber> listeners = subscriberDao.querySubscribers(event.getConfigName());
-
-            ArrayList<String> notifyServiceList = new ArrayList<>();
-            for (ScmConfSubscriber listener : listeners) {
-                if (listener.isNeedNotify(event)) {
-                    notifyServiceList.add(listener.getServiceName());
-                }
-            }
-            if (notifyServiceList.size() > 0) {
-                // 参数传递订阅者对象
-                configNotifier.notifyServices(notifyServiceList, event, isAsyncNotify);
+            List<ScmConfSubscriber> listeners = subscriberDao.querySubscribers(event.getBusinessType());
+            if (listeners.size() > 0) {
+                configNotifier.notifyServices(listeners, event, isAsyncNotify);
             }
         }
         catch (Exception e) {

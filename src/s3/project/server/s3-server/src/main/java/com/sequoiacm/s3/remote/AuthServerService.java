@@ -6,16 +6,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sequoiacm.infrastructrue.security.core.AccesskeyInfo;
 import com.sequoiacm.infrastructure.feign.ScmFeignException;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 public interface AuthServerService {
 
     @PostMapping(value = "/api/v1/accesskey")
     public AccesskeyInfo refreshAccesskey(
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @RequestParam("action") String acntion,
-            @RequestParam(value = RestField.USERNAME, required = false) String username,
-            @RequestParam(value = RestField.PASSWORD, required = false) String password)
+            @RequestParam(value = SecurityRestField.USERNAME, required = false) String username,
+            @RequestParam(value = SecurityRestField.PASSWORD, required = false) String password)
             throws ScmFeignException;
 }

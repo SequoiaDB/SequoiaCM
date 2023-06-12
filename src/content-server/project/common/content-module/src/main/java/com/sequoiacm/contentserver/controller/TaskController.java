@@ -12,7 +12,7 @@ import com.sequoiacm.contentserver.strategy.ScmStrategyMgr;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.strategy.element.StrategyType;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
@@ -78,8 +78,8 @@ public class TaskController {
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_OPTIONS) String options,
             @RequestParam(value = CommonDefine.RestArg.CREATE_TASK_SERVER_ID, required = false) Integer serverId,
             @RequestParam(value = CommonDefine.RestArg.CREATE_TASK_TARGET_SITE, required = false) String targetSite,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(value = CommonDefine.RestArg.IS_ASYNC_COUNT_FILE, required = false) Boolean isAsyncCountFile,
             Authentication auth) throws ScmServerException {
         if (serverId == null) {
@@ -120,9 +120,9 @@ public class TaskController {
 
     @PostMapping(value = "/api/v1/tasks/{task_id}/stop")
     public void stopTask(@PathVariable("task_id") String taskId,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
         BSONObject taskInfo = ScmContentModule.getInstance().getTaskInfo(matcher);
         if (null == taskInfo) {

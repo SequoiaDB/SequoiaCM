@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.security.auth;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,12 +12,12 @@ import com.sequoiacm.infrastructure.feign.ScmFeignException;
 public interface ScmSessionService {
 
     @GetMapping("/api/v1/sessions/{sessionId}")
-    String getSession(@RequestHeader(value = RestField.SESSION_ATTRIBUTE) String token,
+    String getSession(@RequestHeader(value = SecurityRestField.SESSION_ATTRIBUTE) String token,
             @PathVariable(value = "sessionId") String sessionId,
-            @RequestParam(value = RestField.USER_DETAILS, required = false) Boolean userDetails)
+            @RequestParam(value = SecurityRestField.USER_DETAILS, required = false) Boolean userDetails)
             throws ScmFeignException;
     
     @PostMapping("/logout")
-    void logout(@RequestHeader(value = RestField.SESSION_ATTRIBUTE) String token)
+    void logout(@RequestHeader(value = SecurityRestField.SESSION_ATTRIBUTE) String token)
             throws ScmFeignException;
 }

@@ -11,7 +11,7 @@ import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
 import com.sequoiacm.infrastructure.config.core.msg.bucket.BucketConfig;
-import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdater;
 import com.sequoiacm.metasource.MetaSourceDefine;
 import com.sequoiacm.metasource.ScmMetasourceException;
 import com.sequoiacm.metasource.sequoiadb.SdbMetaSource;
@@ -307,7 +307,7 @@ public class FileTableCreator {
     }
 
     private static void addToExtraCsListSilence(BSONObject wsRecord, String wsName, String newCs) {
-        WorkspaceUpdator updator = new WorkspaceUpdator(wsName, wsRecord);
+        WorkspaceUpdater updator = new WorkspaceUpdater(wsName, wsRecord);
         updator.setAddExtraMetaCs(newCs);
         try {
             ContenserverConfClient.getInstance().updateWorkspaceConf(updator);

@@ -3,7 +3,6 @@ package com.sequoiacm.s3.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.exception_handler.RestExceptionHandlerBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.exception_handler.ExceptionBody;
-import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.s3.core.Error;
 import com.sequoiacm.s3.exception.S3ServerException;
 import com.sequoiacm.s3.utils.RestUtils;

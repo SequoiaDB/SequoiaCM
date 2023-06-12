@@ -53,7 +53,7 @@ public class ScmConfPropsScanner implements ApplicationRunner {
     // scmConfRules 中有一些项在这个 map 中可能没有对应的校验规则，表示这个配置项比较复杂的嵌套结构，没有解析出其校验规则
     private final Map<ScmPropsMatchRule, PropCheckRule> confRulMapType = new HashMap<>();
 
-    public void registerInnerConfList() throws IOException {
+    private void registerInnerConfList() throws IOException {
         CommonConfScanner commonConfScanner = new CommonConfScanner();
         // 所有服务均包含的内置配置列表
         Map<ScmPropsMatchRule, PropInfo> commConfList = commonConfScanner
@@ -62,7 +62,11 @@ public class ScmConfPropsScanner implements ApplicationRunner {
         Map<ScmPropsMatchRule, PropInfo> serviceConfList = commonConfScanner
                 .scanCommonProps(conversionService, "service_conf_list.json");
         commConfList.putAll(serviceConfList);
-        for (Map.Entry<ScmPropsMatchRule, PropInfo> entry : commConfList.entrySet()) {
+        registerConfProps(commConfList);
+    }
+
+    public synchronized void registerConfProps(Map<ScmPropsMatchRule, PropInfo> confMap) {
+        for (Map.Entry<ScmPropsMatchRule, PropInfo> entry : confMap.entrySet()) {
             confRulMapType.put(entry.getKey(), entry.getValue().getCheckRule());
             scmConfRules.add(entry.getKey());
             if (entry.getValue().isRefreshable()) {
@@ -303,39 +307,6 @@ class ScmPropsPrefixMatchRule implements ScmPropsMatchRule {
     @Override
     public int hashCode() {
         return Objects.hash(prefix);
-    }
-}
-
-class ScmPropsExactMatchRule implements ScmPropsMatchRule {
-    private final String conf;
-
-    public ScmPropsExactMatchRule(String conf) {
-        this.conf = conf;
-    }
-
-    @Override
-    public boolean isMatch(String confProp) {
-        return conf.equals(confProp);
-    }
-
-    @Override
-    public String toString() {
-        return conf;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        ScmPropsExactMatchRule that = (ScmPropsExactMatchRule) o;
-        return Objects.equals(conf, that.conf);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(conf);
     }
 }
 

@@ -2,19 +2,19 @@ package com.sequoiacm.contentserver.contentmodule;
 
 import java.util.List;
 
+import com.sequoiacm.contentserver.bizconfig.MetaDataNotifyCallback;
+import com.sequoiacm.contentserver.bizconfig.NodeConfNotifyCallback;
+import com.sequoiacm.contentserver.bizconfig.WorkspaceConfNotifyCallback;
 import com.sequoiacm.contentserver.common.IDGeneratorDao;
 import com.sequoiacm.contentserver.tag.TagLibMgr;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.contentserver.ScmServer;
-import com.sequoiacm.contentserver.bizconfig.BucketConfSubscriber;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
-import com.sequoiacm.contentserver.bizconfig.MetaDataConfSubscriber;
-import com.sequoiacm.contentserver.bizconfig.NodeConfSubscriber;
-import com.sequoiacm.contentserver.bizconfig.SiteConfSubscriber;
-import com.sequoiacm.contentserver.bizconfig.WorkspaceConfSubscriber;
+import com.sequoiacm.contentserver.bizconfig.SiteConfNotifyCallback;
 import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.config.PropertiesUtils;
@@ -80,20 +80,18 @@ public class ContentModuleInitializer {
                 .init(confClient, bucketInfoMgr);
 
         // subscribe ws config
-        contentserverConfClient.subscribeWithAsyncRetry(new WorkspaceConfSubscriber(bucketInfoMgr,
-                serviceName, PropertiesUtils.getWorkspaceVersionHeartbeat(), tagLibMgr));
-        // subscribe metadata config
-        contentserverConfClient.subscribeWithAsyncRetry(new MetaDataConfSubscriber(serviceName,
-                PropertiesUtils.getMetaDataVersionHearbeat()));
-        // subscribe site config
-        contentserverConfClient.subscribeWithAsyncRetry(
-                new SiteConfSubscriber(serviceName, PropertiesUtils.getSiteVersionHeartbeat()));
-        // subscribe node config
-        contentserverConfClient.subscribeWithAsyncRetry(
-                new NodeConfSubscriber(serviceName, PropertiesUtils.getNodeVersionHeartbeat()));
+        contentserverConfClient.subscribe(ScmBusinessTypeDefine.WORKSPACE,
+                new WorkspaceConfNotifyCallback(tagLibMgr));
 
-        contentserverConfClient.subscribeWithAsyncRetry(new BucketConfSubscriber(bucketInfoMgr,
-                serviceName, PropertiesUtils.getSiteVersionHeartbeat(), applicationContext));
+        // subscribe metadata config
+        contentserverConfClient.subscribe(ScmBusinessTypeDefine.META_DATA,
+                new MetaDataNotifyCallback());
+
+        // subscribe site config
+        contentserverConfClient.subscribe(ScmBusinessTypeDefine.SITE, new SiteConfNotifyCallback());
+
+        // subscribe node config
+        contentserverConfClient.subscribe(ScmBusinessTypeDefine.NODE, new NodeConfNotifyCallback());
 
         logger.info("init strategy");
         ScmContentModule contentModule = ScmContentModule.getInstance();

@@ -6,7 +6,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.auth.ScmUserWrapper;
 import com.sequoiacm.s3.authoriztion.ScmSession;
 import com.sequoiacm.s3.exception.S3Error;
@@ -27,9 +27,9 @@ public class ScmSessionArgResolver implements HandlerMethodArgumentResolver {
         if (session != null) {
             return session;
         }
-        String sessionId = webRequest.getHeader(RestField.SESSION_ATTRIBUTE);
+        String sessionId = webRequest.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
         if (sessionId != null) {
-            Object userInfoWrapper = webRequest.getAttribute(RestField.USER_INFO_WRAPPER,
+            Object userInfoWrapper = webRequest.getAttribute(SecurityRestField.USER_INFO_WRAPPER,
                     NativeWebRequest.SCOPE_REQUEST);
             if (userInfoWrapper != null) {
                 return new ScmSession(null, sessionId, (ScmUserWrapper) userInfoWrapper);

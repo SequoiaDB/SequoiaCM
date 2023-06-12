@@ -19,17 +19,17 @@ public class ScmConfigNotifyServiceImpl implements ScmConfigNotifyService {
     ScmConfSubscriberMgr subscriberMgr;
 
     @Override
-    public void notify(String configName, EventType type, BSONObject notifyOption,
+    public void notify(String businessType, EventType type, BSONObject notifyOption,
             boolean isAsyncNotify) throws ScmConfigException {
-        Future<String> future = subscriberMgr.processNotify(configName, type, notifyOption);
+        Future<String> future = subscriberMgr.processNotify(businessType, type, notifyOption);
         if (!isAsyncNotify) {
             try {
                 future.get();
             }
             catch (Exception e) {
                 logger.error(
-                        "failed to wait for notification process to complete:configName={},eventType={},notification={}",
-                        configName, type, notifyOption, e);
+                        "failed to wait for notification process to complete:businessType={},eventType={},notification={}",
+                        businessType, type, notifyOption, e);
             }
         }
     }

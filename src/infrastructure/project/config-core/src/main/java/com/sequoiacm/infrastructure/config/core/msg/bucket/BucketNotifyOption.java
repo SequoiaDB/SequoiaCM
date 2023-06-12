@@ -1,62 +1,94 @@
 package com.sequoiacm.infrastructure.config.core.msg.bucket;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
-import com.sequoiacm.infrastructure.config.core.msg.DefaultVersion;
+import com.sequoiacm.infrastructure.config.core.msg.Version;
 import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 
+import java.util.Objects;
+
+@BusinessType(ScmBusinessTypeDefine.BUCKET)
 public class BucketNotifyOption implements NotifyOption {
+    @JsonProperty(FieldName.Bucket.NAME)
     private String bucketName;
+
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_VERSION)
     private Integer version;
-    private EventType eventType;
+
+    @JsonProperty(ScmRestArgDefine.BUCKET_CONF_GLOBAL_VERSION)
     private int globalVersion;
 
-    public BucketNotifyOption(String bucketName, Integer version, EventType type,
+    public BucketNotifyOption(String bucketName, Integer version,
             int globalVersion) {
         this.bucketName = bucketName;
         this.version = version;
-        this.eventType = type;
         this.globalVersion = globalVersion;
+    }
+
+    public BucketNotifyOption() {
     }
 
     public String getBucketName() {
         return bucketName;
     }
 
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public int getGlobalVersion() {
+        return globalVersion;
+    }
+
+    public void setGlobalVersion(int globalVersion) {
+        this.globalVersion = globalVersion;
+    }
+
+    @JsonIgnore
     @Override
-    public DefaultVersion getVersion() {
-        // conf client 版本心跳线程，通过这个接口获取通知中携带的版本号
-        if (eventType == EventType.DELTE || eventType == EventType.CREATE) {
-            return null;
-        }
-        // 只有 更新操作 需要通知 版本心跳线程 修改版本，目前Bucket的心跳线程只维护了一个 global version，所以这里把 global
-        // version 返回心跳线程
-        return new DefaultVersion(ScmConfigNameDefine.BUCKET, BucketConfigDefine.ALL_BUCKET_VERSION,
-                globalVersion);
+    public String getBusinessName() {
+        return bucketName;
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject obj = new BasicBSONObject();
-        obj.put(FieldName.Bucket.NAME, bucketName);
-        obj.put(ScmRestArgDefine.BUCKET_CONF_VERSION, version);
-        obj.put(ScmRestArgDefine.BUCKET_CONF_GLOBAL_VERSION, globalVersion);
-        return obj;
+    public Version getBusinessVersion() {
+        return new Version(ScmBusinessTypeDefine.BUCKET, BucketConfigDefine.ALL_BUCKET_VERSION,
+                globalVersion);
     }
 
     @Override
     public String toString() {
         return "BucketNotifyOption{" + "bucketName='" + bucketName + '\'' + ", version=" + version
-                + ", eventType=" + eventType + '}';
+                + ", globalVersion=" + globalVersion + '}';
     }
 
     @Override
-    public EventType getEventType() {
-        return eventType;
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        BucketNotifyOption that = (BucketNotifyOption) o;
+        return globalVersion == that.globalVersion && Objects.equals(bucketName, that.bucketName)
+                && Objects.equals(version, that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bucketName, version, globalVersion);
     }
 }

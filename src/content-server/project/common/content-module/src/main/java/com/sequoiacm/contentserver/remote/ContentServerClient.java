@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.exception.ScmServerException;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 
 import feign.Response;
 
@@ -26,8 +26,8 @@ public interface ContentServerClient {
 
     // ***************task****************//
     @PostMapping(value = "/api/v1/tasks")
-    public BSONObject startTask(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+    public BSONObject startTask(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_TYPE) int taskType,
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_SERVER_ID) int serverId,
@@ -37,8 +37,8 @@ public interface ContentServerClient {
             throws ScmServerException;
 
     @PostMapping(value = "/api/v1/tasks/{taskId}/stop")
-    public void stopTask(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+    public void stopTask(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @PathVariable("taskId") String taskId) throws ScmServerException;
 
     @PostMapping(value = "/internal/v1/tasks/{taskId}/notify")
@@ -48,8 +48,8 @@ public interface ContentServerClient {
 
     // **************file******************//
     @GetMapping(value = "/api/v1/files/{fileId}")
-    public Response downloadFile(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+    public Response downloadFile(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @PathVariable("fileId") String fileId,
             @RequestParam(CommonDefine.RestArg.FILE_MAJOR_VERSION) int mojorVersion,
@@ -68,8 +68,8 @@ public interface ContentServerClient {
             throws ScmServerException;
 
     @DeleteMapping(value = "/api/v1/files/{fileId}")
-    public void deleteFile(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+    public void deleteFile(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String wsName,
             @PathVariable("fileId") String fileId,
             @RequestParam(CommonDefine.RestArg.FILE_MAJOR_VERSION) int mojorVersion,
@@ -79,8 +79,8 @@ public interface ContentServerClient {
 
     @DeleteMapping(value = "/api/v1/buckets/{name}/files?action=delete_file")
     public BSONObject deleteFileInBucket(
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String userDetailJson,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String userDetailJson,
             @PathVariable("name") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
             @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL) boolean isPhysical)
@@ -147,8 +147,8 @@ public interface ContentServerClient {
             throws ScmServerException;
 
     @DeleteMapping(value = "/api/v1/workspaces/{workspace_name}")
-    public void deleteWorkspace(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+    public void deleteWorkspace(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @PathVariable("workspace_name") String wsName,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE) boolean isEnforced)
             throws ScmServerException;
@@ -156,8 +156,8 @@ public interface ContentServerClient {
     @PostMapping(value = "/api/v1/files/{file_id}?action=" + CommonDefine.RestArg.ACTION_CALC_MD5
             + "&" + CommonDefine.RestArg.KEEP_ALIVE + "=true")
     public BSONObject calcFileMd5KeepAlive(
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestHeader(RestField.USER_ATTRIBUTE) String user,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @RequestParam(CommonDefine.RestArg.WORKSPACE_NAME) String workspaceName,
             @PathVariable("file_id") String fileId,
             @RequestParam(value = CommonDefine.RestArg.FILE_MAJOR_VERSION) int majorVersion,

@@ -1,23 +1,35 @@
 package com.sequoiacm.infrastructure.config.core.msg.bucket;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sequoiacm.common.FieldName;
-import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdator;
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigUpdater;
 
 import java.util.Map;
+import java.util.Objects;
 
-public class BucketConfigUpdater implements ConfigUpdator {
+@BusinessType(ScmBusinessTypeDefine.BUCKET)
+public class BucketConfigUpdater implements ConfigUpdater {
     // target
+    @JsonProperty(FieldName.Bucket.NAME)
     private String bucketName;
 
     // new version status
+    @JsonProperty(FieldName.Bucket.VERSION_STATUS)
     private String versionStatus;
+
+    @JsonProperty(FieldName.Bucket.CUSTOM_TAG)
     private Map<String, String> customTag;
+
+    @JsonProperty(FieldName.Bucket.UPDATE_USER)
     private String updateUser;
 
     public BucketConfigUpdater(String bucketName) {
         this.bucketName = bucketName;
+    }
+
+    public BucketConfigUpdater() {
     }
 
     public String getBucketName() {
@@ -55,15 +67,25 @@ public class BucketConfigUpdater implements ConfigUpdator {
                 + '\'' + '}';
     }
 
-    @Override
-    public BSONObject toBSONObject() {
-        return new BasicBSONObject().append(FieldName.Bucket.NAME, bucketName)
-                .append(FieldName.Bucket.VERSION_STATUS, versionStatus)
-                .append(FieldName.Bucket.CUSTOM_TAG, customTag)
-                .append(FieldName.Bucket.UPDATE_USER, updateUser);
-    }
-
     public String getUpdateUser() {
         return updateUser;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        BucketConfigUpdater that = (BucketConfigUpdater) o;
+        return Objects.equals(bucketName, that.bucketName)
+                && Objects.equals(versionStatus, that.versionStatus)
+                && Objects.equals(customTag, that.customTag)
+                && Objects.equals(updateUser, that.updateUser);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bucketName, versionStatus, customTag, updateUser);
     }
 }

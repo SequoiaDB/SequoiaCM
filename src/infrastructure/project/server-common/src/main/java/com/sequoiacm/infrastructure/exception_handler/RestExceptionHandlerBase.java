@@ -8,14 +8,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.sequoiacm.infrastructure.security.auth.RestField;
 
 public abstract class RestExceptionHandlerBase {
     private static final Logger logger = LoggerFactory.getLogger(RestExceptionHandlerBase.class);
@@ -30,7 +29,7 @@ public abstract class RestExceptionHandlerBase {
             HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setHeader(ERROR_RESPONSE_HOST_INFO,
                 request.getLocalName() + ":" + request.getLocalPort());
-        String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
+        String sessionId = request.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
 
         ExceptionInfo exceptionInfo = covertToExceptionInfo(e);
         ExceptionBody exceptionBody = exceptionInfo.getExceptionBody();

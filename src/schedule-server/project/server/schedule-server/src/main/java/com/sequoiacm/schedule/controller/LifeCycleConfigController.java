@@ -5,7 +5,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructrue.security.core.ScmRole;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmWorkspaceResource;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.RestCommonField;
@@ -58,8 +58,8 @@ public class LifeCycleConfigController {
     private ScheduleClientFactory clientFactory;
 
     @PostMapping("/lifeCycleConfig")
-    public void setLifeCycleConfig(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public void setLifeCycleConfig(@RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.LIFE_CYCLE_CONFIG) String config, Authentication auth)
             throws ScheduleException {
         LifeCycleConfigUserEntity info = LifeCycleEntityTranslator.UserInfo.analyzeConfig(config);
@@ -77,9 +77,10 @@ public class LifeCycleConfigController {
     }
 
     @DeleteMapping("/lifeCycleConfig")
-    public void deleteLifeCycleConfig(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws Exception {
+    public void deleteLifeCycleConfig(
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws Exception {
         ScmUser user = (ScmUser) auth.getPrincipal();
         checkAdminPriority(user, "delete global life cycle config");
         if (!ScheduleElector.getInstance().isLeader()) {
@@ -102,8 +103,8 @@ public class LifeCycleConfigController {
     }
 
     @PostMapping("/lifeCycleConfig/stageTag")
-    public void addGlobalStageTag(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public void addGlobalStageTag(@RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.STAGE_TAG_NAME) String stageTagName,
             @RequestParam(value = RestCommonField.STAGE_TAG_DESC, required = false) String stageTagDesc,
             Authentication auth) throws Exception {
@@ -125,8 +126,8 @@ public class LifeCycleConfigController {
     }
 
     @DeleteMapping("/lifeCycleConfig/stageTag/{stage_tag_name}")
-    public void removeGlobalStageTag(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public void removeGlobalStageTag(@RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("stage_tag_name") String stageTagName, Authentication auth)
             throws Exception {
         if (!StringUtils.hasText(stageTagName)) {
@@ -151,8 +152,8 @@ public class LifeCycleConfigController {
     }
 
     @PostMapping("/lifeCycleConfig/transition")
-    public void addGlobalTransition(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public void addGlobalTransition(@RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.TRANSITION) String transition, Authentication auth)
             throws Exception {
         ScmUser user = (ScmUser) auth.getPrincipal();
@@ -170,8 +171,8 @@ public class LifeCycleConfigController {
 
     @PutMapping("/lifeCycleConfig/transition/{transition_name}")
     public void updateGlobalTransition(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("transition_name") String transitionName,
             @RequestParam(RestCommonField.TRANSITION) String transition, Authentication auth)
             throws Exception {
@@ -190,8 +191,8 @@ public class LifeCycleConfigController {
 
     @DeleteMapping("/lifeCycleConfig/transition/{transition_name}")
     public void removeGlobalTransition(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("transition_name") String transitionName, Authentication auth)
             throws Exception {
         if (!StringUtils.hasText(transitionName)) {
@@ -224,8 +225,8 @@ public class LifeCycleConfigController {
 
     @PostMapping("/lifeCycleConfig/workspaces/{workspace_name}")
     public TransitionScheduleEntity wsApplyTransition(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("workspace_name") String workspace,
             @RequestParam(RestCommonField.REST_TRANSITION_NAME) String transitionName,
             @RequestParam(value = RestCommonField.TRANSITION, required = false) String transition,
@@ -252,8 +253,8 @@ public class LifeCycleConfigController {
 
     @PutMapping("/lifeCycleConfig/workspaces/{workspace_name}")
     public TransitionScheduleEntity wsUpdateTransition(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("workspace_name") String workspace,
             @RequestParam(RestCommonField.REST_TRANSITION_NAME) String transitionName,
             @RequestParam(RestCommonField.TRANSITION) String transition,
@@ -280,8 +281,8 @@ public class LifeCycleConfigController {
 
     @PutMapping(path = "/lifeCycleConfig/workspaces/{workspace_name}", params = "action=update_status")
     public void wsUpdateTransitionStatus(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("workspace_name") String workspace,
             @RequestParam(RestCommonField.REST_TRANSITION_NAME) String transitionName,
             @RequestParam(RestCommonField.TRANSITION_STATUS) Boolean status, Authentication auth)
@@ -300,8 +301,8 @@ public class LifeCycleConfigController {
     }
 
     @DeleteMapping("/lifeCycleConfig/workspaces/{workspace_name}")
-    public void wsRemoveTransition(@RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+    public void wsRemoveTransition(@RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("workspace_name") String workspace,
             @RequestParam(RestCommonField.REST_TRANSITION_NAME) String transitionName,
             Authentication auth) throws Exception {
@@ -380,8 +381,8 @@ public class LifeCycleConfigController {
             @RequestParam(CommonDefine.RestArg.CREATE_TASK_OPTIONS) String options,
             @RequestParam(RestCommonField.ONCE_TRANSITION_SOURCE) String sourceStageTag,
             @RequestParam(RestCommonField.ONCE_TRANSITION_DEST) String destStageTag,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestParam(RestCommonField.PREFERRED_REGION) String preferredRegion,
             @RequestParam(RestCommonField.PREFERRED_ZONE) String preferredZone,
             @RequestParam(value = CommonDefine.RestArg.IS_ASYNC_COUNT_FILE, required = false) boolean isAsyncCountFile,
@@ -403,8 +404,8 @@ public class LifeCycleConfigController {
     }
 
     @PostMapping("/lifeCycleConfig/sites/stageTag/{site_name}")
-    public void setSiteStageTag(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
+    public void setSiteStageTag(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
             @PathVariable("site_name") String siteName, @RequestParam("stage_tag") String stageTag,
             Authentication auth) throws Exception {
         ScmUser user = (ScmUser) auth.getPrincipal();
@@ -419,8 +420,8 @@ public class LifeCycleConfigController {
     }
 
     @PutMapping("/lifeCycleConfig/sites/stageTag/{site_name}")
-    public void alterSiteStageTag(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
+    public void alterSiteStageTag(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
             @PathVariable("site_name") String siteName, @RequestParam("stage_tag") String stageTag,
             Authentication auth) throws Exception {
         ScmUser user = (ScmUser) auth.getPrincipal();
@@ -435,8 +436,8 @@ public class LifeCycleConfigController {
     }
 
     @DeleteMapping("/lifeCycleConfig/sites/stageTag/{site_name}")
-    public void deleteSiteStageTag(@RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
+    public void deleteSiteStageTag(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
             @PathVariable("site_name") String siteName, Authentication auth) throws Exception {
         ScmUser user = (ScmUser) auth.getPrincipal();
         checkAdminPriority(user, "alter site stage tag");
@@ -451,7 +452,7 @@ public class LifeCycleConfigController {
 
     @GetMapping("/lifeCycleConfig/sites/stageTag/{site_name}")
     public ResponseEntity getSiteStageTag(
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("site_name") String siteName, Authentication auth)
             throws ScheduleException {
         String siteStageTag = service.getSiteStageTag(siteName);

@@ -50,5 +50,23 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-feign</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-config-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

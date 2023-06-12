@@ -42,10 +42,10 @@ import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.Bcrypt;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.msg.user.UserConfig;
 import com.sequoiacm.infrastructure.config.core.msg.user.UserFilter;
-import com.sequoiacm.infrastructure.config.core.msg.user.UserUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.user.UserUpdater;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
 
 @Service
@@ -443,13 +443,13 @@ public class ScmUserService implements IUserService {
     private void sendUserChangeEvents(String username, EventType eventType) {
         try {
             if (eventType == EventType.CREATE) {
-                confClient.createConf(ScmConfigNameDefine.USER, new UserConfig(username), false);
+                confClient.createConf(ScmBusinessTypeDefine.USER, new UserConfig(username), false);
             }
             else if (eventType == EventType.UPDATE) {
-                confClient.updateConfig(ScmConfigNameDefine.USER, new UserUpdator(username), false);
+                confClient.updateConfig(ScmBusinessTypeDefine.USER, new UserUpdater(username), false);
             }
             else if (eventType == EventType.DELTE) {
-                confClient.deleteConf(ScmConfigNameDefine.USER, new UserFilter(username), false);
+                confClient.deleteConf(ScmBusinessTypeDefine.USER, new UserFilter(username), false);
             }
         }
         catch (Exception e) {

@@ -2,6 +2,8 @@ package com.sequoiacm.config.server.core;
 
 import java.util.List;
 
+import com.sequoiacm.config.framework.subscriber.ScmConfSubscriber;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,13 @@ public class ScmConfigNotifier {
     @Autowired
     ScmConfClientFactory clientFactory;
 
-    public void notifyServices(List<String> serviceList, ScmConfEvent event,
+    @Autowired
+    ConfigEntityTranslator configEntityTranslator;
+
+    public void notifyServices(List<ScmConfSubscriber> serviceList, ScmConfEvent event,
             boolean isAsyncNotify) {
-        for (String service : serviceList) {
-            notifyService(service, event, isAsyncNotify);
+        for (ScmConfSubscriber subscriber : serviceList) {
+            notifyService(subscriber.getServiceName(), event, isAsyncNotify);
         }
     }
 
@@ -36,19 +41,23 @@ public class ScmConfigNotifier {
             return;
         }
 
+        logger.info("notifying service: service={}, event={}", service, event);
         for (ServiceInstance instance : instances) {
             try {
                 String url = instance.getHost() + ":" + instance.getPort();
+                logger.info("notifying instance: instance={}", instance.getUri());
                 ScmConfClient c = clientFactory.getClient(url);
-                c.notifyInstance(event.getConfigName(),
-                        event.getNotifyOption().getEventType().toString(),
-                        event.getNotifyOption().toBSONObject(), isAsyncNotify);
+                c.notifyInstance(event.getBusinessType(),
+                        event.getEventType().toString(),
+                        configEntityTranslator.toNotifyOptionBSON(event.getNotifyOption()),
+                        isAsyncNotify);
             }
             catch (Exception e) {
                 logger.warn("notify instance failed:service={}, instance={}, event={}", service,
                         instance.getUri(), event, e);
             }
         }
+        logger.info("notify service done");
 
     }
 

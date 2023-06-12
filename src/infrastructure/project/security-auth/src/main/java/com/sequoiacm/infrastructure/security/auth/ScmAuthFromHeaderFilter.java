@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.slf4j.Logger;
@@ -43,11 +44,11 @@ public class ScmAuthFromHeaderFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        String sessionId = request.getHeader(RestField.SESSION_ATTRIBUTE);
+        String sessionId = request.getHeader(SecurityRestField.SESSION_ATTRIBUTE);
         boolean isLogoutReq = isLogoutRequest(request);
         if (StringUtils.hasText(sessionId) && !isLogoutReq) {
             ScmUser user;
-            String userDetails = request.getHeader(RestField.USER_ATTRIBUTE);
+            String userDetails = request.getHeader(SecurityRestField.USER_ATTRIBUTE);
             if (userDetails != null) {
                 user = userObjectCache.get(userDetails);
                 if (user == null) {
@@ -80,8 +81,8 @@ public class ScmAuthFromHeaderFilter extends OncePerRequestFilter {
                     logger.info("Get user from session user details");
                 }
             }
-            request.setAttribute(RestField.USER_ATTRIBUTE, userDetails);
-            request.setAttribute(RestField.USER_INFO_WRAPPER,
+            request.setAttribute(SecurityRestField.USER_ATTRIBUTE, userDetails);
+            request.setAttribute(SecurityRestField.USER_INFO_WRAPPER,
                     new ScmUserWrapper(user, userDetails));
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, user.getAuthorities());

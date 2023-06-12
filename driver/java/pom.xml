@@ -107,6 +107,9 @@
                                 <include>commons-logging:commons-logging</include>
                                 <include>com.google.code.gson:gson</include>
                                 <include>org.json:json</include>
+                                <include>org.reflections:reflections</include>
+                                <include>com.google.guava:guava</include>
+                                <include>org.javassist:javassist</include>
                             </includes>
                             <rules>
                                 <rule>

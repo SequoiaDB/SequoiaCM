@@ -1,12 +1,21 @@
 package com.sequoiacm.config.framework.subscriber;
 
-import com.sequoiacm.config.framework.event.ScmConfEvent;
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+public class ScmConfSubscriber {
 
-public interface ScmConfSubscriber {
-    public boolean isNeedNotify(ScmConfEvent e) throws ScmConfigException;
+    private String configName;
+    private String serviceName;
 
-    public String getConfigName();
+    public ScmConfSubscriber(String configName, String serviceName) {
+        this.configName = configName;
+        this.serviceName = serviceName;
+    }
 
-    public String getServiceName();
+    public String getConfigName() {
+        return configName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
 }

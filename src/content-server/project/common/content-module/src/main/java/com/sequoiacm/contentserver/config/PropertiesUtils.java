@@ -45,7 +45,6 @@ public class PropertiesUtils {
     private static ZkConfig zkConfig;
     private static PrivilegeHeartBeatConfig privilegeHeartBeatConfig;
     private static ScmAuditConfig auditConfig;
-    private static ConfVersionConfig versionConfig;
     private static DirCacheConfig dirCacheConfig;
     private static CephS3DatasourceConfig cephS3Config;
     private static SftpDatasourceConfig sftpDatasourceConfig;
@@ -85,11 +84,6 @@ public class PropertiesUtils {
     @Autowired
     public void setDirCacheConfig(DirCacheConfig dirCacheConfig) {
         PropertiesUtils.dirCacheConfig = dirCacheConfig;
-    }
-
-    @Autowired
-    public void setConfVersionConfig(ConfVersionConfig versionConfig) {
-        PropertiesUtils.versionConfig = versionConfig;
     }
 
     @Autowired
@@ -466,28 +460,12 @@ public class PropertiesUtils {
         }
     }
 
-    public static long getWorkspaceVersionHeartbeat() {
-        return versionConfig.getWorkspaceHeartbeat();
-    }
-
-    public static long getSiteVersionHeartbeat() {
-        return versionConfig.getSiteHeartbeat();
-    }
-
-    public static long getMetaDataVersionHearbeat() {
-        return versionConfig.getMetaDataHeartbeat();
-    }
-
     public static int getDirCacheMaxSize() {
         return dirCacheConfig.getMaxSize();
     }
 
     public static boolean enableDirCache() {
         return dirCacheConfig.isEnable();
-    }
-
-    public static long getNodeVersionHeartbeat() {
-        return versionConfig.getNodeHeartbeat();
     }
 
     public static ServerConfig getServerConfig() {

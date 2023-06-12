@@ -2,6 +2,7 @@ package com.sequoiacm.cloud.authentication.controller;
 
 import java.util.Random;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUser.ScmUserBuilder;
 import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructure.crypto.ScmPasswordMgr;
-import com.sequoiacm.infrastructure.security.auth.RestField;
 import com.sequoiacm.infrastructure.security.sign.SignUtil;
 import com.sequoiacm.infrastructure.security.sign.SignatureInfo;
 import com.sequoiadb.exception.BaseException;
@@ -62,11 +62,11 @@ public class AccesskeyController {
 
     @PostMapping(value = "/api/v1/accesskey", params = "action=refresh")
     public AccesskeyInfo refreshAccesskey(Authentication auth,
-            @RequestParam(value = RestField.USERNAME, required = false) String username,
-            @RequestParam(value = RestField.PASSWORD, required = false) String password,
-            @RequestParam(value = RestField.ACCESSKEY, required = false) String accesskey,
-            @RequestParam(value = RestField.SECRETKEY, required = false) String secretkey,
-            @RequestParam(value = RestField.SIGNATURE_INFO, required = false) SignatureInfo signatureInfo)
+            @RequestParam(value = SecurityRestField.USERNAME, required = false) String username,
+            @RequestParam(value = SecurityRestField.PASSWORD, required = false) String password,
+            @RequestParam(value = SecurityRestField.ACCESSKEY, required = false) String accesskey,
+            @RequestParam(value = SecurityRestField.SECRETKEY, required = false) String secretkey,
+            @RequestParam(value = SecurityRestField.SIGNATURE_INFO, required = false) SignatureInfo signatureInfo)
             throws Exception {
         checkKeyValid(username, accesskey, secretkey);
 

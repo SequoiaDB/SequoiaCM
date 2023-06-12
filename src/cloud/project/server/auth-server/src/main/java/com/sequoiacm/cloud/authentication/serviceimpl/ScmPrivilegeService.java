@@ -23,9 +23,9 @@ import com.sequoiacm.infrastructrue.security.core.ScmUserRoleRepository;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
-import com.sequoiacm.infrastructure.config.core.common.ScmConfigNameDefine;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.msg.role.RoleFilter;
-import com.sequoiacm.infrastructure.config.core.msg.role.RoleUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.role.RoleUpdater;
 
 @Service
 public class ScmPrivilegeService implements IPrivilegeService {
@@ -312,10 +312,10 @@ public class ScmPrivilegeService implements IPrivilegeService {
     private void sendRoleChangeEvents(String roleName, EventType eventType) {
         try {
             if (eventType == EventType.UPDATE) {
-                confClient.updateConfig(ScmConfigNameDefine.ROLE, new RoleUpdator(roleName), false);
+                confClient.updateConfig(ScmBusinessTypeDefine.ROLE, new RoleUpdater(roleName), false);
             }
             else if (eventType == EventType.DELTE) {
-                confClient.deleteConf(ScmConfigNameDefine.ROLE, new RoleFilter(roleName), false);
+                confClient.deleteConf(ScmBusinessTypeDefine.ROLE, new RoleFilter(roleName), false);
             }
         }
         catch (Exception e) {

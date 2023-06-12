@@ -1,23 +1,47 @@
 package com.sequoiacm.infrastructure.config.core.msg.bucket;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
 import java.util.Map;
+import java.util.Objects;
 
+@BusinessType(ScmBusinessTypeDefine.BUCKET)
 public class BucketConfig implements Config {
+
+    @JsonProperty(FieldName.Bucket.NAME)
     private String name;
+
+    @JsonProperty(FieldName.Bucket.ID)
     private long id;
+
+    @JsonProperty(FieldName.Bucket.FILE_TABLE)
     private String fileTable;
+
+    @JsonProperty(FieldName.Bucket.CREATE_TIME)
     private long createTime;
+
+    @JsonProperty(FieldName.Bucket.CREATE_USER)
     private String createUser;
+
+    @JsonProperty(FieldName.Bucket.WORKSPACE)
     private String workspace;
+
+    @JsonProperty(FieldName.Bucket.VERSION_STATUS)
     private String versionStatus;
+
+    @JsonProperty(FieldName.Bucket.CUSTOM_TAG)
     private Map<String, String> customTag;
+
+    @JsonProperty(FieldName.Bucket.UPDATE_TIME)
     private long updateTime;
+
+    @JsonProperty(FieldName.Bucket.UPDATE_USER)
     private String updateUser;
 
     public BucketConfig() {
@@ -104,27 +128,38 @@ public class BucketConfig implements Config {
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BasicBSONObject ret = new BasicBSONObject();
-        ret.put(FieldName.Bucket.NAME, name);
-        ret.put(FieldName.Bucket.ID, id);
-        ret.put(FieldName.Bucket.WORKSPACE, workspace);
-        ret.put(FieldName.Bucket.CREATE_TIME, createTime);
-        ret.put(FieldName.Bucket.CREATE_USER, createUser);
-        ret.put(FieldName.Bucket.FILE_TABLE, fileTable);
-        ret.put(FieldName.Bucket.VERSION_STATUS, versionStatus);
-        ret.put(FieldName.Bucket.CUSTOM_TAG, customTag);
-        ret.put(FieldName.Bucket.UPDATE_TIME, updateTime);
-        ret.put(FieldName.Bucket.UPDATE_USER, updateUser);
-        return ret;
-    }
-
-    @Override
     public String toString() {
         return "BucketConfig{" + "name='" + name + '\'' + ", id=" + id + ", fileTable='" + fileTable
                 + '\'' + ", createTime=" + createTime + ", createUser='" + createUser + '\''
                 + ", workspace='" + workspace + '\'' + ", versionStatus='" + versionStatus + '\''
                 + ", customTag=" + customTag + ", updateTime=" + updateTime + ", updateUser='"
                 + updateUser + '\'' + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        BucketConfig that = (BucketConfig) o;
+        return id == that.id && createTime == that.createTime && updateTime == that.updateTime
+                && Objects.equals(name, that.name) && Objects.equals(fileTable, that.fileTable)
+                && Objects.equals(createUser, that.createUser)
+                && Objects.equals(workspace, that.workspace)
+                && Objects.equals(versionStatus, that.versionStatus)
+                && Objects.equals(customTag, that.customTag)
+                && Objects.equals(updateUser, that.updateUser);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, id, fileTable, createTime, createUser, workspace, versionStatus,
+                customTag, updateTime, updateUser);
+    }
+
+    @Override
+    public String getBusinessName() {
+        return name;
     }
 }

@@ -2,11 +2,9 @@ package com.sequoiacm.cloud.adminserver;
 
 import com.sequoiacm.cloud.adminserver.config.PrivilegeHeartBeatConfig;
 import com.sequoiacm.cloud.adminserver.lock.LockPathFactory;
-import com.sequoiacm.infrastructure.config.client.core.bucket.BucketConfSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.bucket.EnableBucketSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.workspace.EnableWorkspaceSubscriber;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.BucketConfCache;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.EnableBucketCache;
+import com.sequoiacm.infrastructure.config.client.cache.workspace.EnableWorkspaceConfCache;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmPrivClient;
@@ -42,14 +40,12 @@ import de.codecentric.boot.admin.config.EnableAdminServer;
 @SpringBootApplication
 @EnableScmMonitorServer
 @EnableConfClient
+@EnableBucketCache
+@EnableWorkspaceConfCache
 @EnableScmLock
 @ComponentScan(basePackages = { "com.sequoiacm.cloud.adminserver" })
 @EnableHystrix
-@EnableBucketSubscriber
-@EnableWorkspaceSubscriber
 @EnableScmPrivClient
-@EnableUserSubscriber
-@EnableRoleSubscriber
 public class AdminServer implements ApplicationRunner {
 
     private final static Logger logger = LoggerFactory.getLogger(AdminServer.class);
@@ -70,10 +66,7 @@ public class AdminServer implements ApplicationRunner {
     private BreakpointFileStatisticsDao breakpointFileStatisticsDao;
 
     @Autowired
-    private ScmConfClient confClient;
-
-    @Autowired
-    private BucketConfSubscriber bucketConfSubscriber;
+    private BucketConfCache bucketConfCache;
 
     @Autowired
     private ScmLockManager lockManager;
@@ -114,7 +107,7 @@ public class AdminServer implements ApplicationRunner {
 
    private void initSystem(AdminServerConfig config) throws Exception {
        StatisticsServer.getInstance().init(contentServerDao, statisticsDao, workspaceDao,
-               bucketConfSubscriber, lockManager, lockPathFactory);
+               bucketConfCache, lockManager, lockPathFactory);
         StatisticsJobManager.getInstance().startTrafficJob(config.getJobFirstTime(),
                 config.getJobPeriod());
         if (config.isFileDeltaEnabled()) {

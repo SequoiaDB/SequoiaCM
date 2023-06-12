@@ -44,6 +44,11 @@
             <groupId>com.sequoiadb</groupId>
             <artifactId>sequoiacm-infrastructure-server-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sequoiadb</groupId>
+            <artifactId>sequoiacm-infrastructure-security-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.sequoiadb</groupId>

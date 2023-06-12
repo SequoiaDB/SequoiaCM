@@ -1,19 +1,37 @@
 package com.sequoiacm.infrastructure.config.core.msg.node;
 
-import org.bson.BSONObject;
-import org.bson.BasicBSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sequoiacm.infrastructure.config.core.common.BusinessType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.infrastructure.config.core.msg.Config;
 
+import java.util.Objects;
+
+@BusinessType(ScmBusinessTypeDefine.NODE)
 public class NodeConfig implements Config {
+    @JsonProperty(FieldName.FIELD_CLCONTENTSERVER_ID)
     private int id;
+
+    @JsonProperty(FieldName.FIELD_CLCONTENTSERVER_NAME)
     private String name;
+
+    @JsonProperty(FieldName.FIELD_CLCONTENTSERVER_TYPE)
     private int type;
+
+    @JsonProperty(FieldName.FIELD_CLCONTENTSERVER_SITEID)
     private int siteId;
-    private String hostName; 
+
+    @JsonProperty(FieldName.FIELD_CLCONTENTSERVER_HOST_NAME)
+    private String hostName;
+
+    @JsonProperty(FieldName.FIELD_CLCONTENTSERVER_PORT)
     private int port;
-    
+
+    public NodeConfig() {
+    }
+
     public int getId() {
         return id;
     }
@@ -63,14 +81,23 @@ public class NodeConfig implements Config {
     }
 
     @Override
-    public BSONObject toBSONObject() {
-        BSONObject nodeConfigObj = new BasicBSONObject();
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_ID, id);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_NAME, name);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_TYPE, type);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_SITEID, siteId);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_HOST_NAME, hostName);
-        nodeConfigObj.put(FieldName.FIELD_CLCONTENTSERVER_PORT, port);
-        return nodeConfigObj;
+    public String getBusinessName() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NodeConfig that = (NodeConfig) o;
+        return id == that.id && type == that.type && siteId == that.siteId && port == that.port
+                && Objects.equals(name, that.name) && Objects.equals(hostName, that.hostName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, type, siteId, hostName, port);
     }
 }

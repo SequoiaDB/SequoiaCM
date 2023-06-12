@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sequoiacm.infrastructrue.security.privilege.ScmPrivilegeDefine;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.infrastructure.security.privilege.impl.ScmWorkspaceResource;
 import com.sequoiacm.schedule.ScheduleApplicationConfig;
 import com.sequoiacm.schedule.common.FieldName;
@@ -107,8 +107,8 @@ public class ScheduleController {
 
     @RequestMapping(value = "/schedules", method = { RequestMethod.POST, RequestMethod.PUT })
     public ScheduleFullEntity createSchedule(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth,
             HttpServletRequest request) throws Exception {
         ScheduleUserEntity info = ScheduleEntityTranslator.UserInfo.fromRequest(request);
         checkWsPriority(auth.getName(), info.getWorkspace(), ScmPrivilegeDefine.CREATE,
@@ -153,8 +153,8 @@ public class ScheduleController {
 
     @DeleteMapping("/schedules/{schedule_id}")
     public void deleteSchedule(@PathVariable("schedule_id") String scheduleId,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
+                               @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+                               @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
             throws Exception {
         ScheduleFullEntity info = service.getSchedule(scheduleId);
         if (info.getType().equals(ScheduleDefine.ScheduleType.INTERNAL_SCHEDULE)) {
@@ -298,8 +298,8 @@ public class ScheduleController {
 
     @RequestMapping(value = "/schedules/{schedule_id}", method = RequestMethod.PUT)
     public ScheduleFullEntity updateScheduleInfo(
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId,
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @PathVariable("schedule_id") String scheduleId,
             @RequestParam(RestCommonDefine.RestParam.KEY_DESCRIPTION) String newInfoDesc,
             Authentication auth) throws Exception {

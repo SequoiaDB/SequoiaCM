@@ -2,6 +2,7 @@ package com.sequoiacm.cloud.authentication.config;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.bson.BSONObject;
 import org.bson.util.JSON;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,7 +13,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructrue.security.core.ScmUserJsonDeserializer;
-import com.sequoiacm.infrastructure.security.auth.RestField;
 
 public class ScmSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
 
@@ -36,7 +36,7 @@ public class ScmSessionSecurityContextRepository extends HttpSessionSecurityCont
     }
 
     private ScmUser parseScmUserDetail(HttpServletRequest request) {
-        String userDetails = request.getHeader(RestField.USER_ATTRIBUTE);
+        String userDetails = request.getHeader(SecurityRestField.USER_ATTRIBUTE);
         if (userDetails == null) {
             return null;
         }

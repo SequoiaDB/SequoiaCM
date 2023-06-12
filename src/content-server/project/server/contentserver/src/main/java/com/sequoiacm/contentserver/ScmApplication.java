@@ -6,6 +6,8 @@ import java.util.HashMap;
 import com.sequoiacm.infrastructure.common.EnableRequestKeepAlive;
 import com.sequoiacm.contentserver.common.IDGeneratorDao;
 import com.sequoiacm.contentserver.tag.TagLibMgr;
+import com.sequoiacm.infrastructure.config.client.cache.bucket.EnableBucketCache;
+import com.sequoiacm.infrastructure.config.client.cache.quota.EnableQuotaConfCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +33,6 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.audit.EnableAudit;
 import com.sequoiacm.infrastructure.config.client.EnableConfClient;
 import com.sequoiacm.infrastructure.config.client.ScmConfClient;
-import com.sequoiacm.infrastructure.config.client.core.role.EnableRoleSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.user.EnableUserSubscriber;
 import com.sequoiacm.infrastructure.config.core.verifier.PreventingModificationVerifier;
 import com.sequoiacm.infrastructure.monitor.config.EnableScmMonitorServer;
 import com.sequoiacm.infrastructure.security.privilege.impl.EnableScmPrivClient;
@@ -45,8 +45,8 @@ import com.sequoiadb.infrastructure.map.server.EnableMapServerWithoutDataSource;
 @EnableFeignClients("com.sequoiacm.cloud.security.privilege.impl")
 @EnableDiscoveryClient
 @EnableConfClient
-@EnableUserSubscriber
-@EnableRoleSubscriber
+@EnableBucketCache
+@EnableQuotaConfCache
 @EnableMapServerWithoutDataSource
 @EnableAudit
 @ComponentScan(basePackages = { "com.sequoiacm.infrastructure.security.privilege.impl",

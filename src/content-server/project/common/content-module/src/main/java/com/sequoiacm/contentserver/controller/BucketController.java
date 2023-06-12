@@ -8,7 +8,6 @@ import com.sequoiacm.common.ScmArgChecker;
 import com.sequoiacm.common.module.ScmBucketAttachFailure;
 import com.sequoiacm.common.module.ScmBucketAttachKeyType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
-import com.sequoiacm.contentserver.bucket.BucketInfoManager;
 import com.sequoiacm.contentserver.common.ScmSystemUtils;
 import com.sequoiacm.contentserver.exception.ScmFileNotFoundException;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
@@ -25,7 +24,7 @@ import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmObjectCursor;
-import com.sequoiacm.infrastructure.security.auth.RestField;
+import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -135,9 +134,10 @@ public class BucketController {
             @RequestHeader(value = CommonDefine.RestArg.FILE_DESCRIPTION) String fileInfoStr,
             @RequestParam(value = CommonDefine.RestArg.FILE_BREAKPOINT_FILE, required = false) String breakpointFileName,
             @RequestParam(value = CommonDefine.RestArg.FILE_UPLOAD_CONFIG, required = false) BSONObject uploadConfig,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth,
-            HttpServletRequest request) throws ScmServerException, IOException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth, HttpServletRequest request)
+            throws ScmServerException, IOException {
         ScmBucket bucket = service.getBucket(bucketName);
 
         ScmUser user = (ScmUser) auth.getPrincipal();
@@ -271,9 +271,9 @@ public class BucketController {
     public BSONObject deleteFile(@PathVariable("name") String bucketName,
             @RequestParam(value = CommonDefine.RestArg.FILE_NAME) String fileName,
             @RequestParam(value = CommonDefine.RestArg.FILE_IS_PHYSICAL, required = false, defaultValue = "false") boolean isPhysical,
-            @RequestAttribute(RestField.USER_ATTRIBUTE) String userDetail,
-            @RequestHeader(RestField.SESSION_ATTRIBUTE) String sessionId, Authentication auth)
-            throws ScmServerException {
+            @RequestAttribute(SecurityRestField.USER_ATTRIBUTE) String userDetail,
+            @RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+            Authentication auth) throws ScmServerException {
         ScmUser user = (ScmUser) auth.getPrincipal();
         FileMeta ret = service.deleteFile(user, bucketName, fileName, isPhysical,
                 new SessionInfoWrapper(sessionId, userDetail));

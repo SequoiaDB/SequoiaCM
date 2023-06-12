@@ -10,8 +10,8 @@ SequoiaCM 配置
 |------|-----|-----|----------|
 |scm.jvm.options|str|配置 java jvm 参数，例如：-Xmx2048M -Xms2048M -Xmn1536M，默认为空，即启动节点不添加任何 jvm 参数|重启生效|
 |scm.privilege.heartbeat.interval|num|权限版本号校验间隔时间，当版本号不一致时会刷新版本信息。默认值：10000，单位：毫秒|重启生效|
-|scm.conf.version.siteHeartbeat|num|配置站点版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
-|scm.conf.version.workspaceHeartbeat|num|配置工作区版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.site.heartbeatInterval|num|配置 site 版本号校验间隔时间，默认值：180000，单位：毫秒|重启生效|
+|scm.conf.client.workspace.heartbeatInterval|num|配置 workspace 版本号校验间隔时间，默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.user.heartbeatInterval|num|配置用户版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.conf.client.role.heartbeatInterval|num|配置角色版本号校验间隔时间。默认值：180000，单位：毫秒|重启生效|
 |scm.zookeeper.urls|str|zookeeper服务地址(ip1:port1,ip2:port2)|重启生效|

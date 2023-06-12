@@ -37,6 +37,9 @@
                 <exclude>commons-logging:commons-logging</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
                 <exclude>org.json:json</exclude>
+                <exclude>org.reflections:reflections</exclude>
+                <exclude>com.google.guava:guava</exclude>
+                <exclude>org.javassist:javassist</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

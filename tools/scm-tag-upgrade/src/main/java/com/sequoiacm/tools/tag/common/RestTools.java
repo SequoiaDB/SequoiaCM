@@ -3,7 +3,8 @@ package com.sequoiacm.tools.tag.common;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.config.core.common.ScmRestArgDefine;
-import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdator;
+import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
+import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdater;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 import org.apache.http.Header;
@@ -23,7 +24,7 @@ import java.net.URLEncoder;
 public class RestTools {
 
     private static final String ERROR_ATTRIBUTE = "X-SCM-ERROR";
-
+    private static final ConfigEntityTranslator translator = new ConfigEntityTranslator();
     private static String encode(String url) throws ScmToolsException {
         if (url == null || url.isEmpty()) {
             return "";
@@ -76,10 +77,11 @@ public class RestTools {
         throw new Exception(message + ", errorcode=" + errcode);
     }
 
-    public static void updateWorkspace(String configServerUrl, WorkspaceUpdator updater)
+    public static void updateWorkspace(String configServerUrl, WorkspaceUpdater updater)
             throws ScmToolsException {
         HttpPut put = new HttpPut("http://" + configServerUrl + "/internal/v1/config/workspace?"
-                + ScmRestArgDefine.CONFIG + "=" + encode(updater.toBSONObject().toString()) + "&"
+                + ScmRestArgDefine.CONFIG + "="
+                + encode(translator.toConfigUpdaterBSON(updater).toString()) + "&"
                 + ScmRestArgDefine.IS_ASYNC_NOTIFY + "=false");
         CloseableHttpClient client = null;
         CloseableHttpResponse resp = null;

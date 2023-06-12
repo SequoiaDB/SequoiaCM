@@ -27,10 +27,13 @@ import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
-import com.sequoiacm.infrastructure.config.client.core.bucket.BucketDeletedEvent;
-import com.sequoiacm.infrastructure.config.client.core.quota.EnableQuotaSubscriber;
-import com.sequoiacm.infrastructure.config.client.core.quota.QuotaChangeEvent;
-import com.sequoiacm.infrastructure.config.client.core.quota.QuotaConfSubscriber;
+import com.sequoiacm.infrastructure.config.client.ScmConfClient;
+import com.sequoiacm.infrastructure.config.client.cache.quota.EnableQuotaConfCache;
+import com.sequoiacm.infrastructure.config.client.cache.quota.QuotaConfCache;
+import com.sequoiacm.infrastructure.config.core.common.EventType;
+import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
+import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import com.sequoiacm.infrastructure.config.core.msg.NotifyOption;
 import com.sequoiacm.infrastructure.config.core.msg.quota.QuotaConfig;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.metasource.IndexDef;
@@ -58,7 +61,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@EnableQuotaSubscriber
+@EnableQuotaConfCache
 public class BucketQuotaManager implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(BucketQuotaManager.class);
 
@@ -79,7 +82,7 @@ public class BucketQuotaManager implements ApplicationRunner {
     private Map<String, Object> syncingStatusBuckets = new ConcurrentHashMap<>();
 
     @Autowired
-    private QuotaConfSubscriber quotaConfSubscriber;
+    private QuotaConfCache quotaCache;
 
     @Autowired
     private QuotaLimitConfig quotaLimitConfig;
@@ -89,6 +92,9 @@ public class BucketQuotaManager implements ApplicationRunner {
 
     private MetaQuotaSyncAccessor quotaSyncAccessor;
     private MetaQuotaAccessor quotaAccessor;
+
+    @Autowired
+    private ScmConfClient confClient;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
@@ -106,6 +112,9 @@ public class BucketQuotaManager implements ApplicationRunner {
             setupRefreshSyncInfoTask();
             flushAndRefreshQuotaTask = new FlushAndRefreshQuotaTask();
             flushAndRefreshQuotaTask.start();
+
+            confClient.subscribe(ScmBusinessTypeDefine.QUOTA, this::handleQuotaNotify);
+            confClient.subscribe(ScmBusinessTypeDefine.BUCKET, this::handleBucketNotify);
         }
         catch (Exception e) {
             destroy();
@@ -458,7 +467,7 @@ public class BucketQuotaManager implements ApplicationRunner {
     public Long getBucketMaxObjects(String bucketName, int quotaRoundNumber)
             throws ScmSystemException {
         try {
-            QuotaConfig quota = quotaConfSubscriber.getQuota(QUOTA_TYPE, bucketName);
+            QuotaConfig quota = quotaCache.getQuota(QUOTA_TYPE, bucketName);
             if (quota == null || quota.getQuotaRoundNumber() != quotaRoundNumber) {
                 return null;
             }
@@ -473,7 +482,7 @@ public class BucketQuotaManager implements ApplicationRunner {
     public Long getBucketMaxSize(String bucketName, int quotaRoundNumber)
             throws ScmSystemException {
         try {
-            QuotaConfig quota = quotaConfSubscriber.getQuota(QUOTA_TYPE, bucketName);
+            QuotaConfig quota = quotaCache.getQuota(QUOTA_TYPE, bucketName);
             if (quota == null || quota.getQuotaRoundNumber() != quotaRoundNumber) {
                 return null;
             }
@@ -488,7 +497,7 @@ public class BucketQuotaManager implements ApplicationRunner {
     public QuotaConfig getQuotaConfig(String bucketName, int quotaRoundNumber)
             throws ScmSystemException {
         try {
-            QuotaConfig quota = quotaConfSubscriber.getQuota(QUOTA_TYPE, bucketName);
+            QuotaConfig quota = quotaCache.getQuota(QUOTA_TYPE, bucketName);
             if (quota == null || quota.getQuotaRoundNumber() != quotaRoundNumber) {
                 return null;
             }
@@ -630,34 +639,40 @@ public class BucketQuotaManager implements ApplicationRunner {
         }
     }
 
-    @EventListener
-    public void handleQuotaChange(QuotaChangeEvent quotaChangeEvent) throws ScmServerException {
-        logger.info("handle quota change event:{}", quotaChangeEvent);
-        if (quotaChangeEvent.getType().equals(QUOTA_TYPE)) {
-            QuotaConfig newQuotaConfig = quotaChangeEvent.getNewQuotaConfig();
-            if (newQuotaConfig == null) {
-                handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName(),
-                        Integer.MAX_VALUE));
-                return;
-            }
-            if (newQuotaConfig.isEnable()) {
-                handleMsg(new EnableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName(),
-                        newQuotaConfig.getQuotaRoundNumber()));
-            }
-            else {
-                handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaChangeEvent.getName(),
-                        newQuotaConfig.getQuotaRoundNumber()));
-            }
+    public void handleQuotaNotify(EventType eventType, String businessName,
+            NotifyOption notification) throws ScmServerException, ScmConfigException {
+        String quotaType = QuotaConfig.getTypeFromBusinessName(businessName);
+        String quotaName = QuotaConfig.getNameFromBusinessName(businessName);
+
+        if (!quotaType.equals(QUOTA_TYPE)) {
+            return;
         }
+
+        if (eventType == EventType.DELTE) {
+            handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaName, Integer.MAX_VALUE));
+            return;
+        }
+
+        QuotaConfig newQuotaConfig = quotaCache.getQuota(quotaType, quotaName);
+        if (newQuotaConfig.isEnable()) {
+            handleMsg(new EnableQuotaMsg(QUOTA_TYPE, quotaName,
+                    newQuotaConfig.getQuotaRoundNumber()));
+        }
+        else {
+            handleMsg(new DisableQuotaMsg(QUOTA_TYPE, quotaName,
+                    newQuotaConfig.getQuotaRoundNumber()));
+        }
+
     }
 
-    @EventListener
-    public void handleBucketDeletedEvent(BucketDeletedEvent bucketDeletedEvent)
+    public void handleBucketNotify(EventType type, String businessName, NotifyOption notification)
             throws ScmServerException {
-        logger.info("handle bucket deleted event:{}", bucketDeletedEvent);
-        DisableQuotaMsg disableQuotaMsg = new DisableQuotaMsg(QUOTA_TYPE,
-                bucketDeletedEvent.getDeletedBucketName(), Integer.MAX_VALUE);
-        handleMsg(disableQuotaMsg);
+        if (type == EventType.DELTE) {
+            DisableQuotaMsg disableQuotaMsg = new DisableQuotaMsg(QUOTA_TYPE, businessName,
+                    Integer.MAX_VALUE);
+            handleMsg(disableQuotaMsg);
+            return;
+        }
     }
 
     @EventListener
