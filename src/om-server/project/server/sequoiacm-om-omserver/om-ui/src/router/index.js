@@ -190,20 +190,20 @@ export const constantRoutes = [
     ]
   },
 
-  {
-    path: '/tag',
-    component: Layout,
-    meta: { title: '标签库管理', icon: 'el-icon-collection-tag'},
-    redirect: '/tag/table',
-    children: [
-      {
-        path: 'table',
-        name: 'TagTable',
-        component: () => import('@/views/tag/index'),
-        meta: { title: '标签库管理', icon: 'el-icon-collection-tag', keepAlive:true }
-      }
-    ]
-  },
+  // {
+  //   path: '/tag',
+  //   component: Layout,
+  //   meta: { title: '标签库管理', icon: 'el-icon-collection-tag'},
+  //   redirect: '/tag/table',
+  //   children: [
+  //     {
+  //       path: 'table',
+  //       name: 'TagTable',
+  //       component: () => import('@/views/tag/index'),
+  //       meta: { title: '标签库管理', icon: 'el-icon-collection-tag', keepAlive:true }
+  //     }
+  //   ]
+  // },
 
   {
     path: '/user',
@@ -237,13 +237,13 @@ export const constantRoutes = [
         name: 'Role',
         component: () => import('@/views/system/role/index'),
         meta: { title: '角色管理', icon: 'el-icon-s-custom', keepAlive:true, roles: ['ROLE_AUTH_ADMIN'] }    // icon: 'el-icon-setting'
-      },
-      {
-        path: 'config',
-        name: 'Config',
-        component: () => import('@/views/system/config/index'),
-        meta: { title: '系统配置', icon: 'el-icon-set-up', keepAlive:true, roles: ['ROLE_AUTH_ADMIN'] }    // icon: 'el-icon-setting'
       }
+      // {
+      //   path: 'config',
+      //   name: 'Config',
+      //   component: () => import('@/views/system/config/index'),
+      //   meta: { title: '系统配置', icon: 'el-icon-set-up', keepAlive:true, roles: ['ROLE_AUTH_ADMIN'] }    // icon: 'el-icon-setting'
+      // }
     ]
   },
 

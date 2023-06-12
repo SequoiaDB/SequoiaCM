@@ -68,7 +68,7 @@
                   </span>
                 </el-col>
               </el-row>
-              <el-row>
+              <!-- <el-row>
                 <el-col :span="5" style="width:120px;margin-top:12px;font-size: 15px">
                   <span>标签检索：</span>
                 </el-col>
@@ -93,7 +93,7 @@
                 <el-col :span="4">
                   <el-input v-model="workspaceInfo.tag_lib_domain" readonly style="margin-top:12px" size="small"></el-input>
                 </el-col>
-              </el-row>
+              </el-row> -->
               <el-row>
                 <el-col :span="5" style="width:120px;margin-top:12px;font-size: 15px">
                   <span>数据流配置：</span>
@@ -557,48 +557,48 @@ export default {
     }
   },
   watch: {
-    async tagRetrievalStatus(newValue, oldValue) {
-      if (!this.watchTagRetrievalStatus) {
-        this.watchTagRetrievalStatus = true
-        return
-      }
+  //   async tagRetrievalStatus(newValue, oldValue) {
+  //     if (!this.watchTagRetrievalStatus) {
+  //       this.watchTagRetrievalStatus = true
+  //       return
+  //     }
 
-      if (oldValue === 'indexing') {
-        clearInterval(this.timer)
-        this.timer = null
-        if (newValue === 'enabled') {
-          this.$message.success("开启工作区标签检索成功！")
-        } else {
-          this.$message.error("开启工作区标签检索失败！")
-        }
-        return
-      }
+  //     if (oldValue === 'indexing') {
+  //       clearInterval(this.timer)
+  //       this.timer = null
+  //       if (newValue === 'enabled') {
+  //         this.$message.success("开启工作区标签检索成功！")
+  //       } else {
+  //         this.$message.error("开启工作区标签检索失败！")
+  //       }
+  //       return
+  //     }
 
-      if (newValue === 'indexing') {
-        this.timer = setInterval(() => {
-          this.tagRetrievalStatusChecker()
-        }, 2000)
-        return
-      }
+  //     if (newValue === 'indexing') {
+  //       this.timer = setInterval(() => {
+  //         this.tagRetrievalStatusChecker()
+  //       }, 2000)
+  //       return
+  //     }
 
-      // 修改标签检索状态
-      try {
-        if (newValue === 'enabled') {
-          let ws = { tagRetrievalEnabled : true}
-          let res = await updateWorkspace(this.workspaceInfo.name, ws)
-          this.$message.success("正在开启工作区标签检索")
-          this.tagRetrievalStatus = 'indexing'
-        } else {
-          let ws = { tagRetrievalEnabled : false }
-          let res = await updateWorkspace(this.workspaceInfo.name, ws)
-          this.$message.success("关闭工作区标签检索成功")
-        }
-      } catch (error) {
-		    // 修改失败时还原标签状态，并且本次状态的变更不需要 watch（避免进入死循环）
-        this.tagRetrievalStatus = oldValue
-        this.watchTagRetrievalStatus = false
-      }
-    }
+  //     // 修改标签检索状态
+  //     try {
+  //       if (newValue === 'enabled') {
+  //         let ws = { tagRetrievalEnabled : true}
+  //         let res = await updateWorkspace(this.workspaceInfo.name, ws)
+  //         this.$message.success("正在开启工作区标签检索")
+  //         this.tagRetrievalStatus = 'indexing'
+  //       } else {
+  //         let ws = { tagRetrievalEnabled : false }
+  //         let res = await updateWorkspace(this.workspaceInfo.name, ws)
+  //         this.$message.success("关闭工作区标签检索成功")
+  //       }
+  //     } catch (error) {
+	// 	    // 修改失败时还原标签状态，并且本次状态的变更不需要 watch（避免进入死循环）
+  //       this.tagRetrievalStatus = oldValue
+  //       this.watchTagRetrievalStatus = false
+  //     }
+  //   }
   }
 
 }

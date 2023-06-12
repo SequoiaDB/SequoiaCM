@@ -22,11 +22,11 @@ public class OmWorkspaceCreateInfo {
     @JsonProperty("directory_enabled")
     private boolean directoryEnabled;
 
-    @JsonProperty("tag_retrieval_enabled")
-    private boolean tagRetrievalEnabled;
-
-    @JsonProperty("tag_lib_domain")
-    private String tagLibDomain;
+    // @JsonProperty("tag_retrieval_enabled")
+    // private boolean tagRetrievalEnabled;
+    //
+    // @JsonProperty("tag_lib_domain")
+    // private String tagLibDomain;
 
     @JsonProperty("meta_location")
     private BSONObject metaLocation;
@@ -74,21 +74,21 @@ public class OmWorkspaceCreateInfo {
         this.directoryEnabled = directoryEnabled;
     }
 
-    public boolean isTagRetrievalEnabled() {
-        return tagRetrievalEnabled;
-    }
-
-    public void setTagRetrievalEnabled(boolean tagRetrievalEnabled) {
-        this.tagRetrievalEnabled = tagRetrievalEnabled;
-    }
-
-    public String getTagLibDomain() {
-        return tagLibDomain;
-    }
-
-    public void setTagLibDomain(String tagLibDomain) {
-        this.tagLibDomain = tagLibDomain;
-    }
+    // public boolean isTagRetrievalEnabled() {
+    // return tagRetrievalEnabled;
+    // }
+    //
+    // public void setTagRetrievalEnabled(boolean tagRetrievalEnabled) {
+    // this.tagRetrievalEnabled = tagRetrievalEnabled;
+    // }
+    //
+    // public String getTagLibDomain() {
+    // return tagLibDomain;
+    // }
+    //
+    // public void setTagLibDomain(String tagLibDomain) {
+    // this.tagLibDomain = tagLibDomain;
+    // }
 
     public BSONObject getMetaLocation() {
         return metaLocation;
@@ -110,8 +110,7 @@ public class OmWorkspaceCreateInfo {
     public String toString() {
         return "OmWorkspaceCreateInfo{" + "wsNameList=" + wsNameList + ", cacheStrategy='"
                 + cacheStrategy + '\'' + ", preferred='" + preferred + '\'' + ", description='"
-                + description + '\'' + ", directoryEnabled=" + directoryEnabled
-                + ", tagSearchEnabled=" + tagRetrievalEnabled + ", tagLibDomain=" + tagLibDomain
-                + ", metaLocation=" + metaLocation + ", dataLocations=" + dataLocations + '}';
+                + description + '\'' + ", directoryEnabled=" + directoryEnabled + ", metaLocation="
+                + metaLocation + ", dataLocations=" + dataLocations + '}';
     }
 }

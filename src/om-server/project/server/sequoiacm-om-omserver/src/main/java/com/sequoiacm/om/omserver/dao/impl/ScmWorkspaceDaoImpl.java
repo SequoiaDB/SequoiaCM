@@ -131,17 +131,17 @@ public class ScmWorkspaceDaoImpl implements ScmWorkspaceDao {
     public void updateWorkspace(ScmOmSession session, String wsName, OmWorkspaceInfo wsInfo)
             throws ScmInternalException {
         ScmSession connection = session.getConnection();
-        Boolean tagRetrievalEnabled;
+        // Boolean tagRetrievalEnabled;
         try {
             ScmWorkspace ws = ScmFactory.Workspace.getWorkspace(wsName, connection);
             String siteCacheStrategy = wsInfo.getSiteCacheStrategy();
             if (siteCacheStrategy != null) {
                 ws.updateSiteCacheStrategy(ScmSiteCacheStrategy.getStrategy(siteCacheStrategy));
             }
-            if (wsInfo.isTagRetrievalEnabled() != null) {
-                tagRetrievalEnabled = wsInfo.isTagRetrievalEnabled();
-                ws.setEnableTagRetrieval(tagRetrievalEnabled);
-            }
+            // if (wsInfo.isTagRetrievalEnabled() != null) {
+            // tagRetrievalEnabled = wsInfo.isTagRetrievalEnabled();
+            // ws.setEnableTagRetrieval(tagRetrievalEnabled);
+            // }
         }
         catch (ScmException e) {
             throw new ScmInternalException(e.getError(), e.getMessage(), e);

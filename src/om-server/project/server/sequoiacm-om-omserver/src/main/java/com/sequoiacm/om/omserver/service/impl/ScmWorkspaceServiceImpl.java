@@ -30,7 +30,6 @@ import com.sequoiacm.client.element.bizconf.ScmMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmSdbDataLocation;
 import com.sequoiacm.client.element.bizconf.ScmSdbMetaLocation;
 import com.sequoiacm.client.element.bizconf.ScmSftpDataLocation;
-import com.sequoiacm.client.element.bizconf.ScmTagLibMetaOption;
 import com.sequoiacm.client.element.bizconf.ScmWorkspaceConf;
 import com.sequoiacm.client.element.privilege.ScmPrivilegeType;
 import com.sequoiacm.client.exception.ScmException;
@@ -114,8 +113,8 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         wsDetailWithStatistics.setUpdateTime(wsDetail.getUpdateTime());
         wsDetailWithStatistics.setUpdateUser(wsDetail.getUpdateUser());
         wsDetailWithStatistics.setSiteCacheStrategy(wsDetail.getSiteCacheStrategy());
-        wsDetailWithStatistics.setTagRetrievalStatus(wsDetail.getTagRetrievalStatus());
-        wsDetailWithStatistics.setTagLibDomain(wsDetail.getTagLibDomain());
+        // wsDetailWithStatistics.setTagRetrievalStatus(wsDetail.getTagRetrievalStatus());
+        // wsDetailWithStatistics.setTagLibDomain(wsDetail.getTagLibDomain());
         String prefreSite = siteChooser.chooseSiteFromWorkspace(wsDetail);
         try {
             session.resetServiceEndpoint(prefreSite);
@@ -267,8 +266,9 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
                 conf.setDescription(workspacesInfo.getDescription());
             }
             conf.setEnableDirectory(workspacesInfo.isDirectoryEnabled());
-            conf.setEnableTagRetrieval(workspacesInfo.isTagRetrievalEnabled());
-            conf.setTagLibMetaOption(new ScmTagLibMetaOption(workspacesInfo.getTagLibDomain()));
+            // conf.setEnableTagRetrieval(workspacesInfo.isTagRetrievalEnabled());
+            // conf.setTagLibMetaOption(new
+            // ScmTagLibMetaOption(workspacesInfo.getTagLibDomain()));
             conf.setMetaLocation(new ScmSdbMetaLocation(workspacesInfo.getMetaLocation()));
             for (BSONObject location : workspacesInfo.getDataLocations()) {
                 conf.addDataLocation(createDataLocation(location, sitesMap));
@@ -493,17 +493,17 @@ public class ScmWorkspaceServiceImpl implements ScmWorkspaceService {
         ret.setDescription(ws.getDescription());
         ret.setName(ws.getName());
         ret.setEnableDirectory(ws.isEnableDirectory());
-        ScmTagLibMetaOption tagLibMetaOption;
-        try {
-            tagLibMetaOption = ws.getTagLibMetaOption();
-            if (tagLibMetaOption != null) {
-                ret.setTagLibDomain(tagLibMetaOption.getTagLibDomain());
-            }
-            ret.setTagRetrievalStatus(ws.getTagRetrievalStatus().getValue());
-        }
-        catch (ScmException e) {
-            throw new ScmInternalException(e.getError(), e.getMessage(), e);
-        }
+        // ScmTagLibMetaOption tagLibMetaOption;
+        // try {
+        // tagLibMetaOption = ws.getTagLibMetaOption();
+        // if (tagLibMetaOption != null) {
+        // ret.setTagLibDomain(tagLibMetaOption.getTagLibDomain());
+        // }
+        // ret.setTagRetrievalStatus(ws.getTagRetrievalStatus().getValue());
+        // }
+        // catch (ScmException e) {
+        // throw new ScmInternalException(e.getError(), e.getMessage(), e);
+        // }
         ret.setUpdateTime(ws.getUpdateTime());
         ret.setUpdateUser(ws.getUpdateUser());
         ret.setSiteCacheStrategy(ws.getSiteCacheStrategy().name());

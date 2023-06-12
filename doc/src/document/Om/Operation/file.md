@@ -2,8 +2,6 @@
 
 ##查询文件##
 
-###普通查询###
-
 用户可在顶部搜索栏选择需要查询的工作区，并指定检索条件进行复合查询。检索条件包括文件 ID、文件名和 json 串，当检索条件为空时，将返回工作区下的所有文件。查询结果默认按文件 ID 降序排序，用户也可选择按文件名、创建人或创建时间排序。
 
 ![文件列表][file_list]
@@ -11,12 +9,6 @@
 如果检索条件为 json 串，用户可点击文本输入框右侧的图标 "?" 查看文件详细的属性列表及查询示例。
 
 ![文件列表][file_list_by_json]
-
-###标签检索###
-
-用户可在顶部搜索栏右侧点击 **标签检索** 按钮，选择标准模式或高级模式，并指定标签检索条件。完成上述操作后，点击底部 **确定** 按钮即可查询符合条件的文件。在高级模式中，用户可自定义标签检索条件，实现更复杂的嵌套查询。
-
-![标签检索文件][file_list_with_tag]
 
 >**Note:**
 >
@@ -63,7 +55,6 @@
 
 [file_list]:Om/Operation/file_list.png
 [file_list_by_json]:Om/Operation/file_list_by_json.png
-[file_list_with_tag]:Om/Operation/file_list_with_tag.png
 [file_detail]:Om/Operation/file_detail.png
 [file_download]:Om/Operation/file_download.png
 [file_upload]:Om/Operation/file_upload.png

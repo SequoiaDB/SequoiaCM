@@ -144,7 +144,7 @@
               <el-form-item label="目录开关" >
                 <el-switch v-model="form.directoryEnabled"></el-switch>
               </el-form-item>
-              <el-form-item label="标签检索" >
+              <!-- <el-form-item label="标签检索" >
                 <el-switch v-model="form.tagRetrievalEnabled"></el-switch>
               </el-form-item>
               <el-form-item label="标签库 Domain" >
@@ -163,7 +163,7 @@
                   :disabled="form.domainType==='default'"
                   style="margin-top: 5px;">
                 </el-input>
-              </el-form-item>
+              </el-form-item> -->
             </el-collapse-item>
           </el-collapse>
       </el-form>
@@ -275,18 +275,18 @@ export default {
           this.activeSite = site.name
         }
       }
-      // 获取标签库默认 Domain
-      let configName = 'scm.tagLib.defaultDomain' 
-      let res = await getGlobalConfig(configName)
-      if (res.data[configName]) {
-        this.form.domainType = 'default'
-        this.form.defaultTagLibDomain = res.data[configName]
-        this.form.tagLibDomain = this.form.defaultTagLibDomain
-      }
-      else {
-        // 如果没有默认 Domian，则展开其它配置，让用户去填写
-        this.collapseValue = 'otherConfig'
-      }
+      // // 获取标签库默认 Domain
+      // let configName = 'scm.tagLib.defaultDomain' 
+      // let res = await getGlobalConfig(configName)
+      // if (res.data[configName]) {
+      //   this.form.domainType = 'default'
+      //   this.form.defaultTagLibDomain = res.data[configName]
+      //   this.form.tagLibDomain = this.form.defaultTagLibDomain
+      // }
+      // else {
+      //   // 如果没有默认 Domian，则展开其它配置，让用户去填写
+      //   this.collapseValue = 'otherConfig'
+      // }
     },
 
     // 清除输入框数据
@@ -377,10 +377,10 @@ export default {
       if (this.saveBtnDisabled) {
         return
       }
-      if (this.form.tagLibDomain === '') {
-        this.$message.error('其它配置->标签库 Domain 不能为空')
-        return
-      }
+      // if (this.form.tagLibDomain === '') {
+      //   this.$message.error('其它配置->标签库 Domain 不能为空')
+      //   return
+      // }
       this.saveBtnDisabled = true
       this.$refs['form'].validate(valid => {
         if (valid) {
