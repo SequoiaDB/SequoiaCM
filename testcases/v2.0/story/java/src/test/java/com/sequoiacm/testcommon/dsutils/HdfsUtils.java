@@ -15,8 +15,13 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.server.namenode.ha.proto.HAZKInfoProtos;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
 import org.bson.BSONObject;
 
 import com.sequoiacm.client.element.ScmId;
@@ -35,17 +40,11 @@ public class HdfsUtils extends TestScmBase {
      * @param site
      * @return FileSystem
      */
-    public static FileSystem getFs( SiteWrapper site ) {
+    public static FileSystem getFs( SiteWrapper site )
+            throws IOException, InterruptedException, KeeperException {
+        String url = chooseUrl( TestScmBase.hdfsURI );
         Configuration conf = new Configuration();
-        conf.set( urlKey, "hdfs://ns1" );
-        conf.set( "dfs.nameservices", "ns1" );
-        conf.set( "dfs.ha.namenodes.ns1", "nn1,nn2" );
-        conf.set( "dfs.client.failover.proxy.provider.ns1",
-                "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" );
-        conf.set( "dfs.namenode.rpc-address.ns1.nn2",
-                "scm-test-ci-cent7:9000" );
-        conf.set( "dfs.namenode.rpc-address.ns1.nn1",
-                "scm-test-ci-cent8:9000" );
+        conf.set( urlKey, url );
         conf.set( "fs.hdfs.impl",
                 "org.apache.hadoop.hdfs.DistributedFileSystem" );
         FileSystem fs = null;
@@ -68,7 +67,8 @@ public class HdfsUtils extends TestScmBase {
      * @return
      */
     public static void download( SiteWrapper site, WsWrapper ws, ScmId fileId,
-            String filePath ) throws IOException {
+            String filePath )
+            throws IOException, InterruptedException, KeeperException {
         FileSystem fs = null;
         try {
             fs = getFs( site );
@@ -102,7 +102,8 @@ public class HdfsUtils extends TestScmBase {
      * @return
      */
     public static void upload( SiteWrapper site, WsWrapper ws, ScmId fileId,
-            String filePath ) throws IOException {
+            String filePath )
+            throws IOException, InterruptedException, KeeperException {
         FileSystem fs = null;
         Path destdir = null;
         Path destPath = null;
@@ -134,7 +135,8 @@ public class HdfsUtils extends TestScmBase {
      * @param site
      * @return
      */
-    public static void mkdir( Path path, SiteWrapper site ) throws IOException {
+    public static void mkdir( Path path, SiteWrapper site )
+            throws IOException, InterruptedException, KeeperException {
         FileSystem fs = null;
         boolean mkdirsFlag = false;
         try {
@@ -160,7 +162,7 @@ public class HdfsUtils extends TestScmBase {
      * @return
      */
     public static void deletePath( SiteWrapper site, String path )
-            throws IOException {
+            throws IOException, InterruptedException, KeeperException {
         FileSystem fs = getFs( site );
         boolean deleteFlag = false;
         try {
@@ -186,7 +188,7 @@ public class HdfsUtils extends TestScmBase {
      * @return
      */
     public static void delete( SiteWrapper site, WsWrapper ws, ScmId fileId )
-            throws IOException {
+            throws IOException, InterruptedException, KeeperException {
         String path = null;
         try {
             path = getPath( site, ws ) + "/" + fileId.get();
@@ -246,5 +248,60 @@ public class HdfsUtils extends TestScmBase {
             }
         }
         return rootPath;
+    }
+
+    private static String chooseUrl( String url )
+            throws IOException, InterruptedException, KeeperException {
+        if ( url.contains( "hdfs:" ) ) {
+            return url;
+        } else {
+            String activeNode = findHdfsActiveNode( url );
+            return "hdfs://" + activeNode;
+
+        }
+    }
+
+    private static ZooKeeper getZooClient( String address ) throws IOException {
+        int SESSION_TIMEOUT = 60000;
+        ZooKeeper zk = new ZooKeeper( address, SESSION_TIMEOUT, new Watcher() {
+            @Override
+            public void process( WatchedEvent event ) {
+                logger.info( "event:" + event.getType() );
+            }
+        } );
+        return zk;
+    }
+
+    private static String findHdfsActiveNode( String address )
+            throws IOException, KeeperException, InterruptedException {
+        String hadoopHaPath = "/hadoop-ha";
+        ZooKeeper zk = getZooClient( address );
+        try {
+            List< String > nodes = zk.getChildren( hadoopHaPath, false );
+            if ( nodes.size() <= 0 ) {
+                throw new IOException( "hadoop-ha path is empty" );
+            } else {
+                String nameService = nodes.get( 0 );
+                String nameServicePath = hadoopHaPath + "/" + nameService;
+                List< String > nameNodes = zk.getChildren( nameServicePath,
+                        false );
+                if ( nameNodes.size() <= 0 ) {
+                    throw new IOException( "nameServicePath path is empty" );
+                } else {
+                    for ( String nameNode : nameNodes ) {
+                        String nameNodePath = nameServicePath + "/" + nameNode;
+                        byte[] data = zk.getData( nameNodePath, false, null );
+                        HAZKInfoProtos.ActiveNodeInfo activeNodeInfo = HAZKInfoProtos.ActiveNodeInfo
+                                .parseFrom( data );
+                        String hostname = activeNodeInfo.getHostname();
+                        int port = activeNodeInfo.getPort();
+                        return hostname + ":" + port;
+                    }
+                }
+            }
+        } finally {
+            zk.close();
+        }
+        return null;
     }
 }

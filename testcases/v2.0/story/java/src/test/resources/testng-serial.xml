@@ -30,7 +30,8 @@
     <!--  SCM集群包含第三方数据源时需要配置  -->
     <parameter name="CEPHS3SECRETKEY" value="w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW"/>
     <parameter name="CEPHSWIFTSECRETKEY" value="XphCjBUNa8Kr4POSAlFBotXaDZSGAJD7NhNhtcu5"/>
-    <parameter name="HDFSURL" value="hdfs://scm-test-ci-cent8:9000"/>
+    <!--  伪分布式HDFS配置active节点，例hdfs://192.168.25.25:8020,分布式HA部署填zookeeper地址，例192.168.28.132:2181 -->
+    <parameter name="HDFSURL" value="scm-test-ci-cent7:2181"/>
     <!--  公共工作区名:分区方式  -->
     <parameter name="COMMONWS" value="ws_year:year,ws_month:month,ws_none:none,ws_quarter:quarter"/>
 
