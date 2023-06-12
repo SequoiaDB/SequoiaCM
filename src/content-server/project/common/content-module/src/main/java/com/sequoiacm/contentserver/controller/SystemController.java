@@ -6,6 +6,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.bson.BSONObject;
+import org.bson.types.BasicBSONList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +28,7 @@ import com.sequoiacm.metasource.MetaCursor;
 @RestController
 @RequestMapping("/api/v1")
 public class SystemController {
+    private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
     @Autowired
     private ISystemService systemService;
 
@@ -34,23 +38,9 @@ public class SystemController {
             @RequestParam(value = CommonDefine.RestArg.BIZ_RELOAD_ID, required = false) Integer id,
             @RequestParam(value = CommonDefine.RestArg.BIZ_RELOAD_METADATA_ONLY, required = false, defaultValue = "false") Boolean isMetadataOnly)
             throws ScmServerException {
-        if(scope == CommonDefine.NodeScope.SCM_NODESCOPE_ALL) {
-            return ResponseEntity.ok(systemService.reloadAllNodeBizConf(isMetadataOnly));
-        }
-
-        if(id == null) {
-            throw new ScmInvalidArgumentException("invalid arg, id is null:scope=" + scope + ",id=" + id);
-        }
-
-        if(scope == CommonDefine.NodeScope.SCM_NODESCOPE_CENTER) {
-            return ResponseEntity.ok(systemService.reloadSiteBizConf(id, isMetadataOnly));
-        }
-
-        if(scope == CommonDefine.NodeScope.SCM_NODESCOPE_NODE) {
-            return ResponseEntity.ok(systemService.reloadNodeBizConf(id, isMetadataOnly));
-        }
-
-        throw new ScmInvalidArgumentException("invalid arg, unknown scope:scope=" + scope);
+        // 此接口属于旧接口，现在已经不再使用，返回空内容
+        logger.warn("reload-bizconf is deprecated, ignore this request");
+        return ResponseEntity.ok(new BasicBSONList());
     }
 
     @GetMapping("/conf-properties")

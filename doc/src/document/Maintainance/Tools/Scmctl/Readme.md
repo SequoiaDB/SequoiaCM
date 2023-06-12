@@ -17,11 +17,9 @@ scmctl 工具提供内容服务节点管理相关的功能
 |[start][start]       |启动节点        |
 |[stop][stop]    |停止节点        |
 |[list][list]     |list节点        |
-|[reloadbizconf][reloadbizconf]|刷新节点业务配置|
 
 
 [start]:Maintainance/Tools/Scmctl/start.md
 [stop]:Maintainance/Tools/Scmctl/stop.md
 [list]:Maintainance/Tools/Scmctl/list.md
-[reloadbizconf]:Maintainance/Tools/Scmctl/reloadbizconf.md
 

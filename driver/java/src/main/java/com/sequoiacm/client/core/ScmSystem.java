@@ -152,7 +152,9 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens.
          * @since 2.1
+         * @deprecated The method may have side effects and disabled in 3.6.1.
          */
+        @Deprecated
         public static List<BSONObject> reloadBizConf(ScmSession session) throws ScmException {
             return reloadBizConf(ServerScope.ALL_SITE, -1, session);
         }
@@ -174,7 +176,9 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.1
+         * @deprecated The method may have side effects and disabled in 3.6.1.
          */
+        @Deprecated
         public static List<BSONObject> reloadBizConf(ServerScope scope, int id, ScmSession session)
                 throws ScmException {
             if (null == scope) {
