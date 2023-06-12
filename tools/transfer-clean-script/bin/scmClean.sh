@@ -3,6 +3,9 @@
 cd `dirname $0`
 source ../conf/scm_env.sh
 source ./function.sh
+
+processPrintVersionInfo "clean" $@
+
 cl_workspace=$1
 cl_month=$2
 

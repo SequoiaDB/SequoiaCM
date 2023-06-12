@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.s3import.common.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,18 @@ public class S3ImportEntry {
             System.exit(0);
         }
 
+        if (args[0].equals("--version") || args[0].equals("-v")) {
+            try {
+                ScmCommon.printVersion();
+                System.exit(0);
+            }
+            catch (Exception e) {
+                logger.error("print version failed", e);
+                System.err.println("print version failed:" + e.getMessage());
+                System.exit(1);
+            }
+        }
+
         SubCommand subcommand = commands.get(args[0]);
         if (subcommand == null) {
             logger.error("no such subcommand:" + args[0]);
@@ -58,6 +71,7 @@ public class S3ImportEntry {
     private static void displaySubcommandsDesc() {
         System.out.println("Usage: <subcommand> [args]");
         System.out.println("Type '<subcommand> --help' for help on a specific subcommand");
+        System.out.println("Type '--version / -v' to see the program version");
         System.out.println("Available subcommands:");
         for (Map.Entry<String, SubCommand> entry : commands.entrySet()) {
             System.out.println(

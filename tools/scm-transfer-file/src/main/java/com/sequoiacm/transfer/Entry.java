@@ -54,6 +54,19 @@ public class Entry {
     public static void main(String[] args)
             throws ParseException, ScmException, InterruptedException, ScmMappingException,
             StrategyInvalidArgumentException, IOException {
+
+        // print version information
+        if (Arrays.asList(args).contains("--version") || Arrays.asList(args).contains("-v")) {
+            try {
+                ScmCommon.printVersion();
+                return;
+            }
+            catch (Exception e) {
+                logger.error("print version failed", e);
+                throw new RuntimeException("print version failed:" + e.getMessage());
+            }
+        }
+
         Options ops = new Options();
         ops.addOption(null, BATCH_SIZE, true, "batch size");
         ops.addOption(null, THREAD, true, "thread size");

@@ -3,6 +3,7 @@ package com.sequoiacm.diagnose;
 import com.sequoiacm.diagnose.command.Command;
 import com.sequoiacm.diagnose.command.SubCommand;
 import com.sequoiacm.diagnose.utils.RefUtils;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,18 @@ public class DiagnoseEntry {
         if (args[0].equals("--help") || args[0].equals("-h")) {
             displaySubcommandsDesc();
             System.exit(0);
+        }
+
+        if (args[0].equals("--version") || args[0].equals("-v")) {
+            try {
+                ScmCommon.printVersion();
+                System.exit(0);
+            }
+            catch (Exception e) {
+                logger.error("print version failed", e);
+                System.err.println("print version failed:" + e.getMessage());
+                System.exit(1);
+            }
         }
 
         SubCommand command = commands.get(args[0]);
@@ -83,6 +96,7 @@ public class DiagnoseEntry {
     private static void displaySubcommandsDesc() {
         System.out.println("Usage: <subcommand> [args]");
         System.out.println("Type '<subcommand> --help' for help on a specific subcommand");
+        System.out.println("Type '--version / -v' to see the program version");
         System.out.println("Available subcommands:");
         for (Map.Entry<String, SubCommand> entry : commands.entrySet()) {
             System.out.println(entry.getKey() + ":\t\t\t" + entry.getValue().getDesc());

@@ -3,6 +3,9 @@
 cd `dirname $0`
 source ../conf/scm_env.sh
 source ./function.sh
+
+processPrintVersionInfo "transfer" $@
+
 ts_workspace=$1
 ts_month=$2
 

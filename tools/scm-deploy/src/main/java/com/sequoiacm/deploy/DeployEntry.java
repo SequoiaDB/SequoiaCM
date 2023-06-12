@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.sequoiacm.deploy.exception.RollbackException;
 import com.sequoiacm.deploy.exception.UpgradeException;
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,18 @@ public class DeployEntry {
         if (args[0].equals("--help") || args[0].equals("-h")) {
             displaySubcommandsDesc();
             System.exit(0);
+        }
+
+        if (args[0].equals("--version") || args[0].equals("-v")) {
+            try {
+                ScmCommon.printVersion();
+                System.exit(0);
+            }
+            catch (Exception e) {
+                logger.error("print version failed", e);
+                System.err.println("print version failed:" + e.getMessage());
+                System.exit(1);
+            }
         }
 
         SubCommand command = commands.get(args[0]);
@@ -78,6 +91,7 @@ public class DeployEntry {
     private static void displaySubcommandsDesc() {
         System.out.println("Usage: <subcommand> [args]");
         System.out.println("Type '<subcommand> --help' for help on a specific subcommand");
+        System.out.println("Type '--version / -v' to see the program version");
         System.out.println("Available subcommands:");
         CommandVisibleChecker checker = CommandVisibleCheckerFactory.getInstance();
         for (Entry<String, SubCommand> entry : commands.entrySet()) {

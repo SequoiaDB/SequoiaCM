@@ -8,6 +8,8 @@
 > * 单独使用时，迁移和清理对应的脚本为 scmTransfer.sh 和 scmClean.sh，需要指定工作区名称 wsName 和文件匹配条件中的创建月份 create_month
 > 
 > * 可以通过迁移清理脚本 start.sh 完成迁移和清理操作，需要指定 workspace.list 文件的路径
+> 
+> * 指定 --version / -v 参数执行脚本 scmTransfer.sh 或 scmClean.sh 可以获取迁移或清理工具的版本信息。
 
 ## 工具介绍
 

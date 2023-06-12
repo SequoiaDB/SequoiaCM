@@ -90,3 +90,30 @@ processOutFileSize(){
     fi
   done
 }
+
+# if use option '--version/-v', print version information
+processPrintVersionInfo(){
+  # get the first argument as the jarType
+  jarType=$1
+  # get the rest arguments
+  lastArgs="${@:2}"
+  # detect --version / -v
+  for i in $lastArgs; do
+    if [[ "$i" == "--version" || "$i" == "-v" ]]; then
+        jarPath=$(findJar $jarType)
+        if [ ! $? -eq 0 ] ;then
+          echo jarPath # print findJar error msg
+          exit 1
+        fi
+
+        commandStr="java -jar $jarPath --version"
+        eval $commandStr
+        if [ ! $? -eq 0 ]; then
+          echo "print version information failed"
+          exit 1
+        else
+          exit 0
+        fi
+    fi
+  done
+}

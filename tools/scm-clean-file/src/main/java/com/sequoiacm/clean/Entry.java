@@ -51,6 +51,19 @@ public class Entry {
         if (args.length == 0) {
             throw new IllegalArgumentException("Missing required arg: zkClean or scmFileClean");
         }
+
+        // print version information
+        if (Arrays.asList(args).contains("--version") || Arrays.asList(args).contains("-v")) {
+            try {
+                ScmCommon.printVersion();
+                return;
+            }
+            catch (Exception e) {
+                logger.error("print version failed", e);
+                throw new RuntimeException("print version failed:" + e.getMessage());
+            }
+        }
+
         Options ops = new Options();
         ops.addRequiredOption(null, ZK_URLS, true, "zkUrls");
         ops.addOption(Option.builder(null).longOpt(LOGBACK_PATH).desc("logbackPath")

@@ -151,7 +151,7 @@ public class CommandManager {
     public String getHelpMsg(boolean isFullHelp) {
         String template = "usage: name <subcommand> [options] [args]" + "\r\n"
                 + "Type 'name help [subcommand]' for help on a specific subcommand" + "\r\n"
-                + "Type 'name --version' to see the program version" + "\r\n"
+                + "Type 'name --version / -v' to see the program version" + "\r\n"
                 + "Available subcommands:" + "\r\n";
         template = template.replaceAll("name", this.commandManagerName);
         StringBuilder sb = new StringBuilder(template);
