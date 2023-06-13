@@ -2,6 +2,7 @@ package com.sequoiacm.config.framework.config.workspace.dao;
 
 import java.util.Date;
 
+import com.sequoiacm.config.framework.common.IDGeneratorDao;
 import com.sequoiacm.config.framework.config.workspace.checker.DataLocationConfigChecker;
 import com.sequoiacm.config.framework.config.workspace.entity.RootDirEntity;
 import com.sequoiacm.config.framework.config.workspace.metasource.WorkspaceMetaSerivce;
@@ -48,6 +49,9 @@ public class CreateWorkspaceDao {
     @Autowired
     private DataLocationConfigChecker dataLocationConfigChecker;
 
+    @Autowired
+    private IDGeneratorDao idGeneratorDao;
+
     public ScmConfOperateResult create(WorkspaceConfig wsConfig) throws ScmConfigException {
         dataLocationConfigChecker.check(wsConfig.getDataLocations());
         logger.info("start to create workspace:{}", wsConfig.getWsName());
@@ -72,8 +76,8 @@ public class CreateWorkspaceDao {
             transaction = metaSource.createTransaction();
             TableDao sysWsTabledao = workspaceMetaService.getSysWorkspaceTable(transaction);
             // generate ws id
-            int wsId = sysWsTabledao.generateId();
-            logger.info("create workspace:{}, generate ws id:{}", wsConfig.getWsName(), wsId);
+            int wsId = idGeneratorDao.getNewId(MetaSourceDefine.IdType.WORKSPACE,
+                    sysWsTabledao::generateId);
             wsConfig.setWsId(wsId);
             // insert ws record
             transaction.begin();
@@ -81,7 +85,6 @@ public class CreateWorkspaceDao {
             wsRecord = formateToWorkspaceRecord(wsConfig);
 
             try {
-                logger.info("insert record into workspace table:" + wsRecord);
                 sysWsTabledao.insert(wsRecord);
             }
             catch (MetasourceException e) {

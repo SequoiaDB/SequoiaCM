@@ -2,8 +2,10 @@ package com.sequoiacm.config.framework.config.site.dao;
 
 import java.util.List;
 
+import com.sequoiacm.config.framework.common.IDGeneratorDao;
 import com.sequoiacm.config.framework.config.site.metasource.SiteMetaService;
 import com.sequoiacm.config.framework.config.site.tool.ScmSiteTool;
+import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -52,6 +54,9 @@ public class CreateSiteDao {
     @Autowired
     private GetSiteDao getSiteDao;
 
+    @Autowired
+    private IDGeneratorDao idGeneratorDao;
+
     public ScmConfOperateResult create(SiteConfig config) throws ScmConfigException {
         logger.info("start to create site:{}", config.getName());
         String siteName = config.getName();
@@ -87,7 +92,8 @@ public class CreateSiteDao {
             }
 
             // generate site id
-            int siteId = sysSiteTabledao.generateId();
+            int siteId = idGeneratorDao.getNewId(MetaSourceDefine.IdType.SITE,
+                    sysSiteTabledao::generateId);
             config.setId(siteId);
             // insert site record
             transaction.begin();

@@ -29,4 +29,11 @@ public class MetaSourceDefine {
         public static final String CL_ID_GEN = "ID_GENERATOR";
         public static final String CL_QUOTA = "QUOTA";
     }
+
+    public static class IdType {
+
+        public static final String WORKSPACE = "workspace";
+        public static final String SITE = "site";
+        public static final String NODE_CONTENT_SERVER = "node_content_server";
+    }
 }

@@ -1,6 +1,8 @@
 package com.sequoiacm.config.framework.config.node.dao;
 
+import com.sequoiacm.config.framework.common.IDGeneratorDao;
 import com.sequoiacm.config.framework.config.node.metasource.NodeMetaService;
+import com.sequoiacm.config.metasource.MetaSourceDefine;
 import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,9 @@ public class CreateNodeDao {
     @Autowired
     private DefaultVersionDao versionDao;
 
+    @Autowired
+    private IDGeneratorDao idGeneratorDao;
+
     public ScmConfOperateResult create(NodeConfig config) throws ScmConfigException {
         logger.info("start create content server node: nodeName={}", config.getName());
         NodeConfig nodeConfig = createContentNode(config);
@@ -62,7 +67,8 @@ public class CreateNodeDao {
                         "node is already exist: filter=" + nodeFilter.asSdbCondition());
             }
 
-            int nodeId = contentServerTableDao.generateId();
+            int nodeId = idGeneratorDao.getNewId(MetaSourceDefine.IdType.NODE_CONTENT_SERVER,
+                    contentServerTableDao::generateId);
             config.setId(nodeId);
             transaction.begin();
             try {

@@ -114,6 +114,49 @@ public class SequoiadbTableDao extends TableDaoBase {
         return query(matcher, selector, orderBy, 0, -1);
     }
 
+    public BSONObject queryAndUpdate(BSONObject matcher, BSONObject updator, BSONObject hint,
+            boolean returnNew) throws MetasourceException {
+        MetaCursor cursor = null;
+        try {
+            cursor = queryAndUpdateWithCursor(matcher, updator, hint, returnNew);
+            BSONObject ret = null;
+            while (cursor.hasNext()) {
+                ret = cursor.getNext();
+            }
+            return ret;
+        }
+        catch (Exception e) {
+            throw new MetasourceException("update table failed:table=" + csName + "." + clName
+                    + ",matcher=" + matcher + ",updator=" + updator, e);
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    MetaCursor queryAndUpdateWithCursor(BSONObject matcher, BSONObject updator, BSONObject hint,
+            boolean returnNew) throws MetasourceException {
+        Sequoiadb sdb = null;
+        DBCursor cursor = null;
+        try {
+            sdb = getConnection();
+            CollectionSpace cs = sdb.getCollectionSpace(csName);
+            DBCollection cl = cs.getCollection(clName);
+
+            cursor = cl.queryAndUpdate(matcher, null, null, hint, updator, 0, -1,
+                    DBQuery.FLG_QUERY_WITH_RETURNDATA, returnNew);
+            return new SequoiadbMetaCursor(sdbMetasource, sdb, cursor);
+        }
+        catch (Exception e) {
+            closeCursor(cursor);
+            releaseConnection(sdb);
+            throw new MetasourceException("update table failed:table=" + csName + "." + clName
+                    + ",matcher=" + matcher + ",updator=" + updator, e);
+        }
+    }
+
     @Override
     public MetaCursor query(BSONObject matcher, BSONObject selector, BSONObject orderBy, long skip,
             long limit) throws MetasourceException {

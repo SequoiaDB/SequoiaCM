@@ -32,6 +32,7 @@ public abstract class TableDaoBase implements TableDao {
         }
     }
 
+    // 生成 ID 请使用 IDGeneratorDao，不能直接使用该接口，详见 SEQUOIACM-1336
     @Override
     public int generateId() throws MetasourceException {
         final String FieldIdName = "id";
@@ -41,7 +42,7 @@ public abstract class TableDaoBase implements TableDao {
             cursor = query(null, null, orderBy);
             if (cursor.hasNext()) {
                 BSONObject rec = cursor.getNext();
-                logger.info("The record with the largest id: {}", rec);
+                logger.debug("The record with the largest id: {}", rec);
                 Integer id = (Integer) rec.get(FieldIdName);
                 if (id != null && id != Integer.MAX_VALUE) {
                     return id + 1 > 0 ? id + 1 : 1;
