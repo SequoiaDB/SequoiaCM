@@ -128,7 +128,8 @@ public class ScmConfClient {
     }
 
     private int getHeartbeatInterval(String businessType) throws ScmConfigException {
-        String businessTypeCamel = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
+        // 将 businessType 转为驼峰格式，如 meta_data -> metaData
+        String businessTypeCamel = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,
                 businessType);
         String key = "scm.conf.client." + businessTypeCamel + ".heartbeatInterval";
 

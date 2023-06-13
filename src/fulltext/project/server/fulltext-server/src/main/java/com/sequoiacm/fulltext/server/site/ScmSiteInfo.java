@@ -1,10 +1,15 @@
 package com.sequoiacm.fulltext.server.site;
 
+import com.sequoiacm.infrastructure.config.core.msg.site.SiteConfig;
+
 public class ScmSiteInfo {
     private boolean isRoot;
     private String name;
     private int siteId;
-    public ScmSiteInfo() {
+    public ScmSiteInfo(SiteConfig cfg) {
+        this.isRoot = cfg.isRootSite();
+        this.name = cfg.getName();
+        this.siteId = cfg.getId();
     }
 
     public boolean isRoot() {
