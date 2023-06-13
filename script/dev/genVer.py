@@ -47,6 +47,22 @@ def getVersion(file, versionPattern):
     print "get version from file failed:versionPattern=" + versionPattern + ",file=" + file
     sys.exit(1)
 
+def parseVersion(version):
+    lastPos = -1
+    for char in version:
+        if char == '.' or char.isdigit():
+            lastPos += 1
+        else:
+            break
+    return [version[0:lastPos + 1], version[lastPos + 1:]]
+
+def parseMainVersion(versionNumber):
+    firstPointPos = versionNumber.index(".")
+    major = versionNumber[0:firstPointPos]
+    minor = versionNumber[firstPointPos + 1:]
+    firstPointPos = minor.index(".")
+    minor = minor[0:firstPointPos]
+    return [major, minor]
 
 oldVersion = getVersion(VERSION_FILE, OLDVERSIONPATTERN)
 newVersion = getVersion(VERSION_FILE, NEWVERSIONPATTERN)
@@ -68,22 +84,19 @@ if ret != 0:
 # doc/config/version.json
 docVersion = GIT_ROOT_PATH + os.sep + "doc" + os.sep + "config" + os.sep + "version.json"
 # version format like 2.3.1 ,we need major version 2,minor version 3
-firstPointPos = newVersion.index(".")
-newMajor = newVersion[0:firstPointPos]
-newMinor = newVersion[firstPointPos + 1:]
-firstPointPos = newMinor.index(".")
-newMinor = newMinor[0:firstPointPos]
 
-firstPointPos = oldVersion.index(".")
-oldMajor = oldVersion[0:firstPointPos]
-oldMinor = oldVersion[firstPointPos + 1:]
-firstPointPos = oldMinor.index(".")
-oldMinor = oldMinor[0:firstPointPos]
+# newExtraInfo may be an empty string
+[newVersionNumber, newExtraInfo] = parseVersion(newVersion)
+[newMajor, newMinor] = parseMainVersion(newVersionNumber)
+
+# oldExtraInfo may be an empty string
+[oldVersionNumber, oldExtraInfo] = parseVersion(oldVersion)
+[oldMajor, oldMinor] = parseMainVersion(oldVersionNumber)
 
 oldMajorStr = '"major": ' + oldMajor
-oldMinorStr = '"minor": ' + oldMinor
+oldMinorStr = '"minor": ' + '"' + oldMinor + oldExtraInfo + '"'
 newMajorStr = '"major": ' + newMajor
-newMinorStr = '"minor": ' + newMinor
+newMinorStr = '"minor": ' + '"' + newMinor + newExtraInfo + '"'
 
 modifyFile(docVersion, oldMajorStr, newMajorStr)
 modifyFile(docVersion, oldMinorStr, newMinorStr)
