@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.sequoiacm.config.server.module.ScmConfProp;
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import com.sequoiacm.config.server.module.ScmUpdateConfPropsResult;
 import com.sequoiacm.config.server.remote.ScmConfClient;
 import com.sequoiacm.config.server.remote.ScmConfClientFactory;
 import com.sequoiacm.infrastructure.config.core.common.ScmServiceUpdateConfigResult;
+import org.springframework.util.StringUtils;
 
 @Component
 public class AsyncUpdateConfPropsExecutor {
@@ -52,5 +55,29 @@ public class AsyncUpdateConfPropsExecutor {
             }
         }
         return new AsyncResult<List<ScmUpdateConfPropsResult>>(resList);
+    }
+
+    @Async
+    public Future<List<ScmConfProp>> getConfProps(List<ServiceInstance> instances,
+            List<String> keys) {
+        List<ScmConfProp> resList = new ArrayList<>();
+        for (ServiceInstance instance : instances) {
+            String instanceUrl = instance.getHost() + ":" + instance.getPort();
+            try {
+                ScmConfClient feignClient = feignClientFactory.getClient(instanceUrl);
+                BSONObject res = feignClient
+                        .getConfigProps(StringUtils.collectionToCommaDelimitedString(keys));
+                for (String key : res.keySet()) {
+                    String value = res.get(key) == null ? null : res.get(key).toString();
+                    resList.add(new ScmConfProp(instance.getServiceId(), instanceUrl, key, value));
+                }
+            }
+            catch (Exception e) {
+                logger.error("failed to get conf properties:serverUrl={},serviceName={},keys={}",
+                        instanceUrl, instance.getServiceId(), keys, e);
+                throw e;
+            }
+        }
+        return new AsyncResult<List<ScmConfProp>>(resList);
     }
 }

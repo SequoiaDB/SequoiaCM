@@ -1,6 +1,7 @@
 package com.sequoiacm.config.server.remote;
 
 import org.bson.BSONObject;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,5 +29,7 @@ public interface ScmConfClient {
             @RequestParam(ScmRestArgDefine.CONF_PROPS_ACCEPT_UNKNOWN_PROPS) boolean acceptUnknownProps)
                     throws ScmConfigException;
 
+    @GetMapping("/config-props")
+    public BSONObject getConfigProps(@RequestParam(ScmRestArgDefine.CONF_PROPS_KEYS) String keys);
 }
 

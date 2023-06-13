@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.config.core.common;
 
+import com.sequoiacm.common.CommonDefine;
 import com.sequoiacm.common.FieldName;
 
 public class ScmRestArgDefine {
@@ -74,8 +75,9 @@ public class ScmRestArgDefine {
     public static final String CONF_VERSION_BUSINESS_VERSION = "business_version";
     public static final String CONF_VERSION_LIMIT = "limit";
 
-    public static final String CONF_PROPS_TARGET_TYPE = "target_type";
-    public static final String CONF_PROPS_TARGETS = "targets";
+    public static final String CONF_PROPS_TARGET_TYPE = CommonDefine.RestArg.CONFIG_PROPS_TARGET_TYPE;
+    public static final String CONF_PROPS_TARGETS = CommonDefine.RestArg.CONFIG_PROPS_TARGETS;
+    public static final String CONF_PROPS_KEYS = CommonDefine.RestArg.CONFIG_PROPS_KEYS;
     public static final String CONF_PROPS_UPDATE_PROPERTIES = "update_properties";
     public static final String CONF_PROPS_DELETE_PROPERTIES = "delete_properties";
     public static final String CONF_PROPS_ACCEPT_UNKNOWN_PROPS = "accept_unknown_props";

@@ -3,11 +3,16 @@ package com.sequoiacm.client.common;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonUtils;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 
 public class ScmExceptionUtils {
 
     public static void handleException(BSONObject bsonObject) throws ScmException {
         if (bsonObject == null || bsonObject.isEmpty()) {
+            return;
+        }
+        if (!(bsonObject instanceof BasicBSONObject)) {
+            // ignore BasicBSONList
             return;
         }
         Number errCode = BsonUtils.getNumber(bsonObject, "status");

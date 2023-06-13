@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,6 +114,15 @@ public class ScmConfigPropServiceImpl implements ScmConfigPropService {
         ScmServiceUpdateConfigResult res = new ScmServiceUpdateConfigResult();
         res.setAdjustedConf(adjustedConfMap);
         res.setRebootConf(rebootConf);
+        return res;
+    }
+
+    @Override
+    public BSONObject getConfigProps(List<String> keys) {
+        BSONObject res = new BasicBSONObject();
+        for (String key : keys) {
+            res.put(key, environment.getProperty(key));
+        }
         return res;
     }
 

@@ -488,6 +488,10 @@ public class CommonDefine {
         public static final String UPDATE_INFO_ADD_CUSTOM_TAG = "add_custom_tag";
         public static final String UPDATE_INFO_REMOVE_CUSTOM_TAG = "remove_custom_tag";
 
+
+        public static final String CONFIG_PROPS_TARGET_TYPE = "target_type";
+        public static final String CONFIG_PROPS_TARGETS = "targets";
+        public static final String CONFIG_PROPS_KEYS = "keys";
     }
 
     public static class Directory {

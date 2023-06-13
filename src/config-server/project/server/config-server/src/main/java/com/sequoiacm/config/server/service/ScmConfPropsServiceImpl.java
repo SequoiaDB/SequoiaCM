@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
 
+import com.sequoiacm.config.server.module.ScmConfProp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,35 @@ public class ScmConfPropsServiceImpl implements ScmConfPropsService {
         finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public List<ScmConfProp> getConfProps(ScmTargetType targetType, List<String> targets,
+            List<String> keys) throws ScmConfigException {
+        Map<String, List<ServiceInstance>> instancesByService = getInstancesByType(targetType,
+                targets);
+        List<Future<List<ScmConfProp>>> futures = new ArrayList<>(instancesByService.size());
+        for (Map.Entry<String, List<ServiceInstance>> entry : instancesByService.entrySet()) {
+            List<ServiceInstance> instances = entry.getValue();
+            Future<List<ScmConfProp>> future = asyncExecutor.getConfProps(instances, keys);
+            futures.add(future);
+        }
+        List<ScmConfProp> confProps = new ArrayList<>();
+        Exception lastException = null;
+        for (Future<List<ScmConfProp>> future : futures) {
+            try {
+                confProps.addAll(future.get());
+            }
+            catch (Exception e) {
+                logger.error("failed to get conf props", e);
+                lastException = e;
+            }
+        }
+        if (lastException != null) {
+            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR, "failed to get conf props",
+                    lastException);
+        }
+        return confProps;
     }
 
     private String instanceToString(List<ServiceInstance> value) {

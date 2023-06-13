@@ -2117,6 +2117,22 @@ public class RestDispatcher implements MessageDispatcher {
     }
 
     @Override
+    public BasicBSONList getConfProps(String targetType, List<String> targets, List<String> props)
+            throws ScmException {
+        String uri = URL_PREFIX + pureUrl + CONFIG_SERVER + API_VERSION + "config-props?"
+                + CommonDefine.RestArg.KEEP_ALIVE + "=true" + "&"
+                + CommonDefine.RestArg.CONFIG_PROPS_KEYS + "=" + encode(Strings.join(props, ","))
+                + "&" + CommonDefine.RestArg.CONFIG_PROPS_TARGETS + "="
+                + encode(Strings.join(targets, ","))
+                + "&" + CommonDefine.RestArg.CONFIG_PROPS_TARGET_TYPE + "=" + targetType;
+        HttpGet req = new HttpGet(uri);
+        BSONObject res = RestClient.sendRequestWithJsonResponse(getHttpClient(), sessionId,
+                req);
+        ScmExceptionUtils.handleException(res);
+        return (BasicBSONList) res;
+    }
+
+    @Override
     public void resetRemainUrl(String remainUrl) {
         this.remainUrl = remainUrl;
         if (Strings.hasText(remainUrl)) {

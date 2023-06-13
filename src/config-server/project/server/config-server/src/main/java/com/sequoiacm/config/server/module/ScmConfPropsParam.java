@@ -7,9 +7,12 @@ import com.sequoiacm.config.server.common.ScmTargetType;
 
 public class ScmConfPropsParam {
     // @JsonProperty(ScmRestArgDefine.CONF_PROPS_TARGET_TYPE)
+    // targetType 表示更新配置的范围，可选值 ALL、SERVICE、INSTANCE
     private ScmTargetType targetType;
 
     // @JsonProperty(ScmRestArgDefine.CONF_PROPS_TARGETS)
+    // targets 表示更新配置的具体对象，当 targetType 为 ALL 时，targets 为空、当 targetType 为 SERVICE
+    // 时，targets 为服务名、当 targetType 为 INSTANCE 时，targets 为节点地址，格式为：主机名:端口号
     private List<String> targets;
 
     // @JsonProperty(ScmRestArgDefine.CONF_PROPS_PROPERTIES)

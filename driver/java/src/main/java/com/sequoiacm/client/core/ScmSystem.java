@@ -13,6 +13,8 @@ import com.sequoiacm.client.dispatcher.RestDispatcher;
 import com.sequoiacm.client.element.ScmCheckConnResult;
 import com.sequoiacm.client.element.ScmCheckConnTarget;
 import com.sequoiacm.client.element.ScmCleanTaskConfig;
+import com.sequoiacm.client.element.ScmConfProp;
+import com.sequoiacm.client.element.ScmConfigPropertiesQuery;
 import com.sequoiacm.client.element.ScmMoveTaskConfig;
 import com.sequoiacm.client.element.ScmOnceTransitionConfig;
 import com.sequoiacm.client.element.ScmSpaceRecycleScope;
@@ -203,7 +205,11 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.2
+         * @deprecated use
+         *             {@link #getConfigProperties(ScmSession, ScmConfigPropertiesQuery)}
+         *             instead.
          */
+        @Deprecated
         public static String getConfProperty(ScmSession session, String key) throws ScmException {
             if (key == null) {
                 throw new ScmInvalidArgumentException("key is null");
@@ -225,7 +231,11 @@ public class ScmSystem {
          * @throws ScmException
          *             If error happens
          * @since 2.2
+         * @deprecated use
+         *             {@link #getConfigProperties(ScmSession, ScmConfigPropertiesQuery)}
+         *             instead.
          */
+        @Deprecated
         public static BSONObject getConfProperties(ScmSession session, List<String> keys)
                 throws ScmException {
             if (null == session) {
@@ -246,6 +256,31 @@ public class ScmSystem {
                 keysBSON.put(key, null);
             }
             return session.getDispatcher().getConfProperties(keysBSON);
+        }
+
+        /**
+         * Get config properties.
+         * 
+         * @param session
+         *            session.
+         * @param query
+         *            query condition, see {@link ScmConfigPropertiesQuery}.
+         * @return config property list.
+         * @throws ScmException
+         *             If error happens.
+         */
+        public static List<ScmConfProp> getConfigProperties(ScmSession session,
+                ScmConfigPropertiesQuery query) throws ScmException {
+            checkArgNotNull("session", session);
+            checkArgNotNull("query", query);
+
+            BasicBSONList ret = session.getDispatcher().getConfProps(query.getTargetType(),
+                    query.getTargets(), query.getProps());
+            List<ScmConfProp> result = new ArrayList<ScmConfProp>(ret.size());
+            for (Object obj : ret) {
+                result.add(new ScmConfProp((BSONObject) obj));
+            }
+            return result;
         }
 
         /**

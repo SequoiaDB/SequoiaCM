@@ -291,6 +291,9 @@ public interface MessageDispatcher extends Closeable {
     BSONObject updateConfProps(String targetType, List<String> targets, Map<String, String> props,
             List<String> deleteProps, boolean isAcceptUnknownProps) throws ScmException;
 
+    BasicBSONList getConfProps(String targetType, List<String> targets, List<String> props)
+            throws ScmException;
+
     void resetRemainUrl(String remainUrl);
 
     String getRemainUrl();

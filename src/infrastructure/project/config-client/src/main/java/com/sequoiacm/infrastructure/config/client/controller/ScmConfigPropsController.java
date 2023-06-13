@@ -1,6 +1,7 @@
 package com.sequoiacm.infrastructure.config.client.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.bson.types.BasicBSONList;
 import org.bson.util.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -64,5 +66,14 @@ public class ScmConfigPropsController {
             throw new ScmConfigException(ScmConfError.SYSTEM_ERROR, "failed to encode resp: " + res,
                     e);
         }
+    }
+
+    @GetMapping("/config-props")
+    public BSONObject getConfigProps(
+            @RequestParam(ScmRestArgDefine.CONF_PROPS_KEYS) String keys) throws ScmConfigException {
+        if (keys == null || keys.isEmpty()) {
+            throw new ScmConfigException(ScmConfError.INVALID_ARG, "keys is empty");
+        }
+        return service.getConfigProps(Arrays.asList(keys.split(",")));
     }
 }
