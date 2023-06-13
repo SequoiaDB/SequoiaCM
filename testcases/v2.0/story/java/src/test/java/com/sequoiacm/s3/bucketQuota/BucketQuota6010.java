@@ -70,8 +70,7 @@ public class BucketQuota6010 extends TestScmBase {
         ScmFactory.Quota.enableBucketQuota( session, quotaConfig );
     }
 
-    // 问题单SEQUOIACM-1355未修改，暂时屏蔽用例
-    @Test(enabled = false)
+    @Test
     public void test() throws Exception {
         // 高水位
         test1();
@@ -108,10 +107,13 @@ public class BucketQuota6010 extends TestScmBase {
         S3Utils.deleteAllObjects( s3Client, bucketName );
     }
 
-    public void test2() throws ScmException {
+    public void test2() throws ScmException, InterruptedException {
         preLowWaterLevel();
         // 删除所有版本对象
         S3Utils.deleteObjectAllVersions( s3Client, bucketName, keyName );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
 
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );

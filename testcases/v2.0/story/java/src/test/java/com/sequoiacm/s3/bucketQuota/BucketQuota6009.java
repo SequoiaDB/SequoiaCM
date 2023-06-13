@@ -71,8 +71,7 @@ public class BucketQuota6009 extends TestScmBase {
         ScmFactory.Quota.enableBucketQuota( session, quotaConfig );
     }
 
-    // 问题单SEQUOIACM-1353未修改，暂时屏蔽用例
-    @Test(enabled = false)
+    @Test
     public void test() throws Exception {
         // 高水位
         test1();
