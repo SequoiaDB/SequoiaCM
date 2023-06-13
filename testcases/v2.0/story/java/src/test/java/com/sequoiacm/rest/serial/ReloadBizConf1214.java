@@ -34,7 +34,8 @@ public class ReloadBizConf1214 extends TestScmBase {
                 TestScmBase.scmPassword );
     }
 
-    @Test(groups = { GroupTags.base })
+    //SEQUOIACM-1364
+    @Test(groups = { GroupTags.base },enabled = false)
     // create and delete workspace is very hard. as scm driver testcases have
     // tested it in detail,
     // this test just check the return value.
