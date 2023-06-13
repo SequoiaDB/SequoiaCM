@@ -79,9 +79,11 @@ public class BucketQuota5995 extends TestScmBase {
                 .newBuilder( bucketName ).setMaxSize( maxObjectSize1 + "m" )
                 .build();
         ScmFactory.Quota.updateBucketQuota( session, quotaConfig );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
         ScmBucketQuotaInfo quotaInfo = ScmFactory.Quota.getBucketQuota( session,
                 bucketName );
-
         BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName, -1,
                 maxObjectSize1 * fileSize, 0, 0 );
         checkPutObjectSuccessQuota( -1, maxObjectSize1, objectNum1 );
@@ -90,8 +92,10 @@ public class BucketQuota5995 extends TestScmBase {
         quotaConfig = ScmUpdateBucketQuotaConfig.newBuilder( bucketName )
                 .setMaxObjects( maxObjectNum1 ).build();
         ScmFactory.Quota.updateBucketQuota( session, quotaConfig );
-        quotaInfo = ScmFactory.Quota.getBucketQuota( session, bucketName );
 
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
+        quotaInfo = ScmFactory.Quota.getBucketQuota( session, bucketName );
         BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName, maxObjectNum1,
                 -1, 0, 0 );
         checkPutObjectSuccessQuota( maxObjectNum1, -1, objectNum1 );
@@ -101,6 +105,9 @@ public class BucketQuota5995 extends TestScmBase {
                 .setMaxObjects( maxObjectNum2 )
                 .setMaxSize( maxObjectSize2 + "m" ).build();
         ScmFactory.Quota.updateBucketQuota( session, quotaConfig );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
         quotaInfo = ScmFactory.Quota.getBucketQuota( session, bucketName );
         BucketQuotaUtils.checkQuotaInfo( quotaInfo, bucketName, maxObjectNum2,
                 maxObjectSize2 * fileSize, 0, 0 );
