@@ -1,6 +1,8 @@
 package com.sequoiacm.schedule.core;
 
 import com.sequoiacm.infrastructure.common.NetUtil;
+import com.sequoiacm.infrastructure.common.ScmHashSlotLock;
+import com.sequoiacm.infrastructure.common.ScmLockWrapper;
 import com.sequoiacm.infrastructure.discovery.ScmServiceDiscoveryClient;
 import com.sequoiacm.infrastructure.discovery.ScmServiceInstance;
 import com.sequoiacm.schedule.common.FieldName;
@@ -31,6 +33,7 @@ public class ScheduleServer {
     private SiteMgr siteMgr = new SiteMgr();
     private NodeMgr nodeMgr = new NodeMgr();
     private ScmServiceDiscoveryClient discoveryClient;
+    private ScmHashSlotLock hashSlotLock;
 
     private ScheduleServer() {
     }
@@ -51,6 +54,7 @@ public class ScheduleServer {
         initSiteMgr();
         initWorkspaceMgr();
         initServerNodeMgr();
+        this.hashSlotLock = new ScmHashSlotLock(1000);
     }
 
     private Map<Integer, SiteEntity> getSiteList() throws Exception {
@@ -160,6 +164,10 @@ public class ScheduleServer {
             return null;
         }
         return siteInfo;
+    }
+
+    public ScmLockWrapper getWriteLock(String scheduleId) {
+        return hashSlotLock.getWriteLock(scheduleId);
     }
 
     public List<WorkspaceInfo> getAllWorkspace(){

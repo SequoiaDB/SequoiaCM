@@ -127,7 +127,7 @@ class QuartzScheduleTools {
         }
     }
 
-    public static void setTaskAbort(String taskId, String msg) {
+    public static void setTaskAbortSilence(String taskId, String msg) {
         try {
             BSONObject matcher = new BasicBSONObject(FieldName.Task.FIELD_ID, taskId);
             BSONObject modifier = new BasicBSONObject();

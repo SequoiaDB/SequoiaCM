@@ -1,5 +1,6 @@
 package com.sequoiacm.schedule.core.job.quartz;
 
+import com.sequoiacm.infrastructure.common.ScmLockWrapper;
 import com.sequoiacm.schedule.common.FieldName;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
@@ -29,45 +30,58 @@ public abstract class QuartzContentserverJob extends QuartzScheduleJob {
 
         // 检查本调度一个最新的Task（状态为 Running or Init），通过 notify 请求确认任务执行节点的运行状态，
         // 若正在运行则忽略本次调度的触发，否则正常触发新建一个 Task
-        TaskEntity initOrRunningTask = getScheduleInitOrRunningTask(info.getId());
-        if (initOrRunningTask != null) {
-            FileServerEntity server = ScheduleServer.getInstance()
-                    .getServerById(initOrRunningTask.getServerId());
-            if (server != null) {
-                try {
-                    notifyTask(server, initOrRunningTask.getId());
-                    logger.info(
-                            "the previous task is running, ignore this trigger: runningTask: {}",
-                            initOrRunningTask);
-                    return;
-                }
-                catch (Exception e) {
-                    logger.warn(
-                            "failed to check the exist task status, rerun a new task: oldTask={}",
-                            initOrRunningTask, e);
-                }
-            }
-            else {
-                logger.warn("contentserver not found, assume the previous task is not running: {}",
-                        initOrRunningTask);
-            }
-        }
-
-        FileServerEntity runTaskServer = getRunTaskServer(info);
-        if (null == runTaskServer) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
-                    "no contentserver to run task:" + info);
-        }
-
-        TaskEntity task = createTaskEntity(runTaskServer, info);
-
+        ScmLockWrapper writeLock = ScheduleServer.getInstance().getWriteLock(info.getId());
+        FileServerEntity runTaskServer;
+        TaskEntity task;
         try {
-            ScheduleServer.getInstance().insertTask(task);
-            logger.debug("task created: {}", task);
+            writeLock.lock();
+            TaskEntity initOrRunningTask = getScheduleInitOrRunningTask(info.getId());
+            if (initOrRunningTask != null) {
+                FileServerEntity server = ScheduleServer.getInstance()
+                        .getServerById(initOrRunningTask.getServerId());
+                if (server != null) {
+                    try {
+                        notifyTask(server, initOrRunningTask.getId());
+                        logger.info(
+                                "the previous task is running, ignore this trigger: runningTask: {}",
+                                initOrRunningTask);
+                        return;
+                    }
+                    catch (Exception e) {
+                        logger.warn(
+                                "failed to check the exist task status, alter task running flag to abort and rerun a new task: oldTask={}",
+                                initOrRunningTask, e);
+                        // 检查状态失败，有可能 task 还是 init or running 状态，需要将其置为 abort，避免和下面新建的 Task 同时在执行
+                        QuartzScheduleTools.setTaskAbortSilence(initOrRunningTask.getId(),
+                                e.toString());
+                    }
+                }
+                else {
+                    logger.warn(
+                            "contentserver not found, assume the previous task is not running: {}",
+                            initOrRunningTask);
+                }
+            }
+
+            runTaskServer = getRunTaskServer(info);
+            if (null == runTaskServer) {
+                throw new ScheduleException(RestCommonDefine.ErrorCode.RECORD_NOT_EXISTS,
+                        "no contentserver to run task:" + info);
+            }
+
+            task = createTaskEntity(runTaskServer, info);
+
+            try {
+                ScheduleServer.getInstance().insertTask(task);
+                logger.debug("task created: {}", task);
+            }
+            catch (Exception e) {
+                throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
+                        "insert task failed:task=" + task, e);
+            }
         }
-        catch (Exception e) {
-            throw new ScheduleException(RestCommonDefine.ErrorCode.INTERNAL_ERROR,
-                    "insert task failed:task=" + task, e);
+        finally {
+            writeLock.unlock();
         }
 
         try {
@@ -77,7 +91,7 @@ public abstract class QuartzContentserverJob extends QuartzScheduleJob {
         }
         catch (Exception e) {
             logger.error("notify task failed, alter task running flag to abort: task={}", task, e);
-            QuartzScheduleTools.setTaskAbort(task.getId(), e.toString());
+            QuartzScheduleTools.setTaskAbortSilence(task.getId(), e.toString());
         }
     }
 
