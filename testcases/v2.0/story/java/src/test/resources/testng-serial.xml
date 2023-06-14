@@ -3,7 +3,7 @@
 <!--testcase for function test, which can be excuted concurrently -->
 <suite name="scm_story_serial" verbose="1" parallel="classes" thread-count="1">
     <parameter name="FORCECLEAR" value="false"/>
-    <parameter name="NTPSERVER" value="192.168.20.200"/>
+    <parameter name="NTPSERVER" value="192.168.29.80"/>
     <parameter name="DATADIR" value="/tmp/ci_cm"/>
     <parameter name="LOCALHOSTNAME" value="localhost"/>
     <parameter name="SSHUSER" value="root"/>

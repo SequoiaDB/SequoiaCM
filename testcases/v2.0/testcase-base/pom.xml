@@ -189,11 +189,6 @@
             <artifactId>hadoop-hdfs</artifactId>
             <version>${hadoop-hdfs.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>3.7.0</version>
-        </dependency>
     </dependencies>
 
     <build>
