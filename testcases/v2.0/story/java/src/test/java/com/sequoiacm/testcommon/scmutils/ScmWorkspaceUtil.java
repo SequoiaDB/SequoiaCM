@@ -710,4 +710,47 @@ public class ScmWorkspaceUtil extends TestScmBase {
             }
         }
     }
+
+    // /**
+    // * @descreption 创建工作区打开tag检索
+    // * @param session
+    // * @param wsName
+    // * @param enableTagRetrieval
+    // * @param siteNum
+    // * @return
+    // * @throws ScmException
+    // * @throws InterruptedException
+    // */
+    // public static ScmWorkspace createWS( ScmSession session, String wsName,
+    // boolean enableTagRetrieval, int siteNum )
+    // throws ScmException, InterruptedException {
+    // ScmWorkspaceConf conf = new ScmWorkspaceConf();
+    // conf.setDataLocations( getDataLocationList( siteNum ) );
+    // conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+    // conf.setEnableTagRetrieval( enableTagRetrieval );
+    // conf.setName( wsName );
+    // return createWS( session, conf );
+    // }
+    //
+    // /**
+    // * @descreption 创建工作区打开tag检索并指定标签库domain
+    // * @param session
+    // * @param wsName
+    // * @param siteNum
+    // * @param domainName
+    // * @return
+    // * @throws ScmException
+    // * @throws InterruptedException
+    // */
+    // public static ScmWorkspace createWS( ScmSession session, String wsName,
+    // int siteNum, String domainName )
+    // throws ScmException, InterruptedException {
+    // ScmWorkspaceConf conf = new ScmWorkspaceConf();
+    // conf.setDataLocations( getDataLocationList( siteNum ) );
+    // conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
+    // conf.setName( wsName );
+    // conf.setEnableTagRetrieval( true );
+    // conf.setTagLibMetaOption( new ScmTagLibMetaOption( domainName ) );
+    // return createWS( session, conf );
+    // }
 }

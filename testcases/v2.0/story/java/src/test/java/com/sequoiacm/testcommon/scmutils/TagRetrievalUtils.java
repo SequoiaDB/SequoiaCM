@@ -14,6 +14,7 @@ import com.sequoiacm.exception.ScmError;
 import org.testng.Assert;
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author
@@ -24,6 +25,10 @@ import java.util.*;
  * @updateRemark
  */
 public class TagRetrievalUtils {
+
+    public static final String SCM_SYSTEM_CS = "SCMSYSTEM";
+    public static final String GLOBAL_CONFIG_CL = "GLOBAL_CONFIG";
+
 
     public static ScmTags createTag( String... tags ) throws ScmException {
         ScmTags scmTags = new ScmTags();
@@ -98,4 +103,22 @@ public class TagRetrievalUtils {
             waitCont++;
         }
     }
+
+    public static void waitForTagRetrievalStatus(ScmSession session, String wsName,
+                                                 int timeoutInSeconds, ScmWorkspaceTagRetrievalStatus exceptstatus )
+            throws TimeoutException, InterruptedException, ScmException {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + ( timeoutInSeconds * 1000 );
+
+        while ( System.currentTimeMillis() < endTime ) {
+            ScmWorkspace ws = ScmFactory.Workspace.getWorkspace( wsName,session);
+            if ( ws.getTagRetrievalStatus().equals( exceptstatus ) ) {
+                return; // 期望的状态已经达到，方法返回
+            }
+        }
+        // 超时异常，抛出 TimeoutException
+        throw new TimeoutException(
+                "Timeout waiting for tag retrieval status to become " + exceptstatus );
+    }
+
 }
