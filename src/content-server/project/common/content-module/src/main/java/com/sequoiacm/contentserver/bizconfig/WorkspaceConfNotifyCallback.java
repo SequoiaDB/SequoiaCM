@@ -3,6 +3,7 @@ package com.sequoiacm.contentserver.bizconfig;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.tag.TagLibMgr;
 import com.sequoiacm.infrastructure.config.client.NotifyCallback;
+import com.sequoiacm.infrastructure.monitor.FlowRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class WorkspaceConfNotifyCallback implements NotifyCallback {
             ScmWorkspaceInfo ws = ScmContentModule.getInstance().getWorkspaceInfo(wsName);
             ScmContentModule.getInstance().removeWorkspace(wsName);
             MetaDataManager.getInstence().removeMetaDataByWsName(wsName);
+            FlowRecorder.getInstance().removeWorkspaceFlow(wsName);
             tagLibMgr.invalidateTagCacheByWs(ws);
             return;
         }

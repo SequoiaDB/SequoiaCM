@@ -32,6 +32,10 @@ public class FlowRecorder {
         return f;
     }
 
+    public synchronized void removeWorkspaceFlow(String workspaceName) {
+        workspaceFlowMap.remove(workspaceName);
+    }
+
     public void addUploadSize(String workspaceName, long size) {
         try {
             WorkspaceFlow f = getOrCreateWorkspaceFlow(workspaceName);
