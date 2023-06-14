@@ -108,6 +108,9 @@
 
             <package name="com.sequoiacm.s3.bucketQuota"/>
             <package name="com.sequoiacm.s3.bucketQuota.concurrent"/>
+
+            <package name="com.sequoiacm.tagretrieval"/>
+            <package name="com.sequoiacm.tagretrieval.concurrent"/>
         </packages>
     </test>
 
