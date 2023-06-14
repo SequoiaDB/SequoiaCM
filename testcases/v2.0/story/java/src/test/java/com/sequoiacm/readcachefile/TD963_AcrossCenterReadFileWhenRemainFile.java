@@ -63,8 +63,7 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         wsA = ScmFactory.Workspace.getWorkspace( wsp.getName(), sessionA );
     }
 
-    // SEQUOIACM-1376
-    @Test(groups = { "fourSite", "net" }, enabled = false)
+    @Test(groups = { "fourSite", "net" })
     public void nettest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
@@ -82,8 +81,7 @@ public class TD963_AcrossCenterReadFileWhenRemainFile extends TestScmBase {
         runSuccess = true;
     }
 
-    // SEQUOIACM-1376
-    @Test(groups = { "fourSite", "star" }, enabled = false)
+    @Test(groups = { "fourSite", "star" })
     public void startest() throws Exception {
         // write from centerA
         fileId = ScmFileUtils.create( wsA, fileName, filePath );
