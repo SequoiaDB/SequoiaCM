@@ -69,8 +69,7 @@ public class ObjectTag5519 extends TestScmBase {
         s3Client.putObject( bucketName, keyName, filePath );
     }
 
-    // SEQUOIACM-1312暂时屏蔽
-    @Test(enabled = false)
+    @Test
     public void test() throws ScmException {
         testS3API();
 

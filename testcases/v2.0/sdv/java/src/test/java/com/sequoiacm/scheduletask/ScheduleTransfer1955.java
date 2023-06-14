@@ -97,8 +97,7 @@ public class ScheduleTransfer1955 extends TestScmBase {
         createAllFile( fileNum );
     }
 
-    // 问题单http://jira.web:8080/browse/SEQUOIACM-1312未修改，屏蔽用例
-    @Test(groups = { "fourSite" }, enabled = false)
+    @Test(groups = { "fourSite" })
     private void test() throws Exception {
         BSONObject queryCond = ScmQueryBuilder
                 .start( ScmAttributeName.File.PROPERTIES + "." + name )
@@ -173,7 +172,7 @@ public class ScheduleTransfer1955 extends TestScmBase {
     }
 
     private ScmId createFile( String name, ScmClassProperties properties,
-                              ScmTags tag ) throws ScmException, ParseException {
+            ScmTags tag ) throws ScmException, ParseException {
         ScmFile file = ScmFactory.File.createInstance( ws );
         file.setFileName( name + "_" + UUID.randomUUID() );
         file.setAuthor( name );
