@@ -209,18 +209,20 @@ public class TableMetaCommon {
 
     public static void dropCLWithSkipRecycleBin(CollectionSpace cs, String clName,
             boolean skipRecycleBin) {
-        BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
-        try {
-            cs.dropCollection(clName, options);
-        }
-        catch (BaseException e) {
-            // 部分 SDB 版本 dropCL 不支持 SkipRecycleBin 参数
-            if (e.getErrorCode() != SDBError.SDB_INVALIDARG.getErrorCode()) {
-                throw e;
-            }
-            logger.warn("Failed to drop cl:{}, try to drop it again", cs.getName() + "." + clName,
-                    e);
-            cs.dropCollection(clName);
-        }
+        cs.dropCollection(clName);
+// 回退sdb驱动至349，dropCollection不支持SkipRecycleBin参数：SEQUOIACM-1411
+//        BSONObject options = new BasicBSONObject("SkipRecycleBin", skipRecycleBin);
+//        try {
+//            cs.dropCollection(clName, options);
+//        }
+//        catch (BaseException e) {
+//            // 部分 SDB 版本 dropCL 不支持 SkipRecycleBin 参数
+//            if (e.getErrorCode() != SDBError.SDB_INVALIDARG.getErrorCode()) {
+//                throw e;
+//            }
+//            logger.warn("Failed to drop cl:{}, try to drop it again", cs.getName() + "." + clName,
+//                    e);
+//            cs.dropCollection(clName);
+//        }
     }
 }

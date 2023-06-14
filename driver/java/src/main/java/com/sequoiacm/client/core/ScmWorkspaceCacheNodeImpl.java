@@ -244,30 +244,30 @@ public class ScmWorkspaceCacheNodeImpl extends ScmWorkspace {
         checkScmWorkspace();
         return scmWorkspace.getExtData();
     }
-
-    @Override
-    public void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException {
-        checkScmWorkspace();
-        scmWorkspace.setEnableTagRetrieval(enableTagRetrieval);
-    }
-
-    @Override
-    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException {
-        checkScmWorkspace();
-        return scmWorkspace.getTagRetrievalStatus();
-    }
-
-    @Override
-    public String getTagLibIndexErrorMsg() throws ScmException {
-        checkScmWorkspace();
-        return scmWorkspace.getTagLibIndexErrorMsg();
-    }
-
-    @Override
-    public ScmTagLibMetaOption getTagLibMetaOption() throws ScmException {
-        checkScmWorkspace();
-        return scmWorkspace.getTagLibMetaOption();
-    }
+// 屏蔽标签功能：SEQUOIACM-1411
+//    @Override
+//    public void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException {
+//        checkScmWorkspace();
+//        scmWorkspace.setEnableTagRetrieval(enableTagRetrieval);
+//    }
+//
+//    @Override
+//    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException {
+//        checkScmWorkspace();
+//        return scmWorkspace.getTagRetrievalStatus();
+//    }
+//
+//    @Override
+//    public String getTagLibIndexErrorMsg() throws ScmException {
+//        checkScmWorkspace();
+//        return scmWorkspace.getTagLibIndexErrorMsg();
+//    }
+//
+//    @Override
+//    public ScmTagLibMetaOption getTagLibMetaOption() throws ScmException {
+//        checkScmWorkspace();
+//        return scmWorkspace.getTagLibMetaOption();
+//    }
 
     @Override
     public void updatePreferred(String preferred) throws ScmException {

@@ -61,9 +61,13 @@ public class SequoiadbMetasource implements Metasource {
         dsOpt.setPreferredInstance(preferedInstance);
         String location = sdbConnConfig.getLocation() == null ? ""
                 : sdbConnConfig.getLocation().trim();
+// 回退sdb驱动至349，不支持location：SEQUOIACM-1411
+//        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+//                .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
+//                .datasourceOptions(dsOpt).location(location).build();
         dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
                 .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
-                .datasourceOptions(dsOpt).location(location).build();
+                .datasourceOptions(dsOpt).build();
     }
 
     public void releaseConnection(Sequoiadb db) {

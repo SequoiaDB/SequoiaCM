@@ -32,8 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@RestController
-@RequestMapping("/api/v1")
+// 屏蔽标签功能：SEQUOIACM-1411
+//@RestController
+//@RequestMapping("/api/v1")
 public class TagController {
     @Autowired
     private TagSyntaxTreeBuilder tagSyntaxTreeBuilder;

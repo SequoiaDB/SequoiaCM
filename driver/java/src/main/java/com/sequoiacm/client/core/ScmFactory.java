@@ -3721,301 +3721,301 @@ public class ScmFactory {
             return ss.getDispatcher().countBucket(condition);
         }
     }
-
-    /**
-     * Tag related operation.
-     */
-    public static class Tag {
-        private Tag() {
-        }
-
-        /**
-         * Search file by tag condition.
-         *
-         * @param ws
-         *            workspace
-         * @param scopeType
-         *            scope type
-         * @param tagCondition
-         *            tag condition
-         * @param fileCondition
-         *            file condition
-         * @param orderBy
-         *            order by
-         * @param skip
-         *            skip the specified amount of files, never skip if this parameter
-         *            is 0.
-         * @param limit
-         *            return the specified amount of files, when limit is -1, return all
-         *            the files.
-         * @return file cursor
-         * @throws ScmException
-         *             if error happens.
-         *
-         * @since 3.6.1
-         */
-        public static ScmCursor<ScmFileBasicInfo> searchFile(ScmWorkspace ws, ScopeType scopeType,
-                ScmTagCondition tagCondition, BSONObject fileCondition, BSONObject orderBy,
-                long skip, long limit) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkArgNotNull("tagCondition", tagCondition);
-            checkArgNotNull("scopeType", scopeType);
-            checkLimit(skip);
-            checkLimit(limit);
-
-            BsonReader reader = ws.getSession().getDispatcher().tagSearchFile(ws.getName(),
-                    tagCondition.getBsonObject(), fileCondition, scopeType.getScope(), skip, limit,
-                    orderBy);
-            return new ScmBsonCursor<ScmFileBasicInfo>(reader,
-                    new BsonConverter<ScmFileBasicInfo>() {
-                        @Override
-                        public ScmFileBasicInfo convert(BSONObject obj) throws ScmException {
-                            return new ScmFileBasicInfo(obj);
-                        }
-                    });
-
-        }
-
-        /**
-         * Count file by tag condition.
-         *
-         * @param ws
-         *            workspace
-         * @param scopeType
-         *            scope type
-         * @param tagCondition
-         *            tag condition
-         * @param fileCondition
-         *            file condition
-         * @return file count
-         * @throws ScmException
-         *             if error happens.
-         *
-         * @since 3.6.1
-         */
-        public static long countFile(ScmWorkspace ws, ScopeType scopeType,
-                ScmTagCondition tagCondition,
-                BSONObject fileCondition) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkArgNotNull("tagCondition", tagCondition);
-            checkArgNotNull("scopeType", scopeType);
-            return ws.getSession().getDispatcher().tagCountFile(ws.getName(),
-                    tagCondition.getBsonObject(), fileCondition, scopeType.getScope());
-        }
-
-        /**
-         * List tag.
-         *
-         * @param ws
-         *            workspace
-         * @param tagNameMatcher
-         *            tag name matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match tag
-         * @param orderBy
-         *            order by, supported key is:
-         *            {@link ScmAttributeName.TagLib#TAG},{@link ScmAttributeName.TagLib#TAG_ID}
-         * @param skip
-         *            skip the specified amount of files, never skip if this parameter
-         *            is 0.
-         * @param limit
-         *            return the specified amount of files, when limit is -1, return all
-         * @return tag cursor
-         * @throws ScmException
-         *             if error happens.
-         * @since 3.6.1
-         */
-        public static ScmCursor<ScmTag> listTags(ScmWorkspace ws, String tagNameMatcher,
-                BSONObject orderBy, long skip, long limit) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkSkip(skip);
-            checkLimit(limit);
-            BsonReader reader = ws.getSession().getDispatcher().listTag(ws.getName(),
-                    tagNameMatcher, orderBy, skip, limit);
-            return new ScmBsonCursor<ScmTag>(reader, new BsonConverter<ScmTag>() {
-                @Override
-                public ScmTag convert(BSONObject obj) throws ScmException {
-                    return new ScmTag(obj);
-                }
-            });
-        }
-
-        /**
-         * Get specified tag.
-         *
-         * @param ws
-         *            workspace
-         * @param tagName
-         *            tag name
-         * @return tag
-         * @throws ScmException
-         *             if error happens.
-         * @since 3.6.1
-         */
-        public static ScmTag getTags(ScmWorkspace ws, String tagName) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkStringArgNotEmpty("tagName", tagName);
-            BSONObject obj = ws.getSession().getDispatcher().getTag(ws.getName(), tagName);
-            if (obj == null) {
-                return null;
-            }
-            return new ScmTag(obj);
-        }
-
-        /**
-         * Count tag.
-         *
-         * @param ws
-         *            workspace
-         * @param tagNameMatcher
-         *            tag name matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match tag
-         * @return tag count
-         * @throws ScmException
-         *             if error happens.
-         * @since 3.6.1
-         */
-        public static long countTags(ScmWorkspace ws, String tagNameMatcher) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            return ws.getSession().getDispatcher().countTag(ws.getName(), tagNameMatcher);
-        }
-    }
-
-    /**
-     * Custom tag related operation.
-     */
-    public static class CustomTag {
-        private CustomTag() {
-        }
-
-        /**
-         * List custom tag.
-         *
-         * @param ws
-         *            workspace
-         * @param tagKeyMatcher
-         *            tag key matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match all custom tag key
-         * @param tagValueMatcher
-         *            tag value matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match all custom tag value
-         * @param orderBy
-         *            order by, supported key is:
-         *            {@link ScmAttributeName.TagLib#TAG_ID},{@link ScmAttributeName.TagLib#CUSTOM_TAG_KEY},{@link ScmAttributeName.TagLib#CUSTOM_TAG_VALUE}
-         * @param skip
-         *            skip the specified amount of custom tag, never skip if this
-         *            parameter is 0
-         * @param limit
-         *            return the specified amount of custom tag, when limit is -1,
-         *            return all
-         * @return custom tag cursor
-         * @throws ScmException
-         *             if error happens.
-         *
-         * @since 3.6.1
-         */
-        public static ScmCursor<ScmCustomTag> listCustomTag(ScmWorkspace ws, String tagKeyMatcher,
-                String tagValueMatcher, BSONObject orderBy, long skip, long limit)
-                throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkSkip(skip);
-            checkLimit(limit);
-            BsonReader reader = ws.getSession().getDispatcher().listCustomTag(ws.getName(),
-                    tagKeyMatcher, tagValueMatcher, orderBy, skip, limit);
-            return new ScmBsonCursor<ScmCustomTag>(reader, new BsonConverter<ScmCustomTag>() {
-                @Override
-                public ScmCustomTag convert(BSONObject obj) throws ScmException {
-                    return new ScmCustomTag(obj);
-                }
-            });
-        }
-
-        /**
-         * Get specified custom tag.
-         *
-         * @param ws
-         *            workspace
-         * @param tagKey
-         *            tag key
-         * @param tagValue
-         *            tag value
-         * @return custom tag
-         * @throws ScmException
-         *             if error happens.
-         * @since
-         */
-        public static ScmCustomTag getCustomTag(ScmWorkspace ws, String tagKey, String tagValue)
-                throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkStringArgNotEmpty("tagKey", tagKey);
-            BSONObject obj = ws.getSession().getDispatcher().getCustomTag(ws.getName(), tagKey,
-                    tagValue);
-            if (obj == null) {
-                return null;
-            }
-            return new ScmCustomTag(obj);
-        }
-
-        /**
-         * List custom tag key.
-         *
-         * @param ws
-         *            workspace
-         * @param tagKeyMatcher
-         *            tag key matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match all custom tag key
-         *
-         * @param ascending
-         *            sort by key in ascending order if true, else descending.
-         *
-         * @param skip
-         *            skip the specified amount of custom tag key, never skip if this
-         *            parameter is 0.
-         * @param limit
-         *            return the specified amount of custom tag key, when limit is -1,
-         *            return all
-         * @return custom tag key cursor
-         * @throws ScmException
-         *             if error happens.
-         * @since 3.6.1
-         */
-        public static ScmCursor<String> listCustomTagKey(ScmWorkspace ws, String tagKeyMatcher,
-                boolean ascending, long skip, long limit) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            checkLimit(skip);
-            checkLimit(limit);
-            BsonReader reader = ws.getSession().getDispatcher().listCustomTagKey(ws.getName(),
-                    tagKeyMatcher, ascending, skip, limit);
-            return new ScmBsonCursor<String>(reader, new BsonConverter<String>() {
-                @Override
-                public String convert(BSONObject obj) throws ScmException {
-                    return BsonUtils.getStringChecked(obj, FieldName.TagLib.CUSTOM_TAG_TAG_KEY);
-                }
-            });
-        }
-
-        /**
-         * Count custom tag.
-         *
-         * @param ws
-         *            workspace
-         * @param tagKeyMatcher
-         *            tag key matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match all custom tag key
-         * @param tagValueMatcher
-         *            tag value matcher, support wildcard: * and ?, * means any, ? means
-         *            one char, when this parameter is null match all custom tag value
-         * @return custom tag count
-         * @throws ScmException
-         *             if error happens.
-         * @since 3.6.1
-         */
-        public static long countCustomTag(ScmWorkspace ws, String tagKeyMatcher,
-                String tagValueMatcher) throws ScmException {
-            checkArgNotNull("workspace", ws);
-            return ws.getSession().getDispatcher().countCustomTag(ws.getName(), tagKeyMatcher,
-                    tagValueMatcher);
-        }
-    }
+//    屏蔽标签功能：SEQUOIACM-1411
+//    /**
+//     * Tag related operation.
+//     */
+//    public static class Tag {
+//        private Tag() {
+//        }
+//
+//        /**
+//         * Search file by tag condition.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param scopeType
+//         *            scope type
+//         * @param tagCondition
+//         *            tag condition
+//         * @param fileCondition
+//         *            file condition
+//         * @param orderBy
+//         *            order by
+//         * @param skip
+//         *            skip the specified amount of files, never skip if this parameter
+//         *            is 0.
+//         * @param limit
+//         *            return the specified amount of files, when limit is -1, return all
+//         *            the files.
+//         * @return file cursor
+//         * @throws ScmException
+//         *             if error happens.
+//         *
+//         * @since 3.6.1
+//         */
+//        public static ScmCursor<ScmFileBasicInfo> searchFile(ScmWorkspace ws, ScopeType scopeType,
+//                ScmTagCondition tagCondition, BSONObject fileCondition, BSONObject orderBy,
+//                long skip, long limit) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkArgNotNull("tagCondition", tagCondition);
+//            checkArgNotNull("scopeType", scopeType);
+//            checkLimit(skip);
+//            checkLimit(limit);
+//
+//            BsonReader reader = ws.getSession().getDispatcher().tagSearchFile(ws.getName(),
+//                    tagCondition.getBsonObject(), fileCondition, scopeType.getScope(), skip, limit,
+//                    orderBy);
+//            return new ScmBsonCursor<ScmFileBasicInfo>(reader,
+//                    new BsonConverter<ScmFileBasicInfo>() {
+//                        @Override
+//                        public ScmFileBasicInfo convert(BSONObject obj) throws ScmException {
+//                            return new ScmFileBasicInfo(obj);
+//                        }
+//                    });
+//
+//        }
+//
+//        /**
+//         * Count file by tag condition.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param scopeType
+//         *            scope type
+//         * @param tagCondition
+//         *            tag condition
+//         * @param fileCondition
+//         *            file condition
+//         * @return file count
+//         * @throws ScmException
+//         *             if error happens.
+//         *
+//         * @since 3.6.1
+//         */
+//        public static long countFile(ScmWorkspace ws, ScopeType scopeType,
+//                ScmTagCondition tagCondition,
+//                BSONObject fileCondition) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkArgNotNull("tagCondition", tagCondition);
+//            checkArgNotNull("scopeType", scopeType);
+//            return ws.getSession().getDispatcher().tagCountFile(ws.getName(),
+//                    tagCondition.getBsonObject(), fileCondition, scopeType.getScope());
+//        }
+//
+//        /**
+//         * List tag.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagNameMatcher
+//         *            tag name matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match tag
+//         * @param orderBy
+//         *            order by, supported key is:
+//         *            {@link ScmAttributeName.TagLib#TAG},{@link ScmAttributeName.TagLib#TAG_ID}
+//         * @param skip
+//         *            skip the specified amount of files, never skip if this parameter
+//         *            is 0.
+//         * @param limit
+//         *            return the specified amount of files, when limit is -1, return all
+//         * @return tag cursor
+//         * @throws ScmException
+//         *             if error happens.
+//         * @since 3.6.1
+//         */
+//        public static ScmCursor<ScmTag> listTags(ScmWorkspace ws, String tagNameMatcher,
+//                BSONObject orderBy, long skip, long limit) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkSkip(skip);
+//            checkLimit(limit);
+//            BsonReader reader = ws.getSession().getDispatcher().listTag(ws.getName(),
+//                    tagNameMatcher, orderBy, skip, limit);
+//            return new ScmBsonCursor<ScmTag>(reader, new BsonConverter<ScmTag>() {
+//                @Override
+//                public ScmTag convert(BSONObject obj) throws ScmException {
+//                    return new ScmTag(obj);
+//                }
+//            });
+//        }
+//
+//        /**
+//         * Get specified tag.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagName
+//         *            tag name
+//         * @return tag
+//         * @throws ScmException
+//         *             if error happens.
+//         * @since 3.6.1
+//         */
+//        public static ScmTag getTags(ScmWorkspace ws, String tagName) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkStringArgNotEmpty("tagName", tagName);
+//            BSONObject obj = ws.getSession().getDispatcher().getTag(ws.getName(), tagName);
+//            if (obj == null) {
+//                return null;
+//            }
+//            return new ScmTag(obj);
+//        }
+//
+//        /**
+//         * Count tag.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagNameMatcher
+//         *            tag name matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match tag
+//         * @return tag count
+//         * @throws ScmException
+//         *             if error happens.
+//         * @since 3.6.1
+//         */
+//        public static long countTags(ScmWorkspace ws, String tagNameMatcher) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            return ws.getSession().getDispatcher().countTag(ws.getName(), tagNameMatcher);
+//        }
+//    }
+//
+//    /**
+//     * Custom tag related operation.
+//     */
+//    public static class CustomTag {
+//        private CustomTag() {
+//        }
+//
+//        /**
+//         * List custom tag.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagKeyMatcher
+//         *            tag key matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match all custom tag key
+//         * @param tagValueMatcher
+//         *            tag value matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match all custom tag value
+//         * @param orderBy
+//         *            order by, supported key is:
+//         *            {@link ScmAttributeName.TagLib#TAG_ID},{@link ScmAttributeName.TagLib#CUSTOM_TAG_KEY},{@link ScmAttributeName.TagLib#CUSTOM_TAG_VALUE}
+//         * @param skip
+//         *            skip the specified amount of custom tag, never skip if this
+//         *            parameter is 0
+//         * @param limit
+//         *            return the specified amount of custom tag, when limit is -1,
+//         *            return all
+//         * @return custom tag cursor
+//         * @throws ScmException
+//         *             if error happens.
+//         *
+//         * @since 3.6.1
+//         */
+//        public static ScmCursor<ScmCustomTag> listCustomTag(ScmWorkspace ws, String tagKeyMatcher,
+//                String tagValueMatcher, BSONObject orderBy, long skip, long limit)
+//                throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkSkip(skip);
+//            checkLimit(limit);
+//            BsonReader reader = ws.getSession().getDispatcher().listCustomTag(ws.getName(),
+//                    tagKeyMatcher, tagValueMatcher, orderBy, skip, limit);
+//            return new ScmBsonCursor<ScmCustomTag>(reader, new BsonConverter<ScmCustomTag>() {
+//                @Override
+//                public ScmCustomTag convert(BSONObject obj) throws ScmException {
+//                    return new ScmCustomTag(obj);
+//                }
+//            });
+//        }
+//
+//        /**
+//         * Get specified custom tag.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagKey
+//         *            tag key
+//         * @param tagValue
+//         *            tag value
+//         * @return custom tag
+//         * @throws ScmException
+//         *             if error happens.
+//         * @since
+//         */
+//        public static ScmCustomTag getCustomTag(ScmWorkspace ws, String tagKey, String tagValue)
+//                throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkStringArgNotEmpty("tagKey", tagKey);
+//            BSONObject obj = ws.getSession().getDispatcher().getCustomTag(ws.getName(), tagKey,
+//                    tagValue);
+//            if (obj == null) {
+//                return null;
+//            }
+//            return new ScmCustomTag(obj);
+//        }
+//
+//        /**
+//         * List custom tag key.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagKeyMatcher
+//         *            tag key matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match all custom tag key
+//         *
+//         * @param ascending
+//         *            sort by key in ascending order if true, else descending.
+//         *
+//         * @param skip
+//         *            skip the specified amount of custom tag key, never skip if this
+//         *            parameter is 0.
+//         * @param limit
+//         *            return the specified amount of custom tag key, when limit is -1,
+//         *            return all
+//         * @return custom tag key cursor
+//         * @throws ScmException
+//         *             if error happens.
+//         * @since 3.6.1
+//         */
+//        public static ScmCursor<String> listCustomTagKey(ScmWorkspace ws, String tagKeyMatcher,
+//                boolean ascending, long skip, long limit) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            checkLimit(skip);
+//            checkLimit(limit);
+//            BsonReader reader = ws.getSession().getDispatcher().listCustomTagKey(ws.getName(),
+//                    tagKeyMatcher, ascending, skip, limit);
+//            return new ScmBsonCursor<String>(reader, new BsonConverter<String>() {
+//                @Override
+//                public String convert(BSONObject obj) throws ScmException {
+//                    return BsonUtils.getStringChecked(obj, FieldName.TagLib.CUSTOM_TAG_TAG_KEY);
+//                }
+//            });
+//        }
+//
+//        /**
+//         * Count custom tag.
+//         *
+//         * @param ws
+//         *            workspace
+//         * @param tagKeyMatcher
+//         *            tag key matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match all custom tag key
+//         * @param tagValueMatcher
+//         *            tag value matcher, support wildcard: * and ?, * means any, ? means
+//         *            one char, when this parameter is null match all custom tag value
+//         * @return custom tag count
+//         * @throws ScmException
+//         *             if error happens.
+//         * @since 3.6.1
+//         */
+//        public static long countCustomTag(ScmWorkspace ws, String tagKeyMatcher,
+//                String tagValueMatcher) throws ScmException {
+//            checkArgNotNull("workspace", ws);
+//            return ws.getSession().getDispatcher().countCustomTag(ws.getName(), tagKeyMatcher,
+//                    tagValueMatcher);
+//        }
+//    }
 
     private static void checkArgNotNull(String argName, Object arg) throws ScmException {
         if (arg == null) {

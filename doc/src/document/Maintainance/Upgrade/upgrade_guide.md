@@ -167,14 +167,6 @@ SequoiaCM v3.2.2 及以上版本新增[链路追踪服务][service_trace]，用�
 | scmUser     | 指定管理员用户名     | 否 |
 | scmPassword     | 指定管理员用户密码    | 否 |
 
-**cluster-global-config**
-
-该配置段用于配置升级完成后的全局默认配置，参数说明如下：
-
-| 参数名 | 说明 | 是否必填 |
-| ------ | ---- | -------- |
-| scm.tagLib.defaultDomain | 工作区标签库的默认 Domain | 否 |
-
 > **Note:**
 >
 > 配置该配置段前，用户需保证 config 段已配置参数 scmGateway、scmUser 和 scmPassword。

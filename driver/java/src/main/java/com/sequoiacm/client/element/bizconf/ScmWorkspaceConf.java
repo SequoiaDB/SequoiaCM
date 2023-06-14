@@ -247,12 +247,13 @@ public class ScmWorkspaceConf {
         bson.put(FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                 siteCacheStrategy == null ? ScmSiteCacheStrategy.ALWAYS.name()
                         : siteCacheStrategy.name());
-        bson.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
-                isEnableTagRetrieval ? ScmWorkspaceTagRetrievalStatus.ENABLED.getValue()
-                        : ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
-        if (tagLibOption != null) {
-            bson.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION, tagLibOption.getBSON());
-        }
+// 屏蔽标签功能：SEQUOIACM-1411
+//        bson.put(FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+//                isEnableTagRetrieval ? ScmWorkspaceTagRetrievalStatus.ENABLED.getValue()
+//                        : ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+//        if (tagLibOption != null) {
+//            bson.put(FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION, tagLibOption.getBSON());
+//        }
         return bson;
     }
 
@@ -425,42 +426,42 @@ public class ScmWorkspaceConf {
     public ScmSiteCacheStrategy getSiteCacheStrategy() {
         return siteCacheStrategy;
     }
-
-    /**
-     * Enable tag retrieval or not.
-     * 
-     * @param enableTagRetrieval
-     *            enable tag retrieval.
-     */
-    public void setEnableTagRetrieval(boolean enableTagRetrieval) {
-        isEnableTagRetrieval = enableTagRetrieval;
-    }
-
-    /**
-     * Return true if tag retrieval is enabled.
-     * 
-     * @return true if tag retrieval is enabled.
-     */
-    public boolean isEnableTagRetrieval() {
-        return isEnableTagRetrieval;
-    }
-
-    /**
-     * Set the tag lib meta option.
-     * 
-     * @param tagLibOption
-     *            tag lib meta option.
-     */
-    public void setTagLibMetaOption(ScmTagLibMetaOption tagLibOption) {
-        this.tagLibOption = tagLibOption;
-    }
-
-    /**
-     * Get the tag lib meta option.
-     * 
-     * @return tag lib meta option.
-     */
-    public ScmTagLibMetaOption getTagLibMetaOption() {
-        return tagLibOption;
-    }
+// 屏蔽标签功能：SEQUOIACM-1411
+//    /**
+//     * Enable tag retrieval or not.
+//     *
+//     * @param enableTagRetrieval
+//     *            enable tag retrieval.
+//     */
+//    public void setEnableTagRetrieval(boolean enableTagRetrieval) {
+//        isEnableTagRetrieval = enableTagRetrieval;
+//    }
+//
+//    /**
+//     * Return true if tag retrieval is enabled.
+//     *
+//     * @return true if tag retrieval is enabled.
+//     */
+//    public boolean isEnableTagRetrieval() {
+//        return isEnableTagRetrieval;
+//    }
+//
+//    /**
+//     * Set the tag lib meta option.
+//     *
+//     * @param tagLibOption
+//     *            tag lib meta option.
+//     */
+//    public void setTagLibMetaOption(ScmTagLibMetaOption tagLibOption) {
+//        this.tagLibOption = tagLibOption;
+//    }
+//
+//    /**
+//     * Get the tag lib meta option.
+//     *
+//     * @return tag lib meta option.
+//     */
+//    public ScmTagLibMetaOption getTagLibMetaOption() {
+//        return tagLibOption;
+//    }
 }

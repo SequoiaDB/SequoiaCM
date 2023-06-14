@@ -180,9 +180,10 @@ public class ScmCreateWsToolImpl extends ScmTool {
             if (cl.hasOption(OPT_LONG_DISABLE_DIRECTORY)) {
                 conf.setEnableDirectory(false);
             }
-            if (cl.hasOption(OPT_LONG_ENABLE_TAG_RETRIEVAL)) {
-                conf.setEnableTagRetrieval(true);
-            }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//            if (cl.hasOption(OPT_LONG_ENABLE_TAG_RETRIEVAL)) {
+//                conf.setEnableTagRetrieval(true);
+//            }
 
             ScmFactory.Workspace.createWorkspace(ss, conf);
             logger.info("create workspace success:wsName={}", wsName);

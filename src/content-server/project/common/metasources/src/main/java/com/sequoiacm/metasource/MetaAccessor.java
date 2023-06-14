@@ -65,9 +65,10 @@ public interface MetaAccessor {
     // 忽略索引冲突批量插入记录，若全部插入成功返回 true，存在插入冲突返回 false
     boolean bulkInsert(List<BSONObject> inserters) throws ScmMetasourceException;
 
-    // 异步建立索引，返回taskID，返回 null 表示索引已建立完成
-    Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
-            BSONObject option) throws ScmMetasourceException;
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//    // 异步建立索引，返回taskID，返回 null 表示索引已建立完成
+//    Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
+//            BSONObject option) throws ScmMetasourceException;
 
     void dropIndex(String idxName) throws ScmMetasourceException;
 }

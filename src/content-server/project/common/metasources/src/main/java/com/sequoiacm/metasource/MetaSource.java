@@ -14,5 +14,6 @@ public interface MetaSource {
 
     void cancelMetaSourceTask(long taskId, boolean isAsync) throws ScmMetasourceException;
 
-    MetasourceVersion getVersion() throws ScmMetasourceException;
+    // 回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+    //MetasourceVersion getVersion() throws ScmMetasourceException;
 }

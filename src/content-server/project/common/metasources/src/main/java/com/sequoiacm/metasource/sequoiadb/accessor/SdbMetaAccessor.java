@@ -722,45 +722,45 @@ public class SdbMetaAccessor implements MetaAccessor {
             releaseConnection(sdb);
         }
     }
-
-    @Override
-    public Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
-            BSONObject option) throws ScmMetasourceException {
-        Sequoiadb sdb = null;
-        try {
-            sdb = getConnection();
-            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
-            DBCollection cl = cs.getCollection(getClName());
-            return cl.createIndexAsync(idxName, idxDefine, attribute, option);
-        }
-        catch (BaseException e) {
-            if (e.getErrorCode() == SDBError.SDB_IXM_CREATING.getErrorCode()) {
-                logger.info("index is already creating, query the task id: {}", idxName);
-                return getIndexTaskId(sdb, idxName);
-            }
-            if (e.getErrorCode() == SDBError.SDB_IXM_REDEF.getErrorCode()) {
-                return null;
-            }
-            throw new SdbMetasourceException(e.getErrorCode(),
-                    "failed to create index:table=" + csName + "." + clName + ", index=" + idxName
-                            + ", idxDefine=" + idxDefine + ", attribute=" + attribute + ", option="
-                            + option,
-                    e);
-        }
-        catch (ScmMetasourceException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
-                    "failed to create index:table=" + csName + "." + clName + ", index=" + idxName
-                            + ", idxDefine=" + idxDefine + ", attribute=" + attribute + ", option="
-                            + option,
-                    e);
-        }
-        finally {
-            releaseConnection(sdb);
-        }
-    }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//    @Override
+//    public Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
+//            BSONObject option) throws ScmMetasourceException {
+//        Sequoiadb sdb = null;
+//        try {
+//            sdb = getConnection();
+//            CollectionSpace cs = sdb.getCollectionSpace(getCsName());
+//            DBCollection cl = cs.getCollection(getClName());
+//            return cl.createIndexAsync(idxName, idxDefine, attribute, option);
+//        }
+//        catch (BaseException e) {
+//            if (e.getErrorCode() == SDBError.SDB_IXM_CREATING.getErrorCode()) {
+//                logger.info("index is already creating, query the task id: {}", idxName);
+//                return getIndexTaskId(sdb, idxName);
+//            }
+//            if (e.getErrorCode() == SDBError.SDB_IXM_REDEF.getErrorCode()) {
+//                return null;
+//            }
+//            throw new SdbMetasourceException(e.getErrorCode(),
+//                    "failed to create index:table=" + csName + "." + clName + ", index=" + idxName
+//                            + ", idxDefine=" + idxDefine + ", attribute=" + attribute + ", option="
+//                            + option,
+//                    e);
+//        }
+//        catch (ScmMetasourceException e) {
+//            throw e;
+//        }
+//        catch (Exception e) {
+//            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+//                    "failed to create index:table=" + csName + "." + clName + ", index=" + idxName
+//                            + ", idxDefine=" + idxDefine + ", attribute=" + attribute + ", option="
+//                            + option,
+//                    e);
+//        }
+//        finally {
+//            releaseConnection(sdb);
+//        }
+//    }
 
     private long getIndexTaskId(Sequoiadb sdb, String idxName) throws ScmMetasourceException {
         BSONObject condition = new BasicBSONObject("TaskType", 2);

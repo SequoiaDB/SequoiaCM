@@ -3,7 +3,6 @@ package com.sequoiacm.sequoiadb.dataservice;
 import java.util.List;
 
 import com.sequoiacm.infrastructure.sdbversion.Version;
-import com.sequoiadb.base.DBVersion;
 import com.sequoiadb.base.UserConfig;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
@@ -33,10 +32,14 @@ public class DataSourceWrapper {
             ConfigOptions connConf, DatasourceOptions datasourceConf) throws SequoiadbException {
         try {
             this.siteId = siteId;
+// 回退sdb驱动至349，不支持location：SEQUOIACM-1411
+//            dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+//                    .userConfig(new UserConfig(user, passwd)).configOptions(connConf)
+//                    .datasourceOptions(datasourceConf).location(SdbDatasourceConfig.getLocation())
+//                    .build();
             dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
                     .userConfig(new UserConfig(user, passwd)).configOptions(connConf)
-                    .datasourceOptions(datasourceConf).location(SdbDatasourceConfig.getLocation())
-                    .build();
+                    .datasourceOptions(datasourceConf).build();
         }
         catch (BaseException e) {
             throw new SequoiadbException(e.getErrorCode(), "failed to init datasource", e);
@@ -110,17 +113,18 @@ public class DataSourceWrapper {
         }
     }
 
-    Version getVersion() throws SequoiadbException {
-        Sequoiadb con = getConnection();
-        try {
-            DBVersion version = con.getDBVersion();
-            return new Version(version.getVersion(), version.getSubVersion(),
-                    version.getFixVersion());
-        }
-        finally {
-            releaseConnection(con);
-        }
-    }
+// 回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+//    Version getVersion() throws SequoiadbException {
+//        Sequoiadb con = getConnection();
+//        try {
+//            DBVersion version = con.getDBVersion();
+//            return new Version(version.getVersion(), version.getSubVersion(),
+//                    version.getFixVersion());
+//        }
+//        finally {
+//            releaseConnection(con);
+//        }
+//    }
 
     @Override
     public String toString() {

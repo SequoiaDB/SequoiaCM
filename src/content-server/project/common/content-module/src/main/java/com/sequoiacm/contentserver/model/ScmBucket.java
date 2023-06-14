@@ -386,18 +386,18 @@ class MetaAccessorBucketWrapper implements MetaAccessor {
             throw e;
         }
     }
-
-    @Override
-    public Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
-            BSONObject option) throws ScmMetasourceException {
-        try {
-            return bucketFileMetaAccessor.asyncCreateIndex(idxName, idxDefine, attribute, option);
-        }
-        catch (ScmMetasourceException e) {
-            checkIfBucketTableNotExistError(e);
-            throw e;
-        }
-    }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//    @Override
+//    public Long asyncCreateIndex(String idxName, BSONObject idxDefine, BSONObject attribute,
+//            BSONObject option) throws ScmMetasourceException {
+//        try {
+//            return bucketFileMetaAccessor.asyncCreateIndex(idxName, idxDefine, attribute, option);
+//        }
+//        catch (ScmMetasourceException e) {
+//            checkIfBucketTableNotExistError(e);
+//            throw e;
+//        }
+//    }
 
     @Override
     public void dropIndex(String idxName) throws ScmMetasourceException {

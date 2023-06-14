@@ -27,8 +27,9 @@ public interface IWorkspaceService {
             throws ScmServerException;
 
     long countWorkspace(ScmUser user, BSONObject condition) throws ScmServerException;
-
-    BSONObject disabledTagRetrieval(ScmUser user, String ws) throws ScmServerException;
-
-    BSONObject enableTagRetrieval(ScmUser user, String ws) throws ScmServerException;
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//
+//    BSONObject disabledTagRetrieval(ScmUser user, String ws) throws ScmServerException;
+//
+//    BSONObject enableTagRetrieval(ScmUser user, String ws) throws ScmServerException;
 }

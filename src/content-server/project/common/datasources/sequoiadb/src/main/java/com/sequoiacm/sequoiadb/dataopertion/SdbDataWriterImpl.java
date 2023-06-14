@@ -26,14 +26,17 @@ public class SdbDataWriterImpl extends ScmDataWriter {
     SdbDataWriterImpl(int siteId, ScmLocation location, ScmService service, MetaSource metaSource,
             String csName, String clName, String wsName, int dataType, String dataId,
             ScmLockManager lockManager) throws SequoiadbException {
-        if (isLobOptimizeVersion((SdbService) service)) {
-            sdbWriter = new SdbLobOptimizeWriter(siteId, location, service, metaSource, csName,
-                    clName, wsName, dataId, lockManager);
-        }
-        else {
-            sdbWriter = new SdbLobWriter(siteId, location, service, metaSource, csName, clName,
-                    wsName, dataId, lockManager);
-        }
+// 屏蔽 PUT LOB 优化：SEQUOIACM-1411
+//        if (isLobOptimizeVersion((SdbService) service)) {
+//            sdbWriter = new SdbLobOptimizeWriter(siteId, location, service, metaSource, csName,
+//                    clName, wsName, dataId, lockManager);
+//        }
+//        else {
+//            sdbWriter = new SdbLobWriter(siteId, location, service, metaSource, csName, clName,
+//                    wsName, dataId, lockManager);
+//        }
+          sdbWriter = new SdbLobWriter(siteId, location, service, metaSource, csName, clName,
+                  wsName, dataId, lockManager);
     }
 
     @Override
@@ -69,13 +72,14 @@ public class SdbDataWriterImpl extends ScmDataWriter {
         return sdbWriter.getCreatedTableName();
     }
 
-    private boolean isLobOptimizeVersion(SdbService sdbService) {
-        try {
-            return sdbService.isCompatible(SdbDatasourceConfig.getPutLobRequiredVersionRanges());
-        }
-        catch (Exception e) {
-            logger.warn("failed to check sdb version, cannot use lob optimize writer!", e);
-            return false;
-        }
-    }
+// 回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+//    private boolean isLobOptimizeVersion(SdbService sdbService) {
+//        try {
+//            return sdbService.isCompatible(SdbDatasourceConfig.getPutLobRequiredVersionRanges());
+//        }
+//        catch (Exception e) {
+//            logger.warn("failed to check sdb version, cannot use lob optimize writer!", e);
+//            return false;
+//        }
+//    }
 }

@@ -148,11 +148,6 @@ public class SdbLobWriter implements SdbWriter {
                 SequoiadbHelper.createCL(sdb, csName, clName, sdbLocation);
                 tmpLob = SequoiadbHelper.createLob(sdb, csName, clName, lobId);
             }
-            else if (e.getDatabaseError() == SDBError.SDB_FE.getErrorCode()) {
-                CommonDataOperation.deleteResidueFileContent(siteId, wsName, lobId, location,
-                        csName, clName, service, metaSource, lockManager);
-                tmpLob = SequoiadbHelper.createLob(sdb, csName, clName, lobId);
-            }
             else {
                 logger.error("create lob failed:siteId=" + siteId + ",cs=" + csName + ",cl="
                         + clName + ",lobId=" + lobId);

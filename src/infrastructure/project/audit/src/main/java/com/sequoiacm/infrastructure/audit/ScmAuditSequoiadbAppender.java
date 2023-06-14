@@ -249,10 +249,14 @@ public class ScmAuditSequoiadbAppender extends UnsynchronizedAppenderBase<ILoggi
 
         ConfigOptions connConf = buildConfigOptions();
         DatasourceOptions datasourceConf = buildDatasourceOptions();
-        String location = getLocation() == null ? "" : getLocation().trim();
+// 回退sdb驱动至349，不支持location：SEQUOIACM-1411
+//        String location = getLocation() == null ? "" : getLocation().trim();
+//        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+//                .userConfig(new UserConfig(userName, password)).configOptions(connConf)
+//                .datasourceOptions(datasourceConf).location(location).build();
         dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
                 .userConfig(new UserConfig(userName, password)).configOptions(connConf)
-                .datasourceOptions(datasourceConf).location(location).build();
+                .datasourceOptions(datasourceConf).build();
     }
 
     private DatasourceOptions buildDatasourceOptions() {

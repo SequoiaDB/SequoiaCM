@@ -70,7 +70,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 @Service
-@EnableSdbVersionChecker(versionFetcher = MetasourceVersionFetcher.class)
+// 回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+//@EnableSdbVersionChecker(versionFetcher = MetasourceVersionFetcher.class)
 public class WorkspaceServiceImpl implements IWorkspaceService {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceServiceImpl.class);
@@ -82,9 +83,9 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
 
     @Autowired
     ScmAudit audit;
-
-    @Autowired
-    SdbVersionChecker sdbVersionChecker;
+//
+//    @Autowired
+//    SdbVersionChecker sdbVersionChecker;
 
     @Autowired
     ScmTagConfig tagConfig;
@@ -129,8 +130,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             throw new ScmOperationUnauthorizedException(
                     "permission denied:user=" + user.getUsername());
         }
-        WorkspaceCreator creator = new WorkspaceCreator(wsName, createUser, wsConf,
-                sdbVersionChecker, tagConfig);
+        WorkspaceCreator creator = new WorkspaceCreator(wsName, createUser, wsConf, tagConfig);
         BSONObject ret = configEntityTranslator.toConfigBSON(creator.create());
 
         audit.info(ScmAuditType.CREATE_WS, user, wsName, 0, "create workspace by wsConf=" + wsConf);
@@ -544,48 +544,48 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
             }
         }
     }
-
-    @Override
-    public BSONObject disabledTagRetrieval(ScmUser user, String ws) throws ScmServerException {
-        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            audit.info(ScmAuditType.DELETE_WS, user, ws,
-                    ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
-                    "disable tag retrieval, permission denied: userName=" + user.getUsername());
-            throw new ScmOperationUnauthorizedException(
-                    "disable tag retrieval, permission denied:user=" + user.getUsername() + ", ws="
-                            + ws);
-        }
-        ScmLock lock = ScmLockManager.getInstance()
-                .acquiresLock(ScmLockPathFactory.createWorkspaceTagRetrievalLock(ws));
-        try {
-            WorkspaceConfig wsConf = ContenserverConfClient.getInstance().getWorkspace(ws);
-            if (wsConf == null) {
-                throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
-                        "workspace not exist: workspace=" + ws);
-            }
-
-            if (Objects.equals(wsConf.getTagRetrievalStatus(),
-                    ScmWorkspaceTagRetrievalStatus.DISABLED.getValue())) {
-                throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
-                        "tag retrieval already disabled: workspace=" + ws);
-            }
-
-            WorkspaceUpdater updater = new WorkspaceUpdater(ws);
-            updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
-            WorkspaceConfig ret = ContenserverConfClient.getInstance().updateWorkspaceConf(updater);
-
-            if (Objects.equals(wsConf.getTagRetrievalStatus(),
-                    ScmWorkspaceTagRetrievalStatus.INDEXING.getValue())) {
-                cancelTaskSilence(wsConf);
-            }
-
-            dropTagLibFulltextIndexSilence(wsConf);
-            return configEntityTranslator.toConfigBSON(ret);
-        }
-        finally {
-            lock.unlock();
-        }
-    }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//    @Override
+//    public BSONObject disabledTagRetrieval(ScmUser user, String ws) throws ScmServerException {
+//        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+//            audit.info(ScmAuditType.DELETE_WS, user, ws,
+//                    ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
+//                    "disable tag retrieval, permission denied: userName=" + user.getUsername());
+//            throw new ScmOperationUnauthorizedException(
+//                    "disable tag retrieval, permission denied:user=" + user.getUsername() + ", ws="
+//                            + ws);
+//        }
+//        ScmLock lock = ScmLockManager.getInstance()
+//                .acquiresLock(ScmLockPathFactory.createWorkspaceTagRetrievalLock(ws));
+//        try {
+//            WorkspaceConfig wsConf = ContenserverConfClient.getInstance().getWorkspace(ws);
+//            if (wsConf == null) {
+//                throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
+//                        "workspace not exist: workspace=" + ws);
+//            }
+//
+//            if (Objects.equals(wsConf.getTagRetrievalStatus(),
+//                    ScmWorkspaceTagRetrievalStatus.DISABLED.getValue())) {
+//                throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+//                        "tag retrieval already disabled: workspace=" + ws);
+//            }
+//
+//            WorkspaceUpdater updater = new WorkspaceUpdater(ws);
+//            updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+//            WorkspaceConfig ret = ContenserverConfClient.getInstance().updateWorkspaceConf(updater);
+//
+//            if (Objects.equals(wsConf.getTagRetrievalStatus(),
+//                    ScmWorkspaceTagRetrievalStatus.INDEXING.getValue())) {
+//                cancelTaskSilence(wsConf);
+//            }
+//
+//            dropTagLibFulltextIndexSilence(wsConf);
+//            return configEntityTranslator.toConfigBSON(ret);
+//        }
+//        finally {
+//            lock.unlock();
+//        }
+//    }
 
     private static void dropTagLibFulltextIndexSilence(WorkspaceConfig wsConf) {
         try {
@@ -619,66 +619,67 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                     e);
         }
     }
-
-    @Override
-    public BSONObject enableTagRetrieval(ScmUser user, String ws) throws ScmServerException {
-        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
-            audit.info(ScmAuditType.DELETE_WS, user, ws,
-                    ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
-                    "enable tag retrieval, permission denied: userName=" + user.getUsername());
-            throw new ScmOperationUnauthorizedException(
-                    "enable tag retrieval, permission denied:user=" + user.getUsername() + ", ws="
-                            + ws);
-        }
-
-        ScmLock lock = ScmLockManager.getInstance()
-                .acquiresLock(ScmLockPathFactory.createWorkspaceTagRetrievalLock(ws));
-        try {
-            WorkspaceConfig wsConf = ContenserverConfClient.getInstance().getWorkspace(ws);
-            if (wsConf == null) {
-                throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
-                        "workspace not exist: workspace=" + ws);
-            }
-
-            if (!Objects.equals(wsConf.getTagRetrievalStatus(),
-                    ScmWorkspaceTagRetrievalStatus.DISABLED.getValue())) {
-                throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
-                        "enable tag retrieval failed, current status is "
-                                + wsConf.getTagRetrievalStatus() + ", workspace=" + ws);
-            }
-
-            MetaAccessor tagLibMetaAccessor = ScmContentModule.getInstance().getMetaService()
-                    .getMetaSource().createMetaAccessor(wsConf.getTagLibTableName());
-
-            Long taskId = tagLibMetaAccessor.asyncCreateIndex("tag_lib_fulltext_idx",
-                    FieldName.TagLib.tagLibFulltextIdxDef(),
-                    FieldName.TagLib.tagLibFulltextIdxAttr(), null);
-            if (taskId == null) {
-                WorkspaceUpdater updater = new WorkspaceUpdater(ws);
-                updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.ENABLED.getValue());
-                WorkspaceConfig ret = ContenserverConfClient.getInstance()
-                        .updateWorkspaceConf(updater);
-                return configEntityTranslator.toConfigBSON(ret);
-            }
-
-            WorkspaceUpdater updater = new WorkspaceUpdater(ws);
-            updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.INDEXING.getValue());
-            updater.setExternalData(
-                    new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK, taskId));
-            WorkspaceConfig ret = ContenserverConfClient.getInstance().updateWorkspaceConf(updater);
-            return configEntityTranslator.toConfigBSON(ret);
-        }
-        catch (ScmMetasourceException e) {
-            throw new ScmServerException(e.getScmError(),
-                    "enable tag retrieval failed: workspace=" + ws, e);
-        }
-        finally {
-            lock.unlock();
-        }
-    }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//    @Override
+//    public BSONObject enableTagRetrieval(ScmUser user, String ws) throws ScmServerException {
+//        if (!user.hasRole(ScmRole.AUTH_ADMIN_ROLE_NAME)) {
+//            audit.info(ScmAuditType.DELETE_WS, user, ws,
+//                    ScmError.OPERATION_UNAUTHORIZED.getErrorCode(),
+//                    "enable tag retrieval, permission denied: userName=" + user.getUsername());
+//            throw new ScmOperationUnauthorizedException(
+//                    "enable tag retrieval, permission denied:user=" + user.getUsername() + ", ws="
+//                            + ws);
+//        }
+//
+//        ScmLock lock = ScmLockManager.getInstance()
+//                .acquiresLock(ScmLockPathFactory.createWorkspaceTagRetrievalLock(ws));
+//        try {
+//            WorkspaceConfig wsConf = ContenserverConfClient.getInstance().getWorkspace(ws);
+//            if (wsConf == null) {
+//                throw new ScmServerException(ScmError.WORKSPACE_NOT_EXIST,
+//                        "workspace not exist: workspace=" + ws);
+//            }
+//
+//            if (!Objects.equals(wsConf.getTagRetrievalStatus(),
+//                    ScmWorkspaceTagRetrievalStatus.DISABLED.getValue())) {
+//                throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+//                        "enable tag retrieval failed, current status is "
+//                                + wsConf.getTagRetrievalStatus() + ", workspace=" + ws);
+//            }
+//
+//            MetaAccessor tagLibMetaAccessor = ScmContentModule.getInstance().getMetaService()
+//                    .getMetaSource().createMetaAccessor(wsConf.getTagLibTableName());
+//
+//            Long taskId = tagLibMetaAccessor.asyncCreateIndex("tag_lib_fulltext_idx",
+//                    FieldName.TagLib.tagLibFulltextIdxDef(),
+//                    FieldName.TagLib.tagLibFulltextIdxAttr(), null);
+//            if (taskId == null) {
+//                WorkspaceUpdater updater = new WorkspaceUpdater(ws);
+//                updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.ENABLED.getValue());
+//                WorkspaceConfig ret = ContenserverConfClient.getInstance()
+//                        .updateWorkspaceConf(updater);
+//                return configEntityTranslator.toConfigBSON(ret);
+//            }
+//
+//            WorkspaceUpdater updater = new WorkspaceUpdater(ws);
+//            updater.setTagRetrievalStatus(ScmWorkspaceTagRetrievalStatus.INDEXING.getValue());
+//            updater.setExternalData(
+//                    new BasicBSONObject(FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK, taskId));
+//            WorkspaceConfig ret = ContenserverConfClient.getInstance().updateWorkspaceConf(updater);
+//            return configEntityTranslator.toConfigBSON(ret);
+//        }
+//        catch (ScmMetasourceException e) {
+//            throw new ScmServerException(e.getScmError(),
+//                    "enable tag retrieval failed: workspace=" + ws, e);
+//        }
+//        finally {
+//            lock.unlock();
+//        }
+//    }
 }
 
-@Component
+// 屏蔽标签功能：SEQUOIACM-1411
+// @Component
 class WorkspaceTagRetrievalStatusUpdater {
     private static final Logger logger = LoggerFactory
             .getLogger(WorkspaceTagRetrievalStatusUpdater.class);
@@ -809,13 +810,14 @@ class WorkspaceTagRetrievalStatusUpdater {
     }
 }
 
-@Component
-class MetasourceVersionFetcher implements VersionFetcher {
-
-    @Override
-    public Version fetchVersion() throws Exception {
-        MetasourceVersion version = ScmContentModule.getInstance().getMetaService().getMetaSource()
-                .getVersion();
-        return new Version(version.getVersion(), version.getSubVersion(), version.getFixVersion());
-    }
-}
+//  回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+//@Component
+//class MetasourceVersionFetcher implements VersionFetcher {
+//
+//    @Override
+//    public Version fetchVersion() throws Exception {
+//        MetasourceVersion version = ScmContentModule.getInstance().getMetaService().getMetaSource()
+//                .getVersion();
+//        return new Version(version.getVersion(), version.getSubVersion(), version.getFixVersion());
+//    }
+//}

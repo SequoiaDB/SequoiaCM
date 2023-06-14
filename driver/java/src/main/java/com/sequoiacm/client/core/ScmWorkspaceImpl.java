@@ -101,16 +101,17 @@ class ScmWorkspaceImpl extends ScmWorkspace {
         siteCacheStrategy = ScmSiteCacheStrategy.getStrategy(BsonUtils.getStringOrElse(newWsInfo,
                 FieldName.FIELD_CLWORKSPACE_SITE_CACHE_STRATEGY,
                 ScmSiteCacheStrategy.ALWAYS.name()));
-        String tagRetrievalStr = BsonUtils.getStringOrElse(newWsInfo,
-                FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
-                ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
-        tagRetrievalStatus = ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStr);
-        BSONObject tagLibMetaOptionBSON = BsonUtils.getBSON(newWsInfo,
-                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION);
-        if (tagLibMetaOptionBSON != null) {
-            tagLibMetaOption = new ScmTagLibMetaOption(BsonUtils.getString(tagLibMetaOptionBSON,
-                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN));
-        }
+// 屏蔽标签功能：SEQUOIACM-1411
+//        String tagRetrievalStr = BsonUtils.getStringOrElse(newWsInfo,
+//                FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+//                ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+//        tagRetrievalStatus = ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStr);
+//        BSONObject tagLibMetaOptionBSON = BsonUtils.getBSON(newWsInfo,
+//                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION);
+//        if (tagLibMetaOptionBSON != null) {
+//            tagLibMetaOption = new ScmTagLibMetaOption(BsonUtils.getString(tagLibMetaOptionBSON,
+//                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN));
+//        }
     }
 
     private ScmMetaLocation createMetaLocation(BSONObject metaBSON) throws ScmException {
@@ -475,27 +476,27 @@ class ScmWorkspaceImpl extends ScmWorkspace {
                 CommonDefine.RestArg.WORKSPACE_UPDATOR_META_DOMAIN, domainName);
         _update(updator);
     }
-
-    @Override
-    public void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException {
-        BSONObject newBson = session.getDispatcher().enableWsTagRetrieval(name, enableTagRetrieval);
-        refresh(newBson);
-    }
-
-    @Override
-    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException {
-        return tagRetrievalStatus;
-    }
-
-    @Override
-    public String getTagLibIndexErrorMsg() throws ScmException {
-        // 没有错误返回空字符串
-        if (extData == null) {
-            return "";
-        }
-        return BsonUtils.getStringOrElse(extData,
-                FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK_ERROR, "");
-    }
+// 屏蔽标签功能：SEQUOIACM-1411
+//    @Override
+//    public void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException {
+//        BSONObject newBson = session.getDispatcher().enableWsTagRetrieval(name, enableTagRetrieval);
+//        refresh(newBson);
+//    }
+//
+//    @Override
+//    public ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException {
+//        return tagRetrievalStatus;
+//    }
+//
+//    @Override
+//    public String getTagLibIndexErrorMsg() throws ScmException {
+//        // 没有错误返回空字符串
+//        if (extData == null) {
+//            return "";
+//        }
+//        return BsonUtils.getStringOrElse(extData,
+//                FieldName.FIELD_CLWORKSPACE_EXT_DATA_TAG_IDX_TASK_ERROR, "");
+//    }
 
     public ScmTagLibMetaOption getTagLibMetaOption() {
         return tagLibMetaOption;

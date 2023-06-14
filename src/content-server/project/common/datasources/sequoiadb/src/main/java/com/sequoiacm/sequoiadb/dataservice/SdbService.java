@@ -75,10 +75,10 @@ public abstract class SdbService extends ScmService {
             }
         }
     }
-
-    public boolean isCompatible(List<VersionRange> versionRanges) throws SequoiadbException {
-        return sd.getVersion().inRange(versionRanges);
-    }
+// 回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+//    public boolean isCompatible(List<VersionRange> versionRanges) throws SequoiadbException {
+//        return sd.getVersion().inRange(versionRanges);
+//    }
 
     @Override
     public String getType() {

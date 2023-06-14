@@ -55,11 +55,15 @@ public class SdbDataSourceAutoConfig {
         dsOpt.setPreferredInstance(preferedInstance);
 
         AuthInfo auth = ScmFilePasswordParser.parserFile(configuration.getPassword());
-        String location = configuration.getLocation() == null ? ""
-                : configuration.getLocation().trim();
+// 回退sdb驱动至349，不支持location：SEQUOIACM-1411
+//        String location = configuration.getLocation() == null ? ""
+//                : configuration.getLocation().trim();
+//        return SequoiadbDatasource.builder().serverAddress(configuration.getUrls())
+//                .userConfig(new UserConfig(configuration.getUsername(), auth.getPassword()))
+//                .configOptions(nwOpt).datasourceOptions(dsOpt).location(location).build();
         return SequoiadbDatasource.builder().serverAddress(configuration.getUrls())
                 .userConfig(new UserConfig(configuration.getUsername(), auth.getPassword()))
-                .configOptions(nwOpt).datasourceOptions(dsOpt).location(location).build();
+                .configOptions(nwOpt).datasourceOptions(dsOpt).build();
     }
 
 }

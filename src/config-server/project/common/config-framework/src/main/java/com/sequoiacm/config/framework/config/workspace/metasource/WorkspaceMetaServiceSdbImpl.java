@@ -263,42 +263,42 @@ public class WorkspaceMetaServiceSdbImpl implements WorkspaceMetaSerivce {
                         MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions.toString());
                 wsCs.createCollection(MetaSourceDefine.SequoiadbTableName.CL_BATCH, batchOptions);
             }
-
-            // TAG LIB
-            BasicBSONObject tagLibCsOption = new BasicBSONObject("Domain",
-                    BsonUtils.getStringChecked(wsConfig.getTagLibMetaOption(),
-                            FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN));
-            String[] csClArr = wsConfig.getTagLibTableName().split("\\.");
-            if (csClArr.length != 2) {
-                throw new IllegalArgumentException(
-                        "tagLibTableName is invalid: " + wsConfig.getTagLibTableName());
-            }
-            String tagLibCsName = csClArr[0];
-            CollectionSpace tagLibCs;
-            try {
-                tagLibCs = sdb.createCollectionSpace(tagLibCsName, tagLibCsOption);
-            }
-            catch (BaseException e) {
-                if (e.getErrorCode() != SDBError.SDB_DMS_CS_EXIST.getErrorCode()) {
-                    throw e;
-                }
-                tagLibCs = sdb.getCollectionSpace(tagLibCsName);
-            }
-            tagLibCl = tagLibCs.createCollection(csClArr[1]);
-
-            BasicBSONObject tagUniqueIdx = new BasicBSONObject(FieldName.TagLib.TAG, 1);
-            tagLibCl.createIndex("tag_unique_idx", tagUniqueIdx, true, false);
-
-            BasicBSONObject customTagUniqueIdx = new BasicBSONObject(FieldName.TagLib.CUSTOM_TAG,
-                    1);
-            tagLibCl.createIndex("custom_tag_unique_idx", customTagUniqueIdx, true, false);
-
-            if (Objects.equals(wsConfig.getTagRetrievalStatus(),
-                    CommonDefine.WorkspaceTagRetrievalStatus.ENABLED)) {
-                tagLibCl.createIndex("tag_lib_fulltext_idx",
-                        FieldName.TagLib.tagLibFulltextIdxDef(),
-                        FieldName.TagLib.tagLibFulltextIdxAttr(), null);
-            }
+//  屏蔽标签检索功能：SEQUOIACM-1411
+//            // TAG LIB
+//            BasicBSONObject tagLibCsOption = new BasicBSONObject("Domain",
+//                    BsonUtils.getStringChecked(wsConfig.getTagLibMetaOption(),
+//                            FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN));
+//            String[] csClArr = wsConfig.getTagLibTableName().split("\\.");
+//            if (csClArr.length != 2) {
+//                throw new IllegalArgumentException(
+//                        "tagLibTableName is invalid: " + wsConfig.getTagLibTableName());
+//            }
+//            String tagLibCsName = csClArr[0];
+//            CollectionSpace tagLibCs;
+//            try {
+//                tagLibCs = sdb.createCollectionSpace(tagLibCsName, tagLibCsOption);
+//            }
+//            catch (BaseException e) {
+//                if (e.getErrorCode() != SDBError.SDB_DMS_CS_EXIST.getErrorCode()) {
+//                    throw e;
+//                }
+//                tagLibCs = sdb.getCollectionSpace(tagLibCsName);
+//            }
+//            tagLibCl = tagLibCs.createCollection(csClArr[1]);
+//
+//            BasicBSONObject tagUniqueIdx = new BasicBSONObject(FieldName.TagLib.TAG, 1);
+//            tagLibCl.createIndex("tag_unique_idx", tagUniqueIdx, true, false);
+//
+//            BasicBSONObject customTagUniqueIdx = new BasicBSONObject(FieldName.TagLib.CUSTOM_TAG,
+//                    1);
+//            tagLibCl.createIndex("custom_tag_unique_idx", customTagUniqueIdx, true, false);
+//
+//            if (Objects.equals(wsConfig.getTagRetrievalStatus(),
+//                    CommonDefine.WorkspaceTagRetrievalStatus.ENABLED)) {
+//                tagLibCl.createIndex("tag_lib_fulltext_idx",
+//                        FieldName.TagLib.tagLibFulltextIdxDef(),
+//                        FieldName.TagLib.tagLibFulltextIdxAttr(), null);
+//            }
         }
         catch (Exception e) {
             if (wsCs != null) {

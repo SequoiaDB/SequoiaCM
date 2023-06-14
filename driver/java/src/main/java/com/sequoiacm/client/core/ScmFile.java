@@ -273,20 +273,19 @@ public abstract class ScmFile {
      * @throws ScmException
      *             If error happens.
      * @since 2.1
-     * @deprecated use addTagV2 instead
      */
     public abstract void addTag(String tag) throws ScmException;
-
-    /**
-     * add the value of the Tags property.
-     * 
-     * @param tag
-     *            the tag
-     * @throws ScmException
-     *             If error happens.
-     * @since 3.6.1
-     */
-    public abstract void addTagV2(String tag) throws ScmException;
+// 屏蔽标签功能：SEQUOIACM-1411
+//    /**
+//     * add the value of the Tags property.
+//     *
+//     * @param tag
+//     *            the tag
+//     * @throws ScmException
+//     *             If error happens.
+//     * @since 3.6.1
+//     */
+//    public abstract void addTagV2(String tag) throws ScmException;
 
     /**
      * remove the value of the Tags property.
@@ -296,20 +295,19 @@ public abstract class ScmFile {
      * @throws ScmException
      *             If error happens.
      * @since 2.1
-     * @deprecated use removeTagV2 instead
      */
     public abstract void removeTag(String tag) throws ScmException;
-
-    /**
-     * remove the value of the Tags property.
-     * 
-     * @param tag
-     *            the tag
-     * @throws ScmException
-     *             If error happens.
-     * @since 3.6.1
-     */
-    public abstract void removeTagV2(String tag) throws ScmException;
+// 屏蔽标签功能：SEQUOIACM-1411
+//    /**
+//     * remove the value of the Tags property.
+//     *
+//     * @param tag
+//     *            the tag
+//     * @throws ScmException
+//     *             If error happens.
+//     * @since 3.6.1
+//     */
+//    public abstract void removeTagV2(String tag) throws ScmException;
 
     /**
      * Returns the value of the Author property.
@@ -860,28 +858,29 @@ public abstract class ScmFile {
      */
     public abstract int getCustomTagCount();
 
-    /**
-     * Add the file custom tag
-     * 
-     * @param tagKey
-     *            Tag key.
-     * @param tagValue
-     *            Tag value.
-     * @throws ScmException
-     *             If error happens.
-     * @since 3.6.1
-     */
-    public abstract void addCustomTag(String tagKey, String tagValue) throws ScmException;
-
-    /**
-     * Remove the file custom tag
-     * 
-     * @param tagKey
-     *            Tag key.
-     * @param tagValue
-     *            Tag value.
-     * @throws ScmException
-     *             If error happens.
-     */
-    public abstract void removeCustomTag(String tagKey, String tagValue) throws ScmException;
+//   屏蔽标签功能：SEQUOIACM-1411
+//    /**
+//     * Add the file custom tag
+//     *
+//     * @param tagKey
+//     *            Tag key.
+//     * @param tagValue
+//     *            Tag value.
+//     * @throws ScmException
+//     *             If error happens.
+//     * @since 3.6.1
+//     */
+//    public abstract void addCustomTag(String tagKey, String tagValue) throws ScmException;
+//
+//    /**
+//     * Remove the file custom tag
+//     *
+//     * @param tagKey
+//     *            Tag key.
+//     * @param tagValue
+//     *            Tag value.
+//     * @throws ScmException
+//     *             If error happens.
+//     */
+//    public abstract void removeCustomTag(String tagKey, String tagValue) throws ScmException;
 }

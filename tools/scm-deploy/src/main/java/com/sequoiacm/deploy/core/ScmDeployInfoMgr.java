@@ -196,16 +196,17 @@ public class ScmDeployInfoMgr {
     }
 
     private void checkGlobalConfig() {
-        String defaultDomain = globalConfig.get(ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
-        if (defaultDomain == null) {
-            throw new IllegalArgumentException("tag lib default domain must be set: "
-                    + ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
-        }
-        if (!SdbTools.isDomainExist(metasourceInfo.getUrl(),
-                metasourceInfo.getUser(), metasourceInfo.getPassword(), defaultDomain)) {
-            throw new IllegalArgumentException(
-                    "tag lib default domain is not exist: " + defaultDomain);
-        }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//        String defaultDomain = globalConfig.get(ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
+//        if (defaultDomain == null) {
+//            throw new IllegalArgumentException("tag lib default domain must be set: "
+//                    + ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
+//        }
+//        if (!SdbTools.isDomainExist(metasourceInfo.getUrl(),
+//                metasourceInfo.getUser(), metasourceInfo.getPassword(), defaultDomain)) {
+//            throw new IllegalArgumentException(
+//                    "tag lib default domain is not exist: " + defaultDomain);
+//        }
     }
 
     private void checkJavaHome() {

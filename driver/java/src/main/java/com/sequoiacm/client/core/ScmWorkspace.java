@@ -364,42 +364,42 @@ public abstract class ScmWorkspace {
     abstract void setId(int id);
 
     abstract BSONObject getExtData();
-
-    /**
-     * Enable tag retrieval or not.
-     * 
-     * @param enableTagRetrieval
-     *            true to enable tag retrieval, false to disable tag retrieval.
-     * @throws ScmException
-     *             if error happens.
-     */
-    public abstract void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException;
-
-    /**
-     * Get tag retrieval status.
-     * 
-     * @return tag retrieval status.
-     * @throws ScmException
-     *             if error happens.
-     */
-    public abstract ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException;
-
-    /**
-     * Returns tag lib index task error msg if enable tag retrieval failed, else
-     * return empty string.
-     *
-     * @return error msg.
-     * @throws ScmException
-     *             if error happens.
-     */
-    public abstract String getTagLibIndexErrorMsg() throws ScmException;
-
-    /**
-     * Get tag lib meta option.
-     * 
-     * @return tag lib meta option.
-     * @throws ScmException
-     *             if error happens.
-     */
-    public abstract ScmTagLibMetaOption getTagLibMetaOption() throws ScmException;
+// 屏蔽标签功能：SEQUOIACM-1411
+//    /**
+//     * Enable tag retrieval or not.
+//     *
+//     * @param enableTagRetrieval
+//     *            true to enable tag retrieval, false to disable tag retrieval.
+//     * @throws ScmException
+//     *             if error happens.
+//     */
+//    public abstract void setEnableTagRetrieval(boolean enableTagRetrieval) throws ScmException;
+//
+//    /**
+//     * Get tag retrieval status.
+//     *
+//     * @return tag retrieval status.
+//     * @throws ScmException
+//     *             if error happens.
+//     */
+//    public abstract ScmWorkspaceTagRetrievalStatus getTagRetrievalStatus() throws ScmException;
+//
+//    /**
+//     * Returns tag lib index task error msg if enable tag retrieval failed, else
+//     * return empty string.
+//     *
+//     * @return error msg.
+//     * @throws ScmException
+//     *             if error happens.
+//     */
+//    public abstract String getTagLibIndexErrorMsg() throws ScmException;
+//
+//    /**
+//     * Get tag lib meta option.
+//     *
+//     * @return tag lib meta option.
+//     * @throws ScmException
+//     *             if error happens.
+//     */
+//    public abstract ScmTagLibMetaOption getTagLibMetaOption() throws ScmException;
 }

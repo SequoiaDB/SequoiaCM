@@ -82,12 +82,6 @@
                 "en": "File Operation"
             },
             {
-                "id": 1532489163,
-                "file": "file_tag_operation",
-                "cn": "标签检索操作",
-                "en": "Tag Retrieval"
-            },
-            {
                 "id": 1535328124,
                 "file": "bucket_operation",
                 "cn": "桶操作",
@@ -393,12 +387,6 @@
             "file": "quota_manage",
             "cn": "限额管理",
             "en": "Quota Manage"
-        },
-        {
-            "id": 1535328840,
-            "file": "tag",
-            "cn": "文件标签",
-            "en": "File Tag"
         }]
     },
     {
@@ -1291,31 +1279,6 @@
                     "file": "residue",
                     "cn": "residue",
                     "en": "residue"
-                }]
-            },
-            {
-                "id": 1673518321,
-                "dir": "TagUpgrade",
-                "cn": "标签升级工具",
-                "en": "Tag Upgrade",
-                "contents": [
-                {
-                    "id": 1673526123,
-                    "file": "Readme",
-                    "cn": "概述",
-                    "en": "Overview"
-                 },   
-                {
-                    "id": 1673524765,
-                    "file": "upgradeWorkspaceTag",
-                    "cn": "升级工作区标签",
-                    "en": "Upgrade Workspace Tag"
-                 },
-                {
-                    "id": 1673521234,
-                    "file": "continueUpgradeTag",
-                    "cn": "中断继续",
-                    "en": "Continue Upgrade"
                 }]
             }]
         },

@@ -135,23 +135,23 @@ public class WorkspaceController {
         response.setHeader(CommonDefine.RestArg.X_SCM_COUNT, String.valueOf(count));
         return ResponseEntity.ok("");
     }
-
-    @RequireSdbVersion(versionProperty = "scm.tag.sdbRequiredVersion", defaultVersion = "3.6.1")
-    @PutMapping(value = "/workspaces/{workspace_name}", params = "action=enable_tag_retrieval")
-    public BSONObject workspaceEnableTagRetrieval(@PathVariable("workspace_name") String wsName,
-            Authentication auth) throws ScmServerException {
-        ScmUser user = (ScmUser) auth.getPrincipal();
-        BSONObject config = workspaceService.enableTagRetrieval(user, wsName);
-        return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
-    }
-
-    @PutMapping(value = "/workspaces/{workspace_name}", params = "action=disable_tag_retrieval")
-    public BSONObject workspaceDisableTagRetrieval(@PathVariable("workspace_name") String wsName,
-            Authentication auth) throws ScmServerException {
-        ScmUser user = (ScmUser) auth.getPrincipal();
-        BSONObject config = workspaceService.disabledTagRetrieval(user, wsName);
-        return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
-    }
+// 屏蔽标签检索功能：SEQUOIACM-1411
+//    @RequireSdbVersion(versionProperty = "scm.tag.sdbRequiredVersion", defaultVersion = "3.6.1")
+//    @PutMapping(value = "/workspaces/{workspace_name}", params = "action=enable_tag_retrieval")
+//    public BSONObject workspaceEnableTagRetrieval(@PathVariable("workspace_name") String wsName,
+//            Authentication auth) throws ScmServerException {
+//        ScmUser user = (ScmUser) auth.getPrincipal();
+//        BSONObject config = workspaceService.enableTagRetrieval(user, wsName);
+//        return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
+//    }
+//
+//    @PutMapping(value = "/workspaces/{workspace_name}", params = "action=disable_tag_retrieval")
+//    public BSONObject workspaceDisableTagRetrieval(@PathVariable("workspace_name") String wsName,
+//            Authentication auth) throws ScmServerException {
+//        ScmUser user = (ScmUser) auth.getPrincipal();
+//        BSONObject config = workspaceService.disabledTagRetrieval(user, wsName);
+//        return new BasicBSONObject(CommonDefine.RestArg.GET_WORKSPACE_REPS, toClientWsBSON(config));
+//    }
 
     private BSONObject toClientWsBSON(BSONObject wsRec) {
         BSONObject clientWsBSON = new BasicBSONObject();

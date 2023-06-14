@@ -15,7 +15,6 @@ import com.sequoiacm.metasource.sequoiadb.accessor.SdbSpaceRecyclingLogAccessor;
 import com.sequoiacm.metasource.sequoiadb.accessor.SdbWorkspaceHistoryAccessor;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.DBCursor;
-import com.sequoiadb.base.DBVersion;
 import com.sequoiadb.exception.BaseException;
 import com.sequoiadb.exception.SDBError;
 import org.bson.BSONObject;
@@ -351,20 +350,20 @@ public class SdbMetaSource implements ContentModuleMetaSource {
             releaseConnection(db);
         }
     }
-
-    @Override
-    public MetasourceVersion getVersion() throws ScmMetasourceException {
-        Sequoiadb db = getConnection();
-        try {
-            DBVersion version = db.getDBVersion();
-            return new MetasourceVersion(version.getVersion(), version.getSubVersion(),
-                    version.getFixVersion());
-        }
-        catch (Exception e) {
-            throw new ScmMetasourceException("failed to get sdb version", e);
-        }
-        finally {
-            releaseConnection(db);
-        }
-    }
+// 回退sdb驱动至349，不支持 getVersion：SEQUOIACM-1411
+//    @Override
+//    public MetasourceVersion getVersion() throws ScmMetasourceException {
+//        Sequoiadb db = getConnection();
+//        try {
+//            DBVersion version = db.getDBVersion();
+//            return new MetasourceVersion(version.getVersion(), version.getSubVersion(),
+//                    version.getFixVersion());
+//        }
+//        catch (Exception e) {
+//            throw new ScmMetasourceException("failed to get sdb version", e);
+//        }
+//        finally {
+//            releaseConnection(db);
+//        }
+//    }
 }

@@ -24,10 +24,14 @@ public class SdbDataSourceWrapper {
             ConfigOptions connConf, DatasourceOptions datasourceConf, String location)
             throws SdbMetasourceException {
         try {
-            location = location == null ? "" : location;
+// 回退sdb驱动至349，不支持location：SEQUOIACM-1411
+//            location = location == null ? "" : location;
+//            dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
+//                    .userConfig(new UserConfig(user, passwd)).configOptions(connConf)
+//                    .datasourceOptions(datasourceConf).location(location).build();
             dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
                     .userConfig(new UserConfig(user, passwd)).configOptions(connConf)
-                    .datasourceOptions(datasourceConf).location(location).build();
+                    .datasourceOptions(datasourceConf).build();
         }
         catch (BaseException e) {
             throw new SdbMetasourceException(e.getErrorCode(), "failed to init datasource", e);

@@ -35,16 +35,13 @@ import java.util.regex.Pattern;
 
 public class WorkspaceCreator {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceCreator.class);
-    private final SdbVersionChecker sdbVersionChecker;
     private final ScmTagConfig tagConfig;
     private WorkspaceConfig wsConfig;
     private List<BSONObject> hdfsDataTableNameHistoryRecs = new ArrayList<>();
     private ScmContentModule contentModule;
 
-    public WorkspaceCreator(String wsName, String createUser, BSONObject clientWsConfObj,
-                            SdbVersionChecker sdbVersionChecker, ScmTagConfig tagConfig) throws ScmServerException {
+    public WorkspaceCreator(String wsName, String createUser, BSONObject clientWsConfObj, ScmTagConfig tagConfig) throws ScmServerException {
         contentModule = ScmContentModule.getInstance();
-        this.sdbVersionChecker = sdbVersionChecker;
         this.tagConfig = tagConfig;
         wsConfig = formate(wsName, createUser, clientWsConfObj);
     }
@@ -169,49 +166,49 @@ public class WorkspaceCreator {
             }
         }
         wsConfig.setDataLocations(dataLocations);
-
-        String tagLibDomain = null;
-        BSONObject tagLibMetaOption = BsonUtils.getBSON(clientWsConfObj,
-                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION);
-        if (tagLibMetaOption != null) {
-            tagLibDomain = BsonUtils.getString(tagLibMetaOption,
-                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN);
-        }
-        if (tagLibDomain == null) {
-            tagLibDomain = ContenserverConfClient.getInstance()
-                    .getGlobalConf(ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
-            if (tagLibDomain == null) {
-                throw new ScmInvalidArgumentException(
-                        "failed to create workspace, taglib domain is null:wsName=" + wsName);
-            }
-        }
-        else if (tagLibDomain.trim().isEmpty()) {
-            throw new ScmInvalidArgumentException(
-                    "failed to create workspace, taglib domain is empty:wsName=" + wsName);
-        }
-
-        wsConfig.setTagLibTableName(CommonDefine.TagLib.TAG_LIB_CS_PREFIX + tagLibDomain + "."
-                + wsName + CommonDefine.TagLib.TAG_LIB_CL_TAIL);
-        wsConfig.setTagLibMetaOption(new BasicBSONObject(
-                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN, tagLibDomain));
-
-        String tagRetrievalStatus = BsonUtils.getStringOrElse(clientWsConfObj,
-                FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
-                ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
-        if (ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStatus) == null) {
-            throw new ScmInvalidArgumentException(
-                    "failed to create workspace, invalid tag retrieval status:wsName=" + wsName
-                            + ", tagRetrievalStatus=" + tagRetrievalStatus);
-        }
-        if (tagRetrievalStatus.equals(ScmWorkspaceTagRetrievalStatus.ENABLED.getValue())) {
-            if (!sdbVersionChecker.isCompatible(tagConfig.getSdbVersionRange())) {
-                throw new ScmInvalidArgumentException(
-                        "failed to create workspace, tag retrieval is not supported in this version:wsName="
-                                + wsName + ", sdbVersion=" + sdbVersionChecker.getSdbVersion()
-                                + ", requiredVersion=" + tagConfig.getSdbVersionRange());
-            }
-        }
-        wsConfig.setTagRetrievalStatus(tagRetrievalStatus);
+//        屏蔽标签功能：SEQUOIACM-1411
+//        String tagLibDomain = null;
+//        BSONObject tagLibMetaOption = BsonUtils.getBSON(clientWsConfObj,
+//                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION);
+//        if (tagLibMetaOption != null) {
+//            tagLibDomain = BsonUtils.getString(tagLibMetaOption,
+//                    FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN);
+//        }
+//        if (tagLibDomain == null) {
+//            tagLibDomain = ContenserverConfClient.getInstance()
+//                    .getGlobalConf(ScmGlobalConfigDefine.TAG_LIB_DEFAULT_DOMAIN);
+//            if (tagLibDomain == null) {
+//                throw new ScmInvalidArgumentException(
+//                        "failed to create workspace, taglib domain is null:wsName=" + wsName);
+//            }
+//        }
+//        else if (tagLibDomain.trim().isEmpty()) {
+//            throw new ScmInvalidArgumentException(
+//                    "failed to create workspace, taglib domain is empty:wsName=" + wsName);
+//        }
+//
+//        wsConfig.setTagLibTableName(CommonDefine.TagLib.TAG_LIB_CS_PREFIX + tagLibDomain + "."
+//                + wsName + CommonDefine.TagLib.TAG_LIB_CL_TAIL);
+//        wsConfig.setTagLibMetaOption(new BasicBSONObject(
+//                FieldName.FIELD_CLWORKSPACE_TAG_LIB_META_OPTION_DOMAIN, tagLibDomain));
+//
+//        String tagRetrievalStatus = BsonUtils.getStringOrElse(clientWsConfObj,
+//                FieldName.FIELD_CLWORKSPACE_TAG_RETRIEVAL_STATUS,
+//                ScmWorkspaceTagRetrievalStatus.DISABLED.getValue());
+//        if (ScmWorkspaceTagRetrievalStatus.fromValue(tagRetrievalStatus) == null) {
+//            throw new ScmInvalidArgumentException(
+//                    "failed to create workspace, invalid tag retrieval status:wsName=" + wsName
+//                            + ", tagRetrievalStatus=" + tagRetrievalStatus);
+//        }
+//        if (tagRetrievalStatus.equals(ScmWorkspaceTagRetrievalStatus.ENABLED.getValue())) {
+//            if (!sdbVersionChecker.isCompatible(tagConfig.getSdbVersionRange())) {
+//                throw new ScmInvalidArgumentException(
+//                        "failed to create workspace, tag retrieval is not supported in this version:wsName="
+//                                + wsName + ", sdbVersion=" + sdbVersionChecker.getSdbVersion()
+//                                + ", requiredVersion=" + tagConfig.getSdbVersionRange());
+//            }
+//        }
+//        wsConfig.setTagRetrievalStatus(tagRetrievalStatus);
 
         wsConfig.setBatchFileNameUnique(BsonUtils.getBooleanOrElse(clientWsConfObj,
                 FieldName.FIELD_CLWORKSPACE_BATCH_FILE_NAME_UNIQUE, false));
