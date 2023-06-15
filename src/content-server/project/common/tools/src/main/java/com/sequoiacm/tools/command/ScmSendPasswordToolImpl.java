@@ -290,18 +290,18 @@ public class ScmSendPasswordToolImpl extends ScmTool {
                     throw new ScmToolsException("invalid port number: " + split[1],
                             ScmExitCode.INVALID_ARG);
                 }
-                String user = split[2].trim();
-                if (user.isEmpty()) {
+                String tempUser = split[2].trim();
+                if (tempUser.isEmpty()) {
                     throw new ScmToolsException("invalid host info:" + line + ", username is empty",
                             ScmExitCode.INVALID_ARG);
                 }
-                String password = split[3].trim();
-                if (password.isEmpty()) {
+                String tempPassword = split[3].trim();
+                if (tempPassword.isEmpty()) {
                     throw new ScmToolsException("invalid host info:" + line + ", password is empty",
                             ScmExitCode.INVALID_ARG);
                 }
 
-                ScmHostInfo hostInfo = new ScmHostInfo(hostname, port, username, password);
+                ScmHostInfo hostInfo = new ScmHostInfo(hostname, port, tempUser, tempPassword);
                 if (res.contains(hostInfo)) {
                     throw new ScmToolsException("repeat host info:" + hostInfo,
                             ScmExitCode.INVALID_ARG);
