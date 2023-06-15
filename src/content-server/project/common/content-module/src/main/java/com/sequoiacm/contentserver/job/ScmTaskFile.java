@@ -11,6 +11,7 @@ import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.config.core.common.BsonUtils;
+import com.sequoiacm.metasource.ConnOptions;
 import com.sequoiacm.metasource.ContentModuleMetaSource;
 import com.sequoiacm.metasource.MetaCursor;
 import com.sequoiacm.metasource.sequoiadb.SdbMetasourceException;
@@ -148,20 +149,28 @@ public abstract class ScmTaskFile extends ScmTaskBase {
     }
 
     protected MetaCursor getCursor(ScmMetaService sms) throws ScmServerException {
-        switch (scope) {
-            case CommonDefine.Scope.SCOPE_CURRENT:
-                return sms.queryCurrentFile(wsInfo, actualMatcher, null,
-                        createOderBy(CommonDefine.Scope.SCOPE_CURRENT), 0, -1, false);
-            case CommonDefine.Scope.SCOPE_ALL:
-                return sms.queryAllFile(wsInfo, actualMatcher, null,
-                        createOderBy(CommonDefine.Scope.SCOPE_ALL));
-            case CommonDefine.Scope.SCOPE_HISTORY:
-                return sms.queryHistoryFile(wsInfo.getMetaLocation(), wsInfo.getName(),
-                        actualMatcher, null, createOderBy(CommonDefine.Scope.SCOPE_HISTORY), 0, -1);
-            default:
-                throw new ScmInvalidArgumentException(
-                        "runtask failed,unknow scope type:taskId=" + taskId + ",scope=" + scope);
+        try {
+            setupConnOptions(sms);
+            switch (scope) {
+                case CommonDefine.Scope.SCOPE_CURRENT:
+                    return sms.queryCurrentFile(wsInfo, actualMatcher, null,
+                            createOderBy(CommonDefine.Scope.SCOPE_CURRENT), 0, -1, false);
+                case CommonDefine.Scope.SCOPE_ALL:
+                    return sms.queryAllFile(wsInfo, actualMatcher, null,
+                            createOderBy(CommonDefine.Scope.SCOPE_ALL));
+                case CommonDefine.Scope.SCOPE_HISTORY:
+                    return sms.queryHistoryFile(wsInfo.getMetaLocation(), wsInfo.getName(),
+                            actualMatcher, null, createOderBy(CommonDefine.Scope.SCOPE_HISTORY), 0,
+                            -1);
+                default:
+                    throw new ScmInvalidArgumentException("runtask failed,unknow scope type:taskId="
+                            + taskId + ",scope=" + scope);
+            }
         }
+        finally {
+            restoreConnOptions(sms);
+        }
+
     }
 
     private BSONObject createOderBy(int scope) throws ScmServerException {
@@ -221,6 +230,7 @@ public abstract class ScmTaskFile extends ScmTaskBase {
         long estimateCount = 0;
         ScmMetaService sms = ScmContentModule.getInstance().getMetaService();
         try {
+            setupConnOptions(sms);
             switch (scope) {
                 case CommonDefine.Scope.SCOPE_CURRENT:
                     actualCount = sms.getCurrentFileCount(wsInfo, actualMatcher);
@@ -249,8 +259,23 @@ public abstract class ScmTaskFile extends ScmTaskBase {
             }
             logger.warn("count file failed:taskId={},wsName={}", taskId, wsInfo.getName(), e);
         }
+        finally {
+            restoreConnOptions(sms);
+        }
         taskInfoContext.setEstimateCount(estimateCount);
         taskInfoContext.setActualCount(actualCount);
+    }
+
+    private void setupConnOptions(ScmMetaService sms) throws ScmServerException {
+        int socketTimeout = (int) (getMaxExecTime() * 0.8);
+        if (socketTimeout < 0) {
+            socketTimeout = 0;
+        }
+        sms.getMetaSource().setConnOptionsLocal(new ConnOptions(socketTimeout));
+    }
+
+    private void restoreConnOptions(ScmMetaService sms) throws ScmServerException {
+        sms.getMetaSource().removeConnOptionsLocal();
     }
 
     protected abstract void doFile(BSONObject fileInfoNotInLock) throws ScmServerException;

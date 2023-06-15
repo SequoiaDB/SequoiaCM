@@ -3,6 +3,7 @@ package com.sequoiacm.metasource.sequoiadb;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.metasource.ConnOptions;
 import com.sequoiacm.metasource.MetaQuotaAccessor;
 import com.sequoiacm.metasource.MetaQuotaSyncAccessor;
 import com.sequoiacm.infrastructure.common.IOUtils;
@@ -68,6 +69,8 @@ import com.sequoiadb.base.ConfigOptions;
 
 public class SdbMetaSource implements ContentModuleMetaSource {
     private static final Logger logger = LoggerFactory.getLogger(SdbMetaSource.class);
+
+    private ThreadLocal<ConnOptions> connOptionsLocal = new ThreadLocal<>();
 
     private SdbDataSourceWrapper ms = null;
 
@@ -187,7 +190,20 @@ public class SdbMetaSource implements ContentModuleMetaSource {
     }
 
     public Sequoiadb getConnection() throws SdbMetasourceException {
-        return ms.getConnection();
+        Sequoiadb connection = ms.getConnection();
+        customizeConnection(connection);
+        return connection;
+    }
+
+    private void customizeConnection(Sequoiadb connection) {
+        ConnOptions connOptions = connOptionsLocal.get();
+        if (null != connOptions) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("customize connection, conn={}, options={}", connection, connOptions);
+            }
+            // 连接回池后，以下设置会被清除
+            connection.getConnProxy().setSoTimeout(connOptions.getSocketTimeout());
+        }
     }
 
     public void releaseConnection(Sequoiadb sdb) {
@@ -366,4 +382,20 @@ public class SdbMetaSource implements ContentModuleMetaSource {
 //            releaseConnection(db);
 //        }
 //    }
+
+/**
+ * 设置当前线程的连接选项， 只影响当前线程下获取的连接属性
+ */
+@Override
+public void setConnOptionsLocal(ConnOptions options) {
+    connOptionsLocal.set(options);
+}
+
+/**
+ * 清除当前线程的 sdb 连接选项
+ */
+@Override
+public void removeConnOptionsLocal() {
+    connOptionsLocal.remove();
+}
 }
