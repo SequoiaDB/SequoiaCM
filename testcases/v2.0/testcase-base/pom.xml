@@ -33,7 +33,7 @@
 
         <!-- hbase jars -->
         <jdk-tools.version>1.7</jdk-tools.version>
-        <hbase-client.version>1.1.12</hbase-client.version>
+        <hbase-client.version>1.3.0</hbase-client.version>
 
         <!-- ceph jars -->
         <aws-sdk-s3.version>1.11.343</aws-sdk-s3.version>
