@@ -17,7 +17,6 @@ import com.sequoiacm.client.element.privilege.ScmResourceFactory;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.exception.ScmInvalidArgumentException;
 import com.sequoiacm.common.ScmShardingType;
-import com.sequoiacm.common.ScmWorkspaceTagRetrievalStatus;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.*;
 import com.sequoiadb.base.Sequoiadb;
@@ -69,7 +68,6 @@ public class ScmWorkspaceUtil extends TestScmBase {
         conf.setMetaLocation( getMetaLocation( ScmShardingType.YEAR ) );
         conf.setName( wsName );
         conf.setEnableDirectory( false );
-        conf.setEnableTagRetrieval( true );
         return createWS( session, conf );
     }
 
@@ -573,35 +571,35 @@ public class ScmWorkspaceUtil extends TestScmBase {
         return ScmWorkspaceUtil.createWS( session, conf );
     }
 
-    /**
-     * @descreption 创建工作区，指定开启标签检索
-     * @param session
-     * @param wsName
-     * @return
-     * @throws Exception
-     */
-    public static ScmWorkspace createWS( ScmSession session, String wsName,
-            boolean enableTagRetrieval ) throws Exception {
-        ScmWorkspaceConf conf = new ScmWorkspaceConf();
-        conf.setDataLocations(
-                ScmWorkspaceUtil.getDataLocationList( ScmInfo.getSiteNum() ) );
-        conf.setMetaLocation(
-                ScmWorkspaceUtil.getMetaLocation( ScmShardingType.YEAR ) );
-        conf.setEnableTagRetrieval( enableTagRetrieval );
-        conf.setName( wsName );
-        ScmWorkspace ws = ScmWorkspaceUtil.createWS( session, conf );
-        ScmWorkspaceTagRetrievalStatus status = null;
-        long begin = System.currentTimeMillis();
-        while ( status != ScmWorkspaceTagRetrievalStatus.ENABLED ) {
-            Thread.sleep( 1000 );
-            status = ws.getTagRetrievalStatus();
-            // 1分钟超时
-            if ( System.currentTimeMillis() - begin > 60000 ) {
-                Assert.fail( "wait ws TagRetrievalStatus timeout" );
-            }
-        }
-        return ws;
-    }
+    // /**
+    // * @descreption 创建工作区，指定开启标签检索
+    // * @param session
+    // * @param wsName
+    // * @return
+    // * @throws Exception
+    // */
+    // public static ScmWorkspace createWS( ScmSession session, String wsName,
+    // boolean enableTagRetrieval ) throws Exception {
+    // ScmWorkspaceConf conf = new ScmWorkspaceConf();
+    // conf.setDataLocations(
+    // ScmWorkspaceUtil.getDataLocationList( ScmInfo.getSiteNum() ) );
+    // conf.setMetaLocation(
+    // ScmWorkspaceUtil.getMetaLocation( ScmShardingType.YEAR ) );
+    // conf.setEnableTagRetrieval( enableTagRetrieval );
+    // conf.setName( wsName );
+    // ScmWorkspace ws = ScmWorkspaceUtil.createWS( session, conf );
+    // ScmWorkspaceTagRetrievalStatus status = null;
+    // long begin = System.currentTimeMillis();
+    // while ( status != ScmWorkspaceTagRetrievalStatus.ENABLED ) {
+    // Thread.sleep( 1000 );
+    // status = ws.getTagRetrievalStatus();
+    // // 1分钟超时
+    // if ( System.currentTimeMillis() - begin > 60000 ) {
+    // Assert.fail( "wait ws TagRetrievalStatus timeout" );
+    // }
+    // }
+    // return ws;
+    // }
 
     /**
      * @descreption 根据站点获取DataLocationList
