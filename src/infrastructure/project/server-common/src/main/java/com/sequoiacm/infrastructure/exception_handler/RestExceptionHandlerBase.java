@@ -12,6 +12,7 @@ import com.sequoiacm.infrastructure.common.SecurityRestField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,10 +36,16 @@ public abstract class RestExceptionHandlerBase {
         ExceptionBody exceptionBody = exceptionInfo.getExceptionBody();
         if (exceptionBody == null) {
             // unexpected exception
-            String log = String.format("sessionId=%s, request=%s", sessionId,
-                    request.getRequestURI());
-            logger.error(log, e);
-            throw e;
+            if (response.isCommitted()) {
+                // 如果已经向客户端响应，之后触发了异常，为了防止错误码被写为 200，此时自己封装异常消息，不交给框架处理
+                exceptionBody = createDefaultExceptionBody(e, response);
+            }
+            else {
+                String log = String.format("sessionId=%s, request=%s", sessionId,
+                        request.getRequestURI());
+                logger.error(log, e);
+                throw e;
+            }
         }
 
         if (exceptionBody.isNeedSessionId() && sessionId != null && sessionId.length() > 0) {
@@ -81,6 +88,17 @@ public abstract class RestExceptionHandlerBase {
             return ResponseEntity.status(exceptionBody.getHttpStatus()).headers(exceptionInfoHeader)
                     .body(exceptionBody);
         }
+    }
+
+    private ExceptionBody createDefaultExceptionBody(Exception e, HttpServletResponse response) {
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        if (response.getStatus() != HttpStatus.OK.value()) {
+            httpStatus = HttpStatus.valueOf(response.getStatus());
+        }
+        int errorCode = httpStatus.value();
+        String errorDesc = httpStatus.getReasonPhrase();
+        String message = e.getMessage();
+        return new ExceptionBody(httpStatus, errorCode, errorDesc, message);
     }
 
     // 只有 body 信息的异常转码，重写这个函数即可
