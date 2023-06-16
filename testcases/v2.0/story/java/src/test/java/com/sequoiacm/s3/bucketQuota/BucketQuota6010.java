@@ -94,10 +94,13 @@ public class BucketQuota6010 extends TestScmBase {
         }
     }
 
-    public void test1() throws ScmException {
+    public void test1() throws ScmException, InterruptedException {
         preHighWaterLevel();
         // 删除所有版本对象
         S3Utils.deleteObjectAllVersions( s3Client, bucketName, keyName );
+
+        // 用例中需等待缓存更新，周期为10s，等待2个周期
+        Thread.sleep( 20000 );
 
         ScmBucketQuotaInfo bucketQuotaInfo = ScmFactory.Quota
                 .getBucketQuota( session, bucketName );
