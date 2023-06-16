@@ -20,6 +20,8 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -53,7 +55,6 @@ public class UpdateDomain6155 extends TestScmBase {
     private String doMainNotExit = wsName + "domainnotexit";
     private String csMeta = "_META";
     private String testClPrefixName = "testCl_";
-    private int maxClNum = 4096;
     private Sequoiadb sdb = null;
     private boolean runSuccess = false;
 
@@ -77,11 +78,19 @@ public class UpdateDomain6155 extends TestScmBase {
         
         CollectionSpace collectionSpace = sdb
                 .getCollectionSpace( wsName + csMeta );
-        int size = collectionSpace.getCollectionNames().size();
-        for ( int i = 0; i <= maxClNum - size; i++ ) {
-            collectionSpace.createCollection( testClPrefixName + i );
+        long i = 0;
+        while ( true ) {
+            try {
+                collectionSpace.createCollection( testClPrefixName + i );
+            } catch ( BaseException e ) {
+                if ( e.getErrorCode() != SDBError.SDB_DMS_NOSPC
+                        .getErrorCode() ) {
+                    throw e;
+                }
+                break;
+            }
+            i++;
         }
-        
         ws.updateMetaDomain( doMainNew );
         upLoadFileNextCycle( fileName + 1, 1 );
         TestSdbTools.checkCsInDomain( sdb, wsName + csMeta + "_1", doMainNew );

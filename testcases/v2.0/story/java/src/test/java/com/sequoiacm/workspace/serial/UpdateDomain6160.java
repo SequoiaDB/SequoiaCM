@@ -20,6 +20,8 @@ import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 import com.sequoiadb.base.CollectionSpace;
 import com.sequoiadb.base.Sequoiadb;
+import com.sequoiadb.exception.BaseException;
+import com.sequoiadb.exception.SDBError;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -53,7 +55,6 @@ public class UpdateDomain6160 extends TestScmBase {
     private String testClPrefixName = "testCl_";
     private Sequoiadb sdb = null;
     private boolean runSuccess = false;
-    private int maxClNum = 4096;
 
     @BeforeClass
     private void setUp() throws Exception {
@@ -72,9 +73,18 @@ public class UpdateDomain6160 extends TestScmBase {
     public void test() throws Exception {
         CollectionSpace collectionSpace = sdb
                 .getCollectionSpace( wsName + csMeta );
-        int size = collectionSpace.getCollectionNames().size();
-        for ( int i = 0; i <= maxClNum - size; i++ ) {
-            collectionSpace.createCollection( testClPrefixName + i );
+        long i = 0;
+        while ( true ) {
+            try {
+                collectionSpace.createCollection( testClPrefixName + i );
+            } catch ( BaseException e ) {
+                if ( e.getErrorCode() != SDBError.SDB_DMS_NOSPC
+                        .getErrorCode() ) {
+                    throw e;
+                }
+                break;
+            }
+            i++;
         }
         ws.updateMetaDomain( doMainNew );
         ScmBucket bucket = ScmFactory.Bucket.createBucket( ws, bucketName + 1 );
