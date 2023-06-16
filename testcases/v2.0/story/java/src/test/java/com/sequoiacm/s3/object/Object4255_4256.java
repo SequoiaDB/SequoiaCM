@@ -145,5 +145,6 @@ public class Object4255_4256 extends TestScmBase {
             Assert.assertEqualsNoOrder( expFileName.toArray(),
                     actFileName.toArray() );
         }
+        scmFileBasicInfoScmCursor.close();
     }
 }
