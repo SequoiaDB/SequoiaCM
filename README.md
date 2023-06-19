@@ -66,6 +66,8 @@ bash checkScmEnv.sh
 ```
 
 > 注：如果是在 Windows 上打包，先打开 git 命令行窗口，再执行命令。
+> 
+> nodejs 组件安装包及安装教程请见目录：`sequoiacm/tools/nodejs` 。
 
 ### 2.4 打包项目
 
