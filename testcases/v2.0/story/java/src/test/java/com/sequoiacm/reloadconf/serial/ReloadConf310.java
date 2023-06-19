@@ -34,7 +34,7 @@ public class ReloadConf310 extends TestScmBase {
         site = ScmInfo.getSite();
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void reloadWithNullSession() throws Exception {
         ScmSession session = null;
@@ -53,7 +53,7 @@ public class ReloadConf310 extends TestScmBase {
         }
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void reloadWithNullScopeType() throws Exception {
         ScmSession session = null;
@@ -73,7 +73,7 @@ public class ReloadConf310 extends TestScmBase {
         }
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { "oneSite", "twoSite", "fourSite" },enabled = false)
     private void reloadWithNotExistSiteId() throws Exception {
         ScmSession session = null;

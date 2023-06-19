@@ -38,7 +38,7 @@ public class ReloadConfFromMainCenter308 extends TestScmBase {
         node = site.getNode();
     }
 
-    // CI-1946
+    // SEQUOIACM-1364
     @Test(groups = { GroupTags.base }, enabled = false)
     private void testReloadBizConfFromMainCenter() throws Exception {
         ScmSession session = null;

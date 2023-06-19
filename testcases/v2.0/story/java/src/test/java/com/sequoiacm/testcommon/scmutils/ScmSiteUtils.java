@@ -3,28 +3,22 @@
  */
 package com.sequoiacm.testcommon.scmutils;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 
-import com.sequoiacm.client.common.ScmType.ServerScope;
 import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmSystem;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.ScmInfo;
 import com.sequoiacm.testcommon.Ssh;
 import com.sequoiacm.testcommon.TestScmBase;
 import com.sequoiadb.base.DBCollection;
 import com.sequoiadb.base.Sequoiadb;
-import com.sequoiadb.exception.BaseException;
 
 public class ScmSiteUtils extends TestScmBase {
     private static final Logger logger = Logger.getLogger( ScmSiteUtils.class );
 
     /**
-     * @deprecated CI-1946
      * @descreption 创建站点
      * @param session
      *            for reloadbizconf
@@ -61,11 +55,6 @@ public class ScmSiteUtils extends TestScmBase {
                 throw new Exception( "Failed to createsite[" + siteName
                         + "], msg:\n" + resultMsg );
             }
-            // reloadbizconf after create new workspace
-            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
-                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
-                    session );
-            logger.info( "infoList after reloadbizconf: \n" + infoList );
         } finally {
             if ( null != ssh ) {
                 ssh.disconnect();
@@ -74,15 +63,13 @@ public class ScmSiteUtils extends TestScmBase {
     }
 
     /**
-     * @deprecated CI-1946
      * @descreption 删除站点
      * @param session
      * @param siteName
      * @return
      * @throws ScmException
      */
-    public static void deleteSite( ScmSession session, String siteName )
-            throws ScmException {
+    public static void deleteSite( ScmSession session, String siteName ) {
         Sequoiadb db = null;
         try {
             db = new Sequoiadb( TestScmBase.mainSdbUrl, TestScmBase.sdbUserName,
@@ -101,12 +88,6 @@ public class ScmSiteUtils extends TestScmBase {
                 obj.put( "business_name", siteName );
                 cl1.delete( obj );
             }
-            List< BSONObject > infoList = ScmSystem.Configuration.reloadBizConf(
-                    ServerScope.ALL_SITE, ScmInfo.getRootSite().getSiteId(),
-                    session );
-            logger.info( "infoList after reloadbizconf: \n" + infoList );
-        } catch ( BaseException e ) {
-            e.printStackTrace();
         } finally {
             if ( db != null ) {
                 db.close();

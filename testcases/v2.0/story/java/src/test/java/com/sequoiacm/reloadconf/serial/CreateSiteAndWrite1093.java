@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.common.ScmType.SessionType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
@@ -61,8 +63,7 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
         ScmSiteUtils.deleteSite( session, newSiteName );
     }
 
-    // CI-1946
-    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite" })
     private void test() throws Exception {
         Write w = new Write();
         ReloadConf r = new ReloadConf();
@@ -134,6 +135,10 @@ public class CreateSiteAndWrite1093 extends TestScmBase {
                 ScmSiteUtils.createSite( session, newSiteName,
                         TestScmBase.gateWayList.get( 0 ), 1, dsUrl, dsUser,
                         dsPasswd );
+                List< BSONObject > infoList = ScmSystem.Configuration
+                        .reloadBizConf( ScmType.ServerScope.ALL_SITE,
+                                ScmInfo.getRootSite().getSiteId(), session );
+                Assert.assertEquals( infoList.size(), 0, infoList.toString() );
                 ScmSiteUtils.deleteSite( session, newSiteName );
             } finally {
                 if ( session != null ) {

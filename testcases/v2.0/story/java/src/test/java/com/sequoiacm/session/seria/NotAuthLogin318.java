@@ -42,7 +42,7 @@ public class NotAuthLogin318 extends TestScmBase {
         wsp = ScmInfo.getWs();
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { GroupTags.base },enabled = false)
     private void test() {
         ScmSession session = null;

@@ -52,7 +52,7 @@ public class DefineAttr_Attr_AttachAndReload1891 extends TestScmBase {
         }
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { GroupTags.base },enabled = false)
     private void test() throws Exception {
         Attach aThread = new Attach();

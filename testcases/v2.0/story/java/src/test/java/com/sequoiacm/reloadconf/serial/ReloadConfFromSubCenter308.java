@@ -37,7 +37,7 @@ public class ReloadConfFromSubCenter308 extends TestScmBase {
         branSite = ScmInfo.getBranchSite();
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { "twoSite", "fourSite" },enabled = false)
     private void testReloadBizConf() throws Exception {
         ScmSession session = null;

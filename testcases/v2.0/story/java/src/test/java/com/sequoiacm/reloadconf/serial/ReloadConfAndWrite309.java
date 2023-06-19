@@ -59,7 +59,7 @@ public class ReloadConfAndWrite309 extends TestScmBase {
         }
     }
 
-    //CI-1946
+    //SEQUOIACM-1364
     @Test(groups = { "twoSite", "fourSite" },enabled = false)
     private void test() throws Exception {
         Write w = new Write();

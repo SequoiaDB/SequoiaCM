@@ -69,7 +69,7 @@ public class RecreateWs713 extends TestScmBase {
         domainNameList.add( "dataDomain2" );
     }
 
-    // CI-1946
+    // SEQUOIACM-1364
     @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         createws( wsName1 );
