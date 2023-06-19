@@ -30,7 +30,7 @@ import com.sequoiacm.testcommon.scmutils.ScmSiteUtils;
  * @Date:2018年1月31日
  * @version:1.0
  */
-public class CreateSiteAndWrite1093 extends TestScmBase {
+public class CreateSiteAndWrite1093_6384 extends TestScmBase {
     private static String fileName = "ReloadConfAndWrite1093";
     private static SiteWrapper rootSite = null;
     private static WsWrapper wsp = null;
