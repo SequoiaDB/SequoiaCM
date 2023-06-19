@@ -25,7 +25,7 @@ import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmSiteUtils;
 
 /**
- * @Description:SCM-1093:新增站点,刷新业务配置和写文件并发
+ * @Description:SCM-1093:新增站点,刷新业务配置和写文件并发 SCM-6384:刷新业务配置reloadBizConf接口废弃
  * @author fanyu
  * @Date:2018年1月31日
  * @version:1.0
