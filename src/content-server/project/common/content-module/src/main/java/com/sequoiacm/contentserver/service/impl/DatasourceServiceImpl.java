@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.common.memorypool.ScmPoolWrapper;
 import com.sequoiacm.contentserver.model.DataTableDeleteOption;
 import com.sequoiacm.contentserver.site.ScmSite;
 import com.sequoiacm.datasource.DatalocationFactory;
@@ -141,7 +142,6 @@ public class DatasourceServiceImpl implements IDatasourceService {
         // ScmDataInfo dataInfo = new ScmDataInfo(dataType, dataId, new
         // Date(createTime), wsVersion);
 
-        byte[] buf = new byte[Const.TRANSMISSION_LEN];
         ScmDataWriter writer = null;
         try {
             writer = ScmDataOpFactoryAssit.getFactory().createWriter(
@@ -155,6 +155,19 @@ public class DatasourceServiceImpl implements IDatasourceService {
             throw new ScmServerException(e.getScmError(ScmError.DATA_WRITE_ERROR),
                     "Failed to create data writer", e, extraInfo);
         }
+
+        // get buffer from ScmMemoryPool
+        byte[] buf = null;
+        ScmPoolWrapper poolWrapper = null;
+        try {
+            poolWrapper = ScmPoolWrapper.getInstance();
+            buf = poolWrapper.getBytes(Const.TRANSMISSION_LEN);
+        }
+        catch (Exception e) {
+            throw new ScmSystemException("Failed to get buffer from scm memory pool, bufferSize: "
+                    + Const.TRANSMISSION_LEN + ", cause by: " + e.getMessage(), e);
+        }
+
         try {
             if (is != null) {
                 while (true) {
@@ -189,6 +202,11 @@ public class DatasourceServiceImpl implements IDatasourceService {
         }
         finally {
             FileCommonOperator.recordDataTableName(wsName, writer);
+
+            // give back buffer to ScmMemoryPool
+            if (buf != null) {
+                poolWrapper.releaseBytes(buf);
+            }
         }
     }
 
