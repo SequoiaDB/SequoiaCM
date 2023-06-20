@@ -1,5 +1,15 @@
 package com.sequoiacm.task.concurrent;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
@@ -9,17 +19,9 @@ import com.sequoiacm.testcommon.*;
 import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
-import org.bson.BSONObject;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @descreption SCM-3917:清理任务和跨中心读取文件并发，清理文件跨中心读取站点
@@ -135,6 +137,7 @@ public class ConcurrentTasks3917 extends TestScmBase {
                         .getWorkspace( wsp.getName(), session );
                 ScmId taskId = ScmSystem.Task.startCleanTask( ws, cond,
                         ScmType.ScopeType.SCOPE_CURRENT );
+                ScmTaskUtils.waitTaskFinish( session, taskId );
                 taskInfo = ScmSystem.Task.getTask( session, taskId );
             }
         }
