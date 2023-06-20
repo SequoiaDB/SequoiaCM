@@ -125,9 +125,7 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
             throw new QuotaLimiterIncorrectException(this);
         }
         if (maxObjects >= 0 && acquireObjects > 0) {
-            // 这里的计算不一定准确，totalQuotaCache 可能会包含 statisticsQuotaInfo 里面一部分的额度信息
-            long remainObjects = maxObjects - totalQuotaCache.getObjects()
-                    - statisticsQuotaInfo.getObjects();
+            long remainObjects = maxObjects - getCurrentUsedObjects(statisticsQuotaInfo);
             if (remainObjects < acquireObjects) {
                 logger.warn(
                         "bucket object count exceeded, bucketName={},acquireObjects={},remainObjects={}",
@@ -142,7 +140,7 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
             throw new QuotaLimiterIncorrectException(this);
         }
         if (maxSize >= 0 && acquireSize > 0) {
-            long remainSize = maxSize - totalQuotaCache.getSize() - statisticsQuotaInfo.getSize();
+            long remainSize = maxSize - getCurrentUsedSize(statisticsQuotaInfo);
             if (remainSize < acquireSize) {
                 logger.warn(
                         "bucket object size  exceeded, bucketName={},acquireSize={},remainSize={}",
@@ -155,6 +153,28 @@ public class SyncingStatusQuotaLimiter implements QuotaLimiter {
         }
         recordQuota(acquireObjects, acquireSize, createTime);
         return new QuotaInfo(bucketName, acquireObjects, acquireSize, createTime);
+    }
+
+    private long getCurrentUsedObjects(QuotaWrapper statisticsQuotaInfo) {
+        if (agreementTime == null) {
+            // 如果最大时间还没有协商出来，则已用的对象数使用内存中缓存的对象数
+            return totalQuotaCache.getObjects();
+        }
+        else {
+            // 如果最大时间已经协商出来，则使用当前已统计的对象数+在协商时间之后登记的对象数。
+            return statisticsQuotaInfo.getObjects() + afterAgreementTimeQuotaUsedInfo.getObjects();
+
+            // 在统计过程，由于部分历史数据可能还未统计，可能出现上传的文件会超过额度限制的情况
+        }
+    }
+
+    private long getCurrentUsedSize(QuotaWrapper statisticsQuotaInfo) {
+        if (agreementTime == null) {
+            return totalQuotaCache.getSize();
+        }
+        else {
+            return statisticsQuotaInfo.getSize() + afterAgreementTimeQuotaUsedInfo.getSize();
+        }
     }
 
     private QuotaWrapper getStatisticsQuotaInfo() throws ScmSystemException {
