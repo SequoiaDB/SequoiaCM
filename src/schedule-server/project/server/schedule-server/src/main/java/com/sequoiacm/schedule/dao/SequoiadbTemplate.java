@@ -38,7 +38,12 @@ public class SequoiadbTemplate {
 
         private Sequoiadb getSequoiadb(TransactionImpl context) throws Exception {
             if (null == context) {
-                return datasource.getConnection();
+                Sequoiadb db = datasource.getConnection();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("acquired connection from pool to sequoiadb, nodeName: {}.",
+                            db.getNodeName());
+                }
+                return db;
             }
             else {
                 return context.getSequoiadb();

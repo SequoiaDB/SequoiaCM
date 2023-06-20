@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sequoiadb.base.UserConfig;
+import com.sequoiadb.datasource.ConnectStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,7 @@ public class SdbDatasourceConfig {
     private int maxIdleNum = dsConf.getMaxIdleCount();
     private int recheckCyclePeriod = 30 * 1000;
     private String location;
+    private ConnectStrategy connectStrategy = dsConf.getConnectStrategy();
 
     public int getConnectTimeout() {
         return connectTimeout;
@@ -156,6 +158,14 @@ public class SdbDatasourceConfig {
         this.location = location;
     }
 
+    public ConnectStrategy getConnectStrategy() {
+        return connectStrategy;
+    }
+
+    public void setConnectStrategy(ConnectStrategy connectStrategy) {
+        this.connectStrategy = connectStrategy;
+    }
+
     @Bean
     public SequoiadbDatasource sdbDatasource(SdbDatasourceConfig configuration) {
         ConfigOptions nwOpt = new ConfigOptions();
@@ -176,6 +186,8 @@ public class SdbDatasourceConfig {
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
         dsOpt.setPreferredInstance(preferedInstance);
+        dsOpt.setConnectStrategy(configuration.getConnectStrategy());
+
         AuthInfo auth = ScmFilePasswordParser.parserFile(configuration.getPassword());
 // 回退sdb驱动至349，不支持location：SEQUOIACM-1411
 //        String location = configuration.getLocation() == null ? ""

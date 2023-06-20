@@ -2,6 +2,7 @@ package com.sequoiacm.schedule;
 
 import com.sequoiacm.infrastructure.common.ZkAcl;
 import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
+import com.sequoiadb.datasource.ConnectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ class ConfigSdb {
     private int maxIdleNum = 2;
     private int recheckCyclePeriod = 30 * 1000;
     private String location;
+    private ConnectStrategy connectStrategy = dsConf.getConnectStrategy();
 
     public String getUrls() {
         return urls;
@@ -153,6 +155,14 @@ class ConfigSdb {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public ConnectStrategy getConnectStrategy() {
+        return connectStrategy;
+    }
+
+    public void setConnectStrategy(ConnectStrategy connectStrategy) {
+        this.connectStrategy = connectStrategy;
     }
 }
 
@@ -333,6 +343,10 @@ public class ScheduleApplicationConfig {
 
     public String getLocation() {
         return configSdb.getLocation();
+    }
+
+    public ConnectStrategy getConnectStrategy() {
+        return configSdb.getConnectStrategy();
     }
 
     public ConfigSdb getConfigSdb() {

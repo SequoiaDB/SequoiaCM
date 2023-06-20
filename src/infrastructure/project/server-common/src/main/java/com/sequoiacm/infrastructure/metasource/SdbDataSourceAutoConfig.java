@@ -53,6 +53,7 @@ public class SdbDataSourceAutoConfig {
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
         dsOpt.setPreferredInstance(preferedInstance);
+        dsOpt.setConnectStrategy(configuration.getConnectStrategy());
 
         AuthInfo auth = ScmFilePasswordParser.parserFile(configuration.getPassword());
 // 回退sdb驱动至349，不支持location：SEQUOIACM-1411

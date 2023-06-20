@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.sequoiadb.datasource.ConnectStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -35,6 +36,7 @@ class SdbConfig {
     private int maxIdleNum = dsConf.getMaxIdleCount();
     private int recheckCyclePeriod = 30 * 1000;
     private String location;
+    private ConnectStrategy connectStrategy = dsConf.getConnectStrategy();
 
 
     public String getUrls() {
@@ -155,6 +157,14 @@ class SdbConfig {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public ConnectStrategy getConnectStrategy() {
+        return connectStrategy;
+    }
+
+    public void setConnectStrategy(ConnectStrategy connectStrategy) {
+        this.connectStrategy = connectStrategy;
     }
 }
 
@@ -279,6 +289,10 @@ public class AdminServerConfig {
 
     public String getLocation() {
         return sdbConfig.getLocation();
+    }
+
+    public ConnectStrategy getConnectStrategy() {
+        return sdbConfig.getConnectStrategy();
     }
 
     public SdbConfig getSdbConfig() {

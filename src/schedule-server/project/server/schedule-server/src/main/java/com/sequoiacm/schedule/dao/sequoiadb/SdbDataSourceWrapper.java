@@ -51,11 +51,14 @@ public class SdbDataSourceWrapper {
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
         dsOpt.setPreferredInstance(preferedInstance);
+        dsOpt.setConnectStrategy(config.getConnectStrategy());
+
 // 回退sdb驱动至349，不支持location：SEQUOIACM-1411
 //        String location = config.getLocation() == null ? "" : config.getLocation().trim();
 //        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
 //                .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
 //                .datasourceOptions(dsOpt).location(location).build();
+
         dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
                 .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
                 .datasourceOptions(dsOpt).build();
@@ -74,6 +77,10 @@ public class SdbDataSourceWrapper {
         try {
             sdb = dataSource.getConnection();
             recordConnection(sdb);
+            if (logger.isDebugEnabled()) {
+                logger.debug("acquired connection from pool to sequoiadb, nodeName: {}.",
+                        sdb.getNodeName());
+            }
             return sdb;
         }
         catch (BaseException e) {

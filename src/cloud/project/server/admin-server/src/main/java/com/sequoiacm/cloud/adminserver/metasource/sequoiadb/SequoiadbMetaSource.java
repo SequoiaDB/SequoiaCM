@@ -56,11 +56,13 @@ public class SequoiadbMetaSource implements MetaSource {
         List<String> preferedInstance = new ArrayList<>();
         preferedInstance.add("M");
         dsOpt.setPreferredInstance(preferedInstance);
+        dsOpt.setConnectStrategy(config.getConnectStrategy());
 // 回退sdb驱动至349，不支持location：SEQUOIACM-1411
 //        String location = config.getLocation() == null ? "" : config.getLocation().trim();
 //        dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
 //                .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
 //                .datasourceOptions(dsOpt).location(location).build();
+
         dataSource = SequoiadbDatasource.builder().serverAddress(urlList)
                 .userConfig(new UserConfig(user, auth.getPassword())).configOptions(nwOpt)
                 .datasourceOptions(dsOpt).build();
@@ -81,6 +83,10 @@ public class SequoiadbMetaSource implements MetaSource {
         Sequoiadb db = null;
         try {
             db = dataSource.getConnection();
+            if (logger.isDebugEnabled()) {
+                logger.debug("acquired connection from pool to sequoiadb, nodeName: {}.",
+                        db.getNodeName());
+            }
             return db;
         }
         catch (Exception e) {

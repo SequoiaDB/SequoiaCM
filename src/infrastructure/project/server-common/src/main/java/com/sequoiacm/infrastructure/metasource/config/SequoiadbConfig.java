@@ -2,6 +2,7 @@ package com.sequoiacm.infrastructure.metasource.config;
 
 import java.util.List;
 
+import com.sequoiadb.datasource.ConnectStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,6 +30,7 @@ public class SequoiadbConfig {
     private int maxIdleNum = dsConf.getMaxIdleCount();
     private int recheckCyclePeriod = 30 * 1000;
     private String location;
+    private ConnectStrategy connectStrategy = dsConf.getConnectStrategy();
 
     public int getConnectTimeout() {
         return connectTimeout;
@@ -148,5 +150,13 @@ public class SequoiadbConfig {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public ConnectStrategy getConnectStrategy() {
+        return connectStrategy;
+    }
+
+    public void setConnectStrategy(ConnectStrategy connectStrategy) {
+        this.connectStrategy = connectStrategy;
     }
 }
