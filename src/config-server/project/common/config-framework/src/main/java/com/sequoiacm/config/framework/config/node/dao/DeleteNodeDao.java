@@ -36,6 +36,7 @@ public class DeleteNodeDao {
     @Autowired
     private DefaultVersionDao versionDao;
 
+    @Autowired
     private ConfigEntityTranslator configEntityTranslator;
 
     public ScmConfOperateResult delete(NodeFilter filter) throws ScmConfigException {
