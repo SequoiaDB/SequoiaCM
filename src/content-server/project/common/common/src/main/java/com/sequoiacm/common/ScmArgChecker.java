@@ -214,6 +214,11 @@ public class ScmArgChecker {
 
         public static void checkScmCustomTag(Map<String, String> customTag)
                 throws ScmServerException {
+            if (customTag.size() > 10) {
+                throw new ScmServerException(ScmError.FILE_CUSTOMTAG_TOO_LARGE,
+                        "the file tag number can not more than 10");
+            }
+
             for (Map.Entry<String, String> entry : customTag.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
