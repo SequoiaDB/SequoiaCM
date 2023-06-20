@@ -39,9 +39,6 @@
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
             "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
-            "scm.auth.token.enabled": "true",
-            "scm.auth.token.allowAnyValue": "true",
-            "scm.auth.token.tokenValue": "token123",
             "spring.ldap.urls": "",
             "spring.ldap.username": "", 
             "spring.ldap.password": "",
@@ -61,9 +58,7 @@
             "scm.jvm.options":"''",
             "scm.store.sequoiadb.urls": "localhost:11810",
             "scm.store.sequoiadb.username": "sdbadmin",
-            "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd",
-            "scm.statistics.job.firstTime": "00:00:00",
-            "scm.statistics.job.period": "1d"
+            "scm.store.sequoiadb.password": "/home/linyoubin/scm/scm-cloud/sdb.passwd"
         }
     ],
     "config-server": [
@@ -152,11 +147,7 @@
         {
             "hostname": "localhost",
             "server.port": "8081",
-            "scm.omserver.gateway": "''",
-            "scm.omserver.readTimeout": "5000",
-            "scm.omserver.onlyConnectLocalRegionServer": "false",
-            "scm.omserver.sessionKeepAliveTime": "900",
-            "scm.omserver.cacheRefreshInterval": "180"
+            "scm.omserver.gateway": "''"
         }
     ],
     "zookeeper-server": [
