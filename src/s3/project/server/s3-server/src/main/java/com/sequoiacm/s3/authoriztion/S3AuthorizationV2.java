@@ -20,14 +20,23 @@ public class S3AuthorizationV2 extends S3Authorization {
     public static final String DATE = "date";
     public static final String CONTENT_TYPE = "content-type";
     public static final String CONTENT_MD5 = "content-md5";
-    private static final List<String> paramters = Arrays.asList("acl", "torrent", "logging",
-            "location", "policy", "requestPayment", "versioning", "versions", "versionId",
-            "notification", "uploadId", "uploads", "partNumber", "website", "delete", "lifecycle",
-            "tagging", "cors", "restore", "response-cache-control", "response-content-disposition",
+    // S3 V2
+    // 版本签名计算方法参考：https://docs.aws.amazon.com/zh_cn/general/latest/gr/signature-version-2.html
+
+    // S3 接口中参与 V2 版本签名计算的有值参数列表，其他不在此列表中的有值参数不参与计算
+    // 计算签名时，“参数名”、“等号”、“参数值”均参与计算, 如：?versionId=1.0，
+    private static final List<String> valuedParameters = Arrays.asList("versionId",
+            "uploadId", "partNumber", "response-cache-control", "response-content-disposition",
             "response-content-encoding", "response-content-language", "response-content-type",
             "response-expires");
-    private static final Set<String> SIGNED_PARAMETERS = new HashSet<>(paramters);
-
+    private static final Set<String> VALUED_SIGNED_PARAMETERS = new HashSet<>(valuedParameters);
+    // S3 接口中参与 V2 版本签名计算的无值参数列表，如：?location
+    // 计算签名时，只有“参数名”参与计算，即使url路径中该参数携带“等号”，如：?location=，该“等号”也不参与计算
+    private static final List<String> valuelessParameters = Arrays.asList("acl", "torrent", "logging",
+            "location", "policy", "requestPayment", "replication", "versioning", "versions",
+            "notification", "uploads", "website", "delete", "lifecycle",
+            "tagging", "cors", "restore");
+    private static final Set<String> VALUELESS_SIGNED_PARAMETERS = new HashSet<>(valuelessParameters);
     protected String accesskey;
     protected String signature;
     protected String algorithm = "HmacSHA1";
@@ -188,11 +197,16 @@ public class S3AuthorizationV2 extends S3Authorization {
         Arrays.sort(parameterNames);
         char separator = '?';
         for (String parameterName : parameterNames) {
-            if (!SIGNED_PARAMETERS.contains(parameterName)) {
+            if (!VALUED_SIGNED_PARAMETERS.contains(parameterName) &&
+                    !VALUELESS_SIGNED_PARAMETERS.contains(parameterName)) {
                 continue;
             }
             buf.append(separator);
             buf.append(parameterName);
+            separator = '&';
+            if (VALUELESS_SIGNED_PARAMETERS.contains(parameterName)){
+                continue;
+            }
             String[] parameterValue = request.getParameterValues(parameterName);
             if (parameterValue != null) {
                 if (parameterValue.length != 1) {
@@ -213,8 +227,6 @@ public class S3AuthorizationV2 extends S3Authorization {
                     buf.append("=").append(urlEncode(parameterValue[0], false));
                 }
             }
-
-            separator = '&';
         }
 
         return buf.toString();
