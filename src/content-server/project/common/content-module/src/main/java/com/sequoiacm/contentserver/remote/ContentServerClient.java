@@ -140,7 +140,7 @@ public interface ContentServerClient {
 
     @DeleteMapping(value = "/internal/v1/datasource/tables?" + CommonDefine.RestArg.KEEP_ALIVE
             + "=true")
-    public BSONObject deleteDataTablesKeepAlive(
+    public String deleteDataTablesKeepAlive(
             @RequestParam(CommonDefine.RestArg.DATASOURCE_DATA_TABLE_NAMES) List<String> tableNames,
             @RequestParam(value = CommonDefine.RestArg.WORKSPACE_NAME, required = false) String wsName,
             @RequestBody(required = false) DataTableDeleteOption location)

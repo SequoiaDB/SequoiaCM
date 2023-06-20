@@ -295,7 +295,7 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
                 else {
                     ContentServerClient client = ContentServerClientFactory
                             .getFeignClientByServiceName(siteName.toLowerCase());
-                    BSONObject res = client.deleteDataTablesKeepAlive(tableNameMap.get(siteName),
+                    String res = client.deleteDataTablesKeepAlive(tableNameMap.get(siteName),
                             wsName, new DataTableDeleteOption(location.asBSON()));
                     ScmFeignExceptionUtils.handleException(res);
                 }
