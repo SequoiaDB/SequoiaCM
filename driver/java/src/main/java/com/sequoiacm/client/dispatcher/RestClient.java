@@ -115,6 +115,21 @@ final class RestClient {
         }
     }
 
+    public static String sendRequestWithStringResponse(CloseableHttpClient client, String sessionId,
+            HttpRequestBase request) throws ScmException {
+        CloseableHttpResponseWrapper response = sendRequestWithHttpResponse(client, sessionId,
+                request);
+        try {
+            return EntityUtils.toString(response.getEntity(), CHARSET_UTF8);
+        }
+        catch (IOException e) {
+            throw new ScmException(ScmError.NETWORK_IO, "failed to get the http body", e);
+        }
+        finally {
+            consumeResp(response);
+        }
+    }
+
     public static BSONObject sendRequestWithJsonResponse(CloseableHttpClient client,
             String sessionId, HttpEntityEnclosingRequestBase request, List<NameValuePair> params)
             throws ScmException {

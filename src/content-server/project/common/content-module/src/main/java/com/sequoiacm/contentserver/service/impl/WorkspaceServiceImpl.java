@@ -19,6 +19,7 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.privilege.ScmFileServicePriv;
 import com.sequoiacm.contentserver.remote.ContentServerClient;
 import com.sequoiacm.contentserver.remote.ContentServerClientFactory;
+import com.sequoiacm.contentserver.remote.ContentServerFeignExceptionConverter;
 import com.sequoiacm.contentserver.service.IDatasourceService;
 import com.sequoiacm.contentserver.service.IPrivilegeService;
 import com.sequoiacm.contentserver.service.IWorkspaceService;
@@ -37,6 +38,7 @@ import com.sequoiacm.infrastructrue.security.privilege.IResource;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
 import com.sequoiacm.infrastructure.audit.ScmAuditType;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.KeepAliveUtils;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -44,6 +46,7 @@ import com.sequoiacm.infrastructure.config.core.msg.ConfigEntityTranslator;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceFilter;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceUpdater;
+import com.sequoiacm.infrastructure.feign.ScmFeignException;
 import com.sequoiacm.infrastructure.feign.ScmFeignExceptionUtils;
 import com.sequoiacm.infrastructure.lock.ScmLock;
 import com.sequoiacm.infrastructure.sdbversion.EnableSdbVersionChecker;
@@ -149,7 +152,13 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         if (!contentModule.isInMainSite()) {
             ContentServerClient client = ContentServerClientFactory
                     .getFeignClientByServiceName(contentModule.getMainSiteName());
-            client.deleteWorkspace(sessionId, token, wsName, isEnforced);
+            String res = client.deleteWorkspace(sessionId, token, wsName, isEnforced,
+                    KeepAliveUtils.isCurrentRequestKeepAlive());
+            try {
+                ScmFeignExceptionUtils.handleException(res);
+            } catch (ScmFeignException e) {
+                throw new ContentServerFeignExceptionConverter().convert(e);
+            }
 
             audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,
                     "delete wsName=" + wsName + ", isEnforced=" + isEnforced);
@@ -182,12 +191,14 @@ public class WorkspaceServiceImpl implements IWorkspaceService {
         cleanPrivilege(token, user, wsName);
         if (locations != null) {
             Map<Integer, ScmLocation> locationMap = locations;
-            AsyncUtils.execute(new Runnable() {
-                @Override
-                public void run() {
-                    deleteDataTable(contentModule, wsName, locationMap);
-                }
-            });
+            if (KeepAliveUtils.isCurrentRequestKeepAlive()) {
+                logger.debug("deleteDataTable in current request, wsName={}", wsName);
+                deleteDataTable(contentModule, wsName, locationMap);
+            }
+            else {
+                logger.debug("deleteDataTable in async, wsName={}", wsName);
+                AsyncUtils.execute(() -> deleteDataTable(contentModule, wsName, locationMap));
+            }
         }
 
         audit.info(ScmAuditType.DELETE_WS, user, wsName, 0,

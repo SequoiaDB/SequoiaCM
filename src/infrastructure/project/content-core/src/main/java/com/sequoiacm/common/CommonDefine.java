@@ -470,7 +470,7 @@ public class CommonDefine {
         public static final String QUOTA_FLUSH_CACHE = "flush_cache";
         public static final String QUOTA_FORCE_REFRESH = "force_refresh";
 
-        public static final String KEEP_ALIVE = "keepAlive";
+        public static final String KEEP_ALIVE = "keep_alive";
 
         public static final String TAG_CONDITION = "tag_condition";
         public static final String FILE_CONDITION = "file_condition";

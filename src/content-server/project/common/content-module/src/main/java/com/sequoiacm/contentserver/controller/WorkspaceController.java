@@ -13,6 +13,7 @@ import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructrue.security.core.ScmUser;
 import com.sequoiacm.infrastructure.audit.ScmAudit;
+import com.sequoiacm.infrastructure.common.KeepAlive;
 import com.sequoiacm.infrastructure.sdbversion.RequireSdbVersion;
 import com.sequoiacm.infrastructure.common.SecurityRestField;
 import com.sequoiacm.metasource.MetaCursor;
@@ -99,6 +100,7 @@ public class WorkspaceController {
 
     }
 
+    @KeepAlive
     @DeleteMapping(value = "/workspaces/{workspace_name}")
     public void deleteWorkspace(@PathVariable("workspace_name") String workspaceName,
             @RequestParam(value = CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE, defaultValue = "false") boolean isEnforced,

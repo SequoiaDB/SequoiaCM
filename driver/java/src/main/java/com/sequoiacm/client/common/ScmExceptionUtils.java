@@ -4,6 +4,7 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.client.util.BsonUtils;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.util.JSON;
 
 public class ScmExceptionUtils {
 
@@ -20,5 +21,13 @@ public class ScmExceptionUtils {
         if (errCode != null && errMsg != null) {
             throw new ScmException(errCode.intValue(), errMsg);
         }
+    }
+
+    public static void handleException(String res) throws ScmException {
+        if (res == null || res.trim().isEmpty()) {
+            return;
+        }
+        BSONObject bsonObject = (BSONObject) JSON.parse(res);
+        handleException(bsonObject);
     }
 }

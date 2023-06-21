@@ -70,6 +70,7 @@ class RequestKeepAliveAspect {
         boolean shouldKeepAlive = Boolean.parseBoolean(request.getParameter(keepAliveParameterName));
 
         if (shouldKeepAlive) {
+            KeepAliveUtils.markRequestKeepAlive(request);
             ServletOutputStream outputStream = response.getOutputStream();
             Long index = requestKeepAlive.add(outputStream);
             try {

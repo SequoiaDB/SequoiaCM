@@ -1913,9 +1913,12 @@ public class RestDispatcher implements MessageDispatcher {
     @Override
     public void deleteWorkspace(String wsName, boolean isEnforced) throws ScmException {
         String uri = URL_PREFIX + url + API_VERSION + WORKSPACE + encode(wsName) + "?"
-                + CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE + "=" + isEnforced;
+                + CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE + "=" + isEnforced + "&"
+                + CommonDefine.RestArg.KEEP_ALIVE + "=true";
         HttpDelete req = new HttpDelete(uri);
-        RestClient.sendRequest(getHttpClient(), sessionId, req);
+        // 由于工作区删除接口没有返回值，使用连接保活后可能会收到空格内容，所以这里用字符串接收
+        String res = RestClient.sendRequestWithStringResponse(getHttpClient(), sessionId, req);
+        ScmExceptionUtils.handleException(res);
     }
 
     /*

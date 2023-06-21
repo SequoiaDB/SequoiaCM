@@ -147,10 +147,11 @@ public interface ContentServerClient {
             throws ScmServerException;
 
     @DeleteMapping(value = "/api/v1/workspaces/{workspace_name}")
-    public void deleteWorkspace(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
+    public String deleteWorkspace(@RequestHeader(SecurityRestField.SESSION_ATTRIBUTE) String sessionId,
             @RequestHeader(SecurityRestField.USER_ATTRIBUTE) String user,
             @PathVariable("workspace_name") String wsName,
-            @RequestParam(CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE) boolean isEnforced)
+            @RequestParam(CommonDefine.RestArg.WORKSPACE_ENFORCED_DELETE) boolean isEnforced,
+            @RequestParam(CommonDefine.RestArg.KEEP_ALIVE) boolean isKeepAlive)
             throws ScmServerException;
 
     @PostMapping(value = "/api/v1/files/{file_id}?action=" + CommonDefine.RestArg.ACTION_CALC_MD5
