@@ -237,6 +237,77 @@
 | PasswordFile | 密文文件 | 否 |
 | ConnectionConf | 数据源参数配置，仅字段 Type 取值为 hdfs 或 hbase 时有效<br>格式为 `{fs.defaultFS":"hdfs://hostName1:port",...}` | 否 |
 
+多种数据存储的配置说明及示例如下：
+
+1. SequoiaDB
+
+  ```
+    [datasource]
+    Name, Type,      Url,                User,      Password,    PasswordFile,  ConnectionConf,
+    ds1,  sequoiadb, 'sdbServer:11810',  sdbadmin,  sequoiadb,   
+  ```
+
+2. CephS3
+
+  ```
+    [datasource]
+    Name, Type,    Url,                       User,                 Password,    PasswordFile,  ConnectionConf,
+    ds2,  ceph_s3, 'http://cephS3Server:7480', 1SMTXU69QL4Z4SRJ90X4, w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW,
+  ```
+  CephS3 数据源支持主备库配置，主备库配置方式如下：
+  
+  ```
+    # 方式一：适用于主备库密码相同
+    [datasource]
+    Name, Type,    Url,                         User,                 Password,    PasswordFile,  ConnectionConf,
+    ds2,  ceph_s3, 'http://primaryS3Server:7480,http://standByS3Server:7480', 1SMTXU69QL4Z4SRJ90X4, w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW,
+
+    # 方式二：适用于主备库密码不同
+    [datasource]
+    Name, Type,    Url,                           User,                 Password,    PasswordFile,  ConnectionConf,
+    ds2,  ceph_s3, 'http://primaryS3Server:7480', 1SMTXU69QL4Z4SRJ90X4, w7iiZFGDf57dY1XBfU8tQJnWZBQzGKApBf2LC6DW,
+    ds2,  ceph_s3, 'http://standByS3Server:7480', CNM45NV2N4BB3EU427WB, fg0ZntEluZjzlcmShQAggfk3SZjGzD4zAUnpAgkx,
+  ```
+
+3. CephSwift
+
+  ```
+    [datasource]
+    Name, Type,       Url,                               User,          Password,    PasswordFile,  ConnectionConf,
+    ds3,  ceph_swift, 'http://cephSwiftServer:7480/auth',testuid:swift, XphCjBUNa8Kr4POSAlFBotXaDZSGAJD7NhNhtcu5
+  ```
+
+4. Hbase
+
+  ```
+    [datasource]
+    Name,  Type,   Url,                 User,      Password,    PasswordFile,  ConnectionConf,
+    ds4,   hbase,  'hbaseServer:2181',          ,          ,               ,  '{"hbase.zookeeper.quorum": "hbaseServer:2181"}'
+  ```
+  >**Note:**
+  >
+  > 通过 ConnectionConf 填写连接 hbase 服务所需配置，具体配置项说明可参考[创建站点][site_create]章节关于 Hbase 数据源的 dsconf 配置描述
+
+5. Hdfs
+
+  ```
+    [datasource]
+    Name,  Type,   Url,   User,  Password,    PasswordFile,  ConnectionConf,
+    ds5,   hdfs,   '',    root,  sequoiadb,               ,  '{"dfs.nameservices": "ns1", "dfs.ha.namenodes.ns1": "nn1,nn2", "dfs.client.failover.proxy.provider.ns1": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider", "fs.hdfs.impl.disable.cache": "true", "dfs.namenode.rpc-address.ns1.nn2": "hdfsServer:9000", "dfs.namenode.rpc-address.ns1.nn1": "hdfsServer:9000", "fs.defaultFS": "hdfs://ns1"}'
+  ```
+  >**Note:**
+  >
+  > - User、Password 分别指定 ssh 连接 Hdfs 部署服务器的用户名、密码
+  > - 通过 ConnectionConf 填写连接 hdfs 服务所需配置，具体配置项说明可参考[创建站点][site_create]章节关于 Hdfs 数据源的 dsconf 配置描述
+
+6. Sftp
+
+  ```
+    [datasource]
+    Name,  Type,   Url,                 User,      Password,    PasswordFile,  ConnectionConf,
+    ds6,   sftp,   'sftpServer:22',     root,      sequoiadb,               , 
+  ```
+
 **site**
 
 该配置段用于配置站点信息，参数说明如下：
@@ -387,3 +458,4 @@
 [node_group]:Architecture/node_group.md
 [encrypt_password]:Maintainance/Tools/Scmadmin/encrypt.md
 [sitestrategy]:Architecture/site_network.md
+[site_create]:Maintainance/Tools/Scmadmin/createsite.md
