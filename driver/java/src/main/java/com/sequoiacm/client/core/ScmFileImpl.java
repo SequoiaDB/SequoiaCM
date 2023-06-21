@@ -1340,6 +1340,11 @@ class ScmFileImpl extends ScmFile {
         return basicInfo.getVersionSerial();
     }
 
+    @Override
+    public boolean isDeleteMarker() {
+        return basicInfo.isDeleteMarker();
+    }
+
     protected void setBucketId(long bucketId) {
         this.bucketId = bucketId;
     }

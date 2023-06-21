@@ -836,6 +836,14 @@ public abstract class ScmFile {
     public abstract ScmVersionSerial getVersionSerial();
 
     /**
+     *
+     * Get the file delete marker.
+     *
+     * @return delete marker.
+     */
+    public abstract boolean isDeleteMarker();
+
+    /**
      * Set the file custom tag
      * @param customTag custom tag
      */
