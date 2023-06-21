@@ -37,8 +37,7 @@ public class UpdateInstanceConf2293 extends TestScmBase {
         ConfUtil.deleteAuditConf( site.getSiteServiceName() );
     }
 
-    // SEQUOIACM-1400暂时屏蔽
-    @Test(groups = { "oneSite", "twoSite", "fourSite" }, enabled = false)
+    @Test(groups = { "oneSite", "twoSite", "fourSite" })
     private void testSingleInstance1() throws ScmException {
         try {
             ScmConfigProperties.Builder builder = ScmConfigProperties.builder();
