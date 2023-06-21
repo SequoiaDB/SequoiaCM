@@ -18,6 +18,8 @@ import com.sequoiacm.datasource.metadata.ScmSiteUrl;
 import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 
+import java.util.Collection;
+
 public class CephSwiftDataService extends ScmService {
 
     private AccountConfig config;
@@ -143,6 +145,40 @@ public class CephSwiftDataService extends ScmService {
         catch (Exception e) {
             throw new CephSwiftException(
                     "create container failed:siteId=" + siteId + ",container=" + c.getName(), e);
+        }
+    }
+
+    public void clearAndDeleteContainer(Container container) throws CephSwiftException {
+        try {
+            logger.info("cleaning container:containerName={}", container.getName());
+            if (!container.exists()) {
+                return;
+            }
+            String keyMarker = "";
+            Integer pageSize = 1000;
+            Collection<StoredObject> objectList;
+            do {
+                objectList = container.list(null, keyMarker, pageSize);
+                for (StoredObject storedObject : objectList) {
+                    deleteObject(storedObject);
+                    keyMarker = storedObject.getName();
+                }
+            }
+            while (objectList.size() != 0);
+
+            container.delete();
+        }
+        catch (CommandException e) {
+            throw new CephSwiftException(e.getHttpStatusCode(), e.getError().toString(),
+                    "clear and delete container failed:siteId=" + siteId + ",container="
+                            + container.getName(),
+                    e);
+        }
+        catch (Exception e) {
+            throw new CephSwiftException(
+                    "clear and delete container failed:siteId=" + siteId + ",container="
+                            + container.getName(),
+                    e);
         }
     }
 

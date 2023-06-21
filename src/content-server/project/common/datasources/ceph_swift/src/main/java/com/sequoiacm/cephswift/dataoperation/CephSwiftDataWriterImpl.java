@@ -178,7 +178,10 @@ public class CephSwiftDataWriterImpl extends ScmDataWriter {
                         this.account = dataService.createAccount();
                         this.container = account.getContainer(containerName);
 
-                        dataService.createContainer(container);
+                        boolean hasCreatedContainer = dataService.createContainer(container);
+                        if (hasCreatedContainer) {
+                            this.createdContainerName = containerName;
+                        }
                         obj = dataService.getObject(container, objectName);
                         dataService.uploadObject(obj, new UploadInstructions(
                                 new ByteArrayInputStream(buffer, 0, bufferOff)));

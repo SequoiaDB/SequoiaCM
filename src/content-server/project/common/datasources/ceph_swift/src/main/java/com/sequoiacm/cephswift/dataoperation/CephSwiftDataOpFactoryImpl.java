@@ -112,6 +112,6 @@ public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
     @Override
     public ScmDataTableDeletor createDataTableDeletor(List<String> tableNames, ScmService service)
             throws ScmDatasourceException {
-        return new CephSwiftDataTableDeletorImpl();
+        return new CephSwiftDataTableDeletorImpl(tableNames, service);
     }
 }
