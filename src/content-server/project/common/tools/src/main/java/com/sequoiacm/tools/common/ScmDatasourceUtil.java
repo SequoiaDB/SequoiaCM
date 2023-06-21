@@ -116,7 +116,8 @@ public class ScmDatasourceUtil {
                         new DatasourceOptions());
             case DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR:
                 return new ScmSiteUrlWithConf(siteInfo.getDataType(), siteInfo.getDataUrl(),
-                        siteInfo.getDataUser(), siteInfo.getDataPasswd(), Collections.EMPTY_MAP);
+                        siteInfo.getDataUser(), siteInfo.getDataPasswd(),
+                        parseCephS3DataConf(siteInfo.getDataConf()));
             case DataSourceType.SCM_DATASOURCE_TYPE_CEPHSWIFT_STR:
                 return new ScmSiteUrl(siteInfo.getDataType(), siteInfo.getDataUrl(),
                         siteInfo.getDataUser(), siteInfo.getDataPasswd());
@@ -141,6 +142,25 @@ public class ScmDatasourceUtil {
                 throw new ScmToolsException("Unknow DataType=" + siteInfo.getDataType()
                 + ",siteName=" + siteInfo.getName(), ScmExitCode.INVALID_ARG);
         }
+    }
+
+    private static Map<String, String> parseCephS3DataConf(Map<String, String> dataConf)
+            throws ScmToolsException {
+        Map<String, String> res = new HashMap<>();
+        if (dataConf != null) {
+            String prefix = "scm.cephs3.";
+            for (Map.Entry<String, String> entry : dataConf.entrySet()) {
+                if (entry.getKey().startsWith(prefix)
+                        && entry.getKey().length() > prefix.length()) {
+                    res.put(entry.getKey().substring(prefix.length()), entry.getValue());
+                }
+                else {
+                    throw new ScmToolsException("invalid ceph s3 conf key: " + entry.getKey(),
+                            ScmExitCode.INVALID_ARG);
+                }
+            }
+        }
+        return res;
     }
 
     private static URL[] getURLsByPath(String jarDir) throws ScmToolsException {

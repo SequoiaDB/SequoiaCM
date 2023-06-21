@@ -65,15 +65,22 @@ public class ScmSiteObj {
             BSONObject urlBSON = (BSONObject) getValueCheckNotNull(dataObj,
                     FieldName.FIELD_CLSITE_URL);
 
+            BSONObject confBSON = (BSONObject) dataObj.get(FieldName.FIELD_CLSITE_CONF);
             if (dataType.equals(DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR)
                     || dataType.equals(DataSourceType.SCM_DATASOURCE_TYPE_HBASE_STR)) {
 
-                BSONObject confBSON = (BSONObject) getValueCheckNotNull(dataObj,
-                        FieldName.FIELD_CLSITE_CONF);
-                logger.info("get confBSON : " + confBSON.toString());
+                if (confBSON == null) {
+                    throw new ScmMappingException(
+                            "field is not exist:fieldName=" + FieldName.FIELD_CLSITE_CONF);
+                }
+                logger.info("site={}, confBSON={}", name, confBSON);
                 parseHadoopConf(confBSON);
             }
             else {
+                if (confBSON != null) {
+                    logger.info("site={}, confBSON={}", name, confBSON);
+                    this.dataConf = confBSON.toMap();
+                }
                 parseUrl(urlBSON, dataUrlList);
             }
             // meta

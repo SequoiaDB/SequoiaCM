@@ -11,7 +11,7 @@ createsite 子命令提供创建站点的功能。
 | --dstype      |     | 新建站点的数据存储服务类型，可选参数:1（sequoiadb），2（hbase），<br>3（ceph_s3），4（ceph_swift），5（hdfs），8（sftp），不指定则类型为 1 |否      |
 | --no-check-ds |    | 创建站点时，不对数据源做可用性检查                                                                               |否      |
 | --root        |-r   | 设置新建站点为主站点                                                                                      |否      |
-| --dsconf      |     | 数据源参数配置, 仅数据源类型为hdfs或hbase时有效, <br>格式为:'{"fs.defaultFS":"hdfs://hostName1:port",...}'           |否      |
+| --dsconf      |     | 数据源参数配置, 仅数据源类型为 hdfs、hbase、cephs3 时有效, <br>格式为:'{"fs.defaultFS":"hdfs://hostName1:port",...}'           |否      |
 | --continue    |     | 新建站点为主站点时，如果主站点数据源已经存在部分元数据，可设置此选项继续<br>完善站点元数据                                                 |否      |
 | --gateway     |     | 网关地址，格式为:'host1:port,host1:port'                                                                |是      |
 | --user        |     | 管理员用户名                                                                                          |是      |
@@ -108,6 +108,7 @@ createsite 子命令提供创建站点的功能。
 > - 创建 CephS3 类型分站点，名称为 site4，数据服务的两个连接拥有相同的用户名和密码 dsuser 和 dspasswd 。
 > - CephS3 数据服务支持[主备库][primary_standby_cephs3]，以第一个 URL 作为主库，第二个 URL 作为备库。
 > - 当两个库用户名密码不一致时，可以将其拼接在 URL 上，如：accessKey:secretKeyFilePath@http://cephS3Server2:port 。连接 CephS3 时，会优先使用地址上拼接的用户名和密码，当地址上未拼接用户名和密码时，才使用 dsuser 和 dspasswd 。
+> - 支持通过 --dsconf 指定配置参数，例如  `--dsconf '{"scm.cephs3.client.connTimeout":"10000", "scm.cephs3.client.socketTimeout":"30000"}'` ，具体支持的配置项请参考内容服务节点的 cephs3 [配置参数][content_server_config]；当与内容服务节点配置文件中存在相同的配置项时，配置文件中指定的参数值的优先级更高。
 > - 若通过 Nginx 代理访问 ceph_s3，为防止 Nginx 改写 Host 请求头导致 S3 签名校验失败，请加入 Nginx 配置: proxy_set_header Host $host:$server_port 来规避 Host 的修改，示例配置如下：
 
 ``` 
@@ -218,3 +219,4 @@ createsite 子命令提供创建站点的功能。
 [lifecycle_config]:Development/Java_Driver/lifecycle_operation.md
 [sendpassword_tool]:Maintainance/Tools/Scmadmin/sendpassword.md
 [primary_standby_cephs3]:Architecture/data_storage.md
+[content_server_config]:Maintainance/Node_Config/contentserver.md

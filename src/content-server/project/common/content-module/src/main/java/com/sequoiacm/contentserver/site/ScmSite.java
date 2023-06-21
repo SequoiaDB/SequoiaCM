@@ -89,8 +89,7 @@ public class ScmSite {
                         siteObj.getDataUser(), siteObj.getDataPasswd(), siteObj.getDataConf());
             case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_CEPHS3_STR:
                 return new ScmSiteUrlWithConf(siteObj.getDataType(), siteObj.getDataUrlList(),
-                        siteObj.getDataUser(), siteObj.getDataPasswd(),
-                        PropertiesUtils.getCephS3Config().getCephs3NotNull());
+                        siteObj.getDataUser(), siteObj.getDataPasswd(), getCephS3DataConf(siteObj));
             case CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR:
                 return new ScmSiteUrlWithConf(siteObj.getDataType(), siteObj.getDataUrlList(),
                         siteObj.getDataUser(), siteObj.getDataPasswd(),
@@ -99,6 +98,20 @@ public class ScmSite {
                 return new ScmSiteUrl(siteObj.getDataType(), siteObj.getDataUrlList(),
                         siteObj.getDataUser(), siteObj.getDataPasswd());
         }
+    }
+
+    private Map<String, String> getCephS3DataConf(ScmSiteObj siteObj) {
+        Map<String, String> dataConf = new HashMap<>();
+        if (siteObj.getDataConf() != null) {
+            String prefix = "scm.cephs3.";
+            for (Map.Entry<String, String> entry : siteObj.getDataConf().entrySet()) {
+                if (entry.getKey().startsWith(prefix)) {
+                    dataConf.put(entry.getKey().substring(prefix.length()), entry.getValue());
+                }
+            }
+        }
+        dataConf.putAll(PropertiesUtils.getCephS3Config().getCephs3NotNull());
+        return dataConf;
     }
 
     private ScmSiteUrl createSdbSiteUrl(ScmSiteObj siteObj, boolean isMeta)

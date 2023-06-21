@@ -74,7 +74,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
                 "data datasource url of new sdb site, eg:'hostName1:port1,\nhostName2:port2'.\n",
                 false, true, false));
         options.addOption(hp.createOpt(null, OPT_LONG_DSCONF,
-                "data datasource conf of new hdfs|hbase site, eg:'{\"fs.defaultFS\":\"hdfs://hostName1:port1\",...}' .\n",
+                "data datasource conf of new hdfs|hbase|cephs3 site, eg:'{\"fs.defaultFS\":\"hdfs://hostName1:port1\",...}' .\n",
                 false, true, false));
         options.addOption(hp.createOpt(null, OPT_LONG_DSUSER,
                 "data datasource username of new site, default:empty string.", false, true, false));
@@ -148,7 +148,7 @@ public class ScmCreateSiteToolImpl extends ScmTool {
         }
         // tranform DatasourceType
         DatasourceType dataType = getDatasourceType(cl.getOptionValue(OPT_LONG_DSTYPE));
-        // if dataType is hdfs|hbase newSite setDataConf
+        // if dataType is hdfs|hbase|cephs3 newSite setDataConf
         Map<String, String> dataConf = getDataConf(cl, dataType.getType());
 
         String stageTag = cl.getOptionValue(OPT_LONG_STAGE_TAG);
@@ -204,26 +204,24 @@ public class ScmCreateSiteToolImpl extends ScmTool {
 
     private Map<String, String> getDataConf(CommandLine cl, String dataType)
             throws ScmToolsException {
-        if (dataType.equals(DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR)
-                || dataType.equals(DataSourceType.SCM_DATASOURCE_TYPE_HBASE_STR)) {
-            return parseDataConf(cl);
+        Map<String, String> dataConf = parseDataConf(cl);
+        // hdfs 和 hbase 必须指定 dataConf
+        if (dataConf == null && (dataType.equals(DataSourceType.SCM_DATASOURCE_TYPE_HDFS_STR)
+                || dataType.equals(DataSourceType.SCM_DATASOURCE_TYPE_HBASE_STR))) {
+            throw new ScmToolsException("missing options:--" + OPT_LONG_DSCONF,
+                    ScmExitCode.INVALID_ARG);
         }
-        return null;
+        return dataConf;
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, String> parseDataConf(CommandLine cl) throws ScmToolsException {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = null;
         if (cl.hasOption(OPT_LONG_DSCONF)) {
             String optionValue = cl.getOptionValue(OPT_LONG_DSCONF);
             map = new Gson().fromJson(optionValue, new TypeToken<Map<String, String>>() {
             }.getType());
         }
-        else {
-            throw new ScmToolsException("missing options:--" + OPT_LONG_DSCONF,
-                    ScmExitCode.INVALID_ARG);
-        }
-
         return map;
     }
 
