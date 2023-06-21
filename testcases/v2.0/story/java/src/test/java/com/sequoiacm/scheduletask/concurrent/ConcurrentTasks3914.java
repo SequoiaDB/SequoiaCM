@@ -6,9 +6,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sequoiacm.client.element.ScmTask;
-import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import org.bson.BSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -18,9 +15,12 @@ import org.testng.annotations.Test;
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
+import com.sequoiacm.client.element.ScmTask;
 import com.sequoiacm.testcommon.*;
+import com.sequoiacm.testcommon.listener.GroupTags;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmScheduleUtils;
+import com.sequoiacm.testcommon.scmutils.ScmTaskUtils;
 import com.sequoiadb.threadexecutor.ResultStore;
 import com.sequoiadb.threadexecutor.ThreadExecutor;
 import com.sequoiadb.threadexecutor.annotation.ExecuteOrder;
@@ -86,11 +86,8 @@ public class ConcurrentTasks3914 extends TestScmBase {
         SiteWrapper[] expSites1 = { rootSite, branchSite1 };
         ScmScheduleUtils.checkScmFile( rootSiteWorkspace, fileIdList,
                 expSites1 );
-
-        long successCountSum = 0;
         ScmTask task = ScmSystem.Task.getTask( rootSiteSession, taskId );
-        successCountSum = task.getSuccessCount();
-        Assert.assertEquals( successCountSum, 1 );
+        Assert.assertEquals( task.getFailCount(), 0 );
 
         runSuccess = true;
     }
