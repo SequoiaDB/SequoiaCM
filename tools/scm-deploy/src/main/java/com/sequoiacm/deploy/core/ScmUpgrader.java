@@ -180,7 +180,7 @@ public class ScmUpgrader {
             }
         }
         logger.info("Setting Global Config...({}/{})", currentProgress++, progress);
-        if (!dryrun && ScmUpgradeInfoMgr.getInstance().getGlobalConfig() != null) {
+        if (!dryrun && !ScmUpgradeInfoMgr.getInstance().getGlobalConfig().isEmpty()) {
             new ScmGlobalConfigSetter(upgradeInfoMgr.getGlobalConfig(),
                     upgradeInfoMgr.getConfigInfo().getScmGateway(),
                     upgradeInfoMgr.getConfigInfo().getScmUser(),
