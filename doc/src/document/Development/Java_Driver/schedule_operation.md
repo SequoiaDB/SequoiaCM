@@ -15,7 +15,7 @@ BSONObject copyCondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR)
         .is("zhangsan").get();
 // 迁移调度内容：源站点、目标站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
 ScmScheduleCopyFileContent copyContent = new ScmScheduleCopyFileContent("branchSite1", "rootSite",
-        "0d", copyCondition, ScopeType.SCOPE_CURRENT, 36000000);
+        "0d", copyCondition, ScmType.ScopeType.SCOPE_CURRENT, 36000000);
 // 设置数据校验级别（WEEK：弱校验，检查迁移后的文件内容大小；STRICT：强校验，检查迁移后的文件内容MD5）
 copyContent.setDataCheckLevel(ScmDataCheckLevel.WEEK);
 // 设置是否开启快速启动，开启后，将不会计算任务的预估文件数
@@ -38,7 +38,7 @@ BSONObject cleancondition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).
         .get();
 // 清理调度内容：清理站点、文件内容最大停留时间、调度文件查询条件、范围、每次调度任务触发时最长执行时间 (ms)
 ScmScheduleCleanFileContent cleanContent = new ScmScheduleCleanFileContent("branchSite1", "3d",
-        cleancondition, ScopeType.SCOPE_CURRENT, 36000000);
+        cleancondition, ScmType.ScopeType.SCOPE_CURRENT, 36000000);
 // 设置数据校验级别（WEEK：弱校验，在清理本站点文件内容前，检查其它站的文件内容大小；STRICT：强校验，在清理本站点文件内容前，检查其它站的的文件内容MD5）
 cleanContent.setDataCheckLevel(ScmDataCheckLevel.WEEK); 
 // 设置是否开启空间回收功能，目前仅支持SequoiaDB数据源，开启后，某个集合空间下的文件全部清理后会自动删除该集合空间

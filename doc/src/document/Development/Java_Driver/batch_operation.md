@@ -32,10 +32,18 @@ System.out.println(batch.getTags());
 
 // 按匹配条件查询批次：查询 name 为 Batch 的文件
 BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.Batch.NAME).is("Batch").get();
-ScmCursor<ScmBatchInfo> cursor = ScmFactory.Batch.listInstance(workspace, condition);
-while (cursor.hasNext()) {
-    ScmBatchInfo batchInfo = cursor.getNext();
-    System.out.println(batchInfo.getName());
+ScmCursor<ScmBatchInfo> cursor = null;
+try {
+    cursor = ScmFactory.Batch.listInstance(workspace, condition);
+    while (cursor.hasNext()) {
+        ScmBatchInfo batchInfo = cursor.getNext();
+        System.out.println(batchInfo.getName());
+    }
+}
+finally {
+    if (cursor != null) {
+        cursor.close();
+    }
 }
 ```
 

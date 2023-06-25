@@ -57,9 +57,9 @@ System.out.println("get:dataId=" + fileVersion2.getDataId()
 * 查询指定版本类型文件
 
 ```lang-javascript
-// 查询文件列表：根据ScopeType
+// 查询文件列表：根据ScmType.ScopeType
 ScmCursor<ScmFileBasicInfo> fileCursor = ScmFactory.File.listInstance(workspace,
-        ScopeType.SCOPE_CURRENT,
+        ScmType.ScopeType.SCOPE_CURRENT,
         ScmQueryBuilder.start(ScmAttributeName.File.FILE_NAME).is("test").get());
 while (fileCursor.hasNext()) {
     System.out.println("list:" + fileCursor.getNext());
@@ -68,7 +68,7 @@ fileCursor.close();
 ```
 >  **Note:**
 >
->  * ScopeType类型 SCOPE_CURRENT（当前最新版本）、SCOPE_HISTORY（历史版本）、SCOPE_ALL（所有版本）
+>  * ScmType.ScopeType类型 SCOPE_CURRENT（当前最新版本）、SCOPE_HISTORY（历史版本）、SCOPE_ALL（所有版本）
 
 
 [java_api]:api/java/html/index.html

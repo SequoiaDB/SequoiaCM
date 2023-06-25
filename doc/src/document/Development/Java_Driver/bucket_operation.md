@@ -21,9 +21,17 @@ ScmBucket bucket = ScmFactory.Bucket.createBucket(ws, bucketName);
 ScmBucket bucket = ScmFactory.Bucket.getBucket(session, bucketName);
 
 // 列取指定工作区下，指定用户创建的桶
-ScmCursor<ScmBucket> cursor = ScmFactory.Bucket.listBucket(s, workspaceName, userName);
-while(cursor.hasNext()){
-    System.out.println(cursor.getNext());
+ScmCursor<ScmBucket> cursor = null;
+try {
+    cursor = ScmFactory.Bucket.listBucket(s, workspaceName, userName);
+    while(cursor.hasNext()){
+        System.out.println(cursor.getNext());
+    }
+}
+finally {
+    if (cursor != null) {
+        cursor.close();
+    }
 }
 ```
 

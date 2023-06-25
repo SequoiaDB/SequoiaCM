@@ -44,22 +44,29 @@ InputStream fileData = ScmFactory.File.getInputStream(ws, fileID);
 // 按匹配条件查询文件：查询所有 Author 为 SequoiaCM 的文件
 BSONObject condition = ScmQueryBuilder.start(ScmAttributeName.File.AUTHOR).is("SequoiaCM")
         .get();
-ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(workspace,
-        ScopeType.SCOPE_CURRENT, condition);
-while (cursor.hasNext()) {
-    ScmFileBasicInfo fileInfo = cursor.getNext();
-    System.out.println(fileInfo.getFileName());
+ScmCursor<ScmFileBasicInfo> cursor = null;
+try {
+    cursor = ScmFactory.File.listInstance(workspace, ScmType.ScopeType.SCOPE_CURRENT, condition);
+    while (cursor.hasNext()) {
+        ScmFileBasicInfo fileInfo = cursor.getNext();
+        System.out.println(fileInfo.getFileName());
+    }
+}
+finally {
+    if (cursor != null) {
+        cursor.close();
+    }
 }
 ```
 >  **Note:**
 > 
->  listInstance 的参数 scopeType 共有如下三种类型：
+>  listInstance 的参数 ScmType.scopeType 共有如下三种类型：
 > 
->  * ScopeType.SCOPE_ALL  在所有版本中查询文件
+>  * ScmType.ScopeType.SCOPE_ALL  在所有版本中查询文件
 > 
->  * ScopeType.SCOPE_CURRENT 在当前版本中查询文件
+>  * ScmType.ScopeType.SCOPE_CURRENT 在当前版本中查询文件
 > 
->  * ScopeType.SCOPE_HISTRORY 在历史版本中查询文件 
+>  * ScmType.ScopeType.SCOPE_HISTRORY 在历史版本中查询文件 
 
 *	下载文件，跨站点读时不做缓存
 
@@ -170,10 +177,17 @@ BSONObject cond = ScmQueryBuilder.start(ScmAttributeName.File.FILE_ID).in(idList
         .and(ScmAttributeName.File.AUTHOR).is("SequoiaCM")
         .and(ScmAttributeName.File.CREATE_MONTH).in(createMonthList).get();
 // 查询遍历
-ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance(workspace,
-        ScopeType.SCOPE_CURRENT, cond);
-while (cursor.hasNext()) {
-    System.out.println(cursor.getNext().getFileName());
+ScmCursor<ScmFileBasicInfo> cursor = null;
+try {
+    cursor = ScmFactory.File.listInstance(workspace, ScmType.ScopeType.SCOPE_CURRENT, cond);
+    while (cursor.hasNext()) {
+        System.out.println(cursor.getNext().getFileName());
+    }
+}
+finally {
+    if (cursor != null) {
+        cursor.close();
+    }
 }
 ```
 >  **Note:**
