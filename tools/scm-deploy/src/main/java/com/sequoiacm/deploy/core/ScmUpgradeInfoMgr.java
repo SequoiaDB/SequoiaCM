@@ -10,11 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.sequoiacm.deploy.common.SdbTools;
 import com.sequoiacm.deploy.module.BasicInstallConfig;
 import com.sequoiacm.deploy.module.VersionFileType;
-import com.sequoiacm.deploy.parser.KeyValueConverter;
-import com.sequoiacm.infrastructure.config.core.common.ScmGlobalConfigDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,11 +211,11 @@ public class ScmUpgradeInfoMgr {
     }
 
     private void checkServiceVersion() {
-        // 找到主机上的所有服务，并拿到旧版本
         for (HostInfo host : hosts) {
             Ssh ssh = null;
             try {
                 ssh = sshMgr.getSsh(host);
+                // 找到主机上的所有服务，并拿到旧版本
                 SshExecRes installRes = ssh.sudoExecRes("ls " + installConfig.getInstallPath(), 0,
                         2);
                 for (String dirName : installRes.getStdOut().split("\n")) {
@@ -268,6 +265,15 @@ public class ScmUpgradeInfoMgr {
                         }
                     }
                 }
+
+                // 如果原来机器上不存在 NON_SERVICE、SCMSYSTOOLS，但升级配置中包含了这两个，也添加到升级列表中
+                if (configInfo.getServices().contains(ServiceType.NON_SERVICE)) {
+                    addUpgradeServiceToHost(host, ServiceType.NON_SERVICE);
+                }
+                if (configInfo.getServices().contains(ServiceType.SCMSYSTOOLS)) {
+                    addUpgradeServiceToHost(host, ServiceType.SCMSYSTOOLS);
+                }
+
             }
             catch (Exception e) {
                 throw new UpgradeException("failed to get all service on " + host.getHostName(), e);
@@ -284,6 +290,22 @@ public class ScmUpgradeInfoMgr {
             }
         }
 
+    }
+
+    private void addUpgradeServiceToHost(HostInfo host, ServiceType service) {
+        Map<ServiceType, String> serviceVersion = upgradeHostService.get(host);
+        if (serviceVersion == null || !serviceVersion.containsKey(service)) {
+            Map<ServiceType, String> unableUpgradeService = unableUpgradeHostService.get(host);
+            if (unableUpgradeService != null && unableUpgradeService.containsKey(service)) {
+                return;
+            }
+            if (serviceVersion == null) {
+                serviceVersion = new HashMap<>();
+                upgradeHostService.put(host, serviceVersion);
+            }
+            // 旧版本号设置为 none
+            serviceVersion.put(service, "none");
+        }
     }
 
     private void transformHostServiceToServiceHost(

@@ -126,15 +126,39 @@ def upgrade_non_service(service_backup_dir, backup_completed, service_install_pa
     print("backup success,backup location:" + service_backup_dir)
 
     print("[INFO] begin replace the new version of the resource package")
-    if os.path.exists(old_doc) and os.path.exists(new_doc):
-        exec_cmd("rm -rf " + old_doc)
+    if os.path.exists(new_doc):
+        if os.path.exists(old_doc):
+            exec_cmd("rm -rf " + old_doc)
         exec_cmd("cp -rf " + new_doc + " " + service_install_path)
-    if os.path.exists(old_driver) and os.path.exists(new_driver):
-        exec_cmd("rm -rf " + old_driver)
+    if os.path.exists(new_driver):
+        if os.path.exists(old_driver):
+            exec_cmd("rm -rf " + old_driver)
         exec_cmd("cp -rf " + new_driver + " " + service_install_path)
-    if os.path.exists(old_tools) and os.path.exists(new_tools):
-        exec_cmd("rm -rf " + old_tools)
+    if os.path.exists(new_tools):
+        if os.path.exists(old_tools):
+            exec_cmd("rm -rf " + old_tools)
         exec_cmd("cp -rf " + new_tools  + " " + service_install_path)
+
+def upgrade_scmsystools(backup_dir, backup_completed, install_path):
+    service = "scmsystools"
+    service_dir_new = SERVICE_TMP_DIR + os.sep + DICT_SVC[service]['dir']
+    print("[INFO] untar the service installation package")
+    untar_service_package(service, service_dir_new)
+
+    print("[INFO] backup")
+    if os.path.exists(install_path):
+        cp_resource(service, install_path, backup_dir)
+    else:
+        exec_cmd("mkdir -p " + backup_dir)
+    exec_cmd("touch " + backup_completed)
+    print("backup success, backup location:" + backup_dir)
+
+    print("[INFO] replace the new version of the resource package")
+    exec_cmd("rm -rf " + UPGRADE_TMP_DIR)
+    if os.path.exists(install_path):
+        mv_resource(service, install_path, UPGRADE_TMP_DIR)
+    cp_resource(service, service_dir_new, install_path)
+
 
 def upgrade(service, service_install_path, backup_dir):
     service_dir_new = SERVICE_TMP_DIR + os.sep + DICT_SVC[service]['dir']
@@ -146,6 +170,9 @@ def upgrade(service, service_install_path, backup_dir):
 
     if service == "non-service":
         upgrade_non_service(service_backup_dir, backup_completed, service_install_path)
+        sys.exit(0)
+    if service == "scmsystools":
+        upgrade_scmsystools(service_backup_dir, backup_completed, service_install_path)
         sys.exit(0)
 
     print("[INFO] untar the service installation package")
@@ -188,15 +215,29 @@ def rollback_non_service(service_backup_dir, backup_completed, service_install_p
     backup_driver = service_backup_dir + os.sep + "driver"
     backup_tools  = service_backup_dir + os.sep + "tools"
     print("[INFO ]rollback backup")
+    exec_cmd("rm -rf " + install_doc)
     if os.path.exists(backup_doc):
-        exec_cmd("rm -rf " + install_doc)
         exec_cmd("cp -rf " + backup_doc + " " + service_install_path)
+
+    exec_cmd("rm -rf " + install_driver)
     if os.path.exists(backup_driver):
-        exec_cmd("rm -rf " + install_driver)
         exec_cmd("cp -rf " + backup_driver + " " + service_install_path)
+
+    exec_cmd("rm -rf " + install_tools)
     if os.path.exists(backup_tools):
-        exec_cmd("rm -rf " + install_tools)
         exec_cmd("cp -rf " + backup_tools + " " + service_install_path)
+    exec_cmd("rm -rf " + backup_completed)
+
+
+def rollback_scmsystools(backup_dir, backup_completed, install_path):
+    service = "scmsystools"
+    print("[INFO] rollback backup")
+    exec_cmd("rm -rf " + ROLLBACK_TMP_DIR)
+    mv_resource(service, install_path, ROLLBACK_TMP_DIR)
+    if os.path.exists(backup_dir) and glob.glob(backup_dir + os.sep + "*"):
+        cp_resource(service, backup_dir, install_path)
+    else:
+        exec_cmd("rm -rf " + install_path)
     exec_cmd("rm -rf " + backup_completed)
 
 def rollback(service, service_install_path, backup_dir):
@@ -211,6 +252,9 @@ def rollback(service, service_install_path, backup_dir):
 
     if service == "non-service":
         rollback_non_service(service_backup_dir, backup_completed, service_install_path)
+        return
+    if service == "scmsystools":
+        rollback_scmsystools(service_backup_dir, backup_completed, service_install_path)
         return
 
     print("[INFO] stop node")
