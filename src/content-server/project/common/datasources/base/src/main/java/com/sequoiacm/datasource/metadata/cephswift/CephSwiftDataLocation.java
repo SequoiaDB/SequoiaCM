@@ -36,14 +36,14 @@ public class CephSwiftDataLocation extends ScmLocation {
         return "ceph_swift";
     }
 
-    public String getContainerName(String wsName, Date createDate) {
+    public String getContainerName(String wsName, Date createDate, String timezone) {
         StringBuilder sb = new StringBuilder();
         sb.append(wsName);
         sb.append("_");
         sb.append(CephSwiftMetaDefine.DefaultValue.SWIFT_DEFAULT_CONTAINER_NAME);
         if (shardingType != ScmShardingType.NONE) {
             sb.append("_");
-            sb.append(getShardingStr(shardingType, createDate));
+            sb.append(getShardingStr(shardingType, createDate, timezone));
         }
         return sb.toString();
     }

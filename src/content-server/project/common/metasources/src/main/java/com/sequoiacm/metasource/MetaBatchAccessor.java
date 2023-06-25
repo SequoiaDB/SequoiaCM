@@ -1,7 +1,5 @@
 package com.sequoiacm.metasource;
 
-import java.util.Date;
-
 import org.bson.BSONObject;
 
 import com.sequoiacm.common.ScmShardingType;
@@ -19,7 +17,7 @@ public interface MetaBatchAccessor extends MetaAccessor {
     boolean update(String batchId, String batchCreateMonth, BSONObject newBatchInfo)
             throws ScmMetasourceException;
 
-    void createSubTable(ScmShardingType shardingType, Date createTime)
+    void createSubTable(ScmShardingType shardingType, String createMonth)
             throws ScmMetasourceException;
 
 }

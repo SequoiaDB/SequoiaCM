@@ -73,7 +73,7 @@ public class HbaseDataLocation extends ScmLocation {
         return "hbase";
     }
 
-    public String getTableName(String wsName, Date createDate) {
+    public String getTableName(String wsName, Date createDate, String timezone) {
         StringBuilder sb = new StringBuilder();
 
         //namespace
@@ -89,7 +89,7 @@ public class HbaseDataLocation extends ScmLocation {
 
         if (shardingType != ScmShardingType.NONE) {
             sb.append("_");
-            sb.append(getShardingStr(shardingType, createDate));
+            sb.append(getShardingStr(shardingType, createDate, timezone));
         }
 
         return sb.toString();

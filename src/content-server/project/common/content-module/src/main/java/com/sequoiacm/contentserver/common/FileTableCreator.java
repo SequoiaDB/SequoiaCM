@@ -6,6 +6,7 @@ import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.common.TableCreatedResult;
 import com.sequoiacm.infrastructure.common.TableMetaCommon;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
@@ -41,14 +42,16 @@ public class FileTableCreator {
     public static void createSubFileTable(SdbMetaSource metaSource, ScmWorkspaceInfo wsInfo,
             BSONObject file) throws ScmMetasourceException {
         long createTime = (long) file.get(FieldName.FIELD_CLFILE_INNER_CREATE_TIME);
+        String fileId = (String) file.get(FieldName.FIELD_CLFILE_ID);
         Date createDate = new Date(createTime);
+        String timezone = ScmIdParser.getTimezoneName(fileId);
 
         Sequoiadb sdb = null;
         try {
             sdb = metaSource.getConnection();
-            createSubCl(sdb, wsInfo.getName(), createDate,
+            createSubCl(sdb, wsInfo.getName(), createDate, timezone,
                     (SdbMetaSourceLocation) wsInfo.getMetaLocation());
-            createSubHistoryFile(sdb, wsInfo.getName(), createDate,
+            createSubHistoryFile(sdb, wsInfo.getName(), createDate, timezone,
                     (SdbMetaSourceLocation) wsInfo.getMetaLocation());
         }
         finally {
@@ -170,8 +173,8 @@ public class FileTableCreator {
     }
 
     private static void createSubHistoryFile(Sequoiadb sdb, String wsName, Date createDate,
-            SdbMetaSourceLocation location) throws ScmMetasourceException {
-        SdbClFileInfo metaCLInfo = location.getClFileInfo(getClName(), createDate);
+            String timezone, SdbMetaSourceLocation location) throws ScmMetasourceException {
+        SdbClFileInfo metaCLInfo = location.getClFileInfo(getClName(), createDate, timezone);
         String subClName = metaCLInfo.getClHistoryName();
         BSONObject options = mergeClOptions(generatorClFileOptions(), metaCLInfo.getClOptions());
         // 创建文件子表，若集合存在，忽略异常
@@ -210,9 +213,9 @@ public class FileTableCreator {
         }
     }
 
-    private static void createSubCl(Sequoiadb sdb, String wsName, Date createDate,
+    private static void createSubCl(Sequoiadb sdb, String wsName, Date createDate, String timezone,
             SdbMetaSourceLocation location) throws ScmMetasourceException {
-        SdbClFileInfo metaCLInfo = location.getClFileInfo(getClName(), createDate);
+        SdbClFileInfo metaCLInfo = location.getClFileInfo(getClName(), createDate, timezone);
         String subClName = metaCLInfo.getClName();
         BSONObject options = mergeClOptions(generatorClFileOptions(), metaCLInfo.getClOptions());
         // 创建文件子表，若集合存在，忽略异常

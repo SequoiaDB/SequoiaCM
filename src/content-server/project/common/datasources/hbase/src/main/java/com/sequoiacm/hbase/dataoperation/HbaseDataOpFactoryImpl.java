@@ -3,6 +3,7 @@ package com.sequoiacm.hbase.dataoperation;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,9 @@ public class HbaseDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             HbaseDataLocation dataLocation = (HbaseDataLocation) location;
             return new HbaseDataWriterImpl(
-                    dataLocation.getTableName(wsName, dataInfo.getCreateTime()), dataInfo.getId(),
-                    service);
+                    dataLocation.getTableName(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
+                    dataInfo.getId(), service);
         }
         catch (HbaseException e) {
             logger.error("build hbase writer failed:siteId=" + siteId + ",wsName=" + wsName
@@ -53,8 +55,9 @@ public class HbaseDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             HbaseDataLocation dataLocation = (HbaseDataLocation) location;
             return new HbaseDataReaderImpl(siteId,
-                    dataLocation.getTableName(wsName, dataInfo.getCreateTime()), dataInfo.getId(),
-                    service);
+                    dataLocation.getTableName(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
+                    dataInfo.getId(), service);
         }
         catch (HbaseException e) {
             logger.error("build hbase reader failed:siteId=" + siteId + ",wsName=" + wsName
@@ -75,7 +78,9 @@ public class HbaseDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             HbaseDataLocation dataLocation = (HbaseDataLocation) location;
             return new HbaseDataDeleterImpl(siteId, dataInfo.getId(),
-                    dataLocation.getTableName(wsName, dataInfo.getCreateTime()), service);
+                    dataLocation.getTableName(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
+                    service);
         }
         catch (HbaseException e) {
             logger.error("build hbase deleter failed:siteId=" + siteId + ",wsName=" + wsName

@@ -1490,10 +1490,9 @@ public class ScmMetaService {
             if (wsInfo.isBatchSharding() && e.getScmError() == ScmError.FILE_TABLE_NOT_FOUND) {
                 logger.debug("create table", e);
                 try {
-                    Date createDate = new Date(BsonUtils
-                            .getNumberChecked(batch, FieldName.Batch.FIELD_INNER_CREATE_TIME)
-                            .longValue());
-                    batchAccessor.createSubTable(wsInfo.getBatchShardingType(), createDate);
+                    String createMonth = BsonUtils.getString(batch,
+                            FieldName.Batch.FIELD_INNER_CREATE_MONTH);
+                    batchAccessor.createSubTable(wsInfo.getBatchShardingType(), createMonth);
                 }
                 catch (Exception ex) {
                     throw new ScmServerException(ScmError.METASOURCE_ERROR,

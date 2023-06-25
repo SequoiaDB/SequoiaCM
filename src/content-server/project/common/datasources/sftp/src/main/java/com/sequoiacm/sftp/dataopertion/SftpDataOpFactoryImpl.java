@@ -3,6 +3,7 @@ package com.sequoiacm.sftp.dataopertion;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,9 @@ public class SftpDataOpFactoryImpl implements ScmDataOpFactory {
             ScmService service, ScmDataInfo dataInfo) throws SftpDataException {
         try {
             SftpDataLocation dataLocation = (SftpDataLocation) location;
-            return new SftpDataWriterImpl(dataLocation.getFileDir(wsName, dataInfo.getCreateTime()),
+            return new SftpDataWriterImpl(
+                    dataLocation.getFileDir(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
                     dataInfo.getId(), service);
         }
         catch (SftpDataException e) {
@@ -51,7 +54,9 @@ public class SftpDataOpFactoryImpl implements ScmDataOpFactory {
             ScmService service, ScmDataInfo dataInfo) throws SftpDataException {
         try {
             SftpDataLocation dataLocation = (SftpDataLocation) location;
-            return new SftpDataReaderImpl(dataLocation.getFileDir(wsName, dataInfo.getCreateTime()),
+            return new SftpDataReaderImpl(
+                    dataLocation.getFileDir(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
                     dataInfo.getId(), service);
         }
         catch (SftpDataException e) {
@@ -73,8 +78,9 @@ public class SftpDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             SftpDataLocation dataLocation = (SftpDataLocation) location;
             return new SftpDataDeletorImpl(
-                    dataLocation.getFileDir(wsName, dataInfo.getCreateTime()), dataInfo.getId(),
-                    service);
+                    dataLocation.getFileDir(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
+                    dataInfo.getId(), service);
         }
         catch (SftpDataException e) {
             logger.error("build sftp deleter failed:siteId=" + siteId + ",wsName=" + wsName

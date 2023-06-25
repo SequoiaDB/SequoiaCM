@@ -6,6 +6,7 @@ import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.datasource.ScmDatasourceException;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,17 +54,17 @@ public class SftpDataLocation extends ScmLocation {
         return CommonDefine.DataSourceType.SCM_DATASOURCE_TYPE_SFTP_STR;
     }
 
-    public String getFileDir(String wsName, Date createDate) {
+    public String getFileDir(String wsName, Date createDate, String timezone) {
         StringBuilder sb = new StringBuilder();
         sb.append(dataPath).append(wsName).append("/");
         if (shardingType != ScmShardingType.NONE) {
-            sb.append(getShardingStr(shardingType, createDate).toLowerCase()).append("/");
+            sb.append(getShardingStr(shardingType, createDate, timezone).toLowerCase()).append("/");
         }
         return sb.toString();
     }
 
     public String getFilePath(String wsName, Date createDate, String dataId) {
-        return getFileDir(wsName, createDate) + dataId;
+        return getFileDir(wsName, createDate, ScmIdParser.getTimezoneName(dataId)) + dataId;
     }
 
 }

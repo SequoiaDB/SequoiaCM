@@ -13,11 +13,13 @@ import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
 import com.sequoiacm.contentserver.site.ScmContentModule;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.ScmIdGenerator;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.metasource.BatchMetaCursorFillInFileCount;
 import com.sequoiacm.metasource.MetaCursor;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -146,14 +148,14 @@ public class BatchDaoImpl implements IBatchDao {
                 obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
                 obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
                 obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
-                        ScmSystemUtils.getCurrentYearMonth(createDate));
+                        ScmSystemUtils.getCurrentYearMonth(createDate, null));
                 return batchId;
             }
             // 指定ID
             obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
             obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
             obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
-                    ScmSystemUtils.getCurrentYearMonth(createDate));
+                    ScmSystemUtils.getCurrentYearMonth(createDate, null));
             return clientBatchId;
         }
 
@@ -169,20 +171,21 @@ public class BatchDaoImpl implements IBatchDao {
             obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, createDate.getTime());
             obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, createDate.getTime());
             obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
-                    ScmSystemUtils.getCurrentYearMonth(createDate));
+                    ScmSystemUtils.getCurrentYearMonth(createDate,
+                            ScmIdParser.getTimezoneName(batchId)));
             return batchId;
         }
         // 指定 ID
         if (ws.isBatchUseSystemId()) {
             throw new ScmInvalidArgumentException("can not specify batch id:ws=" + ws.getName());
         }
-        Date clientIdDate = ScmSystemUtils.getDateFromCustomBatchId(clientBatchId,
+        LocalDate localDate = ScmSystemUtils.getDateFromCustomBatchId(clientBatchId,
                 ws.getBatchIdTimeRegex(), ws.getBatchIdTimePattern());
-
+        Date clientIdDate = localDate.toDate();
         obj.put(FieldName.Batch.FIELD_INNER_UPDATE_TIME, clientIdDate.getTime());
         obj.put(FieldName.Batch.FIELD_INNER_CREATE_TIME, clientIdDate.getTime());
         obj.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH,
-                ScmSystemUtils.getCurrentYearMonth(clientIdDate));
+                ScmSystemUtils.getCurrentYearMonth(localDate));
         return clientBatchId;
 
     }

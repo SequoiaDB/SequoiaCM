@@ -96,13 +96,18 @@ public class ScmIdGenerator {
         // --------0x 00 00 00 00 | -------------00 | ----------00 00 | -------00 00 00 | 00 00
         // ---seconds(32bits,0~31)| clusterId(8bits)| serverId(16bits)| threadId(24bits)| serial(16bits)
 
-        // new version:clusterId's 6~7 bits for version value(v0:0x00, v1:0x40, v2:0x80, v3:0xC0)
+        // new version:clusterId's 6~7 bits for version value(v0:0x00, v1:0x40, v2:0x80,
+        // v3:0xC0), 4~5 bits for timezone value(0: null,1: Asia/Shanghai)
         // --------0x 00 00 00 00 | -------------C0 | ----------00 00 | ---------------------00 | 00 00 00 00
         // seconds(low32bits,0~31)| clusterId(8bits)| serverId(16bits)| seconds(high8bits,32~39)| serial(32bits)
 
         private static final int ID_VERSION_FLAG = 0xFFFFFFC0;
         private static final int ID_VERSION_1 = 1;
+        private static final int ID_TIMEZONE_1 = 1;
         private static final int ID_VERSION_BIT_WEIGHT = 6;
+        private static final int ID_TIMEZONE_BIT_WEIGHT = 4;
+        // 00110000
+        private static final int ID_TIMEZONE_MASK = 0x30;
         private static final int ID_CLSUTER_FLAG = ~ID_VERSION_FLAG;
 
         // Thu Jan 01 00:00:00 CST 9998
@@ -140,9 +145,11 @@ public class ScmIdGenerator {
             // seconds(0 ~ 31 bits)
             putInt(bb, (int) seconds);
 
-            // highest 2bits is version
-            byte versionClusterId = (byte) (clusterId | (ID_VERSION_1 << ID_VERSION_BIT_WEIGHT));
-            putByte(bb, versionClusterId);
+            // highest 0-1 bits is version, 2-3 bits is timezone, 4-7 bits is clusterId
+            byte versionTimezoneClusterId = (byte) (clusterId
+                    | (ID_TIMEZONE_1 << ID_TIMEZONE_BIT_WEIGHT)
+                    | (ID_VERSION_1 << ID_VERSION_BIT_WEIGHT));
+            putByte(bb, versionTimezoneClusterId);
 
             // serverId
             putShort(bb, contentServerId);
@@ -198,6 +205,7 @@ public class ScmIdGenerator {
             int contentServerid = getShort(bb);
 
             int version = clusterId >> ID_VERSION_BIT_WEIGHT;
+            int timezone = (clusterId & ID_TIMEZONE_MASK) >> ID_TIMEZONE_BIT_WEIGHT;
 
             long seconds = 0;
             int threadId = 0;
@@ -215,7 +223,8 @@ public class ScmIdGenerator {
                 clusterId = clusterId & ID_CLSUTER_FLAG;
             }
 
-            return new ScmParesedId(seconds, clusterId, contentServerid, threadId, serial);
+            return new ScmParesedId(id, seconds, clusterId, contentServerid, threadId, serial,
+                    timezone);
         }
 
         private static String byteArrayToString(byte[] b) {

@@ -2,6 +2,7 @@ package com.sequoiacm.metasource.sequoiadb.accessor;
 
 import java.util.Date;
 
+import com.sequoiacm.infrastructure.common.TimezoneType;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -156,9 +157,9 @@ public class SdbBatchAccessor extends SdbMetaAccessor implements MetaBatchAccess
     }
 
     @Override
-    public void createSubTable(ScmShardingType shardingType, Date createDate)
+    public void createSubTable(ScmShardingType shardingType, String createMonth)
             throws ScmMetasourceException {
-        String shardingStr = CommonHelper.getShardingStr(shardingType, createDate);
+        String shardingStr = CommonHelper.getShardingStr(shardingType, createMonth);
         String subClName = getClName() + "_" + shardingStr;
 
         BSONObject key = new BasicBSONObject(FieldName.Batch.FIELD_ID, 1);
@@ -182,7 +183,7 @@ public class SdbBatchAccessor extends SdbMetaAccessor implements MetaBatchAccess
             SequoiadbHelper.createIndex(sdb, getCsName(), subClName,
                     "idx_" + subClName + "_" + FieldName.Batch.FIELD_ID, indexDef, true, false);
 
-            ScmMonthRange range = CommonHelper.getMonthRange(shardingType, createDate);
+            ScmMonthRange range = CommonHelper.getMonthRange(shardingType, createMonth);
             BSONObject lowb = new BasicBSONObject();
             lowb.put(FieldName.Batch.FIELD_INNER_CREATE_MONTH, range.getLowBound());
             BSONObject upperb = new BasicBSONObject();

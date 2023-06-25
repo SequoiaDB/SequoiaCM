@@ -9,18 +9,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommonHelper {
-    private static SimpleDateFormat ymFullDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-    private static SimpleDateFormat ymdDateFormat = new SimpleDateFormat("yyyyMMdd");
-    private static SimpleDateFormat ymDateFormat = new SimpleDateFormat("yyyyMM");
-    private static SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
-    private static SimpleDateFormat monthDateFormat = new SimpleDateFormat("MM");
+    private static final String YEAR_MONTH_DATE_PATTERN = "yyyyMMdd";
+    private static final String YEAR_MONTH_PATTERN = "yyyyMM";
+    private static final String YEAR_PATTERN = "yyyy";
+    private static final String MONTH_PATTERN = "MM";
     private static Logger logger = LoggerFactory.getLogger(CommonHelper.class);
     public static final String MONTH1 = "01";
     public static final String MONTH3 = "03";
@@ -214,58 +212,49 @@ public class CommonHelper {
         }
     }
 
-    public static String getCurrentYearMonth(Date date) {
-        synchronized (CommonHelper.class) {
-            return ymDateFormat.format(date);
-        }
+    public static String getCurrentYearMonth(Date date, String timezone) {
+        SimpleDateFormat ymDateFormat = createDateFormat(YEAR_MONTH_PATTERN, timezone);
+        return ymDateFormat.format(date);
     }
 
-    public static String getNextYearMonth(Date date) {
-        synchronized (CommonHelper.class) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            calendar.add(Calendar.MONTH, 1);
-            date = calendar.getTime();
-            return ymDateFormat.format(date);
-        }
+    public static String getNextYearMonth(Date date, String timezone) {
+        Calendar calendar = createCalendar(date, timezone);
+        calendar.add(Calendar.MONTH, 1);
+        SimpleDateFormat ymDateFormat = createDateFormat(YEAR_MONTH_PATTERN, timezone);
+        return ymDateFormat.format(calendar.getTime());
     }
 
-    public static String getCurrentMonth(Date date) {
-        synchronized (CommonHelper.class) {
-            return monthDateFormat.format(date);
-        }
+    public static String getCurrentMonth(Date date, String timezone) {
+        SimpleDateFormat monthDateFormat = createDateFormat(MONTH_PATTERN, timezone);
+        return monthDateFormat.format(date);
     }
 
-    public static String getCurrentYear(Date date) {
-        synchronized (CommonHelper.class) {
-            return yearDateFormat.format(date);
-        }
+    public static String getCurrentYear(Date date, String timezone) {
+        SimpleDateFormat yearDateFormat = createDateFormat(YEAR_PATTERN, timezone);
+        return yearDateFormat.format(date);
     }
 
-    public static String getNextYear(Date date) {
-        synchronized (CommonHelper.class) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            calendar.add(Calendar.YEAR, 1);
-            date = calendar.getTime();
-            return yearDateFormat.format(date);
-        }
+    public static String getNextYear(Date date, String timezone) {
+        Calendar calendar = createCalendar(date, timezone);
+        calendar.add(Calendar.YEAR, 1);
+        SimpleDateFormat yearDateFormat = createDateFormat(YEAR_PATTERN, timezone);
+        return yearDateFormat.format(calendar.getTime());
     }
 
-    public static String getShardingStr(ScmShardingType type, Date createDate) {
+    public static String getShardingStr(ScmShardingType type, Date createDate, String timezone) {
         StringBuilder sb = new StringBuilder();
         switch (type) {
             case YEAR:
-                sb.append(CommonHelper.getCurrentYear(createDate));
+                sb.append(CommonHelper.getCurrentYear(createDate, timezone));
                 break;
 
             case MONTH:
-                sb.append(CommonHelper.getCurrentYearMonth(createDate));
+                sb.append(CommonHelper.getCurrentYearMonth(createDate, timezone));
                 break;
 
             case QUARTER:
-                sb.append(CommonHelper.getCurrentYear(createDate));
-                String month = CommonHelper.getCurrentMonth(createDate);
+                sb.append(CommonHelper.getCurrentYear(createDate, timezone));
+                String month = CommonHelper.getCurrentMonth(createDate, timezone);
                 sb.append(CommonHelper.getQuarter(month));
                 break;
 
@@ -276,24 +265,52 @@ public class CommonHelper {
         return sb.toString();
     }
 
-    public static ScmMonthRange getMonthRange(ScmShardingType type, Date createDate) {
+    public static String getShardingStr(ScmShardingType type, String createMonth) {
+        StringBuilder sb = new StringBuilder();
+        switch (type) {
+            case YEAR:
+                sb.append(createMonth, 0, 4);
+                break;
+
+            case MONTH:
+                sb.append(createMonth);
+                break;
+
+            case QUARTER:
+                sb.append(createMonth, 0, 4);
+                String month = createMonth.substring(4, 6);
+                sb.append(CommonHelper.getQuarter(month));
+                break;
+
+            default:
+                // default do nothing
+                break;
+        }
+        return sb.toString();
+    }
+
+    public static ScmMonthRange getMonthRange(ScmShardingType type, Date createDate,
+            String timezone) {
         String lowYearMonth;
         String upperYearMonth;
 
         switch (type) {
             case YEAR:
-                lowYearMonth = CommonHelper.getCurrentYear(createDate) + CommonHelper.MONTH1;
-                upperYearMonth = CommonHelper.getNextYear(createDate) + CommonHelper.MONTH1;
+                lowYearMonth = CommonHelper.getCurrentYear(createDate, timezone)
+                        + CommonHelper.MONTH1;
+                upperYearMonth = CommonHelper.getNextYear(createDate, timezone)
+                        + CommonHelper.MONTH1;
                 break;
 
             case MONTH:
-                lowYearMonth = CommonHelper.getCurrentYearMonth(createDate);
-                upperYearMonth = CommonHelper.getNextYearMonth(createDate);
+                lowYearMonth = CommonHelper.getCurrentYearMonth(createDate, timezone);
+                upperYearMonth = CommonHelper.getNextYearMonth(createDate, timezone);
                 break;
 
             default:
-                String year = CommonHelper.getCurrentYear(createDate);
-                String quarter = CommonHelper.getQuarter(CommonHelper.getCurrentMonth(createDate));
+                String year = CommonHelper.getCurrentYear(createDate, timezone);
+                String quarter = CommonHelper
+                        .getQuarter(CommonHelper.getCurrentMonth(createDate, timezone));
 
                 if (quarter.equals(CommonHelper.QUARTER1)) {
                     lowYearMonth = year + CommonHelper.MONTH1;
@@ -311,7 +328,7 @@ public class CommonHelper {
                     // QUARTER4
                     lowYearMonth = year + CommonHelper.MONTH10;
 
-                    String nextYear = CommonHelper.getNextYear(createDate);
+                    String nextYear = CommonHelper.getNextYear(createDate, timezone);
                     upperYearMonth = nextYear + CommonHelper.MONTH1;
                 }
                 break;
@@ -319,25 +336,86 @@ public class CommonHelper {
         return new ScmMonthRange(lowYearMonth, upperYearMonth);
     }
 
-    public static String getCurrentDay(Date date) {
-        synchronized (CommonHelper.class) {
-            return ymdDateFormat.format(date);
+    public static ScmMonthRange getMonthRange(ScmShardingType type, String createMonth) {
+        String lowYearMonth;
+        String upperYearMonth;
+
+        switch (type) {
+            case YEAR:
+                int currentYear = Integer.parseInt(createMonth.substring(0, 4));
+                lowYearMonth = currentYear + CommonHelper.MONTH1;
+                upperYearMonth = (currentYear + 1) + CommonHelper.MONTH1;
+                break;
+
+            case MONTH:
+                lowYearMonth = createMonth;
+                upperYearMonth = CommonHelper.getNextYearMonth(createMonth);
+                break;
+
+            default:
+                int year = Integer.parseInt(createMonth.substring(0, 4));
+                String quarter = CommonHelper.getQuarter(createMonth.substring(4, 6));
+
+                if (quarter.equals(CommonHelper.QUARTER1)) {
+                    lowYearMonth = year + CommonHelper.MONTH1;
+                    upperYearMonth = year + CommonHelper.MONTH4;
+                }
+                else if (quarter.equals(CommonHelper.QUARTER2)) {
+                    lowYearMonth = year + CommonHelper.MONTH4;
+                    upperYearMonth = year + CommonHelper.MONTH7;
+                }
+                else if (quarter.equals(CommonHelper.QUARTER3)) {
+                    lowYearMonth = year + CommonHelper.MONTH7;
+                    upperYearMonth = year + CommonHelper.MONTH10;
+                }
+                else {
+                    // QUARTER4
+                    lowYearMonth = year + CommonHelper.MONTH10;
+                    upperYearMonth = (year + 1) + CommonHelper.MONTH1;
+                }
+                break;
         }
+        return new ScmMonthRange(lowYearMonth, upperYearMonth);
+    }
+
+    private static String getNextYearMonth(String createMonth) {
+        int currentYear = Integer.parseInt(createMonth.substring(0, 4));
+        int currentMonth = Integer.parseInt(createMonth.substring(4, 6));
+        if (currentMonth == 12) {
+            return (currentYear + 1) + CommonHelper.MONTH1;
+        }
+        else {
+            return currentYear + "" + (currentMonth + 1);
+        }
+    }
+
+    public static String getCurrentDay(Date date, String timezone) {
+        SimpleDateFormat ymdDateFormat = createDateFormat(YEAR_MONTH_DATE_PATTERN, timezone);
+        return ymdDateFormat.format(date);
+    }
+
+    private static SimpleDateFormat createDateFormat(String pattern, String timezone) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        if (timezone != null) {
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+        }
+        return simpleDateFormat;
+    }
+
+    private static Calendar createCalendar(Date date, String timezone) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        if (timezone != null) {
+            calendar.setTimeZone(TimeZone.getTimeZone(timezone));
+        }
+        return calendar;
     }
 
     public static String getDateBeforeDays(Date date, int days) {
-        synchronized (CommonHelper.class) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            calendar.add(Calendar.DAY_OF_MONTH, -Math.abs(days));
-            return ymdDateFormat.format(calendar.getTime());
-        }
-    }
-
-    public static String getFullDateStr(Date date) {
-        synchronized (CommonHelper.class) {
-            return ymFullDateFormat.format(date);
-        }
+        Calendar calendar = createCalendar(date, null);
+        calendar.add(Calendar.DAY_OF_MONTH, -Math.abs(days));
+        SimpleDateFormat ymdDateFormat = createDateFormat(YEAR_MONTH_DATE_PATTERN, null);
+        return ymdDateFormat.format(calendar.getTime());
     }
 
     public static Date getDate(long date) {

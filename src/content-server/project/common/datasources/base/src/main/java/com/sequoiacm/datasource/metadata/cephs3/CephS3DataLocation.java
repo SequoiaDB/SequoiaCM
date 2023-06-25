@@ -97,7 +97,7 @@ public class CephS3DataLocation extends ScmLocation {
      * "my-.bucket.com" and "my.-bucket" are invalid)
      * Bucket names cannot contain uppercase characters
      **/
-    public String getBucketName(String wsName, Date createDate) {
+    public String getBucketName(String wsName, Date createDate, String timezone) {
         if (bucketName != null && !bucketName.isEmpty()) {
             return bucketName;
         }
@@ -109,20 +109,21 @@ public class CephS3DataLocation extends ScmLocation {
             sb.append(CephS3MetaDefine.DefaultValue.S3_BUCKETNAME_EXTRA);
             if (shardingType != ScmShardingType.NONE) {
                 sb.append("-");
-                sb.append(getShardingStr(shardingType, createDate).toLowerCase());
+                sb.append(getShardingStr(shardingType, createDate, timezone).toLowerCase());
             }
         }
         else {
             // use custom prefix
             sb.append(prefixBucketName);
-            sb.append(getShardingStr(shardingType, createDate).toLowerCase());
+            sb.append(getShardingStr(shardingType, createDate, timezone).toLowerCase());
         }
         return sb.toString();
     }
 
-    public String getObjectId(String dataId, String wsName, Date createTime) {
+    public String getObjectId(String dataId, String wsName, Date createTime, String timezone) {
         if (objectShardingType != null && objectShardingType != ScmShardingType.NONE) {
-            return wsName + "/" + getShardingStr(objectShardingType, createTime) + "/" + dataId;
+            return wsName + "/" + getShardingStr(objectShardingType, createTime, timezone) + "/"
+                    + dataId;
         }
         else {
             return dataId;

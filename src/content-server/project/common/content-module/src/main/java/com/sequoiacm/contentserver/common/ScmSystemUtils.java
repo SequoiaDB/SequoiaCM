@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +20,9 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
 import org.bson.BSONObject;
-import org.bson.types.BSONTimestamp;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,36 +44,8 @@ public class ScmSystemUtils {
     private static final Logger logger = LoggerFactory.getLogger(ScmSystemUtils.class);
     private static byte[] garbageBuffer = new byte[512 * 1024];
 
-    public static String getFullDateStr(Date date) {
-        return CommonHelper.getFullDateStr(date);
-    }
-
-    public static Date getDate(long date) {
-        return CommonHelper.getDate(date);
-    }
-
-    public static Date getDate(BSONTimestamp ts) {
-        return CommonHelper.getDate(ts);
-    }
-
-    public static String getCurrentYearMonth(Date date) {
-        return CommonHelper.getCurrentYearMonth(date);
-    }
-
-    public static String getNextYearMonth(Date date) {
-        return CommonHelper.getNextYearMonth(date);
-    }
-
-    public static String getCurrentMonth(Date date) {
-        return CommonHelper.getCurrentMonth(date);
-    }
-
-    public static String getCurrentYear(Date date) {
-        return CommonHelper.getCurrentYear(date);
-    }
-
-    public static String getNextYear(Date date) {
-        return CommonHelper.getNextYear(date);
+    public static String getCurrentYearMonth(Date date, String timezone) {
+        return CommonHelper.getCurrentYearMonth(date, timezone);
     }
 
     public static String getHostName() {
@@ -456,7 +429,7 @@ public class ScmSystemUtils {
         return DatatypeConverter.printBase64Binary(md5Bytes);
     }
 
-    public static Date getDateFromCustomBatchId(String batchId, String idTimeRegex,
+    public static LocalDate getDateFromCustomBatchId(String batchId, String idTimeRegex,
             String idTimePattern) throws ScmServerException {
         Pattern p = Pattern.compile(idTimeRegex);
         Matcher m = p.matcher(batchId);
@@ -467,14 +440,21 @@ public class ScmSystemUtils {
         }
         try {
             String timeStr = m.group();
-            SimpleDateFormat sdfDate = new SimpleDateFormat(idTimePattern);
-            return sdfDate.parse(timeStr);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(idTimePattern);
+            return LocalDate.parse(timeStr, dateTimeFormatter);
         }
         catch (Exception e) {
             throw new ScmServerException(ScmError.INVALID_ID,
                     "failed to parse batch id, can not format time:batchId=" + batchId
                             + ", timePattern=" + idTimePattern);
         }
+    }
+
+    public static String getCurrentYearMonth(LocalDate date) {
+        int year = date.getYear();
+        int month = date.getMonthOfYear();
+        String monthStr = month < 10 ? "0" + month : "" + month;
+        return year + monthStr;
     }
 
     public static String getCreateMonthFromBatchId(ScmWorkspaceInfo ws, String batchId)
@@ -484,7 +464,7 @@ public class ScmSystemUtils {
         }
         try {
             if (!ws.isBatchUseSystemId()) {
-                Date date = getDateFromCustomBatchId(batchId, ws.getBatchIdTimeRegex(),
+                LocalDate date = getDateFromCustomBatchId(batchId, ws.getBatchIdTimeRegex(),
                         ws.getBatchIdTimePattern());
                 return getCurrentYearMonth(date);
             }

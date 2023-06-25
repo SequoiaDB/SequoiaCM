@@ -1,5 +1,6 @@
 package com.sequoiacm.hdfs.dataoperation;
 
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.common.annotation.SlowLog;
 import com.sequoiacm.infrastructure.common.annotation.SlowLogExtra;
 import org.apache.hadoop.fs.FileSystem;
@@ -26,7 +27,7 @@ public class HdfsDataDeleterImpl implements ScmDataDeletor {
                     throws HdfsException {
         try {
             this.filePath = dataLocation.getFileDir(wsName, dataInfo.getCreateTime(),
-                    dataInfo.getId());
+                    dataInfo.getId(), ScmIdParser.getTimezoneName(dataInfo.getId()));
             this.dataService = (HdfsDataService) service;
             this.fileSystem = dataService.getFileSystem();
         }

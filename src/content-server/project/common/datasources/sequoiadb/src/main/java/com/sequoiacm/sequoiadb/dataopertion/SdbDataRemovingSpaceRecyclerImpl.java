@@ -9,6 +9,7 @@ import com.sequoiacm.datasource.dataoperation.ScmSpaceRecyclingInfo;
 import com.sequoiacm.datasource.metadata.ScmLocation;
 import com.sequoiacm.datasource.metadata.sequoiadb.SdbDataLocation;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import com.sequoiacm.infrastructure.lock.ScmLockManager;
 import com.sequoiacm.metasource.MetaSource;
 import com.sequoiacm.sequoiadb.common.CommonDefine;
@@ -56,11 +57,13 @@ public class SdbDataRemovingSpaceRecyclerImpl implements ScmDataRemovingSpaceRec
     public void notifyFileDataRemoving(BSONObject fileInfo) {
         long dataCreateTime = BsonUtils.getLong(fileInfo,
                 FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
+        String dataId = BsonUtils.getString(fileInfo, FieldName.FIELD_CLFILE_FILE_DATA_ID);
         Map<Integer, ScmFileLocation> fileLocationMap = CommonHelper.getFileLocationList(BsonUtils.getArray(fileInfo, FieldName.FIELD_CLFILE_FILE_SITE_LIST));
         ScmLocation location = locations
                 .get(fileLocationMap.get(service.getSiteId()).getWsVersion());
         if (location != null) {
-            String csName = ((SdbDataLocation) location).getDataCsName(wsName, new Date(dataCreateTime));
+            String csName = ((SdbDataLocation) location).getDataCsName(wsName,
+                    new Date(dataCreateTime), ScmIdParser.getTimezoneName(dataId));
             ScmSpacePartitionInfo partitionInfo = new ScmSpacePartitionInfo(csName);
             if (!partitionInfoList.contains(partitionInfo)) {
                 partitionInfoList.add(partitionInfo);

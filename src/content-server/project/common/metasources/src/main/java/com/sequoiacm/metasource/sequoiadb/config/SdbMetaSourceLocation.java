@@ -101,8 +101,8 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
         }
     }
 
-    public SdbClFileInfo getClFileInfo(String mainClName, Date createDate) {
-        String shardingStr = CommonHelper.getShardingStr(clShardingType, createDate);
+    public SdbClFileInfo getClFileInfo(String mainClName, Date createDate, String timezone) {
+        String shardingStr = CommonHelper.getShardingStr(clShardingType, createDate, timezone);
 
         StringBuilder sb = new StringBuilder();
         sb.append(mainClName);
@@ -116,7 +116,7 @@ public class SdbMetaSourceLocation implements MetaSourceLocation {
 
         SdbClFileInfo metaInfo = new SdbClFileInfo(sb.toString(), sbHistory.toString(), "", "",
                 clOptions);
-        ScmMonthRange range = CommonHelper.getMonthRange(clShardingType, createDate);
+        ScmMonthRange range = CommonHelper.getMonthRange(clShardingType, createDate, timezone);
         metaInfo.setLowMonth(range.getLowBound());
         metaInfo.setUpperMonth(range.getUpBound());
         return metaInfo;

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,9 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
             ScmService service, ScmDataInfo dataInfo) throws SequoiadbException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
-            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime());
-            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime());
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
+            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime(), timezone);
+            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime(), timezone);
             return new SdbDataWriterImpl(siteId, location, service, metaSource, csName, clName,
                     wsName, dataInfo.getType(), dataInfo.getId(), lockManager);
         }
@@ -63,8 +65,9 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
             ScmService service, ScmDataInfo dataInfo) throws SequoiadbException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
-            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime());
-            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime());
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
+            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime(), timezone);
+            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime(), timezone);
             return new SdbDataReaderImpl(siteId, location.getSiteName(), csName, clName, wsName,
                     dataInfo.getType(), dataInfo.getId(), service, metaSource, lockManager);
         }
@@ -86,8 +89,9 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
             ScmService service, ScmDataInfo dataInfo) throws SequoiadbException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
-            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime());
-            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime());
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
+            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime(), timezone);
+            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime(), timezone);
             return new SdbDataDeletorImpl(siteId, location.getSiteName(), csName, clName, wsName,
                     dataInfo.getId(), service, metaSource, lockManager);
         }
@@ -111,8 +115,9 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
             throws SequoiadbException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
-            String csName = sdbLocation.getDataCsName(wsName, createTime);
-            String clName = sdbLocation.getDataClName(createTime);
+            String timezone = ScmIdParser.getTimezoneName(dataId);
+            String csName = sdbLocation.getDataCsName(wsName, createTime, timezone);
+            String clName = sdbLocation.getDataClName(createTime, timezone);
             return new SdbBreakpointDataWriter(sdbLocation, (SdbDataService) service, metaSource,
                     csName, clName, wsName, dataId, createData, writeOffset, lockManager);
         }
@@ -136,8 +141,9 @@ public class SdbDataOpFactoryImpl implements ScmDataOpFactory {
             long writeOffset, BSONObject extraContext) throws ScmDatasourceException {
         try {
             SdbDataLocation sdbLocation = (SdbDataLocation) location;
-            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime());
-            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime());
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
+            String csName = sdbLocation.getDataCsName(wsName, dataInfo.getCreateTime(), timezone);
+            String clName = sdbLocation.getDataClName(dataInfo.getCreateTime(), timezone);
             return new SdbSeekableDataWriter(sdbLocation, (SdbDataService) service, metaSource,
                     csName, clName, wsName, dataInfo.getId(), createData, writeOffset, lockManager);
         }

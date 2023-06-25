@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
             throws ScmDatasourceException {
         CephS3DataLocation dataLocation = (CephS3DataLocation) location;
 
+        String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
         BucketNameOption bucketNameOption;
         if (!Strings.isNullOrEmpty(dataLocation.getUserBucketName())) {
             bucketNameOption = BucketNameOption
@@ -52,12 +54,13 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
         }
         else {
             bucketNameOption = BucketNameOption.ruleBucketNameOption(wsName,
-                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime()));
+                    dataLocation.getBucketName(wsName, dataInfo.getCreateTime(), timezone));
         }
 
         try {
             return new CephS3DataWriterImpl(bucketNameOption,
-                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime(),
+                            timezone),
                     service, wsName, dataLocation, siteId, writerContext);
         }
         catch (CephS3Exception e) {
@@ -91,11 +94,13 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephS3DataLocation dataLocation = (CephS3DataLocation) location;
             String bucketName = dataInfo.getTableName();
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
             if (Strings.isNullOrEmpty(bucketName)) {
-                bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime());
+                bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime(), timezone);
             }
             return new CephS3DataReaderImpl(bucketName,
-                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime(),
+                            timezone),
                     service, dataLocation);
         }
         catch (CephS3Exception e) {
@@ -117,11 +122,13 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephS3DataLocation dataLocation = (CephS3DataLocation) location;
             String bucketName = dataInfo.getTableName();
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
             if (Strings.isNullOrEmpty(bucketName)) {
-                bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime());
+                bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime(), timezone);
             }
             return new CephS3DataDeletorImpl(bucketName,
-                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime(),
+                            timezone),
                     service, dataLocation);
         }
         catch (CephS3Exception e) {
@@ -144,16 +151,18 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
             throws ScmDatasourceException {
         CephS3DataLocation dataLocation = (CephS3DataLocation) location;
         BucketNameOption bucketNameOption;
+        String timezone = ScmIdParser.getTimezoneName(dataId);
         if (!Strings.isNullOrEmpty(dataLocation.getUserBucketName())) {
             bucketNameOption = BucketNameOption
                     .fixedBucketNameOption(dataLocation.getUserBucketName());
         }
         else {
             bucketNameOption = BucketNameOption
-                    .ruleBucketNameOption(wsName, dataLocation.getBucketName(wsName, createTime));
+                    .ruleBucketNameOption(wsName,
+                            dataLocation.getBucketName(wsName, createTime, timezone));
         }
         return new CephS3BreakpointDataWriter(bucketNameOption,
-                dataLocation.getObjectId(dataId, wsName, createTime),
+                dataLocation.getObjectId(dataId, wsName, createTime, timezone),
                 new CephS3BreakpointFileContext(extraContext), service, writeOffset, dataLocation,
                 wsName, writerContext);
     }
@@ -206,11 +215,13 @@ public class CephS3DataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephS3DataLocation dataLocation = (CephS3DataLocation) location;
             String bucketName = dataInfo.getTableName();
+            String timezone = ScmIdParser.getTimezoneName(dataInfo.getId());
             if (Strings.isNullOrEmpty(bucketName)) {
-                bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime());
+                bucketName = dataLocation.getBucketName(wsName, dataInfo.getCreateTime(), timezone);
             }
             return new CephS3DataInfoFetcher(bucketName,
-                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime()),
+                    dataLocation.getObjectId(dataInfo.getId(), wsName, dataInfo.getCreateTime(),
+                            timezone),
                     service, dataLocation);
         }
         catch (CephS3Exception e) {

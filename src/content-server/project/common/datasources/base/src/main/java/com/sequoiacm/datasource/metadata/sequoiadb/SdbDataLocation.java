@@ -97,8 +97,8 @@ public class SdbDataLocation extends SdbLocation {
         }
     }
 
-    public String getDataCsName(String wsName, Date createDate) {
-        return getDataCsName(wsName, getShardingStr(csShardingType, createDate));
+    public String getDataCsName(String wsName, Date createDate, String timezone) {
+        return getDataCsName(wsName, getShardingStr(csShardingType, createDate, timezone));
     }
 
     public String getDataCsName(String wsName, String shardingStr) {
@@ -116,19 +116,15 @@ public class SdbDataLocation extends SdbLocation {
         return csShardingType;
     }
 
-    public String getDataClName(Date createDate) {
+    public String getDataClName(Date createDate, String timezone) {
         StringBuilder sb = new StringBuilder();
         sb.append(SdbMetaDefine.CL_LOB);
         if (clShardingType != ScmShardingType.NONE) {
             sb.append("_");
-            sb.append(getShardingStr(clShardingType, createDate));
+            sb.append(getShardingStr(clShardingType, createDate, timezone));
         }
 
         return sb.toString();
-    }
-
-    public String getCsShardingStr(Date createDate) {
-        return super.getShardingStr(csShardingType, createDate);
     }
 
     @Override

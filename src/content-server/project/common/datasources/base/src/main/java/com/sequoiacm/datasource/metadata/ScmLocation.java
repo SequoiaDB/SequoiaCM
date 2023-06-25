@@ -52,25 +52,25 @@ public abstract class ScmLocation {
         }
     }
 
-    protected String getShardingStr(ScmShardingType type, Date createDate) {
+    protected String getShardingStr(ScmShardingType type, Date createDate, String timezone) {
         StringBuilder sb = new StringBuilder();
         switch (type) {
             case YEAR:
-                sb.append(CommonHelper.getCurrentYear(createDate));
+                sb.append(CommonHelper.getCurrentYear(createDate, timezone));
                 break;
 
             case MONTH:
-                sb.append(CommonHelper.getCurrentYearMonth(createDate));
+                sb.append(CommonHelper.getCurrentYearMonth(createDate, timezone));
                 break;
 
             case QUARTER:
-                sb.append(CommonHelper.getCurrentYear(createDate));
-                String month = CommonHelper.getCurrentMonth(createDate);
+                sb.append(CommonHelper.getCurrentYear(createDate, timezone));
+                String month = CommonHelper.getCurrentMonth(createDate, timezone);
                 sb.append(CommonHelper.getQuarter(month));
                 break;
 
             case DAY:
-                sb.append(CommonHelper.getCurrentDay(createDate));
+                sb.append(CommonHelper.getCurrentDay(createDate, timezone));
                 break;
 
             default:

@@ -392,7 +392,7 @@ public class FileController {
     // statistical traffic
     private void incrementTraffic(String namePrefix) {
         Date today = new Date();
-        metricServices.increment(namePrefix + "." + CommonHelper.getCurrentDay(today));
+        metricServices.increment(namePrefix + "." + CommonHelper.getCurrentDay(today, null));
         // remove 30 days ago records
         metricServices.reset(namePrefix + "." + CommonHelper.getDateBeforeDays(today, 30));
     }

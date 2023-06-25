@@ -3,6 +3,7 @@ package com.sequoiacm.cephswift.dataoperation;
 import java.util.Date;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,8 @@ public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephSwiftDataLocation dataLocation = (CephSwiftDataLocation) location;
             return new CephSwiftDataWriterImpl(
-                    dataLocation.getContainerName(wsName, dataInfo.getCreateTime()),
+                    dataLocation.getContainerName(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
                     dataInfo.getId(), service);
         }
         catch (CephSwiftException e) {
@@ -54,7 +56,8 @@ public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephSwiftDataLocation dataLocation = (CephSwiftDataLocation) location;
             return new CephSwiftDataReaderImpl(
-                    dataLocation.getContainerName(wsName, dataInfo.getCreateTime()),
+                    dataLocation.getContainerName(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
                     dataInfo.getId(), service);
         }
         catch (CephSwiftException e) {
@@ -76,7 +79,8 @@ public class CephSwiftDataOpFactoryImpl implements ScmDataOpFactory {
         try {
             CephSwiftDataLocation dataLocation = (CephSwiftDataLocation) location;
             return new CephSwiftDataDeletorImpl(
-                    dataLocation.getContainerName(wsName, dataInfo.getCreateTime()),
+                    dataLocation.getContainerName(wsName, dataInfo.getCreateTime(),
+                            ScmIdParser.getTimezoneName(dataInfo.getId())),
                     dataInfo.getId(), service);
         }
         catch (CephSwiftException e) {

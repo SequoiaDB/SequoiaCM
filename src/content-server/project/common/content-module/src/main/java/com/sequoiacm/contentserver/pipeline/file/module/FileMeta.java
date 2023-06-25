@@ -9,7 +9,6 @@ import com.sequoiacm.contentserver.common.ScmFileOperateUtils;
 import com.sequoiacm.contentserver.common.ServiceDefine;
 import com.sequoiacm.contentserver.dao.ScmFileVersionHelper;
 import com.sequoiacm.contentserver.exception.ScmInvalidArgumentException;
-import com.sequoiacm.contentserver.exception.ScmSystemException;
 import com.sequoiacm.contentserver.metadata.MetaDataManager;
 import com.sequoiacm.contentserver.model.ScmBucket;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -18,6 +17,7 @@ import com.sequoiacm.datasource.dataoperation.ENDataType;
 import com.sequoiacm.exception.ScmServerException;
 import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.common.ScmIdParser;
+import com.sequoiacm.infrastructure.common.TimezoneType;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -293,7 +293,8 @@ public abstract class FileMeta implements Cloneable {
         this.id = id;
         this.createTime = idGenDate.getTime();
         this.updateTime = this.createTime;
-        this.createMonth = ScmSystemUtils.getCurrentYearMonth(idGenDate);
+        this.createMonth = ScmSystemUtils.getCurrentYearMonth(idGenDate,
+                ScmIdParser.getTimezoneName(id));
     }
 
     public void resetDataInfo(String dataId, long dataCreateTime, int dataType, long dataSize,
@@ -633,7 +634,6 @@ public abstract class FileMeta implements Cloneable {
                                     + new Date(fileCreateTime.longValue()));
                 }
             }
-            this.setCreateMonth(ScmSystemUtils.getCurrentYearMonth(new Date(this.getCreateTime())));
         }
 
         this.setUpdateUser(user);

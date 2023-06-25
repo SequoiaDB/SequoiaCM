@@ -9,6 +9,7 @@ import java.util.Map;
 import com.google.common.base.Strings;
 import com.sequoiacm.datasource.metadata.sftp.SftpDataLocation;
 import com.sequoiacm.exception.ScmServerException;
+import com.sequoiacm.infrastructure.common.ScmIdParser;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.bson.types.BasicBSONList;
@@ -43,8 +44,9 @@ public class ScmContentLocationResolver {
                 contentLocation.put(FieldName.ContentLocation.FIELD_SITE, siteId);
 
                 SdbDataLocation sdbDataLocation = (SdbDataLocation) scmLocation;
-                String cl = sdbDataLocation.getDataClName(createTime);
-                String cs = sdbDataLocation.getDataCsName(wsInfo.getName(), createTime);
+                String timezone = ScmIdParser.getTimezoneName(dataId);
+                String cl = sdbDataLocation.getDataClName(createTime, timezone);
+                String cs = sdbDataLocation.getDataCsName(wsInfo.getName(), createTime, timezone);
                 contentLocation.put(FieldName.ContentLocation.FIELD_CL, cl);
                 contentLocation.put(FieldName.ContentLocation.FIELD_CS, cs);
                 contentLocation.put(FieldName.ContentLocation.FIELD_LOB_ID, dataId);
@@ -69,11 +71,13 @@ public class ScmContentLocationResolver {
 
                 ScmLocation scmLocation = wsInfo.getSiteDataLocation(siteId, ws_version);
                 CephS3DataLocation cephS3DataLocation = (CephS3DataLocation) scmLocation;
+                String timezone = ScmIdParser.getTimezoneName(dataId);
                 String objectId = cephS3DataLocation.getObjectId(dataId, wsInfo.getName(),
-                        createTime);
+                        createTime, timezone);
                 String bucketName = tableName;
                 if (Strings.isNullOrEmpty(tableName)) {
-                    bucketName = cephS3DataLocation.getBucketName(wsInfo.getName(), createTime);
+                    bucketName = cephS3DataLocation.getBucketName(wsInfo.getName(), createTime,
+                            timezone);
                 }
                 contentLocation.put(FieldName.ContentLocation.FIELD_OBJECT_ID, objectId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_BUCKET, bucketName);
@@ -97,7 +101,7 @@ public class ScmContentLocationResolver {
                 ScmLocation scmLocation = wsInfo.getSiteDataLocation(siteId, ws_version);
                 CephSwiftDataLocation cephSwiftDataLocation = (CephSwiftDataLocation) scmLocation;
                 String containerName = cephSwiftDataLocation.getContainerName(wsInfo.getName(),
-                        createTime);
+                        createTime, ScmIdParser.getTimezoneName(dataId));
                 contentLocation.put(FieldName.ContentLocation.FIELD_CONTAINER, containerName);
                 contentLocation.put(FieldName.ContentLocation.FIELD_OBJECT_ID, dataId);
                 contentLocation.put(FieldName.ContentLocation.FIELD_URLS,
@@ -120,7 +124,7 @@ public class ScmContentLocationResolver {
                 ScmLocation scmLocation = wsInfo.getSiteDataLocation(siteId, ws_version);
                 HbaseDataLocation hbaseDataLocation = (HbaseDataLocation) scmLocation;
                 String hbaseTableName = hbaseDataLocation.getTableName(wsInfo.getName(),
-                        createTime);
+                        createTime, ScmIdParser.getTimezoneName(dataId));
                 contentLocation.put(FieldName.ContentLocation.FIELD_TABLE_NAME, hbaseTableName);
                 contentLocation.put(FieldName.ContentLocation.FIELD_FILE_NAME, dataId);
                 HadoopSiteUrl siteUrl = (HadoopSiteUrl) allSite.get(siteId).getDataUrl();
@@ -143,7 +147,8 @@ public class ScmContentLocationResolver {
 
                 ScmLocation scmLocation = wsInfo.getSiteDataLocation(siteId, ws_version);
                 HdfsDataLocation hdfsDataLocation = (HdfsDataLocation) scmLocation;
-                String directory = hdfsDataLocation.getDirectory(wsInfo.getName(), createTime);
+                String directory = hdfsDataLocation.getDirectory(wsInfo.getName(), createTime,
+                        ScmIdParser.getTimezoneName(dataId));
                 contentLocation.put(FieldName.ContentLocation.FIELD_DIRECTORY, directory);
                 contentLocation.put(FieldName.ContentLocation.FIELD_FILE_NAME, dataId);
                 HadoopSiteUrl siteUrl = (HadoopSiteUrl) allSite.get(siteId).getDataUrl();
