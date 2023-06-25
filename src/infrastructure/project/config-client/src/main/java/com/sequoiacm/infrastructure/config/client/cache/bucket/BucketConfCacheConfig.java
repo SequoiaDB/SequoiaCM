@@ -10,6 +10,9 @@ import org.springframework.core.env.Environment;
 @ConfigurationProperties("scm.conf.client.bucket")
 public class BucketConfCacheConfig {
     private Logger logger = LoggerFactory.getLogger(BucketConfCacheConfig.class);
+
+    private static final int FALLBACK_CACHE_LIMIT = 1000;
+
     @ScmRewritableConfMarker
     private int cacheLimit = 1000;
 
@@ -23,9 +26,9 @@ public class BucketConfCacheConfig {
 
     public void setCacheLimit(int cacheLimit) {
         if (cacheLimit < 0) {
-            logger.warn("invalid bucket cache limit:{}, reset to default value:{}", cacheLimit,
-                    this.cacheLimit);
-            return;
+            logger.warn("Invalid cacheLimit value: {}, set to fallback value: {}.", cacheLimit,
+                    FALLBACK_CACHE_LIMIT);
+            cacheLimit = FALLBACK_CACHE_LIMIT;
         }
         this.cacheLimit = cacheLimit;
     }

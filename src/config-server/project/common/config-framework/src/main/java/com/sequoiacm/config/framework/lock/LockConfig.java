@@ -13,6 +13,18 @@ import javax.annotation.PostConstruct;
 @ConfigurationProperties(prefix = "scm.zookeeper")
 public class LockConfig {
     private static final Logger logger = LoggerFactory.getLogger(LockConfig.class);
+
+    private static final long FALLBACK_CLEAN_JOB_PERIOD = 1000 * 60 * 30;
+
+    private static final long FALLBACK_CLEAN_JOB_RESIDUAL_TIME = 180 * 1000;
+
+    private static final int FALLBACK_CORE_CLEAN_THREADS_LOWER_BOUND = 1;
+
+    private static final int FALLBACK_MAX_CLEAN_THREADS_LOWER_BOUND = 1;
+    private static final int FALLBACK_MAX_CLEAN_THREADS_UPPER_BOUND = 30;
+
+    private static final int FALLBACK_CLEAN_QUEUE_SIZE = 10000;
+
     private String urls;
     @ScmRewritableConfMarker
     private long cleanJobPeriod = 1000L * 60 * 30;
@@ -56,9 +68,9 @@ public class LockConfig {
 
     public void setCleanJobPeriod(long cleanJobPeriod) {
         if (cleanJobPeriod <= 1000) {
-            logger.warn("Invalid cleanJobPeriod value: " + cleanJobPeriod
-                    + ", set to default value: " + this.cleanJobPeriod);
-            return;
+            logger.warn("Invalid cleanJobPeriod value: {}, set to fallback value: {}.",
+                    cleanJobPeriod, FALLBACK_CLEAN_JOB_PERIOD);
+            cleanJobPeriod = FALLBACK_CLEAN_JOB_PERIOD;
         }
 
         this.cleanJobPeriod = cleanJobPeriod;
@@ -70,9 +82,9 @@ public class LockConfig {
 
     public void setCleanJobResidualTime(long cleanJobResidualTime) {
         if (cleanJobResidualTime <= 1000) {
-            logger.warn("Invalid cleanJobResidualTime value: " + cleanJobResidualTime
-                    + ", set to default value: " + this.cleanJobResidualTime);
-            return;
+            logger.warn("Invalid cleanJobResidualTime value: {}, set to fallback value: {}.",
+                    cleanJobResidualTime, FALLBACK_CLEAN_JOB_RESIDUAL_TIME);
+            cleanJobResidualTime = FALLBACK_CLEAN_JOB_RESIDUAL_TIME;
         }
 
         this.cleanJobResidualTime = cleanJobResidualTime;
@@ -84,14 +96,14 @@ public class LockConfig {
 
     public void setMaxCleanThreads(int maxCleanThreads) {
         if (maxCleanThreads < 1) {
-            logger.warn("Invalid maxCleanThreads value: " + maxCleanThreads
-                    + ", set to minimum value: " + 1);
-            this.maxCleanThreads = 1;
+            logger.warn("Invalid maxCleanThreads value: {}, set to fallback value: {}.",
+                    maxCleanThreads, FALLBACK_MAX_CLEAN_THREADS_LOWER_BOUND);
+            this.maxCleanThreads = FALLBACK_MAX_CLEAN_THREADS_LOWER_BOUND;
         }
         else if (maxCleanThreads > 30) {
-            logger.warn("Invalid maxCleanThreads value: " + maxCleanThreads
-                    + ", set to maximum value: " + 30);
-            this.maxCleanThreads = 30;
+            logger.warn("Invalid maxCleanThreads value: {}, set to fallback value: {}.",
+                    maxCleanThreads, FALLBACK_MAX_CLEAN_THREADS_UPPER_BOUND);
+            this.maxCleanThreads = FALLBACK_MAX_CLEAN_THREADS_UPPER_BOUND;
         }
         else {
             this.maxCleanThreads = maxCleanThreads;
@@ -103,6 +115,16 @@ public class LockConfig {
     }
 
     public void setCoreCleanThreads(int coreCleanThreads) {
+        if (coreCleanThreads < 0) {
+            logger.warn("Invalid coreCleanThreads value: {}, set to fallback value: {}.",
+                    coreCleanThreads, FALLBACK_CORE_CLEAN_THREADS_LOWER_BOUND);
+            coreCleanThreads = FALLBACK_CORE_CLEAN_THREADS_LOWER_BOUND;
+        }
+        else if (coreCleanThreads > maxCleanThreads) {
+            logger.warn("Invalid coreCleanThreads value: {}, set to fallback value: {}.",
+                    coreCleanThreads, maxCleanThreads);
+            coreCleanThreads = maxCleanThreads;
+        }
         this.coreCleanThreads = coreCleanThreads;
     }
 
@@ -112,9 +134,9 @@ public class LockConfig {
 
     public void setCleanQueueSize(int cleanQueueSize) {
         if (cleanQueueSize < 1) {
-            logger.warn("Invalid cleanQueueSize value: " + cleanQueueSize
-                    + ", set to default value: " + this.cleanQueueSize);
-            return;
+            logger.warn("Invalid cleanQueueSize value: {}, set to fallback value: {}.",
+                    cleanQueueSize, FALLBACK_CLEAN_QUEUE_SIZE);
+            cleanQueueSize = FALLBACK_CLEAN_QUEUE_SIZE;
         }
         this.cleanQueueSize = cleanQueueSize;
     }

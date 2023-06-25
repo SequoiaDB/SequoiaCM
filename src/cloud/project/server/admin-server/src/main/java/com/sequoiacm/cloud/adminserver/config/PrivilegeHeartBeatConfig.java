@@ -12,6 +12,8 @@ import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 public class PrivilegeHeartBeatConfig {
     private static final Logger logger = LoggerFactory.getLogger(PrivilegeHeartBeatConfig.class);
 
+    private static final int FALLBACK_INTERVAL = 10 * 1000;
+
     @ScmRewritableConfMarker
     private int interval = 10 * 1000;
 
@@ -21,9 +23,9 @@ public class PrivilegeHeartBeatConfig {
 
     public void setInterval(int interval) {
         if (interval <= 0) {
-            logger.warn("Invalid interval value: " + interval + ", set to default value: "
-                    + this.interval);
-            return;
+            logger.warn("Invalid interval value: {}, set to fallback value: {}.", interval,
+                    FALLBACK_INTERVAL);
+            interval = FALLBACK_INTERVAL;
         }
         this.interval = interval;
     }

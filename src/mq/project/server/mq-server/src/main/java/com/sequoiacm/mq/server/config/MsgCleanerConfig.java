@@ -28,6 +28,7 @@ public class MsgCleanerConfig {
             logger.warn("scm.mq.msgCleaner.msgCountThreshold is not valid:" + msgCountThreshold
                     + ", reset to 1000");
             this.msgCountThreshold = 1000;
+            return;
         }
         this.msgCountThreshold = msgCountThreshold;
     }

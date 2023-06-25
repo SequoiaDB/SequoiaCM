@@ -18,6 +18,10 @@ public class ScmJobManagerConfig {
     private static final Logger logger = LoggerFactory.getLogger(ScmJobManagerConfig.class);
     private static boolean isInitialized = false;
 
+    private static final int FALLBACK_CORE_SIZE = 8;
+    private static final int FALLBACK_MAX_SIZE = 10;
+    private static final int FALLBACK_QUEUE_SIZE = 5000;
+
     /**
      * shortTimeThreadPool
      */
@@ -74,9 +78,9 @@ public class ScmJobManagerConfig {
 
     public void setCoreSize(int coreSize) {
         if (coreSize < 0) {
-            logger.warn("Invalid coreSize value: " + coreSize + ", set to default value: "
-                    + this.coreSize);
-            return;
+            logger.warn("Invalid coreSize value: {}, set to fallback value: {}.", coreSize,
+                    FALLBACK_CORE_SIZE);
+            coreSize = FALLBACK_CORE_SIZE;
         }
         this.coreSize = coreSize;
     }
@@ -87,9 +91,9 @@ public class ScmJobManagerConfig {
 
     public void setMaxSize(int maxSize) {
         if (maxSize <= 0) {
-            logger.warn("Invalid maxSize value: " + maxSize + ", set to default value: "
-                    + this.maxSize);
-            return;
+            logger.warn("Invalid maxSize value: {}, set to fallback value: {}.", maxSize,
+                    FALLBACK_MAX_SIZE);
+            maxSize = FALLBACK_MAX_SIZE;
         }
         this.maxSize = maxSize;
     }
@@ -100,9 +104,9 @@ public class ScmJobManagerConfig {
 
     public void setQueueSize(int queueSize) {
         if (queueSize <= 0) {
-            logger.warn("Invalid queueSize value: " + queueSize + ", set to default value: "
-                    + this.queueSize);
-            return;
+            logger.warn("Invalid queueSize value: {}, set to fallback value: {}.", queueSize,
+                    FALLBACK_QUEUE_SIZE);
+            queueSize = FALLBACK_QUEUE_SIZE;
         }
         this.queueSize = queueSize;
     }
@@ -163,6 +167,7 @@ public class ScmJobManagerConfig {
             logger.warn("Invalid scheduleTaskThreadPoolQueueSize value: "
                     + scheduleTaskThreadPoolQueueSize + ", set to default value: "
                     + this.scheduleTaskThreadPoolQueueSize);
+            return;
         }
         this.scheduleTaskThreadPoolQueueSize = scheduleTaskThreadPoolQueueSize;
     }
