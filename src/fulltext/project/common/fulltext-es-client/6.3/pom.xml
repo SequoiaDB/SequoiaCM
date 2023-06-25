@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sequoiacm-fulltext</artifactId>
         <groupId>com.sequoiadb</groupId>
-        <version>3.6.1</version>
+        <version>5.6.1</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

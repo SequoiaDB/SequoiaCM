@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.sequoiadb</groupId>
         <artifactId>sequoiacm-config</artifactId>
-        <version>3.6.1</version>
+        <version>5.6.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
