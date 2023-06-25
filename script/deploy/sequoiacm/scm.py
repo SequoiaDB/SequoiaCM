@@ -18,7 +18,7 @@ def run():
     jvmOption += " -Dapplication.properties=" + appPropertiesPath
     jvmOption += " -Dcommon.basePath=" + rootDir
     
-    jarParent = rootDir + "sequoiacm-deploy" + os.sep + "bin" + os.sep
+    jarParent = rootDir + "sequoiacm-deploy" + os.sep + "jars" + os.sep
     jarFile = None
     files = os.listdir(jarParent)
     for file in files:
