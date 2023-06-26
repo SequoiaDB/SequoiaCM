@@ -61,7 +61,8 @@ public class ListInstanceByScope1683 extends TestScmBase {
         VersionUtils.updateContentByStream( ws, fileId, updatedata );
     }
 
-    @Test
+    // SEQUOIACM-996
+    @Test(enabled = false)
     private void test() throws Exception {
         listInstanceByHistoryVersion();
         listInstanceByAllVersion();

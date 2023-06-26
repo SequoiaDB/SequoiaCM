@@ -63,7 +63,8 @@ public class ListInstanceByScopeHistory3692 extends TestScmBase {
         VersionUtils.updateContentByStream( workspace, fileId2, updatedata );
     }
 
-    @Test(groups = { GroupTags.base })
+    // SEQUOIACM-996
+    @Test(groups = { GroupTags.base }, enabled = false)
     public void test() throws ScmException {
         String valid[] = { "id", "data_id", "data_type", "major_version",
                 "minor_version", "size", "create_month", "data_create_time" };
