@@ -3,6 +3,11 @@ package com.sequoiacm.om.omserver.session;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.infrastructure.common.timer.ScmTimer;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -20,19 +25,49 @@ import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.om.omserver.config.ScmOmServerConfig;
 import com.sequoiacm.om.omserver.exception.ScmInternalException;
 
+import javax.annotation.PreDestroy;
+
 @Component
 public class ScmOmSessionFactoryImpl implements ScmOmSessionFactory {
 
+    private static final Logger logger = LoggerFactory.getLogger(ScmOmSessionFactoryImpl.class);
+    private ScmTimer asyncInitSessionTimer;
     private ScmDriverConnectionFactory connectionFactory;
-    private boolean isDocked = false;
+    private volatile boolean isDocked = false;
 
     @Autowired
-    public ScmOmSessionFactoryImpl(ScmOmServerConfig omServerConfig) throws ScmInternalException {
+    public ScmOmSessionFactoryImpl(ScmOmServerConfig omServerConfig) {
         if (omServerConfig.getGateway() != null && omServerConfig.getGateway().size() > 0) {
-            reinit(omServerConfig.getGateway(), omServerConfig.getReadTimeout(),
-                    omServerConfig.getRegion(), omServerConfig.getZone());
-            isDocked = true;
+            try {
+                reinit(omServerConfig.getGateway(), omServerConfig.getReadTimeout(),
+                        omServerConfig.getRegion(), omServerConfig.getZone());
+            }
+            catch (ScmInternalException e) {
+                logger.warn("failed to initialize ScmOmSessionFactory, retry later: ", e);
+                asyncReInit(this, omServerConfig, 5000);
+            }
         }
+    }
+
+    private void asyncReInit(final ScmOmSessionFactoryImpl omSessionFactory,
+            final ScmOmServerConfig omServerConfig, int interval) {
+        if (asyncInitSessionTimer == null) {
+            asyncInitSessionTimer = ScmTimerFactory.createScmTimer();
+        }
+        asyncInitSessionTimer.schedule(new ScmTimerTask() {
+            @Override
+            public void run() {
+                try {
+                    omSessionFactory.reinit(omServerConfig.getGateway(),
+                            omServerConfig.getReadTimeout(), omServerConfig.getRegion(),
+                            omServerConfig.getZone());
+                    cancel();
+                }
+                catch (Exception e) {
+                    logger.warn("failed to initialize om session factory: ", e);
+                }
+            }
+        }, interval, interval);
     }
 
     @Override
@@ -152,4 +187,10 @@ public class ScmOmSessionFactoryImpl implements ScmOmSessionFactory {
         }
     }
 
+    @PreDestroy
+    private void destroy() {
+        if (asyncInitSessionTimer != null) {
+            asyncInitSessionTimer.cancel();
+        }
+    }
 }

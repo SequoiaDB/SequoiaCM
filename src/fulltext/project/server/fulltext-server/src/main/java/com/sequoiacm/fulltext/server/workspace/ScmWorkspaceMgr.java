@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.sequoiacm.infrastructure.common.timer.ScmTimer;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
+import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 import com.sequoiacm.infrastructure.config.core.common.EventType;
 import com.sequoiacm.infrastructure.config.core.common.ScmBusinessTypeDefine;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
@@ -25,6 +29,8 @@ import com.sequoiacm.infrastructure.common.BsonUtils;
 import com.sequoiacm.infrastructure.config.core.msg.workspace.WorkspaceConfig;
 import com.sequoiacm.infrastructure.fulltext.common.ScmWorkspaceFulltextExtData;
 
+import javax.annotation.PreDestroy;
+
 @Component
 public class ScmWorkspaceMgr {
     private static final Logger logger = LoggerFactory.getLogger(ScmWorkspaceMgr.class);
@@ -34,16 +40,30 @@ public class ScmWorkspaceMgr {
     @Autowired
     private EsClient esClient;
 
+    private ScmTimer initWorkspaceTimer = null;
+
+    private volatile boolean isInitialized = false;
+
     @Autowired
-    public ScmWorkspaceMgr(ConfServiceClient confClient)
-            throws FullTextException, ScmConfigException {
+    public ScmWorkspaceMgr(ConfServiceClient confClient) {
         this.confClient = confClient;
-        confClient.subscribe(ScmBusinessTypeDefine.WORKSPACE, this::noWsNotify);
+        try {
+            init();
+        }
+        catch (Exception e) {
+            logger.warn("failed to initialize workspace manager, retry later: ", e);
+            asyncReInit(this, 5000);
+        }
+    }
+
+    private void init() throws FullTextException, ScmConfigException {
         List<WorkspaceConfig> wsList = confClient.getWorkspaceList();
         for (WorkspaceConfig ws : wsList) {
             ScmWorkspaceInfo wsInfo = createWsInfo(ws);
             addWs(wsInfo);
         }
+        confClient.subscribe(ScmBusinessTypeDefine.WORKSPACE, this::noWsNotify);
+        isInitialized = true;
     }
 
     private void noWsNotify(EventType type, String businessName, NotifyOption notification)
@@ -66,6 +86,7 @@ public class ScmWorkspaceMgr {
     }
 
     public List<ScmWorkspaceFulltextExtData> getWorkspaceExtDataList() {
+        checkIsInited();
         ArrayList<ScmWorkspaceFulltextExtData> ret = new ArrayList<>();
         for (ScmWorkspaceInfo ws : wsInfos.values()) {
             ret.add(ws.getExternalData());
@@ -74,12 +95,14 @@ public class ScmWorkspaceMgr {
     }
 
     public Collection<ScmWorkspaceInfo> getWorkspaces() {
+        checkIsInited();
         Collection<ScmWorkspaceInfo> ret = wsInfos.values();
         return Collections.unmodifiableCollection(ret);
     }
 
     // 返回 null 表示工作区不存在
     public ScmWorkspaceFulltextExtData getWorkspaceExtData(String ws) {
+        checkIsInited();
         ScmWorkspaceInfo wsInfo = getWorkspaceInfo(ws);
         if (wsInfo == null) {
             return null;
@@ -88,6 +111,7 @@ public class ScmWorkspaceMgr {
     }
 
     public ScmWorkspaceInfo getWorkspaceInfo(String ws) {
+        checkIsInited();
         return wsInfos.get(ws);
     }
 
@@ -141,5 +165,36 @@ public class ScmWorkspaceMgr {
     void addWs(ScmWorkspaceInfo wsInfo) {
         wsInfos.put(wsInfo.getName(), wsInfo);
 
+    }
+
+    private void checkIsInited() {
+        if (!isInitialized) {
+            throw new IllegalStateException("Workspace info manager is not init yet");
+        }
+    }
+
+    private void asyncReInit(ScmWorkspaceMgr workspaceMgr, int interval) {
+        if (initWorkspaceTimer == null) {
+            initWorkspaceTimer = ScmTimerFactory.createScmTimer();
+        }
+        initWorkspaceTimer.schedule(new ScmTimerTask() {
+            @Override
+            public void run() {
+                try {
+                    workspaceMgr.init();
+                    cancel();
+                }
+                catch (Exception e) {
+                    logger.warn("failed to init workspace manager", e);
+                }
+            }
+        }, interval, interval);
+    }
+
+    @PreDestroy
+    private void destroy() {
+        if (initWorkspaceTimer != null) {
+            initWorkspaceTimer.cancel();
+        }
     }
 }

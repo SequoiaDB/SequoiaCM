@@ -52,12 +52,11 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
 
     @Autowired
     ScmSiteChooserImpl(ScmOmSessionFactory sessionFactory, ScmOmServerConfig omserverConfig,
-            ScmMonitorDaoFactory scmMonitorDaoFactory)
-            throws ScmInternalException, ScmOmServerException {
+            ScmMonitorDaoFactory scmMonitorDaoFactory) {
         this.sessionFactory = sessionFactory;
         this.omserverConfig = omserverConfig;
         this.scmMonitorDaoFactory = scmMonitorDaoFactory;
-        refreshContentServerInstanceInfo();
+        refreshCacheSilence();
         int period = omserverConfig.getCacheRefreshInterval() * 1000;
         this.timer = ScmTimerFactory.createScmTimer();
         this.timer.schedule(new ScmTimerTask() {
@@ -126,7 +125,7 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
     @Override
     public String chooseSiteFromWorkspace(OmWorkspaceDetail ws)
             throws ScmInternalException, ScmOmServerException {
-        Assert.isTrue(isInitialized, "site chooser is not initialized yet");
+        checkIsInited();
 
         PreferSites wsPreferedSites = preferedWorksapceSites.get(ws.getName());
         if (wsPreferedSites == null) {
@@ -173,7 +172,7 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
 
     @Override
     public String chooseFromAllSite() throws ScmInternalException, ScmOmServerException {
-        Assert.isTrue(isInitialized, "site chooser is not initialized yet");
+        checkIsInited();
 
         String preferSite = preferedSites.getPreferedSite();
         if (preferSite != null) {
@@ -206,7 +205,7 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
 
     @Override
     public String getRootSite() throws ScmInternalException, ScmOmServerException {
-        Assert.isTrue(isInitialized, "site chooser is not initialized yet!");
+        checkIsInited();
         if (rootSite == null) {
             throw new ScmOmServerException(ScmOmServerError.SYSTEM_ERROR,
                     "root site is not exist!!");
@@ -221,6 +220,20 @@ public class ScmSiteChooserImpl implements ScmSiteChooser {
         }
         catch (Exception e) {
             logger.warn("failed to fresh site chooser cache", e);
+        }
+    }
+
+    private void checkIsInited() {
+        if (!isInitialized) {
+            synchronized (this) {
+                if (!isInitialized) {
+                    refreshCacheSilence();
+                }
+            }
+        }
+
+        if (!isInitialized) {
+            throw new IllegalStateException("Site chooser is not init yet");
         }
     }
 
