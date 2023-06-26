@@ -109,8 +109,21 @@ public class Batch3108 extends TestScmBase {
             }
         }
 
+        // 设置不正确的时间格式NO20201313
+        try {
+            String batchIdC = "NO20201313";
+            ScmBatch batchC = ScmFactory.Batch.createInstance( ws, batchIdC );
+            batchC.setName( batchName );
+            batchC.save();
+            Assert.fail( "exp failed but act success!!!" );
+        } catch ( ScmException e ) {
+            if ( e.getError() != ScmError.INVALID_ID ) {
+                throw e;
+            }
+        }
+
         // 时间会自动向前进位
-        String batchIdC = "NO20201313";
+        String batchIdC = "NO20201213";
         ScmBatch batchC = ScmFactory.Batch.createInstance( ws, batchIdC );
         batchC.setName( batchName );
         batchC.save();

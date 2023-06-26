@@ -7,18 +7,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.sequoiacm.client.core.ScmBatch;
-import com.sequoiacm.client.core.ScmFactory;
-import com.sequoiacm.client.core.ScmFile;
-import com.sequoiacm.client.core.ScmSession;
-import com.sequoiacm.client.core.ScmWorkspace;
+import com.sequoiacm.client.core.*;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.testcommon.ScmInfo;
+import com.sequoiacm.testcommon.ScmSessionUtils;
 import com.sequoiacm.testcommon.SiteWrapper;
 import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
 
 /**
  * @FileName SCM-1302: 添加不存在的文件
@@ -29,6 +25,7 @@ import com.sequoiacm.testcommon.ScmSessionUtils;
 
 public class AttachNotExistFile1302 extends TestScmBase {
     private final String batchName = "batch1302";
+    private String fileName = "file_1302";
     private ScmSession session = null;
     private ScmWorkspace ws = null;
     private ScmId batchId = null;
@@ -47,9 +44,12 @@ public class AttachNotExistFile1302 extends TestScmBase {
         batch.setName( batchName );
         batchId = batch.save();
 
-        ScmId inexistentId = new ScmId( "ffffffffffffffffffffffff" );
+        ScmFile file = ScmFactory.File.createInstance( ws );
+        file.setFileName( fileName );
+        ScmId fileId = file.save();
+        ScmFactory.File.deleteInstance( ws, fileId, true );
         try {
-            batch.attachFile( inexistentId );
+            batch.attachFile( fileId );
             Assert.fail( "attach inexistent file should not succeed" );
         } catch ( ScmException e ) {
             Assert.assertEquals( e.getError(), ScmError.FILE_NOT_FOUND );
