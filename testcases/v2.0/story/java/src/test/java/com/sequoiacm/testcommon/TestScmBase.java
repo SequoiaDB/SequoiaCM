@@ -1,37 +1,26 @@
 package com.sequoiacm.testcommon;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import com.sequoiacm.audit.ConfigCommonDefind;
-import com.sequoiacm.client.core.ScmUserPasswordType;
-import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.listener.GroupTags;
-import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.AfterGroups;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.sequoiacm.audit.ConfigCommonDefind;
 import com.sequoiacm.client.core.ScmConfigOption;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmSystem;
+import com.sequoiacm.client.exception.ScmException;
 import com.sequoiacm.testcommon.dsutils.CephS3Utils;
 import com.sequoiacm.testcommon.dsutils.CephSwiftUtils;
 import com.sequoiacm.testcommon.dsutils.HbaseUtils;
 import com.sequoiacm.testcommon.dsutils.HdfsUtils;
+import com.sequoiacm.testcommon.scmutils.ConfUtil;
 import com.sequoiacm.testcommon.scmutils.S3Utils;
-import com.sequoiadb.base.DBCollection;
-import com.sequoiadb.base.Sequoiadb;
 
 public class TestScmBase {
     private static final Logger logger = Logger.getLogger( TestScmBase.class );
@@ -192,18 +181,6 @@ public class TestScmBase {
 
         // 删除内容服务节点和S3节点桶限额配置
         deleteBucketQuotaConf();
-        // SEQUOIACM-1316
-        Sequoiadb sdb = null;
-        try {
-            sdb = TestSdbTools.getSdb( mainSdbUrl );
-            DBCollection cl = sdb.getCollectionSpace( "SCMSYSTEM" )
-                    .getCollection( "DATA_TABLE_NAME_HISTORY" );
-            cl.truncate();
-        } finally {
-            if ( sdb != null ) {
-                sdb.close();
-            }
-        }
     }
 
     private static void CleanDataSource() throws Exception {
