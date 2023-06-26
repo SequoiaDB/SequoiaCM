@@ -89,13 +89,9 @@ public class ScheduleServiceClient {
         return true;
     }
 
-    public SchJobStatus getInternalSchLatestStatus(String schName) throws FullTextException {
+    public InternalSchStatus getInternalSchLatestStatus(String schName) throws FullTextException {
         try {
-            InternalSchStatus status = schClient.getInternalSchLatestStatus(schName);
-            if (status == null) {
-                return null;
-            }
-            return new SchJobStatus(status.getStatus());
+            return schClient.getInternalSchLatestStatus(schName);
         }
         catch (ScheduleException e) {
             throw new FullTextException(ScmError.SYSTEM_ERROR,

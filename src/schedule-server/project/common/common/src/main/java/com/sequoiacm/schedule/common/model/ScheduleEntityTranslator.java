@@ -27,6 +27,8 @@ public class ScheduleEntityTranslator {
             ret.setStatus(BsonUtils.getBSONChecked(bson, FieldName.ScheduleStatus.FIELD_STATUS));
             ret.setWorkerNode(
                     BsonUtils.getStringChecked(bson, FieldName.ScheduleStatus.FIELD_WORKER_NODE));
+            ret.setFinish(BsonUtils.getBooleanOrElse(bson, FieldName.ScheduleStatus.FIELD_IS_FINISH,
+                    false));
             return ret;
         }
 
@@ -37,6 +39,7 @@ public class ScheduleEntityTranslator {
             ret.put(FieldName.ScheduleStatus.FIELD_START_TIME, status.getStartTime());
             ret.put(FieldName.ScheduleStatus.FIELD_STATUS, status.getStatus());
             ret.put(FieldName.ScheduleStatus.FIELD_WORKER_NODE, status.getWorkerNode());
+            ret.put(FieldName.ScheduleStatus.FIELD_IS_FINISH, status.isFinish());
             return ret;
         }
     }

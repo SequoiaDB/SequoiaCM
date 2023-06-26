@@ -15,25 +15,25 @@ import com.sequoiacm.schedule.common.model.InternalSchStatus;
 import com.sequoiacm.schedule.common.model.ScheduleException;
 import com.sequoiacm.schedule.common.model.ScheduleFullEntity;
 
-@RequestMapping("/internal/v1")
+@RequestMapping("/internal")
 public interface ScheduleFeignClient {
 
-    @PostMapping(value = "/schedules")
+    @PostMapping(value = "/v1/schedules")
     public ScheduleFullEntity createSchedule(
             @RequestParam(RestCommonDefine.RestParam.KEY_DESCRIPTION) String schJson)
             throws ScheduleException;
 
-    @DeleteMapping("/schedules/{schedule_id}")
+    @DeleteMapping("/v1/schedules/{schedule_id}")
     public void deleteSchedule(@PathVariable("schedule_id") String schId,
             @RequestParam(RestCommonDefine.RestParam.STOP_WORKER) boolean stopWorker)
             throws ScheduleException;
 
-    @GetMapping("/schedules")
+    @GetMapping("/v1/schedules")
     public List<ScheduleFullEntity> listSchedule(
             @RequestParam(RestCommonDefine.RestParam.KEY_QUERY_FILTER) String filter)
             throws ScheduleException;
 
-    @PostMapping("/schedules/status/{schedule_id}")
+    @PostMapping("/v1/schedules/status/{schedule_id}")
     public List<ScheduleFullEntity> reportInternalSchStatus(
             @PathVariable("schedule_id") String scheduleId,
             @RequestParam(RestCommonDefine.RestParam.REST_WORKER_NODE) String workerNode,
@@ -42,7 +42,11 @@ public interface ScheduleFeignClient {
             @RequestParam(RestCommonDefine.RestParam.REST_WORKER_IS_FINISH) boolean isFinish)
             throws ScheduleException;
 
-    @GetMapping("/schedules/status/{schedule_name}")
-    public InternalSchStatus getInternalSchLatestStatus(
+    @GetMapping("/v1/schedules/status/{schedule_name}")
+    public InternalSchStatus getInternalSchLatestStatusV1(
+            @PathVariable("schedule_name") String scheduleName) throws ScheduleException;
+
+    @GetMapping("/v2/schedules/status/{schedule_name}")
+    public InternalSchStatus getInternalSchLatestStatusV2(
             @PathVariable("schedule_name") String scheduleName) throws ScheduleException;
 }

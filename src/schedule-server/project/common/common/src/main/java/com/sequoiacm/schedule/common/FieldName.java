@@ -55,6 +55,7 @@ public class FieldName {
         public static final String FIELD_WORKER_NODE = "worker_node";
         public static final String FIELD_START_TIME = "start_time";
         public static final String FIELD_STATUS = "status";
+        public static final String FIELD_IS_FINISH = "is_finish";
     }
 
     public static class Schedule {

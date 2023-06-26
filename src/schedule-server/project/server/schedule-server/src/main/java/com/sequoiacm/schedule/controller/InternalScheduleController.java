@@ -35,7 +35,7 @@ import com.sequoiacm.schedule.remote.ScheduleClientFactory;
 import com.sequoiacm.schedule.service.ScheduleService;
 
 @RestController
-@RequestMapping("/internal/v1")
+@RequestMapping("/internal")
 public class InternalScheduleController {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
@@ -51,7 +51,7 @@ public class InternalScheduleController {
         return client.createSchedule(ScheduleEntityTranslator.UserInfo.toJSONString(info));
     }
 
-    @RequestMapping(value = "/schedules", method = { RequestMethod.POST, RequestMethod.PUT })
+    @RequestMapping(value = "/v1/schedules", method = { RequestMethod.POST, RequestMethod.PUT })
     public ScheduleFullEntity createSchedule(HttpServletRequest request) throws Exception {
         ScheduleUserEntity info = ScheduleEntityTranslator.UserInfo.fromRequest(request);
         if (info.getType().equals(ScheduleDefine.ScheduleType.CLEAN_FILE)
@@ -85,13 +85,23 @@ public class InternalScheduleController {
         client.deleteSchdule(scheduleId, stopWorker);
     }
 
-    @GetMapping("/schedules/status/{schedule_name}")
-    public InternalSchStatus getInternalSchLatestStatus(
+    @GetMapping("/v1/schedules/status/{schedule_name}")
+    public InternalSchStatus getInternalSchLatestStatusV1(
             @PathVariable("schedule_name") String scheduleName) throws Exception {
         return service.getInternalSchLatestStatusByName(scheduleName);
     }
 
-    @PostMapping("/schedules/status/{schedule_id}")
+
+    // 新增的 v2 接口与 v1 版本实现一致，用于如下场景：
+    // 老版本调度服务的 v1 接口存在 bug，其 isFinish 属性固定为 false
+    // 客户端优先使用 v2 版本查询 status，若 v2 版本不存在，则使用 v1，并且客户端将会重新矫正 finish 属性
+    @GetMapping("/v2/schedules/status/{schedule_name}")
+    public InternalSchStatus getInternalSchLatestStatusV2(
+            @PathVariable("schedule_name") String scheduleName) throws Exception {
+        return service.getInternalSchLatestStatusByName(scheduleName);
+    }
+
+    @PostMapping("/v1/schedules/status/{schedule_id}")
     public void reportInternalSchStatus(@PathVariable("schedule_id") String scheduleId,
             @RequestParam(RestCommonDefine.RestParam.REST_WORKER_NODE) String workerNode,
             @RequestParam(RestCommonDefine.RestParam.REST_START_TIME) long startTime,
@@ -112,7 +122,7 @@ public class InternalScheduleController {
         }
     }
 
-    @DeleteMapping("/schedules/{schedule_id}")
+    @DeleteMapping("/v1/schedules/{schedule_id}")
     public void deleteSchedule(@PathVariable("schedule_id") String scheduleId,
             @RequestParam(value = RestCommonDefine.RestParam.STOP_WORKER, required = false, defaultValue = "false") boolean stopWorker)
             throws Exception {
@@ -129,14 +139,14 @@ public class InternalScheduleController {
         }
     }
 
-    @GetMapping("/schedules/{schedule_id}")
+    @GetMapping("/v1/schedules/{schedule_id}")
     public ScheduleFullEntity getSchedule(@PathVariable("schedule_id") String scheduleId,
             HttpServletRequest request, HttpServletResponse response) throws Exception {
         ScheduleFullEntity info = service.getSchedule(scheduleId);
         return info;
     }
 
-    @GetMapping("/schedules")
+    @GetMapping("/v1/schedules")
     public void listSchedules(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         String filter = request.getParameter(RestCommonDefine.RestParam.KEY_QUERY_FILTER);

@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sequoiacm.infrastructure.feign.ScmFeignClient;
@@ -20,6 +23,7 @@ import com.sequoiacm.schedule.common.model.ScheduleUserEntity;
 
 @Component
 public class ScheduleClient {
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleClient.class);
     private ScheduleFeignClient feign;
 
     @Autowired
@@ -47,7 +51,23 @@ public class ScheduleClient {
     }
 
     public InternalSchStatus getInternalSchLatestStatus(String schName) throws ScheduleException {
-        return feign.getInternalSchLatestStatus(schName);
+        try {
+            return feign.getInternalSchLatestStatusV2(schName);
+        }
+        catch (ScheduleException e) {
+            if (!e.getCode().equalsIgnoreCase(HttpStatus.NOT_FOUND.getReasonPhrase())) {
+                throw e;
+            }
+            logger.debug("failed to get schedule status by v2, try use v1 later: schName={}",
+                    schName, e);
+        }
+        InternalSchStatus ret = feign.getInternalSchLatestStatusV1(schName);
+        if (!ret.isFinish()) {
+            // 老版本的调度服务因为编码 BUG (该 BUG 在 SEQUOIACM-1215 提交中修复)，isFinish 总是返回 false，
+            // 这里额外通过调度任务是否存在额外检查下这个属性（ finish 置为 true 时，调度任务会被删除）
+            ret.setFinish(getInternalSchduleByName(schName) == null);
+        }
+        return ret;
     }
 
     public ScheduleFullEntity getInternalSchduleByName(String name) throws ScheduleException {

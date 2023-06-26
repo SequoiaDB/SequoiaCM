@@ -3,6 +3,7 @@ package com.sequoiacm.schedule.dao.sequoiadb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sequoiacm.schedule.dao.ScheduleDao;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -23,6 +24,10 @@ import com.sequoiadb.base.Sequoiadb;
 public class SdbInternalSchStatusDao implements InternalSchStatusDao {
     private static final Logger logger = LoggerFactory.getLogger(SdbInternalSchStatusDao.class);
     private SdbDataSourceWrapper datasource;
+
+    @Autowired
+    private ScheduleDao scheduleDao;
+
     private String csName = "SCMSYSTEM";
     private String clName = "SCHEDULE_STATUS";
 
@@ -60,6 +65,13 @@ public class SdbInternalSchStatusDao implements InternalSchStatusDao {
             if (null == result) {
                 return null;
             }
+
+            if (!result.containsField(FieldName.ScheduleStatus.FIELD_IS_FINISH)) {
+                // 老版本调度服务写入 status 时遗漏了 isFinish，这里补上去（finish 为 true 时，调度任务不存在）
+                result.put(FieldName.ScheduleStatus.FIELD_IS_FINISH,
+                        scheduleDao.queryOneByName(name) == null);
+            }
+
             return ScheduleEntityTranslator.Status.fromBSON(result);
         }
         catch (Exception e) {

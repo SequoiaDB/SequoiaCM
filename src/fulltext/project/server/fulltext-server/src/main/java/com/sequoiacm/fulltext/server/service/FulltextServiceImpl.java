@@ -1,6 +1,7 @@
 package com.sequoiacm.fulltext.server.service;
 
 import com.sequoiacm.fulltext.es.client.base.EsClient;
+import com.sequoiacm.schedule.common.model.InternalSchStatus;
 import org.bson.BSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -125,20 +126,29 @@ public class FulltextServiceImpl implements FulltextService {
         ret.setFulltextLocation(wsExternalData.getIndexDataLocation());
 
         if (wsExternalData.getFulltextJobName() != null) {
-            SchJobStatus status = schClient
+            InternalSchStatus status = schClient
                     .getInternalSchLatestStatus(wsExternalData.getFulltextJobName());
             if (status != null) {
-                ScmFulltextJobInfo jobStatus = new ScmFulltextJobInfo();
-                jobStatus.setEstimateFileCount(status.getEstimateCount());
-                double processedCount = status.getErrorCount() + status.getSuccessCount();
-                int progress = (int) (status.getEstimateCount() == 0 ? 100
-                        : (processedCount / status.getEstimateCount() * 100));
-                progress = progress > 100 ? 99 : progress;
-                jobStatus.setProgress(progress);
-                jobStatus.setSpeed(status.getSpeed());
-                jobStatus.setErrorCount(status.getErrorCount());
-                jobStatus.setSuccessCount(status.getSuccessCount());
-                ret.setJobInfo(jobStatus);
+                SchJobStatus jobProgressStatus = new SchJobStatus(status.getStatus());
+                ScmFulltextJobInfo fulltextJobInfo = new ScmFulltextJobInfo();
+                fulltextJobInfo.setEstimateFileCount(jobProgressStatus.getEstimateCount());
+
+                if (status.isFinish()) {
+                    fulltextJobInfo.setProgress(100);
+                }
+                else {
+                    double processedCount = jobProgressStatus.getErrorCount()
+                            + jobProgressStatus.getSuccessCount();
+                    int progress = (int) (jobProgressStatus.getEstimateCount() == 0 ? 100
+                            : (processedCount / jobProgressStatus.getEstimateCount() * 100));
+                    progress = progress >= 100 ? 99 : progress;
+                    fulltextJobInfo.setProgress(progress);
+                }
+
+                fulltextJobInfo.setSpeed(jobProgressStatus.getSpeed());
+                fulltextJobInfo.setErrorCount(jobProgressStatus.getErrorCount());
+                fulltextJobInfo.setSuccessCount(jobProgressStatus.getSuccessCount());
+                ret.setJobInfo(fulltextJobInfo);
             }
         }
 
