@@ -47,6 +47,13 @@ public class Entry {
     private static final String KEEP_ALIVE_TIMEOUT = "keepAliveTimeout";
     private static final String LOGBACK_PATH = "logbackPath";
 
+    private static final String FILE_SCOPE = "fileScope";
+
+    enum FileScopeEnum {
+        CURRENT,
+        ALL,
+        HISTORY
+    }
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             throw new IllegalArgumentException("Missing required arg: zkClean or scmFileClean");
@@ -132,6 +139,8 @@ public class Entry {
         ops.addOption(null, SOCKET_TIMEOUT, true, "socketTimeout");
         ops.addOption(null, MAX_CONNECTION_NUM, true, "maxConnectionNum");
         ops.addOption(null, KEEP_ALIVE_TIMEOUT, true, "keepAliveTimeout");
+        ops.addOption(null, FILE_SCOPE, true, "transfer file scope: " + FileScopeEnum.CURRENT + ", "
+                + FileScopeEnum.HISTORY + ", " + FileScopeEnum.ALL);
 
 
         if (Arrays.asList(args).contains("--help")) {
@@ -199,27 +208,59 @@ public class Entry {
         int keepAliveTimeout = Integer
                 .parseInt(commandLine.getOptionValue(KEEP_ALIVE_TIMEOUT, "0"));
         String zkUrls = commandLine.getOptionValue(ZK_URLS);
+        String fileScopeStr = commandLine.getOptionValue(FILE_SCOPE, FileScopeEnum.CURRENT.name());
+        FileScopeEnum fileScope = FileScopeEnum.valueOf(fileScopeStr);
 
         logger.info(
                 "clean begin, args: workspace={}, fileMatcher={}, targetDataSiteInstances={}, cleanSiteName={}, "
                         + "holdingDataSiteName={}, queueSize={}, thread={}, srcSitePasswordFile={}, srcSitePassword=**, "
                         + "metaSdbPassword=**, metaSdbUser={}, metaSdbCoord={}, connectTimeout={}ms, socketTimeout={}ms, "
-                        + "maxConnectionNum={}, keepAliveTimeout={}, zkUrls={}",
+                        + "maxConnectionNum={}, keepAliveTimeout={}, zkUrls={}, fileScope={}",
                 wsName, fileMatcher, targetDataSiteInstances, cleanSiteName, holdingDataSiteName,
                 queueSize, thread, srcSitePasswordFile, metaSdbUser, metaSdbCoord, connectTimeout,
-                socketTimeout, maxConnectionNum, keepAliveTimeout, zkUrls);
+                socketTimeout, maxConnectionNum, keepAliveTimeout, zkUrls, fileScope);
 
+        if (fileScope == FileScopeEnum.ALL) {
+
+            doClean(wsName, fileMatcher, targetDataSiteInstances, cleanSiteName,
+                    holdingDataSiteName, datasourceConf, queueSize, thread, srcSitePasswordFile,
+                    srcSitePassword, metaSdbUser, metaSdbPassword, metaSdbCoord, connectTimeout,
+                    socketTimeout, maxConnectionNum, keepAliveTimeout, zkUrls,
+                    FileScopeEnum.CURRENT);
+
+            doClean(wsName, fileMatcher, targetDataSiteInstances, cleanSiteName,
+                    holdingDataSiteName, datasourceConf, queueSize, thread, srcSitePasswordFile,
+                    srcSitePassword, metaSdbUser, metaSdbPassword, metaSdbCoord, connectTimeout,
+                    socketTimeout, maxConnectionNum, keepAliveTimeout, zkUrls,
+                    FileScopeEnum.HISTORY);
+            return;
+        }
+
+        doClean(wsName, fileMatcher, targetDataSiteInstances, cleanSiteName, holdingDataSiteName,
+                datasourceConf, queueSize, thread, srcSitePasswordFile, srcSitePassword,
+                metaSdbUser, metaSdbPassword, metaSdbCoord, connectTimeout, socketTimeout,
+                maxConnectionNum, keepAliveTimeout, zkUrls, fileScope);
+    }
+
+    private static void doClean(String wsName, BSONObject fileMatcher,
+            List<String> targetDataSiteInstances, String cleanSiteName, String holdingDataSiteName,
+            Map<String, String> datasourceConf, int queueSize, int thread,
+            String srcSitePasswordFile, String srcSitePassword, String metaSdbUser,
+            String metaSdbPassword, List<String> metaSdbCoord, int connectTimeout,
+            int socketTimeout, int maxConnectionNum, int keepAliveTimeout, String zkUrls,
+            FileScopeEnum fileScope) throws Exception {
         FileCleaner cleanner = new FileCleaner(wsName, fileMatcher, targetDataSiteInstances,
                 cleanSiteName, holdingDataSiteName, queueSize, thread, srcSitePasswordFile,
                 srcSitePassword, metaSdbPassword, metaSdbUser, metaSdbCoord, connectTimeout,
-                socketTimeout, maxConnectionNum, keepAliveTimeout, zkUrls, datasourceConf);
+                socketTimeout, maxConnectionNum, keepAliveTimeout, zkUrls, datasourceConf,
+                fileScope);
         try {
             cleanner.clean();
         }
         finally {
             cleanner.destroy();
         }
-        logger.info("main thread exit..");
+        logger.info("{} file clean finish", fileScope);
     }
 
     private static void changeLogbackFile(String logbackPath)

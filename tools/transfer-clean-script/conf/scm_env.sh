@@ -1,5 +1,6 @@
 srcSiteName=rootSite
 targetSiteName=branchSite1
+fileScope=CURRENT
 
 # metasource
 metaSdbCoord=192.168.30.82:11810

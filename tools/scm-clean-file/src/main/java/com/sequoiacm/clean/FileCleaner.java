@@ -40,6 +40,7 @@ public class FileCleaner {
     private final ScmService cleanSiteDataService;
     private final String wsName;
     private final BSONObject fileMatcher;
+    private final Entry.FileScopeEnum fileScope;
     private ThreadPoolExecutor threadPool;
     private final ScmLockManager lockMgr;
     private final int cleanSiteId;
@@ -49,11 +50,17 @@ public class FileCleaner {
     private final ScmShutDownHook shutDownHook;
 
     public FileCleaner(String wsName, BSONObject fileMatcher, List<String> dataInOtherSiteInstanceList,
-            String cleanSiteName, String holdingDataSiteName, int queueSize, int thread, String srcSitePasswordFile,
-            String srcSitePassword, String metaSdbPassword, String metaSdbUser,
-            List<String> metaSdbCoord, int connectTimeout, int socketTimeout, int maxConnectionNum,
-            int keepAliveTimeout, String zkUrls, Map<String, String> datasourceConf) throws Exception {
+            String cleanSiteName, String holdingDataSiteName, int queueSize, int thread,
+            String srcSitePasswordFile, String srcSitePassword, String metaSdbPassword,
+            String metaSdbUser, List<String> metaSdbCoord, int connectTimeout, int socketTimeout,
+            int maxConnectionNum, int keepAliveTimeout, String zkUrls,
+            Map<String, String> datasourceConf, Entry.FileScopeEnum fileScope) throws Exception {
         this.wsName = wsName;
+        this.fileScope = fileScope;
+        if (fileScope == Entry.FileScopeEnum.ALL) {
+            throw new IllegalArgumentException("file transfer only support "
+                    + Entry.FileScopeEnum.HISTORY + " or " + Entry.FileScopeEnum.CURRENT);
+        }
         try {
             ConfigOptions sdbConnConf = new ConfigOptions();
             sdbConnConf.setConnectTimeout(connectTimeout);
@@ -134,14 +141,15 @@ public class FileCleaner {
         Sequoiadb sdb = metaSdbDs.getConnection();
         DBCursor cursor = null;
         try {
-            DBCollection fileCl = sdb.getCollectionSpace(wsName + "_META").getCollection("FILE");
+            DBCollection fileCl = sdb.getCollectionSpace(wsName + "_META").getCollection(
+                    fileScope == Entry.FileScopeEnum.HISTORY ? "FILE_HISTORY" : "FILE");
             cursor = fileCl.query(fileMatcher, null, null, null);
             while (cursor.hasNext()) {
                 BSONObject fileInfoNotInLock = cursor.getNext();
                 TaskCleanFile task = new TaskCleanFile(metaSdbDs, wsName, lockMgr,
                         cleanSiteId, holdingDataSiteId, scmDataOpFactory, siteMgr.getCleanSiteDataLocation(),
                         cleanSiteDataService, siteMgr, fileCounter, fileInfoNotInLock,
-                        remoteClientMgr, threadPool, shutDownHook);
+                        remoteClientMgr, threadPool, shutDownHook, fileScope);
                 threadPool.submit(task);
             }
         }

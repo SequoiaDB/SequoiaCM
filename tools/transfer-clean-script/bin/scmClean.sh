@@ -25,7 +25,7 @@ if [ ! $? -eq 0 ] ;then
   exit 1
 fi
 
-commandStr="java -Xmx2048m -jar $jarPath scmFileClean --logbackPath $cleanLogbackPath --holdingDataSiteName ${targetSiteName} --targetSiteInstances ${targetSiteInstances} --workspace ${cl_workspace} --cleanSiteName ${srcSiteName} --datasourceConf ${datasourceConf} --queueSize ${queueSize} --thread ${thread} --srcSitePasswordFile ${srcSitePasswordFile} --srcSitePassword ${srcSitePassword} --metaSdbCoord ${metaSdbCoord}  --metaSdbUser ${metaSdbUser} --metaSdbPassword ${metaSdbPassword} --metaSdbPasswordFile ${metaSdbPasswordFile} --connectTimeout ${connectTimeout} --socketTimeout ${socketTimeout} --maxConnectionNum ${maxConnectionNum} --keepAliveTimeout ${keepAliveTimeout} --zkUrls ${zkUrls} --fileMatcher '{ \"create_month\": \"${cl_month}\" }'"
+commandStr="java -Xmx2048m -jar $jarPath scmFileClean --logbackPath $cleanLogbackPath --holdingDataSiteName ${targetSiteName} --targetSiteInstances ${targetSiteInstances} --workspace ${cl_workspace} --cleanSiteName ${srcSiteName} --datasourceConf ${datasourceConf} --queueSize ${queueSize} --thread ${thread} --srcSitePasswordFile ${srcSitePasswordFile} --srcSitePassword ${srcSitePassword} --metaSdbCoord ${metaSdbCoord}  --metaSdbUser ${metaSdbUser} --metaSdbPassword ${metaSdbPassword} --metaSdbPasswordFile ${metaSdbPasswordFile} --connectTimeout ${connectTimeout} --socketTimeout ${socketTimeout} --maxConnectionNum ${maxConnectionNum} --keepAliveTimeout ${keepAliveTimeout} --zkUrls ${zkUrls} --fileMatcher '{ \"create_month\": \"${cl_month}\" }' --fileScope ${fileScope}"
 
 #echo $commandStr
 eval $commandStr

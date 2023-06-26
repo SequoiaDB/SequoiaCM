@@ -3,6 +3,7 @@
 setLogPath(){
   logPath="$(pwd)/../log/"
   export logPath=$logPath
+  mkdir -p $logPath
 }
 
 #deal with print msg, $1 is msg, $2 is log output file

@@ -57,6 +57,12 @@ class ScmTimerThreadPoolImpl implements ScmTimer {
     }
 
     @Override
+    public boolean cancelAndAwaitTermination(long timeout) throws InterruptedException {
+        innerExecutorService.shutdown();
+        return innerExecutorService.awaitTermination(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
     public void schedule(ScmTimerTask task, Date firstTime, long periodInMillionsecond) {
         long now = System.currentTimeMillis();
         long delay = firstTime.getTime() - now;

@@ -57,6 +57,7 @@ enum DoFileRes {
 public class TaskCleanFile implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(TaskCleanFile.class);
     private final RemoteClientMgr remoteClientMgr;
+    private final Entry.FileScopeEnum fileScope;
 
     private DBCollection metaFileCl;
     private final SequoiadbDatasource metaSdbDs;
@@ -76,9 +77,10 @@ public class TaskCleanFile implements Runnable {
 
     public TaskCleanFile(SequoiadbDatasource metaSdbDs, String ws, ScmLockManager lockManager,
             int cleanSiteId, int holdingDataSiteId, ScmDataOpFactory scmDataOpFactory,
-            ScmLocation cleanSiteDataLocation, ScmService cleanSiteDataService, SiteInfoMgr siteInfoMgr, 
-            FileCounter fileCounter, BSONObject fileInfoNotInLock, RemoteClientMgr mgr, ThreadPoolExecutor threadPool,
-            ScmShutDownHook shutDownHook) {
+            ScmLocation cleanSiteDataLocation, ScmService cleanSiteDataService,
+            SiteInfoMgr siteInfoMgr, FileCounter fileCounter, BSONObject fileInfoNotInLock,
+            RemoteClientMgr mgr, ThreadPoolExecutor threadPool, ScmShutDownHook shutDownHook,
+            Entry.FileScopeEnum fileScope) {
         this.metaSdbDs = metaSdbDs;
         this.ws = ws;
         this.lockManager = lockManager;
@@ -93,6 +95,7 @@ public class TaskCleanFile implements Runnable {
         this.remoteClientMgr = mgr;
         this.threadPool = threadPool;
         this.shutDownHook = shutDownHook;
+        this.fileScope = fileScope;
     }
 
     public void destroy() {
@@ -318,7 +321,8 @@ public class TaskCleanFile implements Runnable {
         int minorVersion = (int) fileInfoNotInLock.get(FieldName.FIELD_CLFILE_MINOR_VERSION);
         try {
             metaSdb = metaSdbDs.getConnection();
-            metaFileCl = metaSdb.getCollectionSpace(ws + "_META").getCollection("FILE");
+            metaFileCl = metaSdb.getCollectionSpace(ws + "_META").getCollection(
+                    fileScope == Entry.FileScopeEnum.HISTORY ? "FILE_HISTORY" : "FILE");
             lock = lockManager.acquiresReadLock(new ScmLockPath(new String[] {
                     ScmLockPathDefine.WORKSPACES, ws, ScmLockPathDefine.FILES, fileId }));
 

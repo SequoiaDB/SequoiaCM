@@ -14,6 +14,8 @@ java -Xmx2048m -jar sequoiacm-clean-file-3.2.1.jar scmFileClean  --workspace ws8
     --thread <arg>                    线程池线程数
     --workspace <arg>                 清理的工作区
     --zkUrls <arg>                    zookeeper 地址
+    --fileScope                       文件迁移范围，支持填写：ALL（最新文件版本和历史文件版本），CURRENT（最新文件版本），HISTORY（历史文件版本）
+
 
 #清理 Zookeeper 文件
 java -Xmx2048m -jar sequoiacm-clean-file-3.2.1.jar zkClean --zkUrls 192.168.30.82:2181 --maxBuffer 6 --maxResidualTime 180000

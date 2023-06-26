@@ -2,7 +2,6 @@ package com.sequoiacm.transfer;
 
 import com.sequoiacm.client.common.ScmType;
 import com.sequoiacm.client.core.ScmConfigOption;
-import com.sequoiacm.client.core.ScmCursor;
 import com.sequoiacm.client.core.ScmFactory;
 import com.sequoiacm.client.core.ScmSession;
 import com.sequoiacm.client.core.ScmWorkspace;
@@ -12,6 +11,7 @@ import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.mapping.ScmMappingException;
 import com.sequoiacm.exception.ScmError;
 import com.sequoiacm.infrastructure.common.BsonUtils;
+import com.sequoiacm.infrastructure.common.IOUtils;
 import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
@@ -34,16 +34,21 @@ public class FileTransfer {
     private final SiteInfoMgr siteInfoMgr;
     private final int batchSize;
     private final ScmTimer timer;
-    private final Sequoiadb sdb;
-    private final DBCollection sdbFileCl;
+    private final Sequoiadb sdbConnForCheckTask;
+    private final DBCollection sdbFileClForCheckTask;
+    private final ConfigOptions sdbConnOps;
+    private final List<String> sdbCoord;
+    private final String sdbUser;
+    private final String sdbPassword;
+    private final Entry.FileScopeEnum scopeEnum;
+    private final String fileClName;
     private long fileTimeout;
     String wsName;
     private BSONObject matcher;
-    private ScmType.ScopeType scope;
     List<String> urlList;
     String user;
     String password;
-    private int localSiteId;
+    private int targetSiteId;
     private volatile long successCount = 0;
     private volatile long timeoutCount = 0;
     private long lastLoggerCountTime = 0;
@@ -54,14 +59,14 @@ public class FileTransfer {
 
 
     public FileTransfer(int batchSize, long fileTimeout, int thread, int queueSize,
-            String localSiteName, final String wsName, BSONObject matcher,
+            String srcSiteName, String targetSiteName, final String wsName, BSONObject matcher,
                         final List<String> urlList, final String user, final String password,
             int fileStatusCheckInterval, List<String> sdbCoord, String sdbUser, String sdbPassword,
-            int fileStatusCheckBatchSize) throws ScmMappingException {
+            int fileStatusCheckBatchSize, ConfigOptions sdbConnOps, Entry.FileScopeEnum scopeEnum)
+            throws ScmMappingException {
         this.wsName = wsName;
         this.fileTimeout = fileTimeout;
         this.matcher = matcher;
-        this.scope = ScmType.ScopeType.SCOPE_CURRENT;
         this.urlList = urlList;
         this.user = user;
         this.password = password;
@@ -69,14 +74,40 @@ public class FileTransfer {
         this.semp = new Semaphore(batchSize);
         submitFiles = new ConcurrentHashMap(batchSize);
         this.fileStatusCheckBatchSize = fileStatusCheckBatchSize;
-        sdb = new Sequoiadb(sdbCoord, sdbUser, sdbPassword, new ConfigOptions());
-        sdbFileCl = sdb.getCollectionSpace(wsName + "_META").getCollection("FILE");
-        this.siteInfoMgr = new SiteInfoMgr(sdb);
-        localSiteId = siteInfoMgr.getSiteIdByName(localSiteName);
+        this.sdbConnOps = sdbConnOps;
+        this.sdbCoord = sdbCoord;
+        this.sdbUser = sdbUser;
+        this.sdbPassword = sdbPassword;
+        this.scopeEnum = scopeEnum;
+        if (scopeEnum == Entry.FileScopeEnum.ALL) {
+            throw new IllegalArgumentException("file transfer only support "
+                    + Entry.FileScopeEnum.HISTORY + " or " + Entry.FileScopeEnum.CURRENT);
+        }
+        this.fileClName = scopeEnum == Entry.FileScopeEnum.HISTORY ? "FILE_HISTORY" : "FILE";
+
+        // 后台任务使用的连接句柄
+        sdbConnForCheckTask = new Sequoiadb(sdbCoord, sdbUser, sdbPassword, sdbConnOps);
+        sdbFileClForCheckTask = sdbConnForCheckTask.getCollectionSpace(wsName + "_META")
+                .getCollection(fileClName);
+
+        this.siteInfoMgr = new SiteInfoMgr(sdbConnForCheckTask);
+        targetSiteId = siteInfoMgr.getSiteIdByName(targetSiteName);
+
+        BasicBSONList andArr = new BasicBSONList();
+
+        // 用户条件
+        andArr.add(matcher);
+
+        // 目标站点不存在该文件
         BasicBSONList notList = new BasicBSONList();
-        notList.add(new BasicBSONObject("site_list.$0.site_id", localSiteId));
-        matcher.put("$not", notList);
-        this.matcher = matcher;
+        notList.add(new BasicBSONObject("site_list.$0.site_id", targetSiteId));
+        andArr.add(new BasicBSONObject("$not", notList));
+
+        // 源站点存在该文件
+        andArr.add(new BasicBSONObject("site_list.$0.site_id",
+                siteInfoMgr.getSiteIdByName(srcSiteName)));
+
+        this.matcher = new BasicBSONObject("$and", andArr);
 
         timer = ScmTimerFactory.createScmTimer();
         timer.schedule(new ScmTimerTask() {
@@ -93,24 +124,44 @@ public class FileTransfer {
 
     public void destroy() {
         if (timer != null) {
-            timer.cancel();
+            try {
+                boolean isExit = timer.cancelAndAwaitTermination(30000);
+                if (!isExit) {
+                    logger.warn("failed to wait background task exit, cause by timeout");
+                }
+            }
+            catch (InterruptedException e) {
+                logger.warn("failed to wait background task exit", e);
+            }
         }
-        if (sdb != null) {
-            sdb.close();
+        if (sdbConnForCheckTask != null) {
+            sdbConnForCheckTask.close();
         }
+        logger.info("{} process finish: successTransferCount={}, timeoutCount={}", scopeEnum,
+                successCount, timeoutCount);
     }
 
     public void transfer() throws ScmException, InterruptedException {
-        ScmCursor<ScmFileBasicInfo> cursor = null;
-        ScmSession session = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION, new ScmConfigOption(urlList, user, password));
+        Sequoiadb sdbConnForListFile = new Sequoiadb(sdbCoord, sdbUser, sdbPassword, sdbConnOps);
+        DBCursor cursor = null;
+        ScmSession session = null;
         try {
+            session = ScmFactory.Session.createSession(ScmType.SessionType.AUTH_SESSION,
+                    new ScmConfigOption(urlList, user, password));
             ScmWorkspace workspace = ScmFactory.Workspace.getWorkspace(wsName, session);
-            cursor = ScmFactory.File.listInstance(workspace, scope, matcher);
+
+            DBCollection sdbFileClForListFile = sdbConnForListFile
+                    .getCollectionSpace(wsName + "_META").getCollection(fileClName);
+            logger.info("start to query file record: fileCl={}, matcher={}",
+                    sdbFileClForListFile.getFullName(), matcher);
+            cursor = sdbFileClForListFile.query(matcher, null, null, null);
             while (cursor.hasNext()) {
                 semp.acquire();
-                ScmFileBasicInfo file = cursor.getNext();
+                BSONObject fileBSON = cursor.getNext();
+                ScmFileBasicInfo file = new ScmFileBasicInfo(fileBSON);
                 try {
-                    ScmFactory.File.asyncCache(workspace, file.getFileId(), file.getMajorVersion(), file.getMinorVersion());
+                    ScmFactory.File.asyncCache(workspace, file.getFileId(), file.getMajorVersion(),
+                            file.getMinorVersion());
                     submitFiles.put(file.getFileId().get(), new FileInfoWrapper(file));
                 } catch (ScmException e) {
                     if (e.getError() != ScmError.FILE_NOT_FOUND) {
@@ -119,18 +170,15 @@ public class FileTransfer {
                 }
             }
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            session.close();
+            IOUtils.close(session, cursor, sdbConnForListFile);
         }
         semp.acquire(batchSize);
-        logger.info("process finish: successTransferCount={}, timeoutCount={}", successCount, timeoutCount);
     }
 
     private void loggerProcessCount(long now) {
         if (now - lastLoggerCountTime > 1000 * 60) {
-            logger.info("process info: successTransferCount={}, timeoutCount={}", successCount, timeoutCount);
+            logger.info("{} file process info: successTransferCount={}, timeoutCount={}", scopeEnum,
+                    successCount, timeoutCount);
             lastLoggerCountTime = now;
         }
     }
@@ -164,12 +212,12 @@ public class FileTransfer {
     }
 
     private void checkCompleteFileByMatcher(BSONObject matcher, BSONObject selector) {
-        DBCursor cursor = sdbFileCl.query(matcher, selector, null, null);
+        DBCursor cursor = sdbFileClForCheckTask.query(matcher, selector, null, null);
         try {
             while (cursor.hasNext()) {
                 BSONObject record = cursor.getNext();
                 BasicBSONList siteList = BsonUtils.getArrayChecked(record, FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-                if (isContainLocalSite(siteList)) {
+                if (isContainTargetSite(siteList)) {
                     semp.release();
                     submitFiles.remove(BsonUtils.getStringChecked(record, FieldName.FIELD_CLFILE_ID));
                     successCount++;
@@ -185,11 +233,11 @@ public class FileTransfer {
         }
     }
 
-    private boolean isContainLocalSite(BasicBSONList siteList) {
+    private boolean isContainTargetSite(BasicBSONList siteList) {
         for (Object location : siteList) {
             BSONObject site = (BSONObject) location;
             int siteId = BsonUtils.getNumberChecked(site, FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID).intValue();
-            if (siteId == localSiteId) {
+            if (siteId == targetSiteId) {
                 return true;
             }
         }

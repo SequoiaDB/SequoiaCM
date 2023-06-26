@@ -19,7 +19,9 @@ java -jar sequoiacm-transfer-file-3.2.1.jar  --help
 
     --url <arg>                       scm 网关地址和迁移目标站点名, 如迁移到 site2，则填写为：gatewayhost:port/site2 （站点名全小写）
     
-    --siteId <arg>                    迁移目标站点的 id，如迁移到 site2，则填写该站点的 id
+    --targetSiteName <arg>            迁移目标站点名，如 site2
+
+    --srcSiteName <arg>               迁移源站点名，如 site1，即表示从 site1 迁移到 site2
                                      
     --scmUser <arg>                   scm 系统用户名
     
@@ -42,5 +44,11 @@ java -jar sequoiacm-transfer-file-3.2.1.jar  --help
     --fileTransferTimeout <arg>       文件多长时间未被迁移完成时，工具标记该文件为处理超时，工具不在等待该文件的处理结果，默认值：1800000ms
     
     --fileStatusCheckBatchSize <arg>  提交的文件数达到多少时，检查迁移状态，默认值 50
+
+    --sdbConnectTimeout <arg>         sdb 连接超时，默认 10000ms
+
+    --sdbSocketTimeout                sdb 连接读超时，默认 0ms，不超时
     
+    --fileScope                       文件迁移范围，支持填写：ALL（最新文件版本和历史文件版本），CURRENT（最新文件版本），HISTORY（历史文件版本）
+
     --help                            打印帮助

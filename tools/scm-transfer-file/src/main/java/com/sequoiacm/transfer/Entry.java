@@ -8,6 +8,7 @@ import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 import com.sequoiacm.infrastructure.strategy.exception.StrategyInvalidArgumentException;
 import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import com.sequoiacm.infrastructure.tool.common.ScmHelper;
+import com.sequoiadb.base.ConfigOptions;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -42,15 +43,30 @@ public class Entry {
     private static final String SCM_USER = "scmUser";
     private static final String SCM_PASSWORD = "scmPassword";
     private static final String SCM_PASSWORD_FILE = "scmPasswordFile";
-    private static final String SITE_NAME = "siteName";
+    private static final String TARGET_SITE_NAME = "targetSiteName";
+    private static final String SRC_SITE_NAME = "srcSiteName";
     private static final String WORKSPACE = "workspace";
     private static final String FILE_MATCHER = "fileMatcher";
     private static final String SDB_COORD = "sdbCoord";
     private static final String SDB_USER = "sdbUser";
     private static final String SDB_PASSWORD = "sdbPassword";
     private static final String SDB_PASSWORD_FILE = "sdbPasswordFile";
+
+    private static final String SDB_CONNECT_TIMEOUT = "sdbConnectTimeout";
+
+    private static final String SDB_SOCKET_TIMEOUT = "sdbSocketTimeout";
+
+    private static final String SDB_KEEP_ALIVE = "sdbEnableSocketKeepAlive";
+
     private static final String LOGBACK_PATH = "logbackPath";
 
+    private static final String FILE_SCOPE = "fileScope";
+
+    enum FileScopeEnum {
+        CURRENT,
+        ALL,
+        HISTORY
+    }
     public static void main(String[] args)
             throws ParseException, ScmException, InterruptedException, ScmMappingException,
             StrategyInvalidArgumentException, IOException {
@@ -82,7 +98,9 @@ public class Entry {
                 .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(null).longOpt(SCM_PASSWORD_FILE).desc("scm scmPasswordFile")
                 .optionalArg(true).hasArg(true).required(false).build());
-        ops.addRequiredOption(null, SITE_NAME, true, "site name, target site name");
+        ops.addRequiredOption(null, TARGET_SITE_NAME, true, "site name, target site name");
+        ops.addRequiredOption(null, SRC_SITE_NAME, true,
+                "src site name, file transfer from src site to target site");
         ops.addRequiredOption(null, WORKSPACE, true, "workspace name");
         ops.addRequiredOption(null, FILE_MATCHER, true, "file json matcher");
 
@@ -90,11 +108,16 @@ public class Entry {
         ops.addRequiredOption(null, SDB_USER, true, "metasource sdb user");
         ops.addOption(Option.builder(null).longOpt(SDB_PASSWORD).desc("metasource sdb password")
                 .optionalArg(true).hasArg(true).required(false).build());
+        ops.addOption(null, SDB_CONNECT_TIMEOUT, true, "sdb connect timeout");
+        ops.addOption(null, SDB_SOCKET_TIMEOUT, true, "sdb socket timeout");
+        ops.addOption(null, SDB_KEEP_ALIVE, true, "enable sdb connection keepAlive");
         ops.addOption(
                 Option.builder(null).longOpt(SDB_PASSWORD_FILE).desc("metasource sdb passwordFile")
                         .optionalArg(true).hasArg(true).required(false).build());
         ops.addOption(Option.builder(null).longOpt(LOGBACK_PATH).desc("logbackPath")
                 .optionalArg(true).hasArg(true).required(false).build());
+        ops.addOption(null, FILE_SCOPE, true, "transfer file scope: " + FileScopeEnum.CURRENT + ", "
+                + FileScopeEnum.HISTORY + ", " + FileScopeEnum.ALL);
 
         if (Arrays.asList(args).contains("--help")) {
             HelpFormatter hf = new HelpFormatter();
@@ -145,29 +168,73 @@ public class Entry {
                         "invalid argument, sdbPassword or sdbPasswordFile can not be empty");
             }
         }
+        ConfigOptions sdbConfOptions = new ConfigOptions();
+        // 默认 readTimeout 不超时
+        sdbConfOptions
+                .setSocketTimeout(Integer.parseInt(commandLine.getOptionValue(SDB_SOCKET_TIMEOUT,
+                        String.valueOf(sdbConfOptions.getSocketTimeout()))));
+        // 建立链接超时 10s
+        sdbConfOptions
+                .setConnectTimeout(Integer.parseInt(commandLine.getOptionValue(SDB_CONNECT_TIMEOUT,
+                        String.valueOf(sdbConfOptions.getConnectTimeout()))));
+        // keepAlive 默认 false
+        sdbConfOptions
+                .setSocketKeepAlive(Boolean.parseBoolean(commandLine.getOptionValue(SDB_KEEP_ALIVE,
+                        String.valueOf(sdbConfOptions.getSocketKeepAlive()))));
 
-        String siteName = commandLine.getOptionValue(SITE_NAME);
+        String targetSiteName = commandLine.getOptionValue(TARGET_SITE_NAME);
+        String srcSiteName = commandLine.getOptionValue(SRC_SITE_NAME);
         String workspace = commandLine.getOptionValue(WORKSPACE);
         String fileMatcherStr = commandLine.getOptionValue(FILE_MATCHER);
         BSONObject fileMatcher = (BSONObject) JSON.parse(fileMatcherStr);
         int fileTimeout = Integer
                 .parseInt(commandLine.getOptionValue(FILE_TRANSFER_TIMEOUT, "180000"));
+        String fileScopeStr = commandLine.getOptionValue(FILE_SCOPE, FileScopeEnum.CURRENT.name());
+        FileScopeEnum fileScope = FileScopeEnum.valueOf(fileScopeStr);
         
         logger.info(
                 "transfer begin, args: workspace={}, url={}, scmUser={}, scmPassword=**,  sdbCoord={}, sdbUser={}, "
-                        + "sdbPassword=**, batchSize={}, thread={}, queueSize={}, fileStatusCheckInterval={}ms, "
-                        + "fileStatusCheckBatchSize={}, fileTimeout={}ms, fileMatcher={}",
-                workspace, url, scmUser, sdbCoord, sdbUser, batchSize, thread, queueSize,
-                fileStatusCheckInterval, fileStatusCheckBatchSize, fileTimeout, fileMatcher);
+                        + "sdbPassword=**, sdbSocketTimeout={}, sdbConnTimeout={}, sdbKeepAlive={}, batchSize={}, thread={}, queueSize={}, fileStatusCheckInterval={}ms, "
+                        + "fileStatusCheckBatchSize={}, fileTimeout={}ms, fileMatcher={}, fileScope={}",
+                workspace, url, scmUser, sdbCoord, sdbUser, sdbConfOptions.getSocketTimeout(),
+                sdbConfOptions.getConnectTimeout(), sdbConfOptions.getSocketKeepAlive(), batchSize,
+                thread, queueSize,
+                fileStatusCheckInterval, fileStatusCheckBatchSize, fileTimeout, fileMatcher,
+                fileScope);
 
-        FileTransfer transfer = new FileTransfer(batchSize, fileTimeout, thread,
-                queueSize, siteName, workspace, fileMatcher, Arrays.asList(url.split(",")), scmUser,
-                scmPassword, fileStatusCheckInterval, sdbCoord, sdbUser, sdbPassword,
-                fileStatusCheckBatchSize);
+        if (fileScope == FileScopeEnum.ALL) {
+            doTransfer(batchSize, thread, queueSize, fileStatusCheckBatchSize,
+                    fileStatusCheckInterval, url, scmUser, scmPassword, sdbCoord, sdbUser,
+                    sdbPassword, sdbConfOptions, targetSiteName, srcSiteName, workspace,
+                    fileMatcher, fileTimeout, FileScopeEnum.CURRENT);
+
+            doTransfer(batchSize, thread, queueSize, fileStatusCheckBatchSize,
+                    fileStatusCheckInterval, url, scmUser, scmPassword, sdbCoord, sdbUser,
+                    sdbPassword, sdbConfOptions, targetSiteName, srcSiteName, workspace,
+                    fileMatcher, fileTimeout, FileScopeEnum.HISTORY);
+            return;
+        }
+
+        doTransfer(batchSize, thread, queueSize, fileStatusCheckBatchSize, fileStatusCheckInterval,
+                url, scmUser, scmPassword, sdbCoord, sdbUser, sdbPassword, sdbConfOptions,
+                targetSiteName, srcSiteName, workspace, fileMatcher, fileTimeout, fileScope);
+    }
+
+    private static void doTransfer(int batchSize, int thread, int queueSize,
+            int fileStatusCheckBatchSize, int fileStatusCheckInterval, String url, String scmUser,
+            String scmPassword, List<String> sdbCoord, String sdbUser, String sdbPassword,
+            ConfigOptions sdbConfOptions, String targetSiteName, String srcSiteName,
+            String workspace, BSONObject fileMatcher, int fileTimeout, FileScopeEnum scopeEnum)
+            throws ScmMappingException, ScmException, InterruptedException {
+        FileTransfer transferHistory = new FileTransfer(batchSize, fileTimeout, thread, queueSize,
+                srcSiteName, targetSiteName, workspace, fileMatcher, Arrays.asList(url.split(",")),
+                scmUser, scmPassword, fileStatusCheckInterval, sdbCoord, sdbUser, sdbPassword,
+                fileStatusCheckBatchSize, sdbConfOptions, scopeEnum);
         try {
-            transfer.transfer();
-        } finally {
-            transfer.destroy();
+            transferHistory.transfer();
+        }
+        finally {
+            transferHistory.destroy();
         }
     }
 
