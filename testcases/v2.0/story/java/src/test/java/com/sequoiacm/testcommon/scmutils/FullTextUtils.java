@@ -17,6 +17,7 @@ import com.sequoiacm.client.element.ScmFileBasicInfo;
 import com.sequoiacm.client.element.ScmId;
 import com.sequoiacm.client.element.fulltext.ScmFulltextSearchResult;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFileFulltextStatus;
+import com.sequoiacm.infrastructure.fulltext.core.ScmFulltexInfo;
 import com.sequoiacm.infrastructure.fulltext.core.ScmFulltextStatus;
 import com.sequoiacm.testcommon.TestTools;
 
@@ -243,12 +244,36 @@ public class FullTextUtils {
     public static void waitWorkSpaceIndexStatus( ScmWorkspace ws,
             ScmFulltextStatus status, int timeout, int interval )
             throws Exception {
+        if ( status.equals( ScmFulltextStatus.CREATED ) ) {
+            waitJobFinish( ws, timeout, interval );
+            ScmFulltexInfo indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
+            Assert.assertEquals( indexInfo.getStatus(),
+                    ScmFulltextStatus.CREATED, indexInfo.toString() );
+            System.out.println( "wsName = " + ws.getName() + ", status = "
+                    + ScmFactory.Fulltext.getIndexInfo( ws ).getStatus() );
+        } else {
+            int tryNum = timeout / interval;
+            while ( tryNum-- > 0 ) {
+                if ( ScmFactory.Fulltext.getIndexInfo( ws ).getStatus()
+                        .equals( status ) ) {
+                    System.out.println( "wsName = " + ws.getName()
+                            + ", status = " + ScmFactory.Fulltext
+                                    .getIndexInfo( ws ).getStatus() );
+                    return;
+                }
+                Thread.sleep( interval );
+            }
+            throw new Exception( "time out,wsName = " + ws.getName()
+                    + "indexInfo = " + ScmFactory.Fulltext.getIndexInfo( ws ) );
+        }
+    }
+
+    public static void waitJobFinish( ScmWorkspace ws, int timeout,
+            int interval ) throws Exception {
         int tryNum = timeout / interval;
         while ( tryNum-- > 0 ) {
-            if ( ScmFactory.Fulltext.getIndexInfo( ws ).getStatus()
-                    .equals( status ) ) {
-                System.out.println( "wsName = " + ws.getName() + ", status = "
-                        + ScmFactory.Fulltext.getIndexInfo( ws ).getStatus() );
+            ScmFulltexInfo indexInfo = ScmFactory.Fulltext.getIndexInfo( ws );
+            if ( indexInfo.getJobInfo().getProgress() == 100 ) {
                 return;
             }
             Thread.sleep( interval );
