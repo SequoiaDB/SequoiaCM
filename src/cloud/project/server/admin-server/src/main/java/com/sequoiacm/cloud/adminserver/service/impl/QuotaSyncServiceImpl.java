@@ -270,7 +270,7 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                                     + " quota,too many sync tasks are running:name=" + name
                                     + ",currentCount=" + count);
                 }
-                lock = tryAcquireSyncQuotaLock(type, name);
+                lock = tryAcquireSyncQuotaLock(type, name, 5000);
                 if (lock == null) {
                     throw new StatisticsException(StatisticsError.QUOTA_SYNCING,
                             type + " quota is syncing, please try again later:name=" + name);
@@ -559,15 +559,25 @@ public class QuotaSyncServiceImpl implements QuotaSyncService {
                 agreementTime, results);
     }
 
-    private ScmLock tryAcquireSyncQuotaLock(String type, String name) throws StatisticsException {
+    private ScmLock tryAcquireSyncQuotaLock(String type, String name, int timeToWait)
+            throws StatisticsException {
         try {
             ScmLockPath lockPath = lockPathFactory.quotaSyncPath(type, name);
-            return lockManager.tryAcquiresLock(lockPath);
+            if (timeToWait == 0) {
+                return lockManager.tryAcquiresLock(lockPath);
+            }
+            else {
+                return lockManager.acquiresLock(lockPath, timeToWait);
+            }
         }
         catch (ScmLockException e) {
             throw new StatisticsException(StatisticsError.LOCK_ERROR,
                     "failed to lock quota:type=" + type + ",name=" + name, e);
         }
+    }
+
+    private ScmLock tryAcquireSyncQuotaLock(String type, String name) throws StatisticsException {
+        return tryAcquireSyncQuotaLock(type, name, 0);
     }
 
     private QuotaSyncInfo createNewQuotaSyncInfo(String type, String name, boolean isFirstSync,
