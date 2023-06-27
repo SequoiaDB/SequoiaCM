@@ -90,14 +90,6 @@ public class ScmScheduleCopyFileContent implements ScmScheduleContent {
         this.maxStayTime = maxStayTime;
         this.extraCondition = extraCondition;
         this.scope = scope;
-        if (scope != ScopeType.SCOPE_CURRENT) {
-            try {
-                ScmArgChecker.File.checkHistoryFileMatcher(extraCondition);
-            }
-            catch (InvalidArgumentException e) {
-                throw new ScmInvalidArgumentException("invlid condition", e);
-            }
-        }
     }
 
     /**

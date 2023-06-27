@@ -1,5 +1,6 @@
 package com.sequoiacm.infrastructure.exception_handler;
 
+import org.bson.BasicBSONObject;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -91,8 +92,14 @@ public class ExceptionBody {
     }
 
     public String toJson() {
-        return String.format(
-                "{\"timestamp\":%d,\"status\":%d,\"error\":\"%s\",\"exception\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
-                timestamp, status, error, exception, message, path);
+        BasicBSONObject object = new BasicBSONObject();
+        object.put("timestamp", timestamp);
+        object.put("status", status);
+        object.put("error", error);
+        object.put("exception", exception);
+        object.put("message", message);
+        object.put("path", path);
+    
+        return object.toString();
     }
 }

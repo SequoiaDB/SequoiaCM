@@ -157,47 +157,42 @@ public class FileServiceImpl implements IFileService {
         ScmWorkspaceInfo ws = contentModule.getWorkspaceInfoCheckLocalSite(workspaceName);
 
         MetaCursor metaCursor = null;
-        try {
-            if (selector == null) {
-                selector = new BasicBSONObject();
-                selector.put(FieldName.FIELD_CLFILE_ID, null);
-                selector.put(FieldName.FIELD_CLFILE_NAME, null);
-                selector.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, null);
-                selector.put(FieldName.FIELD_CLFILE_MINOR_VERSION, null);
-                selector.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, null);
-                selector.put(FieldName.FIELD_CLFILE_INNER_USER, null);
-                selector.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, null);
-                selector.put(FieldName.FIELD_CLFILE_DELETE_MARKER, null);
-                selector.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, null);
+
+        if (selector == null) {
+            selector = new BasicBSONObject();
+            selector.put(FieldName.FIELD_CLFILE_ID, null);
+            selector.put(FieldName.FIELD_CLFILE_NAME, null);
+            selector.put(FieldName.FIELD_CLFILE_MAJOR_VERSION, null);
+            selector.put(FieldName.FIELD_CLFILE_MINOR_VERSION, null);
+            selector.put(FieldName.FIELD_CLFILE_FILE_MIME_TYPE, null);
+            selector.put(FieldName.FIELD_CLFILE_INNER_USER, null);
+            selector.put(FieldName.FIELD_CLFILE_INNER_CREATE_TIME, null);
+            selector.put(FieldName.FIELD_CLFILE_DELETE_MARKER, null);
+            selector.put(FieldName.FIELD_CLFILE_VERSION_SERIAL, null);
+        }
+
+        if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
+            metaCursor = contentModule.getMetaService().queryCurrentFile(ws, condition, selector,
+                    orderby, skip, limit, isResContainsDeleteMarker);
+        }
+        else {
+            if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
+                metaCursor = contentModule.getMetaService().queryHistoryFile(ws.getMetaLocation(),
+                        workspaceName, condition, selector, orderby, skip, limit,
+                        isResContainsDeleteMarker);
             }
 
-            if (scope == CommonDefine.Scope.SCOPE_CURRENT) {
-                metaCursor = contentModule.getMetaService().queryCurrentFile(ws, condition,
-                        selector, orderby, skip, limit, isResContainsDeleteMarker);
+            else if (scope == CommonDefine.Scope.SCOPE_ALL) {
+                if (skip != 0 || limit != -1) {
+                    throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
+                            "query all file unsupported skip/limit");
+                }
+                metaCursor = contentModule.getMetaService().queryAllFile(ws, condition, selector,
+                        orderby, isResContainsDeleteMarker);
             }
             else {
-                ScmArgChecker.File.checkHistoryFileMatcher(condition);
-                if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
-                    ScmArgChecker.File.checkHistoryFileOrderby(orderby);
-                    metaCursor = contentModule.getMetaService().queryHistoryFile(
-                            ws.getMetaLocation(), workspaceName, condition, selector, orderby, skip,
-                            limit, isResContainsDeleteMarker);
-                }
-                else if (scope == CommonDefine.Scope.SCOPE_ALL) {
-                    if (orderby != null || skip != 0 || limit != -1) {
-                        throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
-                                "query all file unsupport orderby/skip/limit");
-                    }
-                    metaCursor = contentModule.getMetaService().queryAllFile(ws, condition,
-                            selector, null, isResContainsDeleteMarker);
-                }
-                else {
-                    throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
-                }
+                throw new ScmInvalidArgumentException("unknown scope:scope=" + scope);
             }
-        }
-        catch (InvalidArgumentException e) {
-            throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
         }
 
         // 若 selector 中包含标签字段，需要将标签 ID 转为标签字符串
@@ -359,12 +354,6 @@ public class FileServiceImpl implements IFileService {
                     isResContainsDeleteMarker);
         }
 
-        try {
-            ScmArgChecker.File.checkHistoryFileMatcher(condition);
-        }
-        catch (InvalidArgumentException e) {
-            throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
-        }
         if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
             return contentModule.getMetaService().getHistoryFileCount(wsInfo.getMetaLocation(),
                     workspaceName, condition, isResContainsDeleteMarker);
@@ -386,12 +375,6 @@ public class FileServiceImpl implements IFileService {
             return contentModule.getMetaService().getCurrentFileSizeSum(wsInfo, condition);
         }
 
-        try {
-            ScmArgChecker.File.checkHistoryFileMatcher(condition);
-        }
-        catch (InvalidArgumentException e) {
-            throw new ScmInvalidArgumentException("Invalid condition: " + condition, e);
-        }
         if (scope == CommonDefine.Scope.SCOPE_HISTORY) {
             return contentModule.getMetaService().getHistoryFileSizeSum(wsInfo.getMetaLocation(),
                     workspaceName, condition);

@@ -18,31 +18,12 @@ public class ScmArgChecker {
 
     public static class File {
         enum CheckType {
-            BUCKET_FILE,
-            HISTORY_FILE
+            BUCKET_FILE
         }
 
-        private static final List<String> HISTORY_MATCHER_VALID_KEY = new ArrayList<String>();
         private static final List<String> BUCKET_FILE_MATCHER_VALID_KEY = new ArrayList<String>();
         private static final Map<CheckType, List<String>> VALID_KEY_MAP = new HashMap();
         static {
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_ID);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_ID);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_TYPE);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_MAJOR_VERSION);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_MINOR_VERSION);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SIZE);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_CREATE_TIME);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_ID);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_TIME);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_SITE_LIST_WS_VERSION);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_INNER_CREATE_MONTH);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_DATA_CREATE_TIME);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_TAGS);
-            HISTORY_MATCHER_VALID_KEY.add(FieldName.FIELD_CLFILE_CUSTOM_TAG);
-
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_ID);
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_NAME);
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_ETAG);
@@ -56,7 +37,6 @@ public class ScmArgChecker {
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_VERSION_SERIAL);
             BUCKET_FILE_MATCHER_VALID_KEY.add(FieldName.BucketFile.FILE_DELETE_MARKER);
 
-            VALID_KEY_MAP.put(CheckType.HISTORY_FILE, HISTORY_MATCHER_VALID_KEY);
             VALID_KEY_MAP.put(CheckType.BUCKET_FILE, BUCKET_FILE_MATCHER_VALID_KEY);
         }
 
@@ -87,11 +67,6 @@ public class ScmArgChecker {
                 for (String key : fields.keySet()) {
                     List<String> validKeys = VALID_KEY_MAP.get(checkType);
                     if (!validKeys.contains(key) && !key.startsWith("$")) {
-                        if (CheckType.HISTORY_FILE == checkType) {
-                            if (isExternalData(key)) {
-                                continue;
-                            }
-                        }
                         if (isSiteListDollerNum(key)) {
                             continue;
                         }
@@ -103,13 +78,6 @@ public class ScmArgChecker {
                     }
                 }
             }
-        }
-
-        private static boolean isExternalData(String key) {
-            if (key.startsWith(FieldName.FIELD_CLFILE_FILE_EXTERNAL_DATA + ".")) {
-                return true;
-            }
-            return false;
         }
 
         private static boolean isSiteListDollerNum(String key) {
@@ -155,39 +123,6 @@ public class ScmArgChecker {
                 return false;
             }
             return true;
-        }
-
-        public static boolean isHistoryFileBsonContainInvlidKey(BSONObject historyFileBson) {
-            try {
-                checkHistoryFileMatcher(historyFileBson);
-                return true;
-            }
-            catch (InvalidArgumentException e) {
-                logger.debug("HistoryFileBson contain invlid key", e);
-                return false;
-            }
-        }
-
-        public static void checkHistoryFileOrderby(BSONObject orderby)
-                throws InvalidArgumentException {
-            try {
-                checkFileFields(orderby, CheckType.HISTORY_FILE);
-            }
-            catch (InvalidArgumentException e) {
-                throw new InvalidArgumentException(
-                        "the orderby parameter contains an invalid key: " + e.getMessage(), e);
-            }
-        }
-
-        public static void checkHistoryFileMatcher(BSONObject fileMatcher)
-                throws InvalidArgumentException {
-            try {
-                checkFileFields(fileMatcher, CheckType.HISTORY_FILE);
-            }
-            catch (InvalidArgumentException e) {
-                throw new InvalidArgumentException(
-                        "the matcher parameter contains an invalid key: " + e.getMessage(), e);
-            }
         }
 
         public static void checkBucketFileOrderBy(BSONObject orderby)

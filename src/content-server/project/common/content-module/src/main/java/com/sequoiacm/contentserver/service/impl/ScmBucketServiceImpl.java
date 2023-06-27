@@ -393,9 +393,9 @@ public class ScmBucketServiceImpl implements IScmBucketService {
             }
 
             if (scope == CommonDefine.Scope.SCOPE_ALL) {
-                if (!ScmSystemUtils.isEmptyBSONObject(orderBy) || skip != 0 || limit != -1) {
+                if (skip != 0 || limit != -1) {
                     throw new ScmServerException(ScmError.OPERATION_UNSUPPORTED,
-                            "query all file in bucket unsupport orderby/skip/limit");
+                            "query all file in bucket unsupported skip/limit");
                 }
                 return queryAllBucketFile(wsInfo, bucket, condition, selector, orderBy,
                         isResContainsDeleteMarker);

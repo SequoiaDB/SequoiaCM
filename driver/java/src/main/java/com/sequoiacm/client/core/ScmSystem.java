@@ -631,16 +631,9 @@ public class ScmSystem {
             if (null == scope) {
                 throw new ScmInvalidArgumentException("scope is null");
             }
+
             if (null == dataCheckLevel) {
                 throw new ScmInvalidArgumentException("dataCheckLevel is null");
-            }
-            if (scope != ScopeType.SCOPE_CURRENT) {
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(condition);
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invalid condition", e);
-                }
             }
 
             ScmSession conn = ws.getSession();
@@ -845,14 +838,6 @@ public class ScmSystem {
             }
             if (null == dataCheckLevel) {
                 throw new ScmInvalidArgumentException("dataCheckLevel is null");
-            }
-            if (scope != ScopeType.SCOPE_CURRENT) {
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(condition);
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invalid condition", e);
-                }
             }
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().MsgStartMoveTask(ws.getName(), condition, scope.getScope(),
@@ -1834,14 +1819,6 @@ public class ScmSystem {
             }
             if (null == preferredZone) {
                 throw new ScmInvalidArgumentException("preferredZone is null");
-            }
-            if (scope != ScopeType.SCOPE_CURRENT) {
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(condition);
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invalid condition", e);
-                }
             }
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().startOnceTransition(ws.getName(), condition,

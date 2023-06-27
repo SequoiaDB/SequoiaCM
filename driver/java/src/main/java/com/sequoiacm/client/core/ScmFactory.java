@@ -419,14 +419,6 @@ public class ScmFactory {
             if (null == fileCondition) {
                 throw new ScmInvalidArgumentException("fileCondition is null");
             }
-            if (scope != ScopeType.SCOPE_CURRENT) {
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(fileCondition);
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("invlid condition", e);
-                }
-            }
 
             ScmSession conn = ws.getSession();
             return conn.getDispatcher().countFile(ws.getName(), scope.getScope(), fileCondition);

@@ -460,16 +460,6 @@ public class TaskServiceImpl implements ITaskService {
                 throw new ScmInvalidArgumentException(
                         "create task failed,unknow scope:scope=" + taskScope);
             }
-            if (taskScope != CommonDefine.Scope.SCOPE_CURRENT) {
-                // query history table, check the matcher
-                try {
-                    ScmArgChecker.File.checkHistoryFileMatcher(
-                            (BSONObject) options.get(CommonDefine.RestArg.TASK_FILTER));
-                }
-                catch (InvalidArgumentException e) {
-                    throw new ScmInvalidArgumentException("Invalid task filter", e);
-                }
-            }
         }
         return taskScope;
     }

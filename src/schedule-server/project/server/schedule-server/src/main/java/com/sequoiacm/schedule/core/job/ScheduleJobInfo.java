@@ -3,7 +3,6 @@ package com.sequoiacm.schedule.core.job;
 import com.sequoiacm.schedule.common.ScheduleCommonTools;
 import org.bson.BSONObject;
 
-import com.sequoiacm.schedule.bizconf.ScmArgChecker;
 import com.sequoiacm.schedule.common.RestCommonDefine;
 import com.sequoiacm.schedule.common.ScheduleDefine;
 import com.sequoiacm.schedule.common.model.ScheduleException;
@@ -82,7 +81,6 @@ public class ScheduleJobInfo {
             throw new ScheduleException(RestCommonDefine.ErrorCode.INVALID_ARGUMENT,
                     "unknown scope:scope=" + scope);
         }
-        ScmArgChecker.ExtralCondition.checkHistoryFileMatcher(condition);
     }
 
     void validateDataCheckLevel(String dataCheckLevel) throws ScheduleException {
