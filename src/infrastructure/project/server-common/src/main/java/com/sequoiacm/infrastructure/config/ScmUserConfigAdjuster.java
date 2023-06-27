@@ -1,20 +1,4 @@
-package com.sequoiacm.infrastructure.config.client.core;
-
-import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDao;
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.boot.context.config.ConfigFileApplicationListener;
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.context.event.ApplicationStartingEvent;
-import org.springframework.boot.logging.DeferredLog;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.event.SmartApplicationListener;
-import org.springframework.core.Ordered;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
+package com.sequoiacm.infrastructure.config;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,6 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import com.sequoiacm.infrastructure.config.util.ScmConfigPropsModifier;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.boot.context.config.ConfigFileApplicationListener;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.logging.DeferredLog;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.SmartApplicationListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 /**
  * 这个类的作用是在用户启动节点时，将用户配置文件中一些配置进行调整；例如在升级到新版本时，可以通过这个类调整一些用户配置文件中遗留的影响新版本功能的配置。
@@ -58,10 +56,11 @@ public class ScmUserConfigAdjuster implements SmartApplicationListener, Ordered 
             }
             if (deleteUserConfigKeys.size() > 0) {
                 try {
-                    new ScmConfigPropsDao(configFilePath).modifyPropsFile(new HashMap<>(),
+                    new ScmConfigPropsModifier(configFilePath).modifyPropsFile(
+                            Collections.<String, String> emptyMap(),
                             deleteUserConfigKeys);
                 }
-                catch (ScmConfigException e) {
+                catch (Exception e) {
                     throw new RuntimeException("failed to modify config file: path="
                             + configFilePath + ", deletedConfigKeys=" + deleteUserConfigKeys, e);
                 }
@@ -86,15 +85,15 @@ public class ScmUserConfigAdjuster implements SmartApplicationListener, Ordered 
                     logger.warn(String.format(
                             "trimming whitespaces at the start and end of configurations in path=%s, updateProps=%s.",
                             configFilePath, updateProps));
-                    new ScmConfigPropsDao(configFilePath).modifyPropsFile(updateProps,
-                            Collections.emptyList());
+                    new ScmConfigPropsModifier(configFilePath).modifyPropsFile(updateProps,
+                            Collections.<String>emptyList());
                 }
             }
             catch (IOException e) {
                 throw new RuntimeException(String.format(
                         "failed to load application.properties from path=%s.", configFilePath), e);
             }
-            catch (ScmConfigException e) {
+            catch (Exception e) {
                 throw new RuntimeException(String.format(
                         "failed to trim whitespaces at start and end of configurations in path=%s, updateProps=%s.",
                         configFilePath, updateProps), e);

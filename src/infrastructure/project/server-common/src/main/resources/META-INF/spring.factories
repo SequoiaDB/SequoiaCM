@@ -16,7 +16,8 @@ org.springframework.context.ApplicationListener=\
 com.sequoiacm.infrastructure.config.ScmPropertySourceConfig,\
 com.sequoiacm.infrastructure.fix.ThirdPartyComponentFixEntry,\
 com.sequoiacm.infrastructure.config.ScmConfigCheckListener,\
-com.sequoiacm.infrastructure.config.ScmParameterCheckConfig
+com.sequoiacm.infrastructure.config.ScmParameterCheckConfig,\
+com.sequoiacm.infrastructure.config.ScmUserConfigAdjuster
 
 ## Register bean on management port of Actuator
 org.springframework.boot.actuate.autoconfigure.ManagementContextConfiguration=\

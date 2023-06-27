@@ -37,7 +37,7 @@ import com.sequoiacm.infrastructure.common.timer.ScmTimer;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerFactory;
 import com.sequoiacm.infrastructure.common.timer.ScmTimerTask;
 import com.sequoiacm.infrastructure.config.client.core.ScmConfPropVerifiersMgr;
-import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDaoFactory;
+import com.sequoiacm.infrastructure.config.client.config.ScmConfigPropsModifierFactory;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClient;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfFeignClientFactory;
 import com.sequoiacm.infrastructure.config.client.remote.ScmConfServerExceptionConvertor;
@@ -78,7 +78,7 @@ public class ScmConfClient {
     private ScmConfPropVerifiersMgr verifiersMgr;
 
     @Autowired
-    private ScmConfigPropsDaoFactory configPropsDaoFactory;
+    private ScmConfigPropsModifierFactory configPropsDaoFactory;
 
     private ScmTimer asyncSubscribeTimer;
 

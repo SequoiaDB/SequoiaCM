@@ -1,4 +1,3 @@
 org.springframework.context.ApplicationListener=\
-com.sequoiacm.infrastructure.config.client.core.ScmUserConfigAdjuster,\
 com.sequoiacm.infrastructure.config.client.props.ScmConfClassScanner
 

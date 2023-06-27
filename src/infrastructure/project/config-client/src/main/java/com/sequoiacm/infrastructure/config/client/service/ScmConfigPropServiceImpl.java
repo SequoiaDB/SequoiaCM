@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import com.sequoiacm.infrastructure.config.util.ScmConfigPropsModifier;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.slf4j.Logger;
@@ -17,8 +18,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.sequoiacm.infrastructure.config.client.core.ScmConfPropVerifiersMgr;
-import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDao;
-import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDaoFactory;
+import com.sequoiacm.infrastructure.config.client.config.ScmConfigPropsModifierFactory;
 import com.sequoiacm.infrastructure.config.client.props.ScmCommonUtil;
 import com.sequoiacm.infrastructure.config.client.props.ScmConfPropsScanner;
 import com.sequoiacm.infrastructure.config.core.common.ScmServiceUpdateConfigResult;
@@ -35,7 +35,7 @@ public class ScmConfigPropServiceImpl implements ScmConfigPropService {
     private ContextRefresher contextRefresher;
 
     @Autowired
-    private ScmConfigPropsDaoFactory daoFactory;
+    private ScmConfigPropsModifierFactory configPropsModifierFactory;
 
     @Autowired
     private ScmConfPropsScanner scmConfPropsScanner;
@@ -55,9 +55,11 @@ public class ScmConfigPropServiceImpl implements ScmConfigPropService {
         verfierMgr.checkProps(updateProps, deleteProps, acceptUnknownProps);
 
         boolean hasTriggerRefreshContext = false;
-        ScmConfigPropsDao dao = daoFactory.createConfigPropsDao();
+        ScmConfigPropsModifier configPropsModifier = configPropsModifierFactory
+                .createConfigPropsDao();
         try {
-            boolean isDifferentFromOld = dao.modifyPropsFile(updateProps, deleteProps);
+            boolean isDifferentFromOld = configPropsModifier.modifyPropsFile(updateProps,
+                    deleteProps);
             if (isDifferentFromOld) {
                 hasTriggerRefreshContext = true;
                 contextRefresher.refresh();
@@ -67,9 +69,9 @@ public class ScmConfigPropServiceImpl implements ScmConfigPropService {
         }
         catch (Exception e) {
             try {
-                dao.rollback();
+                configPropsModifier.rollback();
             }
-            catch (ScmConfigException ex) {
+            catch (Exception ex) {
                 logger.error("failed to rollback config file", ex);
                 throw e;
             }

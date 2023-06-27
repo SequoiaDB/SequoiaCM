@@ -1,4 +1,4 @@
-package com.sequoiacm.infrastructure.config.client.dao;
+package com.sequoiacm.infrastructure.config.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,11 +22,8 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfError;
-import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
-
-public class ScmConfigPropsDao {
-    private static final Logger logger = LoggerFactory.getLogger(ScmConfigPropsDao.class);
+public class ScmConfigPropsModifier {
+    private static final Logger logger = LoggerFactory.getLogger(ScmConfigPropsModifier.class);
 
     private String configFilePath;
     private final String newAppRropsTmpFileName = "newApplication.properties.tmp";
@@ -41,14 +38,13 @@ public class ScmConfigPropsDao {
 
     private File currentOptionBackFile;
 
-    public ScmConfigPropsDao(String configFilePath) {
+    public ScmConfigPropsModifier(String configFilePath) {
         this.configFilePath = configFilePath;
         this.configFileParentPath = new File(configFilePath).getParent();
     }
 
     // return true if new file is different form old
-    public boolean modifyPropsFile(Map<String, String> updateProps, List<String> deleteProps)
-            throws ScmConfigException {
+    public boolean modifyPropsFile(Map<String, String> updateProps, List<String> deleteProps) {
         // e.g: configFilePath = /scm/conf/application.properties
 
         // create a new props file: /scm/conf/newApplication.properties.tmp
@@ -79,7 +75,7 @@ public class ScmConfigPropsDao {
         }
     }
 
-    private File backupPropsFile() throws ScmConfigException {
+    private File backupPropsFile() {
         File propsFileDir = new File(configFileParentPath);
         // list all back file
         File[] backFiles = propsFileDir.listFiles(new FileFilter() {
@@ -148,7 +144,7 @@ public class ScmConfigPropsDao {
         }
     }
 
-    public void rollback() throws ScmConfigException {
+    public void rollback() {
 
         removeFile(configFileParentPath + File.separator + newAppRropsTmpFileName);
 
@@ -162,26 +158,26 @@ public class ScmConfigPropsDao {
             try {
                 renameFile(currentOptionBackFile, new File(configFilePath));
             }
-            catch (ScmConfigException e) {
-                throw new ScmConfigException(e.getError(), "failed to rollback, rename "
-                        + currentOptionBackFile + " to " + configFilePath + " failed", e);
+            catch (Exception e) {
+                throw new RuntimeException(String.format("failed to rollback, rename %s to %s.",
+                        currentOptionBackFile, configFilePath), e);
             }
 
             isNeedRollback = false;
         }
     }
 
-    private void renameFile(File oldFile, File newFile) throws ScmConfigException {
+    private void renameFile(File oldFile, File newFile) {
         boolean isSuccess = oldFile.renameTo(newFile);
         if (!isSuccess) {
-            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                    "failed rename application properties file: rename " + oldFile.getAbsolutePath()
-                            + " to " + newFile.getAbsolutePath());
+            throw new RuntimeException(
+                    String.format("failed to rename application.properties, rename %s to %s.",
+                            oldFile.getAbsolutePath(), newFile.getAbsolutePath()));
         }
     }
 
     private boolean createNewAppPropsTmpFile(Map<String, String> updateProps,
-            List<String> deleteProps) throws ScmConfigException {
+            List<String> deleteProps) {
         updateProps = new HashMap<>(updateProps);
 
         boolean isDifferentFromOld = false;
@@ -237,8 +233,7 @@ public class ScmConfigPropsDao {
             return isDifferentFromOld;
         }
         catch (Exception e) {
-            throw new ScmConfigException(ScmConfError.SYSTEM_ERROR,
-                    "failed to create new application properties", e);
+            throw new RuntimeException("failed to create new application.properties.", e);
         }
         finally {
             closeResource(newTmpAppProps);

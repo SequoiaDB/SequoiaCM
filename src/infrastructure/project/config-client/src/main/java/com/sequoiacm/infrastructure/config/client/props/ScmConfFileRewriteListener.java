@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.sequoiacm.infrastructure.common.annotation.ScmRewritableConfMarker;
 import com.sequoiacm.infrastructure.config.core.exception.ScmConfigException;
+import com.sequoiacm.infrastructure.config.util.ScmConfigPropsModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
@@ -28,8 +29,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
-import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDao;
-import com.sequoiacm.infrastructure.config.client.dao.ScmConfigPropsDaoFactory;
+import com.sequoiacm.infrastructure.config.client.config.ScmConfigPropsModifierFactory;
 
 // 监听程序启动、刷新配置事件，触发如下动作：
 // 比对每一个 scm config bean 的成员变量值，确认与配置文件是否一致，不一致则回写至配置文件
@@ -43,7 +43,7 @@ public class ScmConfFileRewriteListener {
     @Autowired
     private ConfigurableEnvironment env;
     @Autowired
-    private ScmConfigPropsDaoFactory confDaoFactory;
+    private ScmConfigPropsModifierFactory configPropsModifierFactory;
     @Autowired
     private ConversionService conversionService;
     private static final Logger logger = LoggerFactory.getLogger(ScmConfFileRewriteListener.class);
@@ -123,12 +123,13 @@ public class ScmConfFileRewriteListener {
     public synchronized void rewriteConf(Map<String, String> rewriteConf)
             throws ScmConfigException {
         logger.info("rewrite conf: {}", rewriteConf);
-        ScmConfigPropsDao confDao = confDaoFactory.createConfigPropsDao();
+        ScmConfigPropsModifier configPropsModifier = configPropsModifierFactory
+                .createConfigPropsDao();
         try {
-            confDao.modifyPropsFile(rewriteConf, Collections.emptyList());
+            configPropsModifier.modifyPropsFile(rewriteConf, Collections.emptyList());
         }
         catch (Exception e) {
-            confDao.rollbackSilence();
+            configPropsModifier.rollbackSilence();
             throw e;
         }
         resetEnv(rewriteConf);
