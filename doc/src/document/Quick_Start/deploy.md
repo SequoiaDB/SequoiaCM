@@ -58,15 +58,33 @@
     >
     > 用户需根据部署规划编辑配置文件，参数说明可参考[安装部署配置参数][deploy]。
 
-3. 执行安装部署命令
+4. 执行安装部署命令
 
     ```lang-bash 
     # ./scm.py cluster --deploy --conf sequoiacm-deploy/conf/deploy.cfg
     ```
 
-4. 检查节点
+    >**Note:**
+    >
+    > 安装部署的过程中，如果出现发送安装包到远程主机失败，需要手工将安装包上传到远程主机，然后执行安装部署命令。具体操作步骤如下：
+    >
+    > 1. 在需要部署服务的机器上，创建用于存放安装包的临时目录，目录名为 `/tmp/scm-deploy-tmp/install`
+    >
+    >     ```lang-bash
+    >     # mkdir -p /tmp/scm-deploy-tmp/install
+    >     ```
+    > 
+    > 2. 将前面部署时生成的安装包 `/opt/data/sequoiacm/install.tar.gz` 上传至对应机器的 `/tmp/scm-deploy-tmp/install` 目录下
+    >
+    > 3. 执行安装部署命令，并指定 `--skip-send-package` 参数
+    > 
+    >     ```lang-bash 
+    >     # ./scm.py cluster --deploy --conf sequoiacm-deploy/conf/deploy.cfg --skip-send-package
+    >     ```
 
-    使用浏览器登陆服务注册中心（http://scmServer:8800），确保规划的节点都已经注册到服务注册中心。
+5. 检查节点
+
+   使用浏览器登陆服务注册中心（http://scmServer:8800），确保规划的节点都已经注册到服务注册中心。
 
 ###创建工作区###
 

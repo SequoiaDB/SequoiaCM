@@ -28,7 +28,7 @@ public class ScmDeployer {
     private SequoiadbTableInitializer dbInitializer = SequoiadbTableInitializer.getInstance();
     private final ServicesInstallPackManager packManager = ServicesInstallPackManager.getInstance();
 
-    public void deploy(boolean dryrun) throws Exception {
+    public void deploy(boolean dryrun, boolean skipSendPackage) throws Exception {
         ServiceInstallerMgr serviceInstallerMgr = ServiceInstallerMgr.getInstance();
         ServiceDeployerMgr deployerMgr = ServiceDeployerMgr.getInstance();
 
@@ -71,7 +71,7 @@ public class ScmDeployer {
                     host.getHostName(), currentProgress++, progress);
             if (!dryrun) {
                 createInstallUserAndPath(host);
-                sendInstallPack(host, packPath);
+                sendInstallPack(host, packPath, skipSendPackage);
             }
             for (InstallPackType installPack : InstallPackType.values()) {
                 logger.info("Deploying service: installing {} on {} ({}/{})", installPack,
@@ -171,14 +171,17 @@ public class ScmDeployer {
         }
     }
 
-    private void sendInstallPack(HostInfo host, String packPath) throws Exception {
+    private void sendInstallPack(HostInfo host, String packPath, boolean skipSendPackage)
+            throws Exception {
         Ssh ssh = sshFactory.getSsh(host);
         try {
             String targetPath = ssh.getScpTmpPath()
                     + CommonConfig.getInstance().getRemoteInstallPackPath();
-            ssh.sudoExec("rm -rf " + targetPath);
-            ssh.sudoExec("mkdir -p " + targetPath);
-            ssh.scp(packPath, targetPath);
+            if (!skipSendPackage) {
+                ssh.sudoExec("rm -rf " + targetPath);
+                ssh.sudoExec("mkdir -p " + targetPath);
+                ssh.scp(packPath, targetPath);
+            }
             ssh.sudoExec("tar -xf '" + targetPath + "/" + new File(packPath).getName() + "' -C "
                     + targetPath);
         }

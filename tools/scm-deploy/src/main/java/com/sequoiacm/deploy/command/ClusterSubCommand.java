@@ -31,6 +31,7 @@ public class ClusterSubCommand extends SubCommand {
     public static final String OPT_ROLLBACK = "rollback";
     public static final String OPT_UPGRADE_STATUS = "upgrade-status-path";
     public static final String OPT_DRYRUN = "dryrun";
+    public static final String OPT_SKIP_SEND_PACKAGE = "skip-send-package";
 
 
     @Override
@@ -133,6 +134,12 @@ public class ClusterSubCommand extends SubCommand {
                         .getAbsolutePath()
                         + "/upgrade_status_{timestamp}")
                 .build());
+        ops.addOption(Option.builder().longOpt(OPT_SKIP_SEND_PACKAGE).hasArg(false).required(false)
+                .desc("skip send package to remote host when deploy sequoiacm cluster. "
+                        + "when there is a failure to send the package to remote host during deploy "
+                        + "sequoiacm cluster, this param can be used to skip send package to remote host, "
+                        + "but before using it, need to upload the package to remote host.")
+                .build());
         for (SubOption subOption : SubOption.values()) {
             ops.addOption(
                     Option.builder().longOpt(subOption.getName()).hasArg(subOption.isHasArgs())
@@ -208,7 +215,7 @@ public class ClusterSubCommand extends SubCommand {
         if (cl.hasOption(ClusterSubCommand.OPT_DEPLOY)) {
             ScmDeployer deployer = new ScmDeployer();
             try {
-                deployer.deploy(dryrun);
+                deployer.deploy(dryrun, cl.hasOption(ClusterSubCommand.OPT_SKIP_SEND_PACKAGE));
             }
             catch (Exception e) {
                 throw new DeployException("use option '" + ClusterSubCommand.OPT_CLEAN
