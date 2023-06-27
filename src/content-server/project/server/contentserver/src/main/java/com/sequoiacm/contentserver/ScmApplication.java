@@ -99,10 +99,6 @@ public class ScmApplication implements ApplicationRunner {
                 logger.info("{}={}", o, args.getOptionValues(o));
             }
 
-            String confRelativePath = ".." + File.separator + "conf" + File.separator
-                    + "content-server" + File.separator + PropertiesUtils.getServerPort()
-                    + File.separator + "application.properties";
-            confClient.setConfFilePath(confRelativePath);
             confClient.registerConfigPropVerifier(new PreventingModificationVerifier(
                     "eureka.instance.metadata-map.isContentServer",
                     "eureka.instance.metadata-map.isRootSiteInstance",

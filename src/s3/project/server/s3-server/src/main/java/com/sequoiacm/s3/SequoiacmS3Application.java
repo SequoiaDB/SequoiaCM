@@ -79,9 +79,6 @@ public class SequoiacmS3Application implements ApplicationRunner {
         uploadDao.initUploadMetaTable();
         partDao.initPartsTable();
 
-        String confRelativePath = ".." + File.separator + "conf" + File.separator + "s3-server"
-                + File.separator + serverPort + File.separator + "application.properties";
-        confClient.setConfFilePath(confRelativePath);
         confClient.registerConfigPropVerifier(
                 new PreventingModificationVerifier("eureka.instance.metadata-map.isS3Server",
                         "eureka.instance.metadata-map.bindingSite", "scm.content-module.site"));

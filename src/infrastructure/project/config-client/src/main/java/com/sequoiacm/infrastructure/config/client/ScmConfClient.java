@@ -325,16 +325,6 @@ public class ScmConfClient {
         verifiersMgr.addVerifier(verifier);
     }
 
-    /**
-     *
-     * @param relativeConfFilePath
-     *            ConfFilePath that relative to the config-client jar
-     * @throws ScmConfigException
-     */
-    public void setConfFilePath(String relativeConfFilePath) throws ScmConfigException {
-        configPropsDaoFactory.setConfigPropsPath(relativeConfFilePath);
-    }
-
     public String getGlobalConfig(String confName) throws ScmConfigException {
         Map<String, String> map = confFeignClientFactory.getClient().getGlobalConf(confName);
         if (map == null) {
