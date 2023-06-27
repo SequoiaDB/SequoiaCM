@@ -56,10 +56,10 @@ public class CreateFileDirFilter implements Filter<CreateFileContext> {
                         fileMeta.getName(), e);
                 String fileId = findFile(wsInfo.getName(), fileMeta.getDirId(), fileMeta.getName());
                 if (fileId == null) {
-                    // 写入关系表时索引冲突，查找冲突文件时又未找到，通知上层重新触发一次 Pipeline，同时把异常带出去，用于停止重试时提示用户
+                    // 写入关系表时索引冲突，查找冲突文件时又未找到，通知上层 sleep 1s 后重新触发一次 Pipeline，同时把异常带出去，用于停止重试时提示用户
                     return PipelineResult.redo(
                             new ScmServerException(ScmError.FILE_EXIST, "file already exist: dirId="
-                                    + fileMeta.getDirId() + ", fileName=" + fileMeta.getName(), e));
+                                    + fileMeta.getDirId() + ", fileName=" + fileMeta.getName(), e), 1000);
                 }
                 throw new FileMetaExistException(
                         "failed to create file, create dir relation failed: dirId="

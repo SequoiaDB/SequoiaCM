@@ -126,6 +126,9 @@ public class FileMetaOperator {
                 return;
             }
             if (res.getStatus() == PipelineResult.Status.REDO_PIPELINE) {
+                logger.debug("try redo pipeline, silenceTime={}", res.getSilenceTimeMsBeforeRedo(),
+                        res.getCause());
+                sleep(res);
                 redoHandler.beforeRedo(context);
                 continue;
             }
@@ -140,6 +143,18 @@ public class FileMetaOperator {
             throw res.getCause();
         }
         throw new ScmServerException(ScmError.SYSTEM_ERROR, "failed to invoke pipeline");
+    }
+
+    private void sleep(PipelineResult res) throws ScmServerException {
+        if (res.getSilenceTimeMsBeforeRedo() > 0) {
+            try {
+                Thread.sleep(res.getSilenceTimeMsBeforeRedo());
+            }
+            catch (InterruptedException e) {
+                logger.error("failed to sleep", e);
+                throw res.getCause();
+            }
+        }
     }
 
     private <C> PipelineResult invokePipelines(List<Pipeline<C>> pipelineList, C context)

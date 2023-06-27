@@ -80,12 +80,12 @@ public class CreateFileBucketFilter implements Filter<CreateFileContext> {
                         fileMeta.getName(), e);
                 String fileId = findFile(bucket, fileMeta.getName());
                 if (fileId == null) {
-                    // 写入关系表时索引冲突，查找冲突文件时又未找到，通知上层重新触发一次 Pipeline，同时把异常带出去，用于停止重试时提示用户
+                    // 写入关系表时索引冲突，查找冲突文件时又未找到，通知上层 sleep 1s 后重新触发一次 Pipeline，同时把异常带出去，用于停止重试时提示用户
                     return PipelineResult
                             .redo(new ScmServerException(
-                                    ScmError.FILE_EXIST, "file already exist: bucket="
+                                    ScmError.RESOURCE_CONFLICT, "failed to create file, file is busy: bucket="
                                             + bucket.getName() + ", fileName=" + fileMeta.getName(),
-                                    e));
+                                    e), 1000);
                 }
                 throw new FileMetaExistException(
                         "failed to create file, create bucket relation failed: bucket="
