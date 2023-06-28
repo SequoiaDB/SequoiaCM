@@ -269,7 +269,7 @@ public class CommonHelper {
         StringBuilder sb = new StringBuilder();
         switch (type) {
             case YEAR:
-                sb.append(createMonth, 0, 4);
+                sb.append(getCurrentYear(createMonth));
                 break;
 
             case MONTH:
@@ -277,9 +277,8 @@ public class CommonHelper {
                 break;
 
             case QUARTER:
-                sb.append(createMonth, 0, 4);
-                String month = createMonth.substring(4, 6);
-                sb.append(CommonHelper.getQuarter(month));
+                sb.append(getCurrentYear(createMonth));
+                sb.append(CommonHelper.getQuarter(getCurrentMonth(createMonth)));
                 break;
 
             default:
@@ -342,9 +341,9 @@ public class CommonHelper {
 
         switch (type) {
             case YEAR:
-                int currentYear = Integer.parseInt(createMonth.substring(0, 4));
+                String currentYear = getCurrentYear(createMonth);
                 lowYearMonth = currentYear + CommonHelper.MONTH1;
-                upperYearMonth = (currentYear + 1) + CommonHelper.MONTH1;
+                upperYearMonth = getNextYear(currentYear) + CommonHelper.MONTH1;
                 break;
 
             case MONTH:
@@ -353,8 +352,8 @@ public class CommonHelper {
                 break;
 
             default:
-                int year = Integer.parseInt(createMonth.substring(0, 4));
-                String quarter = CommonHelper.getQuarter(createMonth.substring(4, 6));
+                String year = getCurrentYear(createMonth);
+                String quarter = CommonHelper.getQuarter(getCurrentMonth(createMonth));
 
                 if (quarter.equals(CommonHelper.QUARTER1)) {
                     lowYearMonth = year + CommonHelper.MONTH1;
@@ -371,21 +370,46 @@ public class CommonHelper {
                 else {
                     // QUARTER4
                     lowYearMonth = year + CommonHelper.MONTH10;
-                    upperYearMonth = (year + 1) + CommonHelper.MONTH1;
+                    upperYearMonth = getNextYear(year) + CommonHelper.MONTH1;
                 }
                 break;
         }
         return new ScmMonthRange(lowYearMonth, upperYearMonth);
     }
 
+    private static String getCurrentYear(String createMonth) {
+        return createMonth.substring(0, 4);
+    }
+
+    private static String getNextYear(String currentYear) {
+        String nextYear = String.valueOf(Integer.parseInt(currentYear) + 1);
+        int zeroNum = 4 - nextYear.length();
+        if (zeroNum == 0) {
+            return nextYear;
+        }
+        StringBuilder builder = new StringBuilder();
+        while (zeroNum > 0) {
+            builder.append("0");
+            zeroNum--;
+        }
+        builder.append(nextYear);
+        return builder.toString();
+
+    }
+
+    private static String getCurrentMonth(String createMonth) {
+        return createMonth.substring(4, 6);
+    }
+
     private static String getNextYearMonth(String createMonth) {
-        int currentYear = Integer.parseInt(createMonth.substring(0, 4));
-        int currentMonth = Integer.parseInt(createMonth.substring(4, 6));
+        String currentYear = getCurrentYear(createMonth);
+        int currentMonth = Integer.parseInt(getCurrentMonth(createMonth));
         if (currentMonth == 12) {
-            return (currentYear + 1) + CommonHelper.MONTH1;
+            return getNextYear(currentYear) + CommonHelper.MONTH1;
         }
         else {
-            return currentYear + "" + (currentMonth + 1);
+            int nextMonth = currentMonth + 1;
+            return nextMonth < 10 ? currentYear + "0" + nextMonth : currentYear + "" + nextMonth;
         }
     }
 
