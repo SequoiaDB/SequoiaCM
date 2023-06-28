@@ -42,10 +42,8 @@ public class RestExceptionHandler extends RestExceptionHandlerBase {
                 status = HttpStatus.BAD_REQUEST;
                 break;
             case OPERATION_FORBIDDEN:
-                status = HttpStatus.FORBIDDEN;
-                break;
             case OPERATION_UNAUTHORIZED:
-                status = HttpStatus.UNAUTHORIZED;
+                status = HttpStatus.FORBIDDEN;
                 break;
             case FILE_NOT_FOUND:
             case DIR_NOT_FOUND:
