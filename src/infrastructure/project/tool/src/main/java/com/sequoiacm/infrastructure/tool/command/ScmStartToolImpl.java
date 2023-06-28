@@ -1,7 +1,6 @@
 package com.sequoiacm.infrastructure.tool.command;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -145,7 +144,8 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException("please check log: " + ScmCommon.getStartLogPath(),
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -245,9 +245,15 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         for (Entry<ScmNodeInfo, String> entry : port2Status.entrySet()) {
-            logger.error("failed to start node {}({}) because of timeout\n" + "node status: {}",
-                    entry.getKey().getNodeType().getUpperName(), entry.getKey().getPort(),
+            logger.error("failed to start node {}({}) because of timeout",
+                    entry.getKey().getNodeType().getUpperName(), entry.getKey().getPort());
+            logger.error("node status: {}",
                     entry.getValue());
+            String nodeLog = ScmCommon.getServiceInstallPath() + File.separator + "log" + File.separator
+                    + entry.getKey().getNodeType().getName() + File.separator
+                    + entry.getKey().getPort() + File.separator
+                    + (entry.getKey().getNodeType().getName().replace("-", "")) + ".log";
+            logger.error("check log for detail: {}", new File(nodeLog).getPath());
             System.out.println("Failed:" + entry.getKey().getNodeType().getUpperName() + "("
                     + entry.getKey().getPort() + ")" + " failed to start");
         }

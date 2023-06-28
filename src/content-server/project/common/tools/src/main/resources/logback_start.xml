@@ -2,9 +2,9 @@
     <property name="LOG_PATH" value="../log" />
     
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/start/start.log</file>
+        <file>${LOG_PATH}/start.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/start/start.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/start.%i.log</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>10</maxIndex>
         </rollingPolicy>

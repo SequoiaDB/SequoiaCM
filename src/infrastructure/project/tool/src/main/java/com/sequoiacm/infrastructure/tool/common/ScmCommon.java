@@ -7,9 +7,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Paths;
-import java.nio.file.attribute.UserPrincipal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sequoiacm.infrastructure.common.ScmManifestParser;
 import com.sequoiacm.infrastructure.common.ScmManifestParser.ManifestInfo;
-import com.sequoiacm.infrastructure.tool.element.ScmNodeType;
 import com.sequoiacm.infrastructure.tool.exception.ScmBaseExitCode;
 import com.sequoiacm.infrastructure.tool.exception.ScmToolsException;
 
@@ -171,6 +168,24 @@ public class ScmCommon {
             // ignore
             logger.warn("sleep occur execption,millis:" + millis, e);
         }
+    }
+
+    public static String getServiceInstallPath() {
+        String jarFilePath = ScmCommon.class.getProtectionDomain().getCodeSource().getLocation()
+                .getPath();
+        return new File(jarFilePath).getParentFile().getParent();
+    }
+
+    public static String getStartLogPath() {
+        String serviceInstallPath = getServiceInstallPath();
+        return new File(serviceInstallPath + File.separator + "log" + File.separator + "start.log")
+                .getPath();
+    }
+
+    public static String getStopLogPath() {
+        String serviceInstallPath = getServiceInstallPath();
+        return new File(serviceInstallPath + File.separator + "log" + File.separator + "stop.log")
+                .getPath();
     }
 
     // public static boolean urlIsValid(String sdbUrl) {

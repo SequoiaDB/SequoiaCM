@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -118,7 +119,8 @@ public class ScmStopToolImpl extends ScmTool {
         logger.info("Total:" + needStopNode.size() + ";Success:" + success + ";Failed:"
                 + (needStopNode.size() - success));
         if (!stopRes || needStopNode.size() != success) {
-            throw new ScmToolsException(ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException("please check log: " + ScmCommon.getStopLogPath(),
+                    ScmExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -216,8 +218,12 @@ public class ScmStopToolImpl extends ScmTool {
         }
 
         for (int port : checkList) {
+            String nodeLog = ScmCommon.getServiceInstallPath() + File.separator + "log"
+                    + File.separator + "content-server" + File.separator + port + File.separator
+                    + "contentserver.log";
             logger.error("Failed:CONTENT-SERVER(" + port
-                    + ") failed to stop, timeout, node still running");
+                    + ") failed to stop, timeout, node still running, check log for detail: "
+                    + nodeLog);
             System.out.println("Failed:CONTENT-SERVER(" + port + ") failed to stop");
         }
         return false;

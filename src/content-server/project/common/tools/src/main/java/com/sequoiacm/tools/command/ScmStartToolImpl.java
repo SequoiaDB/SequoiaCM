@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.sequoiacm.infrastructure.tool.common.ScmCommon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -153,7 +154,8 @@ public class ScmStartToolImpl extends ScmTool {
         System.out.println("Total:" + needStartMap.size() + ";Success:" + startSuccessList.size()
                 + ";Failed:" + (needStartMap.size() - startSuccessList.size()));
         if (!startRes || needStartMap.size() - startSuccessList.size() > 0) {
-            throw new ScmToolsException(ScmExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException("please check log: " + ScmCommon.getStartLogPath(),
+                    ScmExitCode.SYSTEM_ERROR);
         }
     }
 
@@ -259,8 +261,12 @@ public class ScmStartToolImpl extends ScmTool {
         }
 
         for (Entry<Integer, String> entry : port2Status.entrySet()) {
-            logger.error("failed to start node({}) because of timeout\n" + "node status: {}",
-                    entry.getKey(), entry.getValue());
+            logger.error("failed to start node({}) because of timeout", entry.getKey());
+            logger.error("node status: {}", entry.getValue());
+            String nodeLog = ScmCommon.getServiceInstallPath() + File.separator + "log" + File.separator
+                    + "content-server" + File.separator + entry.getKey() + File.separator
+                    + "contentserver.log";
+            logger.error("check log for detail: {}", new File(nodeLog).getPath());
             System.out.println("Failed:CONTENT-SERVER(" + entry.getKey() + ") failed to start");
         }
 

@@ -174,8 +174,13 @@ public class ScmStopToolImpl extends ScmTool {
 
         // time out some node still running
         for (ScmNodeInfo node : timeOutList) {
+            String nodeLog = ScmCommon.getServiceInstallPath() + File.separator + "log"
+                    + File.separator + node.getNodeType().getName() + File.separator
+                    + node.getPort() + File.separator
+                    + (node.getNodeType().getName().replace("-", "")) + ".log";
             logger.error("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort() + ")"
-                    + " failed to stop, timeout, node still running");
+                    + " failed to stop, timeout, node still running, check log for detail: "
+                    + nodeLog);
             System.out.println("Failed:" + node.getNodeType().getUpperName() + "(" + node.getPort()
                     + ")" + " failed to stop");
         }
@@ -186,7 +191,8 @@ public class ScmStopToolImpl extends ScmTool {
                 + (nodeInfoList.size() - success));
 
         if (nodeInfoList.size() != success) {
-            throw new ScmToolsException(ScmBaseExitCode.SYSTEM_ERROR);
+            throw new ScmToolsException("please check log: " + ScmCommon.getStopLogPath(),
+                    ScmBaseExitCode.SYSTEM_ERROR);
         }
     }
 
