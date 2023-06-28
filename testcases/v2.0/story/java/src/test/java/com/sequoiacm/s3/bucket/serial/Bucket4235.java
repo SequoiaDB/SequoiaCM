@@ -137,12 +137,13 @@ public class Bucket4235 extends TestScmBase {
     }
 
     private void clearBuckets() throws ScmException {
-        ScmCursor< ScmBucket > scmBucketScmCursor = ScmFactory.Bucket
-                .listBucket( session, s3WorkSpaces, TestScmBase.scmUserName );
-        while ( scmBucketScmCursor.hasNext() ) {
-            String bucketName = scmBucketScmCursor.getNext().getName();
-            if ( bucketName.contains( bucketNameBase ) ) {
-                S3Utils.clearBucket( s3Client, bucketName );
+        try ( ScmCursor< ScmBucket > scmBucketScmCursor = ScmFactory.Bucket
+                .listBucket( session, s3WorkSpaces, TestScmBase.scmUserName )) {
+            while ( scmBucketScmCursor.hasNext() ) {
+                String bucketName = scmBucketScmCursor.getNext().getName();
+                if ( bucketName.contains( bucketNameBase ) ) {
+                    S3Utils.clearBucket( s3Client, bucketName );
+                }
             }
         }
     }

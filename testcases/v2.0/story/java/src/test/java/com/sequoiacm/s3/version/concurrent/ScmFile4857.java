@@ -148,23 +148,25 @@ public class ScmFile4857 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
-                ScmType.ScopeType.SCOPE_ALL, condition );
-        int size = 0;
-        List< BSONObject > actFileNames = new ArrayList<>();
-        while ( cursor.hasNext() ) {
-            ScmFileBasicInfo file = cursor.getNext();
-            int version = file.getMajorVersion();
-            Assert.assertEquals( file.getFileId(), fileId,
-                    "---error file version is " + version );
-            Assert.assertEquals( file.getFileName(), fileName );
-            Assert.assertEquals( version, currentVersion );
-            BSONObject fileInfo = new BasicBSONObject();
-            fileInfo.put( file.getFileName(), version );
-            actFileNames.add( fileInfo );
-            size++;
+        try ( ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                .listInstance( ws, ScmType.ScopeType.SCOPE_ALL, condition )) {
+            int size = 0;
+            List< BSONObject > actFileNames = new ArrayList<>();
+            while ( cursor.hasNext() ) {
+                ScmFileBasicInfo file = cursor.getNext();
+                int version = file.getMajorVersion();
+                Assert.assertEquals( file.getFileId(), fileId,
+                        "---error file version is " + version );
+                Assert.assertEquals( file.getFileName(), fileName );
+                Assert.assertEquals( version, currentVersion );
+                BSONObject fileInfo = new BasicBSONObject();
+                fileInfo.put( file.getFileName(), version );
+                actFileNames.add( fileInfo );
+                size++;
+            }
+            int fileVersionNum = 1;
+            Assert.assertEquals( size, fileVersionNum,
+                    actFileNames.toString() );
         }
-        int fileVersionNum = 1;
-        Assert.assertEquals( size, fileVersionNum, actFileNames.toString() );
     }
 }

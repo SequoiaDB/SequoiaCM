@@ -40,7 +40,7 @@ public class Bucket4234 extends TestScmBase {
         site = ScmInfo.getSite();
         int siteNum = ScmInfo.getSiteNum();
         session = ScmSessionUtils.createSession( site );
-        ScmWorkspaceUtil.createS3WS(session, wsName);
+        ScmWorkspaceUtil.createS3WS( session, wsName );
         ScmWorkspaceUtil.wsSetPriority( session, wsName );
         createBuckets( bucketName, 1, 3 );
     }
@@ -82,15 +82,16 @@ public class Bucket4234 extends TestScmBase {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
             int count = 0;
-            ScmCursor< ScmBucket > bucketCursor = ScmFactory.Bucket
-                    .listBucket( session, wsName, scmUserName );
-            while ( bucketCursor.hasNext() ) {
-                ScmBucket bucket = bucketCursor.getNext();
-                if ( bucket.getName().startsWith( bucketName ) ) {
-                    count++;
+            try ( ScmCursor< ScmBucket > bucketCursor = ScmFactory.Bucket
+                    .listBucket( session, wsName, scmUserName )) {
+                while ( bucketCursor.hasNext() ) {
+                    ScmBucket bucket = bucketCursor.getNext();
+                    if ( bucket.getName().startsWith( bucketName ) ) {
+                        count++;
+                    }
                 }
+                Assert.assertTrue( count < 10 );
             }
-            Assert.assertTrue( count < 10 );
         }
     }
 

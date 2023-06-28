@@ -93,10 +93,11 @@ public class Bucket4279 extends TestScmBase {
 
         // scm api列取桶
         actBucketNames = new ArrayList<>();
-        ScmCursor< ScmBucket > cursor = ScmFactory.Bucket
-                .listBucket( newUserSession, null, null, 0, -1 );
-        while ( cursor.hasNext() ) {
-            actBucketNames.add( cursor.getNext().getName() );
+        try ( ScmCursor< ScmBucket > cursor = ScmFactory.Bucket
+                .listBucket( newUserSession, null, null, 0, -1 )) {
+            while ( cursor.hasNext() ) {
+                actBucketNames.add( cursor.getNext().getName() );
+            }
         }
         // 排除公共桶干扰
         actBucketNames.removeAll( envNewUsersBuckets );

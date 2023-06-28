@@ -117,6 +117,10 @@ public class AuthDir_Read1726 extends TestScmBase {
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
         }
     }
 

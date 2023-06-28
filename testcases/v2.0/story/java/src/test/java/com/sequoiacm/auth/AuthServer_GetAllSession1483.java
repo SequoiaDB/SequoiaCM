@@ -77,6 +77,10 @@ public class AuthServer_GetAllSession1483 extends TestScmBase {
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
         }
         runSuccess = true;
     }

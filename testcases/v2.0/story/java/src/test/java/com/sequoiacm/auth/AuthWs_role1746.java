@@ -85,13 +85,17 @@ public class AuthWs_role1746 extends TestScmBase {
 
         // check results
         ScmRole role = roles.get( 0 );
-        ScmCursor< ScmPrivilege > cursor = ScmFactory.Privilege
-                .listPrivileges( session, role );
-        Assert.assertTrue( cursor.hasNext() );
+        try ( ScmCursor< ScmPrivilege > cursor = ScmFactory.Privilege
+                .listPrivileges( session, role )) {
+            Assert.assertTrue( cursor.hasNext() );
+        }
 
         role = roles.get( 1 );
-        cursor = ScmFactory.Privilege.listPrivileges( session, role );
-        Assert.assertFalse( cursor.hasNext() );
+        try ( ScmCursor< ScmPrivilege > cursor = ScmFactory.Privilege
+                .listPrivileges( session, role )) {
+            Assert.assertFalse( cursor.hasNext() );
+        }
+
         runSuccess = true;
     }
 

@@ -102,16 +102,17 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
         BSONObject cond = ScmQueryBuilder.start( "password_type" ).is( "LOCAL" )
                 .and( "enabled" ).is( false ).and( "has_role" ).is( roleName1 )
                 .get();
-        ScmCursor< ScmUser > cursor = ScmFactory.User.listUsers( session,
-                cond );
-        int i = 0;
-        while ( cursor.hasNext() ) {
-            ScmUser user = cursor.getNext();
-            Assert.assertEquals( user.getUsername(), username + "_2",
-                    user.toString() );
-            i++;
+        try ( ScmCursor< ScmUser > cursor = ScmFactory.User.listUsers( session,
+                cond )) {
+            int i = 0;
+            while ( cursor.hasNext() ) {
+                ScmUser user = cursor.getNext();
+                Assert.assertEquals( user.getUsername(), username + "_2",
+                        user.toString() );
+                i++;
+            }
+            Assert.assertEquals( i, 1 );
         }
-        Assert.assertEquals( i, 1 );
         runSuccess = true;
     }
 
@@ -119,29 +120,32 @@ public class AuthServer_user1509_to_1516 extends TestScmBase {
     private void test_listUserByFullRoleName() throws ScmException {
         BSONObject cond1 = ScmQueryBuilder.start( "has_role" )
                 .is( roleNamePrefix + roleName1 ).get();
-        ScmCursor< ScmUser > cursor1 = ScmFactory.User.listUsers( session,
-                cond1 );
-        int i = 0;
-        while ( cursor1.hasNext() ) {
-            ScmUser user = cursor1.getNext();
-            Assert.assertEquals( user.getUsername(), username + "_2",
-                    user.toString() );
-            i++;
+        try ( ScmCursor< ScmUser > cursor1 = ScmFactory.User.listUsers( session,
+                cond1 )) {
+            int i = 0;
+            while ( cursor1.hasNext() ) {
+                ScmUser user = cursor1.getNext();
+                Assert.assertEquals( user.getUsername(), username + "_2",
+                        user.toString() );
+                i++;
+            }
+            Assert.assertEquals( i, 1 );
         }
-        Assert.assertEquals( i, 1 );
 
         BSONObject cond2 = ScmQueryBuilder.start( "has_role" ).is( roleName2 )
                 .get();
-        ScmCursor< ScmUser > cursor2 = ScmFactory.User.listUsers( session,
-                cond2 );
-        int j = 0;
-        while ( cursor2.hasNext() ) {
-            ScmUser user = cursor2.getNext();
-            Assert.assertEquals( user.getUsername(), username + "_3",
-                    user.toString() );
-            j++;
+        try ( ScmCursor< ScmUser > cursor2 = ScmFactory.User.listUsers( session,
+                cond2 )) {
+            int j = 0;
+            while ( cursor2.hasNext() ) {
+                ScmUser user = cursor2.getNext();
+                Assert.assertEquals( user.getUsername(), username + "_3",
+                        user.toString() );
+                j++;
+            }
+            Assert.assertEquals( j, 1 );
         }
-        Assert.assertEquals( j, 1 );
+
         runSuccess = true;
     }
 

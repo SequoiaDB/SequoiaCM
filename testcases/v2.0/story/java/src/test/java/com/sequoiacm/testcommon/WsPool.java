@@ -212,11 +212,10 @@ public class WsPool {
     private static List< String > createCommonWs(
             HashMap< String, String > wsOptions ) throws Exception {
         HashMap< String, String > wsConfig = new HashMap<>( wsOptions );
-        ScmSession session = null;
-        try {
-            session = ScmSessionUtils.createSession( ScmInfo.getSite() );
-            ScmCursor< ScmWorkspaceInfo > wsInfo = ScmFactory.Workspace
-                    .listWorkspace( session );
+        try ( ScmSession session = ScmSessionUtils
+                .createSession( ScmInfo.getSite() ) ;
+                ScmCursor< ScmWorkspaceInfo > wsInfo = ScmFactory.Workspace
+                        .listWorkspace( session ) ;) {
             Set< String > keys = wsConfig.keySet();
             // 从待创建的工作区列表中移除环境中已存在的
             while ( wsInfo.hasNext() ) {
@@ -231,10 +230,6 @@ public class WsPool {
                         wsName, wsConfig.get( wsName ) ) );
             }
             threadExec.run();
-        } finally {
-            if ( session != null ) {
-                session.close();
-            }
         }
         return new ArrayList<>( wsConfig.keySet() );
     }

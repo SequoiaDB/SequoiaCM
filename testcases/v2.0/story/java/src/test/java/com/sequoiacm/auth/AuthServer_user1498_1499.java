@@ -102,13 +102,14 @@ public class AuthServer_user1498_1499 extends TestScmBase {
         ScmFactory.User.deleteUser( session, username );
 
         // check results
-        ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
-                .listSessions( session );
-        while ( cursor.hasNext() ) {
-            ScmSessionInfo ssInfo = cursor.getNext();
-            Assert.assertNotEquals( ssInfo.getUsername(), username );
-
+        try ( ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
+                .listSessions( session )) {
+            while ( cursor.hasNext() ) {
+                ScmSessionInfo ssInfo = cursor.getNext();
+                Assert.assertNotEquals( ssInfo.getUsername(), username );
+            }
         }
+
         // SEQUOIACM-793 引入了缓存机制，需要睡眠61s
         Thread.sleep( 61000 );
         for ( ScmSession tmpSS : ss ) {

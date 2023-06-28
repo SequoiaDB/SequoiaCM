@@ -104,11 +104,12 @@ public class Object4223 extends TestScmBase {
         List< String > getKeyList = new ArrayList<>();
 
         ScmBucket bucket = ScmFactory.Bucket.getBucket( session, bucketName );
-        ScmCursor< ScmFileBasicInfo > filesCursor = bucket.listFile( null, null,
-                0, -1 );
-        while ( filesCursor.hasNext() ) {
-            ScmFileBasicInfo file = filesCursor.getNext();
-            getKeyList.add( file.getFileName() );
+        try ( ScmCursor< ScmFileBasicInfo > filesCursor = bucket.listFile( null,
+                null, 0, -1 )) {
+            while ( filesCursor.hasNext() ) {
+                ScmFileBasicInfo file = filesCursor.getNext();
+                getKeyList.add( file.getFileName() );
+            }
         }
 
         return getKeyList;

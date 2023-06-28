@@ -134,17 +134,17 @@ public class CreateMutiVerFileWithDir2065b extends TestScmBase {
             String orgDir = dirNames.get( i );
             ScmDirectory scmDirTemp = ScmFactory.Directory.getInstance( ws,
                     orgDir );
-            ScmCursor< ScmFileBasicInfo > fileCursor = scmDirTemp
-                    .listFiles( null );
-            int count = 0;
-            while ( fileCursor.hasNext() ) {
-                ScmFileBasicInfo fileInfo = fileCursor.getNext();
-                Assert.assertNull( fileInfo.getFileName() );
-                count++;
+            try ( ScmCursor< ScmFileBasicInfo > fileCursor = scmDirTemp
+                    .listFiles( null )) {
+                int count = 0;
+                while ( fileCursor.hasNext() ) {
+                    ScmFileBasicInfo fileInfo = fileCursor.getNext();
+                    Assert.assertNull( fileInfo.getFileName() );
+                    count++;
+                }
+                int expDirNum = 0;
+                Assert.assertEquals( count, expDirNum );
             }
-            int expDirNum = 0;
-            Assert.assertEquals( count, expDirNum );
-            ;
         }
 
     }

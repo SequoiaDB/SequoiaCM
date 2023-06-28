@@ -100,7 +100,8 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
     /*
      * different new and old password
      */
-    private void test_alterPasswd02() throws ScmException, InterruptedException {
+    private void test_alterPasswd02()
+            throws ScmException, InterruptedException {
         String username = NAME + "_0";
         ScmUser scmUser = ScmFactory.User.getUser( session, username );
 
@@ -133,9 +134,10 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
         newSS.close();
 
         // check results for clean sessions
-        ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
-                .listSessions( session, username );
-        Assert.assertFalse( cursor.hasNext() );
+        try ( ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
+                .listSessions( session, username )) {
+            Assert.assertFalse( cursor.hasNext() );
+        }
         // SEQUOIACM-793 引入了缓存机制，需要睡眠61s
         Thread.sleep( 61000 );
         for ( ScmSession tmpSS : ss ) {
@@ -191,14 +193,16 @@ public class AuthServer_user1500_1502_1503 extends TestScmBase {
         newSS.close();
 
         // check results for clean sessions
-        ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
-                .listSessions( session, username );
-        int actSSNum = 0;
-        while ( cursor.hasNext() ) {
-            actSSNum++;
-            cursor.getNext();
+        try ( ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
+                .listSessions( session, username )) {
+            int actSSNum = 0;
+            while ( cursor.hasNext() ) {
+                actSSNum++;
+                cursor.getNext();
+            }
+            Assert.assertEquals( actSSNum, ssNum );
         }
-        Assert.assertEquals( actSSNum, ssNum );
+
         for ( ScmSession tmpSS : ss ) {
             ScmFactory.User.getUser( tmpSS, username );
             tmpSS.close();

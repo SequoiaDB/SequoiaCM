@@ -113,9 +113,10 @@ public class AuthServer_user_token1808 extends TestScmBase {
 
             // logout
             ss.close();
-            ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
-                    .listSessions( session, NAME );
-            Assert.assertFalse( cursor.hasNext() );
+            try ( ScmCursor< ScmSessionInfo > cursor = ScmFactory.Session
+                    .listSessions( session, NAME )) {
+                Assert.assertFalse( cursor.hasNext() );
+            }
         } finally {
             if ( null != ss )
                 ss.close();

@@ -101,12 +101,13 @@ public class Buckets4229 extends TestScmBase {
         @ExecuteOrder(step = 1)
         public void run() throws Exception {
             int count = 0;
-            ScmCursor< ScmBucket > bucketCursor = ScmFactory.Bucket
-                    .listBucket( session, s3WorkSpaces, null );
-            while ( bucketCursor.hasNext() ) {
-                ScmBucket bucket = bucketCursor.getNext();
-                if ( bucket.getName().startsWith( bucketName ) ) {
-                    count++;
+            try ( ScmCursor< ScmBucket > bucketCursor = ScmFactory.Bucket
+                    .listBucket( session, s3WorkSpaces, null )) {
+                while ( bucketCursor.hasNext() ) {
+                    ScmBucket bucket = bucketCursor.getNext();
+                    if ( bucket.getName().startsWith( bucketName ) ) {
+                        count++;
+                    }
                 }
             }
 

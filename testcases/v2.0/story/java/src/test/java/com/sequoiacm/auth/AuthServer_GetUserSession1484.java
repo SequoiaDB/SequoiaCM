@@ -54,8 +54,8 @@ public class AuthServer_GetUserSession1484 extends TestScmBase {
             user = ScmFactory.User.createUser( session, username,
                     ScmUserPasswordType.LOCAL, passwd );
             for ( int i = 0; i < ssNum; i++ ) {
-                ScmSession session = ScmSessionUtils.createSession( site, username,
-                        passwd );
+                ScmSession session = ScmSessionUtils.createSession( site,
+                        username, passwd );
                 ssList.add( session );
             }
         } catch ( ScmException e ) {
@@ -79,6 +79,10 @@ public class AuthServer_GetUserSession1484 extends TestScmBase {
         } catch ( ScmException e ) {
             e.printStackTrace();
             Assert.fail( e.getMessage() );
+        } finally {
+            if ( cursor != null ) {
+                cursor.close();
+            }
         }
         runSuccess = true;
     }

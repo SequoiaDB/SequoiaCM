@@ -68,17 +68,18 @@ public class QueryBucket3273 extends TestScmBase {
     }
 
     private void checkWs( String wsName ) throws ScmException {
-        ScmSession session = ScmSessionUtils.createSession( ScmInfo.getSite() );
-        ScmCursor< ScmWorkspaceInfo > cursor = ScmFactory.Workspace
-                .listWorkspace( session );
-        boolean flag = false;
-        while ( cursor.hasNext() ) {
-            if ( wsName.equals( cursor.getNext().getName() ) ) {
-                flag = true;
-                break;
+        try ( ScmSession session = ScmSessionUtils
+                .createSession( ScmInfo.getSite() ) ;
+                ScmCursor< ScmWorkspaceInfo > cursor = ScmFactory.Workspace
+                        .listWorkspace( session ) ;) {
+            boolean flag = false;
+            while ( cursor.hasNext() ) {
+                if ( wsName.equals( cursor.getNext().getName() ) ) {
+                    flag = true;
+                    break;
+                }
             }
+            Assert.assertTrue( flag );
         }
-        Assert.assertTrue( flag );
-        session.close();
     }
 }

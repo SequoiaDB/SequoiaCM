@@ -130,18 +130,18 @@ public class ScmFile4855 extends TestScmBase {
 
         @ExecuteOrder(step = 2)
         private void checkGetFileResult() throws Exception {
-                // 如果获取文件成功，则校验获取文件结果
-                if ( file != null ) {
-                    // 获取更新后的版本V2文件
-                    Assert.assertEquals( file.getMajorVersion(), 2 );
-                    Assert.assertEquals( file.getFileId(), fileId );
-                    String downloadPath = TestTools.LocalFile.initDownloadPath(
-                            localPath, TestTools.getMethodName(),
-                            Thread.currentThread().getId() );
-                    file.getContent( downloadPath );
-                    Assert.assertEquals( TestTools.getMD5( updatePath ),
-                            TestTools.getMD5( downloadPath ) );
-                }
+            // 如果获取文件成功，则校验获取文件结果
+            if ( file != null ) {
+                // 获取更新后的版本V2文件
+                Assert.assertEquals( file.getMajorVersion(), 2 );
+                Assert.assertEquals( file.getFileId(), fileId );
+                String downloadPath = TestTools.LocalFile.initDownloadPath(
+                        localPath, TestTools.getMethodName(),
+                        Thread.currentThread().getId() );
+                file.getContent( downloadPath );
+                Assert.assertEquals( TestTools.getMD5( updatePath ),
+                        TestTools.getMD5( downloadPath ) );
+            }
         }
     }
 
@@ -150,25 +150,27 @@ public class ScmFile4855 extends TestScmBase {
         BSONObject condition = ScmQueryBuilder
                 .start( ScmAttributeName.File.FILE_ID ).is( fileId.get() )
                 .get();
-        ScmCursor<ScmFileBasicInfo> cursor = ScmFactory.File.listInstance( ws,
-                ScmType.ScopeType.SCOPE_ALL, condition );
-        int size = 0;
-        List< BSONObject > actFileNames = new ArrayList<>();
-        while ( cursor.hasNext() ) {
-            ScmFileBasicInfo file = cursor.getNext();
-            int version = file.getMajorVersion();
-            Assert.assertEquals( file.getFileId(), fileId,
-                    "---error file version is " + version );
-            Assert.assertEquals( file.getFileName(), fileName );
-            BSONObject fileInfo = new BasicBSONObject();
-            fileInfo.put( file.getFileName(), version );
-            actFileNames.add( fileInfo );
-            if ( version == deleteMarkerVersion ) {
-                Assert.assertTrue( file.isDeleteMarker() );
+        try ( ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                .listInstance( ws, ScmType.ScopeType.SCOPE_ALL, condition )) {
+            int size = 0;
+            List< BSONObject > actFileNames = new ArrayList<>();
+            while ( cursor.hasNext() ) {
+                ScmFileBasicInfo file = cursor.getNext();
+                int version = file.getMajorVersion();
+                Assert.assertEquals( file.getFileId(), fileId,
+                        "---error file version is " + version );
+                Assert.assertEquals( file.getFileName(), fileName );
+                BSONObject fileInfo = new BasicBSONObject();
+                fileInfo.put( file.getFileName(), version );
+                actFileNames.add( fileInfo );
+                if ( version == deleteMarkerVersion ) {
+                    Assert.assertTrue( file.isDeleteMarker() );
+                }
+                size++;
             }
-            size++;
+            int fileVersionNum = 3;
+            Assert.assertEquals( size, fileVersionNum,
+                    actFileNames.toString() );
         }
-        int fileVersionNum = 3;
-        Assert.assertEquals( size, fileVersionNum, actFileNames.toString() );
     }
 }

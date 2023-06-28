@@ -115,15 +115,17 @@ public class ListFileWithDirTagAttr2072 extends TestScmBase {
         System.out.println(
                 "fileIdList = " + fileIdList.subList( 20, 25 ).toString() );
         int count = 0;
-        ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File.listInstance( ws,
-                ScopeType.SCOPE_CURRENT, queryCond );
-        while ( cursor.hasNext() ) {
-            ScmFileBasicInfo fileInfo = cursor.getNext();
-            Assert.assertEquals( fileInfo.getMinorVersion(), 0 );
-            Assert.assertEquals( fileInfo.getMajorVersion(), 1 );
-            count++;
+        try ( ScmCursor< ScmFileBasicInfo > cursor = ScmFactory.File
+                .listInstance( ws, ScopeType.SCOPE_CURRENT, queryCond )) {
+            while ( cursor.hasNext() ) {
+                ScmFileBasicInfo fileInfo = cursor.getNext();
+                Assert.assertEquals( fileInfo.getMinorVersion(), 0 );
+                Assert.assertEquals( fileInfo.getMajorVersion(), 1 );
+                count++;
+            }
+            Assert.assertEquals( count, fileNum );
         }
-        Assert.assertEquals( count, fileNum );
+
         runSuccess = true;
     }
 
