@@ -15,27 +15,19 @@ if [ ! $? -eq 0 ] ;then
   exit 1
 fi
 
+eval "${basePath}/zkNodeCleanCron.sh start"
+ 
 while read line
 do
   workspace=`echo $line | awk '{print $1}'`
   month=`echo $line | awk '{print $2}'`
-  grepout=`crontab -l | grep -F "${cron} ${basePath}/zkClean.sh"`
-
-  # add crontab
-  if [ ! -n "$grepout" ]; then
-    printTimeAndMsg "add clean zookeeper node crontab"
-    (crontab -l | grep -v -F "${cron} ${basePath}/zkClean.sh";echo "${cron} ${basePath}/zkClean.sh") | crontab -
-  else
-    printTimeAndMsg "clean zookeeper node crontab is already exists"
-  fi
-
+  
   # transfer
   sh ${basePath}/scmTransfer.sh ${workspace} ${month}
   if [ ! $? -eq 0 ];  then
     printTimeAndMsg "transfer failed,workspace=${workspace},month=${month}" "error.out"
     exit 1
   fi
-
 
   # start clean background
   printTimeAndMsg "start to clean,workspace=${workspace},month=${month}"
@@ -53,4 +45,4 @@ do
   sleep 1
   psout=`eval $cmd`
 done
-(crontab -l | grep -v -F "${basePath}/zkClean.sh") | crontab -
+eval "${basePath}/zkNodeCleanCron.sh stop"

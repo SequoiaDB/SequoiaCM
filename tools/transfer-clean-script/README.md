@@ -18,15 +18,17 @@
 ```shell
 /sequoiacm-transfer-clean-file
     |-- bin/                
-        |-- scmTransfer.sh  # 迁移工具执行脚本
-        |-- scmClean.sh     # 清理工具执行脚本
-        |-- start.sh        # 迁移清理工具执行脚本
+        |-- scmTransfer.sh      # 迁移工具执行脚本
+        |-- scmClean.sh         # 清理工具执行脚本
+        |-- start.sh            # 迁移清理工具执行脚本
+        |-- zkLogClean.sh       # Zookeeper 日志清理脚本
+        |-- zkNodeCleanCron.sh  # zookeeper 节点清理脚本
     |-- conf/               
-        |-- scm_env.sh      # 工具配置文件 
-        |-- workspace.list  # 需要迁移清理的工作区条件列表
-    |-- lib/                # 工具执行所需 jar 包
-    |-- log/                # 工具的日志文件
-    |-- README.md           # 工具的使用手册文档
+        |-- scm_env.sh          # 工具配置文件 
+        |-- workspace.list      # 需要迁移清理的工作区条件列表
+    |-- lib/                    # 工具执行所需 jar 包
+    |-- log/                    # 工具的日志文件
+    |-- README.md               # 工具的使用手册文档
 ```
 配置文件参数说明
 
@@ -93,7 +95,7 @@
 > * 迁移清理工具在使用时，需要在 workspace.list 配置文件中指定 wsName 和 create_month，可支持配置多组 wsName 和 create_month，其他参数需要在 scm_env.sh 配置文件中指定
 
 
-## 执行Zookeeper日志清理
+## 执行 Zookeeper 日志清理
 需要在每台 zk 节点所在机器执行本脚本，修改脚本如下变量定义：
 - 填写 zk 安装目录的 bin 目录：
 zkBinDir=/opt/sequoiacm/zookeeper-3.4.12/bin
@@ -107,3 +109,19 @@ zkDataDir=/opt/sequoiacm/zookeeper-3.4.12/data/1
 
 >  **Note:**
 > * 请在执行迁移清理工具前，在每台 zk 节点机器上执行该脚本，迁移清理工具执行结束后，停止该脚本
+
+## 执行 Zookeeper 节点清理
+
+启动定期清理 Zookeeper 节点任务
+
+```shell
+./zkNodeCleanCron.sh start
+```
+> **Note:**
+> * 需要在 scm_env.sh 配置文件中指定 Zookeeper 地址（zkUrls 参数），其他 Zookeeper 相关参数如不指定则使用默认值
+
+停止定期清理 Zookeeper 节点任务
+
+```shell
+./zkNodeCleanCron.sh stop
+```

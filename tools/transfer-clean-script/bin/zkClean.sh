@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# $1 用于传递环境变量，当通过cron执行zkClean时，脚本执行的环境变量可能会缺失，导致 zkClean 脚本无法执行，
+# 因此需要调用者将环境变量通过参数的方式传递进来，参见zkNodeCleanCron.sh的调用方式
+# 不通过 cron 执行 zkClean 时不需要指定 $1 
+if [ -n "$1" ]; then
+   PATH="$1:"$PATH
+fi
+
 cd `dirname $0`
 source ../conf/scm_env.sh
 source ./function.sh
