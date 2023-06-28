@@ -58,17 +58,19 @@ public class SelectErrorFilterHisVersionFile1687 extends TestScmBase {
     }
 
     @Test(groups = { "twoSite", "fourSite" })
-    private void test() {
+    private void test() throws ScmException {
         BSONObject errorFilter = new BasicBSONObject();
         errorFilter.put( "author", fileName );
         ScmCursor< ScmFileBasicInfo > fileCursor = null;
         try {
             fileCursor = ScmFactory.File.listInstance( ws, ScopeType.SCOPE_ALL,
                     errorFilter );
-            Assert.fail( "using not exist field queries should fail" );
-        } catch ( ScmException e ) {
-            Assert.assertEquals( e.getErrorCode(),
-                    ScmError.INVALID_ARGUMENT.getErrorCode(), e.getMessage() );
+            long fileAllVersion = 0;
+            while ( fileCursor.hasNext() ) {
+                fileCursor.getNext();
+                fileAllVersion++;
+            }
+            Assert.assertEquals( fileAllVersion, 2 );
         } finally {
             if ( fileCursor != null ) {
                 fileCursor.close();
