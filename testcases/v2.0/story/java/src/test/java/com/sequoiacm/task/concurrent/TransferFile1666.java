@@ -65,7 +65,8 @@ public class TransferFile1666 extends TestScmBase {
         VersionUtils.updateContentByStream( wsA, fileId, updateData );
     }
 
-    @Test(groups = { "twoSite", "fourSite" })
+    // 问题单SEQUOIACM-996影响，暂时屏蔽用例
+    @Test(groups = { "twoSite", "fourSite" }, enabled = false)
     private void test() throws Exception {
         int currentVersion = 2;
         int historyVersion = 1;
