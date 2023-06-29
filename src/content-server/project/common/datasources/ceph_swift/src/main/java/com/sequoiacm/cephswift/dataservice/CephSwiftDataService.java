@@ -4,6 +4,7 @@ import org.javaswift.joss.client.factory.AccountConfig;
 import org.javaswift.joss.client.factory.AccountFactory;
 import org.javaswift.joss.client.factory.AuthenticationMethod;
 import org.javaswift.joss.exception.CommandException;
+import org.javaswift.joss.exception.CommandExceptionError;
 import org.javaswift.joss.instructions.UploadInstructions;
 import org.javaswift.joss.model.Account;
 import org.javaswift.joss.model.Container;
@@ -19,11 +20,15 @@ import com.sequoiacm.infrastructure.crypto.AuthInfo;
 import com.sequoiacm.infrastructure.crypto.ScmFilePasswordParser;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 public class CephSwiftDataService extends ScmService {
 
     private AccountConfig config;
     private static final Logger logger = LoggerFactory.getLogger(CephSwiftDataService.class);
+
+    private static final int MAX_RETRIES = 1;
+    private static final int RETRY_DURATION = 100; // ms
 
     public CephSwiftDataService(int siteId, ScmSiteUrl siteUrl) throws CephSwiftException {
         super(siteId, siteUrl);
@@ -128,23 +133,24 @@ public class CephSwiftDataService extends ScmService {
         }
     }
 
-    public boolean createContainer(Container c) throws CephSwiftException {
+
+    public boolean createContainer(Container container) throws CephSwiftException {
         try {
-            logger.info("creating container:containerName=" + c.getName());
-            c.create();
-            return true;
+            logger.info("creating container, containerName={}.", container.getName());
+            return retryCreateContainerIfUnknownError(container);
         }
         catch (CommandException e) {
-            if (!e.getError().toString().equals(CephSwiftException.ERR_ENTITY_ALREADY_EXISTS)) {
-                throw new CephSwiftException(e.getHttpStatusCode(), e.getError().toString(),
-                        "create container failed:siteId=" + siteId + ",container=" + c.getName(),
-                        e);
-            }
-            return false;
+            throw new CephSwiftException(e.getHttpStatusCode(), e.getError().toString(),
+                    String.format(
+                            "create container failed, siteId=%s, containerName=%s, ceph returned an unexpected %s.",
+                            siteId, container.getName(), e.getHttpStatusCode()),
+                    e);
         }
         catch (Exception e) {
             throw new CephSwiftException(
-                    "create container failed:siteId=" + siteId + ",container=" + c.getName(), e);
+                    String.format("create container failed, siteId=%s, containerName=%s.", siteId,
+                            container.getName()),
+                    e);
         }
     }
 
@@ -276,6 +282,48 @@ public class CephSwiftDataService extends ScmService {
     @Override
     public void clear() {
         config = null;
+    }
+
+    private boolean retryCreateContainerIfUnknownError(Container container) throws Exception {
+        Exception attempt;
+        int reties = 0;
+        while (true) {
+            try {
+                container.create();
+                return true;
+            }
+            catch (Exception t) {
+                attempt = t;
+            }
+
+            // Return false if container already exists.
+            if (CommandException.class.isAssignableFrom(attempt.getClass())
+                    && ((CommandException) attempt).getError().toString()
+                            .equals(CephSwiftException.ERR_ENTITY_ALREADY_EXISTS)) {
+                return false;
+            }
+
+            // After a certain number (here are MAX_RETRIES) of retries
+            // or not expected exception (CommandException, Unknown ErrCode),
+            // should not be retried, throw exception directly.
+            // Because in some versions (e.g. 10.2.11) of ceph may return an unexpected
+            // error (e.g. 404, 500) when raise a PUT container request.
+            if (reties++ >= MAX_RETRIES
+                    || !CommandException.class.isAssignableFrom(attempt.getClass())
+                    || !CommandExceptionError.UNKNOWN
+                            .equals(((CommandException) attempt).getError())) {
+                throw attempt;
+            }
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(RETRY_DURATION);
+            }
+            catch (InterruptedException ignored) {
+            }
+
+            logger.warn("retrying to create container, siteId={}, containerName={}.", siteId,
+                    container.getName(), attempt);
+        }
     }
 
 }
