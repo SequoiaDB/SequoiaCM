@@ -1492,7 +1492,8 @@ public class ScmMetaService {
                 try {
                     String createMonth = BsonUtils.getString(batch,
                             FieldName.Batch.FIELD_INNER_CREATE_MONTH);
-                    batchAccessor.createSubTable(wsInfo.getBatchShardingType(), createMonth);
+                    FileTableCreator.createSubBatchTable((SdbMetaSource) metasource,
+                            wsInfo.getName(), wsInfo.getBatchShardingType(), createMonth);
                 }
                 catch (Exception ex) {
                     throw new ScmServerException(ScmError.METASOURCE_ERROR,

@@ -30,6 +30,8 @@
 
 5. 文件子集合和历史文件子集合都需要操作。
 
+6. 如果工作区配置了批次的分区规则 batch_sharding_type，批次子集合也需要操作。
+
 ###操作指引###
 
 ####修改元数据域####
@@ -190,5 +192,57 @@
    >  * LowBound: 该值为上述第 5 步的 UpBound
    >
    >  * UpBound: 该值为分离出来的文件子集合的分区范围的最后一个月份 + 1，若元数据 sharding 策略为 year，则为当前年的最后一个月份 + 1，如 202401；若为 quarter，则为当前季度的最后一个月份 + 1，如 Q2 则为 202307
+
+####批次子集合操作####
+
+以工作区 ws，工作区批次的 batch_sharding_type 策略为 year，当前日期为 202304 ，新的数据域 domain2 为例。
+
+1. 连接元数据所在的 sdb 节点
+
+2. 在新的集合空间 ws_META_1 上创建新的批次子集合
+
+   ```lang-javascript
+   > db.ws_META_1.createCL("BATCH_2023", {ShardingKey: {id: 1}, ShardingType: "hash", ReplSize: -1, Compressed: true, CompressionType: "lzw", AutoSplit: true, EnsureShardingIndex: false})
+   ```
+
+3. 给新的批次子集合 ws_META_1.BATCH_2023 创建索引
+
+   ```lang-javascript
+   > db.ws_META_1.BATCH_2023.createIndex("idx_id", {id: 1}, {Unique: true, Enforced: false})
+   ```
+
+   >  **Note:**
+   >
+   >  * 创建索引时索引名建议与示例保持一致
+
+4. 从批次主集合中分离出当前最新的批次子集合，如这里最新的批次子集合为 ws_META.BATCH_2023，具体以实际为准。
+
+   ```lang-javascript
+   > db.ws_META.BATCH.detachCL("ws_META.BATCH_2023")
+   ```
+
+5. 将上述第 4 步中分离出来的批次子集合 ws_META.BATCH_2023 重新挂载到批次主集合 ws_META.BATCH 上
+
+   ```lang-javascript
+   > db.ws_META.BATCH.attachCL("ws_META.BATCH_2023", {LowBound: {create_month: "202301"}, UpBound: {create_month: "202305"}})
+   ```
+
+   >  **Note:**
+   >
+   >  * LowBound: 该值为分离出来的批次子集合的分区范围的第一个月份，若元数据 sharding 策略为 year，则为当前年的第一个月份，如 202301；若为 quarter，则为当前季度的第一个月份，如 Q2 则为 202304
+   >
+   >  * UpBound: 该值为当前月份值 + 1，如当前为 202304，则 UpBound 为 202305
+
+6. 将上述第 2 步创建的批次子集合 ws_META_1.BATCH_2023 挂载到批次主集合 ws_META.BATCH 上
+
+   ```lang-javascript
+   > db.ws_META.BATCH.attachCL("ws_META_1.BATCH_2023", {LowBound: {create_month: "202305"}, UpBound: {create_month: "202401"}})
+   ```
+
+   >  **Note:**
+   >
+   >  * LowBound: 该值为上述第 5 步的 UpBound
+   >
+   >  * UpBound: 该值为分离出来的批次子集合的分区范围的最后一个月份 + 1，若元数据 sharding 策略为 year，则为当前年的最后一个月份 + 1，如 202401；若为 quarter，则为当前季度的最后一个月份 + 1，如 Q2 则为 202307
 
 7. 上述操作完成后，重启 SCM 集群所有服务

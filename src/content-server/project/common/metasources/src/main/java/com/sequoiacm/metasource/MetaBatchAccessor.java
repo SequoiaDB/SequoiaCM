@@ -17,7 +17,4 @@ public interface MetaBatchAccessor extends MetaAccessor {
     boolean update(String batchId, String batchCreateMonth, BSONObject newBatchInfo)
             throws ScmMetasourceException;
 
-    void createSubTable(ScmShardingType shardingType, String createMonth)
-            throws ScmMetasourceException;
-
 }

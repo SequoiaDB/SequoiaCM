@@ -1,7 +1,10 @@
 package com.sequoiacm.contentserver.common;
 
+import com.sequoiacm.common.CommonHelper;
 import com.sequoiacm.common.FieldName;
 import com.sequoiacm.common.IndexName;
+import com.sequoiacm.common.ScmMonthRange;
+import com.sequoiacm.common.ScmShardingType;
 import com.sequoiacm.common.module.ScmBucketVersionStatus;
 import com.sequoiacm.contentserver.bizconfig.ContenserverConfClient;
 import com.sequoiacm.contentserver.model.ScmWorkspaceInfo;
@@ -86,6 +89,45 @@ public class FileTableCreator {
         }
         finally {
             metaSource.releaseConnection(sdb);
+        }
+    }
+
+    public static void createSubBatchTable(SdbMetaSource metaSource, String wsName,
+            ScmShardingType shardingType, String createMonth) throws ScmMetasourceException {
+        Sequoiadb sdb = null;
+        try {
+            sdb = metaSource.getConnection();
+            createBatchSubCl(sdb, wsName, shardingType, createMonth);
+        }
+        finally {
+            metaSource.releaseConnection(sdb);
+        }
+    }
+
+    private static void createBatchSubCl(Sequoiadb sdb, String wsName, ScmShardingType shardingType,
+            String createMonth) throws ScmMetasourceException {
+        String shardingStr = CommonHelper.getShardingStr(shardingType, createMonth);
+        String subClName = getBatchClName() + "_" + shardingStr;
+        BSONObject options = generatorClBatchOptions();
+
+        String csName = createClAndGetCsName(sdb, wsName, subClName, options, true);
+        String clFullName = csName + "." + subClName;
+        try {
+            BSONObject indexDef = new BasicBSONObject();
+            indexDef.put(FieldName.Batch.FIELD_ID, 1);
+            SequoiadbHelper.createIndex(sdb, csName, subClName, "idx_" + FieldName.Batch.FIELD_ID,
+                    indexDef, true, false);
+
+            ScmMonthRange range = CommonHelper.getMonthRange(shardingType, createMonth);
+            attachCl(sdb, getCsName(wsName), getBatchClName(), clFullName, range.getLowBound(),
+                    range.getUpBound());
+        }
+        catch (SdbMetasourceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
+                    "create batch table failed:cl=" + clFullName, e);
         }
     }
 
@@ -209,7 +251,7 @@ public class FileTableCreator {
         }
         catch (Exception e) {
             throw new SdbMetasourceException(SDBError.SDB_SYS.getErrorCode(),
-                    "create file table failed:cl=" + clFullName, e);
+                    "create file history table failed:cl=" + clFullName, e);
         }
     }
 
@@ -345,6 +387,10 @@ public class FileTableCreator {
         return MetaSourceDefine.WorkspaceCLName.CL_FILE;
     }
 
+    private static String getBatchClName() {
+        return MetaSourceDefine.WorkspaceCLName.CL_BATCH;
+    }
+
     private static String getCsName(String wsName) {
         return wsName + "_META";
     }
@@ -362,6 +408,19 @@ public class FileTableCreator {
             res.removeField("CompressionType");
         }
         return res;
+    }
+
+    private static BSONObject generatorClBatchOptions() {
+        BSONObject key = new BasicBSONObject(FieldName.Batch.FIELD_ID, 1);
+        BSONObject options = new BasicBSONObject();
+        options.put("ShardingType", "hash");
+        options.put("ShardingKey", key);
+        options.put("Compressed", true);
+        options.put("CompressionType", "lzw");
+        options.put("ReplSize", -1);
+        options.put("AutoSplit", true);
+        options.put("EnsureShardingIndex", false);
+        return options;
     }
 
     private static BSONObject generatorClFileOptions() {
