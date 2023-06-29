@@ -3,7 +3,11 @@ package com.sequoiacm.scheduletask;
 import java.io.File;
 
 import com.sequoiacm.exception.ScmError;
+import com.sequoiacm.testcommon.*;
+import com.sequoiadb.base.DBCollection;
+import com.sequoiadb.base.Sequoiadb;
 import org.bson.BSONObject;
+import org.bson.BasicBSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -24,11 +28,6 @@ import com.sequoiacm.client.element.ScmScheduleContent;
 import com.sequoiacm.client.element.ScmScheduleCopyFileContent;
 import com.sequoiacm.client.element.ScmTaskBasicInfo;
 import com.sequoiacm.client.exception.ScmException;
-import com.sequoiacm.testcommon.ScmInfo;
-import com.sequoiacm.testcommon.SiteWrapper;
-import com.sequoiacm.testcommon.TestScmBase;
-import com.sequoiacm.testcommon.ScmSessionUtils;
-import com.sequoiacm.testcommon.TestTools;
 import com.sequoiacm.testcommon.scmutils.ScmFileUtils;
 import com.sequoiacm.testcommon.scmutils.ScmWorkspaceUtil;
 
@@ -46,6 +45,8 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
     private SiteWrapper branSite = null;
     private String wsName = "ws2365";
     private ScmWorkspace ws = null;
+    private final String csName = "SCMSYSTEM";
+    private final String clName = "DATA_TABLE_NAME_HISTORY";
     private int fileSize = 0;
     private String name = "schetask2365";
     private File localPath = null;
@@ -72,8 +73,7 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         ws = ScmFactory.Workspace.getWorkspace( wsName, ssA );
     }
 
-    //问题单SEQUOIACM-1013屏蔽用例
-    @Test(groups = { "twoSite", "fourSite", "star" }, enabled = false)
+    @Test(groups = { "twoSite", "fourSite", "star" })
     private void test() throws Exception {
         ScmFileUtils.create( ws, name, filePath );
         // create schedule
@@ -98,6 +98,8 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
             } catch ( ScmException e ) {
                 if ( e.getError() != ScmError.CONFIG_SERVER_ERROR ) {
                     throw e;
+                } else {
+                    deleteWsConfig( wsName );
                 }
             }
             if ( time < 120 ) {
@@ -146,5 +148,21 @@ public class CreateSche_deleteWs2365 extends TestScmBase {
         ScmSchedule sche = ScmSystem.Schedule.create( ssA, wsName,
                 ScheduleType.COPY_FILE, name, "", content, cron );
         scheduleId = sche.getId();
+    }
+
+    public void deleteWsConfig( String wsName ) {
+        Sequoiadb sdb = null;
+        try {
+            sdb = TestSdbTools.getSdb( TestScmBase.mainSdbUrl );
+            DBCollection cl = sdb.getCollectionSpace( csName )
+                    .getCollection( clName );
+            BSONObject cond = new BasicBSONObject();
+            cond.put( "workspace_name", wsName );
+            cl.delete( cond );
+        } finally {
+            if ( sdb != null ) {
+                sdb.close();
+            }
+        }
     }
 }
